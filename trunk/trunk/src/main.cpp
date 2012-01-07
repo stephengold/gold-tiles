@@ -1,8 +1,12 @@
-#include <iostream>
+// File:    main.cpp
+// Purpose: main() for console version of the Gold Tile game.
+// Author:  Stephen Gold sgold@sonic.net
+
 #include "game.hpp"
 
 int main(int argc, char *argv[])
 {
+    // game parameters: hard-coded for now
 	unsigned numPlayers = 2;
 	string playerNames[] = { "Stephen", "Paul" };
 	unsigned numAttributes = 2;

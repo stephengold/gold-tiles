@@ -28,7 +28,7 @@ GridRef *Game::chooseSquare(Tile const &tile) const {
     
     GridRef *result = new GridRef(n, e);
     
-    return;
+    return result;
 }
 
 bool Game::isGameOver(void) const {
@@ -49,6 +49,8 @@ bool Game::isGameOver(void) const {
 
 bool Game::isValidPlay(list<TileSquare> &play) const{
      // TODO
+     
+     return false;
 }
 
 void Game::playTurn(Player &p) {

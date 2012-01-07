@@ -1,8 +1,14 @@
 #ifndef GRIDOF_HPP
 #define GRIDOF_HPP
 
+// File:    gridof.hpp
+// Purpose: GridOf template and GridRef class for the Gold Tile game.
+// Author:  Stephen Gold sgold@sonic.net
+
 #include <cstring>
 #include <iostream>
+
+using namespace std;
 
 class GridRef {
 	int easting, northing;

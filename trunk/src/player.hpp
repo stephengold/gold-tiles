@@ -1,6 +1,10 @@
 #ifndef PLAYER_HPP
 #define PLAYER_HPP
 
+// File:    player.hpp
+// Purpose: Player class for the Gold Tile game.
+// Author:  Stephen Gold sgold@sonic.net
+
 #include <set>
 #include <string>
 #include "tile.hpp"

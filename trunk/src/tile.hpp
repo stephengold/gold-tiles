@@ -1,6 +1,12 @@
 #ifndef TILE_HPP
 #define TILE_HPP
 
+// File:    tile.hpp
+// Purpose: Tile class for the Gold Tile game.
+// Author:  Stephen Gold sgold@sonic.net
+
+using namespace std;
+
 class Tile {
     // private data
 	static unsigned blankAttribute;

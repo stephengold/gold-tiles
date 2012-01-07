@@ -1,3 +1,7 @@
+// File:    gridof.cpp
+// Purpose: GridRef class for the Gold Tile game.
+// Author:  Stephen Gold sgold@sonic.net
+
 #include "gridof.hpp"
 
 GridRef::GridRef(int n, int e) {

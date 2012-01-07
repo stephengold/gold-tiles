@@ -1,3 +1,7 @@
+// File:    player.cpp
+// Purpose: Player class for the Gold Tile game.
+// Author:  Stephen Gold sgold@sonic.net
+
 #include <cstdlib>
 #include <iostream>
 #include "player.hpp"

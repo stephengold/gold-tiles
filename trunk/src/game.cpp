@@ -1,3 +1,7 @@
+// File:    game.cpp
+// Purpose: Game class for the Gold Tile game.
+// Author:  Stephen Gold sgold@sonic.net
+
 #include "game.hpp"
 
 void Game::addTiles(unsigned attributeIndex, Tile &modelTile) {
@@ -18,7 +22,7 @@ GridRef * Game::chooseSquare(Tile const &tile) const {
     // TODO
 }
 
-bool Game::isGameOver() const {
+bool Game::isGameOver(void) const {
 	if (! this->bag.empty()) {
         return false;
     }
@@ -74,7 +78,7 @@ void Game::playTurn(Player &p) {
     p.drawTiles(count, this->bag);
 }
 
-void Game::printScores() const {
+void Game::printScores(void) const {
     const vector<Player> &players = this->players;
     vector<Player>::const_iterator player;
 
@@ -133,6 +137,7 @@ Game::Game(
 	    }	
     }
 
+    // play!
     player = first;
     while (!this->isGameOver()) {
 	    this->playTurn(*player);
@@ -141,5 +146,6 @@ Game::Game(
 	       player = players.begin();
     }
 
+    // print final score
     this->printScores();
 }

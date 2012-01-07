@@ -1,3 +1,7 @@
+// File:    tile.cpp
+// Purpose: Tile class for the Gold Tile game.
+// Author:  Stephen Gold sgold@sonic.net
+
 #include <iostream> // std::cout
 #include "tile.hpp"
 

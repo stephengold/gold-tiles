@@ -18,8 +18,17 @@ void Game::addTiles(unsigned attributeIndex, Tile &modelTile) {
 	}
 }
 
-GridRef * Game::chooseSquare(Tile const &tile) const {
-    // TODO
+GridRef *Game::chooseSquare(Tile const &tile) const {
+    unsigned n, e;
+    
+    cout << "Enter northing: ";
+    cin >> n;
+    cout << "Enter easting: ";
+    cin >> e;
+    
+    GridRef *result = new GridRef(n, e);
+    
+    return;
 }
 
 bool Game::isGameOver(void) const {

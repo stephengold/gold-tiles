@@ -9,10 +9,11 @@ using namespace std;
 
 class Tile {
     // private data
-	static unsigned blankAttribute;
-	static unsigned *maxAttribute;
-	static unsigned numAttributes;
+	static unsigned blankAttribute; // attribute value used for wildcard tiles
+	static unsigned *maxAttribute;  // number of values (excluding blank) for each tile attribute
+	static unsigned numAttributes;  // number of attributes for each tile
 	static unsigned nextId;
+	
 	unsigned *arr;
 	unsigned id;
 

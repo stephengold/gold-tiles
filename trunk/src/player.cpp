@@ -57,7 +57,7 @@ void Player::printScore() const {
 
 	cout << this->name << " has " << score << " point";
 	if (score != 1) {
-		std::cout << "s";
+		cout << "s";
 	}
-	std::cout << ".\n";
+	cout << ".\n";
 }

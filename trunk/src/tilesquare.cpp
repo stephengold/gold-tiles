@@ -5,19 +5,19 @@
 #include "TileSquare.hpp"
 
 TileSquare::TileSquare(void) {
-    this->tile = NULL;
-    this->square = NULL;
+    tile = NULL;
+    square = NULL;
 }
 
-TileSquare::TileSquare(Tile *tile, GridRef *square) {
-    this->tile = tile;
-    this->square = square;
+TileSquare::TileSquare(Tile *t, GridRef *s) {
+    tile = t;
+    square = s;
 }
 
-Tile * TileSquare::getTile(void) const {
-    return this->tile;
+Tile *TileSquare::getTile(void) const {
+    return tile;
 }
 
-GridRef * TileSquare::getSquare(void) const {
-    return this->square;
+GridRef *TileSquare::getSquare(void) const {
+    return square;
 }

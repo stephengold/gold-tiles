@@ -111,9 +111,9 @@ template <class T> void GridOf<T>::display(void) const {
 				ptr->display();
 			}
 		}
-		std::cout << "\n";
+		cout << "\n";
 	}
-	std::cout << "\n";
+	cout << "\n";
 }
 
 template <class T> T * GridOf<T>::get(GridRef &ref) {
@@ -126,7 +126,7 @@ template <class T> T * GridOf<T>::get(GridRef &ref) {
 	return ptr;
 }
 
-template <class T> bool GridOf<T>::isClear(GridRef & ref) const {
+template <class T> bool GridOf<T>::isClear(GridRef &ref) const {
 	T *ptr = this->get(ref);
 
 	return (ptr == NULL); 

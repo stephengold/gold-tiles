@@ -34,12 +34,12 @@ bool Game::isGameOver() const {
    return false;
 }
 
-bool Game::isValidPlay(Play &play) const{
+bool Game::isValidPlay(list<TileSquare> &play) const{
      // TODO
 }
 
 void Game::playTurn(Player &p) {
-     Play play;
+     list<TileSquare> play;
 
      do {
 	    this->board.display();
@@ -49,7 +49,7 @@ void Game::playTurn(Player &p) {
 		set<Tile> tileChoice = p.chooseTiles();
 
        // choose squares to play tiles
-       play = Play();
+       play = list<TileSquare>();
        set<Tile>::iterator tile;
 	   for (tile = tileChoice.begin(); tile != tileChoice.end(); tile++) {
            Tile * t = new Tile(*tile);
@@ -63,12 +63,12 @@ void Game::playTurn(Player &p) {
 	p.addScore(points);
 
     unsigned count = play.size();
-    Play::iterator ts;
+    list<TileSquare>::iterator ts;
     for (ts = play.begin(); ts != play.end(); ts++) {
-	    Tile &t = ts->getTile();
-	    GridRef &s = ts->getSquare();
-	    this->board.set(s, &t);
-	    p.deleteTile(t);
+	    Tile *t = ts->getTile();
+	    GridRef *s = ts->getSquare();
+	    this->board.set(*s, t);
+	    p.deleteTile(*t);
     }
     
     p.drawTiles(count, this->bag);
@@ -83,7 +83,7 @@ void Game::printScores() const {
     }
 }
 
-unsigned Game::scorePlay(Play &play) const {
+unsigned Game::scorePlay(list<TileSquare> &play) const {
     // TODO
 }
 

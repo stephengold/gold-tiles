@@ -16,6 +16,4 @@ class TileSquare {
         Tile *getTile(void);
 };
 
-//typedef list<TileSquare> Play;
-
 #endif

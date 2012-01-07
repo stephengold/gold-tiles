@@ -26,10 +26,10 @@ class Game {
       void addTiles(unsigned attributeIndex, Tile &);
       GridRef * chooseSquare(const Tile &) const;
       bool isGameOver(void) const;
-      bool isValidPlay(Play &) const;
+      bool isValidPlay(list<TileSquare> &) const;
       void playTurn(Player &);
       void printScores(void) const;
-      unsigned scorePlay(Play &) const;
+      unsigned scorePlay(list<TileSquare> &) const;
 
       public:
       Game(	unsigned numPlayers,

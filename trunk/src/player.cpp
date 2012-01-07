@@ -37,14 +37,17 @@ void Player::deleteTile(Tile & tile) {
 void Player::drawTiles(unsigned tileCount, set<Tile> &bag) {
     unsigned size = bag.size();
     for (unsigned di = 0; di < tileCount; di++) {
-		set<Tile>::iterator tIndex = bag.begin();
 		unsigned r = rand() % size;
+
+		set<Tile>::iterator tIndex = bag.begin();
 		for (unsigned ri = 0; ri < r; ri++) {
             tIndex++;
         }
 		Tile tile = *tIndex;
+
 		--size;
-		this->hand.insert(tile);
+		hand.insert(tile);
+		bag.erase(tIndex);
 	}
 }
 

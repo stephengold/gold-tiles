@@ -5,15 +5,15 @@
 #include "game.hpp"
 
 void Game::addTiles(unsigned attributeIndex, Tile &modelTile) {
-	if (attributeIndex > this->numAttributes) {
-		unsigned maxA = this->maxAttributes[attributeIndex];
+	if (attributeIndex < numAttributes) {
+		unsigned maxA = maxAttributes[attributeIndex];
 		for (unsigned attr = 0; attr < maxA; attr++) {
         	modelTile.setAttribute(attributeIndex, attr);
-	        this->addTiles(attributeIndex + 1, modelTile);
+	        addTiles(attributeIndex + 1, modelTile);
          } 
 	} else {
-		for (unsigned ci = 0; ci < this->tileRedundancy; ci++) {
-			this->bag.insert(modelTile);
+		for (unsigned ci = 0; ci < tileRedundancy; ci++) {
+			bag.insert(modelTile);
 		}
 	}
 }
@@ -32,11 +32,10 @@ GridRef *Game::chooseSquare(Tile const &tile) const {
 }
 
 bool Game::isGameOver(void) const {
-	if (! this->bag.empty()) {
+	if (!bag.empty()) {
         return false;
     }
 
-    const vector<Player> &players = this->players;
     vector<Player>::const_iterator pi;
     for (pi = players.begin(); pi < players.end(); pi++) {
 	    if (pi->handIsEmpty()) {
@@ -57,8 +56,8 @@ void Game::playTurn(Player &p) {
      list<TileSquare> play;
 
      do {
-	    this->board.display();
-		this->printScores();
+	    board.display();
+		printScores();
 
 		// choose tiles to play
 		set<Tile> tileChoice = p.chooseTiles();
@@ -67,14 +66,14 @@ void Game::playTurn(Player &p) {
        play = list<TileSquare>();
        set<Tile>::iterator tile;
 	   for (tile = tileChoice.begin(); tile != tileChoice.end(); tile++) {
-           Tile * t = new Tile(*tile);
-           GridRef * s = this->chooseSquare(*t);
+           Tile *t = new Tile(*tile);
+           GridRef *s = this->chooseSquare(*t);
    	       TileSquare ts = TileSquare(t, s);
            play.push_back(ts);
        }
-	} while (!this->isValidPlay(play));
+	} while (!isValidPlay(play));
 	
-	unsigned points = this->scorePlay(play);
+	unsigned points = scorePlay(play);
 	p.addScore(points);
 
     unsigned count = play.size();
@@ -82,15 +81,14 @@ void Game::playTurn(Player &p) {
     for (ts = play.begin(); ts != play.end(); ts++) {
 	    Tile *t = ts->getTile();
 	    GridRef *s = ts->getSquare();
-	    this->board.set(*s, t);
+	    board.set(*s, t);
 	    p.deleteTile(*t);
     }
     
-    p.drawTiles(count, this->bag);
+    p.drawTiles(count, bag);
 }
 
 void Game::printScores(void) const {
-    const vector<Player> &players = this->players;
     vector<Player>::const_iterator player;
 
     for (player = players.begin(); player < players.end(); player++) {
@@ -105,36 +103,36 @@ unsigned Game::scorePlay(list<TileSquare> &play) const {
 Game::Game(
     unsigned numPlayers,
     string playerNames[],
-    unsigned numAttributes, 
-    unsigned maxAttributes[],
-    unsigned tileRedundancy,
+    unsigned numAttr, 
+    unsigned maxAttr[],
+    unsigned redundancy,
     unsigned numBlankTiles,
     unsigned handSize) {
 
     // copy game parameters
-    this->numAttributes = numAttributes;
-    this->maxAttributes = new unsigned[numAttributes];
-    for (int i = 0; i < numAttributes; i++) {
-        this->maxAttributes[i] = maxAttributes[i];
+    numAttributes = numAttr;
+    maxAttributes = new unsigned[numAttr];
+    for (int i = 0; i < numAttr; i++) {
+        maxAttributes[i] = maxAttr[i];
     }
-    this->tileRedundancy = tileRedundancy;
+    tileRedundancy = redundancy;
 
-    // generate the tiles
+    // generate blank tiles
     for (int bi = 0; bi < numBlankTiles; bi++) {
-	    Tile blankTile;
-	    this->bag.insert(blankTile);
+	    Tile *blankTile = new Tile;
+	    bag.insert(*blankTile);
     }
 
+    // generate non-blank tiles
     Tile modelTile;
     unsigned attributeIndex = 0;
-    this->addTiles(attributeIndex, modelTile);
+    addTiles(attributeIndex, modelTile);
 
-    // deal out tiles to each player
-    vector<Player> & players = this->players;
+    // create players and deal out hands of tiles
     for (unsigned pi = 0; pi < numPlayers; pi++) {
-	    Player player(playerNames[pi]);
-	    player.drawTiles(handSize, this->bag);
-	    players.push_back(player);
+	    Player *player = new Player(playerNames[pi]);
+	    player->drawTiles(handSize, bag);
+	    players.push_back(*player);
     }
 
     // decide which player goes first
@@ -150,13 +148,14 @@ Game::Game(
 
     // play!
     player = first;
-    while (!this->isGameOver()) {
-	    this->playTurn(*player);
+    while (!isGameOver()) {
+	    playTurn(*player);
 	    player++;
-	    if (player >= players.end())
+	    if (player >= players.end()) {
 	       player = players.begin();
+        }
     }
 
     // print final score
-    this->printScores();
+    printScores();
 }

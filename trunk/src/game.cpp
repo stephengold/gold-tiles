@@ -7,10 +7,10 @@
 void Game::addTiles(unsigned attributeIndex, Tile &modelTile) {
 	if (attributeIndex < numAttributes) {
 		unsigned maxA = maxAttributes[attributeIndex];
-		for (unsigned attr = 0; attr < maxA; attr++) {
+		for (unsigned attr = 1; attr <= maxA; attr++) {
         	modelTile.setAttribute(attributeIndex, attr);
 	        addTiles(attributeIndex + 1, modelTile);
-         } 
+         }
 	} else {
 		for (unsigned ci = 0; ci < tileRedundancy; ci++) {
 			bag.insert(modelTile);
@@ -111,6 +111,7 @@ Game::Game(
 
     // copy game parameters
     numAttributes = numAttr;
+    Tile::setNumAttributes(numAttr);
     maxAttributes = new unsigned[numAttr];
     for (int i = 0; i < numAttr; i++) {
         maxAttributes[i] = maxAttr[i];
@@ -118,21 +119,22 @@ Game::Game(
     tileRedundancy = redundancy;
 
     // generate blank tiles
+    Tile blankTile;
     for (int bi = 0; bi < numBlankTiles; bi++) {
-	    Tile *blankTile = new Tile;
-	    bag.insert(*blankTile);
+	    bag.insert(blankTile);
     }
 
     // generate non-blank tiles
-    Tile modelTile;
     unsigned attributeIndex = 0;
+    Tile modelTile;
     addTiles(attributeIndex, modelTile);
 
-    // create players and deal out hands of tiles
+    // create players and deal each one a hand of tiles
     for (unsigned pi = 0; pi < numPlayers; pi++) {
-	    Player *player = new Player(playerNames[pi]);
-	    player->drawTiles(handSize, bag);
-	    players.push_back(*player);
+	    Player player(playerNames[pi]);
+	    player.drawTiles(handSize, bag);
+	    players.push_back(player);
+        player.printHand();
     }
 
     // decide which player goes first

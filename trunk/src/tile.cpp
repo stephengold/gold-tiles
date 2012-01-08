@@ -9,15 +9,29 @@ unsigned Tile::blankAttribute = 0;
 unsigned Tile::nextId = 0;
 unsigned Tile::numAttributes = 0;
 
-Tile::Tile(void) {
-    this->arr = new unsigned[Tile::numAttributes];
-    for (unsigned i = 0; i < Tile::numAttributes; i++) {
-        this->arr[i] = Tile::blankAttribute;
-    }
-    this->id = Tile::nextId;
-    ++Tile::nextId;
+void Tile::setNumAttributes(unsigned na) {
+    numAttributes = na;
 }
 
+// construct a blank tile
+Tile::Tile(void) {
+    arr = new unsigned[numAttributes];
+    for (unsigned i = 0; i < numAttributes; i++) {
+        arr[i] = blankAttribute;
+    }
+    id = nextId++;
+}
+
+// construct a copy
+Tile::Tile(const Tile &t) {
+    this->arr = new unsigned[numAttributes];
+    for (unsigned i = 0; i < numAttributes; i++) {
+        arr[i] = t.arr[i];
+    }
+    id = nextId++;
+}
+
+// destroy a tile
 Tile::~Tile(void) {
     delete[] arr;
 }
@@ -28,10 +42,10 @@ bool Tile::compatibleWith(const Tile *tile) const {
     }
     
     unsigned mismatches = 0; 
-    for (unsigned i = 0; i < Tile::numAttributes; i++) {
-        if (this->arr[i] != Tile::blankAttribute &&
-            this->arr[i] != tile->arr[i] &&
-            tile->arr[i] != Tile::blankAttribute) {
+    for (unsigned i = 0; i < numAttributes; i++) {
+        if (arr[i] != blankAttribute &&
+            arr[i] != tile->arr[i] &&
+            tile->arr[i] != blankAttribute) {
                 ++mismatches;
         }
     }
@@ -40,26 +54,34 @@ bool Tile::compatibleWith(const Tile *tile) const {
 }
 
 void Tile::display(void) const {
-    std::cout << " [";
-    for (unsigned i = 0; i < Tile::numAttributes; i++) {
-        std::cout << 'A' + this->arr[i];
-    }
-    std::cout << ']';
+    cout << " " << this->toString();
 }
 
 void Tile::displayEmpty(void) {
-    std::cout << " .";
-    for (unsigned i = 0; i < Tile::numAttributes; i++) {
-        std::cout << '.';
+    cout << " .";
+    for (unsigned i = 0; i < numAttributes; i++) {
+        cout << '.';
     }
-    std::cout << '.';
+    cout << '.';
 }
 
-bool Tile::operator<(const Tile & t) const {
-     return (this->id < t.id);
+bool Tile::operator<(const Tile &t) const {
+     return (id < t.id);
 }
 
 void Tile::setAttribute(unsigned ind, unsigned value) {
-    this->arr[ind] = value;
+    arr[ind] = value;
 }
 
+string Tile::toString(void) const {
+    string result = string("[");
+    for (unsigned i = 0; i < numAttributes; i++) {
+        unsigned attrib = arr[i];
+        if (attrib == blankAttribute) {
+            result = result + "-";
+        } else {
+            result = result + (char)('@' + attrib);
+        }
+    }
+    return *new string(result + ']');    
+}

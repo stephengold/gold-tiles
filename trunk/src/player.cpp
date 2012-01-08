@@ -6,9 +6,22 @@
 #include <iostream>
 #include "player.hpp"
 
-Player::Player(string &name) {
-	this->name = name;
-	this->score = 0;
+Player::Player(void) {
+    hand = set<Tile>();
+	name = "";
+	score = 0;
+}
+
+Player::Player(const string &ns) {
+    hand = set<Tile>();
+	name = ns;
+	score = 0;
+}
+
+Player::Player(const Player &p) {
+	hand = p.hand;
+	name = p.name;
+	score = p.score;
 }
 
 void Player::addScore(unsigned points) {
@@ -40,27 +53,35 @@ void Player::drawTiles(unsigned tileCount, set<Tile> &bag) {
 		unsigned r = rand() % size;
 
 		set<Tile>::iterator tIndex = bag.begin();
-		for (unsigned ri = 0; ri < r; ri++) {
+		for (unsigned ti = 0; ti < r; ti++) {
             tIndex++;
         }
-		Tile tile = *tIndex;
 
-		--size;
-		hand.insert(tile);
+		hand.insert(*tIndex);
 		bag.erase(tIndex);
+		--size;
 	}
 }
 
 bool Player::handIsEmpty(void) const {
-     return this->hand.empty();
+     return hand.empty();
 }
 
-void Player::printScore() const {
-	unsigned score = this->score;
+void Player::printHand(void) const {
+	cout << name << " has";
+	set<Tile>::const_iterator i;
+	for (i = hand.begin(); i != hand.end(); i++) {
+        i->display();
+    }
+	cout << ".\n";
+	system("PAUSE");
+}
 
-	cout << this->name << " has " << score << " point";
+void Player::printScore(void) const {
+	cout << name << " has " << score << " point";
 	if (score != 1) {
 		cout << "s";
 	}
 	cout << ".\n";
+	system("PAUSE");
 }

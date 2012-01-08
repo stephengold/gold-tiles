@@ -28,9 +28,24 @@ void Player::addScore(unsigned points) {
 	this->score += points;
 }
 
+// get length of longest run in the player's hand
 unsigned Player::bestRunLength(void) const {
 	unsigned best = 0;
-    // TODO
+    
+    for (unsigned di = 0; di < Tile::getNumAttributes(); di++) {
+        for (unsigned ai = 1; ai <= Tile::getMaxAttribute(di); ai++) {
+            unsigned count = 0;
+            set<Tile>::const_iterator ti;
+            for (ti = hand.begin(); ti != hand.end(); ti++) {
+                if (ti->hasAttribute(di, ai)) {
+                    count++;
+                }
+            }
+            if (count > best) {
+                best = count;
+            }
+        }
+    }
 	
 	return best;
 }
@@ -61,24 +76,35 @@ void Player::drawTiles(unsigned tileCount, set<Tile> &bag) {
 		bag.erase(tIndex);
 		--size;
 	}
+	cout << name << " drew " << tileCount << " tile(s).\n";
+	cout << size << " tile(s) remain.\n";
+}
+
+string Player::getName(void) const {
+    return name;
 }
 
 bool Player::handIsEmpty(void) const {
      return hand.empty();
 }
 
+void Player::printName(void) const {
+    cout << name;
+}
+
 void Player::printHand(void) const {
-	cout << name << " has";
+    printName();
+	cout << " has";
 	set<Tile>::const_iterator i;
 	for (i = hand.begin(); i != hand.end(); i++) {
         i->display();
     }
 	cout << ".\n";
-	system("PAUSE");
 }
 
 void Player::printScore(void) const {
-	cout << name << " has " << score << " point";
+	printName();
+    cout << " has " << score << " point";
 	if (score != 1) {
 		cout << "s";
 	}

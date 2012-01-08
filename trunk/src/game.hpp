@@ -21,13 +21,10 @@ class Game {
       // private data
       set<Tile> bag;           // stock of tiles remaining to be drawn
       GridOf<Tile> board;      // playing area
-      unsigned *maxAttributes; // number of values (excluding blank) for each tile attribute
-      unsigned numAttributes;  // number of attributes for each tile
       vector<Player> players;
-      unsigned tileRedundancy; // number of copies of each tile
 
       // private methods
-      void addTiles(unsigned attributeIndex, Tile &);
+      void addTiles(unsigned aIndex, unsigned redundancy, Tile &);
       GridRef * chooseSquare(const Tile &) const;
       bool isGameOver(void) const;
       bool isValidPlay(list<TileSquare> &) const;

@@ -12,7 +12,7 @@ int main(int argc, char *argv[])
 	unsigned numAttributes = 2;
 	unsigned maxAttribute[] = { 6, 6 };
 	unsigned tileRedundancy = 3;
-	unsigned numBlankTiles = 0;
+	unsigned numBlankTiles = 2;
 	unsigned handSize = 7;
 	
 	Game game(

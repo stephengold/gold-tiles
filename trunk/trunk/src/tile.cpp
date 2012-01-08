@@ -2,15 +2,29 @@
 // Purpose: Tile class for the Gold Tile game.
 // Author:  Stephen Gold sgold@sonic.net
 
-#include <iostream> // std::cout
+#include <iostream> // cout
 #include "tile.hpp"
 
+// static members
 unsigned Tile::blankAttribute = 0;
 unsigned Tile::nextId = 0;
-unsigned Tile::numAttributes = 0;
+unsigned Tile::numAttributes;
+unsigned *Tile::maxAttribute;
 
-void Tile::setNumAttributes(unsigned na) {
+unsigned Tile::getNumAttributes(void) {
+    return numAttributes;
+}
+
+unsigned Tile::getMaxAttribute(unsigned attr) {
+    return maxAttribute[attr];
+}
+
+void Tile::setStatic(unsigned na, unsigned maxAttr[]) {
     numAttributes = na;
+    maxAttribute = new unsigned[na];
+    for (int i = 0; i < na; i++) {
+        maxAttribute[i] = maxAttr[i];
+    }
 }
 
 // construct a blank tile
@@ -22,18 +36,25 @@ Tile::Tile(void) {
     id = nextId++;
 }
 
-// construct a copy
+// construct a copy with the same id
 Tile::Tile(const Tile &t) {
-    this->arr = new unsigned[numAttributes];
+    arr = new unsigned[numAttributes];
     for (unsigned i = 0; i < numAttributes; i++) {
         arr[i] = t.arr[i];
     }
-    id = nextId++;
+    id = t.id;
 }
 
 // destroy a tile
 Tile::~Tile(void) {
     delete[] arr;
+}
+
+// construct a clone with a different id
+Tile *Tile::clone(void) const {
+    Tile *clo = new Tile(*this);
+    clo->id = nextId++;
+    return clo;
 }
 
 bool Tile::compatibleWith(const Tile *tile) const {
@@ -63,6 +84,15 @@ void Tile::displayEmpty(void) {
         cout << '.';
     }
     cout << '.';
+}
+
+unsigned Tile::getAttribute(unsigned ind) const {
+    return arr[ind];
+}
+
+bool Tile::hasAttribute(unsigned ind, unsigned value) const {
+    unsigned attrib = arr[ind];
+    return (attrib == value || attrib == blankAttribute);
 }
 
 bool Tile::operator<(const Tile &t) const {

@@ -12,24 +12,28 @@ using namespace std;
 class Tile {
     // private data
 	static unsigned blankAttribute; // attribute value used for wildcard tiles
-	static unsigned *maxAttribute;  // number of values (excluding blank) for each tile attribute
-	static unsigned numAttributes;  // number of attributes for each tile
+	static unsigned *maxAttribute;  // number of non-blank values for each tile attribute
 	static unsigned nextId;
+	static unsigned numAttributes;  // number of attributes for each tile
 	
 	unsigned *arr;
 	unsigned id;
 
 	public:
         static void displayEmpty(void);
-		static void setNumAttributes(unsigned);
+        static unsigned getNumAttributes(void);
+		static unsigned getMaxAttribute(unsigned);
+		static void setStatic(unsigned numAttr, unsigned maxAttr[]);
 
 		Tile(void);          // construct a blank tile
 		Tile(const Tile &);  // copy a tile
 		~Tile(void);
 		
 		bool compatibleWith(const Tile *) const;
+		Tile *clone(void) const;
         void display(void) const;
-		unsigned getAttribute(unsigned);
+		unsigned getAttribute(unsigned) const;
+		bool hasAttribute(unsigned ind, unsigned value) const;
 		bool operator<(const Tile &) const;
 		void setAttribute(unsigned ind, unsigned value);
 		string toString(void) const;

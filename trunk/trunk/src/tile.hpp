@@ -7,6 +7,8 @@
 
 using namespace std;
 
+#include <string>
+
 class Tile {
     // private data
 	static unsigned blankAttribute; // attribute value used for wildcard tiles
@@ -18,14 +20,19 @@ class Tile {
 	unsigned id;
 
 	public:
-		Tile(void);
+        static void displayEmpty(void);
+		static void setNumAttributes(unsigned);
+
+		Tile(void);          // construct a blank tile
+		Tile(const Tile &);  // copy a tile
 		~Tile(void);
+		
 		bool compatibleWith(const Tile *) const;
         void display(void) const;
-        static void displayEmpty(void);
 		unsigned getAttribute(unsigned);
 		bool operator<(const Tile &) const;
 		void setAttribute(unsigned ind, unsigned value);
+		string toString(void) const;
 };
 
 #endif

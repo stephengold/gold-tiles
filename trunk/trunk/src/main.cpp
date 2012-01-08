@@ -6,6 +6,9 @@
 
 int main(int argc, char *argv[])
 {
+	// initialize random seed
+    srand(time(NULL));
+    
     // game parameters: hard-coded for now
 	unsigned numPlayers = 2;
 	string playerNames[] = { "Stephen", "Paul" };

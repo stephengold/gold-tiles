@@ -18,13 +18,17 @@ class Player {
 	unsigned score;
 
 	public:
-		Player(string &);
+        Player(void);
+		Player(const string &);
+		Player(const Player &);
+
 		void addScore(unsigned);
 		unsigned bestRunLength(void) const;
 		set<Tile> chooseTiles(void) const;
 		void deleteTile(Tile &);
 		void drawTiles(unsigned, set<Tile> &);
 		bool handIsEmpty(void) const;
+		void printHand(void) const;
 		void printScore(void) const;
 };
 #endif

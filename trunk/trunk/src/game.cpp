@@ -4,16 +4,21 @@
 
 #include "game.hpp"
 
-void Game::addTiles(unsigned attributeIndex, Tile &modelTile) {
-	if (attributeIndex < numAttributes) {
-		unsigned maxA = maxAttributes[attributeIndex];
+void Game::addTiles(
+    unsigned attributeIndex,
+    unsigned tileRedundancy,
+    Tile &modelTile) {
+             
+	if (attributeIndex < Tile::getNumAttributes()) {
+		unsigned maxA = Tile::getMaxAttribute(attributeIndex);
 		for (unsigned attr = 1; attr <= maxA; attr++) {
         	modelTile.setAttribute(attributeIndex, attr);
-	        addTiles(attributeIndex + 1, modelTile);
+	        addTiles(attributeIndex + 1, tileRedundancy, modelTile);
          }
 	} else {
 		for (unsigned ci = 0; ci < tileRedundancy; ci++) {
-			bag.insert(modelTile);
+            Tile *clo = modelTile.clone();
+			bag.insert(*clo);
 		}
 	}
 }
@@ -105,29 +110,23 @@ Game::Game(
     string playerNames[],
     unsigned numAttr, 
     unsigned maxAttr[],
-    unsigned redundancy,
+    unsigned tileRedundancy,
     unsigned numBlankTiles,
     unsigned handSize) {
 
     // copy game parameters
-    numAttributes = numAttr;
-    Tile::setNumAttributes(numAttr);
-    maxAttributes = new unsigned[numAttr];
-    for (int i = 0; i < numAttr; i++) {
-        maxAttributes[i] = maxAttr[i];
-    }
-    tileRedundancy = redundancy;
+    Tile::setStatic(numAttr, maxAttr);
 
     // generate blank tiles
-    Tile blankTile;
     for (int bi = 0; bi < numBlankTiles; bi++) {
+        Tile blankTile;
 	    bag.insert(blankTile);
     }
 
     // generate non-blank tiles
     unsigned attributeIndex = 0;
     Tile modelTile;
-    addTiles(attributeIndex, modelTile);
+    addTiles(attributeIndex, tileRedundancy, modelTile);
 
     // create players and deal each one a hand of tiles
     for (unsigned pi = 0; pi < numPlayers; pi++) {
@@ -146,7 +145,11 @@ Game::Game(
 	   	    bestRunLength = runLength;
 		    first = player;
 	    }	
+	    player->printName();
+	    cout << " has a run of " << runLength << ".\n";
     }
+    first->printName();
+    cout << " plays first.\n";
 
     // play!
     player = first;

@@ -11,7 +11,6 @@
 #include "board.hpp"
 #include "play.hpp"
 #include "player.hpp"
-#include "square.hpp"
 #include "tile.hpp"
 
 class Game {

@@ -11,11 +11,10 @@ int main(int argc, char *argv[])
     
     // game parameters: hard-coded for now
 	unsigned numPlayers = 2;
-	string playerNames[] = { "Stephen", "Paul" };
+	string playerNames[] = { "Stephen", "Paul" }; // oldest first!
 	unsigned numAttributes = 2;
-	unsigned maxAttribute[] = { 6, 6 };
+	unsigned maxAttribute[] = { 5, 5 };
 	unsigned tileRedundancy = 3;
-	unsigned numBlankTiles = 2;
 	unsigned handSize = 7;
 	
 	Game game(
@@ -24,9 +23,8 @@ int main(int argc, char *argv[])
         numAttributes,
         maxAttribute,
         tileRedundancy,
-        numBlankTiles,
         handSize);
 
-    system("PAUSE");
+    pause();
     return EXIT_SUCCESS;
 }

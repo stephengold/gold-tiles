@@ -7,30 +7,30 @@
 
 #include <set>
 #include <string>
-
 #include "tile.hpp"
+#include "tiles.hpp"
 
 using namespace std;
 
 class Player {
-	set<Tile> hand;
+	Tiles hand;
 	string name;
 	unsigned score;
 
 	public:
         Player(void);
-		Player(const string &);
-		Player(const Player &);
+		Player(string const &);
 
 		void addScore(unsigned);
-		unsigned bestRunLength(void) const;
-		set<Tile> chooseTiles(void) const;
-		void deleteTile(Tile &);
-		void drawTiles(unsigned, set<Tile> &);
+		Tiles chooseTiles(void) const;
+		void drawTiles(unsigned, Tiles &);
 		string getName(void) const;
 		bool handIsEmpty(void) const;
-		void printName(void) const;
+		Tiles longestRun(void) const;
 		void printHand(void) const;
+		void printName(void) const;
 		void printScore(void) const;
+		void removeTile(Tile const &);
+		void removeTiles(Tiles const &);
 };
 #endif

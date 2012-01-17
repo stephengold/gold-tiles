@@ -4,20 +4,31 @@
 
 #include "TileSquare.hpp"
 
-TileSquare::TileSquare(void) {
-    tile = NULL;
-    square = NULL;
-}
+// constructors
 
-TileSquare::TileSquare(Tile *t, GridRef *s) {
-    tile = t;
-    square = s;
-}
+TileSquare::TileSquare(Tile const &t, GridRef const &s)
+: tile(t), square(s) {}
 
-Tile *TileSquare::getTile(void) const {
+// accessors
+
+Tile TileSquare::getTile(void) const {
     return tile;
 }
 
-GridRef *TileSquare::getSquare(void) const {
+GridRef TileSquare::getSquare(void) const {
     return square;
+}
+
+// compare
+
+bool TileSquare::operator<(TileSquare const &other) const {
+     bool result;
+     
+     if (tile == other.tile) {
+         result = (square < other.square);
+     } else {
+         result = (tile < other.tile);
+     }
+     
+     return result;
 }

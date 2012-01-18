@@ -12,8 +12,8 @@ int main(int argc, char *argv[])
     // game parameters: hard-coded for now
 	unsigned numPlayers = 2;
 	string playerNames[] = { "Stephen", "Paul" }; // oldest first!
-	unsigned numAttributes = 2;
-	unsigned maxAttribute[] = { 5, 5 };
+	ACount numAttributes = 2;
+	AValue maxAttribute[] = { 5, 5 };
 	unsigned tileRedundancy = 3;
 	unsigned handSize = 7;
 	

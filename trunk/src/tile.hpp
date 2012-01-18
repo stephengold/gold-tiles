@@ -9,45 +9,52 @@
 #include <set>
 #include <string>
 
-class Tiles;
+// attribute types and utilities
+typedef unsigned ACount, AIndex;
+typedef unsigned AValue;
 
-// attribute utilities
-string attributeToString(unsigned ind, unsigned value);
+string attributeToString(AIndex, AValue);
+AValue charToAttribute(AIndex, char ch);
 
 class Tile {
-    // private data
-	static unsigned *maxAttribute;  // number of values for each tile attribute
+    // static private data
+	static AValue *maxAttribute;  // number of values for each tile attribute
 	static unsigned nextId;
-	static unsigned numAttributes;  // number of attributes for each tile
+	static AIndex numAttributes;  // number of attributes for each tile
 
-	unsigned *arr;
-	public:
+    // private data
+	AValue *arr;
 	unsigned id;
-	unsigned magic;
-	static unsigned tileMagic;
 
 	public:
-        static void displayEmpty(void);
-        static unsigned getNumAttributes(void);
-		static unsigned getMaxAttribute(unsigned);
-		static void setStatic(unsigned numAttr, unsigned const maxAttr[]);
+        // static methods
+        static void displayEmpty(/* User & */);
+		static AValue getMaxAttribute(AIndex);
+        static ACount getNumAttributes(void);
+		static void setStatic(ACount, AValue const maxA[]);
+        static string toStringEmpty(void);
 
+        // constructors
 		Tile(void);          // construct a blank tile
 		Tile(string const &);
 		Tile(Tile const &);  // copy a tile
 		~Tile(void);
 		
 		Tile clone(void) const;
-        void display(void) const;
-		unsigned getAttribute(unsigned) const;
-		bool hasAttribute(unsigned ind, unsigned value) const;
+		unsigned commonAttribute(Tile const &) const;
+		void display(/* User & */) const;
+		AValue getAttribute(AIndex) const;
+		void getUserChoice(Tiles const &);
+		bool hasAttribute(AIndex, AValue) const;
 		bool isClone(Tile const &) const;
 		bool isCloneAny(Tiles const &) const;
 		bool isCompatibleWith(Tile const *) const;
+		bool isValid(void) const;
+		ACount numMatchingAttributes(Tile const &) const;
 		bool operator<(Tile const &) const;
 		Tile &operator=(Tile const &);
 	    bool operator==(Tile const &) const;
-		void setAttribute(unsigned ind, unsigned value);
+		void setAttribute(AIndex, AValue);
 		string toString(void) const;
 };
 

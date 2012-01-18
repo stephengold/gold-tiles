@@ -1,45 +1,14 @@
-#ifndef GRIDOF_HPP
+#if 0
 #define GRIDOF_HPP
 
 // File:    gridof.hpp
-// Purpose: GridOf template and GridRef class for the Gold Tile game.
+// Purpose: GridOf template for the Gold Tile game.
 // Author:  Stephen Gold sgold@sonic.net
 
-#include "project.hpp"
+#include "gridref.hpp"
 #include <string>
 #include <iostream>
 #include <set>
-
-enum Direction {
-     North = 0, FirstDir = 0, 
-     South = 1, 
-     East = 2, 
-     West = 3, LastDir = 3,
-     NumDir = 4
-};
-
-class GridRef {
-	int northing, easting;
-
-	public:
-        GridRef(void);
-		GridRef(int n, int e);
-		GridRef(GridRef const &, unsigned dir, int count);
-		
-		int getN(void) const;
-		int getE(void) const;
-		int getRow(void) const;
-		int getColumn(void) const;
-		
-		bool allValid(void) const;
-		bool isInRow(unsigned) const;
-		bool isInColumn(unsigned) const;
-		
-		bool operator<(GridRef const &) const;
-		bool operator==(GridRef const &) const;
-		
-		string toString(void) const;
-};
 
 template <class T> class GridOf {
 	T ***arr;
@@ -215,23 +184,6 @@ template <class T> void GridOf<T>::clear(const GridRef &ref) {
 }
 
 template <class T> void GridOf<T>::display(void) const {
-#if 0
-    cout << "maxN=" << maxN << " maxS=" << maxS << " maxE=" << maxE << " maxW=" << maxW 
-        << " in GridOf::display()" << endl;
-#endif
-    for (unsigned i = 0; i <= maxN + maxS; i++) {
-	    for (unsigned j = 0; j <= maxE + maxW; j++) {
-			T *ptr = arr[i][j];
-			ASSERT(isValid(ptr));
-			if (ptr == NULL) {
-				T::displayEmpty();
-			} else {
-				ptr->display();
-			}
-		}
-		cout << endl;
-	}
-	cout << endl;
 }
 
 template <class T> T *GridOf<T>::get(int n, int e) const {

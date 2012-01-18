@@ -4,6 +4,15 @@
 
 #include "locus.hpp"
 
+// constructors, assignment, and destructor
+
+// The compiler.generated default constructor is fine.
+// The compiler-generated copy constructor is fine.
+// The compiler-generated assignment method is fine.
+// The compiler-generated destructor is fine.
+
+// public methods
+
 bool Locus::areAllInSameRow(void) const {
     bool result = true;
     
@@ -38,3 +47,8 @@ bool Locus::areAllInSameColumn(void) const {
     return result;
 }
 
+bool Locus::contains(GridRef const &sq) const {
+    bool result = (find(sq) != end());
+    
+    return result;
+}

@@ -4,9 +4,10 @@
 
 #include <cstdlib>
 #include <iostream>
+#include "play.hpp"
 #include "player.hpp"
 
-// constructors
+// constructors, assignment, and destructor
 
 Player::Player(void) : hand() {
 	name = "";
@@ -18,52 +19,58 @@ Player::Player(const string &ns) : hand() {
 	score = 0;
 }
 
-// member functions
+// The compiler-generated copy constructor is fine.
+// The compiler-generated assignment method is fine.
+// The compiler-generated destructor is fine.
+
+// public methods
 
 void Player::addScore(unsigned points) {
 	score += points;
 
 	cout << name << " scored " << plural(points, "point") << "." << endl;
-	pause();
 }
 
-Tiles Player::chooseTiles(void) const {
-	Tiles s;
+Play Player::choosePlay(void) const {
+	cout << "Select tile(s) to play:" << endl;
+	Play result;
+    result.getUserChoice(hand);
+    
+	return result;
+}
 
-	cout << "Enter tile to play or 'end':" << endl;
-	string str;
-	cin >> str;
-	if (str != "end") {
-        Tile t(str);
-        s.insert(t);
-    }
+void Player::displayHand(void) const {
+    unsigned count = hand.size();
 
-	return s;
+	cout << plural(count, "tile") << " in " << name << "'s hand:" << endl
+        << " " << hand.toString() << "." << endl;
+}
+
+void Player::displayName(void) const {
+    cout << name;
+}
+
+void Player::displayScore(void) const {
+    cout << name << " has " << plural(score, "point") << "." << endl;
 }
 
 void Player::drawTiles(unsigned tileCount, Tiles &bag) {
     unsigned numTilesRemaining = bag.size();
+	cout << plural(numTilesRemaining, "tile") << " in the stock bag." << endl;
+	cout << name << " wants " << plural(tileCount, "tile") << "." << endl;
+
     unsigned numTilesDrawn;
-    
     for (numTilesDrawn = 0; numTilesDrawn < tileCount; ++numTilesDrawn) {
         if (numTilesRemaining == 0) {
             break;
         }
-		unsigned r = rand() % numTilesRemaining;
-
-        // find the "r"th tile in the bag
-		Tiles::iterator tile = bag.begin();
-		for (unsigned ti = 0; ti < r; ti++) {
-            tile++;
-        }
-
-		hand.insert(*tile);
-		bag.erase(tile);
+        Tile tile = bag.drawRandomTile();
+        cout << name << " drew " << tile.toString() << "." << endl;
+		hand.insert(tile);
 		--numTilesRemaining;
 	}
-	
-	cout << name << " drew " << plural(numTilesDrawn, "tile") << "." << endl
-        << plural(numTilesRemaining, "tile") << " remain." << endl;
+	cout << name << " drew " << plural(numTilesDrawn, "tile") << "." << endl;
+	cout << plural(numTilesRemaining, "tile") << " remain." << endl;
 }
 
 string Player::getName(void) const {
@@ -92,8 +99,8 @@ Tiles Player::longestRun(void) const {
     Tiles::const_iterator tile;
     for (tile = unique.begin(); tile != unique.end(); tile++) {
         Tile t = *tile;
-        for (unsigned ind = 0; ind < t.getNumAttributes(); ind++) {
-            unsigned value = t.getAttribute(ind);
+        for (AIndex ind = 0; ind < t.getNumAttributes(); ind++) {
+            AValue value = t.getAttribute(ind);
 #if 0
             cout << "Tile " << t.toString() << " attribute #" << (ind + 1) << " is " 
                 << attributeToString(ind, value) << "." << endl;
@@ -117,21 +124,6 @@ Tiles Player::longestRun(void) const {
     cout << name << " has a run of " << n << " " << raString << plural(n) << "." << endl;
             
 	return result;
-}
-
-void Player::printHand(void) const {
-    unsigned count = hand.size();
-    
-	cout << name << "'s hand contains " << plural(count, "tile") << ": " << endl << " "
-        << hand.toString() << "." << endl;
-}
-
-void Player::printName(void) const {
-    cout << name;
-}
-
-void Player::printScore(void) const {
-    cout << name << " has " << plural(score, "point") << "." << endl;
 }
 
 void Player::removeTile(Tile const &tile) {

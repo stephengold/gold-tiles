@@ -236,10 +236,8 @@ bool Tile::isClone(Tile const &other) const {
         }
     }
 
-#if 0
-    cout << "Tile::isClone(" << toString() << ", " << other.toString();
-    cout << ") returns " << result << endl;
-#endif    
+    D(cout << "Tile::isClone(" << toString() << ", " << other.toString()
+        << ") returns " << result << endl);
     return result;
 }
 

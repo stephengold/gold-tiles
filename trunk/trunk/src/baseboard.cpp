@@ -46,7 +46,7 @@ Tile const *BaseBoard::getCell(GridRef const &ref) const {
 }
 
 void BaseBoard::playOnCell(GridRef const &ref, Tile const &tile) {
-    cout << "Play " << tile.toString() << " at " << ref.toString() << endl;
+    D(cout << "Play " << tile.toString() << " at " << ref.toString() << endl);
 
     ASSERT(getCell(ref) == NULL);
 
@@ -69,10 +69,9 @@ void BaseBoard::playOnCell(GridRef const &ref, Tile const &tile) {
 }
 
 string BaseBoard::toString(void) const {
-#if 0
-    cout << "maxN=" << maxN << " maxS=" << maxS << " maxE=" << maxE << " maxW=" << maxW
-        << " in Board::toString()" << endl;
-#endif
+    D(cout << "maxN=" << maxN << " maxS=" << maxS << " maxE=" << maxE << " maxW=" << maxW
+        << " in Board::toString()" << endl);
+
     string result = string(5, ' ');
     for (int column = -maxW; column <= maxE; column++) {
        string cTag = itoa(column);

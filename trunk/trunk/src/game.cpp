@@ -60,9 +60,7 @@ bool Game::isGameOver(void) const {
 	        }
         }
    }
-#if 0   
-   cout << "Game::isGameOver() returns " << result << endl;
-#endif
+   D(cout << "Game::isGameOver() returns " << result << endl);
    return result;
 }
 
@@ -77,10 +75,8 @@ void Game::playFirstTurn(Player &player) {
     Play play;
     Tiles::const_iterator tile;
     for (tile = tiles.begin(); tile != tiles.end(); tile++) {
-#if 0
-       cout << "Will play " << tile->toString()
-           << " at " << square.toString() << "." << endl;
-#endif
+       D(cout << "Will play " << tile->toString()
+           << " at " << square.toString() << "." << endl);
        ASSERT(board.isEmpty(square));
        TileSquare ts(*tile, square);
        play.insert(ts);
@@ -115,9 +111,7 @@ void Game::playTiles(Player &player, Play const &play) {
 }
 
 void Game::playTurn(Player &player) {
-#if 0
-     cout << "Game::playTurn(" << player.getName() << ")" << endl;
-#endif     
+     D(cout << "Game::playTurn(" << player.getName() << ")" << endl);
      Play play;
      while (true) {
 	     board.display();
@@ -129,7 +123,7 @@ void Game::playTurn(Player &player) {
 		 play = player.choosePlay();
 
          if (board.isLegalPlay(play)) {
-             cout << "That's a legal play." << endl;
+             D(cout << "That's a legal play." << endl);
              break;
          }
          cout << "That isn't a legal play." << endl;
@@ -168,7 +162,7 @@ Game::Game(
     Tile modelTile;
     addTiles(attributeIndex, tileRedundancy, modelTile);
     unsigned cnt = bag.size();
-    cout << "Added " << plural(cnt, "tile") << " to the stock bag." << endl;
+    D(cout << "Added " << plural(cnt, "tile") << " to the stock bag." << endl);
     
     // create players
     for (unsigned pi = 0; pi < numPlayers; pi++) {

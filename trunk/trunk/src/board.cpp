@@ -370,28 +370,26 @@ bool Board::isEmpty(GridRef const &ref) const {
 bool Board::isLegalPlay(Play const &play) const {
     // a pass (no tiles played) is always legal
     if (play.size() == 0) {
-        cout << "Legal: a pass." << endl;
+        D(cout << "Legal: a pass." << endl);
         return true;
     }
-    cout << "Not a pass." << endl;
 
     // check for repeated tiles or squares
     if (play.repeatsTile()) {
-        cout << "Not legal: repeat tile." << endl;
+        D(cout << "Not legal: repeat tile." << endl);
         return false;
     }
     if (play.repeatsSquare()) {
-        cout << "Not legal: repeat square." << endl;
+        D(cout << "Not legal: repeat square." << endl);
         return false;
     }
 
     // get the set of squares on the board to be played
-    cout << "Get locus." << endl;
     Locus squares = play.getSquares();
 
     // make sure all those squares are empty
     if (!areAllEmpty(squares)) {
-        cout << "Not legal: square already played." << endl;
+        D(cout << "Not legal: square already played." << endl);
         return false;
     }
 
@@ -399,13 +397,13 @@ bool Board::isLegalPlay(Play const &play) const {
     bool singleRow = squares.areAllInSameRow();
     bool singleColumn = squares.areAllInSameColumn();
     if (!singleRow && !singleColumn) {
-        cout << "Not legal: multiple rows and columns." << endl;
+        D(cout << "Not legal: multiple rows and columns." << endl);
         return false;
     }
 
     // make sure one of the squares will connect to the origin
     if (!anyConnectToOrigin(squares)) {
-        cout << "Not legal: no connection to origin." << endl;
+        D(cout << "Not legal: no connection to origin." << endl);
         return false;
     }
 
@@ -415,30 +413,28 @@ bool Board::isLegalPlay(Play const &play) const {
 
     // make sure there are no empty squares between played tiles
     if (singleRow) {
-        cout << "Single row." << endl;
         if (!after.isConnectedRow(squares)) {
-            cout << "Not legal: gaps in row." << endl;
+            D(cout << "Not legal: gaps in row." << endl);
             return false;
         }
     } else {
-        cout << "Single column." << endl;
         if (!after.isConnectedColumn(squares)) {
-            cout << "Not legal: gaps in column." << endl;
+            D(cout << "Not legal: gaps in column." << endl);
             return false;
         }
     }
 
     // check compatibility of connnected tiles in each row and column played
     if (!after.areAllRowsCompatible(squares)) {
-        cout << "Not legal: incompatible tiles in same row." << endl;
+        D(cout << "Not legal: incompatible tiles in same row." << endl);
         return false;
     }
     if (!after.areAllColumnsCompatible(squares)) {
-        cout << "Not legal: incompatible tiles in same column." << endl;
+        D(cout << "Not legal: incompatible tiles in same column." << endl);
         return false;
     }
 
-    cout << "Legal play." << endl;
+    D(cout << "Legal play." << endl);
     return true;
 }
 

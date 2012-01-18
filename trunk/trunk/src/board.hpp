@@ -5,28 +5,45 @@
 // Purpose: Board class for the Gold Tile game.
 // Author:  Stephen Gold sgold@sonic.net
 
-#include "gridof.hpp"
-#include "locus.hpp"
-#include "play.hpp"
-#include "tile.hpp"
-#include "tiles.hpp"
-#include "tilesquare.hpp"
+/*
+ A Board object represents a two-dimensional playing surface
+ which may be extended in four directions.  The surface is
+ modeled as a grid of cells onto which Tile objects may be
+ played.  Cells are referenced by means of GridRef objects.
+ A given cell may only be played on once.
 
-class Board : public GridOf<Tile> {
+ Board extends the BaseBoard class.  The implementation of
+ BaseBoard is hidden from these extensions.
+*/
+
+#include "baseboard.hpp"
+
+class Board: public BaseBoard {
+    bool anyConnectToOrigin(Locus const &) const;
+    bool areAllCompatible(Locus const &) const;
+    bool areAllEmpty(Locus const &) const;
+    bool areAllRowsCompatible(Locus const &) const;
+    bool areAllColumnsCompatible(Locus const &) const;
+    bool connectsToOrigin(GridRef const &, Locus &) const;
+	Tile const *getPtr(int n, int e) const;
+	Tile getTile(int n, int e) const;
+	Tiles getAll(Locus const &) const;
+	void getRowLimits(GridRef const &, int &r, int &c1, int &c2) const;
+	void getColumnLimits(GridRef const &, int &r1, int &r2, int &c) const;
+	bool isEmpty(int r, int c) const;
+    bool isRowCompatible(GridRef const &) const;
+    bool isColumnCompatible(GridRef const &) const;
+    bool isConnectedRow(Locus const &) const;
+    bool isConnectedColumn(Locus const &) const;
+    void playTile(TileSquare const &);
+    unsigned scoreRow(GridRef const &) const;
+    unsigned scoreColumn(GridRef const &) const;
+    
     public:
-        bool areAllCompatible(Locus const &) const;
-        bool areAllEmpty(Locus const &) const;
-        bool areAllRowsCompatible(Locus const &) const;
-        bool areAllColumnsCompatible(Locus const &) const;
-		Tiles getAll(Locus const &) const;
-        bool isRowCompatible(int r, int firstC, int lastC) const;
-        bool isRowCompatible(GridRef const &) const;
-        bool isColumnCompatible(int firstR, int lastR, int c) const;
-        bool isColumnCompatible(GridRef const &) const;
-        bool isContiguousRow(Locus const &) const;
-        bool isContiguousColumn(Locus const &) const;
-        void placeTile(TileSquare const &);
-        void placeTiles(Play const &);
+		bool isEmpty(GridRef const &) const;
+        bool isLegalPlay(Play const &) const;
+        void playTiles(Play const &);
+        unsigned scorePlay(Play const &) const;
 };
 
 #endif

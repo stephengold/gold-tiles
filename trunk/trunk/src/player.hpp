@@ -5,12 +5,8 @@
 // Purpose: Player class for the Gold Tile game.
 // Author:  Stephen Gold sgold@sonic.net
 
-#include <set>
 #include <string>
-#include "tile.hpp"
 #include "tiles.hpp"
-
-using namespace std;
 
 class Player {
 	Tiles hand;
@@ -22,15 +18,17 @@ class Player {
 		Player(string const &);
 
 		void addScore(unsigned);
-		Tiles chooseTiles(void) const;
+		Play choosePlay(void) const;
+		void display(void) const;
+		void displayHand(/*Display &*/) const;
+		void displayName(/*Display &*/) const;
+		void displayScore(/*Display &*/) const;
 		void drawTiles(unsigned, Tiles &);
 		string getName(void) const;
 		bool handIsEmpty(void) const;
 		Tiles longestRun(void) const;
-		void printHand(void) const;
-		void printName(void) const;
-		void printScore(void) const;
 		void removeTile(Tile const &);
 		void removeTiles(Tiles const &);
+		string toString(void) const;
 };
 #endif

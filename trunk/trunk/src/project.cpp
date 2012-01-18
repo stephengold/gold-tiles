@@ -1,5 +1,5 @@
 // File:    project.cpp
-// Purpose: project-wide utility functions for the Gold Tile game.
+// Purpose: project-wide utility functions for the Gold Tile game
 // Author:  Stephen Gold sgold@sonic.net
 
 #include "project.hpp"
@@ -14,6 +14,27 @@ void assertionFailed(const char *file, unsigned line) {
 
 void pause(void) {
     system("PAUSE");
+}
+
+int atoi(string const &input) {
+    unsigned n = input.size();
+    char *buf = new char[n + 1];
+    for (unsigned i = 0; i < n; i++) {
+        buf[i] = input[i];
+    }
+    buf[n] = '\0';
+    int result = atoi(buf);
+    delete[] buf;
+
+    return result;
+}
+
+string itoa(int n) {
+   ostringstream sout;
+   sout << n;
+   string result = sout.str();
+   
+   return result;
 }
 
 const char *plural(unsigned n) {
@@ -33,3 +54,4 @@ string plural(unsigned n, const char *noun) {
 
     return result;
 }
+

@@ -7,6 +7,10 @@
 
 // project-wide macros
 #define ASSERT(e) ((e) ? (void)0 : assertionFailed(__FILE__, __LINE__))
+//#define ASSERT(e) ((void)0)
+
+//#define D(e) (e)
+#define D(e) ((void)0)
 
 using namespace std;
 

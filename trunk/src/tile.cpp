@@ -261,6 +261,8 @@ bool Tile::isCompatibleWith(Tile const *other) const {
     if (other != NULL) {
         ACount matches = numMatchingAttributes(*other);
         result = (matches == 1);
+        D(cout << "Tile::isCompatibleWith(" << this->toString() << ", " << other->toString()
+            << ") returns " << result << endl);
     }
     
     return result;

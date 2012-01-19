@@ -101,7 +101,6 @@ Tiles Player::longestRun(void) const {
             AValue value = t.getAttribute(ind);
             D(cout << "Tile " << t.toString() << " attribute #" << (ind + 1) << " is " 
                 << attributeToString(ind, value) << "." << endl);
-            D(pause());
             Tiles run;
             Tiles::const_iterator t2;
             for (t2 = tile; t2 != unique.end(); t2++) {

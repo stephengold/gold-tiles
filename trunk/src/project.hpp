@@ -6,11 +6,13 @@
 // Author:  Stephen Gold sgold@sonic.net
 
 // project-wide macros
-#define ASSERT(e) ((e) ? (void)0 : assertionFailed(__FILE__, __LINE__))
-//#define ASSERT(e) ((void)0)
 
-//#define D(e) (e)
-#define D(e) ((void)0)
+// debugging macros
+#define ASSERT(expression) ((expression) ? (void)0 : assertionFailed(__FILE__, __LINE__))
+//#define ASSERT(expression) ((void)0)
+
+//#define D(debug_only_code) (debug_only_code)
+#define D(debug_only_code) ((void)0)
 
 using namespace std;
 

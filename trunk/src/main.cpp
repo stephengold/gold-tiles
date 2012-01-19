@@ -2,12 +2,14 @@
 // Purpose: main() for console version of the Gold Tile game.
 // Author:  Stephen Gold sgold@sonic.net
 
+#include <time.h>
 #include "game.hpp"
 
 int main(int argc, char *argv[])
 {
 	// initialize random seed
-    srand(time(NULL));
+	unsigned seed = (unsigned)time(NULL);
+    srand(seed);
     
     // game parameters: hard-coded for now
 	unsigned numPlayers = 2;

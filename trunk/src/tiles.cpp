@@ -3,7 +3,6 @@
 // Author:  Stephen Gold sgold@sonic.net
 
 #include <iostream>
-#include <sstream>
 #include "tiles.hpp"
 
 bool Tiles::areAllCompatible(void) const {
@@ -85,18 +84,17 @@ bool Tiles::isValid(void) const {
 }
 
 string Tiles::toString(void) const {
-    ostringstream sout;
+    string result;
 
-    sout << "{";
+    result += "{";
     const_iterator tile;
     for (tile = begin(); tile != end(); tile++) {
         if (tile != begin()) {
-            sout << ", ";
+            result += ", ";
         } 
-        sout << tile->toString();
+        result += tile->toString();
     }       
-    sout << "}";
-    string result = sout.str();
+    result += "}";
 
     return result;
 }

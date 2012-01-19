@@ -52,3 +52,19 @@ bool Locus::contains(GridRef const &sq) const {
     
     return result;
 }
+
+string Locus::toString(void) const {
+    string result;
+
+    result += "{";
+    const_iterator gr;
+    for (gr = begin(); gr != end(); gr++) {
+        if (gr != begin()) {
+            result += ", ";
+        }
+        result += gr->toString();
+    }
+    result += "}";
+
+    return result;
+}

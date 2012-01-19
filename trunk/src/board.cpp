@@ -68,42 +68,39 @@ bool Board::areAllEmpty(Locus const &squares) const {
 bool Board::areAllRowsCompatible(Locus const &squares) const {
     bool result = true;
     
-    if (squares.size() > 1) {
-        Rows doneRows;
-        
-        Locus::const_iterator s;
-        for (s = squares.begin(); s != squares.end(); s++) {
-            int row = s->getRow();
-            if (doneRows.find(row) == doneRows.end()) {
-                if (!isRowCompatible(*s)) {
-                    result = false;
-                    break;
-                }
-                doneRows.insert(row);
+    Rows doneRows;
+
+    Locus::const_iterator s;
+    for (s = squares.begin(); s != squares.end(); s++) {
+        int row = s->getRow();
+        if (doneRows.find(row) == doneRows.end()) {
+            if (!isRowCompatible(*s)) {
+                result = false;
+                break;
             }
-        }        
+            doneRows.insert(row);
+        }
     }
     
     return result; 
 }
 
 bool Board::areAllColumnsCompatible(Locus const &squares) const {
+    D(cout << "Board::areAllColumnsCompatible(" << squares.toString() << ")" << endl);
     bool result = true;
     
-    if (squares.size() > 1) {
-        Columns doneColumns;
+    Columns doneColumns;
         
-        Locus::const_iterator s;
-        for (s = squares.begin(); s != squares.end(); s++) {
-            int column = s->getColumn();
-            if (doneColumns.find(column) == doneColumns.end()) {
-                if (!isColumnCompatible(*s)) {
-                    result = false;
-                    break;
-                }
-                doneColumns.insert(column);
+    Locus::const_iterator s;
+    for (s = squares.begin(); s != squares.end(); s++) {
+        int column = s->getColumn();
+        if (doneColumns.find(column) == doneColumns.end()) {
+            if (!isColumnCompatible(*s)) {
+                result = false;
+                break;
             }
-        }        
+            doneColumns.insert(column);
+        }
     }
     
     return result; 
@@ -215,6 +212,7 @@ bool Board::isRowCompatible(GridRef const &square) const {
 }
 
 bool Board::isColumnCompatible(GridRef const &square) const {
+    D(cout << "Board::isColumnCompatible(" << square.toString() << ")" << endl);
     int firstRow, lastRow, column;
     getColumnLimits(square, firstRow, lastRow, column);
     ASSERT(firstRow <= lastRow);
@@ -389,7 +387,7 @@ bool Board::isLegalPlay(Play const &play) const {
 
     // make sure all those squares are empty
     if (!areAllEmpty(squares)) {
-        D(cout << "Not legal: square already played." << endl);
+        D(cout << "Not legal: square(s) already played." << endl);
         return false;
     }
 

@@ -14,12 +14,15 @@
 #include <string>
 #include "tilesquare.hpp"
 
-class Play : public set<TileSquare> {
+class Play: public set<TileSquare> {
     public:
-        void display(/* User & */) const;
+        void display(void) const;
         Tiles getTiles(void) const;
         Locus getSquares(void) const;
         void getUserChoice(Tiles const &);
+		bool isPass(void) const;
+		bool isPureSwap(void) const;
+		bool isSwap(void) const;
         bool repeatsTile(void) const;
         bool repeatsSquare(void) const;
         string toString(void) const;

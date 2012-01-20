@@ -196,23 +196,35 @@ AValue Tile::getAttribute(AIndex ind) const {
     return result;
 }
 
-void Tile::getUserChoice(Tiles const &availableTiles) {
-    while (true) {
-        cout << "Enter a tile name:" << endl;
+string Tile::getUserChoice(Tiles const &availableTiles, Strings const &alts) {
+	string result;
 
-        string input;
-        cin >> input;
-        *this = Tile(input);
+    while (true) {
+        cout << "Enter a tile name";
+    	Strings::const_iterator alt;
+		for (alt = alts.begin(); alt != alts.end(); alt++) {
+			cout << " or '" << *alt << "'";
+		}
+		cout << ": ";
+
+        cin >> result;
+		if (alts.find(result) != alts.end()) {
+			break;
+		}
+
+        *this = Tile(result);
         ASSERT(isValid());
-        if (input != this->toString()) {
-            cout << "'" << input << "' is invalid." << endl;
+        if (result != this->toString()) {
+            cout << "'" << result << "' is invalid." << endl;
         } else if (!isCloneAny(availableTiles)) {
-            cout << input << " is unavailable." << endl;
+            cout << result << " is unavailable." << endl;
         } else {
             availableTiles.unClone(*this);
             break;
         }
     }
+
+	return result;
 }
 
 bool Tile::hasAttribute(AIndex ind, AValue value) const {

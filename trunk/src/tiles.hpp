@@ -9,15 +9,21 @@
 #include <string>
 #include "tile.hpp"
 
-class Tiles : public set<Tile> {
+class Tiles: public set<Tile> {
     public:
+		void addTiles(Tiles const &);
         bool areAllCompatible(void) const;
         bool contains(Tile const &) const;
         bool copyIds(Tiles const &);
-        void display(/* User & */) const;
+        void display(void) const;
         Tile drawRandomTile(void);
-        void getUserChoice(/* User &, */ Tiles const &);
+		unsigned drawTiles(unsigned, Tiles &bag);
+        void getUserChoice(Tiles const &);
+		bool isEmpty(void) const;
         bool isValid(void) const;
+		Tiles getLongestRun(void) const;
+		void removeTile(Tile const &);
+		void removeTiles(Tiles const &);
         string toString(void) const;
         void unClone(Tile &) const;
         Tiles uniqueTiles(void) const;

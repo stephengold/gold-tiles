@@ -56,7 +56,7 @@ bool Board::areAllEmpty(Locus const &squares) const {
     
     Locus::const_iterator s;
     for (s = squares.begin(); s != squares.end(); s++) {
-        if (!isEmpty(*s)) {
+        if (!isEmptyCell(*s)) {
             result = false;
             break;
         }
@@ -115,7 +115,7 @@ bool Board::connectsToOrigin(GridRef const &ref, Locus &done) const { // recursi
 
         for (unsigned dir = FirstDir; dir <= LastDir; dir++) {
             GridRef look(ref, dir, 1);
-            if (!isEmpty(look) && !done.contains(look) && connectsToOrigin(look, done)) {
+            if (!isEmptyCell(look) && !done.contains(look) && connectsToOrigin(look, done)) {
                 result = true;
                 break;
             }
@@ -162,12 +162,12 @@ void Board::getRowLimits(
     row = square.getRow();
     
     firstColumn = square.getColumn();
-    while (!isEmpty(row, firstColumn - 1)) {
+    while (!isEmptyCell(row, firstColumn - 1)) {
         firstColumn--;
     }
     
     lastColumn = square.getColumn();
-    while (!isEmpty(row, lastColumn + 1)) {
+    while (!isEmptyCell(row, lastColumn + 1)) {
         lastColumn++;
     }
 }
@@ -181,12 +181,12 @@ void Board::getColumnLimits(
     column = square.getColumn();
 
     firstRow = square.getRow();
-    while (!isEmpty(firstRow - 1, column)) {
+    while (!isEmptyCell(firstRow - 1, column)) {
         firstRow--;
     }
 
     lastRow = square.getRow();
-    while (!isEmpty(lastRow + 1, column)) {
+    while (!isEmptyCell(lastRow + 1, column)) {
         lastRow++;
     }
 }
@@ -255,7 +255,7 @@ bool Board::isConnectedRow(Locus const &squares) const {
         }
         
         for (int iCol = minColumn; iCol <= maxColumn; iCol++) {
-            if (isEmpty(row, iCol)) {
+            if (isEmptyCell(row, iCol)) {
                 result = false;
                 break;
             }
@@ -288,7 +288,7 @@ bool Board::isConnectedColumn(Locus const &squares) const {
         }
         
         for (int iRow = minRow; iRow <= maxRow; iRow++) {
-            if (isEmpty(iRow, column)) {
+            if (isEmptyCell(iRow, column)) {
                 result = false;
                 break;
             }
@@ -298,7 +298,7 @@ bool Board::isConnectedColumn(Locus const &squares) const {
     return result;
 }
 
-bool Board::isEmpty(int n, int e) const {
+bool Board::isEmptyCell(int n, int e) const {
     Tile const *ptr = getPtr(n, e);
     bool result = (ptr == NULL);
 
@@ -308,7 +308,7 @@ bool Board::isEmpty(int n, int e) const {
 void Board::playTile(TileSquare const &ts) {
     GridRef square = ts.getSquare();
     Tile tile = ts.getTile();
-    ASSERT(isEmpty(square));
+    ASSERT(isEmptyCell(square));
     playOnCell(square, tile);
 }
 
@@ -358,7 +358,7 @@ unsigned Board::scoreColumn(GridRef const &square) const {
 
 // public methods
 
-bool Board::isEmpty(GridRef const &ref) const {
+bool Board::isEmptyCell(GridRef const &ref) const {
     Tile const *ptr = getCell(ref);
     bool result = (ptr == NULL);
 
@@ -366,23 +366,35 @@ bool Board::isEmpty(GridRef const &ref) const {
 }
 
 bool Board::isLegalPlay(Play const &play) const {
-    // a pass (no tiles played) is always legal
-    if (play.size() == 0) {
-        D(cout << "Legal: a pass." << endl);
+    // a pass (no tiles played or swapped) is always legal
+    if (play.isPass()) {
+        D(cout << "Legal pass." << endl);
         return true;
     }
 
-    // check for repeated tiles or squares
+    // check for repeated tiles
     if (play.repeatsTile()) {
-        D(cout << "Not legal: repeat tile." << endl);
-        return false;
-    }
-    if (play.repeatsSquare()) {
-        D(cout << "Not legal: repeat square." << endl);
+        D(cout << "Not legal: repeated tile(s)." << endl);
         return false;
     }
 
-    // get the set of squares on the board to be played
+	if (play.isSwap()) {
+		if (!play.isPureSwap()) {
+            D(cout << "Not legal: repeated tile(s)." << endl);
+            return false;
+		}
+        
+		D(cout << "Legal swap." << endl);
+        return true;
+	}
+
+	// check for repeated squares
+    if (play.repeatsSquare()) {
+        D(cout << "Not legal: repeated square(s)." << endl);
+        return false;
+    }
+
+    // get the set of board squares to be played
     Locus squares = play.getSquares();
 
     // make sure all those squares are empty

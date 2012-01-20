@@ -38,7 +38,7 @@ class GridRef {
 		int getE(void) const;
 		int getRow(void) const;
 		int getColumn(void) const;
-        void getUserChoice(void);
+        bool getUserChoice(string const &);
 		bool isOrigin(void) const;
 
 		bool operator<(GridRef const &) const;

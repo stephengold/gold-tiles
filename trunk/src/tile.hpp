@@ -5,6 +5,15 @@
 // Purpose: Tile class for the Gold Tile game.
 // Author:  Stephen Gold sgold@sonic.net
 
+/*
+ A Tile object describes a playing piece which may be played
+ on a Board object or stored in a bag or hand (Tiles).  In the
+ context of a particular game, every Tile has the same number 
+ of attributes.  Distinct tiles with identical attributes 
+ ("clones") are possible; a unique id is used to distinguish 
+ between clones.
+*/
+
 #include "project.hpp"
 #include <set>
 #include <string>
@@ -15,6 +24,10 @@ typedef unsigned AValue;
 
 string attributeToString(AIndex, AValue);
 AValue charToAttribute(AIndex, char ch);
+
+// a set of strings
+class Strings: public set<string> {};
+
 
 class Tile {
     // static private data
@@ -42,9 +55,9 @@ class Tile {
 		
 		Tile clone(void) const;
 		unsigned commonAttribute(Tile const &) const;
-		void display(/* User & */) const;
+		void display(void) const;
 		AValue getAttribute(AIndex) const;
-		void getUserChoice(Tiles const &);
+		string getUserChoice(Tiles const &, Strings const &);
 		bool hasAttribute(AIndex, AValue) const;
 		bool isClone(Tile const &) const;
 		bool isCloneAny(Tiles const &) const;

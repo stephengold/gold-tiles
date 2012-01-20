@@ -30,7 +30,7 @@ class Board: public BaseBoard {
 	Tiles getAll(Locus const &) const;
 	void getRowLimits(GridRef const &, int &r, int &c1, int &c2) const;
 	void getColumnLimits(GridRef const &, int &r1, int &r2, int &c) const;
-	bool isEmpty(int r, int c) const;
+	bool isEmptyCell(int r, int c) const;
     bool isRowCompatible(GridRef const &) const;
     bool isColumnCompatible(GridRef const &) const;
     bool isConnectedRow(Locus const &) const;
@@ -40,7 +40,7 @@ class Board: public BaseBoard {
     unsigned scoreColumn(GridRef const &) const;
     
     public:
-		bool isEmpty(GridRef const &) const;
+		bool isEmptyCell(GridRef const &) const;
         bool isLegalPlay(Play const &) const;
         void playTiles(Play const &);
         unsigned scorePlay(Play const &) const;

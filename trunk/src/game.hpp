@@ -19,7 +19,7 @@ class Game {
 
     // private methods
     void addTiles(unsigned aIndex, unsigned redundancy, Tile &);
-    GridRef chooseSquare(Tile const &) const;
+    GridRef chooseSquare(void) const;
     bool isGameOver(void) const;
     void playFirstTurn(Player &);
     void playTiles(Player &, Play const &);

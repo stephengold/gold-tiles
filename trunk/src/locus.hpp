@@ -13,12 +13,13 @@
 #include <string>
 #include "gridref.hpp"
 
-class Locus : public set<GridRef> {
+class Locus: public set<GridRef> {
     public:
         bool areAllInSameRow(void) const;
         bool areAllInSameColumn(void) const;
         bool contains(GridRef const &) const;
         void display(void) const;
+		bool isEmpty(void) const;
         string toString(void) const;
 };
 

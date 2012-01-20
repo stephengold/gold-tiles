@@ -40,10 +40,7 @@ Play Player::choosePlay(void) const {
 }
 
 void Player::displayHand(void) const {
-    unsigned count = hand.size();
-
-	cout << "The " << plural(count, "tile") << " in " << name << "'s hand are: " 
-		<< hand.toString() << "." << endl;
+	cout << name << "'s hand contains: " << hand.toString() << "." << endl;
 }
 
 void Player::displayName(void) const {

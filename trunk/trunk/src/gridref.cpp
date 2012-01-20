@@ -69,11 +69,19 @@ int GridRef::getColumn(void) const {
 
 // public methods
 
-void GridRef::getUserChoice(void) {
+bool GridRef::getUserChoice(string const &alt) {
     string input;
+
     while (true) {
-        cout << "Enter a row number:" << endl;
+        cout << "Enter a row number";
+		if (alt != "") {
+			cout << " or '" << alt << "'";
+		}
+		cout << ": ";
         cin >> input;
+		if (input == alt) {
+			return true;
+		}
         northing = atoi(input);
         if (itoa(northing) == input) {
             break;
@@ -81,7 +89,7 @@ void GridRef::getUserChoice(void) {
         cout << "'" << input << "' is invalid." << endl;
     }
     while (true) {
-        cout << "Enter a column number:" << endl;
+        cout << "Enter a column number: ";
         cin >> input;
         easting = atoi(input);
         if (itoa(easting) == input) {
@@ -89,6 +97,7 @@ void GridRef::getUserChoice(void) {
         }
         cout << "'" << input << "' is invalid." << endl;
     }
+	return false;
 }
 
 bool GridRef::isOrigin(void) const {

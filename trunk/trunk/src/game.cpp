@@ -32,21 +32,8 @@ void Game::addTiles(  // recursive
 	}
 }
 
-GridRef Game::chooseSquare(const Tile &tile) const {
-    int row, column;
-    
-    cout << "Enter row number: " << endl;
-    cin >> row;
-    cout << "Enter column number: " << endl;
-    cin >> column;
-    
-    GridRef result = GridRef(row, column);
-    
-    return result;
-}
-
-// The game is over when the stock bag is empty and
-// at least one player has gone out.
+// The game is over if (and only if) the stock bag is empty 
+// some player has gone out.
 
 bool Game::isGameOver(void) const {
     bool result = false;
@@ -60,73 +47,87 @@ bool Game::isGameOver(void) const {
 	        }
         }
    }
+
    D(cout << "Game::isGameOver() returns " << result << endl);
    return result;
 }
 
 void Game::playFirstTurn(Player &player) {
-    cout << endl << player.getName() << " plays first." << endl;
+    cout << endl;
+    D(cout << "Game::playFirstTurn(" << player.toString() << ")" << endl);
 
-    Tiles tiles = player.longestRun();
-    GridRef square; // start playing at the origin
-    Direction playDirection = East; // play eastward (left to right)
+    Tiles run = player.longestRun();
+	unsigned runLength = run.size();
 
-    // assign a square for each tile
     Play play;
-    Tiles::const_iterator tile;
-    for (tile = tiles.begin(); tile != tiles.end(); tile++) {
-       D(cout << "Will play " << tile->toString()
-           << " at " << square.toString() << "." << endl);
-       ASSERT(board.isEmpty(square));
-       TileSquare ts(*tile, square);
-       play.insert(ts);
-       square = GridRef(square, playDirection, 1);
-    }
+    while (true) {
+    	cout << player.getName() << " plays first and must place " 
+			<< plural(runLength, "tile") << " on the (empty) board." << endl;
+		play = player.choosePlay();
+    	if (play.size() != runLength || play.isSwap() || !board.isLegalPlay(play)) {
+            cout << "That isn't a legal play." << endl;
+		    continue;
+        } else {
+            break;
+	    }
+	}
 
     playTiles(player, play);
 }
 
 void Game::playTiles(Player &player, Play const &play) {
+    D(cout << "Game::playTiles(" << player.toString() << ", " << play.toString() << ")" << endl);
     ASSERT(board.isLegalPlay(play));
-    ASSERT(bag.isValid());
 
-	// place tiles on the board
-    board.playTiles(play);
-    
-    // how many points for this play?
-  	unsigned points = board.scorePlay(play);
-
-    // remove played tiles from the player's hand
+    // remove played/swapped tiles from the player's hand
     Tiles tiles = play.getTiles();
-    ASSERT(tiles.isValid());
     player.removeTiles(tiles);
 
-    // update the player's score    
-	player.addScore(points);
-
     // attempt to draw replacement tiles from the stock bag
-    unsigned count = play.size();
-    player.drawTiles(count, bag);
-    ASSERT(bag.isValid());
+    unsigned count = tiles.size();
+	if (count > 0) {
+        unsigned actual = player.drawTiles(count, bag);
+		ASSERT(actual == count || !play.isSwap());
+	}
+
+	if (play.isSwap()) {
+		// put swapped tiles back into the bag
+		bag.addTiles(tiles);
+		cout << player.toString() << " put " << plural(count, "tile")
+			<< " back into the stock bag." << endl;
+
+	} else {
+	    // place played tiles on the board
+        board.playTiles(play);
+    
+        // update the player's score    
+  	    unsigned points = board.scorePlay(play);
+	    player.addScore(points);
+	}
 }
 
 void Game::playTurn(Player &player) {
      D(cout << "Game::playTurn(" << player.getName() << ")" << endl);
-     Play play;
+
+	 Play play;
      while (true) {
-	     board.display();
  	     printScores();
-         cout << endl << "It is " << player.getName() << "'s turn." << endl;
-         player.displayHand();
+    	 unsigned stock = bag.size();
+         cout << endl
+			 << player.getName() << "'s turn, " 
+			 << plural(stock, "tile") << " remaining in the stock bag" << endl;
+	     board.display();
 
-		 // choose tiles to play
 		 play = player.choosePlay();
-
-         if (board.isLegalPlay(play)) {
-             D(cout << "That's a legal play." << endl);
+		 if (play.isPureSwap() && play.size() > stock) {
+             cout << "There aren't enough tiles in the stock bag." << endl;
+             continue;
+		 } else if (!board.isLegalPlay(play)) {
+             cout << "That isn't a legal play." << endl;
+			 continue;
+         } else {
              break;
-         }
-         cout << "That isn't a legal play." << endl;
+		 }
 	 }
 
      playTiles(player, play);
@@ -161,8 +162,7 @@ Game::Game(
     unsigned attributeIndex = 0;
     Tile modelTile;
     addTiles(attributeIndex, tileRedundancy, modelTile);
-    unsigned cnt = bag.size();
-    D(cout << "Added " << plural(cnt, "tile") << " to the stock bag." << endl);
+    D(cout << "Placed " << plural(bag.size(), "tile") << " to the stock bag." << endl);
     
     // create players
     for (unsigned pi = 0; pi < numPlayers; pi++) {
@@ -175,15 +175,18 @@ Game::Game(
     for (player = players.begin(); player < players.end(); player++) {
         player->drawTiles(handSize, bag);
     }
+    cout << endl;
 
     // decide which player goes first
     vector<Player>::iterator first;
     unsigned bestRunLength = 0;
     for (player = players.begin(); player < players.end(); player++) {
-        cout << endl;
-        player->displayHand();
-        set<Tile> run = player->longestRun();
+        D(player->displayHand());
+
+        Tiles run = player->longestRun();
 	    unsigned runLength = run.size();
+        cout << player->getName() << " has a run of " << plural(runLength, "tile") << "." << endl;
+
 	    if (runLength > bestRunLength) {
 	   	    bestRunLength = runLength;
 		    first = player;

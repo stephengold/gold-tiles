@@ -20,7 +20,7 @@
 Tiles Play::getTiles(void) const {
     Tiles result;
     
-    Play::const_iterator ts;
+    const_iterator ts;
     for (ts = begin(); ts != end(); ts++) {
         Tile tile = ts->getTile();
         result.insert(tile);
@@ -32,10 +32,12 @@ Tiles Play::getTiles(void) const {
 Locus Play::getSquares(void) const {
     Locus result;
     
-    Play::const_iterator ts;
+    const_iterator ts;
     for (ts = begin(); ts != end(); ts++) {
-        GridRef square = ts->getSquare();
-        result.insert(square);
+		if (!ts->isSwap()) {
+            GridRef square = ts->getSquare();
+            result.insert(square);
+		}
     }
 
     return result;
@@ -45,47 +47,72 @@ void Play::getUserChoice(Tiles const &availableTiles) {
     clear();
 
     while (true) {
-        cout << "Enter a tile name or 'end':" << endl;
+		Strings alts;
+		if (size() == 0) {
+			alts.insert("pass");
+		} else {
+			alts.insert("go");
+		}
 
-        string input;
-        cin >> input;
-        if (input == "end") {
+		TileSquare ts;
+		string input = ts.getUserChoice(availableTiles, alts);
+		D(cout << "input=\'" << input << "'" << endl);
+        if (input == "pass" || input == "go") {
             break;
         }
-        Tile tile(input);
-        ASSERT(tile.isValid());
-        if (input != tile.toString()) {
-            cout << "'" << input << "' is invalid." << endl;
-        } else if (!tile.isCloneAny(availableTiles)) {
-            cout << input << " is not available." << endl;
-        } else if (tile.isCloneAny(getTiles())) {
-            cout << input << " is already selected." << endl;
-        } else {
-            availableTiles.unClone(tile);
-            
-            // choose square to play on
-            GridRef square;
-            square.getUserChoice();
-            TileSquare ts(tile, square);
-            insert(ts);
-        }
+
+        insert(ts);
     }
+}
+
+bool Play::isPass(void) const {
+	bool result = (size() == 0);
+
+	return result;
+}
+
+bool Play::isPureSwap(void) const {
+	bool result = true;
+
+    const_iterator ts;
+    for (ts = begin(); ts != end(); ts++) {
+        if (!ts->isSwap()) {
+        	result = false;
+			break;
+		}
+	}
+
+	return result;
+}
+
+bool Play::isSwap(void) const {
+    bool result = false;
+
+	const_iterator ts;
+	for (ts = begin(); ts != end(); ts++) {
+		if (ts->isSwap()) {
+			result = true;
+			break;
+		}
+	}
+
+	return result;
 }
 
 bool Play::repeatsTile(void) const {
     bool result = false;
     
     if (size() > 1) {
-        Tiles tileSet;
-        Play::const_iterator ts;
+        Tiles tiles;
+        const_iterator ts;
         
         for (ts = begin(); ts != end(); ts++) {
             Tile t = ts->getTile();
-            if (tileSet.find(t) != tileSet.end()) {
+            if (tiles.contains(t)) {
                 result = true;
                 break;
             } else {
-                tileSet.insert(t);
+                tiles.insert(t);
             }
         }
     }
@@ -97,17 +124,19 @@ bool Play::repeatsSquare(void) const {
     bool result = false;
     
     if (size() > 1) {
-        Locus squareSet;
-        Play::const_iterator ts;
+        Locus squares;
+        const_iterator ts;
         
         for (ts = begin(); ts != end(); ts++) {
-            GridRef s = ts->getSquare();
-            if (squareSet.find(s) != squareSet.end()) {
-                result = true;
-                break;
-            } else {
-                squareSet.insert(s);
-            }
+    		if (!ts->isSwap()) {
+                GridRef s = ts->getSquare();
+                if (squares.contains(s)) {
+                    result = true;
+                    break;
+                } else {
+                    squares.insert(s);
+                }
+			}
         }
     }
      

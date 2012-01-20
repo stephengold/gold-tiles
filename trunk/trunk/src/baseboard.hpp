@@ -12,7 +12,7 @@
  played.  Cells are referenced by means of GridRef objects.
  A given cell may only be played on once.
  
- The Board class extends BaseBoard with more functionality.
+ The Board class extends BaseBoard and adds functionality.
 */
 
 #include <map>

@@ -5,6 +5,13 @@
 #include <iostream>
 #include "tiles.hpp"
 
+void Tiles::addTiles(Tiles const &tiles) {
+    const_iterator tile;
+    for (tile = tiles.begin(); tile != tiles.end(); tile++) {
+		insert(*tile);
+	}
+}
+
 bool Tiles::areAllCompatible(void) const {
     const_iterator i;
     for (i = begin(); i != end(); i++) {
@@ -44,29 +51,83 @@ Tile Tiles::drawRandomTile(void) {
     return result;
 }
 
-void Tiles::getUserChoice(/* User &, */ Tiles const &availableTiles) {
-    clear();
-    while (true) {
-        cout << "Enter a tile name or 'end':" << endl;
-        
-        string input;
-        cin >> input;
-        if (input == "end") {
+unsigned Tiles::drawTiles(unsigned tileCount, Tiles &bag) {
+	unsigned numTilesDrawn;
+
+    for (numTilesDrawn = 0; numTilesDrawn < tileCount; ++numTilesDrawn) {
+        if (bag.isEmpty()) {
             break;
         }
-        Tile tile(input);
-        ASSERT(isValid());
-        if (input != tile.toString()) {
-            cout << "'" << input << "' is invalid." << endl;
-        } else if (!tile.isCloneAny(availableTiles)) {
-            cout << input << " is unavailable." << endl;
-        } else if (tile.isCloneAny(*this)) {
+        Tile tile = bag.drawRandomTile();
+        D(cout << name << " drew " << tile.toString() << "." << endl);
+		insert(tile);
+	}
+
+	return numTilesDrawn;
+}
+
+Tiles Tiles::getLongestRun(void) const {
+	Tiles unique = uniqueTiles();
+	D(cout << plural(unique.size(), "unique tile") << ":" << endl
+        << " " << unique.toString() << "." << endl);
+
+	Tiles result;
+	string raString;
+    const_iterator tile;
+    for (tile = unique.begin(); tile != unique.end(); tile++) {
+        Tile t = *tile;
+        for (AIndex ind = 0; ind < t.getNumAttributes(); ind++) {
+            AValue value = t.getAttribute(ind);
+            Tiles run;
+            const_iterator t2;
+            for (t2 = tile; t2 != unique.end(); t2++) {
+                if (t2->hasAttribute(ind, value)) {
+                    run.insert(*t2);
+                }
+            }
+            if (run.size() > result.size()) {
+                result = run;
+                raString = attributeToString(ind, value);
+            }
+        }
+    }
+    
+    D(cout << "Found a run of " << result.size() << " " 
+		<< raString << plural(n) << "." << endl);
+
+	return result;
+}
+
+void Tiles::getUserChoice(Tiles const &availableTiles) {
+    clear();
+
+    while (true) {
+		Strings alts;
+		if (size() == 0) {
+			alts.insert("none");
+		} else {
+   		    alts.insert("end");
+		}
+
+		Tile tile;
+		string input = tile.getUserChoice(availableTiles, alts);
+		if (input == "end" || input == "none") {
+			break;
+		}
+
+		if (tile.isCloneAny(*this)) {
             cout << input << " is already selected." << endl;
         } else {
             availableTiles.unClone(tile);
             insert(tile);
         }
     }
+}
+
+bool Tiles::isEmpty(void) const {
+    bool result = (size() == 0);
+    
+    return result;
 }
 
 bool Tiles::isValid(void) const {
@@ -81,6 +142,19 @@ bool Tiles::isValid(void) const {
     }
 
     return result;
+}
+
+void Tiles::removeTile(Tile const &tile) {
+	iterator position = find(tile);
+    ASSERT(position != end());
+	erase(position);
+}
+
+void Tiles::removeTiles(Tiles const &tiles) {
+	const_iterator tile;
+	for (tile = tiles.begin(); tile != tiles.end(); tile++) {
+        removeTile(*tile);
+    }
 }
 
 string Tiles::toString(void) const {

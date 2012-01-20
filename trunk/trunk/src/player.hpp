@@ -20,10 +20,10 @@ class Player {
 		void addScore(unsigned);
 		Play choosePlay(void) const;
 		void display(void) const;
-		void displayHand(/*Display &*/) const;
-		void displayName(/*Display &*/) const;
-		void displayScore(/*Display &*/) const;
-		void drawTiles(unsigned, Tiles &);
+		void displayHand(void) const;
+		void displayName(void) const;
+		void displayScore(void) const;
+		unsigned drawTiles(unsigned, Tiles &);
 		string getName(void) const;
 		bool handIsEmpty(void) const;
 		Tiles longestRun(void) const;

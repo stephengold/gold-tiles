@@ -7,19 +7,19 @@
 // constructors, assignment, and destructor
 
 TileSquare::TileSquare(void) {
-	swapFlag = true;
+	_swapFlag = true;
 }
 
 TileSquare::TileSquare(Tile const &t):
-    tile(t)
+    _tile(t)
 {
-	swapFlag = true;
+	_swapFlag = true;
 }
 
 TileSquare::TileSquare(Tile const &t, GridRef const &s):
-    tile(t), square(s)
+    _tile(t), _square(s)
 {
-	swapFlag = false;
+	_swapFlag = false;
 }
 
 // The compiler-generated copy constructor is fine.
@@ -29,24 +29,24 @@ TileSquare::TileSquare(Tile const &t, GridRef const &s):
 // accessors
 
 Tile TileSquare::getTile(void) const {
-    return tile;
+    return _tile;
 }
 
 GridRef TileSquare::getSquare(void) const {
-	ASSERT(!swapFlag);
-    return square;
+	ASSERT(!_swapFlag);
+    return _square;
 }
 
 bool TileSquare::isSwap(void) const {
-	return swapFlag;
+	return _swapFlag;
 }
 
 // public methods
 
 string TileSquare::getUserChoice(Tiles const &availableTiles, Strings const &alts) {
-    string result = tile.getUserChoice(availableTiles, alts);
-	if (result == tile.toString()) {
-        swapFlag = square.getUserChoice("swap");
+    string result = _tile.getUserChoice(availableTiles, alts);
+	if (result == _tile.toString()) {
+        _swapFlag = _square.getUserChoice("swap");
 	}
 	return result;
 }
@@ -54,20 +54,31 @@ string TileSquare::getUserChoice(Tiles const &availableTiles, Strings const &alt
 bool TileSquare::operator<(TileSquare const &other) const {
      bool result;
      
-     if (tile == other.tile) {
-		 if (swapFlag == other.swapFlag) {
-			 if (swapFlag == true) {
+     if (_tile == other._tile) {
+		 if (_swapFlag == other._swapFlag) {
+			 if (_swapFlag == true) {
 				 result = false;
 			 } else {
-				 result = (square < other.square);
+				 result = (_square < other._square);
 			 }
 		 } else {
-             result = (swapFlag < other.swapFlag);
+             result = (_swapFlag < other._swapFlag);
 		 }
      } else {
-         result = (tile < other.tile);
+         result = (_tile < other._tile);
      }
      
      return result;
 }
 
+string TileSquare::toString(void) const {
+	string result = _tile.toString();
+	if (_swapFlag) {
+		result += "@bag";
+	} else {
+		result += "@";
+		result += _square.toString();
+	}
+
+	return result;
+}

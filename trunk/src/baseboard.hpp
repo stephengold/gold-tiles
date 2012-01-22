@@ -1,12 +1,12 @@
-#ifndef BASEBOARD_HPP
-#define BASEBOARD_HPP
+#ifndef BASEBOARD_HPP_INCLUDED
+#define BASEBOARD_HPP_INCLUDED
 
 // File:    baseboard.hpp
 // Purpose: BaseBoard class for the Gold Tile game
 // Author:  Stephen Gold sgold@sonic.net
 
 /*
- A BaseBoard object describes a two-dimensional playing surface
+ A BaseBoard object represents a two-dimensional playing surface
  which may be extended in four directions.  The surface is
  modeled as a grid of cells onto which Tile objects may be
  played.  Cells are referenced by means of GridRef objects.
@@ -24,8 +24,8 @@ class BaseBoard {
     typedef map<GridRef,Tile>::const_iterator const_iterator;
 
     // private data
-    int maxN, maxS, maxE, maxW; // extent of played area
-    map<GridRef,Tile> cells;
+    int _maxN, _maxS, _maxE, _maxW; // extent of played area
+    map<GridRef,Tile> _cells;
 
     // private methods
     const_iterator find(int n, int e) const;

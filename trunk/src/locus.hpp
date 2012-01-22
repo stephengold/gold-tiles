@@ -1,12 +1,12 @@
-#ifndef LOCUS_HPP
-#define LOCUS_HPP
+#ifndef LOCUS_HPP_INCLUDED
+#define LOCUS_HPP_INCLUDED
 
 // File:    locus.hpp
 // Purpose: Locus class for the Gold Tile game.
 // Author:  Stephen Gold sgold@sonic.net
 
 /*
- A Locus object describes a group of cells in a 2-D grid.
+ A Locus object represents a group of cells in a 2-D grid.
 */
 
 #include <set>

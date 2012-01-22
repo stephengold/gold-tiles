@@ -1,5 +1,5 @@
-#ifndef BOARD_HPP
-#define BOARD_HPP
+#ifndef BOARD_HPP_INCLUDED
+#define BOARD_HPP_INCLUDED
 
 // File:    board.hpp
 // Purpose: Board class for the Gold Tile game.

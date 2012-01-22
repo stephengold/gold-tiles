@@ -1,12 +1,12 @@
-#ifndef TILE_HPP
-#define TILE_HPP
+#ifndef TILE_HPP_INCLUDED
+#define TILE_HPP_INCLUDED
 
 // File:    tile.hpp
 // Purpose: Tile class for the Gold Tile game.
 // Author:  Stephen Gold sgold@sonic.net
 
 /*
- A Tile object describes a playing piece which may be played
+ A Tile object represents a playing piece which may be played
  on a Board object or stored in a bag or hand (Tiles).  In the
  context of a particular game, every Tile has the same number 
  of attributes.  Distinct tiles with identical attributes 
@@ -31,17 +31,17 @@ class Strings: public set<string> {};
 
 class Tile {
     // static private data
-	static AValue *maxAttribute;  // number of values for each tile attribute
-	static unsigned nextId;
-	static AIndex numAttributes;  // number of attributes for each tile
+	static AValue *_maxAttribute;  // number of values for each tile attribute
+	static unsigned _nextId;
+	static AIndex _numAttributes;  // number of attributes for each tile
 
     // private data
-	AValue *arr;
-	unsigned id;
+	AValue *_arr;
+	unsigned _id;
 
 	public:
         // static methods
-        static void displayEmpty(/* User & */);
+        static void displayEmpty(void);
 		static AValue getMaxAttribute(AIndex);
         static ACount getNumAttributes(void);
 		static void setStatic(ACount, AValue const maxA[]);

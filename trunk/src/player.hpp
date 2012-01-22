@@ -1,5 +1,5 @@
-#ifndef PLAYER_HPP
-#define PLAYER_HPP
+#ifndef PLAYER_HPP_INCLUDED
+#define PLAYER_HPP_INCLUDED
 
 // File:    player.hpp
 // Purpose: Player class for the Gold Tile game.
@@ -9,9 +9,9 @@
 #include "tiles.hpp"
 
 class Player {
-	Tiles hand;
-	string name;
-	unsigned score;
+	Tiles _hand;
+	string _name;
+	unsigned _score;
 
 	public:
         Player(void);

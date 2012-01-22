@@ -65,44 +65,44 @@ AValue charToAttribute(AIndex ind, char ch) {
 
 // static private data
 
-AValue *Tile::maxAttribute = NULL;
-unsigned Tile::nextId = 0;
-ACount Tile::numAttributes = 0;
+AValue *Tile::_maxAttribute = NULL;
+unsigned Tile::_nextId = 0;
+ACount Tile::_numAttributes = 0;
 
 // static methods
 
-void Tile::displayEmpty(/* User & */) {
+void Tile::displayEmpty(void) {
     cout << " ." << toStringEmpty() << ".";
 }
 
 AValue Tile::getMaxAttribute(AIndex attr) {
-    ASSERT(attr < numAttributes);
-    AValue result = maxAttribute[attr];
+    ASSERT(attr < _numAttributes);
+    AValue result = _maxAttribute[attr];
     
     return result;
 }
 
 ACount Tile::getNumAttributes(void) {
-    ASSERT(numAttributes >= 2);
-    ACount result = numAttributes;
+    ASSERT(_numAttributes >= 2);
+    ACount result = _numAttributes;
 
     return result;
 }
 
 void Tile::setStatic(ACount na, AValue const maxAttr[]) {
     ASSERT(na >= 2);
-    numAttributes = na;
+    _numAttributes = na;
     
-    maxAttribute = new AValue[na];
+    _maxAttribute = new AValue[na];
     for (AIndex i = 0; i < na; i++) {
         ASSERT(maxAttr[i] >= 3);
-        maxAttribute[i] = maxAttr[i];
+        _maxAttribute[i] = maxAttr[i];
     }
 }
 
 string Tile::toStringEmpty(void) {
     string result;
-    for (AIndex i = 0; i < numAttributes; i++) {
+    for (AIndex i = 0; i < _numAttributes; i++) {
         result += '.';
     }
 
@@ -112,62 +112,62 @@ string Tile::toStringEmpty(void) {
 // constructors and destructor
 
 Tile::Tile(void) {
-    ASSERT(numAttributes >= 2);
-    arr = new AValue[numAttributes];
+    ASSERT(_numAttributes >= 2);
+    _arr = new AValue[_numAttributes];
 
-    for (AIndex i = 0; i < numAttributes; i++) {
-        arr[i] = 0;
+    for (AIndex i = 0; i < _numAttributes; i++) {
+        _arr[i] = 0;
     }
-    id = nextId++;
+    _id = _nextId++;
 }
 
 // forge a new tile based on a string
 Tile::Tile(string const &str) {
-    ASSERT(numAttributes >= 2);
-    arr = new AValue[numAttributes];
+    ASSERT(_numAttributes >= 2);
+    _arr = new AValue[_numAttributes];
 
     AIndex ind = 0;
 
     string::const_iterator c;
     for (c = str.begin() ; c != str.end(); c++) {
-        if (ind < numAttributes) {
+        if (ind < _numAttributes) {
             char ch = *c;
-            arr[ind] = charToAttribute(ind, ch);
+            _arr[ind] = charToAttribute(ind, ch);
             ind++;
         }
     }
 
-    while (ind < numAttributes) {
-        arr[ind] = 0;
+    while (ind < _numAttributes) {
+        _arr[ind] = 0;
         ind++;
     }
     
-    id = nextId++;
+    _id = _nextId++;
 
     ASSERT(isValid());
 }
 
 // construct a copy (with the same id)
 Tile::Tile(Tile const &base) {
-    ASSERT(numAttributes >= 2);
-    arr = new AValue[numAttributes];
-    for (AIndex i = 0; i < numAttributes; i++) {
-        arr[i] = base.arr[i];
+    ASSERT(_numAttributes >= 2);
+    _arr = new AValue[_numAttributes];
+    for (AIndex i = 0; i < _numAttributes; i++) {
+        _arr[i] = base._arr[i];
     }
-    id = base.id;
+    _id = base._id;
 }
 
 // destroy a tile
 Tile::~Tile(void) {
-    //delete[] arr;
+    //TODO delete[] arr;
 }
 
 // public member functions
 
-// allocate a clone with a different id
+// create a clone with a different id
 Tile Tile::clone(void) const {
     Tile result = Tile(*this);
-    result.id = nextId++;
+    result._id = _nextId++;
     
     return result;
 }
@@ -176,8 +176,8 @@ unsigned Tile::commonAttribute(Tile const &other) const {
     ASSERT(numMatchingAttributes(other) == 1);
     
     AIndex result;
-    for (AIndex ind = 0; ind < numAttributes; ind++) {
-        if (arr[ind] == other.arr[ind]) {
+    for (AIndex ind = 0; ind < _numAttributes; ind++) {
+        if (_arr[ind] == other._arr[ind]) {
             result = ind;
             break;
         }
@@ -190,8 +190,8 @@ void Tile::display(void) const {
 }
 
 AValue Tile::getAttribute(AIndex ind) const {
-    ASSERT(ind < numAttributes);
-    AValue result = arr[ind];
+    ASSERT(ind < _numAttributes);
+    AValue result = _arr[ind];
     
     return result;
 }
@@ -228,8 +228,8 @@ string Tile::getUserChoice(Tiles const &availableTiles, Strings const &alts) {
 }
 
 bool Tile::hasAttribute(AIndex ind, AValue value) const {
-    ASSERT(ind < numAttributes);
-    AValue attrib = arr[ind];
+    ASSERT(ind < _numAttributes);
+    AValue attrib = _arr[ind];
     bool result = (attrib == value);
     
     return result;
@@ -238,10 +238,10 @@ bool Tile::hasAttribute(AIndex ind, AValue value) const {
 bool Tile::isClone(Tile const &other) const {
     bool result = false;
     
-    if (id != other.id) {
+    if (_id != other._id) {
         result = true;
-        for (AIndex i = 0; i < numAttributes; i++) {
-            if (arr[i] != other.arr[i]) {
+        for (AIndex i = 0; i < _numAttributes; i++) {
+            if (_arr[i] != other._arr[i]) {
                 result = false;
                 break;
             }
@@ -283,11 +283,11 @@ bool Tile::isCompatibleWith(Tile const *other) const {
 bool Tile::isValid(void) const {
     bool result = false;
     
-    if (id < nextId) {
+    if (_id < _nextId) {
         result = true;
     
-        for (AIndex ind = 0; ind < numAttributes; ind++) {
-            if (arr[ind] > maxAttribute[ind]) {
+        for (AIndex ind = 0; ind < _numAttributes; ind++) {
+            if (_arr[ind] > _maxAttribute[ind]) {
                 result = false;
                 break;
             }
@@ -299,8 +299,8 @@ bool Tile::isValid(void) const {
 
 ACount Tile::numMatchingAttributes(Tile const &other) const {
     unsigned result = 0;
-    for (AIndex ind = 0; ind < numAttributes; ind++) {
-        if (hasAttribute(ind, other.arr[ind])) {
+    for (AIndex ind = 0; ind < _numAttributes; ind++) {
+        if (hasAttribute(ind, other._arr[ind])) {
              ++result;
         }
     }
@@ -309,28 +309,28 @@ ACount Tile::numMatchingAttributes(Tile const &other) const {
 }
 
 bool Tile::operator<(Tile const &other) const {
-     bool result = (id < other.id);
+     bool result = (_id < other._id);
      
      return result;
 }
 
 Tile &Tile::operator=(Tile const &other) {
-    arr = new AValue[numAttributes];
-    for (AIndex ind = 0; ind < numAttributes; ind++) {
-        AValue value = other.arr[ind];
-        ASSERT(value <= maxAttribute[ind]);
-        arr[ind] = value;
+    _arr = new AValue[_numAttributes];
+    for (AIndex ind = 0; ind < _numAttributes; ind++) {
+        AValue value = other._arr[ind];
+        ASSERT(value <= _maxAttribute[ind]);
+        _arr[ind] = value;
     }
-    id = other.id;
+    _id = other._id;
      
     return *this;
 }
 
 bool Tile::operator==(Tile const &other) const {
-    bool result = (id == other.id);
+    bool result = (_id == other._id);
     if (result) {
-        for (AIndex i = 0; i < numAttributes; i++) {
-            ASSERT(arr[i] == other.arr[i]);
+        for (AIndex i = 0; i < _numAttributes; i++) {
+            ASSERT(_arr[i] == other._arr[i]);
         }
     }
     
@@ -338,17 +338,17 @@ bool Tile::operator==(Tile const &other) const {
 }
 
 void Tile::setAttribute(AIndex ind, AValue value) {
-    ASSERT(ind < numAttributes);
-    ASSERT(value <= maxAttribute[ind]);
-    arr[ind] = value;
+    ASSERT(ind < _numAttributes);
+    ASSERT(value <= _maxAttribute[ind]);
+    _arr[ind] = value;
 }
 
 string Tile::toString(void) const {
     string result;
 
-    for (AIndex ind = 0; ind < numAttributes; ind++) {
-        AValue value = arr[ind];
-        ASSERT(value <= maxAttribute[ind]);
+    for (AIndex ind = 0; ind < _numAttributes; ind++) {
+        AValue value = _arr[ind];
+        ASSERT(value <= _maxAttribute[ind]);
 
         result += attributeToString(ind, value);
     }

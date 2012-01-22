@@ -10,13 +10,13 @@
 
 // default constructor:  refer to the origin
 GridRef::GridRef(void) {
-	northing = 0;
-	easting = 0;
+	_northing = 0;
+	_easting = 0;
 }
 
 GridRef::GridRef(int n, int e) {
-	northing = n;
-	easting = e;
+	_northing = n;
+	_easting = e;
 }
 
 // The compiler-generated copy constructor is fine.
@@ -25,20 +25,20 @@ GridRef::GridRef(int n, int e) {
 GridRef::GridRef(GridRef const &base, unsigned dir, int count) {
 	switch (dir) {
 		case North:
-			northing = base.northing + count;
-            easting = base.easting;
+			_northing = base._northing + count;
+            _easting = base._easting;
             break;
         case South:
-			northing = base.northing - count;
-            easting = base.easting;
+			_northing = base._northing - count;
+            _easting = base._easting;
             break;
 		case East:
-			northing = base.northing;
-            easting = base.easting + count;
+			_northing = base._northing;
+            _easting = base._easting + count;
             break;
         case West:
-			northing = base.northing;
-            easting = base.easting - count;
+			_northing = base._northing;
+            _easting = base._easting - count;
             break;
         default:
             ASSERT(false);
@@ -52,19 +52,19 @@ GridRef::GridRef(GridRef const &base, unsigned dir, int count) {
 // accessors
 
 int GridRef::getN(void) const {
-	return northing;
+	return _northing;
 }
 
 int GridRef::getE(void) const {
-	return easting;
+	return _easting;
 }
 
 int GridRef::getRow(void) const {
-	return northing;
+	return _northing;
 }
 
 int GridRef::getColumn(void) const {
-	return easting;
+	return _easting;
 }
 
 // public methods
@@ -82,8 +82,8 @@ bool GridRef::getUserChoice(string const &alt) {
 		if (input == alt) {
 			return true;
 		}
-        northing = atoi(input);
-        if (itoa(northing) == input) {
+        _northing = atoi(input);
+        if (itoa(_northing) == input) {
             break;
         }
         cout << "'" << input << "' is invalid." << endl;
@@ -91,8 +91,8 @@ bool GridRef::getUserChoice(string const &alt) {
     while (true) {
         cout << "Enter a column number: ";
         cin >> input;
-        easting = atoi(input);
-        if (itoa(easting) == input) {
+        _easting = atoi(input);
+        if (itoa(_easting) == input) {
             break;
         }
         cout << "'" << input << "' is invalid." << endl;
@@ -101,7 +101,7 @@ bool GridRef::getUserChoice(string const &alt) {
 }
 
 bool GridRef::isOrigin(void) const {
-    bool result = (northing == 0) && (easting == 0);
+    bool result = (_northing == 0) && (_easting == 0);
 
     return result;
 }
@@ -109,24 +109,24 @@ bool GridRef::isOrigin(void) const {
 bool GridRef::operator<(GridRef const &other) const {
      bool result;
      
-     if (northing == other.northing) {
-         result = (easting < other.easting);
+     if (_northing == other._northing) {
+         result = (_easting < other._easting);
      } else {
-         result = (northing < other.northing);
+         result = (_northing < other._northing);
      }
      
      return result;
 }
 
 bool GridRef::operator==(const GridRef &other) const {
-    bool result = (northing == other.northing && easting == other.easting);
+    bool result = (_northing == other._northing && _easting == other._easting);
     
     return result;
 }
 
 string GridRef::toString(void) const {
     ostringstream sout;
-    sout << "(" << northing << ", " << easting << ")";
+    sout << "(" << _northing << ", " << _easting << ")";
     string result = sout.str();
 
     return result;

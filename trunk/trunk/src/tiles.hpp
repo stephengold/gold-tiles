@@ -1,5 +1,5 @@
-#ifndef TILES_HPP
-#define TILES_HPP
+#ifndef TILES_HPP_INCLUDED
+#define TILES_HPP_INCLUDED
 
 // File:    tiles.hpp
 // Purpose: Tiles class for the Gold Tile game.

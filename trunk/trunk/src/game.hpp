@@ -1,5 +1,5 @@
-#ifndef GAME_HPP
-#define GAME_HPP
+#ifndef GAME_HPP_INCLUDED
+#define GAME_HPP_INCLUDED
 
 // File:    game.hpp
 // Purpose: Game class for the Gold Tile game.
@@ -13,9 +13,9 @@
 
 class Game {
     // private data
-    Tiles bag;        // stock bag from which tiles are drawn
-    Board board;      // extensible playing surface
-    vector<Player> players;
+    Tiles _bag;        // stock bag from which tiles are drawn
+    Board _board;      // extensible playing surface
+    vector<Player> _players;
 
     // private methods
     void addTiles(unsigned aIndex, unsigned redundancy, Tile &);
@@ -34,6 +34,7 @@ class Game {
          AValue maxAttributes[],
          unsigned tileRedundancy,
          unsigned handSize);
+	void play(void);
 };
 
 #endif

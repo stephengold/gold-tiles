@@ -1,5 +1,5 @@
-#ifndef GRIDREF_HPP
-#define GRIDREF_HPP
+#ifndef GRIDREF_HPP_INCLUDED
+#define GRIDREF_HPP_INCLUDED
 
 // File:    gridref.hpp
 // Purpose: GridRef class for the Gold Tile game.
@@ -26,7 +26,7 @@ enum Direction {
 };
 
 class GridRef {
-	int northing, easting;
+	int _northing, _easting;
 
 	public:
         GridRef(void);

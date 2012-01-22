@@ -1,12 +1,12 @@
-#ifndef PLAY_HPP
-#define PLAY_HPP
+#ifndef PLAY_HPP_INCLUDED
+#define PLAY_HPP_INCLUDED
 
 // File:    play.hpp
 // Purpose: Play class for the Gold Tile game.
 // Author:  Stephen Gold sgold@sonic.net
 
 /*
- A Play object describes a group of tiles and the
+ A Play object represents a group of tiles and the
  locations where they will be played on a 2-D grid.
 */
 

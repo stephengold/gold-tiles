@@ -1,5 +1,5 @@
-#ifndef TILESQUARE_HPP
-#define TILESQUARE_HPP
+#ifndef TILESQUARE_HPP_INCLUDED
+#define TILESQUARE_HPP_INCLUDED
 
 // File:    tilesquare.hpp
 // Purpose: TileSquare class for the Gold Tile game.
@@ -14,9 +14,10 @@
 #include "tile.hpp"
 
 class TileSquare {
-    Tile tile;
-    GridRef square;
-	bool swapFlag;
+    GridRef _square;
+	bool _swapFlag;
+    Tile _tile;
+
     public:
 		TileSquare(void);
         TileSquare(Tile const &);

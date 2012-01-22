@@ -59,7 +59,7 @@ unsigned Tiles::drawTiles(unsigned tileCount, Tiles &bag) {
             break;
         }
         Tile tile = bag.drawRandomTile();
-        D(cout << name << " drew " << tile.toString() << "." << endl);
+        D(cout << "Drew " << tile.toString() << "." << endl);
 		insert(tile);
 	}
 
@@ -93,7 +93,7 @@ Tiles Tiles::getLongestRun(void) const {
     }
     
     D(cout << "Found a run of " << result.size() << " " 
-		<< raString << plural(n) << "." << endl);
+		<< raString << plural(result.size()) << "." << endl);
 
 	return result;
 }

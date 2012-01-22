@@ -10,7 +10,7 @@
 
 BaseBoard::const_iterator BaseBoard::find(int n, int e) const {
     GridRef ref(n, e);
-    const_iterator result = cells.find(ref);
+    const_iterator result = _cells.find(ref);
 
     return result;
 }
@@ -18,10 +18,10 @@ BaseBoard::const_iterator BaseBoard::find(int n, int e) const {
 // constructors, assignment, and destructor
 
 BaseBoard::BaseBoard(void) {
-    maxN = 0;
-    maxS = 0;
-    maxE = 0;
-    maxW = 0;
+    _maxN = 0;
+    _maxS = 0;
+    _maxE = 0;
+    _maxW = 0;
 }
 
 // The compiler-generated copy constructor is fine.
@@ -35,10 +35,10 @@ void BaseBoard::display(void) const {
 }
 
 Tile const *BaseBoard::getCell(GridRef const &ref) const {
-    const_iterator it = cells.find(ref);
+    const_iterator it = _cells.find(ref);
 
     Tile const *result = NULL;
-    if (it != cells.end()) {
+    if (it != _cells.end()) {
         result = &(it->second);
     }
 
@@ -51,41 +51,41 @@ void BaseBoard::playOnCell(GridRef const &ref, Tile const &tile) {
     ASSERT(getCell(ref) == NULL);
 
     int n = ref.getN();
-    if (n > (int)maxN) {
-        maxN = n;
+    if (n > (int)_maxN) {
+        _maxN = n;
     }
-    if (n < -(int)maxS) {
-        maxS = -n;
+    if (n < -(int)_maxS) {
+        _maxS = -n;
     }
 
     int e = ref.getE();
-    if (e > (int)maxE) {
-        maxE = e;
+    if (e > (int)_maxE) {
+        _maxE = e;
     }
-    if (e < -(int)maxW) {
-        maxW = -e;
+    if (e < -(int)_maxW) {
+        _maxW = -e;
     }
-    cells[ref] = tile;
+    _cells[ref] = tile;
 }
 
 string BaseBoard::toString(void) const {
-    D(cout << "maxN=" << maxN << " maxS=" << maxS << " maxE=" << maxE << " maxW=" << maxW
+    D(cout << "maxN=" << _maxN << " maxS=" << _maxS << " maxE=" << _maxE << " maxW=" << _maxW
         << " in Board::toString()" << endl);
 
     string result = string(5, ' ');
-    for (int column = -maxW; column <= maxE; column++) {
+    for (int column = -_maxW; column <= _maxE; column++) {
        string cTag = itoa(column);
        result += string(5 - cTag.size(), ' ');
        result += cTag;
     }
     result += "\n";
-    for (int row = -maxS; row <= maxN; row++) {
+    for (int row = -_maxS; row <= _maxN; row++) {
         string rTag = itoa(row);
         result += string(5 - rTag.size(), ' ');
         result += rTag;
-	    for (int column = -maxW; column <= maxE; column++) {
+	    for (int column = -_maxW; column <= _maxE; column++) {
             const_iterator it = find(row, column);
-			if (it == cells.end()) {
+			if (it == _cells.end()) {
 				result += " .";
                 result += Tile::toStringEmpty();
                 result += ".";

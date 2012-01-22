@@ -142,3 +142,19 @@ bool Play::repeatsSquare(void) const {
      
     return result;
 }
+
+string Play::toString(void) const {
+	string result;
+
+    result += "{";
+    const_iterator ts;
+    for (ts = begin(); ts != end(); ts++) {
+        if (ts != begin()) {
+            result += ", ";
+        } 
+        result += ts->toString();
+    }       
+    result += "}";
+
+    return result;
+}

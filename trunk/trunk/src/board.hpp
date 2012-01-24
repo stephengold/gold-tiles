@@ -24,7 +24,6 @@ class Board: public BaseBoard {
     bool areAllEmpty(Locus const &) const;
     bool areAllRowsCompatible(Locus const &) const;
     bool areAllColumnsCompatible(Locus const &) const;
-    bool connectsToOrigin(GridRef const &, Locus &) const;
 	Tile const *getPtr(int n, int e) const;
 	Tile getTile(int n, int e) const;
 	Tiles getAll(Locus const &) const;
@@ -40,6 +39,7 @@ class Board: public BaseBoard {
     unsigned scoreColumn(GridRef const &) const;
     
     public:
+        bool connectsToOrigin(GridRef const &, Locus &) const;
 		bool isEmptyCell(GridRef const &) const;
         bool isLegalPlay(Play const &) const;
         void playTiles(Play const &);

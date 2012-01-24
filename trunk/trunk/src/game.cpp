@@ -32,6 +32,15 @@ void Game::addTiles(  // recursive
 	}
 }
 
+// accessors
+
+Player Game::getActivePlayer(void) const {
+    return *_activePlayer;
+}
+Board Game::getBoard(void) const {
+    return _board;
+}
+
 // The game is over if (and only if) the stock bag is empty 
 // some player has gone out.
 
@@ -172,16 +181,13 @@ Game::Game(
 
     // deal each player a hand of tiles
     vector<Player>::iterator player;
+    vector<Player>::iterator bestPlayer;
     for (player = _players.begin(); player < _players.end(); player++) {
         player->drawTiles(handSize, _bag);
     }
     cout << endl;
-}
 
-void Game::play(void) {
     // decide which player goes first
-    vector<Player>::iterator player;
-    vector<Player>::iterator first;
     unsigned bestRunLength = 0;
     for (player = _players.begin(); player < _players.end(); player++) {
         D(player->displayHand());
@@ -192,20 +198,22 @@ void Game::play(void) {
 
 	    if (runLength > bestRunLength) {
 	   	    bestRunLength = runLength;
-		    first = player;
-	    }	
+		    bestPlayer = player;
+	    }
     }
-    
+    _activePlayer = bestPlayer;
+}
+
+void Game::play(void) {
     // play!
-    player = first;
-    playFirstTurn(*player);
+    playFirstTurn(*_activePlayer);
 
     while (!isGameOver()) {
-	    player++;
-	    if (player >= _players.end()) {
-	        player = _players.begin();
+	    _activePlayer++;
+	    if (_activePlayer >= _players.end()) {
+	        _activePlayer = _players.begin();
         }
-	    playTurn(*player);
+	    playTurn(*_activePlayer);
     }
 
     // print final score

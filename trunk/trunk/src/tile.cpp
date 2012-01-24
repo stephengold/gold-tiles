@@ -5,8 +5,11 @@
 #include <iostream> // cout
 #include "tile.hpp"
 #include "tiles.hpp"
+#ifdef _GUI
+#include "gui/topwindow.hpp"
+#endif
 
-// attribute utilities
+// attribute utility functions
 
 string attributeToString(AIndex ind, AValue value) {
     ASSERT(ind < Tile::getNumAttributes());
@@ -18,13 +21,13 @@ string attributeToString(AIndex ind, AValue value) {
             result = (char)('A' + value);
             break;
         case 1:
-            result = (char)('M' + value);
+            result = (char)('Q' + value);
             break;
         case 2:
             result = (char)('a' + value);
             break;
         case 3:
-            result = (char)('m' + value);
+            result = (char)('q' + value);
             break;
         default:
             result = (char)('1' + value);
@@ -43,13 +46,13 @@ AValue charToAttribute(AIndex ind, char ch) {
             result = (AValue)(ch - 'A');
             break;
         case 1:
-            result = (AValue)(ch - 'M');
+            result = (AValue)(ch - 'Q');
             break;
         case 2:
             result = (AValue)(ch - 'a');
             break;
         case 3:
-            result = (AValue)(ch - 'm');
+            result = (AValue)(ch - 'q');
             break;
         default:
             result = (AValue)(ch - '1');
@@ -71,8 +74,11 @@ ACount Tile::_numAttributes = 0;
 
 // static methods
 
+// display an empty cell
 void Tile::displayEmpty(void) {
+#ifdef _CONSOLE
     cout << " ." << toStringEmpty() << ".";
+#endif
 }
 
 AValue Tile::getMaxAttribute(AIndex attr) {
@@ -91,20 +97,21 @@ ACount Tile::getNumAttributes(void) {
 
 void Tile::setStatic(ACount na, AValue const maxAttr[]) {
     ASSERT(na >= 2);
+#ifdef _GUI
+    ASSERT(na <= 4);
+#endif
     _numAttributes = na;
     
     _maxAttribute = new AValue[na];
     for (AIndex i = 0; i < na; i++) {
         ASSERT(maxAttr[i] >= 3);
+        ASSERT(maxAttr[i] <= 10);
         _maxAttribute[i] = maxAttr[i];
     }
 }
 
 string Tile::toStringEmpty(void) {
-    string result;
-    for (AIndex i = 0; i < _numAttributes; i++) {
-        result += '.';
-    }
+    string result(_numAttributes, '.');
 
     return result;
 }
@@ -121,7 +128,7 @@ Tile::Tile(void) {
     _id = _nextId++;
 }
 
-// forge a new tile based on a string
+// Mint a new tile based on a string.
 Tile::Tile(string const &str) {
     ASSERT(_numAttributes >= 2);
     _arr = new AValue[_numAttributes];
@@ -164,7 +171,7 @@ Tile::~Tile(void) {
 
 // public member functions
 
-// create a clone with a different id
+// create a clone (with a different id)
 Tile Tile::clone(void) const {
     Tile result = Tile(*this);
     result._id = _nextId++;
@@ -187,6 +194,7 @@ unsigned Tile::commonAttribute(Tile const &other) const {
 
 void Tile::display(void) const {
     cout << " [" << this->toString() << "]";
+
 }
 
 AValue Tile::getAttribute(AIndex ind) const {

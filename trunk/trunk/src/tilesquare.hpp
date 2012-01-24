@@ -22,6 +22,7 @@ class TileSquare {
 		TileSquare(void);
         TileSquare(Tile const &);
         TileSquare(Tile const &, GridRef const &);
+        // ~TileSquare(void);  implicitly declared destructor is fine
         
         void display(void) const;
         GridRef getSquare(void) const;  

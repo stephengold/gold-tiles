@@ -63,6 +63,12 @@ unsigned Player::drawTiles(unsigned tileCount, Tiles &bag) {
 	return numTilesDrawn;
 }
 
+Tiles Player::getHand(void) const {
+    Tiles result = _hand;
+
+    return result;
+}
+
 string Player::getName(void) const {
     string result = _name;
     

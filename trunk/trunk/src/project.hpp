@@ -7,6 +7,12 @@
 
 // project-wide macros
 
+#ifdef _WINDOWS
+#define _GUI
+#else
+#define _CONSOLE
+#endif
+
 // debugging macros
 #ifdef _WINDOWS
 #include <assert.h>
@@ -22,14 +28,6 @@
 #include <string>
 using namespace std;
 
-// project-wide utility functions
-void assertionFailed(const char *, unsigned);
-int atoi(string const &);
-string itoa(int);
-void pause(void);
-const char *plural(unsigned);
-string plural(unsigned n, const char *);
-
 // forward declarations of project-wide classes
 class BaseBoard;
 class Board;
@@ -42,7 +40,7 @@ class Tile;
 class Tiles;
 class TileSquare;
 
-#ifdef _WINDOWS
+#ifdef _GUI
 class Canvas;
 class MenuItem;
 class PlayMenu;
@@ -51,6 +49,20 @@ class TopWindow;
 class ViewMenu;
 class Window;
 class WindowClass;
+#endif
+
+// project-wide utility functions
+void assertionFailed(const char *, unsigned);
+int atoi(string const &);
+string itoa(int);
+void pause(void);
+const char *plural(unsigned);
+string plural(unsigned n, const char *);
+
+// global pointers
+#ifdef _GUI
+extern Game *game;
+extern TopWindow *topWindow;
 #endif
 
 #endif

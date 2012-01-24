@@ -16,6 +16,7 @@ class Game {
     Tiles _bag;        // stock bag from which tiles are drawn
     Board _board;      // extensible playing surface
     vector<Player> _players;
+    vector<Player>::iterator _activePlayer;
 
     // private methods
     void addTiles(unsigned aIndex, unsigned redundancy, Tile &);
@@ -28,12 +29,20 @@ class Game {
     unsigned scorePlay(Play const &) const;
 
     public:
+        Game(void) { assert(false); };
+        Game(Game const &) { assert(false); };
+        Game &operator=(Game const &) { assert(false); };
+        // ~Game(void);  implicitly declared destructor is fine
+
     Game(unsigned numPlayers,
          string playerNames[],
          ACount numAttributes,
          AValue maxAttributes[],
          unsigned tileRedundancy,
          unsigned handSize);
+
+    Player getActivePlayer(void) const;
+    Board getBoard(void) const;
 	void play(void);
 };
 

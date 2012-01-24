@@ -5,8 +5,9 @@
 #include <time.h>
 #include "game.hpp"
 
-#ifndef _WINDOWS
-// console version
+#ifdef _CONSOLE
+// console interface
+
 int main(int argc, char *argv[]) {
 	// initialize random seed
 	unsigned seed = (unsigned)::time(NULL);
@@ -30,12 +31,36 @@ int main(int argc, char *argv[]) {
 #endif
 
 #ifdef _WINDOWS
+// Microsoft Windows(tm) GUI interface
+
 #include <windows.h>
-#include "gui/window.hpp"
+#include "gui/topwindow.hpp"
+
+static int messageDispatchLoop(void) {
+    int exitCode;
+    
+	while (true) {
+        MSG msg;
+	    HWND anyWindow = NULL;
+        BOOL success = ::GetMessage(&msg, anyWindow, 0, 0);
+        if (success == 0) {   // retrieved a WM_QUIT message
+			exitCode = msg.wParam;
+			break;
+		} else if (success == -1) { // error in GetMessage()
+            exitCode = -1;
+			break;
+		}
+        ::TranslateMessage(&msg);
+        ::DispatchMessage(&msg);
+    }
+
+	return exitCode;
+}
 
 Game *game = NULL;
+TopWindow *topWindow = NULL;
 
-// Windows version 
+// Windows version
 int CALLBACK WinMain(
 	HINSTANCE applicationInstance, 
 	HINSTANCE previousInstance, // always NULL and ignored
@@ -53,30 +78,17 @@ int CALLBACK WinMain(
 	AValue maxAttribute[] = { 5, 5 };
 	unsigned tileRedundancy = 3;
 	unsigned handSize = 7;
-	
+
+    // Instantiate the game.
 	game = new Game(numPlayers, playerNames, numAttributes, maxAttribute,
         tileRedundancy, handSize);
 
 	// Instantiate top window and display it.
-	TopWindow top(applicationInstance);
-	top.show(showHow);
+	topWindow = new TopWindow(applicationInstance);
+	topWindow->show(showHow);
 
     // Retrieve and dispatch messages for this application. 
-	int exitCode;
-	while (true) {
-        MSG msg;
-	    HWND anyWindow = NULL;
-        BOOL success = ::GetMessage(&msg, anyWindow, 0, 0);
-        if (success == 0) {   // retrieved a WM_QUIT message
-			exitCode = msg.wParam;
-			break;
-		} else if (success == -1) { // error in GetMessage()
-            exitCode = -1;
-			break;
-		}
-        ::TranslateMessage(&msg);
-        ::DispatchMessage(&msg);
-    }
+	int exitCode = messageDispatchLoop();
 
 	return exitCode;
 }

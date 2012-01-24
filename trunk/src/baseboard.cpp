@@ -45,6 +45,19 @@ Tile const *BaseBoard::getCell(GridRef const &ref) const {
     return result;
 }
 
+int BaseBoard::getMaxN(void) const {
+    return _maxN;
+}
+int BaseBoard::getMaxS(void) const {
+    return _maxS;
+}
+int BaseBoard::getMaxE(void) const {
+    return _maxE;
+}
+int BaseBoard::getMaxW(void) const {
+    return _maxW;
+}
+
 void BaseBoard::playOnCell(GridRef const &ref, Tile const &tile) {
     D(cout << "Play " << tile.toString() << " at " << ref.toString() << endl);
 
@@ -79,7 +92,7 @@ string BaseBoard::toString(void) const {
        result += cTag;
     }
     result += "\n";
-    for (int row = -_maxS; row <= _maxN; row++) {
+    for (int row = _maxN; row >= -(int)_maxS; row++) {
         string rTag = itoa(row);
         result += string(5 - rTag.size(), ' ');
         result += rTag;

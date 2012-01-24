@@ -1,8 +1,6 @@
 #include <windows.h>
 #include "resource.hpp"
 
-GOLDTILETOP ICON DISCARDABLE "gold-tile.ico"
-
 GOLDTILETOP MENU DISCARDABLE 
 BEGIN
     POPUP "&File"

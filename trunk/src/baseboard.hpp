@@ -35,6 +35,10 @@ class BaseBoard {
 
         void display(void) const;
 		Tile const *getCell(GridRef const &) const;
+        int getMaxN(void) const;
+        int getMaxS(void) const;
+        int getMaxE(void) const;
+        int getMaxW(void) const;
 		void playOnCell(GridRef const &, Tile const &);
         string toString(void) const;
 };

@@ -18,10 +18,10 @@ class Tiles: public set<Tile> {
         void display(void) const;
         Tile drawRandomTile(void);
 		unsigned drawTiles(unsigned, Tiles &bag);
+		Tiles getLongestRun(void) const;
         void getUserChoice(Tiles const &);
 		bool isEmpty(void) const;
         bool isValid(void) const;
-		Tiles getLongestRun(void) const;
 		void removeTile(Tile const &);
 		void removeTiles(Tiles const &);
         string toString(void) const;

@@ -5,7 +5,6 @@
 // Purpose: Player class for the Gold Tile game.
 // Author:  Stephen Gold sgold@sonic.net
 
-#include <string>
 #include "tiles.hpp"
 
 class Player {
@@ -25,6 +24,7 @@ class Player {
 		void displayScore(void) const;
 		unsigned drawTiles(unsigned, Tiles &);
 		string getName(void) const;
+		Tiles getHand(void) const;
 		bool handIsEmpty(void) const;
 		Tiles longestRun(void) const;
 		void removeTile(Tile const &);

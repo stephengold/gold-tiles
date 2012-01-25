@@ -93,7 +93,8 @@ void Canvas::drawCell(int top, int left, unsigned width, COLORREF cellColor,
 void Canvas::drawGlyph(int top, int left, unsigned width, unsigned height,
                   COLORREF glyphColor, AIndex ind, AValue glyph)
 {
-    unsigned textLen = 1; char text[1];
+    unsigned textLen = 1;
+    char text[1];
     string str = attributeToString(ind, glyph);
     text[0] = str[0];
 

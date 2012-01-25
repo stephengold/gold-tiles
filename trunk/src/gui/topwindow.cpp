@@ -187,11 +187,10 @@ void TopWindow::drawCell(Canvas &canvas, GridRef const &square) {
     unsigned cellWidth = getCellWidth();
     canvas.drawCell(ulcY, ulcX, cellWidth, cellColor, gridColor);
     
-    Player activePlayer = game->getActivePlayer();
-    Tiles hand = activePlayer.getHand();
-    set<Tile>::iterator it = hand.begin();
-    Tile tile = *it;
-    drawTile(canvas, ulcY+1, ulcX+1, tile);
+    Tile const *tile = board.getCell(square);
+    if (tile != NULL) {
+        drawTile(canvas, ulcY+1, ulcX+1, *tile);
+    }
 }
 
 void TopWindow::drawTile(Canvas &canvas, int top, int left, Tile const &tile) {
@@ -199,7 +198,7 @@ void TopWindow::drawTile(Canvas &canvas, int top, int left, Tile const &tile) {
     COLORREF glyphColor = BLACK_COLOR;
 
 #if 1
-	ACount numberOfColorAttributes = 1;
+	ACount numberOfColorAttributes = 0;
 
 	AIndex colorInd;
 	if (numberOfColorAttributes == 1) {
@@ -459,6 +458,7 @@ void TopWindow::repaint(void) {
     
     Canvas canvas(contextHandle, windowHandle, false);
     
+    // draw the board
     Board board = game->getBoard();
     int bottomRow = board.getMaxN();
     int topRow = -(int)board.getMaxS();
@@ -478,6 +478,29 @@ void TopWindow::repaint(void) {
             GridRef square(row, column);
             drawCell(canvas, square);
         }
+    }
+    
+    // draw the active player's hand
+    Player activePlayer = game->getActivePlayer();
+    Tiles hand = activePlayer.getHand();
+    unsigned cellWidth = getCellWidth();
+    unsigned pad = 4;
+    unsigned tileCount = hand.size();
+    int top = 4 + cellWidth + cellWidth/2 + 2*pad;
+    int left = 4;
+    int width = cellWidth + 2*pad;
+    int height = (tileCount + 1)*cellWidth + cellWidth/2 + 4*pad;
+    COLORREF edgeColor = BLACK_COLOR;
+    COLORREF areaColor = DARK_GREEN_COLOR;
+    canvas.drawRectangle(top, left, width, height, areaColor, edgeColor);
+    int x = left + pad + 1;
+    int y = top + pad + cellWidth/2 + 1;
+    Tiles::iterator it;
+    for (it = hand.begin(); it != hand.end(); it++) {
+        Tile tile = *it;
+        drawTile(canvas, y, x, tile);
+        y += cellWidth;
+        // TODO which tile is in each slot
     }
 
     ::EndPaint(windowHandle, &paintStruct);

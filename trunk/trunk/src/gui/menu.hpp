@@ -38,7 +38,7 @@ class SubMenu {
 };
 
 class PlayMenu: public SubMenu {
-    MenuItem _pause, _accept, _play, _swap, _pass, _resign;
+    MenuItem _pause, _accept, _play, _pass, _resign;
     MenuItem _restart, _undo, _redo, _autopause;
 
     public:

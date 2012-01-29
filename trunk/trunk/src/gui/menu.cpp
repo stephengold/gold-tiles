@@ -48,7 +48,6 @@ PlayMenu::PlayMenu(HMENU menu, UINT position):
     _pause(menu, IDM_PAUSE),
     _accept(menu, IDM_ACCEPT),
     _play(menu, IDM_PLAY_PLAY),
-    _swap(menu, IDM_SWAP),
     _pass(menu, IDM_PASS),
     _resign(menu, IDM_RESIGN),
     _restart(menu, IDM_RESTART),

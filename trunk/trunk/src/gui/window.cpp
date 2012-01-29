@@ -127,6 +127,13 @@ HDC Window::initialize(CREATESTRUCT const *createStruct) {
 	return privateDC;
 }
 
+void Window::setClientArea(unsigned width, unsigned height) {
+    assert(width < 4000);
+    assert(height < 4000);
+    _clientAreaWidth = width;
+    _clientAreaHeight = height;
+}
+
 void Window::setHandle(HWND handle) {
 	_handle = handle;
 
@@ -162,13 +169,6 @@ void Window::setIcons(char const *iconResourceName) {
 	HICON largeIconHandle = (HICON)::LoadImage(moduleInstance, iconResourceName, imageType,
 		desiredWidth, desiredWidth, option);
     ::SendMessage(windowHandle, message, whichIcon, LPARAM(largeIconHandle));
-}
-
-void Window::setClientArea(unsigned width, unsigned height) {
-    assert(width < 4000);
-    assert(height < 4000);
-    _clientAreaWidth = width;
-    _clientAreaHeight = height;
 }
 
 void Window::show(int how) {

@@ -13,10 +13,15 @@
 */
 
 #include <windows.h>
+#include "board.hpp"
 #include "gui/window.hpp"
 #include "gui/canvas.hpp"
 #include "gui/menu.hpp"
 #include "project.hpp"
+#include "tile.hpp"
+
+typedef std::map<TileId, RECT> TileMap;
+typedef std::pair<TileId, RECT> TilePair;
 
 class TopWindow: public Window {
 	static WindowClass *_class;
@@ -25,22 +30,34 @@ class TopWindow: public Window {
 	char *_fileName;
 	
 	bool _autopauseFlag;
-	bool _dragBoardFlag;
+	Board _board;
+	bool _dragBoardFlag, _dragTileFlag;
+	int _dragTileDeltaX, _dragTileDeltaY;
+	TileId _dragTileId;
+	Tiles _handTiles;
+	RECT _handRect;
 	int _mouseLastX, _mouseLastY; // coordinates of last mouse down
+	bool _newStep;
+	ACount _numberOfColorAttributes;
 	bool _originHasBeenCentered;
 	long _originX, _originY; // logical coordinates of ulc of origin cell
 	bool _pauseFlag;
     PlayMenu *_playMenu;
+    unsigned _playedTileCount;
 	bool _showClocksFlag;
-	bool _showGridFlag;
+    bool _showGridFlag;
 	bool _showHintsFlag;
 	bool _showScoresFlag;
 	bool _showTilesFlag;
+	Tiles _swapTiles;
+	RECT _swapRect;
+	TileMap _tileMap;
 	unsigned _tileWidth;
     ViewMenu *_viewMenu;
 
     void drawCell(Canvas &, GridRef const &);
-	void drawTile(Canvas &, int top, int left, Tile const &);
+	RECT drawTile(Canvas &, int top, int left, Tile const &);
+	GridRef getCellRef(int x, int y);
     unsigned getCellWidth(void) const;
     int getCellX(int column) const;
     int getCellY(int row) const;
@@ -60,10 +77,10 @@ class TopWindow: public Window {
 
 		TopWindow(HINSTANCE);
 
-		void buttonDown(POINTS const &);
-		void buttonUp(POINTS const &);
+		void buttonDown(int x, int y);
+		void buttonUp(int x, int y);
         void createdWindow(CREATESTRUCT const *);
-		void dragMouse(POINTS const &);
+		void dragMouse(int x, int y);
         LRESULT handleMessage(UINT message, WPARAM wParam, LPARAM lParam);
 		void recenter(unsigned oldWidth, unsigned oldHeight);
         void repaint(void);

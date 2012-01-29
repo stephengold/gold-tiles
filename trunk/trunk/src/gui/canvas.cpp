@@ -63,6 +63,8 @@ void DevContext::useColors(COLORREF brushColor, COLORREF penColor) {
     assert(success != 0);
 
     COLORREF oldColor = ::SetBkColor(_contextHandle, brushColor);
+    assert(oldColor != CLR_INVALID);   
+    oldColor = SetTextColor(_contextHandle, penColor);
     assert(oldColor != CLR_INVALID);
 
     int penStyle = PS_SOLID;
@@ -91,12 +93,14 @@ void Canvas::drawCell(int top, int left, unsigned width, COLORREF cellColor,
 }
 
 void Canvas::drawGlyph(int top, int left, unsigned width, unsigned height,
-                  COLORREF glyphColor, AIndex ind, AValue glyph)
+                  COLORREF bgColor, COLORREF fgColor, AIndex ind, AValue glyph)
 {
     unsigned textLen = 1;
     char text[1];
     string str = attributeToString(ind, glyph);
     text[0] = str[0];
+
+    useColors(bgColor, fgColor);
 
 	RECT rect;
 	rect.top = top;
@@ -107,11 +111,10 @@ void Canvas::drawGlyph(int top, int left, unsigned width, unsigned height,
     UINT format = DT_CENTER | DT_EXTERNALLEADING
                     | DT_NOPREFIX | DT_SINGLELINE | DT_VCENTER;
     BOOL success = ::DrawText((HDC)*this, text, textLen, &rect, format);
-    useColors(LIGHT_GRAY_COLOR, glyphColor);
     assert(success != 0);
 }
 
-void Canvas::drawRectangle(int top, int left, unsigned width, unsigned height, 
+RECT Canvas::drawRectangle(int top, int left, unsigned width, unsigned height, 
 	COLORREF areaColor, COLORREF edgeColor)
 {
     useColors(areaColor, edgeColor);
@@ -119,23 +122,37 @@ void Canvas::drawRectangle(int top, int left, unsigned width, unsigned height,
 	int bottom = top + height;
 	BOOL success = ::Rectangle((HDC)*this, left, top, right, bottom);
 	assert(success != 0);
+	
+	RECT result;
+	result.left = left;
+	result.right = right;
+	result.top = top;
+	result.bottom = bottom;
+	
+	return result;
 }
 
-void Canvas::drawTile(int top, int left, unsigned width, COLORREF bg,
+RECT Canvas::drawTile(int top, int left, unsigned width, COLORREF bg,
           COLORREF fg, ACount numGlyphs, const AValue glyphs[])
 {
     assert(numGlyphs <= 4);
-    useColors(bg, fg);
-   
-    int height = width;
-    int ellipseWidth = width/5;
-    int ellipseHeight = ellipseWidth;
+    useColors(bg, bg);
+    
+	RECT result;
+    unsigned height = width;
+    unsigned ellipseWidth = width/5;
+    unsigned ellipseHeight = ellipseWidth;
     {
         int bottom = top + height;
         int right = left + width;
         BOOL success = ::RoundRect((HDC)*this, left, top, right, bottom,
                              ellipseWidth, ellipseHeight);
         assert(success != 0);
+        
+	    result.left = left;
+	    result.right = right;
+	    result.top = top;
+	    result.bottom = bottom;
     }
  
     top += ellipseHeight/2;
@@ -164,6 +181,8 @@ void Canvas::drawTile(int top, int left, unsigned width, COLORREF bg,
         }
 
         AValue glyph = glyphs[ind];
-		drawGlyph(glyphTop, glyphLeft, width, height, fg, ind, glyph);
+		drawGlyph(glyphTop, glyphLeft, width, height, bg, fg, ind, glyph);
     }
+	
+	return result;
 }

@@ -16,7 +16,9 @@
 
 class Play: public set<TileSquare> {
     public:
+        void add(Tile const &, GridRef const &);
         void display(void) const;
+        unsigned getCount(void) const;
         Tiles getTiles(void) const;
         Locus getSquares(void) const;
         void getUserChoice(Tiles const &);

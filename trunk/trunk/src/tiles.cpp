@@ -5,10 +5,20 @@
 #include <iostream>
 #include "tiles.hpp"
 
+void Tiles::addTile(Tile const &tile) {
+    std::pair<Tiles::iterator, bool> ins;
+    ins = insert(tile);
+    bool success = ins.second;
+    assert(success);
+}
+
 void Tiles::addTiles(Tiles const &tiles) {
     const_iterator tile;
     for (tile = tiles.begin(); tile != tiles.end(); tile++) {
-		insert(*tile);
+        std::pair<Tiles::iterator, bool> ins;
+        ins = insert(*tile);
+        bool success = ins.second;
+        ASSERT(success);
 	}
 }
 
@@ -64,6 +74,20 @@ unsigned Tiles::drawTiles(unsigned tileCount, Tiles &bag) {
 	}
 
 	return numTilesDrawn;
+}
+
+Tile Tiles::findTile(TileId id) const {
+    Tile result;
+    const_iterator tile;
+    for (tile = begin(); tile != end(); tile++) {
+        if (tile->getId() == id) {
+            result = *tile;
+            break;
+        }
+    }
+    ASSERT(tile != end());
+    
+    return result; 
 }
 
 Tiles Tiles::getLongestRun(void) const {

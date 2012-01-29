@@ -22,10 +22,10 @@ enum Color {
     RED_COLOR         = PALETTERGB(255, 0, 0),
     PINK_COLOR        = PALETTERGB(255, 128, 128),
 
-    BROWN_COLOR       = PALETTERGB(64, 64, 0),
+    BROWN_COLOR       = PALETTERGB(100, 100, 0),
     YELLOW_COLOR      = PALETTERGB(255, 255, 0),
     
-    DARK_GREEN_COLOR  = PALETTERGB(0, 128, 0),
+    DARK_GREEN_COLOR  = PALETTERGB(0, 100, 0),
     GREEN_COLOR       = PALETTERGB(0, 255, 0),
     LIGHT_GREEN_COLOR = PALETTERGB(64, 255, 64),
 
@@ -56,6 +56,8 @@ class DevContext {
 
 class Canvas: public DevContext {
     // TODO: implement double buffering
+    void drawGlyph(int top, int left, unsigned width, unsigned height,
+              COLORREF bg, COLORREF fg, AIndex, AValue);
     public:
         Canvas(void) { assert(false); };
         Canvas(Canvas const &) { assert(false); };
@@ -70,11 +72,9 @@ class Canvas: public DevContext {
                   COLORREF cellColor, COLORREF gridColor);
         void drawClock(int top, int left, unsigned width,
                   COLORREF clockColor, COLORREF textColor, char const *);
-        void drawGlyph(int top, int left, unsigned width, unsigned height,
-                  COLORREF, AIndex, AValue);
-        void drawRectangle(int top, int left, unsigned width, unsigned height, 
+        RECT drawRectangle(int top, int left, unsigned width, unsigned height, 
 			      COLORREF areaColor, COLORREF edgeColor);
-        void drawTile(int top, int left, unsigned width, COLORREF bg,
+        RECT drawTile(int top, int left, unsigned width, COLORREF bg,
                   COLORREF fg, ACount numGlyphs, const AValue glyphs[]);
 };
 

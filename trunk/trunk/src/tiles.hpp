@@ -6,11 +6,11 @@
 // Author:  Stephen Gold sgold@sonic.net
 
 #include <set>
-#include <string>
 #include "tile.hpp"
 
 class Tiles: public set<Tile> {
     public:
+        void addTile(Tile const &);
 		void addTiles(Tiles const &);
         bool areAllCompatible(void) const;
         bool contains(Tile const &) const;
@@ -18,6 +18,7 @@ class Tiles: public set<Tile> {
         void display(void) const;
         Tile drawRandomTile(void);
 		unsigned drawTiles(unsigned, Tiles &bag);
+		Tile findTile(TileId) const;
 		Tiles getLongestRun(void) const;
         void getUserChoice(Tiles const &);
 		bool isEmpty(void) const;

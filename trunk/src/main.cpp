@@ -17,8 +17,8 @@ int main(int argc, char *argv[]) {
 	unsigned numPlayers = 2;
 	string playerNames[] = { "Stephen", "Paul" }; // oldest first!
 	ACount numAttributes = 2;
-	AValue maxAttribute[] = { 5, 5 };
-	unsigned tileRedundancy = 3;
+	AValue maxAttribute[] = { 6, 6 };
+	unsigned tileRedundancy = 2;
 	unsigned handSize = 7;
 	
 	Game game(numPlayers, playerNames, numAttributes, maxAttribute,
@@ -75,7 +75,7 @@ int CALLBACK WinMain(
 	unsigned numPlayers = 2;
 	string playerNames[] = { "Stephen", "Paul" }; // oldest first!
 	ACount numAttributes = 2;
-	AValue maxAttribute[] = { 5, 5 };
+	AValue maxAttribute[] = { 6, 6 };
 	unsigned tileRedundancy = 3;
 	unsigned handSize = 7;
 

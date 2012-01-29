@@ -17,6 +17,11 @@
 
 // public methods
 
+void Play::add(Tile const &tile, GridRef const &square) {
+    TileSquare ts(tile, square);
+    insert(ts);
+}
+
 Tiles Play::getTiles(void) const {
     Tiles result;
     

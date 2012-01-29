@@ -10,7 +10,6 @@
  which may be extended in four directions.  The surface is
  modeled as a grid of cells onto which Tile objects may be
  played.  Cells are referenced by means of GridRef objects.
- A given cell may only be played on once.
  
  The Board class extends BaseBoard and adds functionality.
 */
@@ -22,6 +21,8 @@
 class BaseBoard {
     // private datatype
     typedef map<GridRef,Tile>::const_iterator const_iterator;
+    typedef map<GridRef,Tile>::iterator iterator;
+    typedef map<GridRef,Tile>::size_type size_type;
 
     // private data
     int _maxN, _maxS, _maxE, _maxW; // extent of played area
@@ -29,11 +30,14 @@ class BaseBoard {
 
     // private methods
     const_iterator find(int n, int e) const;
+    iterator find(int n, int e);
 
     public:
         BaseBoard(void);
 
         void display(void) const;
+        void emptyCell(GridRef const &);
+        bool findTile(Tile const &, GridRef &) const;
 		Tile const *getCell(GridRef const &) const;
         int getMaxN(void) const;
         int getMaxS(void) const;

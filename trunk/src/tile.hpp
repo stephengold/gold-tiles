@@ -14,9 +14,12 @@
  between clones.
 */
 
-#include "project.hpp"
+#include <limits.h>
 #include <set>
-#include <string>
+#include "project.hpp"
+
+// tile ID type
+typedef unsigned TileId;
 
 // attribute types and utilities
 typedef unsigned ACount, AIndex;
@@ -32,12 +35,12 @@ class Strings: public set<string> {};
 class Tile {
     // static private data
 	static AValue *_maxAttribute;  // number of values for each tile attribute
-	static unsigned _nextId;
+	static TileId _nextId;
 	static AIndex _numAttributes;  // number of attributes for each tile
 
     // private data
 	AValue *_arr;
-	unsigned _id;
+	TileId _id;
 
 	public:
         // static methods
@@ -57,6 +60,7 @@ class Tile {
 		unsigned commonAttribute(Tile const &) const;
 		void display(void) const;
 		AValue getAttribute(AIndex) const;
+		TileId getId(void) const;
 		string getUserChoice(Tiles const &, Strings const &);
 		bool hasAttribute(AIndex, AValue) const;
 		bool isClone(Tile const &) const;

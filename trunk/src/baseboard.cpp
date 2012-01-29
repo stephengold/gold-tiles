@@ -15,6 +15,13 @@ BaseBoard::const_iterator BaseBoard::find(int n, int e) const {
     return result;
 }
 
+BaseBoard::iterator BaseBoard::find(int n, int e) {
+    GridRef ref(n, e);
+    iterator result = _cells.find(ref);
+
+    return result;
+}
+
 // constructors, assignment, and destructor
 
 BaseBoard::BaseBoard(void) {
@@ -31,13 +38,34 @@ BaseBoard::BaseBoard(void) {
 // public methods
 
 void BaseBoard::display(void) const {
-     cout << endl << this->toString() << endl;
+    cout << endl << this->toString() << endl;
 }
 
-Tile const *BaseBoard::getCell(GridRef const &ref) const {
-    const_iterator it = _cells.find(ref);
+void BaseBoard::emptyCell(GridRef const &square) {
+    int row = square.getRow();
+    int column = square.getColumn();
+    iterator it = find(row, column);
+    assert(it != _cells.end());
+    _cells.erase(it);
+}
 
+bool BaseBoard::findTile(Tile const &tile, GridRef &square) const {
+    for (int row = _maxN; row >= -(int)_maxS; row--) {
+	    for (int column = -_maxW; column <= _maxE; column++) {
+            const_iterator it = find(row, column);
+			if (it != _cells.end() && it->second == tile) {
+                square = it->first;
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+Tile const *BaseBoard::getCell(GridRef const &square) const {
     Tile const *result = NULL;
+
+    const_iterator it = _cells.find(square);
     if (it != _cells.end()) {
         result = &(it->second);
     }
@@ -92,7 +120,7 @@ string BaseBoard::toString(void) const {
        result += cTag;
     }
     result += "\n";
-    for (int row = _maxN; row >= -(int)_maxS; row++) {
+    for (int row = _maxN; row >= -(int)_maxS; row--) {
         string rTag = itoa(row);
         result += string(5 - rTag.size(), ' ');
         result += rTag;

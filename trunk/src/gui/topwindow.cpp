@@ -11,6 +11,7 @@
 #include "gui/topwindow.hpp"
 #include "gui/windowclass.hpp"
 #include "locus.hpp"
+#include "play.hpp"
 #include "project.hpp"
 
 #define WIDTH_SMALL_TILE 21
@@ -67,14 +68,14 @@ TopWindow::TopWindow(HINSTANCE applicationInstance):
 
 	char const *className = getClassName();
     if (_class == NULL) {
-		// constructing first instance:  create a Microsoft window class
+		// constructing first instance:  create a Microsoft Windows window class
 		WNDPROC messageHandler = getMessageHandler();
 		_class = new WindowClass(applicationInstance, messageHandler, className);
 		_class->registerClass();
 	}
 	assert(_class != NULL);
 
-	// Make this available to message handler prior to WM_CREATE.
+	// Make this TopWindow object accessable to message handler before WM_CREATE.
     assert(newlyCreatedTopWindow == NULL);
 	newlyCreatedTopWindow = this;
 
@@ -88,31 +89,62 @@ TopWindow::TopWindow(HINSTANCE applicationInstance):
 	HWND parent = NULL;
 	HMENU menu = NULL;
 	LPVOID parameters = NULL;
-    HWND handle = ::CreateWindow(className, windowName, windowStyle, x, y, width, height,
-	                         parent, menu, applicationInstance, parameters);
+    HWND handle = ::CreateWindow(className, windowName, windowStyle, x, y, 
+                             width, height, parent, menu, applicationInstance, 
+                             parameters);
     assert(handle != 0);
     setHandle(handle);
 
+    _board = game->getBoard();
+    _dragBoardFlag = false;
+    _dragTileFlag = false;
+    Player activePlayer = game->getActivePlayer();
+    _handTiles = activePlayer.getHand();
+    _mouseLastX = 0;
+    _mouseLastY = 0;
+    _newStep = true;
+    _numberOfColorAttributes = 0;
     _originHasBeenCentered = false;
     _originX = 0;
     _originY = 0;
-
-    _dragBoardFlag = false;
-    _mouseLastX = 0;
-    _mouseLastY = 0;
+    _playedTileCount = 0;   
+    
 }
 
-void TopWindow::buttonDown(const POINTS &point) {
-    // Capture the mouse
+void TopWindow::buttonDown(int x, int y) {
     HWND thisWindow = getHandle();
-	::SetCapture(thisWindow);
+    POINT pt; pt.x = x; pt.y = y;
+    
+    TileMap::const_iterator it;
+    for (it = _tileMap.begin(); it != _tileMap.end(); it++) {
+        RECT rect = it->second;
+        if (::PtInRect(&rect, pt)) {
+            break;
+        }
+    }
+    if (it != _tileMap.end()) {
+        // Capture mouse to drag a tile
+        ::SetCapture(thisWindow);
+        _mouseLastX = x;
+        _mouseLastY = y;
+        _dragTileDeltaX = 0;
+        _dragTileDeltaY = 0;
+        _dragTileFlag = true;
+        _dragTileId = it->first;
+        
+    } else if (!::PtInRect(&_handRect, pt) &&
+               !::PtInRect(&_swapRect, pt))
+    {
+        // Capture mouse to drag the board
+    	::SetCapture(thisWindow);
 
-    _mouseLastX = point.x;
-    _mouseLastY = point.y;
-    _dragBoardFlag = true;
+        _mouseLastX = x;
+        _mouseLastY = y;
+        _dragBoardFlag = true;
+    }
 }
 
-void TopWindow::buttonUp(const POINTS &point) {
+void TopWindow::buttonUp(int x, int y) {
     HWND thisWindow = getHandle();
 	HWND captor = ::GetCapture();
     if (captor != thisWindow) {
@@ -121,17 +153,65 @@ void TopWindow::buttonUp(const POINTS &point) {
         ::ReleaseCapture();
     }
 		
-    int dragX = point.x - _mouseLastX;
-    int dragY = point.y - _mouseLastY;
+    int dragX = x - _mouseLastX;
+    int dragY = y - _mouseLastY;
     if (_dragBoardFlag) {
         _originX += dragX;
         _originY += dragY;
-        forceRepaint();
+        
+    } else {
+        assert(_dragTileFlag);
+        
+        _dragTileDeltaX += dragX;
+        _dragTileDeltaY += dragY;
+        
+        // Determine where the tile was dragged from.
+        bool fromBoard = false;
+        bool fromSwap = false;
+        GridRef fromSquare;
+        
+        Tile dragTile = _handTiles.findTile(_dragTileId);
+        if (_board.findTile(dragTile, fromSquare)) {
+            fromBoard = true;
+            _board.emptyCell(fromSquare);
+            --_playedTileCount;
+        } else if (_swapTiles.contains(dragTile)) {
+            fromSwap = true;
+            _swapTiles.removeTile(dragTile);
+        }
+
+        // Determine where the tile got dragged to.
+        POINT point; point.x = x; point.y = y;
+        
+        if (::PtInRect(&_swapRect, point)) { // to swap
+            if (_playedTileCount == 0) {
+                _swapTiles.addTile(dragTile);
+            } else if (fromBoard) {
+                _board.playOnCell(fromSquare, dragTile);
+                ++_playedTileCount;
+            }
+            
+        } else if (!::PtInRect(&_handRect, point)) { // to board
+            GridRef toSquare = getCellRef(x, y);
+            Play play;
+            play.add(dragTile, toSquare);
+            if (_swapTiles.size() == 0 && _board.isLegalPlay(play)) {
+                _board.playTiles(play);
+                ++_playedTileCount;
+            } else if (fromBoard) {
+                _board.playOnCell(fromSquare, dragTile);
+                ++_playedTileCount;
+            } else if (fromSwap) {
+                _swapTiles.addTile(dragTile);
+            }
+        }
     }
+    forceRepaint();
     
     _dragBoardFlag = false;
-    _mouseLastX = point.x;
-    _mouseLastY = point.y;
+    _dragTileFlag = false;
+    _mouseLastX = x;
+    _mouseLastY = y;
 }
 
 void TopWindow::createdWindow(CREATESTRUCT const *createStruct) {
@@ -146,23 +226,27 @@ void TopWindow::createdWindow(CREATESTRUCT const *createStruct) {
 	updateMenus();
 }
 
-void TopWindow::dragMouse(POINTS const &point) {
+void TopWindow::dragMouse(int x, int y) {
     HWND thisWindow = getHandle();
 	HWND captor = ::GetCapture();
     if (captor != thisWindow) {
 		return;
     }
 
-    int dragX = point.x - _mouseLastX;
-    int dragY = point.y - _mouseLastY;
+    int dragX = x - _mouseLastX;
+    int dragY = y - _mouseLastY;
     if (_dragBoardFlag) {
         _originX += dragX;
         _originY += dragY;
         forceRepaint();
+    } else if (_dragTileFlag) {
+        _dragTileDeltaX += dragX;
+        _dragTileDeltaY += dragY;
+        forceRepaint();
     }
 
-    _mouseLastX = point.x;
-    _mouseLastY = point.y;
+    _mouseLastX = x;
+    _mouseLastY = y;
 }
 
 void TopWindow::drawCell(Canvas &canvas, GridRef const &square) {
@@ -171,14 +255,15 @@ void TopWindow::drawCell(Canvas &canvas, GridRef const &square) {
     int ulcX = getCellX(column);
     int ulcY = getCellY(row);
 
-    Board board = game->getBoard();
     Locus done;
-    bool connected = board.connectsToOrigin(square, done);
+    bool connected = _board.connectsToOrigin(square, done);
 
     COLORREF cellColor = DARK_GREEN_COLOR;
     COLORREF gridColor = cellColor;
     if (!connected) {
         cellColor = BLACK_COLOR;
+    } else if (_swapTiles.size() != 0) {
+        cellColor = BROWN_COLOR;
     }
     if (_showGridFlag) {
         gridColor = GREEN_COLOR;
@@ -187,59 +272,61 @@ void TopWindow::drawCell(Canvas &canvas, GridRef const &square) {
     unsigned cellWidth = getCellWidth();
     canvas.drawCell(ulcY, ulcX, cellWidth, cellColor, gridColor);
     
-    Tile const *tile = board.getCell(square);
+    Tile const *tile = _board.getCell(square);
     if (tile != NULL) {
-        drawTile(canvas, ulcY+1, ulcX+1, *tile);
+        if (!_dragTileFlag || tile->getId() != _dragTileId) {
+            drawTile(canvas, ulcY + 1, ulcX + 1, *tile);
+        }
     }
 }
 
-void TopWindow::drawTile(Canvas &canvas, int top, int left, Tile const &tile) {
+RECT TopWindow::drawTile(Canvas &canvas, int topY, int leftX, Tile const &tile) {
     COLORREF baseColor = LIGHT_GRAY_COLOR;
-    COLORREF glyphColor = BLACK_COLOR;
-
-#if 1
-	ACount numberOfColorAttributes = 0;
-
+    if (_dragTileFlag && tile.getId() == _dragTileId) {
+       topY += _dragTileDeltaY;
+       leftX += _dragTileDeltaX;
+       baseColor = WHITE_COLOR;
+    }
+	
 	AIndex colorInd;
-	if (numberOfColorAttributes == 1) {
+	if (_numberOfColorAttributes == 1) {
         colorInd = tile.getAttribute(0);
 	} else {
-		assert(numberOfColorAttributes == 0);
+		assert(_numberOfColorAttributes == 0);
         colorInd = 0;
 	}
-	assert(colorInd < 10);
-	static COLORREF Colors[10] = {
+	assert(colorInd < 9);
+	static COLORREF GlyphColors[9] = {
 		BLACK_COLOR, RED_COLOR,       DARK_BLUE_COLOR, DARK_GREEN_COLOR, PURPLE_COLOR,
-		BROWN_COLOR, DARK_GRAY_COLOR, PINK_COLOR,      LIGHT_BLUE_COLOR, LIGHT_GREEN_COLOR
+		BROWN_COLOR, DARK_GRAY_COLOR, PINK_COLOR,      LIGHT_BLUE_COLOR
 	};
-	glyphColor = Colors[colorInd];
+    COLORREF glyphColor = GlyphColors[colorInd];
 
-    ACount numberOfGlyphAttributes = Tile::getNumAttributes() - numberOfColorAttributes;
+    ACount numberOfGlyphAttributes = Tile::getNumAttributes() - _numberOfColorAttributes;
     AValue glyphs[4];
     for (AIndex gi = 0; gi < 4; gi++) {
-		AIndex ind = gi + numberOfColorAttributes;
+		AIndex ind = gi + _numberOfColorAttributes;
          if (gi < numberOfGlyphAttributes) {
              glyphs[gi] = tile.getAttribute(ind);
          } else {
              glyphs[gi] = 0;
          }
     }
-#else
-    AIndex colorInd = 0;
-    ACount numberOfGlyphAttributes = Tile::getNumAttributes();
-    AValue glyphs[4];
-    for (AIndex ind = 0; ind < 4; ind++) {
-         if (ind < numberOfGlyphAttributes) {
-             glyphs[ind] = tile.getAttribute(ind);
-         } else {
-             glyphs[ind] = 0;
-         }
-    }
-#endif
 
     unsigned width = getCellWidth() - 2;
-    canvas.drawTile(top, left, width, baseColor,
-          glyphColor, numberOfGlyphAttributes, glyphs);
+    RECT result = canvas.drawTile(topY, leftX, width, baseColor, glyphColor, 
+            numberOfGlyphAttributes, glyphs);
+    
+    return result;
+}
+
+GridRef TopWindow::getCellRef(int x, int y) {
+    unsigned gridUnit = getGridUnit();
+    int column = -100 + (x - _originX + 100*gridUnit)/gridUnit;
+    int row = 100 - (y - _originY + 100*gridUnit)/gridUnit;
+    GridRef result(row, column);
+    
+    return result;
 }
 
 unsigned TopWindow::getCellWidth(void) const {
@@ -308,20 +395,20 @@ LRESULT TopWindow::handleMessage(UINT message, WPARAM wParam, LPARAM lParam) {
 
 		case WM_LBUTTONDOWN: { // left-click
 			POINTS xy = MAKEPOINTS(lParam);
-            buttonDown(xy);
+            buttonDown(xy.x, xy.y);
             break;
 		}
 
         case WM_LBUTTONUP: {
 			POINTS xy = MAKEPOINTS(lParam);
-            buttonUp(xy);
+            buttonUp(xy.x, xy.y);
             break;
 		}
 
         case WM_MOUSEMOVE:
             if (wParam & MK_LBUTTON) { // dragging with left button
 				POINTS xy = MAKEPOINTS(lParam);
-                dragMouse(xy);
+                dragMouse(xy.x, xy.y);
 			}
             break;
 
@@ -371,13 +458,10 @@ void TopWindow::menuCommand(int command) {
 			// TODO
 			break;
 
-		case IDM_SWAP:
-			// TODO
-			break;
-
 		case IDM_PAUSE:
 			_pauseFlag = !_pauseFlag;
 			_playMenu->pause(_pauseFlag);
+			forceRepaint();
 			break;
         case IDM_AUTOPAUSE:
             _autopauseFlag = !_autopauseFlag;
@@ -456,18 +540,23 @@ void TopWindow::repaint(void) {
     HDC contextHandle = ::BeginPaint(windowHandle, &paintStruct);
     assert(contextHandle != NULL);
     
-    Canvas canvas(contextHandle, windowHandle, false);
+    bool releaseMe = false;
+    Canvas canvas(contextHandle, windowHandle, releaseMe);
     
+    if (_pauseFlag) {
+        ::EndPaint(windowHandle, &paintStruct);
+        return;
+    }
+
     // draw the board
-    Board board = game->getBoard();
-    int bottomRow = board.getMaxN();
-    int topRow = -(int)board.getMaxS();
-    int rightColumn = board.getMaxE();
-    int leftColumn = -(int)board.getMaxW();
+    int topRow = 1 + _board.getMaxN();
+    int bottomRow = -1 - (int)_board.getMaxS();
+    int rightColumn = 1 + _board.getMaxE();
+    int leftColumn = -1 - (int)_board.getMaxW();
     ASSERT(bottomRow <= topRow);
     ASSERT(leftColumn <= rightColumn);
     
-    for (int row = bottomRow; row <= topRow; row++) {
+    for (int row = topRow; row >= bottomRow; row--) {
         if (getCellY(row) > (int)_clientAreaHeight) {
             break;
         }
@@ -481,26 +570,75 @@ void TopWindow::repaint(void) {
     }
     
     // draw the active player's hand
-    Player activePlayer = game->getActivePlayer();
-    Tiles hand = activePlayer.getHand();
     unsigned cellWidth = getCellWidth();
-    unsigned pad = 4;
-    unsigned tileCount = hand.size();
-    int top = 4 + cellWidth + cellWidth/2 + 2*pad;
+    unsigned cellHeight = cellWidth;
+    unsigned bagHeight = cellHeight;
+    unsigned pad = 6;
+    COLORREF edgeColor = WHITE_COLOR;
+
+    unsigned tileCount = _swapTiles.size();
+    int top = 4;
     int left = 4;
     int width = cellWidth + 2*pad;
-    int height = (tileCount + 1)*cellWidth + cellWidth/2 + 4*pad;
-    COLORREF edgeColor = BLACK_COLOR;
-    COLORREF areaColor = DARK_GREEN_COLOR;
-    canvas.drawRectangle(top, left, width, height, areaColor, edgeColor);
-    int x = left + pad + 1;
-    int y = top + pad + cellWidth/2 + 1;
-    Tiles::iterator it;
-    for (it = hand.begin(); it != hand.end(); it++) {
+    int height = tileCount*cellHeight + bagHeight + 3*pad;
+    COLORREF areaColor;
+    if (tileCount < _handTiles.size() && _playedTileCount == 0) {
+        height += cellHeight/2;
+        areaColor = DARK_GREEN_COLOR;
+    } else { // can't add to swap
+        areaColor = BROWN_COLOR;
+    }
+    _swapRect = canvas.drawRectangle(top, left, width, height, areaColor, edgeColor);
+    
+    unsigned clockHeight = 0;
+    if (_showClocksFlag) {
+        clockHeight = cellWidth + pad;
+    }
+    tileCount = _handTiles.size() - _swapTiles.size() - _playedTileCount;
+    top = _swapRect.bottom - 1;
+    left = _swapRect.left;
+    height = tileCount*cellHeight + clockHeight + 2*pad;
+    if (tileCount != _handTiles.size()) {
+        height += cellHeight/2;
+        areaColor = DARK_GREEN_COLOR;
+    } else { // hand is full
+        areaColor = BROWN_COLOR;
+    }
+    _handRect = canvas.drawRectangle(top, left, width, height, areaColor, edgeColor);
+
+    _tileMap.clear();
+    int handY = _handRect.top + pad + 1;
+    if (tileCount != _handTiles.size()) {
+        handY += cellHeight/2;
+    }
+    int swapY = _swapRect.top + bagHeight + 2*pad;
+    Tiles::const_iterator it;
+    for (it = _handTiles.begin(); it != _handTiles.end(); it++) {
         Tile tile = *it;
-        drawTile(canvas, y, x, tile);
-        y += cellWidth;
-        // TODO which tile is in each slot
+        int x, y;
+        GridRef square;
+        if (_board.findTile(tile, square)) {
+            int row = square.getRow();
+            int column = square.getColumn();
+            x = getCellX(column) + 1;
+            y = getCellY(row) + 1;
+        } else {
+            x = left + pad + 1;
+            if (_swapTiles.contains(tile)) {
+                y = swapY;
+                swapY += cellHeight;
+            } else { 
+                y = handY;
+                handY += cellHeight;
+            }
+        }
+        RECT rect = drawTile(canvas, y, x, tile);
+        TileId id = tile.getId();
+        TilePair pair(id, rect);
+        std::pair<TileMap::iterator, bool> ins;
+        ins = _tileMap.insert(pair);
+        bool success = ins.second;
+        ASSERT(success);
     }
 
     ::EndPaint(windowHandle, &paintStruct);

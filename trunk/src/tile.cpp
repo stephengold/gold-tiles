@@ -46,13 +46,13 @@ AValue charToAttribute(AIndex ind, char ch) {
             result = (AValue)(ch - 'A');
             break;
         case 1:
-            result = (AValue)(ch - 'Q');
+            result = (AValue)(ch - 'R');
             break;
         case 2:
             result = (AValue)(ch - 'a');
             break;
         case 3:
-            result = (AValue)(ch - 'q');
+            result = (AValue)(ch - 'r');
             break;
         default:
             result = (AValue)(ch - '1');
@@ -69,7 +69,7 @@ AValue charToAttribute(AIndex ind, char ch) {
 // static private data
 
 AValue *Tile::_maxAttribute = NULL;
-unsigned Tile::_nextId = 0;
+TileId Tile::_nextId = 0;
 ACount Tile::_numAttributes = 0;
 
 // static methods
@@ -105,7 +105,7 @@ void Tile::setStatic(ACount na, AValue const maxAttr[]) {
     _maxAttribute = new AValue[na];
     for (AIndex i = 0; i < na; i++) {
         ASSERT(maxAttr[i] >= 3);
-        ASSERT(maxAttr[i] <= 10);
+        ASSERT(maxAttr[i] <= 9);
         _maxAttribute[i] = maxAttr[i];
     }
 }
@@ -126,6 +126,7 @@ Tile::Tile(void) {
         _arr[i] = 0;
     }
     _id = _nextId++;
+    ASSERT(_nextId < UINT_MAX);
 }
 
 // Mint a new tile based on a string.
@@ -150,6 +151,7 @@ Tile::Tile(string const &str) {
     }
     
     _id = _nextId++;
+    ASSERT(_nextId < UINT_MAX);
 
     ASSERT(isValid());
 }
@@ -175,6 +177,7 @@ Tile::~Tile(void) {
 Tile Tile::clone(void) const {
     Tile result = Tile(*this);
     result._id = _nextId++;
+    ASSERT(_nextId < UINT_MAX);
     
     return result;
 }
@@ -201,6 +204,12 @@ AValue Tile::getAttribute(AIndex ind) const {
     ASSERT(ind < _numAttributes);
     AValue result = _arr[ind];
     
+    return result;
+}
+
+TileId Tile::getId(void) const {
+    TileId result = _id;
+
     return result;
 }
 

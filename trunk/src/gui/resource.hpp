@@ -20,13 +20,12 @@
 #define IDM_PAUSE           6100
 #define IDM_ACCEPT          6101
 #define IDM_PLAY_PLAY		6102
-#define IDM_SWAP            6103
-#define IDM_PASS            6104
-#define IDM_RESIGN          6105
-#define IDM_RESTART         6106
-#define IDM_UNDO            6107
-#define IDM_REDO            6108
-#define IDM_AUTOPAUSE       6109
+#define IDM_PASS            6103
+#define IDM_RESIGN          6104
+#define IDM_RESTART         6105
+#define IDM_UNDO            6106
+#define IDM_REDO            6107
+#define IDM_AUTOPAUSE       6108
 
 // View menu
 #define IDM_VIEW			2

@@ -31,7 +31,7 @@ BEGIN
         MENUITEM "&Small Tiles",        IDM_SMALL_TILES
         MENUITEM "&Medium Tiles",       IDM_MEDIUM_TILES
         MENUITEM "&Large Tiles",        IDM_LARGE_TILES
-        MENUITEM "&Recenter",           IDM_RECENTER
+        MENUITEM "&Re-center",           IDM_RECENTER
         MENUITEM "Tile &Attributes...", IDM_ATTRIBUTES
         MENUITEM "Show &Clocks",        IDM_SHOW_CLOCKS
         MENUITEM "Show &Grid",          IDM_SHOW_GRID

@@ -17,7 +17,7 @@ WindowClass::WindowClass(
 	cbClsExtra = 0;
 	cbWndExtra = 0;
     cbSize = sizeof(WNDCLASSEX);
-	hbrBackground = (HBRUSH)::GetStockObject(BLACK_BRUSH);
+	hbrBackground = 0; // using double buffering, so no background brush
 	hCursor = LoadCursor(nullInstance, IDC_ARROW);
 	hIcon = 0;
 	hIconSm = 0;
@@ -32,11 +32,15 @@ WindowClass::WindowClass(
 }
 
 HINSTANCE WindowClass::getModule(void) const {
-	return hInstance;
+    HINSTANCE result = hInstance;
+    
+	return result;
 }
 
 char const *WindowClass::getName(void) const {
-	return lpszClassName;
+    char const *result = lpszClassName;
+    
+	return result;
 }
 
 void WindowClass::registerClass(void) {

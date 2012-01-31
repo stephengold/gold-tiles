@@ -16,10 +16,10 @@ class Columns: public set<int> {};
 
 // constructors, assignment, and destructor
 
-// The compiler.generated default constructor is fine.
-// The compiler-generated copy constructor is fine.
-// The compiler-generated assignment method is fine.
-// The compiler-generated destructor is fine.
+// The compiler-generated default constructor is OK.
+// The compiler-generated copy constructor is OK.
+// The compiler-generated assignment method is OK.
+// The compiler-generated destructor is OK.
 
 // public methods
 

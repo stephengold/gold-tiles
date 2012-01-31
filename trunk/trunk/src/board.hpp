@@ -39,6 +39,11 @@ class Board: public BaseBoard {
     unsigned scoreColumn(GridRef const &) const;
     
     public:
+        // Board(void);  compiler-generated default constructor is OK
+        // Board(BaseBoard const &);  compiler-generated copy constructor is OK
+        // Board &operator=(Board const &)};  compiler-generated assignment method is OK
+        // ~Board(void);  compiler-generated destructor is OK
+
         bool connectsToOrigin(GridRef const &, Locus &) const;
 		bool isEmptyCell(GridRef const &) const;
         bool isLegalPlay(Play const &) const;

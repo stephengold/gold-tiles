@@ -5,31 +5,6 @@
 #include <time.h>
 #include "game.hpp"
 
-#ifdef _CONSOLE
-// console interface
-
-int main(int argc, char *argv[]) {
-	// initialize random seed
-	unsigned seed = (unsigned)::time(NULL);
-    ::srand(seed);
-    
-    // game parameters: hard-coded for now
-	unsigned numPlayers = 2;
-	string playerNames[] = { "Stephen", "Paul" }; // oldest first!
-	ACount numAttributes = 2;
-	AValue maxAttribute[] = { 6, 6 };
-	unsigned tileRedundancy = 2;
-	unsigned handSize = 7;
-	
-	Game game(numPlayers, playerNames, numAttributes, maxAttribute,
-        tileRedundancy, handSize);
-	game.play();
-
-    pause();
-    return EXIT_SUCCESS;
-}
-#endif
-
 #ifdef _WINDOWS
 // Microsoft Windows(tm) GUI interface
 
@@ -60,25 +35,46 @@ static int messageDispatchLoop(void) {
 Game *game = NULL;
 TopWindow *topWindow = NULL;
 
-// Windows version
+// Windows entry point
 int CALLBACK WinMain(
 	HINSTANCE applicationInstance, 
 	HINSTANCE previousInstance, // always NULL and ignored
 	LPSTR commandLine,
 	int showHow) 
 {
+#endif
+
+#ifdef _CONSOLE
+
+
+// console entry point
+int main(int argc, char *argv[]) {
+#endif
+
 	// initialize random seed
 	unsigned seed = (unsigned)::time(NULL);
     ::srand(seed);
 
     // game parameters: hard-coded for now
-	unsigned numPlayers = 2;
-	string playerNames[] = { "Stephen", "Paul" }; // oldest first!
+	unsigned numPlayers = 3;
+	string playerNames[] = { "Stephen", "Paul", "Gale" }; // oldest first!
 	ACount numAttributes = 2;
-	AValue maxAttribute[] = { 6, 6 };
+	AValue maxAttribute[] = { 5, 5 };
 	unsigned tileRedundancy = 3;
 	unsigned handSize = 7;
 
+#ifdef _CONSOLE
+    // Instantiate the game.
+	Game game(numPlayers, playerNames, numAttributes, maxAttribute,
+        tileRedundancy, handSize);
+	game.play();
+
+    pause();
+
+	int exitCode = EXIT_SUCCESS;
+#endif
+
+#ifdef _WINDOWS
     // Instantiate the game.
 	game = new Game(numPlayers, playerNames, numAttributes, maxAttribute,
         tileRedundancy, handSize);
@@ -89,8 +85,8 @@ int CALLBACK WinMain(
 
     // Retrieve and dispatch messages for this application. 
 	int exitCode = messageDispatchLoop();
+#endif
 
 	return exitCode;
 }
 
-#endif

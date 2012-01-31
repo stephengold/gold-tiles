@@ -1,7 +1,9 @@
 // menu.cpp
 
-#include <windows.h>
 #include "project.hpp"
+
+#ifdef _WINDOWS
+#include <windows.h>
 #include "gui/resource.hpp"
 #include "gui/menu.hpp"
 
@@ -13,17 +15,17 @@ MenuItem::MenuItem(HMENU handle, UINT itemID):
 
 void MenuItem::check(bool checkedFlag) {
 	if (checkedFlag) {
-	    ::CheckMenuItem(_handle, _itemID, MF_CHECKED);
+	    ::CheckMenuItem(_handle, _itemID, MF_CHECKED | MF_BYCOMMAND);
 	} else {
-	    ::CheckMenuItem(_handle, _itemID, MF_UNCHECKED);
+	    ::CheckMenuItem(_handle, _itemID, MF_UNCHECKED | MF_BYCOMMAND);
 	}
 }
 
 void MenuItem::enable(bool enabledFlag) {
 	if (enabledFlag) {
-    	::EnableMenuItem(_handle, _itemID, MF_ENABLED);
+    	::EnableMenuItem(_handle, _itemID, MF_ENABLED | MF_BYCOMMAND);
 	} else {
-    	::EnableMenuItem(_handle, _itemID, MF_DISABLED);
+    	::EnableMenuItem(_handle, _itemID, MF_GRAYED | MF_BYCOMMAND);
 	}
 }
 
@@ -62,6 +64,17 @@ void PlayMenu::autopause(bool active) {
 void PlayMenu::pause(bool paused) {
 	_pause.check(paused);
 }
+void PlayMenu::enableItems(bool paused, bool play) {
+    _pause.enable(true);
+    _accept.enable(false);
+    _play.enable(!paused && play);
+    _pass.enable(!paused && !play);
+    _resign.enable(false);
+    _restart.enable(false);
+    _undo.enable(false);
+    _redo.enable(false);
+    _autopause.enable(!paused);
+}
 
 // the "View" submenu
 ViewMenu::ViewMenu(HMENU menu, UINT position):
@@ -79,12 +92,21 @@ ViewMenu::ViewMenu(HMENU menu, UINT position):
     _animation(menu, IDM_ANIMATION)
 {}
 
-void ViewMenu::uncheckAllSizes(void) {
-	_smallTiles.check(false);
-    _mediumTiles.check(false);
-    _largeTiles.check(false);
+void ViewMenu::showClocks(bool shown) {
+	_showClocks.check(shown);
 }
-
+void ViewMenu::showGrid(bool shown) {
+	_showGrid.check(shown);
+}
+void ViewMenu::showHints(bool shown) {
+	_showHints.check(shown);
+}
+void ViewMenu::showScores(bool shown) {
+	_showScores.check(shown);
+}
+void ViewMenu::showTiles(bool shown) {
+	_showTiles.check(shown);
+}
 void ViewMenu::tileSize(UINT position) {
 	uncheckAllSizes();
 	switch (position) {
@@ -101,19 +123,9 @@ void ViewMenu::tileSize(UINT position) {
 			assert(false);
 	}
 }
-
-void ViewMenu::showClocks(bool shown) {
-	_showClocks.check(shown);
+void ViewMenu::uncheckAllSizes(void) {
+	_smallTiles.check(false);
+    _mediumTiles.check(false);
+    _largeTiles.check(false);
 }
-void ViewMenu::showGrid(bool shown) {
-	_showGrid.check(shown);
-}
-void ViewMenu::showHints(bool shown) {
-	_showHints.check(shown);
-}
-void ViewMenu::showScores(bool shown) {
-	_showScores.check(shown);
-}
-void ViewMenu::showTiles(bool shown) {
-	_showTiles.check(shown);
-}
+#endif

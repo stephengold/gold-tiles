@@ -2,14 +2,15 @@
 // Purpose: Window class for the Gold Tile game.
 // Author:  Stephen Gold sgold@sonic.net
 
+#include "project.hpp"
+
+#ifdef _WINDOWS
 #include <map>
 #include <windows.h>
-//#include "about.h"
 #include "gui/canvas.hpp"
 #include "gui/resource.hpp"
 #include "gui/window.hpp"
 #include "gui/windowclass.hpp"
-#include "project.hpp"
 
 // message handler (callback) for window
 static Window *newlyCreatedWindow = NULL;
@@ -178,3 +179,4 @@ void Window::show(int how) {
     BOOL success = ::UpdateWindow(_handle);
     assert(success != 0);
 }
+#endif

@@ -6,10 +6,10 @@
 // Author:  Stephen Gold sgold@sonic.net
 
 /*
- A BaseBoard object represents a two-dimensional playing surface
- which may be extended in four directions.  The surface is
- modeled as a grid of cells onto which Tile objects may be
- played.  Cells are referenced by means of GridRef objects.
+ A BaseBoard object represents a two-dimensional playing grid
+ which grows automatically in four directions.  The grid is
+ composed of cells on which Tile objects may be played.
+ Cells are referenced by means of GridRef objects.
  
  The Board class extends BaseBoard and adds functionality.
 */
@@ -34,6 +34,9 @@ class BaseBoard {
 
     public:
         BaseBoard(void);
+        // BaseBoard(BaseBoard const &);  compiler-generated copy constructor is OK
+        // BaseBoard &operator=(BaseBoard const &)};  compiler-generated assignment method is OK
+        // ~BaseBoard(void);  compiler-generated destructor is OK
 
         void display(void) const;
         void emptyCell(GridRef const &);

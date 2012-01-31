@@ -10,152 +10,6 @@
 #include "play.hpp"
 #include "player.hpp"
 
-// create tiles and add them to the stock bag
-void Game::addTiles(  // recursive
-    unsigned attributeIndex,
-    unsigned tileRedundancy,
-    Tile &modelTile) {
-
-    ACount na = Tile::getNumAttributes();
-	if (attributeIndex < na) {
-		AValue maxA = Tile::getMaxAttribute(attributeIndex);
-		for (AValue attr = 0; attr <= maxA; attr++) {
-        	modelTile.setAttribute(attributeIndex, attr);
-	        addTiles(attributeIndex + 1, tileRedundancy, modelTile);
-         }
-	} else {
-        ASSERT(attributeIndex == na);
-		for (unsigned ci = 0; ci < tileRedundancy; ci++) {
-            Tile clo = modelTile.clone();
-			_bag.insert(clo);
-		}
-	}
-}
-
-// accessors
-
-Player Game::getActivePlayer(void) const {
-    return *_activePlayer;
-}
-Board Game::getBoard(void) const {
-    return _board;
-}
-
-// The game is over if (and only if) the stock bag is empty 
-// some player has gone out.
-
-bool Game::isGameOver(void) const {
-    bool result = false;
-    
-	if (_bag.empty()) {
-        vector<Player>::const_iterator player;
-        for (player = _players.begin(); player < _players.end(); player++) {
-	        if (player->handIsEmpty()) {
-		        result = true;
-		        break;
-	        }
-        }
-   }
-
-   D(cout << "Game::isGameOver() returns " << result << endl);
-   return result;
-}
-
-void Game::playFirstTurn(Player &player) {
-    cout << endl;
-    D(cout << "Game::playFirstTurn(" << player.toString() << ")" << endl);
-
-    Tiles run = player.longestRun();
-	unsigned runLength = run.size();
-
-    Play play;
-    while (true) {
-    	cout << player.getName() << " plays first and must place " 
-			<< plural(runLength, "tile") << " on the (empty) board." << endl;
-		play = player.choosePlay();
-    	if (play.size() != runLength || play.isSwap() || !_board.isLegalPlay(play)) {
-            cout << "That isn't a legal play." << endl;
-		    continue;
-        } else {
-            break;
-	    }
-	}
-
-    playTiles(player, play);
-}
-
-void Game::playTiles(Player &player, Play const &play) {
-    D(cout << "Game::playTiles(" << player.toString() << ", " << play.toString() << ")" << endl);
-    ASSERT(_board.isLegalPlay(play));
-
-    // remove played/swapped tiles from the player's hand
-    Tiles tiles = play.getTiles();
-    player.removeTiles(tiles);
-
-    // attempt to draw replacement tiles from the stock bag
-    unsigned count = tiles.size();
-	if (count > 0) {
-        unsigned actual = player.drawTiles(count, _bag);
-		ASSERT(actual == count || !play.isSwap());
-	}
-
-	if (play.isSwap()) {
-		// put swapped tiles back into the bag
-		_bag.addTiles(tiles);
-		cout << player.toString() << " put " << plural(count, "tile")
-			<< " back into the stock bag." << endl;
-
-	} else {
-	    // place played tiles on the board
-        _board.playTiles(play);
-    
-        // update the player's score    
-  	    unsigned points = _board.scorePlay(play);
-	    player.addScore(points);
-	}
-}
-
-void Game::playTurn(Player &player) {
-     D(cout << "Game::playTurn(" << player.getName() << ")" << endl);
-
-	 Play play;
-     while (true) {
- 	     printScores();
-    	 unsigned stock = _bag.size();
-         cout << endl
-			 << player.getName() << "'s turn, " 
-			 << plural(stock, "tile") << " remaining in the stock bag" << endl;
-	     _board.display();
-
-		 play = player.choosePlay();
-		 if (play.isPureSwap() && play.size() > stock) {
-             cout << "There aren't enough tiles in the stock bag." << endl;
-             continue;
-		 } else if (!_board.isLegalPlay(play)) {
-             cout << "That isn't a legal play." << endl;
-			 continue;
-         } else {
-             break;
-		 }
-	 }
-
-     playTiles(player, play);
-}
-
-void Game::printScores(void) const {
-    vector<Player>::const_iterator player;
-
-    for (player = _players.begin(); player < _players.end(); player++) {
-	    player->displayScore();
-    }
-}
-
-unsigned Game::scorePlay(Play const &play) const {
-     unsigned result = _board.scorePlay(play);
-
-     return result;
-}
-
 Game::Game(
     unsigned numPlayers,
     string playerNames[],
@@ -202,20 +56,207 @@ Game::Game(
 	    }
     }
     _activePlayer = bestPlayer;
+    _bestRunLength = bestRunLength;
+}
+
+void Game::activateNextPlayer(void) {
+    _activePlayer++;
+    if (_activePlayer >= _players.end()) {
+        _activePlayer = _players.begin();
+    }
+}
+
+// create tiles and add them to the stock bag
+void Game::addTiles(  // recursive
+    unsigned attributeIndex,
+    unsigned tileRedundancy,
+    Tile &modelTile) {
+
+    ACount na = Tile::getNumAttributes();
+	if (attributeIndex < na) {
+		AValue maxA = Tile::getMaxAttribute(attributeIndex);
+		for (AValue attr = 0; attr <= maxA; attr++) {
+        	modelTile.setAttribute(attributeIndex, attr);
+	        addTiles(attributeIndex + 1, tileRedundancy, modelTile);
+         }
+	} else {
+        ASSERT(attributeIndex == na);
+		for (unsigned ci = 0; ci < tileRedundancy; ci++) {
+            Tile clo = modelTile.clone();
+			_bag.insert(clo);
+		}
+	}
+}
+
+// accessors
+
+Player Game::getActivePlayer(void) const {
+    Player result = *_activePlayer;
+    
+    return result;
+}
+Board Game::getBoard(void) const {
+    Board result = _board;
+    
+    return result;
+}
+vector<Player> Game::getInactivePlayers(void) const {
+    vector<Player> result;
+
+    vector<Player>::const_iterator player = _activePlayer + 1;
+    if (player >= _players.end()) {
+        player = _players.begin();
+    }
+    
+    while (player != _activePlayer) {
+        result.push_back(*player);
+        player++;
+        if (player >= _players.end()) {
+            player = _players.begin();
+        }  
+    }
+    
+    return result;
+}
+unsigned Game::getStock(void) const {
+    unsigned result = _bag.size();
+    
+    return result;
+}
+
+// The game is over if (and only if) the stock bag is empty 
+// some player has gone out.
+
+bool Game::isOver(void) const {
+    bool result = false;
+    
+	if (_bag.empty()) {
+        vector<Player>::const_iterator player;
+        for (player = _players.begin(); player < _players.end(); player++) {
+	        if (player->handIsEmpty()) {
+		        result = true;
+		        break;
+	        }
+        }
+   }
+
+   D(cout << "Game::isOver() returns " << result << endl);
+   return result;
+}
+
+bool Game::isValidPlay(Play const &play) const {
+    unsigned stock = getStock();
+    bool result = true;
+    
+    if (_bestRunLength > 0 && (play.size() != _bestRunLength || play.isSwap())) {
+       cout << "You must play at least " << _bestRunLength << " tiles on this turn." << endl;
+       result = false;
+    } else if (play.isPureSwap() && play.size() > stock) {
+       cout << "There aren't enough tiles in the stock bag." << endl;
+       result = false;
+	} else if (!_board.isLegalPlay(play)) {
+       cout << "That isn't a legal play." << endl;
+	   result = false;
+    }
+
+    return result;
 }
 
 void Game::play(void) {
     // play!
-    playFirstTurn(*_activePlayer);
+    playFirstTurn();
 
-    while (!isGameOver()) {
-	    _activePlayer++;
-	    if (_activePlayer >= _players.end()) {
-	        _activePlayer = _players.begin();
-        }
-	    playTurn(*_activePlayer);
+    while (!isOver()) {
+        activateNextPlayer();
+	    playTurn();
     }
 
     // print final score
     printScores();
+}
+
+void Game::playFirstTurn(void) {
+    cout << endl;
+    D(cout << "Game::playFirstTurn(" << _activePlayer->toString() << ")" << endl);
+
+    Play play;
+    while (true) {
+    	cout << _activePlayer->getName() << " plays first and must place " 
+			<< plural(_bestRunLength, "tile") << " on the (empty) board." << endl;
+		play = _activePlayer->choosePlay();
+    	if (isValidPlay(play)) {
+            break;
+        }
+	}
+
+    playTiles(play);
+}
+
+void Game::playTiles(Play const &play) {
+    D(cout << "Game::playTiles(" << play.toString() << ")" << endl);
+    ASSERT(_board.isLegalPlay(play));
+
+    // remove played/swapped tiles from the player's hand
+    Tiles tiles = play.getTiles();
+    _activePlayer->removeTiles(tiles);
+
+    // attempt to draw replacement tiles from the stock bag
+    unsigned count = tiles.size();
+	if (count > 0) {
+        unsigned actual = _activePlayer->drawTiles(count, _bag);
+		ASSERT(actual == count || !play.isSwap());
+	}
+
+	if (play.isSwap()) {
+		// put swapped tiles back into the bag
+		_bag.addTiles(tiles);
+		cout << _activePlayer->toString() << " put " << plural(count, "tile")
+			<< " back into the stock bag." << endl;
+
+	} else {
+	    // place played tiles on the board
+        _board.playTiles(play);
+    
+        // update the player's score    
+  	    unsigned points = _board.scorePlay(play);
+	    _activePlayer->addScore(points);
+	}
+	
+	//  If it was the first turn, it no longer is.
+    _bestRunLength = 0;
+}
+
+void Game::playTurn(void) {
+     D(cout << "Game::playTurn()" << endl);
+
+	 Play play;
+     while (true) {
+ 	     printScores();
+    	 unsigned stock = getStock();
+         cout << endl
+			 << _activePlayer->getName() << "'s turn, " 
+			 << plural(stock, "tile") << " remaining in the stock bag" << endl;
+	     _board.display();
+
+		 play = _activePlayer->choosePlay();
+		 if (isValidPlay(play)) {
+             break;
+         }
+	 }
+
+     playTiles(play);
+}
+
+void Game::printScores(void) const {
+    vector<Player>::const_iterator player;
+
+    for (player = _players.begin(); player < _players.end(); player++) {
+	    player->displayScore();
+    }
+}
+
+unsigned Game::scorePlay(Play const &play) const {
+     unsigned result = _board.scorePlay(play);
+
+     return result;
 }

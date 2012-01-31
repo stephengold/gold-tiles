@@ -75,6 +75,12 @@ string Player::getName(void) const {
     return result;
 }
 
+unsigned Player::getScore(void) const {
+    unsigned result = _score;
+    
+    return result;
+}
+
 bool Player::handIsEmpty(void) const {
      bool result = _hand.empty();
      

@@ -12,12 +12,14 @@
  The TopWindow class is implemented by extending Window.
 */
 
+#include "project.hpp"
+
+#ifdef _WINDOWS
 #include <windows.h>
 #include "board.hpp"
 #include "gui/window.hpp"
 #include "gui/canvas.hpp"
 #include "gui/menu.hpp"
-#include "project.hpp"
 #include "tile.hpp"
 
 typedef std::map<TileId, RECT> TileMap;
@@ -37,13 +39,13 @@ class TopWindow: public Window {
 	Tiles _handTiles;
 	RECT _handRect;
 	int _mouseLastX, _mouseLastY; // coordinates of last mouse down
-	bool _newStep;
 	ACount _numberOfColorAttributes;
 	bool _originHasBeenCentered;
 	long _originX, _originY; // logical coordinates of ulc of origin cell
 	bool _pauseFlag;
     PlayMenu *_playMenu;
     unsigned _playedTileCount;
+	unsigned _runLength;
 	bool _showClocksFlag;
     bool _showGridFlag;
 	bool _showHintsFlag;
@@ -55,8 +57,19 @@ class TopWindow: public Window {
 	unsigned _tileWidth;
     ViewMenu *_viewMenu;
 
+    void buttonDown(int x, int y);
+	void buttonUp(int x, int y);
+    void createdWindow(CREATESTRUCT const *);
+	void dragMouse(int x, int y);
+
+	RECT drawBlankTile(Canvas &, int topY, int leftX);
+    void drawBoard(Canvas &);
     void drawCell(Canvas &, GridRef const &);
-	RECT drawTile(Canvas &, int top, int left, Tile const &);
+    void drawHandTiles(Canvas &, unsigned pad, unsigned bagHeight);
+    void drawInactivePlayers(Canvas &);
+    RECT drawPlayerHeader(Canvas &, int top, int left, Player const &, COLORREF);
+	RECT drawTile(Canvas &, int topY, int leftX, Tile const &);
+
 	GridRef getCellRef(int x, int y);
     unsigned getCellWidth(void) const;
     int getCellX(int column) const;
@@ -65,8 +78,12 @@ class TopWindow: public Window {
     unsigned getGridUnit(void) const;
     WNDPROC getMessageHandler(void) const;
 	char const *getName(void) const;
+
     void menuCommand(int);
-    void toggleShowGrid(void);
+    void play(bool passFlag);
+	void recenter(unsigned oldWidth, unsigned oldHeight);
+    void resize(unsigned width, unsigned height);
+    void repaint(void);
 	void updateMenus(void);
 
     public:
@@ -77,14 +94,8 @@ class TopWindow: public Window {
 
 		TopWindow(HINSTANCE);
 
-		void buttonDown(int x, int y);
-		void buttonUp(int x, int y);
-        void createdWindow(CREATESTRUCT const *);
-		void dragMouse(int x, int y);
         LRESULT handleMessage(UINT message, WPARAM wParam, LPARAM lParam);
-		void recenter(unsigned oldWidth, unsigned oldHeight);
-        void repaint(void);
-        void resize(unsigned width, unsigned height);
 };
 
+#endif
 #endif

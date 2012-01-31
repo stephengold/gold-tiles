@@ -11,9 +11,11 @@
  The Window class is implemented by encapsulating an HWND.
  */
 
+#include "project.hpp"
+
+#ifdef _WINDOWS
 #include <map>
 #include <windows.h>
-#include "project.hpp"
 
 typedef std::map<unsigned long, Window*> WMap;
 typedef std::pair<unsigned long, Window*> WPair;
@@ -50,4 +52,5 @@ class Window {
 		void show(int showHow);
 };
 
+#endif
 #endif

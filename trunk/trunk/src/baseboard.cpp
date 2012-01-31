@@ -6,22 +6,6 @@
 #include <string>
 #include "baseboard.hpp"
 
-// private methods
-
-BaseBoard::const_iterator BaseBoard::find(int n, int e) const {
-    GridRef ref(n, e);
-    const_iterator result = _cells.find(ref);
-
-    return result;
-}
-
-BaseBoard::iterator BaseBoard::find(int n, int e) {
-    GridRef ref(n, e);
-    iterator result = _cells.find(ref);
-
-    return result;
-}
-
 // constructors, assignment, and destructor
 
 BaseBoard::BaseBoard(void) {
@@ -31,9 +15,9 @@ BaseBoard::BaseBoard(void) {
     _maxW = 0;
 }
 
-// The compiler-generated copy constructor is fine.
-// The compiler-generated assignment method is fine.
-// The compiler-generated destructor is fine.
+// The compiler-generated copy constructor is OK.
+// The compiler-generated assignment method is OK.
+// The compiler-generated destructor is OK.
 
 // public methods
 
@@ -47,6 +31,20 @@ void BaseBoard::emptyCell(GridRef const &square) {
     iterator it = find(row, column);
     assert(it != _cells.end());
     _cells.erase(it);
+}
+
+BaseBoard::const_iterator BaseBoard::find(int n, int e) const {
+    GridRef ref(n, e);
+    const_iterator result = _cells.find(ref);
+
+    return result;
+}
+
+BaseBoard::iterator BaseBoard::find(int n, int e) {
+    GridRef ref(n, e);
+    iterator result = _cells.find(ref);
+
+    return result;
 }
 
 bool BaseBoard::findTile(Tile const &tile, GridRef &square) const {

@@ -42,6 +42,7 @@ class TopWindow: public Window {
 	ACount _numberOfColorAttributes;
 	bool _originHasBeenCentered;
 	long _originX, _originY; // logical coordinates of ulc of origin cell
+	unsigned _padPixels;
 	bool _pauseFlag;
     PlayMenu *_playMenu;
     unsigned _playedTileCount;
@@ -62,12 +63,14 @@ class TopWindow: public Window {
     void createdWindow(CREATESTRUCT const *);
 	void dragMouse(int x, int y);
 
+    void drawActivePlayer(Canvas &);
 	RECT drawBlankTile(Canvas &, int topY, int leftX);
     void drawBoard(Canvas &);
     void drawCell(Canvas &, GridRef const &);
-    void drawHandTiles(Canvas &, unsigned pad, unsigned bagHeight);
+    void drawHandTiles(Canvas &);
     void drawInactivePlayers(Canvas &);
-    RECT drawPlayerHeader(Canvas &, int top, int left, Player const &, COLORREF);
+    RECT drawPlayerHeader(Canvas &, int top, int leftRight, Player const &, 
+                          COLORREF, bool leftFlag);
 	RECT drawTile(Canvas &, int topY, int leftX, Tile const &);
 
 	GridRef getCellRef(int x, int y);

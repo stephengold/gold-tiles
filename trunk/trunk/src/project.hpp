@@ -42,8 +42,10 @@ class TileSquare;
 
 #ifdef _GUI
 class Canvas;
+class Graphics;
 class MenuItem;
 class PlayMenu;
+class Rectangle;
 class SubMenu;
 class TopWindow;
 class ViewMenu;

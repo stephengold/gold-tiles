@@ -7,17 +7,16 @@
 #ifdef _WINDOWS
 #include <map>
 #include <windows.h>
-#include "gui/canvas.hpp"
 #include "gui/resource.hpp"
 #include "gui/window.hpp"
 #include "gui/windowclass.hpp"
 
-// message handler (callback) for window
+// message handler (callback)
 static Window *newlyCreatedWindow = NULL;
 static LRESULT CALLBACK messageHandler(
-	HWND windowHandle, 
-	UINT message, 
-	WPARAM wParam, 
+	HWND windowHandle,
+	UINT message,
+	WPARAM wParam,
 	LPARAM lParam)
 {
     Window *window;
@@ -34,13 +33,13 @@ static LRESULT CALLBACK messageHandler(
 		// invoke default message handler
 		result = ::DefWindowProc(windowHandle, message, wParam, lParam);
 	} else {
-     	assert(window->getHandle() == windowHandle);
+     	ASSERT(window->getHandle() == windowHandle);
         result = window->handleMessage(message, wParam, lParam);
 	}
 	return result;
 }
 
-// static members of Window
+// static members
 WMap Window::_map;
 
 Window *Window::lookup(HWND handle) {
@@ -51,13 +50,13 @@ Window *Window::lookup(HWND handle) {
 	Window *result = NULL;
 	if (it != _map.end()) {
 	    result = it->second;
-	    assert(result != NULL);
+	    ASSERT(result != NULL);
 	}
 
 	return result;
 }
 
-// non-static members of Window
+// non-static members
 
 Window::Window(void) {
 	_handle = 0;
@@ -72,11 +71,13 @@ void Window::forceRepaint(void) {
      RECT *entireClientArea = NULL;
      BOOL eraseFlag = TRUE;
      BOOL success = ::InvalidateRect(_handle, entireClientArea, eraseFlag);
-     assert(success != 0);
+     ASSERT(success != 0);
 }
 
 HWND Window::getHandle(void) const {
-	return _handle;
+	HWND result = _handle;
+	
+	return result;
 }
 
 LRESULT Window::handleMessage(UINT message, WPARAM wParam, LPARAM lParam) {
@@ -108,18 +109,18 @@ LRESULT Window::handleMessage(UINT message, WPARAM wParam, LPARAM lParam) {
 }
 
 HDC Window::initialize(CREATESTRUCT const *createStruct) {
-   	assert(createStruct != NULL);
+   	ASSERT(createStruct != NULL);
 	_module = createStruct->hInstance;
 
     HDC privateDC = ::GetDC(_handle);
-    assert(privateDC != NULL);
+    ASSERT(privateDC != NULL);
     // It's a private DC because CS_OWNDC is hard-coded into the
     // WindowClass constructor.
 
-	// record actual size of client area
+	// record size of client area
 	SIZE clientAreaSize;
 	BOOL success = ::GetWindowExtEx(privateDC, &clientAreaSize);
-    assert(success != 0);
+    ASSERT(success != 0);
     setClientArea(clientAreaSize.cx, clientAreaSize.cy);
 
 	char const *iconResourceName = getClassName(); // use same name
@@ -129,8 +130,8 @@ HDC Window::initialize(CREATESTRUCT const *createStruct) {
 }
 
 void Window::setClientArea(unsigned width, unsigned height) {
-    assert(width < 4000);
-    assert(height < 4000);
+    ASSERT(width < 4000);
+    ASSERT(height < 4000);
     _clientAreaWidth = width;
     _clientAreaHeight = height;
 }
@@ -173,10 +174,11 @@ void Window::setIcons(char const *iconResourceName) {
 }
 
 void Window::show(int how) {
-	assert(_handle != 0);
+	ASSERT(_handle != 0);
 
     ::ShowWindow(_handle, how);
     BOOL success = ::UpdateWindow(_handle);
-    assert(success != 0);
+    ASSERT(success != 0);
 }
+
 #endif

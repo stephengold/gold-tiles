@@ -9,8 +9,10 @@
 
 */
 
-#include <windows.h>
 #include "project.hpp"
+
+#ifdef _WINDOWS
+#include <windows.h>
 #include "tile.hpp"
 
 enum Color {
@@ -29,8 +31,8 @@ enum Color {
     GREEN_COLOR       = PALETTERGB(0, 255, 0),
     LIGHT_GREEN_COLOR = PALETTERGB(64, 255, 64),
 
-    DARK_BLUE_COLOR  = PALETTERGB(0, 128, 0),
-    LIGHT_BLUE_COLOR = PALETTERGB(64, 255, 64),
+    DARK_BLUE_COLOR  = PALETTERGB(0, 0, 100),
+    LIGHT_BLUE_COLOR = PALETTERGB(64, 64, 255),
     
     PURPLE_COLOR = PALETTERGB(128, 128, 0)
 };
@@ -51,18 +53,18 @@ class DevContext {
         DevContext(HDC, HWND, bool releaseMe);
 
         operator HDC(void) const;
-        void useColors(COLORREF brush, COLORREF pen);
+        void useColors(COLORREF brushBk, COLORREF penText);
 };
 
 class Canvas: public DevContext {
     // TODO: implement double buffering
     void drawGlyph(int top, int left, unsigned width, unsigned height,
-              COLORREF bg, COLORREF fg, AIndex, AValue);
+              AIndex, AValue);
     public:
         Canvas(void) { assert(false); };
         Canvas(Canvas const &) { assert(false); };
         Canvas &operator=(Canvas const &) { assert(false); };
-        // ~Canvas(void);  implicitly declared destructor is fine
+        // ~Canvas(void);  compiler-generated destructor is OK
         
         Canvas(HDC, HWND, bool releaseMe);
         
@@ -70,12 +72,15 @@ class Canvas: public DevContext {
                   COLORREF bagColor, COLORREF textColor, char const *);
         void drawCell(int top, int left, unsigned width,
                   COLORREF cellColor, COLORREF gridColor);
-        void drawClock(int top, int left, unsigned width,
-                  COLORREF clockColor, COLORREF textColor, char const *);
-        RECT drawRectangle(int top, int left, unsigned width, unsigned height, 
-			      COLORREF areaColor, COLORREF edgeColor);
-        RECT drawTile(int top, int left, unsigned width, COLORREF bg,
-                  COLORREF fg, ACount numGlyphs, const AValue glyphs[]);
+        RECT drawRectangle(int top, int left, unsigned width, unsigned height);
+        void drawText(int top, int left, unsigned width, unsigned height, 
+                  char const *);
+        void drawText(int top, int left, unsigned width, unsigned height, 
+                  string);
+        RECT drawTile(int top, int left, unsigned width, 
+                  ACount numGlyphs, const AValue glyphs[]);
+        void useColors(COLORREF brushBk, COLORREF penText);
 };
 
+#endif
 #endif

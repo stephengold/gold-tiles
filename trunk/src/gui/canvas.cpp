@@ -2,9 +2,11 @@
 // Purpose: Canvas class for the Gold Tile game.
 // Author:  Stephen Gold sgold@sonic.net
 
+#include "project.hpp"
+
+#ifdef _WINDOWS
 #include <windows.h>
 #include "gui/canvas.hpp"
-#include "project.hpp"
 
 DevContext::DevContext(HDC context, HWND window, bool releaseMe) {
     _contextHandle = context;
@@ -54,22 +56,22 @@ DevContext::operator HDC(void) const {
     return _contextHandle;
 }
 
-void DevContext::useColors(COLORREF brushColor, COLORREF penColor) {
-    HBRUSH brush = ::CreateSolidBrush(brushColor);
+void DevContext::useColors(COLORREF brushBkColor, COLORREF penTextColor) {
+    HBRUSH brush = ::CreateSolidBrush(brushBkColor);
     assert(brush != NULL);
     HGDIOBJ old = ::SelectObject(_contextHandle, brush);
     assert(old != NULL);
     BOOL success = ::DeleteObject(old);
     assert(success != 0);
 
-    COLORREF oldColor = ::SetBkColor(_contextHandle, brushColor);
+    COLORREF oldColor = ::SetBkColor(_contextHandle, brushBkColor);
     assert(oldColor != CLR_INVALID);   
-    oldColor = SetTextColor(_contextHandle, penColor);
+    oldColor = ::SetTextColor(_contextHandle, penTextColor);
     assert(oldColor != CLR_INVALID);
 
     int penStyle = PS_SOLID;
-    int penWidth = 0; // means single pixel
-    HPEN pen = ::CreatePen(penStyle, penWidth, penColor);
+    int penWidth = 0; // means a pen one pixel wide
+    HPEN pen = ::CreatePen(penStyle, penWidth, penTextColor);
     assert(pen != NULL);
     old = ::SelectObject(_contextHandle, pen);
     assert(old != NULL);
@@ -93,14 +95,12 @@ void Canvas::drawCell(int top, int left, unsigned width, COLORREF cellColor,
 }
 
 void Canvas::drawGlyph(int top, int left, unsigned width, unsigned height,
-                  COLORREF bgColor, COLORREF fgColor, AIndex ind, AValue glyph)
+                  AIndex ind, AValue glyph)
 {
     unsigned textLen = 1;
     char text[1];
     string str = attributeToString(ind, glyph);
     text[0] = str[0];
-
-    useColors(bgColor, fgColor);
 
 	RECT rect;
 	rect.top = top;
@@ -114,10 +114,7 @@ void Canvas::drawGlyph(int top, int left, unsigned width, unsigned height,
     assert(success != 0);
 }
 
-RECT Canvas::drawRectangle(int top, int left, unsigned width, unsigned height, 
-	COLORREF areaColor, COLORREF edgeColor)
-{
-    useColors(areaColor, edgeColor);
+RECT Canvas::drawRectangle(int top, int left, unsigned width, unsigned height) {
 	int right = left + width;
 	int bottom = top + height;
 	BOOL success = ::Rectangle((HDC)*this, left, top, right, bottom);
@@ -132,11 +129,37 @@ RECT Canvas::drawRectangle(int top, int left, unsigned width, unsigned height,
 	return result;
 }
 
-RECT Canvas::drawTile(int top, int left, unsigned width, COLORREF bg,
-          COLORREF fg, ACount numGlyphs, const AValue glyphs[])
+void Canvas::drawText(int x, int y, unsigned width, unsigned height, 
+    char const *text)
+{
+    int textLen = strlen(text);
+     
+	RECT rect;
+	rect.top = y;
+	rect.left = x;
+    rect.bottom = rect.top + height;
+    rect.right = rect.left + width;
+
+    UINT format = DT_CENTER | DT_EXTERNALLEADING | DT_NOPREFIX 
+                | DT_SINGLELINE | DT_VCENTER;
+    BOOL success = ::DrawText((HDC)*this, text, textLen, &rect, format);
+    assert(success != 0);
+}
+
+void Canvas::drawText(int x, int y, unsigned width, unsigned height, 
+    string text)
+{
+    unsigned length = text.size();
+    char *copyText = new char[length + 1];
+    strcpy(copyText, text.c_str());
+    drawText(x, y, width, height, copyText);
+    delete[] copyText;
+}
+
+RECT Canvas::drawTile(int top, int left, unsigned width, ACount numGlyphs, 
+    const AValue glyphs[])
 {
     assert(numGlyphs <= 4);
-    useColors(bg, bg);
     
 	RECT result;
     unsigned height = width;
@@ -181,8 +204,14 @@ RECT Canvas::drawTile(int top, int left, unsigned width, COLORREF bg,
         }
 
         AValue glyph = glyphs[ind];
-		drawGlyph(glyphTop, glyphLeft, width, height, bg, fg, ind, glyph);
+		drawGlyph(glyphTop, glyphLeft, width, height, ind, glyph);
     }
 	
 	return result;
 }
+
+void Canvas::useColors(COLORREF brushBkColor, COLORREF penTextColor) {
+    DevContext::useColors(brushBkColor, penTextColor);
+}
+
+#endif

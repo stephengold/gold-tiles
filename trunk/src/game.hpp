@@ -13,18 +13,17 @@
 
 class Game {
     // private data
+    vector<Player>::iterator _activePlayer;
     Tiles _bag;        // stock bag from which tiles are drawn
+    unsigned _bestRunLength; // zero after the first turn
     Board _board;      // extensible playing surface
     vector<Player> _players;
-    vector<Player>::iterator _activePlayer;
 
     // private methods
     void addTiles(unsigned aIndex, unsigned redundancy, Tile &);
     GridRef chooseSquare(void) const;
-    bool isGameOver(void) const;
-    void playFirstTurn(Player &);
-    void playTiles(Player &, Play const &);
-    void playTurn(Player &);
+    void playFirstTurn(void);
+    void playTurn(void);
     void printScores(void) const;
     unsigned scorePlay(Play const &) const;
 
@@ -40,10 +39,16 @@ class Game {
          AValue maxAttributes[],
          unsigned tileRedundancy,
          unsigned handSize);
-
+    
+    void activateNextPlayer(void);
     Player getActivePlayer(void) const;
+    vector<Player> getInactivePlayers(void) const;
     Board getBoard(void) const;
+    unsigned getStock(void) const;
+    bool isOver(void) const;
+    bool isValidPlay(Play const &) const;
 	void play(void);
+    void playTiles(Play const &);
 };
 
 #endif

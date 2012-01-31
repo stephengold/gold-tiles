@@ -15,7 +15,12 @@
 // The compiler-generated assignment method is fine.
 // The compiler-generated destructor is fine.
 
-// public methods
+// methods
+
+void Play::add(Tile const &tile) {
+    TileSquare ts(tile);
+    insert(ts);
+}
 
 void Play::add(Tile const &tile, GridRef const &square) {
     TileSquare ts(tile, square);

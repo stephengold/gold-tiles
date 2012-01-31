@@ -13,8 +13,10 @@
  
 */
 
-#include <windows.h>
 #include "project.hpp"
+
+#ifdef _WINDOWS
+#include <windows.h>
 
 class MenuItem {
     UINT _itemID;
@@ -45,6 +47,7 @@ class PlayMenu: public SubMenu {
         PlayMenu(HMENU menu, UINT position);
 
 		void autopause(bool);
+		void enableItems(bool paused, bool play);
 		void pause(bool);
 };
 
@@ -66,4 +69,5 @@ class ViewMenu: public SubMenu {
         void tileSize(UINT);
 };
 
+#endif
 #endif

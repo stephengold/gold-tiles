@@ -6,12 +6,14 @@
 // Author:  Stephen Gold sgold@sonic.net
 
 /*
- A WindowClass object represents a Microsoft "window class".
+ A WindowClass object represents a Microsoft Windows "window class".
  Implemented by encapsulating WNDCLASSEX.
  */
 
-#include <windows.h>
 #include "project.hpp"
+
+#ifdef _WINDOWS
+#include <windows.h>
 
 class WindowClass: public WNDCLASSEX {
     public:
@@ -27,4 +29,5 @@ class WindowClass: public WNDCLASSEX {
         void registerClass(void);
 };
 
+#endif
 #endif

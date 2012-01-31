@@ -25,6 +25,7 @@ class Player {
 		unsigned drawTiles(unsigned, Tiles &);
 		string getName(void) const;
 		Tiles getHand(void) const;
+		unsigned getScore(void) const;
 		bool handIsEmpty(void) const;
 		Tiles longestRun(void) const;
 		void removeTile(Tile const &);

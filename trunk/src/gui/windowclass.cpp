@@ -2,9 +2,11 @@
 // Purpose: WindowClass class for the Gold Tile game.
 // Author:  Stephen Gold sgold@sonic.net
 
+#include "project.hpp"
+
+#ifdef _WINDOWS
 #include <windows.h>
 #include "gui/windowclass.hpp"
-#include "project.hpp"
 
 WindowClass::WindowClass(
     HINSTANCE applicationInstance,
@@ -41,3 +43,5 @@ void WindowClass::registerClass(void) {
     ATOM classAtom = ::RegisterClassEx(this);
 	ASSERT(classAtom != 0);
 };
+
+#endif

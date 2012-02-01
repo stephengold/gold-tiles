@@ -11,13 +11,15 @@
 #include "player.hpp"
 #include "tiles.hpp"
 
+class Players: public vector<Player> {};
+
 class Game {
     // private data
-    vector<Player>::iterator _activePlayer;
+    Players::iterator _activePlayer;
     Tiles _bag;        // stock bag from which tiles are drawn
     unsigned _bestRunLength; // zero after the first turn
     Board _board;      // extensible playing surface
-    vector<Player> _players;
+    Players _players;
 
     // private methods
     void addTiles(unsigned aIndex, unsigned redundancy, Tile &);
@@ -42,9 +44,10 @@ class Game {
     
     void activateNextPlayer(void);
     Player getActivePlayer(void) const;
-    vector<Player> getInactivePlayers(void) const;
+    Players getInactivePlayers(void) const;
     Board getBoard(void) const;
     unsigned getStock(void) const;
+    void goingOutBonus(void);
     bool isOver(void) const;
     bool isValidPlay(Play const &) const;
 	void play(void);

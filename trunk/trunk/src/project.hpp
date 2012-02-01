@@ -19,11 +19,11 @@
 #define ASSERT assert
 #else
 #define ASSERT(expression) ((expression) ? (void)0 : ::assertionFailed(__FILE__, __LINE__))
-//#define ASSERT(expression) ((void)0)
 #endif
+//#define ASSERT(expression) ((void)0)
 
-#define D(debug_only_code) (debug_only_code)
-//#define D(debug_only_code) ((void)0)
+//#define D(debug_only_code) (debug_only_code)
+#define D(debug_only_code) ((void)0)
 
 #include <string>
 using namespace std;

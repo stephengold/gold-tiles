@@ -20,8 +20,8 @@ class Canvas: public Graphics {
     static vector<Poly> _glyphs;
       
     void initGlyphs(void);
-    void drawGlyph(int top, int left, unsigned width, unsigned height,
-              AIndex, AValue);
+    void drawGlyph(Rect bounds, AIndex, AValue, 
+                   COLORREF background, COLORREF glyph);
               
     public:
         Canvas(void) { assert(false); };
@@ -32,8 +32,9 @@ class Canvas: public Graphics {
         
         void drawCell(int top, int left, unsigned width,
                   COLORREF cellColor, COLORREF gridColor);
-        RECT drawTile(int top, int left, unsigned width, 
-                  ACount numGlyphs, const AValue glyphs[]);
+        Rect drawTile(int top, int left, unsigned width, 
+                  ACount numGlyphs, const AValue glyphs[],
+                  COLORREF tile, COLORREF glyph);
 };
 
 #endif

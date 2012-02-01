@@ -34,48 +34,45 @@ void Canvas::drawCell(
 }
 
 void Canvas::drawGlyph(
-    int topY,
-    int leftX,
-    unsigned width,
-    unsigned height,
+    Rect bounds, 
     AIndex ind,
-    AValue glyph)
+    AValue glyph,
+    COLORREF backgroundColor,
+    COLORREF glyphColor)
 {
     if (_glyphs.size() == 0) {
         initGlyphs();
     }
     
     if (ind == 0) {
-        COLORREF bg, fg;
-        getColors(bg, fg);
-        useColors(fg, fg);
+        useColors(glyphColor, glyphColor);
         
         ASSERT(glyph < _glyphs.size());
         Poly polygon = _glyphs[glyph];
-        Rect bounds(topY, leftX, width, height);
         drawPolygon(polygon, bounds);
-        useColors(bg, fg);
+        
     } else { 
+        useColors(backgroundColor, glyphColor);
+
         string str = attributeToString(ind - 1, glyph);
-        drawText(topY, leftX, width, height, str);
+        drawText(bounds, str);
     }
 }
 
-RECT Canvas::drawTile(
+Rect Canvas::drawTile(
     int top, 
     int left, 
     unsigned edge,
     ACount numGlyphs, 
-    const AValue glyphs[])
+    const AValue glyphs[],
+    COLORREF tileColor,
+    COLORREF glyphColor)
 {
     assert(numGlyphs <= 4);
     
-    COLORREF bg, fg;
-    getColors(bg, fg);
-    useColors(bg, bg);
+    useColors(tileColor, tileColor);
     unsigned circleDiameter = edge/5;
-	RECT result = drawRoundedSquare(top, left, edge, circleDiameter);
-    useColors(bg, fg);
+	Rect result = drawRoundedSquare(top, left, edge, circleDiameter);
  
     top += circleDiameter/2;
     left += circleDiameter/2;
@@ -102,8 +99,9 @@ RECT Canvas::drawTile(
             glyphLeft = left + (ind%2)*width;
         }
 
+        Rect glyphBounds(glyphTop, glyphLeft, width, height);
         AValue glyph = glyphs[ind];
-		drawGlyph(glyphTop, glyphLeft, width, height, ind, glyph);
+		drawGlyph(glyphBounds, ind, glyph, tileColor, glyphColor);
     }
 	
 	return result;

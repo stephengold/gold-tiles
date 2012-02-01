@@ -105,7 +105,7 @@ void Tile::setStatic(ACount na, AValue const maxAttr[]) {
     _maxAttribute = new AValue[na];
     for (AIndex i = 0; i < na; i++) {
         ASSERT(maxAttr[i] >= 3);
-        ASSERT(maxAttr[i] <= 9);
+        ASSERT(maxAttr[i] <= 8);
         _maxAttribute[i] = maxAttr[i];
     }
 }

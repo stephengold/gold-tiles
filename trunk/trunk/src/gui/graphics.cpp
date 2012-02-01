@@ -7,6 +7,64 @@
 #ifdef _WINDOWS
 #include "gui/color.hpp"
 #include "gui/graphics.hpp"
+#include "gui/poly.hpp"
+
+Rect::Rect(int topY, int leftX, unsigned width, unsigned height) {
+    _bounds.top = topY;
+    _bounds.left = leftX;
+    _bounds.right = leftX + width;
+    _bounds.bottom = topY + height;
+}
+
+Rect Rect::centerSquare(void) const {
+    unsigned width = getWidth();
+    unsigned height = getHeight();
+    int left = getLeftX();
+    int top = getTopY();
+    
+    if (width > height) {
+        left += (width - height)/2;
+        width = height;
+    } else if (height > width) {
+        top += (height - width)/2;
+        height = width;
+    } 
+    Rect result(top, left, width, height);
+    
+    return result;
+}
+
+int Rect::getBottomY(void) const {
+    int result = _bounds.bottom;
+    
+    return result;
+}
+
+unsigned Rect::getHeight(void) const {
+    ASSERT(_bounds.bottom >= _bounds.top);
+    unsigned result = _bounds.bottom - _bounds.top;
+    
+    return result;
+}
+
+int Rect::getLeftX(void) const {
+    int result = _bounds.left;
+    
+    return result;
+}
+
+int Rect::getTopY(void) const {
+    int result = _bounds.top;
+    
+    return result;
+}
+
+unsigned Rect::getWidth(void) const {
+    ASSERT(_bounds.right >= _bounds.left);
+    unsigned result = _bounds.right - _bounds.left;
+    
+    return result;
+}
 
 Graphics::Graphics(
     HDC device,
@@ -37,22 +95,27 @@ Graphics::Graphics(
     }
 
     // brush color for filling shapes
-    COLORREF brushColor = WHITE_COLOR;
-    HBRUSH brush = ::CreateSolidBrush(brushColor);
+    _brushBkColor = WHITE_COLOR;
+    HBRUSH brush = ::CreateSolidBrush(_brushBkColor);
     ASSERT(brush != NULL);
     _brushSave = ::SelectObject(_draw, brush);
     ASSERT(_brushSave != NULL);
     
     // background color for text and broken lines
     // (same as brush color)
-    COLORREF success = ::SetBkColor(_draw, brushColor);
+    COLORREF success = ::SetBkColor(_draw, _brushBkColor);
+    ASSERT(success != CLR_INVALID);
+
+    // foreground color for text and broken lines
+    // (same as pen color)
+    success = ::SetTextColor(_draw, _penTextColor);
     ASSERT(success != CLR_INVALID);
 
     // pen color for outlining shapes
     int penStyle = PS_SOLID;
     int penWidth = 0; // means single pixel
-    COLORREF penColor = BLACK_COLOR;
-    HPEN pen = ::CreatePen(penStyle, penWidth, penColor);
+    _penTextColor = BLACK_COLOR;
+    HPEN pen = ::CreatePen(penStyle, penWidth, _penTextColor);
     ASSERT(pen != NULL);
     _penSave = ::SelectObject(_draw, pen);
     ASSERT(_penSave != NULL);
@@ -69,12 +132,12 @@ Graphics::~Graphics(void) {
     success = ::DeleteObject(pen);
     ASSERT(success != 0);
 
+    if (_draw != _device) {
+        ::DeleteDC(_draw);
+    }
     if (_releaseMe) {
         int success = ::ReleaseDC(_window, _device);
         ASSERT(success != 0);
-    }
-    if (_draw != _device) {
-        ::DeleteDC(_draw);
     }
 }
 
@@ -86,7 +149,7 @@ void Graphics::close(void) {
         int sourceY = 0;
         DWORD options = SRCCOPY;
         BOOL success = ::BitBlt(_device, destX, destY, _width, _height, 
-                           _draw, sourceX, sourceY, options);
+                                _draw, sourceX, sourceY, options);
         ASSERT(success != 0);
          
         HGDIOBJ bitmap = ::SelectObject(_draw, _bitmapSave);
@@ -96,55 +159,24 @@ void Graphics::close(void) {
     }
 }
 
-unsigned Graphics::getTextHeight(void) const {
-    unsigned result = 16;
+void Graphics::drawPolygon(Poly const &polygon, Rect const &bounds) {
+    Rect squared = bounds.centerSquare();
     
-    return result;
-}
+    unsigned numberOfPoints = polygon.size();
+    POINT *points = new POINT[numberOfPoints];
+    ASSERT(points != NULL);
+    polygon.getPoints(points, numberOfPoints, squared);
 
-unsigned Graphics::getTextWidth(char const *text) const {
-    int length = strlen(text);
-    SIZE extent;
-    BOOL success = ::GetTextExtentPoint32(_draw, text, length, &extent);
-    unsigned result = extent.cx;
-    
-    return result;
-}
+    BOOL success = ::Polygon(_draw, points, numberOfPoints);
+    ASSERT(success);
+} 
 
-unsigned Graphics::getTextWidth(string text) const {
-    unsigned length = text.size();
-    char *copyText = new char[length + 1];
-    strcpy(copyText, text.c_str());
-    unsigned result = getTextWidth(copyText);
-    delete[] copyText;
-    return result;
-}
-
-void Graphics::useColors(COLORREF brushBkColor, COLORREF penTextColor) {
-    HBRUSH brush = ::CreateSolidBrush(brushBkColor);
-    ASSERT(brush != NULL);
-    HGDIOBJ old = ::SelectObject(_draw, brush);
-    ASSERT(old != NULL);
-    BOOL success = ::DeleteObject(old);
-    ASSERT(success != 0);
-
-    COLORREF oldColor = ::SetBkColor(_draw, brushBkColor);
-    ASSERT(oldColor != CLR_INVALID);
-       
-    oldColor = ::SetTextColor(_draw, penTextColor);
-    ASSERT(oldColor != CLR_INVALID);
-
-    int penStyle = PS_SOLID;
-    int penWidth = 0; // means a pen one pixel wide
-    HPEN pen = ::CreatePen(penStyle, penWidth, penTextColor);
-    ASSERT(pen != NULL);
-    old = ::SelectObject(_draw, pen);
-    ASSERT(old != NULL);
-    success = ::DeleteObject(old);
-    ASSERT(success != 0);
-}
-
-RECT Graphics::drawRectangle(int top, int left, unsigned width, unsigned height) {
+RECT Graphics::drawRectangle(
+    int top,
+    int left,
+    unsigned width,
+    unsigned height)
+{
 	int right = left + width;
 	int bottom = top + height;
 	BOOL success = ::Rectangle(_draw, left, top, right, bottom);
@@ -217,6 +249,67 @@ void Graphics::drawText(
     strcpy(copyText, text.c_str());
     drawText(topY, leftX, width, height, copyText);
     delete[] copyText;
+}
+
+void Graphics::getColors(COLORREF &brushBkColor, COLORREF &penTextColor) const {
+    penTextColor = _penTextColor;
+    brushBkColor = _brushBkColor;
+}
+
+unsigned Graphics::getTextHeight(void) const {
+    unsigned result = 16;
+    
+    return result;
+}
+
+unsigned Graphics::getTextWidth(char const *text) const {
+    int length = strlen(text);
+    SIZE extent;
+    BOOL success = ::GetTextExtentPoint32(_draw, text, length, &extent);
+    unsigned result = extent.cx;
+    
+    return result;
+}
+
+unsigned Graphics::getTextWidth(string text) const {
+    unsigned length = text.size();
+    char *copyText = new char[length + 1];
+    strcpy(copyText, text.c_str());
+    unsigned result = getTextWidth(copyText);
+    delete[] copyText;
+    return result;
+}
+
+void Graphics::useColors(COLORREF brushBkColor, COLORREF penTextColor) {
+    if (brushBkColor != _brushBkColor) {
+        HBRUSH brush = ::CreateSolidBrush(brushBkColor);
+        ASSERT(brush != NULL);
+        HGDIOBJ old = ::SelectObject(_draw, brush);
+        ASSERT(old != NULL);
+        BOOL success = ::DeleteObject(old);
+        ASSERT(success != 0);
+
+        COLORREF oldColor = ::SetBkColor(_draw, brushBkColor);
+        ASSERT(oldColor != CLR_INVALID);
+
+        _brushBkColor = brushBkColor;
+    }
+       
+    if (penTextColor != _penTextColor) {
+        COLORREF oldColor = ::SetTextColor(_draw, penTextColor);
+        ASSERT(oldColor != CLR_INVALID);
+
+        int penStyle = PS_SOLID;
+        int penWidth = 0; // means a pen one pixel wide
+        HPEN pen = ::CreatePen(penStyle, penWidth, penTextColor);
+        ASSERT(pen != NULL);
+        HGDIOBJ old = ::SelectObject(_draw, pen);
+        ASSERT(old != NULL);
+        BOOL success = ::DeleteObject(old);
+        ASSERT(success != 0);
+        
+        _penTextColor = penTextColor;
+    }
 }
 
 #endif

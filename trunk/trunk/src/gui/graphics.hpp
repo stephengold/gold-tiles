@@ -12,24 +12,33 @@
 #include "project.hpp"
 
 #ifdef _WINDOWS
+#include <vector>
 #include <windows.h>
 
-class Rectangle {
+class Rect {
     RECT _bounds;
     public:
-        Rectangle(void) { assert(false); };
-        //Rectangle(Rectangle const &);
-        Rectangle(int topY, int leftX, unsigned width, unsigned height);
-        //Rectangle &operator=(Rectangle const &);
-        //~Rectangle(void);
+        Rect(void) { assert(false); };
+        //Rect(Rect const &);
+        Rect(int topY, int leftX, unsigned width, unsigned height);
+        //Rect &operator=(Rect const &);
+        //~Rect(void);
 
+        Rect centerSquare(void) const;
+
+        int getBottomY(void) const;
         unsigned getHeight(void) const;
+        int getLeftX(void) const;
+        int getRightX(void) const;
+        int getTopY(void) const;
         unsigned getWidth(void) const;
+
         operator RECT(void) const;
 };
 
 class Graphics {
     HGDIOBJ _bitmapSave, _brushSave, _penSave;
+    COLORREF _brushBkColor, _penTextColor;
     HDC _device, _draw;
     unsigned _height, _width;
     bool _releaseMe;
@@ -45,6 +54,7 @@ class Graphics {
 
         void close(void);
         
+        void drawPolygon(Poly const &, Rect const &);
         RECT drawRectangle(int top, int left, unsigned width, unsigned height);
         RECT drawRoundedSquare(int top, int left, unsigned edge, unsigned diam);
         void drawText(int top, int left, unsigned width, unsigned height, 
@@ -52,6 +62,7 @@ class Graphics {
         void drawText(int top, int left, unsigned width, unsigned height, 
                   string);
 
+        void getColors(COLORREF &brushBk, COLORREF &penText) const;
         unsigned getTextHeight(void) const;
         unsigned getTextWidth(char const *) const;
         unsigned getTextWidth(string) const;

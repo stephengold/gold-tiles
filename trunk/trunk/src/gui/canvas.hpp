@@ -17,6 +17,9 @@
 #include "tile.hpp"
 
 class Canvas: public Graphics {
+    static vector<Poly> _glyphs;
+      
+    void initGlyphs(void);
     void drawGlyph(int top, int left, unsigned width, unsigned height,
               AIndex, AValue);
               

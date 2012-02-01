@@ -102,7 +102,7 @@ TopWindow::TopWindow(HINSTANCE applicationInstance):
     _handTiles = activePlayer.getHand();
     _mouseLastX = 0;
     _mouseLastY = 0;
-    _numberOfColorAttributes = 0;
+    _numberOfColorAttributes = 1;
     _originHasBeenCentered = false;
     _originX = 0;
     _originY = 0;
@@ -546,10 +546,12 @@ RECT TopWindow::drawPlayerHeader(
 
 RECT TopWindow::drawTile(Canvas &canvas, int topY, int leftX, Tile const &tile) {
     COLORREF baseColor = LIGHT_GRAY_COLOR;
+    if (_handTiles.contains(tile)) {
+        baseColor = WHITE_COLOR;
+    }
     if (_dragTileFlag && tile.getId() == _dragTileId) {
        topY += _dragTileDeltaY;
        leftX += _dragTileDeltaX;
-       baseColor = WHITE_COLOR;
     }
 	
 	AIndex colorInd;
@@ -567,10 +569,11 @@ RECT TopWindow::drawTile(Canvas &canvas, int topY, int leftX, Tile const &tile) 
 	};
     COLORREF glyphColor = GlyphColors[colorInd];
 
-    ACount numberOfGlyphAttributes = Tile::getNumAttributes() - _numberOfColorAttributes;
+    unsigned nca = _numberOfColorAttributes;
+    ACount numberOfGlyphAttributes = Tile::getNumAttributes() - nca;
     AValue glyphs[4];
     for (AIndex gi = 0; gi < 4; gi++) {
-		AIndex ind = gi + _numberOfColorAttributes;
+		AIndex ind = gi + nca;
          if (gi < numberOfGlyphAttributes) {
              glyphs[gi] = tile.getAttribute(ind);
          } else {
@@ -811,9 +814,12 @@ void TopWindow::play(bool passFlag) {
         }
         game->activateNextPlayer();
         Player activePlayer = game->getActivePlayer();
+
         _board = game->getBoard();
         _handTiles = activePlayer.getHand();
         _playedTileCount = 0;
+        _swapTiles.clear();
+
         forceRepaint();
     }
     

@@ -34,6 +34,14 @@ Rect Rect::centerSquare(void) const {
     return result;
 }
 
+bool Rect::contains(POINT const &point) const {
+    unsigned dx = point.x - _bounds.left;
+    unsigned dy = point.y - _bounds.top;
+    bool result = (dx < getWidth() && dy < getHeight());
+    
+    return result; 
+}
+
 int Rect::getBottomY(void) const {
     int result = _bounds.bottom;
     
@@ -62,6 +70,12 @@ int Rect::getTopY(void) const {
 unsigned Rect::getWidth(void) const {
     ASSERT(_bounds.right >= _bounds.left);
     unsigned result = _bounds.right - _bounds.left;
+    
+    return result;
+}
+
+Rect::operator RECT(void) const {
+    RECT result = _bounds;
     
     return result;
 }
@@ -171,7 +185,7 @@ void Graphics::drawPolygon(Poly const &polygon, Rect const &bounds) {
     ASSERT(success);
 } 
 
-RECT Graphics::drawRectangle(
+Rect Graphics::drawRectangle(
     int top,
     int left,
     unsigned width,
@@ -182,16 +196,12 @@ RECT Graphics::drawRectangle(
 	BOOL success = ::Rectangle(_draw, left, top, right, bottom);
 	ASSERT(success != 0);
 	
-	RECT result;
-	result.left = left;
-	result.right = right;
-	result.top = top;
-	result.bottom = bottom;
+	Rect result(top, left, width, height);
 	
 	return result;
 }
 
-RECT Graphics::drawRoundedSquare(
+Rect Graphics::drawRoundedSquare(
     int top,
     int left,
     unsigned edge,
@@ -207,47 +217,26 @@ RECT Graphics::drawRoundedSquare(
                              ellipseWidth, ellipseHeight);
     ASSERT(success != 0);
         
-    RECT result;
-	result.left = left;
-    result.right = right;
-    result.top = top;
-    result.bottom = bottom;
+    Rect result(top, left, edge, edge);
     
     return result;
 }
 
-void Graphics::drawText(
-    int topY, 
-    int leftX, 
-    unsigned width, 
-    unsigned height, 
-    char const *text)
-{
+void Graphics::drawText(Rect const &rect, char const *text) {
     int textLen = strlen(text);
      
-	RECT rect;
-	rect.top = topY;
-	rect.left = leftX;
-    rect.bottom = rect.top + height;
-    rect.right = rect.left + width;
-
     UINT format = DT_CENTER | DT_EXTERNALLEADING | DT_NOPREFIX 
                 | DT_SINGLELINE | DT_VCENTER;
-    BOOL success = ::DrawText(_draw, text, textLen, &rect, format);
+    RECT r = (RECT)rect;
+    BOOL success = ::DrawText(_draw, text, textLen, &r, format);
     ASSERT(success != 0);
 }
 
-void Graphics::drawText(
-    int topY, 
-    int leftX, 
-    unsigned width, 
-    unsigned height, 
-    string text)
-{
+void Graphics::drawText(Rect const &rect, string text) {
     unsigned length = text.size();
     char *copyText = new char[length + 1];
     strcpy(copyText, text.c_str());
-    drawText(topY, leftX, width, height, copyText);
+    drawText(rect, copyText);
     delete[] copyText;
 }
 

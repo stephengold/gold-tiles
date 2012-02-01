@@ -10,6 +10,7 @@
 #include "play.hpp"
 #include "player.hpp"
 
+
 Game::Game(
     unsigned numPlayers,
     string playerNames[],
@@ -34,8 +35,8 @@ Game::Game(
     }
 
     // deal each player a hand of tiles
-    vector<Player>::iterator player;
-    vector<Player>::iterator bestPlayer;
+    Players::iterator player;
+    Players::iterator bestPlayer;
     for (player = _players.begin(); player < _players.end(); player++) {
         player->drawTiles(handSize, _bag);
     }
@@ -100,10 +101,11 @@ Board Game::getBoard(void) const {
     
     return result;
 }
-vector<Player> Game::getInactivePlayers(void) const {
-    vector<Player> result;
 
-    vector<Player>::const_iterator player = _activePlayer + 1;
+Players Game::getInactivePlayers(void) const {
+    Players result;
+
+    Players::const_iterator player = _activePlayer + 1;
     if (player >= _players.end()) {
         player = _players.begin();
     }
@@ -118,6 +120,24 @@ vector<Player> Game::getInactivePlayers(void) const {
     
     return result;
 }
+
+void Game::goingOutBonus(void) {
+    Players::const_iterator player = _activePlayer + 1;
+    if (player >= _players.end()) {
+        player = _players.begin();
+    }
+    
+    while (player != _activePlayer) {
+        Tiles hand = player->getHand();
+        unsigned pointsInHand = hand.size();
+        _activePlayer->addScore(pointsInHand);
+        player++;
+        if (player >= _players.end()) {
+            player = _players.begin();
+        }  
+    }
+}
+
 unsigned Game::getStock(void) const {
     unsigned result = _bag.size();
     
@@ -131,7 +151,7 @@ bool Game::isOver(void) const {
     bool result = false;
     
 	if (_bag.empty()) {
-        vector<Player>::const_iterator player;
+        Players::const_iterator player;
         for (player = _players.begin(); player < _players.end(); player++) {
 	        if (player->handIsEmpty()) {
 		        result = true;
@@ -248,7 +268,7 @@ void Game::playTurn(void) {
 }
 
 void Game::printScores(void) const {
-    vector<Player>::const_iterator player;
+    Players::const_iterator player;
 
     for (player = _players.begin(); player < _players.end(); player++) {
 	    player->displayScore();

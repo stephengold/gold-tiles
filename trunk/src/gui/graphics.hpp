@@ -25,6 +25,7 @@ class Rect {
         //~Rect(void);
 
         Rect centerSquare(void) const;
+        bool contains(POINT const &) const;
 
         int getBottomY(void) const;
         unsigned getHeight(void) const;
@@ -55,13 +56,11 @@ class Graphics {
         void close(void);
         
         void drawPolygon(Poly const &, Rect const &);
-        RECT drawRectangle(int top, int left, unsigned width, unsigned height);
-        RECT drawRoundedSquare(int top, int left, unsigned edge, unsigned diam);
-        void drawText(int top, int left, unsigned width, unsigned height, 
-                  char const *);
-        void drawText(int top, int left, unsigned width, unsigned height, 
-                  string);
-
+        Rect drawRectangle(int top, int left, unsigned width, unsigned height);
+        Rect drawRoundedSquare(int top, int left, unsigned edge, unsigned diam);
+        void drawText(Rect const &, char const *);
+        void drawText(Rect const &, string);
+        
         void getColors(COLORREF &brushBk, COLORREF &penText) const;
         unsigned getTextHeight(void) const;
         unsigned getTextWidth(char const *) const;

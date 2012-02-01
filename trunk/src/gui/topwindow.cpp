@@ -58,7 +58,9 @@ static LRESULT CALLBACK topMessageHandler(
 TopWindow::TopWindow(HINSTANCE applicationInstance):
 	_application(applicationInstance),
     _fileName("Game1"),
+    _handRect(0, 0, 0, 0),
     _playMenu(NULL),
+    _swapRect(0, 0, 0, 0),
 	_tileWidth(WIDTH_LARGE_TILE),
     _viewMenu(NULL)
 {
@@ -125,8 +127,8 @@ void TopWindow::buttonDown(int x, int y) {
     
     TileMap::const_iterator it;
     for (it = _tileMap.begin(); it != _tileMap.end(); it++) {
-        RECT rect = it->second;
-        if (::PtInRect(&rect, pt)) {
+        Rect rect = it->second;
+        if (rect.contains(pt)) {
             break;
         }
     }
@@ -140,9 +142,7 @@ void TopWindow::buttonDown(int x, int y) {
         _dragTileFlag = true;
         _dragTileId = it->first;
         
-    } else if (!::PtInRect(&_handRect, pt) &&
-               !::PtInRect(&_swapRect, pt))
-    {
+    } else if (!_handRect.contains(pt) && !_swapRect.contains(pt)) {
         // Capture mouse to drag the board
     	::SetCapture(thisWindow);
 
@@ -191,7 +191,7 @@ void TopWindow::buttonUp(int x, int y) {
         // Determine where the tile got dragged to.
         POINT point; point.x = x; point.y = y;
         
-        if (::PtInRect(&_swapRect, point)) { // to swap
+        if (_swapRect.contains(point)) { // to swap
             if (_playedTileCount == 0) {
                 _swapTiles.addTile(dragTile);
             } else if (fromBoard) {
@@ -199,7 +199,7 @@ void TopWindow::buttonUp(int x, int y) {
                 ++_playedTileCount;
             }
             
-        } else if (!::PtInRect(&_handRect, point)) { // to board
+        } else if (!_handRect.contains(point)) { // to board
             GridRef toSquare = getCellRef(x, y);
             Play play;
             play.add(dragTile, toSquare);
@@ -285,8 +285,8 @@ void TopWindow::drawActivePlayer(Canvas &canvas) {
     canvas.useColors(areaColor, edgeColor);
     top = headerRect.bottom - 1;
     _handRect = canvas.drawRectangle(top, left, width, height);
-    left = _handRect.left;
-    width = _handRect.right - left;
+    left = _handRect.getLeftX();
+    width = _handRect.getWidth();
     
     // draw swap area (_swapRect)
     tileCount = _swapTiles.size();
@@ -299,21 +299,21 @@ void TopWindow::drawActivePlayer(Canvas &canvas) {
         areaColor = BROWN_COLOR;
     }
     canvas.useColors(areaColor, edgeColor);
-    top = _handRect.bottom - 1;
+    top = _handRect.getBottomY() - 1;
     _swapRect = canvas.drawRectangle(top, left, width, height);
     
     unsigned stock = game->getStock();
     string stockText = plural(stock, "tile");
-    int y = _swapRect.bottom - _padPixels - bagHeight;
-    canvas.drawText(y, left, width, bagHeight, stockText);
+    int y = _swapRect.getBottomY() - _padPixels - bagHeight;
+    Rect bounds(y, left, width, bagHeight);
+    canvas.drawText(bounds, stockText);
 }
 
-RECT TopWindow::drawBlankTile(Canvas &canvas, int topY, int leftX) {
+Rect TopWindow::drawBlankTile(Canvas &canvas, int topY, int leftX) {
     COLORREF baseColor = LIGHT_GRAY_COLOR;
-    canvas.useColors(baseColor, baseColor);
     unsigned width = getCellWidth() - 2;
     AValue glyphs[4];
-    RECT result = canvas.drawTile(topY, leftX, width, 0, glyphs);
+    Rect result = canvas.drawTile(topY, leftX, width, 0, glyphs, baseColor, baseColor);
     
     return result;
 }
@@ -374,11 +374,11 @@ void TopWindow::drawCell(Canvas &canvas, GridRef const &square) {
 }
 
 void TopWindow::drawHandTiles(Canvas &canvas) {   
-    int handY = _handRect.top + _padPixels;
+    int handY = _handRect.getTopY() + _padPixels;
     
     unsigned cellWidth = getCellWidth();
     unsigned cellHeight = cellWidth;
-    int swapY = _swapRect.top + _padPixels;
+    int swapY = _swapRect.getTopY() + _padPixels;
     if (_swapTiles.size() < _handTiles.size() && _playedTileCount == 0) {
         swapY += cellHeight/2;
     }
@@ -396,22 +396,22 @@ void TopWindow::drawHandTiles(Canvas &canvas) {
             y = getCellY(row);
         } else {
             if (_swapTiles.contains(tile)) {
-                int left = _swapRect.left;
-                int width = _swapRect.right - left;
+                int left = _swapRect.getLeftX();
+                int width = _swapRect.getWidth();
                 int pad = (width - cellWidth)/2;
                 x = left + pad;
                 y = swapY;
                 swapY += cellHeight;
             } else { 
-                int left = _handRect.left;
-                int width = _handRect.right - left;
+                int left = _handRect.getLeftX();
+                int width = _handRect.getWidth();
                 int pad = (width - cellWidth)/2;
                 x = left + pad;
                 y = handY;
                 handY += cellHeight;
             }
         }
-        RECT rect = drawTile(canvas, y + 1, x + 1, tile);
+        Rect rect = drawTile(canvas, y + 1, x + 1, tile);
         
         TileId id = tile.getId();
         TilePair pair(id, rect);
@@ -429,8 +429,8 @@ void TopWindow::drawInactivePlayers(Canvas &canvas) {
     int right = _clientAreaWidth - _padPixels;
     COLORREF areaColor = DARK_BLUE_COLOR;
     COLORREF edgeColor = LIGHT_GRAY_COLOR;
-    vector<Player> otherPlayers = game->getInactivePlayers();
-    vector<Player>::const_iterator player;
+    Players otherPlayers = game->getInactivePlayers();
+    Players::const_iterator player;
     for (player = otherPlayers.begin(); player < otherPlayers.end(); player++) {
         // draw header
         int top = _padPixels;
@@ -469,7 +469,7 @@ void TopWindow::drawInactivePlayers(Canvas &canvas) {
     }
 }
 
-RECT TopWindow::drawPlayerHeader(
+Rect TopWindow::drawPlayerHeader(
     Canvas &canvas, 
     int top, 
     int leftRight, 
@@ -523,31 +523,34 @@ RECT TopWindow::drawPlayerHeader(
     }
     unsigned height = textHeight + scoreHeight + clockHeight + 2*_padPixels;
     canvas.useColors(areaColor, areaColor);
-    RECT result = canvas.drawRectangle(top, left, width, height);
+    Rect result = canvas.drawRectangle(top, left, width, height);
 
     COLORREF textColor = WHITE_COLOR;
     canvas.useColors(areaColor, textColor);
 
     int y = top + _padPixels;
-    canvas.drawText(y, left, width, textHeight, nameText);
+    Rect bounds(y, left, width, textHeight);
+    canvas.drawText(bounds, nameText);
     y += textHeight;
     
     if (_showScoresFlag) {
-        canvas.drawText(y, left, width, scoreHeight, scoreText);
+        Rect scoreBox(y, left, width, scoreHeight);
+        canvas.drawText(scoreBox, scoreText);
         y += scoreHeight;
     }
 
     if (_showClocksFlag) {
-        canvas.drawText(y, left, width, textHeight, clockText);
+        Rect clockBox(y, left, width, textHeight);
+        canvas.drawText(clockBox, clockText);
     }
     
     return result;
 }
 
-RECT TopWindow::drawTile(Canvas &canvas, int topY, int leftX, Tile const &tile) {
-    COLORREF baseColor = LIGHT_GRAY_COLOR;
+Rect TopWindow::drawTile(Canvas &canvas, int topY, int leftX, Tile const &tile) {
+    COLORREF tileColor = LIGHT_GRAY_COLOR;
     if (_handTiles.contains(tile)) {
-        baseColor = WHITE_COLOR;
+        tileColor = WHITE_COLOR;
     }
     if (_dragTileFlag && tile.getId() == _dragTileId) {
        topY += _dragTileDeltaY;
@@ -582,9 +585,8 @@ RECT TopWindow::drawTile(Canvas &canvas, int topY, int leftX, Tile const &tile) 
     }
 
     unsigned width = getCellWidth() - 2;
-    canvas.useColors(baseColor, glyphColor);
-    RECT result = canvas.drawTile(topY, leftX, width, 
-                                  numberOfGlyphAttributes, glyphs);
+    Rect result = canvas.drawTile(topY, leftX, width, 
+                    numberOfGlyphAttributes, glyphs, tileColor, glyphColor);
     
     return result;
 }
@@ -810,17 +812,26 @@ void TopWindow::play(bool passFlag) {
     if (pl.isPass() == passFlag && game->isValidPlay(pl)) {
         game->playTiles(pl);
         if (game->isOver()) {
-            assert(false); // TODO
+            _showClocksFlag = true;
+            _showScoresFlag = true;
+            _showTilesFlag = true;
+            game->goingOutBonus();
+        } else {
+            game->activateNextPlayer();
+            if (_autopauseFlag) {
+                _pauseFlag = true;
+            }
         }
-        game->activateNextPlayer();
-        Player activePlayer = game->getActivePlayer();
 
         _board = game->getBoard();
+        Player activePlayer = game->getActivePlayer();
         _handTiles = activePlayer.getHand();
         _playedTileCount = 0;
         _swapTiles.clear();
-
-        forceRepaint();
+       
+        // center the origin
+        _originHasBeenCentered = false;
+        resize(_clientAreaWidth, _clientAreaHeight);
     }
     
 }
@@ -846,14 +857,14 @@ void TopWindow::repaint(void) {
     Canvas canvas(contextHandle, windowHandle, releaseMe, _clientAreaWidth, _clientAreaHeight);
     
     if (_pauseFlag) {
-        int x = 0;
-        int y = 0;
-        int width = _clientAreaWidth;
-        int height = _clientAreaHeight;
         COLORREF bgColor = BLACK_COLOR;
         COLORREF textColor = WHITE_COLOR;
         canvas.useColors(bgColor, textColor);
-        canvas.drawText(x, y, width, height, "The game is paused.  Click here to resume.");
+
+        int x = 0;
+        int y = 0;
+        Rect clientArea(y, x, _clientAreaWidth, _clientAreaHeight);
+        canvas.drawText(clientArea, "The game is paused.  Click here to resume.");
     } else {
         drawBoard(canvas);
         drawInactivePlayers(canvas);

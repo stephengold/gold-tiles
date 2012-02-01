@@ -22,8 +22,8 @@
 #include "gui/menu.hpp"
 #include "tile.hpp"
 
-typedef std::map<TileId, RECT> TileMap;
-typedef std::pair<TileId, RECT> TilePair;
+typedef std::map<TileId, Rect> TileMap;
+typedef std::pair<TileId, Rect> TilePair;
 
 class TopWindow: public Window {
 	static WindowClass *_class;
@@ -37,7 +37,7 @@ class TopWindow: public Window {
 	int _dragTileDeltaX, _dragTileDeltaY;
 	TileId _dragTileId;
 	Tiles _handTiles;
-	RECT _handRect;
+	Rect _handRect;
 	int _mouseLastX, _mouseLastY; // coordinates of last mouse down
 	ACount _numberOfColorAttributes;
 	bool _originHasBeenCentered;
@@ -53,7 +53,7 @@ class TopWindow: public Window {
 	bool _showScoresFlag;
 	bool _showTilesFlag;
 	Tiles _swapTiles;
-	RECT _swapRect;
+	Rect _swapRect;
 	TileMap _tileMap;
 	unsigned _tileWidth;
     ViewMenu *_viewMenu;
@@ -64,14 +64,14 @@ class TopWindow: public Window {
 	void dragMouse(int x, int y);
 
     void drawActivePlayer(Canvas &);
-	RECT drawBlankTile(Canvas &, int topY, int leftX);
+	Rect drawBlankTile(Canvas &, int topY, int leftX);
     void drawBoard(Canvas &);
     void drawCell(Canvas &, GridRef const &);
     void drawHandTiles(Canvas &);
     void drawInactivePlayers(Canvas &);
-    RECT drawPlayerHeader(Canvas &, int top, int leftRight, Player const &, 
+    Rect drawPlayerHeader(Canvas &, int top, int leftRight, Player const &, 
                           COLORREF, bool leftFlag);
-	RECT drawTile(Canvas &, int topY, int leftX, Tile const &);
+	Rect drawTile(Canvas &, int topY, int leftX, Tile const &);
 
 	GridRef getCellRef(int x, int y);
     unsigned getCellWidth(void) const;

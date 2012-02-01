@@ -97,8 +97,9 @@ TopWindow::TopWindow(HINSTANCE applicationInstance):
 
     assert(game != NULL);
     Player activePlayer = game->getActivePlayer();
+    
+    _autopauseFlag = false;
     _board = game->getBoard();
-
     _dragBoardFlag = false;
     _dragTileFlag = false;
     _handTiles = activePlayer.getHand();
@@ -109,7 +110,7 @@ TopWindow::TopWindow(HINSTANCE applicationInstance):
     _originX = 0;
     _originY = 0;
     _padPixels = 6;
-	_pauseFlag = false;
+	_pauseFlag = _autopauseFlag;
     _playedTileCount = 0;    
 	_showClocksFlag = false;
 	_showGridFlag = true;
@@ -864,7 +865,15 @@ void TopWindow::repaint(void) {
         int x = 0;
         int y = 0;
         Rect clientArea(y, x, _clientAreaWidth, _clientAreaHeight);
-        canvas.drawText(clientArea, "The game is paused.  Click here to resume.");
+        canvas.drawText(clientArea, "The game is paused.  Click here to proceed.");
+        
+        int top = _padPixels;
+        int left = _padPixels;
+        Player activePlayer = game->getActivePlayer();
+        COLORREF areaColor = BLACK_COLOR;
+        bool leftFlag = true;
+        drawPlayerHeader(canvas, top, left, activePlayer, areaColor, leftFlag);
+
     } else {
         drawBoard(canvas);
         drawInactivePlayers(canvas);

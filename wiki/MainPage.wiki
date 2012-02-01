@@ -1,0 +1,5 @@
+Welcome to the gold-tiles wiki.  If you see something missing or incorrect, please add or change it by logging in and clicking Edit.
+
+==Contents==
+ * [Playing] - for players 
+ * [Development] - for programmers

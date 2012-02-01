@@ -21,13 +21,13 @@ string attributeToString(AIndex ind, AValue value) {
             result = (char)('A' + value);
             break;
         case 1:
-            result = (char)('Q' + value);
+            result = (char)('R' + value);
             break;
         case 2:
             result = (char)('a' + value);
             break;
         case 3:
-            result = (char)('q' + value);
+            result = (char)('r' + value);
             break;
         default:
             result = (char)('1' + value);

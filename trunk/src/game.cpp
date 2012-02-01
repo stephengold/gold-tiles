@@ -1,6 +1,8 @@
 // File:    game.cpp
 // Purpose: Game class for the Gold Tile game.
 // Author:  Stephen Gold sgold@sonic.net
+// (c) Copyright 2012 Stephen Gold
+// Distributed under the terms of the GNU Lesser General Public License
 
 #include <iostream>
 #include <string>
@@ -22,17 +24,23 @@ Game::Game(
     // copy game parameters
     Tile::setStatic(numAttr, maxAttr);
 
+    // reset the board
+    _board = Board();
+    
     // generate all possible tiles
+    _bag.clear();
     unsigned attributeIndex = 0;
     Tile modelTile;
     addTiles(attributeIndex, tileRedundancy, modelTile);
-    D(cout << "Placed " << plural(_bag.size(), "tile") << " to the stock bag." << endl);
+    D(cout << "Placed " << plural(_bag.size(), "tile") << " in the stock bag." << endl);
     
     // create players
+    _players.clear();
     for (unsigned pi = 0; pi < numPlayers; pi++) {
 	    Player player(playerNames[pi]);
 	    _players.push_back(player);
     }
+    // TODO check for duplicate names
 
     // deal each player a hand of tiles
     Players::iterator player;

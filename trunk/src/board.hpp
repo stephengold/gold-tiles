@@ -4,6 +4,8 @@
 // File:    board.hpp
 // Purpose: Board class for the Gold Tile game.
 // Author:  Stephen Gold sgold@sonic.net
+// (c) Copyright 2012 Stephen Gold
+// Distributed under the terms of the GNU Lesser General Public License
 
 /*
  A Board object represents a two-dimensional playing surface

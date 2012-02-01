@@ -1,6 +1,8 @@
 // File:    topwindow.cpp
 // Purpose: TopWindow class for the Gold Tile game.
 // Author:  Stephen Gold sgold@sonic.net
+// (c) Copyright 2012 Stephen Gold
+// Distributed under the terms of the GNU Lesser General Public License
 
 #include "project.hpp"
 
@@ -480,7 +482,11 @@ Rect TopWindow::drawPlayerHeader(
 {
     unsigned cellWidth = getCellWidth();
 
-    string nameText = player.getName();    
+    string nameText = player.getName();
+    Player activePlayer = game->getActivePlayer();
+    if (nameText == activePlayer.getName()) {
+        nameText += "'s turn";
+    }
     unsigned w = canvas.getTextWidth(nameText);
     unsigned width = (cellWidth > w) ? cellWidth : w;
 

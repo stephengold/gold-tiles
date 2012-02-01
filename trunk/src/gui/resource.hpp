@@ -1,9 +1,15 @@
 #ifndef RESOURCE_HPP_INCLUDED
 #define RESOURCE_HPP_INCLUDED
 
+// File:    resource.hpp
+// Purpose: Resource values for the Gold Tile game
+// Author:  Stephen Gold sgold@sonic.net
+// (c) Copyright 2012 Stephen Gold
+// Distributed under the terms of the GNU Lesser General Public License
+
 #define IDC_STATIC			-1
 
-// File menu
+// File submenu
 #define IDM_FILE			0
 #define IDM_NEW				6000
 #define IDM_OPEN			6001
@@ -15,7 +21,7 @@
 #define IDM_PRINT           6007
 #define IDM_EXIT			6008
 
-// Play menu
+// Play submenu
 #define IDM_PLAY			1
 #define IDM_PAUSE           6100
 #define IDM_ACCEPT          6101
@@ -27,7 +33,7 @@
 #define IDM_REDO            6107
 #define IDM_AUTOPAUSE       6108
 
-// View menu
+// View submenu
 #define IDM_VIEW			2
 #define IDM_SMALL_TILES		6200
 #define IDM_MEDIUM_TILES	6201
@@ -41,7 +47,7 @@
 #define IDM_SHOW_TILES		6209
 #define IDM_ANIMATION       6210
 
-// Help menu
+// Help submenu
 #define IDM_HELP			3
 #define IDM_RULES   		6901
 #define IDM_ABOUT			6902

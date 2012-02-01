@@ -4,6 +4,8 @@
 // File:    color.hpp
 // Purpose: Color enum for the Gold Tile game.
 // Author:  Stephen Gold sgold@sonic.net
+// (c) Copyright 2012 Stephen Gold
+// Distributed under the terms of the GNU Lesser General Public License
 
 /*
 
@@ -23,7 +25,7 @@ enum Color {
     RED_COLOR         = PALETTERGB(255, 0, 0),
     PINK_COLOR        = PALETTERGB(255, 128, 128),
 
-    BROWN_COLOR       = PALETTERGB(90, 40, 0),
+    BROWN_COLOR       = PALETTERGB(120, 60, 0),
     YELLOW_COLOR      = PALETTERGB(255, 180, 0),
     
     DARK_GREEN_COLOR  = PALETTERGB(0, 100, 0),

@@ -4,6 +4,8 @@
 // File:    tile.hpp
 // Purpose: Tile class for the Gold Tile game.
 // Author:  Stephen Gold sgold@sonic.net
+// (c) Copyright 2012 Stephen Gold
+// Distributed under the terms of the GNU Lesser General Public License
 
 /*
  A Tile object represents a playing piece which may be played

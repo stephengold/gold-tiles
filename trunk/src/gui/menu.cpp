@@ -1,4 +1,8 @@
-// menu.cpp
+// File:    menu.cpp
+// Purpose: implement the MenuItem and SubMenu classes.
+// Author:  Stephen Gold sgold@sonic.net
+// (c) Copyright 2012 Stephen Gold
+// Distributed under the terms of the GNU Lesser General Public License
 
 #include "project.hpp"
 

@@ -1,6 +1,8 @@
 // File:    canvas.cpp
 // Purpose: Canvas class for the Gold Tile game.
 // Author:  Stephen Gold sgold@sonic.net
+// (c) Copyright 2012 Stephen Gold
+// Distributed under the terms of the GNU Lesser General Public License
 
 #include "project.hpp"
 

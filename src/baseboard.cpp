@@ -1,6 +1,8 @@
 // File:    baseboard.cpp
 // Purpose: BaseBoard class for the Gold Tile game.
 // Author:  Stephen Gold sgold@sonic.net
+// (c) Copyright 2012 Stephen Gold
+// Distributed under the terms of the GNU Lesser General Public License
 
 #include <iostream>
 #include <string>
@@ -21,10 +23,12 @@ BaseBoard::BaseBoard(void) {
 
 // public methods
 
+// display the entire board to the console
 void BaseBoard::display(void) const {
     cout << endl << this->toString() << endl;
 }
 
+// make a specific cell empty
 void BaseBoard::emptyCell(GridRef const &square) {
     int row = square.getRow();
     int column = square.getColumn();
@@ -33,13 +37,13 @@ void BaseBoard::emptyCell(GridRef const &square) {
     _cells.erase(it);
 }
 
+// get iterators to specific cells
 BaseBoard::const_iterator BaseBoard::find(int n, int e) const {
     GridRef ref(n, e);
     const_iterator result = _cells.find(ref);
 
     return result;
 }
-
 BaseBoard::iterator BaseBoard::find(int n, int e) {
     GridRef ref(n, e);
     iterator result = _cells.find(ref);
@@ -47,6 +51,7 @@ BaseBoard::iterator BaseBoard::find(int n, int e) {
     return result;
 }
 
+// get a GridRef to the cell containing a specific Tile
 bool BaseBoard::findTile(Tile const &tile, GridRef &square) const {
     for (int row = _maxN; row >= -(int)_maxS; row--) {
 	    for (int column = -_maxW; column <= _maxE; column++) {
@@ -60,6 +65,7 @@ bool BaseBoard::findTile(Tile const &tile, GridRef &square) const {
     return false;
 }
 
+// get a pointer to the Tile (if any) in a specific cell
 Tile const *BaseBoard::getCell(GridRef const &square) const {
     Tile const *result = NULL;
 
@@ -71,6 +77,7 @@ Tile const *BaseBoard::getCell(GridRef const &square) const {
     return result;
 }
 
+// get the limits of the board in each direction
 int BaseBoard::getMaxN(void) const {
     return _maxN;
 }
@@ -84,6 +91,7 @@ int BaseBoard::getMaxW(void) const {
     return _maxW;
 }
 
+// play a Tile on a specific cell
 void BaseBoard::playOnCell(GridRef const &ref, Tile const &tile) {
     D(cout << "Play " << tile.toString() << " at " << ref.toString() << endl);
 
@@ -107,6 +115,7 @@ void BaseBoard::playOnCell(GridRef const &ref, Tile const &tile) {
     _cells[ref] = tile;
 }
 
+// convert the entire board to a string
 string BaseBoard::toString(void) const {
     D(cout << "maxN=" << _maxN << " maxS=" << _maxS << " maxE=" << _maxE << " maxW=" << _maxW
         << " in Board::toString()" << endl);

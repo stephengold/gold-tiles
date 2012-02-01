@@ -4,6 +4,8 @@
 // File:    baseboard.hpp
 // Purpose: BaseBoard class for the Gold Tile game
 // Author:  Stephen Gold sgold@sonic.net
+// (c) Copyright 2012 Stephen Gold
+// Distributed under the terms of the GNU Lesser General Public License
 
 /*
  A BaseBoard object represents a two-dimensional playing grid

@@ -4,10 +4,12 @@
 // File:    windowclass.hpp
 // Purpose: WindowClass class for the Gold Tile game
 // Author:  Stephen Gold sgold@sonic.net
+// (c) Copyright 2012 Stephen Gold
+// Distributed under the terms of the GNU Lesser General Public License
 
 /*
  A WindowClass object represents a Microsoft Windows "window class".
- Implemented by encapsulating WNDCLASSEX.
+ Implemented by extending WNDCLASSEX.
  */
 
 #include "project.hpp"

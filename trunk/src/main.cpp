@@ -60,7 +60,7 @@ int main(int argc, char *argv[]) {
 	string playerNames[] = { "Stephen", "Paul", "Gale" }; // oldest first!
 	ACount numAttributes = 2;
 	AValue maxAttribute[] = { 5, 5 };
-	unsigned tileRedundancy = 3;
+	unsigned tileRedundancy = 1;
 	unsigned handSize = 7;
 
 #ifdef _CONSOLE

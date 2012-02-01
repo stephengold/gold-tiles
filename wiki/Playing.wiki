@@ -1,0 +1,169 @@
+This wiki page explains the gold-tiles game to players.
+
+== The rules ==
+
+Gold-tiles is a turn-based tile game for one or more players.
+
+=== Tiles and their attributes ===
+
+The playing pieces are two-sided square *tiles* with colored 
+*markings* on the side known as the *face*.  Tile markings 
+denote the *values* of the tile's *attributes*.
+
+All tiles in a given game have similar attributes, though
+not the same values for those attributes.  Typically there 
+are two attributes, one denoted by a geometric shape and 
+the other denoted by the color of that shape.  However, 
+there can be up to five attributes, with all or some values 
+denoted by letters and numbers.
+
+Each attribute takes at least four values.  For instance,
+in a five-color game the color attribute might take the 
+values _black_, _red_, _blue_, _green_, and _purple_.
+In a four-shape game, the shape attribute might take the 
+values _circle_, _square_, _triangle_, and _star_.
+
+The tiles in a given game include at least one with every 
+possible combination of attribute values.  Games may also
+include *clones*--tiles with identical markings (which 
+therefore match in every attribute).
+
+Two tiles are *compatible* if exactly one of their attributes 
+matches (has the same value).  If none of their attributes 
+match, then the tiles are not compatible, nor are they 
+compatible if two or more of their attributes match.
+(Consequently, clones are never compatible.)
+
+For instance, a tile having red markings is compatible 
+with any tile having black markings, provided their markings 
+are otherwise identical.  A tile marked with a square
+is compatible with any tile marked with a circle, provided 
+their markings are otherwise identical.  And so on.
+ 
+=== Locations for tiles ===
+
+Each player has a *hand* which contains all tiles belonging 
+to that player.
+
+The players share a board and a stock bag.  A player can 
+access these locations only during his/her turn.
+
+There is also a swap area, used to perform special moves 
+called swaps.
+
+==== Players' hands ====
+
+Each player has a *hand* which contains all tiles belonging 
+to that player.
+
+Hands are limited in the number of tiles they can hold.
+
+The number of tiles in each hand is visible to all players,
+and a player can see the markings on his/her own tiles.
+However, players generally cannot see the markings on 
+tiles in other players' hands.
+
+==== Board ====
+
+The *board* is a two-dimensional grid of *cells*.
+The cells are typically arranged in a square grid, 
+with each cell *adjacent* to four neighboring cells.
+
+The board has an *origin* (starting cell), where the first
+tile must be placed.  The board has no edges or other 
+features.  It grows as needed in all directions.
+
+Each cell starts out empty.  An *empty* cell becomes 
+*full* when a players *places* a tile face-up on the cell.
+Placed tiles cannot be moved.  Once filled, a tile 
+remains full until the end of the game.  Once placed 
+on a cell, a tile remains there until the end of the game.
+
+==== Stock bag ====
+
+The *stock bag* contains all the unplayed tiles which do 
+belong to any player.  Players obtain tiles by *drawing*
+from the stock bag blindly -- without looking at 
+their markings.
+
+==== The swap area ====
+
+A player may return tiles to the stock bag on his/her
+turn.  To avoid drawing back the returned tiles, s/he
+places them temporarily into a private *swap area* 
+while drawing replacements.
+
+=== Setup ===
+
+At the start of the game, all cells on the board are
+empty (unplayed) and all tiles reside in the stock bag.
+
+Each player blindly draws tiles from the stock bag until
+his/her hand is full, then bids for the first turn by
+announcing how many tiles s/he has which are mutually
+compatible.
+
+The player with the largest set of mutually-compatible
+tiles takes the first turn.  On that turn s/he must play
+the number of tiles s/he bid.
+
+=== Taking turns ===
+
+A player's *turn* consists of making a *move* and then
+blindly drawing replacement tiles from the stock bag until
+either his/her hand is full or the stock bag is empty.
+
+There are four legal moves:
+ * The player may *play* one or more tiles from his/her hand 
+   to the board, filling empty cells in order to earn points.
+ * The player may *swap* -- return one or more tiles 
+   from his/her hand to the stock bag by way of the swap area.
+ * The player may *pass* -- do nothing.  In this case,
+   s/he does not draw any replacement tiles.
+ * The player may *resign* and drop out of the game.  In this
+   case, the tiles in his/her hand return to the stock bag
+   and s/he does not draw replacements.
+
+At the end of a player's turn, if the player has played all
+the tiles in his/her hand and is unable to draw any replacements
+(because the stock bag is empty) then s/he *goes out*, and the 
+game is over.  Otherwise, the *next player* (the one on his/her 
+left) takes turn.
+
+==== Playing ====
+
+Every tile which is played to the board must fill an empty cell.
+
+Except for the origin (filled on the first turn), each 
+cell which is filled must have at least one neighbor which 
+is already full.  In other words, all full cells on
+the board must be mutually interconnected.
+
+All tiles placed by a single play must lie in a single row
+or column of the board, with no empty cells intervening.
+
+If two or more tiles are placed in single row or
+column without any intervening empty cells, they must
+all be mutually compatible.  (Consequently, tiles in 
+adjacent cells must always be compatible.)
+
+==== Swapping ====
+
+The number of tiles returns during a swap must not exceed
+the number of tiles in the swap bag.
+
+=== Game over ===
+
+A game ends normally when the stock bag is empty and one player
+has no tiles in his/her hand.
+
+Alternatively, the game may end when all players except one
+have resigned.
+
+=== Scoring ===
+
+TBD
+
+== Graphical interface ==
+
+TBD

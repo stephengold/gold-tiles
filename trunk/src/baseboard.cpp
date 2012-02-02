@@ -33,7 +33,7 @@ void BaseBoard::emptyCell(GridRef const &square) {
     int row = square.getRow();
     int column = square.getColumn();
     iterator it = find(row, column);
-    assert(it != _cells.end());
+    ASSERT(it != _cells.end());
     _cells.erase(it);
 }
 

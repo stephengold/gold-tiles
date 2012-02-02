@@ -8,7 +8,6 @@
 // Distributed under the terms of the GNU Lesser General Public License
 
 // project-wide macros
-
 #ifdef _WINDOWS
 #define _GUI
 #else

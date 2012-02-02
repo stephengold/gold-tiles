@@ -32,7 +32,7 @@ class FractionPair {
 
 class Poly: public vector<FractionPair> {
      public:
-         void add(float x, float y);
+         void add(double x, double y);
          void getPoints(POINT points[], unsigned numPoints, 
                         Rect const &bounds) const;     
 };

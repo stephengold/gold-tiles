@@ -9,7 +9,11 @@
 #ifdef _WINDOWS
 #include "gui/canvas.hpp"
 #include "gui/poly.hpp"
+
 #include <math.h>
+#ifndef M_PI
+#define M_PI 3.141592653589793
+#endif
 
 vector<Poly> Canvas::_glyphs;
 
@@ -114,9 +118,9 @@ void Canvas::initGlyphs(void) {
     {
         Poly roundel;
         for (unsigned i = 0; i < 20; i++) {
-            float phi = M_PI/10 * (float)i;
-            float x = 0.5 + 0.45*::cos(phi);
-            float y = 0.5 + 0.45*::sin(phi);
+            double phi = M_PI/10 * (double)i;
+            double x = 0.5 + 0.45*::cos(phi);
+            double y = 0.5 + 0.45*::sin(phi);
             roundel.add(x, y);
         }
         _glyphs.push_back(roundel);
@@ -151,8 +155,8 @@ void Canvas::initGlyphs(void) {
     {
         Poly mulletOfSeven;
         for (unsigned i = 0; i < 14; i++) {
-            float phi = M_PI/7 * (float)i;
-            float x, y;
+            double phi = M_PI/7 * (float)i;
+            double x, y;
             if (i % 2) {
                 x = 0.5 + 0.2*::sin(phi);
                 y = 0.5 + 0.2*::cos(phi);

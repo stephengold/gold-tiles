@@ -32,13 +32,13 @@ float FractionPair::getY(void) const {
     return result;
 }
 
-void Poly::add(float x, float y) {
+void Poly::add(double x, double y) {
     ASSERT(x >= 0.0);
     ASSERT(y >= 0.0);
     ASSERT(x <= 1.0);
     ASSERT(y <= 1.0);
 
-    FractionPair pair(x, y);
+    FractionPair pair((float)x, (float)y);
     push_back(pair);
 }
 

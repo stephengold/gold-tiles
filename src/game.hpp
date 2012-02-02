@@ -32,9 +32,9 @@ class Game {
     unsigned scorePlay(Play const &) const;
 
     public:
-        Game(void) { assert(false); };
-        Game(Game const &) { assert(false); };
-        Game &operator=(Game const &) { assert(false); };
+        Game(void) { ASSERT(false); };
+        Game(Game const &) { ASSERT(false); };
+        Game &operator=(Game const &) { ASSERT(false); };
         // ~Game(void);  implicitly declared destructor is fine
 
     Game(unsigned numPlayers,

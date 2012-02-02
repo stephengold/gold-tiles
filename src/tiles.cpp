@@ -11,7 +11,7 @@ void Tiles::addTile(Tile const &tile) {
     std::pair<Tiles::iterator, bool> ins;
     ins = insert(tile);
     bool success = ins.second;
-    assert(success);
+    ASSERT(success);
 }
 
 void Tiles::addTiles(Tiles const &tiles) {

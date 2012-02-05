@@ -7,27 +7,24 @@
 #include <sstream>
 #include "string.hpp"
 
-String::String(void) {
-    std::string("");
-}
-
-String::String(char ch) {
-	std::string(1, ch);
-}
-
-String::String(unsigned repeat, char ch) {
-	std::string(repeat, ch);
-}
-
-String::String(std::string const &str):  std::string(str) {}
-
-String::String(char const p_ch[]): std::string(p_ch) {}
-
-String::String(int integer) {
+static std::string itos(int integer) {
    std::ostringstream sout;
    sout << integer;
-   std::string(sout.str());
+   return sout.str(); 
 }
+
+String::String(void):
+    std::string() {}
+String::String(char ch):
+	std::string(1, ch) {}
+String::String(unsigned repeat, char ch):
+	std::string(repeat, ch) {}
+String::String(std::string const &str):
+	std::string(str) {}
+String::String(char const p_ch[]):
+	std::string(p_ch) {}
+String::String(int integer):
+	std::string(::itos(integer)) {}
 
 String::operator int(void) const {
 	unsigned n = Length();

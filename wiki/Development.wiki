@@ -1,20 +1,16 @@
-
 == Builds ==
 
 There are two builds of the gold-tiles application:
 
  * gold-tiles-windows - The main product, targeting the Microsoft Windows(tm) platform.
 
-This build implements a graphical user interface (GUI) which 
-assumes the presence of a mouse or other pointing device.
-The graphics are based on GDI.  The _WINDOWS preprocessor macro 
-is defined.
+This build implements a graphical user interface (GUI) which assumes the presence of a mouse or other pointing device.  The graphics are based on GDI.  The _WINDOWS and _GUI preprocessor macros are defined.
 
  * gold-tiles-console - implements a console user interface.
 
 This is barely playable and used mainly for debug.  It might 
 also be of interest to users wishing to play remotely (over 
-telnet/rsh) or users lacking a pointing device.
+telnet/rsh) or users lacking a pointing device.  The _CONSOLE preprocessor macro is defined.
 
 == Coding standards ==
 
@@ -24,22 +20,25 @@ Source files needed only for GUI builds belong in src/gui.
 
 Every header file should use #ifndef to prevent multiple inclusions.
 
-For every class Foo there should ideally be a header file "foo.hpp" 
-and a code file "foo.cpp".
+For every class Foo there should ideally be a header file "foo.hpp" and a code file "foo.cpp".
 
 Project-wide definitions belong in "project.hpp"
 
 === Identifiers ===
 
- * class names - use MixedCaseStartingWithUppercase
- * member variables -
- * methods - 
- * function parameters
- * local variable names - use mixedCaseStartingWithLowercase
- * enum values - use ALL_UPPER_CASE
- * preprocessor macros - use ALL_UPPER_CASE
+ * attributes - mMixedCasePrefixedByLowercaseM (this->mWidth)
+ * auto variables - all_lowercase_with_underscores (int all_done;)
+ * classes - MixedCaseStartingWithUppercase (class MenuItem)
+ * enum values - use ALL_UPPER_CASE_WITH_UNDERSCORES (COLOR_BLACK)
+ * formal parameters - mixedCaseStartingWithLowercase  (bool goFlag)
+ * global variables - gMixedCasePrefixedByLowercaseG (gData)
+ * methods - MixedCaseStartingWithUppercase (this->HideAll())
+ * preproc macros - use ALL_UPPER_CASE_WITH_UNDERSCORES (ASSERT(e))
+ * types - use MixedCaseSuffixedWithType (typedef int IdType;)
+
+See [http://www.possibility.com/Cpp/CppCodingStandard.html] for rationale.
 
 === Indentation ===
 
-TBD
+ * Use Unix-style indentation when the curly brace fits on the same line with the preceding keyword.
 

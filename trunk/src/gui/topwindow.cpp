@@ -716,10 +716,10 @@ void TopWindow::Initialize(CREATESTRUCT const *pCreateStruct) {
 
     HMENU menu_bar = pCreateStruct->hMenu;
 
-    mpPlayMenu = new PlayMenu(menu_bar, IDM_PLAY);
+    mpPlayMenu = new PlayMenu(menu_bar, 1);
 	ASSERT(mpPlayMenu != NULL);
 
-	mpViewMenu = new ViewMenu(menu_bar, IDM_VIEW);
+	mpViewMenu = new ViewMenu(menu_bar, 2);
 	ASSERT(mpViewMenu != NULL);
 
 	UpdateMenus();
@@ -836,9 +836,10 @@ void TopWindow::MenuCommand(int command) {
             ::MessageBox(this_window, "The Rules of Gold Tile", 
 		       "Gold Tile", MB_ICONINFORMATION | MB_OK);
             break;
-        case IDM_ABOUT:
-	   	    //AboutDialog about(_hInst, "About", window);
+        case IDM_ABOUT: {
+	   	    AboutDialog about(mModule, "About", this_window);
             break;
+		}
 
 		default:
 			ASSERT(false);

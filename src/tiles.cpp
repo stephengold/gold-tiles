@@ -93,7 +93,7 @@ unsigned Tiles::DrawTiles(unsigned tileCount, Tiles &bag) {
             break;
         }
         Tile tile = bag.DrawRandomTile();
-        D(std::cout << "Drew " << (String)tile << "." << std::endl);
+        D(std::cout << "Drew " << String(tile) << "." << std::endl);
 		insert(tile);
 	}
 

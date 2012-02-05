@@ -309,7 +309,7 @@ bool Board::IsLegalMove(Move const &rMove) const {
         return false;
     }
 
-	if (rMove.IncludesSwap()) {
+	if (rMove.InvolvesSwap()) {
 		if (!rMove.IsPureSwap()) {
             D(std::cout << "Not legal: mixture of place and swap." << std::endl);
             return false;

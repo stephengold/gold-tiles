@@ -12,19 +12,20 @@
 #include "gui/resource.hpp"
 #include "gui/window.hpp"
 #include "gui/windowclass.hpp"
+#include "rect.hpp"
 
 // message handler (callback)
-static Window *newlyCreatedWindow = NULL;
+static Window *spNewlyCreatedWindow = NULL;
 static LRESULT CALLBACK messageHandler(
 	HWND windowHandle,
 	UINT message,
-	WPARAM wParam,
-	LPARAM lParam)
+	WPARAM wParameter,
+	LPARAM lParameter)
 {
     Window *window;
-	if (message == WM_CREATE && newlyCreatedWindow != NULL) {
-		window = newlyCreatedWindow;
-		newlyCreatedWindow = NULL;
+	if (message == WM_CREATE && spNewlyCreatedWindow != NULL) {
+		window = spNewlyCreatedWindow;
+		spNewlyCreatedWindow = NULL;
 		window->SetHandle(windowHandle);
 	} else {
        window = Window::Lookup(windowHandle);
@@ -33,77 +34,27 @@ static LRESULT CALLBACK messageHandler(
 	LRESULT result;
 	if (window == NULL) { // unknown window handle
 		// invoke default message handler
-		result = ::DefWindowProc(windowHandle, message, wParam, lParam);
+		result = ::DefWindowProc(windowHandle, message, wParameter, lParameter);
 	} else {
      	ASSERT(window->Handle() == windowHandle);
-        result = window->HandleMessage(message, wParam, lParam);
+        result = window->HandleMessage(message, wParameter, lParameter);
 	}
 	return result;
 }
 
-// static members
+// static data
+
 Window::Map Window::msMap;
 
-Window *Window::Lookup(HWND handle) {
-	unsigned long key = (unsigned long)handle;
-	Map::const_iterator it;
-	it = msMap.find(key);
-
-	Window *result = NULL;
-	if (it != msMap.end()) {
-	    result = it->second;
-	    ASSERT(result != NULL);
-	}
-
-	return result;
-}
+// lifecycle
 
 Window::Window(void) {
 	mHandle = 0;
-}
-
-void Window::ForceRepaint(void) {
-     RECT *entire_client_area = NULL;
-     BOOL erase = TRUE;
-     BOOL success = ::InvalidateRect(mHandle, entire_client_area, erase);
-     ASSERT(success != 0);
-}
-
-HWND Window::Handle(void) const {
-	HWND result = mHandle;
-	
-	return result;
-}
-
-LRESULT Window::HandleMessage(UINT message, WPARAM wParam, LPARAM lParam) {
-	LRESULT result = 0;
-    switch (message) {
-        case WM_CREATE: { // initialize window
-			CREATESTRUCT *create_struct = (CREATESTRUCT *)lParam;
-            Initialize(create_struct);
-            break;
-		}
-
-        case WM_DESTROY: // destroy window
-			SelfDestruct();
-            break;
-
-        case WM_SIZE: { // resize window
-			unsigned width = LOWORD(lParam);
-			unsigned height = HIWORD(lParam);
-            SetClientArea(width, height);
-            break;
-		}
-
-		default:  // invoke default message handler
-			result = ::DefWindowProc(Handle(), message, wParam, lParam);
-			break;
-    }
-
-    return result;
+	mModule = 0;
 }
 
 HDC Window::Initialize(CREATESTRUCT const *pCreateStruct) {
+	ASSERT(mHandle != 0);
    	ASSERT(pCreateStruct != NULL);
 	mModule = pCreateStruct->hInstance;
 
@@ -118,10 +69,96 @@ HDC Window::Initialize(CREATESTRUCT const *pCreateStruct) {
     ASSERT(success != 0);
     SetClientArea(client_area_size.cx, client_area_size.cy);
 
-	char const *icon_resource_name = ClassName(); // use same name
+	char const *icon_resource_name = "TOPWINDOWICON";
 	SetIcons(icon_resource_name);
 	
 	return private_dc;
+}
+
+// methods
+
+Window::operator Rect(void) const {
+	int x = 0;
+    int y = 0;
+    Rect result(y, x, mClientAreaWidth, mClientAreaHeight);
+
+	return result;
+}
+
+unsigned Window::ClientAreaHeight(void) const {
+	unsigned result = mClientAreaHeight;
+
+	return result;
+}
+
+unsigned Window::ClientAreaWidth(void) const {
+	unsigned result = mClientAreaWidth;
+
+	return result;
+}
+
+HINSTANCE Window::CopyModule(Window const &other) {
+	mModule = other.mModule;
+    HINSTANCE result = mModule;
+
+	return result;
+}
+
+void Window::ForceRepaint(void) {
+	ASSERT(mHandle != 0);
+    RECT *entire_client_area = NULL;
+    BOOL erase = TRUE;
+    BOOL success = ::InvalidateRect(mHandle, entire_client_area, erase);
+    ASSERT(success != 0);
+}
+
+HWND Window::Handle(void) const {
+	HWND result = mHandle;
+	
+	return result;
+}
+
+LRESULT Window::HandleMessage(UINT message, WPARAM wParameter, LPARAM lParameter) {
+	ASSERT(mHandle != 0);
+	LRESULT result = 0;
+    switch (message) {
+        case WM_CREATE: { // initialize window
+			CREATESTRUCT *create_struct = (CREATESTRUCT *)lParameter;
+            Initialize(create_struct);
+            break;
+		}
+
+        case WM_DESTROY: // destroy window
+			SelfDestruct();
+            break;
+
+        case WM_SIZE: { // resize window
+			unsigned width = LOWORD(lParameter);
+			unsigned height = HIWORD(lParameter);
+            SetClientArea(width, height);
+            break;
+		}
+
+		default:  // invoke default message handler
+			result = ::DefWindowProc(Handle(), message, wParameter, lParameter);
+			break;
+    }
+
+    return result;
+}
+
+/* static */ Window *Window::Lookup(HWND handle) {
+	unsigned long key = (unsigned long)handle;
+	Map::const_iterator it;
+	it = msMap.find(key);
+
+	Window *result = NULL;
+	if (it != msMap.end()) {
+	    result = it->second;
+	    ASSERT(result != NULL);
+	}
+
+	return result;
 }
 
 void Window::SelfDestruct(void) {
@@ -147,7 +184,9 @@ void Window::SetHandle(HWND handle) {
 
 // set large and small icons for a window
 void Window::SetIcons(char const *iconResourceName) {
-    HINSTANCE module_instance = mModule;
+	ASSERT(mHandle != 0);
+
+	HINSTANCE module_instance = mModule;
     HWND window_handle = mHandle;
 	UINT message = WM_SETICON;
 	UINT image_type = IMAGE_ICON;

@@ -35,7 +35,7 @@ public:
     Tiles    GetTiles(void) const;
 
 	// inquiry
-	bool     IncludesSwap(void) const;
+	bool     InvolvesSwap(void) const;
 	bool     IsPass(void) const;
 	bool     IsPureSwap(void) const;
     bool     RepeatsCell(void) const;

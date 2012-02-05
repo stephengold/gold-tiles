@@ -41,13 +41,14 @@ public:
 	// inquiry
     bool     IsLegalMove(Move const &) const;
     bool     IsOver(void) const;
+	bool     IsStockEmpty(void) const;
 
 private:
     Players::IteratorType miActivePlayer; // whose turn it is
-    unsigned              mBestRunLength; // zero after the first turn
-    Board                 mBoard;         // extensible playing surface
-    Players               mPlayers;       // who is playing
-    Tiles                 mStockBag;      // stock bag from which tiles are drawn
+    unsigned               mBestRunLength; // zero after the first turn
+    Board                  mBoard;         // extensible playing surface
+    Players                mPlayers;       // who is playing
+    Tiles                  mStockBag;      // stock bag from which tiles are drawn
 
 	// misc
     void     AddTiles(AIndexType, unsigned redundancy, Tile &);

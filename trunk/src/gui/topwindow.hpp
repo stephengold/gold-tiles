@@ -19,87 +19,96 @@
 #ifdef _WINDOWS
 #include <windows.h>
 #include "board.hpp"
-#include "gui/window.hpp"
 #include "gui/canvas.hpp"
-#include "gui/menu.hpp"
+#include "gui/rect.hpp"
+#include "gui/playmenu.hpp"
+#include "gui/viewmenu.hpp"
+#include "gui/window.hpp"
 #include "tile.hpp"
 
-typedef std::map<TileId, Rect> TileMap;
-typedef std::pair<TileId, Rect> TilePair;
+typedef std::map<TileIdType, Rect> TileMapType;
+typedef std::pair<TileIdType, Rect> TilePairType;
+
+enum TileWidthType {
+    TILE_WIDTH_SMALL = 21,
+	TILE_WIDTH_MEDIUM = 41,
+	TILE_WIDTH_LARGE = 61
+};
 
 class TopWindow: public Window {
-	static WindowClass *_class;
+public:
+	// lifecycle
+	TopWindow(void) { ASSERT(false); };
+	TopWindow(HINSTANCE);
+    TopWindow(TopWindow const &) { ASSERT(false); };
+    ~TopWindow(void);
 
-	HINSTANCE _application;
-	char *_fileName;
-	
-	bool _autopauseFlag;
-	Board _board;
-	bool _dragBoardFlag, _dragTileFlag;
-	int _dragTileDeltaX, _dragTileDeltaY;
-	TileId _dragTileId;
-	Tiles _handTiles;
-	Rect _handRect;
-	int _mouseLastX, _mouseLastY; // coordinates of last mouse down
-	ACount _numberOfColorAttributes;
-	bool _originHasBeenCentered;
-	long _originX, _originY; // logical coordinates of ulc of origin cell
-	unsigned _padPixels;
-	bool _pauseFlag;
-    PlayMenu *_playMenu;
-    unsigned _playedTileCount;
-	unsigned _runLength;
-	bool _showClocksFlag;
-    bool _showGridFlag;
-	bool _showHintsFlag;
-	bool _showScoresFlag;
-	bool _showTilesFlag;
-	Tiles _swapTiles;
-	Rect _swapRect;
-	TileMap _tileMap;
-	unsigned _tileWidth;
-    ViewMenu *_viewMenu;
+	// operator
+    TopWindow &operator=(TopWindow const &) { ASSERT(false); };
 
-    void buttonDown(int x, int y);
-	void buttonUp(int x, int y);
-    void createdWindow(CREATESTRUCT const *);
-	void dragMouse(int x, int y);
+	// misc
+	LRESULT HandleMessage(UINT message, WPARAM, LPARAM);
 
-    void drawActivePlayer(Canvas &);
-	Rect drawBlankTile(Canvas &, int topY, int leftX);
-    void drawBoard(Canvas &);
-    void drawCell(Canvas &, GridRef const &);
-    void drawHandTiles(Canvas &);
-    void drawInactivePlayers(Canvas &);
-    Rect drawPlayerHeader(Canvas &, int top, int leftRight, Player const &, 
-                          COLORREF, bool leftFlag);
-	Rect drawTile(Canvas &, int topY, int leftX, Tile const &);
+private:
+	static WindowClass *mspClass;
 
-	GridRef getCellRef(int x, int y);
-    unsigned getCellWidth(void) const;
-    int getCellX(int column) const;
-    int getCellY(int row) const;
-    char const *getClassName(void) const;
-    unsigned getGridUnit(void) const;
-    WNDPROC getMessageHandler(void) const;
-	char const *getName(void) const;
+	HINSTANCE     mApplication;	
+	bool          mAutopauseFlag;
+	Board         mBoard;
+	ACountType    mColorAttributeCnt;
+	bool          mDragBoardFlag, mDragTileFlag;
+	int           mDragTileDeltaX, mDragTileDeltaY;
+	TileIdType    mDragTileId;
+	char *        mFileName;
+	Rect          mHandRect;
+	Tiles         mHandTiles;
+	int           mMouseLastX, mMouseLastY; // coordinates of last mouse down
+	bool          mOriginIsCentered;
+	long          mOriginX, mOriginY; // logical coordinates of ulc of origin cell
+	unsigned      mPadPixels;
+	bool          mPauseFlag;
+    PlayMenu *    mpPlayMenu;
+    unsigned      mPlayedTileCnt;
+	unsigned      mRunLength;
+	bool          mShowClocksFlag, mShowGridFlag, mShowHintsFlag;
+	bool          mShowScoresFlag, mShowTilesFlag;
+	Tiles         mSwapTiles;
+	Rect          mSwapRect;
+	TileMapType   mTileMap;
+	TileWidthType mTileWidth;
+    ViewMenu *    mpViewMenu;
 
-    void menuCommand(int);
-    void play(bool passFlag);
-	void recenter(unsigned oldWidth, unsigned oldHeight);
-    void resize(unsigned width, unsigned height);
-    void repaint(void);
-	void updateMenus(void);
+	// misc
+    void ButtonDown(int x, int y);
+	void ButtonUp(int x, int y);
+    int  CellX(int column) const;
+    int  CellY(int row) const;
+	void DragMouse(int x, int y);
+    void DrawActivePlayer(Canvas &);
+	Rect DrawBlankTile(Canvas &, int topY, int leftX);
+    void DrawBoard(Canvas &);
+    void DrawCell(Canvas &, Cell const &);
+    void DrawHandTiles(Canvas &);
+    void DrawInactivePlayers(Canvas &);
+    Rect DrawPlayerHeader(Canvas &, int top, int leftRight, Player const &, 
+                          ColorType, bool leftFlag);
+	Rect DrawTile(Canvas &, int topY, int leftX, Tile const &);
+    void Initialize(CREATESTRUCT const *);
+    void MenuCommand(int);
+    void Play(bool passFlag);
+	void Recenter(unsigned oldWidth, unsigned oldHeight);
+    void Resize(unsigned width, unsigned height);
+    void Repaint(void);
+	void UpdateMenus(void);
 
-    public:
-		TopWindow(void) { assert(false); };
-        TopWindow(TopWindow const &) { assert(false); };
-        TopWindow &operator=(TopWindow const &) { assert(false); };
-        // ~WindowClass(void);  implicitly declared destructor is fine
-
-		TopWindow(HINSTANCE);
-
-        LRESULT handleMessage(UINT message, WPARAM wParam, LPARAM lParam);
+	// access
+    unsigned     CellHeight(void) const;
+    unsigned     CellWidth(void) const;
+    char const * ClassName(void) const;
+	Cell         GetCell(int x, int y) const;
+    unsigned     GridUnit(void) const;
+    WNDPROC      MessageHandler(void) const;
+	char const * Name(void) const;
 };
 
 #endif

@@ -11,7 +11,7 @@
  A Board object represents a two-dimensional playing surface
  which may be extended in four directions.  The surface is
  modeled as a grid of cells onto which Tile objects may be
- played.  Cells are referenced by means of GridRef objects.
+ played.  Cells are referenced by means of Cell objects.
  A given cell may only be played on once.
 
  Board extends the BaseBoard class.  The implementation of
@@ -19,38 +19,41 @@
 */
 
 #include "baseboard.hpp"
+#include "move.hpp"
 
 class Board: public BaseBoard {
-    bool anyConnectToOrigin(Locus const &) const;
-    bool areAllCompatible(Locus const &) const;
-    bool areAllEmpty(Locus const &) const;
-    bool areAllRowsCompatible(Locus const &) const;
-    bool areAllColumnsCompatible(Locus const &) const;
-	Tile const *getPtr(int n, int e) const;
-	Tile getTile(int n, int e) const;
-	Tiles getAll(Locus const &) const;
-	void getRowLimits(GridRef const &, int &r, int &c1, int &c2) const;
-	void getColumnLimits(GridRef const &, int &r1, int &r2, int &c) const;
-	bool isEmptyCell(int r, int c) const;
-    bool isRowCompatible(GridRef const &) const;
-    bool isColumnCompatible(GridRef const &) const;
-    bool isConnectedRow(Locus const &) const;
-    bool isConnectedColumn(Locus const &) const;
-    void playTile(TileSquare const &);
-    unsigned scoreRow(GridRef const &) const;
-    unsigned scoreColumn(GridRef const &) const;
-    
-    public:
-        // Board(void);  compiler-generated default constructor is OK
-        // Board(BaseBoard const &);  compiler-generated copy constructor is OK
-        // Board &operator=(Board const &)};  compiler-generated assignment method is OK
-        // ~Board(void);  compiler-generated destructor is OK
+public:
+	// misc
+    void	 PlayMove(Move const &);
+    unsigned ScoreMove(Move const &) const;
 
-        bool connectsToOrigin(GridRef const &, Locus &) const;
-		bool isEmptyCell(GridRef const &) const;
-        bool isLegalPlay(Play const &) const;
-        void playTiles(Play const &);
-        unsigned scorePlay(Play const &) const;
+	// inquiry
+	bool	 ConnectsToOrigin(Cell const &, Cells &) const;
+    bool	 HasEmptyCell(Cell const &) const;
+    bool	 IsLegalMove(Move const &) const;
+
+private:
+	// misc
+	void		GetColumnLimits(Cell const &, int &rRow1, int &rRow2, int &rColumn) const;
+	Tile const *GetPtr(int northing, int easting) const;
+	void		GetRowLimits(Cell const &, int &rRow, int &rColumn1, int &rColumn2) const;
+	Tile		GetTile(int northing, int easting) const;
+	Tiles		GetTiles(Cells const &) const;
+    void		PlayTile(TileCell const &);
+    unsigned	ScoreColumn(Cell const &) const;
+    unsigned	ScoreRow(Cell const &) const;
+
+	// inquiry
+    bool		AreAllColumnsCompatible(Cells const &) const;
+    bool		AreAllCompatible(Cells const &) const;
+    bool		AreAllEmpty(Cells const &) const;
+    bool		AreAllRowsCompatible(Cells const &) const;
+    bool		DoesAnyConnectToOrigin(Cells const &) const;
+	bool		HasEmptyCell(int row, int column) const;
+    bool		IsColumnCompatible(Cell const &) const;
+    bool		IsConnectedColumn(Cells const &) const;
+    bool		IsConnectedRow(Cells const &) const;
+    bool		IsRowCompatible(Cell const &) const;
 };
 
 #endif

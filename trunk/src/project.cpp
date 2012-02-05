@@ -4,39 +4,19 @@
 // (c) Copyright 2012 Stephen Gold
 // Distributed under the terms of the GNU Lesser General Public License
 
-#include "project.hpp"
 #include <iostream>
 #include <sstream>
+#include "project.hpp"
+#include "string.hpp"
 
 void assertionFailed(const char *file, unsigned line) {
-    cout << "Assertion failed at line " << line << " in " << file << endl;
+    std::cout << "Assertion failed at line " << line << " in " << file << std::endl;
     pause();
-    exit(EXIT_FAILURE);
+    ::exit(EXIT_FAILURE);
 }
 
 void pause(void) {
-    system("PAUSE");
-}
-
-int atoi(string const &input) {
-    unsigned n = input.size();
-    char *buf = new char[n + 1];
-    for (unsigned i = 0; i < n; i++) {
-        buf[i] = input[i];
-    }
-    buf[n] = '\0';
-    int result = atoi(buf);
-    delete[] buf;
-
-    return result;
-}
-
-string itoa(int n) {
-   ostringstream sout;
-   sout << n;
-   string result = sout.str();
-   
-   return result;
+    ::system("PAUSE");
 }
 
 const char *plural(unsigned n) {
@@ -48,11 +28,11 @@ const char *plural(unsigned n) {
     return result; 
 }
 
-string plural(unsigned n, const char *noun) {
-    ostringstream sout;
+String plural(unsigned n, const char *noun) {
+    std::ostringstream sout;
 
     sout << n << " " << noun << plural(n);
-    string result = sout.str();
+    String result = sout.str();
 
     return result;
 }

@@ -4,113 +4,107 @@
 // (c) Copyright 2012 Stephen Gold
 // Distributed under the terms of the GNU Lesser General Public License
 
-#include <cstdlib>
 #include <iostream>
-#include "play.hpp"
+#include "move.hpp"
 #include "player.hpp"
 
 // constructors, assignment, and destructor
 
 Player::Player(void) {
-	_name = "";
-	_score = 0;
+	mScore = 0;
 }
 
-Player::Player(const string &ns) {
-	_name = ns;
-	_score = 0;
+Player::Player(const String &name) {
+	mName = name;
+	mScore = 0;
 }
 
 // The compiler-generated copy constructor is fine.
 // The compiler-generated assignment method is fine.
 // The compiler-generated destructor is fine.
 
-// public methods
+Player::operator Tiles(void) const {
+    Tiles result = mHand;
 
-void Player::addScore(unsigned points) {
-	_score += points;
-
-	D(cout << _name << " scored " << plural(points, "point") << "." << endl);
+    return result;
 }
 
-Play Player::choosePlay(void) const {
-    displayHand();
-	Play result;
-    result.getUserChoice(_hand);
+
+// methods
+
+void Player::AddScore(unsigned points) {
+	mScore += points;
+
+	D(std::cout << Name() << " scored " << plural(points, "point") << "." << std::endl);
+}
+
+Move Player::ChooseMove(void) const {
+    DisplayHand();
+	Move result;
+    result.GetUserChoice(mHand);
     
 	return result;
 }
 
-void Player::displayHand(void) const {
-	cout << _name << "'s hand contains: " << _hand.toString() << "." << endl;
+void Player::DisplayHand(void) const {
+	std::cout << Name() << " is holding: " << String(mHand) << "." << std::endl;
 }
 
-void Player::displayName(void) const {
-    cout << _name;
+void Player::DisplayName(void) const {
+    std::cout << Name();
 }
 
-void Player::displayScore(void) const {
-    cout << _name << " has " << plural(_score, "point") << "." << endl;
+void Player::DisplayScore(void) const {
+    std::cout << Name() << " has " << plural(mScore, "point") << "." << std::endl;
 }
 
-unsigned Player::drawTiles(unsigned tileCount, Tiles &bag) {
-	D(cout << plural(bag.size(), "tile") << " in the stock bag." << endl);
-	D(cout << _name << " wants to draw " << plural(tileCount, "tile") << "." << endl);
+unsigned Player::DrawTiles(unsigned tileCount, Tiles &rBag) {
+	D(std::cout << plural(rBag.Count(), "tile") << " in the stock bag." << std::endl);
+	D(std::cout << Name() << " wants to draw " << plural(tileCount, "tile") << "." << std::endl);
 
-    unsigned numTilesDrawn = _hand.drawTiles(tileCount, bag);
+    unsigned draw_count = mHand.DrawTiles(tileCount, rBag);
 
-	cout << _name << " drew " << plural(numTilesDrawn, "tile") << " from the stock bag." << endl;
-	D(cout << plural(bag.size(), "tile") << " remain." << endl);
+	std::cout << Name() << " drew " << plural(draw_count, "tile") 
+		 << " from the stock bag." << std::endl;
+	D(std::cout << plural(rBag.Count(), "tile") << " remain." << std::endl);
 
-	return numTilesDrawn;
+	return draw_count;
 }
 
-Tiles Player::getHand(void) const {
-    Tiles result = _hand;
-
-    return result;
-}
-
-string Player::getName(void) const {
-    string result = _name;
-    
-    return result;
-}
-
-unsigned Player::getScore(void) const {
-    unsigned result = _score;
-    
-    return result;
-}
-
-bool Player::handIsEmpty(void) const {
-     bool result = _hand.empty();
+bool Player::IsEmptyHanded(void) const {
+     bool result = mHand.IsEmpty();
      
      return result;
 }
 
 // find the longest run in the player's hand
-Tiles Player::longestRun(void) const {
-	Tiles result = _hand.getLongestRun();
+Tiles Player::LongestRun(void) const {
+	Tiles result = mHand.LongestRun();
             
 	return result;
 }
 
-void Player::removeTile(Tile const &tile) {
-	_hand.removeTile(tile);
+String Player::Name(void) const {
+    String result = mName;
+    
+    return result;
 }
 
-void Player::removeTiles(Tiles const &tiles) {
-    D(cout << "Originally " << plural(_hand.size(), "tile") << " in the hand." << endl);
-
-	_hand.removeTiles(tiles);
-
-	D(cout << plural(tiles.size(), "tile") << " removed from the hand." << endl);
-    D(cout << plural(_hand.size(), "tile") << " remain in the hand." << endl);
+void Player::RemoveTile(Tile const &rTile) {
+	mHand.RemoveTile(rTile);
 }
 
-string Player::toString(void) const {
-    string result = _name;
+void Player::RemoveTiles(Tiles const &rTiles) {
+    D(std::cout << "Originally " << plural(mHand.Count(), "tile") << " in the hand." << std::endl);
+
+	mHand.RemoveTiles(rTiles);
+
+	D(std::cout << plural(rTiles.Count(), "tile") << " removed from the hand." << std::endl);
+    D(std::cout << plural(mHand.Count(), "tile") << " remain in the hand." << std::endl);
+}
+
+unsigned Player::Score(void) const {
+    unsigned result = mScore;
     
     return result;
 }

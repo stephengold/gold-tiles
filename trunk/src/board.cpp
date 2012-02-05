@@ -6,15 +6,13 @@
 
 #include <iostream>
 #include <sstream>
-#include <string>
 #include "board.hpp"
-#include "locus.hpp"
-#include "play.hpp"
+#include "cells.hpp"
+#include "indices.hpp"
+#include "move.hpp"
+#include "string.hpp"
+#include "tilecell.hpp"
 #include "tiles.hpp"
-#include "tilesquare.hpp"
-
-class Rows: public set<int> {};
-class Columns: public set<int> {};
 
 // constructors, assignment, and destructor
 
@@ -25,99 +23,88 @@ class Columns: public set<int> {};
 
 // public methods
 
-bool Board::anyConnectToOrigin(Locus const &squares) const {
-    bool result = false;
-    
-    Locus::const_iterator s;
-    for (s = squares.begin(); s != squares.end(); s++) {
-        Locus done;
-        if (connectsToOrigin(*s, done)) {
-            result = true;
-            break;
-        }
-    }
-
-    return result;
-}
-
-bool Board::areAllCompatible(Locus const &squares) const {
-    bool result = true;
-
-    if (squares.size() > 1) {
-        Tiles tiles = getAll(squares);
-        if (!tiles.areAllCompatible()) {
-            result = false;
-        }
-    }
-    
-    return result;
-}
-
-bool Board::areAllEmpty(Locus const &squares) const {
+bool Board::AreAllColumnsCompatible(Cells const &rCells) const {
+    D(std::cout << "Board::AreAllColumnsCompatible(" << String(rCells) << ")" << std::endl);
     bool result = true;
     
-    Locus::const_iterator s;
-    for (s = squares.begin(); s != squares.end(); s++) {
-        if (!isEmptyCell(*s)) {
-            result = false;
-            break;
-        }
-    }
-    
-    return result;
-}
-
-bool Board::areAllRowsCompatible(Locus const &squares) const {
-    bool result = true;
-    
-    Rows doneRows;
-
-    Locus::const_iterator s;
-    for (s = squares.begin(); s != squares.end(); s++) {
-        int row = s->getRow();
-        if (doneRows.find(row) == doneRows.end()) {
-            if (!isRowCompatible(*s)) {
-                result = false;
-                break;
-            }
-            doneRows.insert(row);
-        }
-    }
-    
-    return result; 
-}
-
-bool Board::areAllColumnsCompatible(Locus const &squares) const {
-    D(cout << "Board::areAllColumnsCompatible(" << squares.toString() << ")" << endl);
-    bool result = true;
-    
-    Columns doneColumns;
+    Indices done_columns;
         
-    Locus::const_iterator s;
-    for (s = squares.begin(); s != squares.end(); s++) {
-        int column = s->getColumn();
-        if (doneColumns.find(column) == doneColumns.end()) {
-            if (!isColumnCompatible(*s)) {
+    Cells::const_iterator i_cell;
+    for (i_cell = rCells.begin(); i_cell != rCells.end(); i_cell++) {
+        int column = i_cell->Column();
+        if (!done_columns.Contains(column)) {
+            if (!IsColumnCompatible(*i_cell)) {
                 result = false;
                 break;
             }
-            doneColumns.insert(column);
+            done_columns.Add(column);
         }
     }
     
     return result; 
 }
 
-bool Board::connectsToOrigin(GridRef const &ref, Locus &done) const { // recursive
+
+bool Board::AreAllCompatible(Cells const &rCells) const {
+    bool result = true;
+
+    if (rCells.Count() > 1) {
+        Tiles tiles = GetTiles(rCells);
+        if (!tiles.AreAllCompatible()) {
+            result = false;
+        }
+    }
+    
+    return result;
+}
+
+bool Board::AreAllEmpty(Cells const &rCells) const {
     bool result = true;
     
-    if (!ref.isOrigin()) {
-        result = false;
-        done.insert(ref);
+    Cells::const_iterator i_cell;
+    for (i_cell = rCells.begin(); i_cell != rCells.end(); i_cell++) {
+        if (!HasEmptyCell(*i_cell)) {
+            result = false;
+            break;
+        }
+    }
+    
+    return result;
+}
 
-        for (unsigned dir = FirstDir; dir <= LastDir; dir++) {
-            GridRef look(ref, dir, 1);
-            if (!isEmptyCell(look) && !done.contains(look) && connectsToOrigin(look, done)) {
+bool Board::AreAllRowsCompatible(Cells const &rCells) const {
+    bool result = true;
+    
+    Indices done_rows;
+
+    Cells::const_iterator i_cell;
+    for (i_cell = rCells.begin(); i_cell != rCells.end(); i_cell++) {
+        int row = i_cell->Row();
+        if (!done_rows.Contains(row)) {
+            if (!IsRowCompatible(*i_cell)) {
+                result = false;
+                break;
+            }
+            done_rows.Add(row);
+        }
+    }
+    
+    return result; 
+}
+
+bool Board::ConnectsToOrigin(Cell const &rCell, Cells &rDoneCells) const { // recursive
+    bool result = true;
+    
+    if (!rCell.IsOrigin()) {
+        result = false;
+        rDoneCells.insert(rCell);
+
+        for (int direction = DIRECTION_FIRST; direction <= DIRECTION_LAST; direction++) {
+            Cell look(rCell, (DirectionType)direction, 1);
+            if (!HasEmptyCell(look) && 
+				!rDoneCells.Contains(look) && 
+				ConnectsToOrigin(look, rDoneCells))
+			{
                 result = true;
                 break;
             }
@@ -126,105 +113,114 @@ bool Board::connectsToOrigin(GridRef const &ref, Locus &done) const { // recursi
     return result;
 }
 
-Tile const *Board::getPtr(int n, int e) const {
-    GridRef ref(n, e);
-    Tile const *result = getCell(ref);
+bool Board::DoesAnyConnectToOrigin(Cells const &rCells) const {
+    bool result = false;
+    
+    Cells::const_iterator i_cell;
+    for (i_cell = rCells.begin(); i_cell != rCells.end(); i_cell++) {
+        Cells done_cells;
+        if (ConnectsToOrigin(*i_cell, done_cells)) {
+            result = true;
+            break;
+        }
+    }
 
     return result;
 }
 
-Tile Board::getTile(int n, int e) const {
-    Tile const *ptr = getPtr(n, e);
-    ASSERT(ptr != NULL);
-    Tile result = *ptr;
+void Board::GetColumnLimits(
+    Cell const &rCell,
+    int &rFirstRow,
+    int &rLastRow,
+    int &rColumn) const
+{
+    rColumn = rCell.Column();
+
+    rFirstRow = rCell.Row();
+    while (!HasEmptyCell(rFirstRow - 1, rColumn)) {
+        rFirstRow--;
+    }
+
+    rLastRow = rCell.Row();
+    while (!HasEmptyCell(rLastRow + 1, rColumn)) {
+        rLastRow++;
+    }
+}
+
+Tile const *Board::GetPtr(int northing, int easting) const {
+    Cell ref(northing, easting);
+    Tile const *p_result = GetCell(ref);
+
+    return p_result;
+}
+
+void Board::GetRowLimits(
+    Cell const &rCell,
+    int &rRow,
+    int &rFirstColumn,
+    int &rLastColumn) const
+{
+    rRow = rCell.Row();
+    
+    rFirstColumn = rCell.Column();
+    while (!HasEmptyCell(rRow, rFirstColumn - 1)) {
+        rFirstColumn--;
+    }
+    
+    rLastColumn = rCell.Column();
+    while (!HasEmptyCell(rRow, rLastColumn + 1)) {
+        rLastColumn++;
+    }
+}
+
+Tile Board::GetTile(int northing, int easting) const {
+    Tile const *p_tile = GetPtr(northing, easting);
+    ASSERT(p_tile != NULL);
+    Tile result = *p_tile;
 
     return result;
 }
 
-Tiles Board::getAll(Locus const &squares) const {
+Tiles Board::GetTiles(Cells const &rCells) const {
     Tiles result;
     
-    Locus::const_iterator s;
-    for (s = squares.begin(); s != squares.end(); s++) {    
-        Tile const *ptr = getCell(*s);
-        if (ptr != NULL) {    
-            result.insert(*ptr);
+    Cells::const_iterator i_cell;
+    for (i_cell = rCells.begin(); i_cell != rCells.end(); i_cell++) {    
+        Tile const *p_tile = GetCell(*i_cell);
+        if (p_tile != NULL) {
+            result.insert(*p_tile);
         }
     }
 
     return result;
 }
 
-void Board::getRowLimits(
-    GridRef const &square,
-    int &row,
-    int &firstColumn,
-    int &lastColumn) const
-{
-    row = square.getRow();
-    
-    firstColumn = square.getColumn();
-    while (!isEmptyCell(row, firstColumn - 1)) {
-        firstColumn--;
-    }
-    
-    lastColumn = square.getColumn();
-    while (!isEmptyCell(row, lastColumn + 1)) {
-        lastColumn++;
-    }
-}
+bool Board::HasEmptyCell(int northing, int easting) const {
+    Tile const *p_tile = GetPtr(northing, easting);
+    bool result = (p_tile == NULL);
 
-void Board::getColumnLimits(
-    GridRef const &square,
-    int &firstRow,
-    int &lastRow,
-    int &column) const
-{
-    column = square.getColumn();
-
-    firstRow = square.getRow();
-    while (!isEmptyCell(firstRow - 1, column)) {
-        firstRow--;
-    }
-
-    lastRow = square.getRow();
-    while (!isEmptyCell(lastRow + 1, column)) {
-        lastRow++;
-    }
-}
-
-bool Board::isRowCompatible(GridRef const &square) const {
-    int row, firstColumn, lastColumn;
-    getRowLimits(square, row, firstColumn, lastColumn);
-    ASSERT(firstColumn <= lastColumn);
-    bool result = true;   
-    
-    for (int c1 = firstColumn; c1 <= lastColumn; c1++) {
-        Tile t1 = getTile(row, c1);
-        for (int c2 = c1 + 1; c2 <= lastColumn; c2++) {
-            Tile t2 = getTile(row, c2);
-            if (!t1.isCompatibleWith(&t2)) {
-                result = false;
-                break;
-            }
-        }
-    }
-    
     return result;
 }
 
-bool Board::isColumnCompatible(GridRef const &square) const {
-    D(cout << "Board::isColumnCompatible(" << square.toString() << ")" << endl);
-    int firstRow, lastRow, column;
-    getColumnLimits(square, firstRow, lastRow, column);
-    ASSERT(firstRow <= lastRow);
+bool Board::HasEmptyCell(Cell const &rCell) const {
+    Tile const *p_tile = GetCell(rCell);
+    bool result = (p_tile == NULL);
+
+    return result;
+}
+
+bool Board::IsColumnCompatible(Cell const &rCell) const {
+    D(std::cout << "Board::IsColumnCompatible(" << (String)rCell << ")" << std::endl);
+    int first_row, last_row, column;
+    GetColumnLimits(rCell, first_row, last_row, column);
+    ASSERT(first_row <= last_row);
     bool result = true;
     
-    for (int r1 = firstRow; r1 <= lastRow; r1++) {
-        Tile t1 = getTile(r1, column);
-        for (int r2 = r1 + 1; r2 <= lastRow; r2++) {
-            Tile t2 = getTile(r2, column);
-            if (!t1.isCompatibleWith(&t2)) {
+    for (int r1 = first_row; r1 <= last_row; r1++) {
+        Tile t1 = GetTile(r1, column);
+        for (int r2 = r1 + 1; r2 <= last_row; r2++) {
+            Tile t2 = GetTile(r2, column);
+            if (!t1.IsCompatibleWith(&t2)) {
                 result = false;
                 break;
             }
@@ -234,63 +230,30 @@ bool Board::isColumnCompatible(GridRef const &square) const {
     return result;
 }
 
-bool Board::isConnectedRow(Locus const &squares) const {
-    bool result = true;
-    
-    if (squares.size() > 1) {
-        Locus::const_iterator s = squares.begin();
-        int row = s->getRow();
-        int maxColumn = s->getColumn();
-        int minColumn = s->getColumn();
-        for ( ; s != squares.end(); s++) {
-            if (row != s->getRow()) {
-                return false;
-            }
-            
-            int column = s->getColumn();
-            if (column > maxColumn) {
-                maxColumn = column;
-            }
-            if (column < minColumn) {
-                minColumn = column;
-            }
-        }
-        
-        for (int iCol = minColumn; iCol <= maxColumn; iCol++) {
-            if (isEmptyCell(row, iCol)) {
-                result = false;
-                break;
-            }
-        }
-    }
-
-    return result;
-}
-
-bool Board::isConnectedColumn(Locus const &squares) const {
+bool Board::IsConnectedColumn(Cells const &rCells) const {
      bool result = true;
     
-    if (squares.size() > 1) {
-        Locus::const_iterator s = squares.begin();
-        int column = s->getColumn();
-        int maxRow = s->getRow();
-        int minRow = s->getRow();
-        for ( ; s != squares.end(); s++) {
-            if (column != s->getColumn()) {
+    if (rCells.Count() > 1) {
+        Cells::ConstIteratorType i_cell = rCells.begin();
+        int column = i_cell->Column();
+        int first_row = i_cell->Row();
+        int last_row = i_cell->Row();
+        for ( ; i_cell != rCells.end(); i_cell++) {
+            if (column != i_cell->Column()) {
                 return false;
             }
             
-            int row = s->getRow();
-            if (row > maxRow) {
-                maxRow = row;
+            int row = i_cell->Row();
+            if (row > last_row) {
+                last_row = row;
             }
-            if (row < minRow) {
-                minRow = row;
+            if (row < first_row) {
+                first_row = row;
             }
         }
         
-        for (int iRow = minRow; iRow <= maxRow; iRow++) {
-            if (isEmptyCell(iRow, column)) {
+        for (int i_row = first_row; i_row <= last_row; i_row++) {
+            if (HasEmptyCell(i_row, column)) {
                 result = false;
                 break;
             }
@@ -300,181 +263,217 @@ bool Board::isConnectedColumn(Locus const &squares) const {
     return result;
 }
 
-bool Board::isEmptyCell(int n, int e) const {
-    Tile const *ptr = getPtr(n, e);
-    bool result = (ptr == NULL);
-
-    return result;
-}
-
-void Board::playTile(TileSquare const &ts) {
-    GridRef square = ts.getSquare();
-    Tile tile = ts.getTile();
-    ASSERT(isEmptyCell(square));
-    playOnCell(square, tile);
-}
-
-unsigned Board::scoreRow(GridRef const &square) const {
-    int row, firstColumn, lastColumn;
-    getRowLimits(square, row, firstColumn, lastColumn);
-    ASSERT(firstColumn <= lastColumn);
-    unsigned result = 0;
-
-    if (firstColumn != lastColumn) {
-        unsigned len = lastColumn + 1 - firstColumn;
-        Tile firstTile = getTile(row, firstColumn);
-        Tile lastTile = getTile(row, lastColumn);
-        AIndex ind = firstTile.commonAttribute(lastTile);
-        unsigned maxLen = 1 + (unsigned)Tile::getMaxAttribute(ind);
-        if (len == maxLen) {
-            result = 2*len;
-        } else {
-            result = len;
+bool Board::IsConnectedRow(Cells const &rCells) const {
+    bool result = true;
+    
+    if (rCells.Count() > 1) {
+        Cells::ConstIteratorType i_cell = rCells.begin();
+        int row = i_cell->Row();
+        int first_column = i_cell->Column();
+        int last_column = i_cell->Column();
+        for ( ; i_cell != rCells.end(); i_cell++) {
+            if (row != i_cell->Row()) {
+                return false;
+            }
+            
+            int column = i_cell->Column();
+            if (column > last_column) {
+                last_column = column;
+            }
+            if (column < first_column) {
+                first_column = column;
+            }
+        }
+        
+        for (int i_column = first_column; i_column <= last_column; i_column++) {
+            if (HasEmptyCell(row, i_column)) {
+                result = false;
+                break;
+            }
         }
     }
 
     return result;
 }
 
-unsigned Board::scoreColumn(GridRef const &square) const {
-    int firstRow, lastRow, column;
-    getColumnLimits(square, firstRow, lastRow, column);
-    ASSERT(firstRow <= lastRow);
-    unsigned result = 0;
-
-    if (firstRow != lastRow) {
-        unsigned len = lastRow + 1 - firstRow;
-        Tile firstTile = getTile(firstRow, column);
-        Tile lastTile = getTile(lastRow, column);
-        AIndex ind = firstTile.commonAttribute(lastTile);
-        unsigned maxLen = 1 + (unsigned)Tile::getMaxAttribute(ind);
-        if (len == maxLen) {
-            result = 2*len;
-        } else {
-            result = len;
-        }
-    }
-
-    return result;
-}
-
-// public methods
-
-bool Board::isEmptyCell(GridRef const &ref) const {
-    Tile const *ptr = getCell(ref);
-    bool result = (ptr == NULL);
-
-    return result;
-}
-
-bool Board::isLegalPlay(Play const &play) const {
+bool Board::IsLegalMove(Move const &rMove) const {
     // a pass (no tiles played or swapped) is always legal
-    if (play.isPass()) {
-        D(cout << "Legal pass." << endl);
+    if (rMove.IsPass()) {
+        D(std::cout << "Legal pass." << std::endl);
         return true;
     }
 
     // check for repeated tiles
-    if (play.repeatsTile()) {
-        D(cout << "Not legal: repeated tile(s)." << endl);
+    if (rMove.RepeatsTile()) {
+        D(std::cout << "Not legal: repeated tile(s)." << std::endl);
         return false;
     }
 
-	if (play.isSwap()) {
-		if (!play.isPureSwap()) {
-            D(cout << "Not legal: repeated tile(s)." << endl);
+	if (rMove.IncludesSwap()) {
+		if (!rMove.IsPureSwap()) {
+            D(std::cout << "Not legal: mixture of place and swap." << std::endl);
             return false;
 		}
         
-		D(cout << "Legal swap." << endl);
+		D(std::cout << "Legal swap." << std::endl);
         return true;
 	}
 
 	// check for repeated squares
-    if (play.repeatsSquare()) {
-        D(cout << "Not legal: repeated square(s)." << endl);
+    if (rMove.RepeatsCell()) {
+        D(std::cout << "Not legal: repeated cell(s)." << std::endl);
         return false;
     }
 
-    // get the set of board squares to be played
-    Locus squares = play.getSquares();
+    // get the set of board cells to be played
+    Cells cells = rMove.GetCells();
 
-    // make sure all those squares are empty
-    if (!areAllEmpty(squares)) {
-        D(cout << "Not legal: square(s) already played." << endl);
+    // make sure all those cells are empty
+    if (!AreAllEmpty(cells)) {
+        D(std::cout << "Not legal: cell(s) already played." << std::endl);
         return false;
     }
 
-    // make sure the squares lie in a single row or column
-    bool singleRow = squares.areAllInSameRow();
-    bool singleColumn = squares.areAllInSameColumn();
-    if (!singleRow && !singleColumn) {
-        D(cout << "Not legal: multiple rows and columns." << endl);
+    // make sure the cells lie in a single row or column
+    bool is_single_row = cells.AreAllInSameRow();
+    bool is_single_column = cells.AreAllInSameColumn();
+    if (!is_single_row && !is_single_column) {
+        D(std::cout << "Not legal: multiple rows and columns." << std::endl);
         return false;
     }
 
-    // make sure one of the squares will connect to the origin
-    if (!anyConnectToOrigin(squares)) {
-        D(cout << "Not legal: no connection to origin." << endl);
+    // make sure one of the cells will connect to the origin
+    if (!DoesAnyConnectToOrigin(cells)) {
+        D(std::cout << "Not legal: no connection to origin." << std::endl);
         return false;
     }
 
     // make a copy of the board and place the tiles on it
     Board after(*this);
-    after.playTiles(play);
+    after.PlayMove(rMove);
 
     // make sure there are no empty squares between played tiles
-    if (singleRow) {
-        if (!after.isConnectedRow(squares)) {
-            D(cout << "Not legal: gaps in row." << endl);
+    if (is_single_row) {
+        if (!after.IsConnectedRow(cells)) {
+            D(std::cout << "Not legal: gaps in row." << std::endl);
             return false;
         }
     } else {
-        if (!after.isConnectedColumn(squares)) {
-            D(cout << "Not legal: gaps in column." << endl);
+        if (!after.IsConnectedColumn(cells)) {
+            D(std::cout << "Not legal: gaps in column." << std::endl);
             return false;
         }
     }
 
-    // check compatibility of connnected tiles in each row and column played
-    if (!after.areAllRowsCompatible(squares)) {
-        D(cout << "Not legal: incompatible tiles in same row." << endl);
+    // check compatibility of connected tiles in each row and column played
+    if (!after.AreAllRowsCompatible(cells)) {
+        D(std::cout << "Not legal: incompatible tiles in same row." << std::endl);
         return false;
     }
-    if (!after.areAllColumnsCompatible(squares)) {
-        D(cout << "Not legal: incompatible tiles in same column." << endl);
+    if (!after.AreAllColumnsCompatible(cells)) {
+        D(std::cout << "Not legal: incompatible tiles in same column." << std::endl);
         return false;
     }
 
-    D(cout << "Legal play." << endl);
+    D(std::cout << "Legal play." << std::endl);
     return true;
 }
 
-void Board::playTiles(Play const &play) {
-    Play::const_iterator ts;
-    for (ts = play.begin(); ts != play.end(); ts++) {
-        playTile(*ts);
+bool Board::IsRowCompatible(Cell const &rCell) const {
+    int row, first_column, last_column;
+    GetRowLimits(rCell, row, first_column, last_column);
+    ASSERT(first_column <= last_column);
+    bool result = true;   
+    
+    for (int c1 = first_column; c1 <= last_column; c1++) {
+        Tile t1 = GetTile(row, c1);
+        for (int c2 = c1 + 1; c2 <= last_column; c2++) {
+            Tile t2 = GetTile(row, c2);
+            if (!t1.IsCompatibleWith(&t2)) {
+                result = false;
+                break;
+            }
+        }
+    }
+    
+    return result;
+}
+
+void Board::PlayMove(Move const &rMove) {
+    Move::const_iterator i_place;
+    for (i_place = rMove.begin(); i_place != rMove.end(); i_place++) {
+        PlayTile(*i_place);
     }
 }
 
-unsigned Board::scorePlay(Play const &play) const {
+void Board::PlayTile(TileCell const &rTileCell) {
+    Cell cell = Cell(rTileCell);
+    Tile tile = Tile(rTileCell);
+    ASSERT(HasEmptyCell(cell));
+    PlayOnCell(cell, tile);
+}
+
+unsigned Board::ScoreColumn(Cell const &rCell) const {
+    int first_row, last_row, column;
+    GetColumnLimits(rCell, first_row, last_row, column);
+    ASSERT(first_row <= last_row);
     unsigned result = 0;
 
-    Play::const_iterator ts;
-    Rows doneRows;
-    Columns doneColumns;
-    for (ts = play.begin(); ts != play.end(); ts++) {
-        GridRef square = ts->getSquare();
-        
-        int row = square.getRow();
-        if (doneRows.find(row) == doneRows.end()) {
-            result += scoreRow(square);
-            doneRows.insert(row);
+    if (first_row != last_row) {
+        unsigned length = last_row + 1 - first_row;
+        Tile first_tile = GetTile(first_row, column);
+        Tile last_tile = GetTile(last_row, column);
+        AIndexType attr = first_tile.CommonAttribute(last_tile);
+        unsigned max_length = 1 + Tile::ValueMax(attr);
+        if (length == max_length) {
+            result = 2*length;
+        } else {
+            result = length;
         }
-        int column = square.getColumn();
-        if (doneColumns.find(column) == doneColumns.end()) {
-            result += scoreColumn(square);
-            doneColumns.insert(column);
+    }
+
+    return result;
+}
+
+unsigned Board::ScoreMove(Move const &rMove) const {
+    unsigned result = 0;
+
+    Move::const_iterator i_place;
+    Indices done_columns, done_rows;
+    for (i_place = rMove.begin(); i_place != rMove.end(); i_place++) {
+        Cell cell = Cell(*i_place);
+        
+        int row = cell.Row();
+        if (!done_rows.Contains(row)) {
+            result += ScoreRow(cell);
+            done_rows.insert(row);
+        }
+        int column = cell.Column();
+        if (!done_columns.Contains(column)) {
+            result += ScoreColumn(cell);
+            done_columns.insert(column);
+        }
+    }
+
+    return result;
+}
+
+unsigned Board::ScoreRow(Cell const &rCell) const {
+    int row, first_column, last_column;
+    GetRowLimits(rCell, row, first_column, last_column);
+    ASSERT(first_column <= last_column);
+    unsigned result = 0;
+
+    if (first_column != last_column) {
+        unsigned run_length = last_column + 1 - first_column;
+        Tile first_tile = GetTile(row, first_column);
+        Tile last_tile = GetTile(row, last_column);
+        AIndexType attr = first_tile.CommonAttribute(last_tile);
+        unsigned max_length = 1 + Tile::ValueMax(attr);
+        if (run_length == max_length) {
+            result = 2*run_length;
+        } else {
+            result = run_length;
         }
     }
 

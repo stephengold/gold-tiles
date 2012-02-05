@@ -16,68 +16,70 @@
  between clones.
 */
 
-#include <limits.h>
-#include <set>
 #include "project.hpp"
+#include "string.hpp"
 
-// tile ID type
-typedef unsigned TileId;
+// tile identifier type
+typedef unsigned TileIdType;
 
 // attribute types and utilities
-typedef unsigned ACount, AIndex;
-typedef unsigned AValue;
+typedef unsigned ACountType, AIndexType;
+typedef unsigned AValueType;
 
-string attributeToString(AIndex, AValue);
-AValue charToAttribute(AIndex, char ch);
-
-// a set of strings
-class Strings: public set<string> {};
-
+String     attributeToString(AIndexType, AValueType);
+AValueType charToAttribute(AIndexType, char ch);
 
 class Tile {
-    // static private data
-	static AValue *_maxAttribute;  // number of values for each tile attribute
-	static TileId _nextId;
-	static AIndex _numAttributes;  // number of attributes for each tile
+public:
+	// lifecycle
+	Tile(void);          // construct a blank
+	Tile(String const &);
+	Tile(Tile const &);  // copy a tile
+	~Tile(void);
 
-    // private data
-	AValue *_arr;
-	TileId _id;
+    // operators
+	bool   operator<(Tile const &) const;
+	Tile & operator=(Tile const &);
+	bool   operator==(Tile const &) const;
+	operator String(void) const;
 
-	public:
-        // static methods
-        static void displayEmpty(void);
-		static AValue getMaxAttribute(AIndex);
-        static ACount getNumAttributes(void);
-		static void setStatic(ACount, AValue const maxA[]);
-        static string toStringEmpty(void);
+	// misc
+	Tile          Clone(void) const;
+	unsigned      CommonAttribute(Tile const &) const;
+	ACountType    CountMatchingAttributes(Tile const &) const;
+	void          Display(void) const;
+    static void   DisplayEmpty(void);
+	String        GetUserChoice(Tiles const &, Strings const &);
+    static String StringEmpty(void);
 
-        // constructors
-		Tile(void);          // construct a blank tile
-		Tile(string const &);
-		Tile(Tile const &);  // copy a tile
-		~Tile(void);
-		
-		Tile clone(void) const;
-		unsigned commonAttribute(Tile const &) const;
-		void display(void) const;
-		AValue getAttribute(AIndex) const;
-		TileId getId(void) const;
-		string getUserChoice(Tiles const &, Strings const &);
-		bool hasAttribute(AIndex, AValue) const;
-		bool isClone(Tile const &) const;
-		bool isCloneAny(Tiles const &) const;
-		bool isCompatibleWith(Tile const *) const;
-		bool isValid(void) const;
-		ACount numMatchingAttributes(Tile const &) const;
-		bool operator<(Tile const &) const;
-		Tile &operator=(Tile const &);
-	    bool operator==(Tile const &) const;
-		void setAttribute(AIndex, AValue);
-		string toString(void) const;
+    // access
+	AValueType        Attribute(AIndexType) const;
+    static ACountType AttributeCnt(void);
+	TileIdType        Id(void) const;
+	void              SetAttribute(AIndexType, AValueType);
+	static void       SetStatic(ACountType, AValueType const pValueMax[]);
+    static AValueType ValueMax(AIndexType);
+
+	// inquiry
+	bool HasAttribute(AIndexType, AValueType) const;
+	bool IsClone(Tile const &) const;
+	bool IsCloneAny(Tiles const &) const;
+	bool IsCompatibleWith(Tile const *) const;
+	bool IsValid(void) const;
+
+private:
+	AValueType *mpArray;
+	TileIdType   mId;
+
+	static AIndexType   msAttributeCnt;  // number of attributes per tile
+	static TileIdType   msNextId;
+	static AValueType *mspValueMax;      // number of values for each tile attribute
+
+	// misc
+	static TileIdType NextId(void);
 };
 
-// Tile* utilities
+// Tile* utility function
 bool isValid(const Tile *);
 
 #endif

@@ -73,9 +73,9 @@ int main(int argc, char *argv[]) {
     // Instantiate the game.
 	Game game(player_names, attribute_cnt, max_attribute,
         tile_redundancy, hand_size);
-	game.play();
+	game.PlayGame();
 
-    pause();
+    ::pause();
 
 	int exitCode = EXIT_SUCCESS;
 #endif

@@ -9,25 +9,26 @@
 #include "game.hpp"
 #include "strings.hpp"
 
+// lifecycle
 Game::Game(
-    Strings player_names,
-    ACountType attribute_cnt,
-    AValueType max_attribute_values[],
-    unsigned tile_redundancy,
-    unsigned hand_size)
+    Strings playerNames,
+    ACountType attributeCnt,
+    AValueType pMaxAttributeValues[],
+    unsigned tileRedundancy,
+    unsigned handSize)
 {
     // copy game parameters
-    Tile::SetStatic(attribute_cnt, max_attribute_values);
+    Tile::SetStatic(attributeCnt, pMaxAttributeValues);
 
     // generate all possible tiles
-    unsigned attributeIndex = 0;
-    Tile modelTile;
-    AddTiles(attributeIndex, tile_redundancy, modelTile);
+    unsigned attribute_index = 0;
+    Tile model_tile;
+    AddTiles(attribute_index, tileRedundancy, model_tile);
     D(std::cout << "Placed " << plural(CountStock(), "tile") << " in the stock bag." << std::endl);
     
     // create players
 	Strings::ConstIteratorType i_player;
-	for (i_player = player_names.Begin(); i_player != player_names.End(); i_player++) {
+	for (i_player = playerNames.Begin(); i_player != playerNames.End(); i_player++) {
 		String name = *i_player;
 	    Player player(name);
 	    mPlayers.push_back(player);
@@ -36,7 +37,7 @@ Game::Game(
     // deal each player a hand of tiles
     Players::IteratorType player, bestPlayer;
     for (player = mPlayers.begin(); player < mPlayers.end(); player++) {
-        player->DrawTiles(hand_size, mStockBag);
+        player->DrawTiles(handSize, mStockBag);
     }
     std::cout << std::endl;
 
@@ -59,19 +60,10 @@ Game::Game(
     mBestRunLength = bestRunLength;
 }
 
-Game::operator Board(void) const {
-    Board result = mBoard;
-    
-    return result;
-}
-
 // methods
 
 void Game::ActivateNextPlayer(void) {
-    miActivePlayer++;
-    if (miActivePlayer >= mPlayers.end()) {
-        miActivePlayer = mPlayers.begin();
-    }
+    mPlayers.Next(miActivePlayer);
 }
 
 Player Game::ActivePlayer(void) const {
@@ -102,6 +94,12 @@ void Game::AddTiles(  // recursive
 	}
 }
 
+Game::operator Board(void) const {
+    Board result = mBoard;
+    
+    return result;
+}
+
 unsigned Game::CountStock(void) const {
     unsigned result = mStockBag.Count();
     
@@ -128,10 +126,10 @@ void Game::FinishTurn(Move const &move) {
     unsigned count = tiles.Count();
 	if (count > 0) {
         unsigned actual = miActivePlayer->DrawTiles(count, mStockBag);
-		ASSERT(actual == count || !move.IncludesSwap());
+		ASSERT(actual == count || !move.InvolvesSwap());
 	}
 
-	if (move.IncludesSwap()) {
+	if (move.InvolvesSwap()) {
 		// put swapped tiles back into the bag
 		mStockBag.AddTiles(tiles);
 		std::cout << miActivePlayer->Name() << " put " << plural(count, "tile")
@@ -168,36 +166,26 @@ void Game::FirstTurn(void) {
 }
 
 void Game::GoingOutBonus(void) {
-    Players::ConstIteratorType i_player = miActivePlayer + 1;
-    if (i_player >= mPlayers.end()) {
-        i_player = mPlayers.begin();
-    }
+    Players::ConstIteratorType i_player = miActivePlayer;
+	mPlayers.Next(i_player);
     
     while (i_player != miActivePlayer) {
         Tiles hand = Tiles(*i_player);
-        unsigned pointsInHand = hand.Count();
+        unsigned pointsInHand = hand.Count(); // TODO
         miActivePlayer->AddScore(pointsInHand);
-        i_player++;
-        if (i_player >= mPlayers.end()) {
-            i_player = mPlayers.begin();
-        }  
+		mPlayers.Next(i_player);
     }
 }
 
 Players Game::InactivePlayers(void) const {
     Players result;
 
-    Players::ConstIteratorType player = miActivePlayer + 1;
-    if (player >= mPlayers.end()) {
-        player = mPlayers.begin();
-    }
+    Players::ConstIteratorType i_player = miActivePlayer;
+	mPlayers.Next(i_player);
     
-    while (player != miActivePlayer) {
-        result.push_back(*player);
-        player++;
-        if (player >= mPlayers.end()) {
-            player = mPlayers.begin();
-        }  
+    while (i_player != miActivePlayer) {
+        result.push_back(*i_player);
+        mPlayers.Next(i_player);
     }
     
     return result;
@@ -207,7 +195,7 @@ bool Game::IsLegalMove(Move const &move) const {
     unsigned stock = CountStock();
     bool result = true;
     
-    if (mBestRunLength > 0 && (move.Count() != mBestRunLength || move.IncludesSwap())) {
+    if (mBestRunLength > 0 && (move.Count() != mBestRunLength || move.InvolvesSwap())) {
        std::cout << "You must play at least " << mBestRunLength << " tiles on this turn." << std::endl;
        result = false;
     } else if (move.IsPureSwap() && move.Count() > stock) {
@@ -225,9 +213,9 @@ bool Game::IsOver(void) const {
     bool result = false;
     
     // The game is over if (and only if) the stock bag is empty 
-    // a player has gone out.
+    // and a player has gone out.
 
-	if (mStockBag.IsEmpty()) {
+	if (IsStockEmpty()) {
         Players::const_iterator player;
         for (player = mPlayers.begin(); player < mPlayers.end(); player++) {
 	        if (player->IsEmptyHanded()) {
@@ -239,6 +227,12 @@ bool Game::IsOver(void) const {
 
    D(std::cout << "Game::IsOver() returns " << result << std::endl);
    return result;
+}
+
+bool Game::IsStockEmpty(void) const {
+	bool result = mStockBag.IsEmpty();
+
+	return result;
 }
 
 void Game::NextTurn(void) {

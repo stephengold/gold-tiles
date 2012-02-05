@@ -23,10 +23,10 @@
 #endif
 //#define ASSERT(expression) ((void)0)
 
-#define D(debug_only_code) (debug_only_code)
-//#define D(debug_only_code) ((void)0)
+//#define D(debug_only_code) (debug_only_code)
+#define D(debug_only_code) ((void)0)
 
-// forward declarations of project-wide classes
+// forward declarations of project-wide classes and enums
 class BaseBoard;
 class Board;
 class Cell;
@@ -44,8 +44,10 @@ class Tiles;
 class TileCell;
 
 #ifdef _GUI
+class AboutDialog;
 class Canvas;
-enum  ColorType;
+enum ColorType;
+class Dialog;
 class Graphics;
 class MenuItem;
 class PlayMenu;
@@ -66,8 +68,7 @@ String plural(unsigned n, const char *);
 
 // global pointers
 #ifdef _GUI
-extern Game *game;
-extern TopWindow *topWindow;
+extern TopWindow *gpTopWindow;
 #endif
 
 #endif

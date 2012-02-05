@@ -16,7 +16,7 @@ public:
     typedef std::vector<Player>::iterator IteratorType;
 
 	// misc
-    void     Next(IteratorType);
+    void     Next(ConstIteratorType &) const;
 
 	// access
     unsigned Count(void) const;

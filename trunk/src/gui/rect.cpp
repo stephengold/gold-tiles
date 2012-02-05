@@ -49,9 +49,9 @@ Rect Rect::CenterSquare(void) const {
     return result;
 }
 
-bool Rect::Contains(POINT const &point) const {
-    unsigned dx = point.x - mBounds.left;
-    unsigned dy = point.y - mBounds.top;
+bool Rect::Contains(int x, int y) const {
+    unsigned dx = x - mBounds.left;
+    unsigned dy = y - mBounds.top;
     bool result = (dx < Width() && dy < Height());
     
     return result; 

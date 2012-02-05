@@ -40,7 +40,7 @@ public:
     unsigned Width(void) const;
 
 	// inquiry
-    bool     Contains(POINT const &) const;
+    bool     Contains(int x, int y) const;
 
 private:
 	RECT mBounds;

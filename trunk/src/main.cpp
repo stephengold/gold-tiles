@@ -36,10 +36,9 @@ static int messageDispatchLoop(void) {
 	return exitCode;
 }
 
-Game *game = NULL;
-TopWindow *topWindow = NULL;
+TopWindow *gTopWindow = NULL;
 
-// Windows entry point
+// Windows main entry point
 int CALLBACK WinMain(
 	HINSTANCE applicationInstance, 
 	HINSTANCE previousInstance, // always NULL and ignored
@@ -49,13 +48,11 @@ int CALLBACK WinMain(
 #endif
 
 #ifdef _CONSOLE
-
-
-// console entry point
+// console main entry point
 int main(int argc, char *argv[]) {
 #endif
 
-	// initialize random seed
+	// seed the random number generator
 	unsigned seed = (unsigned)::time(NULL);
     ::srand(seed);
 
@@ -69,10 +66,11 @@ int main(int argc, char *argv[]) {
 	unsigned tile_redundancy = 3;
 	unsigned hand_size = 7;
 
-#ifdef _CONSOLE
     // Instantiate the game.
 	Game game(player_names, attribute_cnt, max_attribute,
         tile_redundancy, hand_size);
+
+#ifdef _CONSOLE
 	game.PlayGame();
 
     ::pause();
@@ -81,13 +79,9 @@ int main(int argc, char *argv[]) {
 #endif
 
 #ifdef _WINDOWS
-    // Instantiate the game.
-	game = new Game(player_names, attribute_cnt, max_attribute,
-        tile_redundancy, hand_size);
-
 	// Instantiate top window and display it.
-	topWindow = new TopWindow(applicationInstance);
-	topWindow->Show(showHow);
+	gTopWindow = new TopWindow(applicationInstance, &game);
+	gTopWindow->Show(showHow);
 
     // Retrieve and dispatch messages for this application. 
 	int exitCode = messageDispatchLoop();

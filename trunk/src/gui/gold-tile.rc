@@ -14,7 +14,7 @@
 // Menu resources
 //
 LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
-GOLDTILETOP MENU
+TOPWINDOW MENU
 {
     POPUP "&File"
     {
@@ -85,4 +85,4 @@ FONT 8, "MS Sans Serif", 400, 0, 0
 // Icon resources
 //
 LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
-IDI_ICON1          ICON           "gold-tile.ico"
+TOPWINDOWICON          ICON           "gold-tile.ico"

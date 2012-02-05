@@ -101,6 +101,20 @@ void Move::GetUserChoice(Tiles const &rAvailableTiles) {
     }
 }
 
+bool Move::InvolvesSwap(void) const {
+    bool result = false;
+
+	ConstIteratorType i_tile;
+	for (i_tile = begin(); i_tile != end(); i_tile++) {
+		if (i_tile->IsSwap()) {
+			result = true;
+			break;
+		}
+	}
+
+	return result;
+}
+
 bool Move::IsPass(void) const {
 	bool result = (Count() == 0);
 
@@ -110,24 +124,10 @@ bool Move::IsPass(void) const {
 bool Move::IsPureSwap(void) const {
 	bool result = true;
 
-    ConstIteratorType ts;
-    for (ts = begin(); ts != end(); ts++) {
-        if (!ts->IsSwap()) {
+    ConstIteratorType i_tile;
+    for (i_tile = begin(); i_tile != end(); i_tile++) {
+        if (!i_tile->IsSwap()) {
         	result = false;
-			break;
-		}
-	}
-
-	return result;
-}
-
-bool Move::IncludesSwap(void) const {
-    bool result = false;
-
-	ConstIteratorType i_tile;
-	for (i_tile = begin(); i_tile != end(); i_tile++) {
-		if (i_tile->IsSwap()) {
-			result = true;
 			break;
 		}
 	}
@@ -164,17 +164,17 @@ bool Move::RepeatsCell(void) const {
     bool result = false;
     
     if (Count() > 1) {
-        Cells cells_so_far;
+        Cells cells_seen;
         ConstIteratorType i_tile;
         
         for (i_tile = begin(); i_tile != end(); i_tile++) {
     		if (!i_tile->IsSwap()) {
                 Cell cell = Cell(*i_tile);
-                if (cells_so_far.Contains(cell)) {
+                if (cells_seen.Contains(cell)) {
                     result = true;
                     break;
                 } else {
-                    cells_so_far.Add(cell);
+                    cells_seen.Add(cell);
                 }
 			}
         }

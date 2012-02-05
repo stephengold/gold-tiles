@@ -40,7 +40,8 @@ String attributeToString(AIndexType ind, AValueType value) {
     }
 
     String result(ch);
-	
+	ASSERT(result.Length() == 1);
+
 	return result;
 }
 
@@ -75,9 +76,9 @@ AValueType charToAttribute(AIndexType ind, char ch) {
 
 // static private data
 
+ACountType  Tile:: msAttributeCnt = 0;
+TileIdType  Tile:: msNextId = 0;
 AValueType *Tile::mspValueMax = NULL;
-TileIdType Tile::msNextId = 0;
-ACountType Tile::msAttributeCnt = 0;
 
 // constructors and destructor
 
@@ -88,8 +89,7 @@ Tile::Tile(void) {
     for (AIndexType i = 0; i < msAttributeCnt; i++) {
         mpArray[i] = 0;
     }
-    mId = msNextId++;
-    ASSERT(msNextId < UINT_MAX);
+    mId = NextId();
 }
 
 // Mint a new tile based on a string.
@@ -113,8 +113,7 @@ Tile::Tile(String const &str) {
         ind++;
     }
     
-    mId = msNextId++;
-    ASSERT(msNextId < UINT_MAX);
+    mId = NextId();
 
     ASSERT(IsValid());
 }
@@ -154,8 +153,7 @@ ACountType Tile::AttributeCnt(void) {
 // create a clone (with a different id)
 Tile Tile::Clone(void) const {
     Tile result = Tile(*this);
-    result.mId = msNextId++;
-    ASSERT(msNextId < UINT_MAX);
+    result.mId = NextId();
     
     return result;
 }
@@ -170,6 +168,17 @@ unsigned Tile::CommonAttribute(Tile const &rOther) const {
             break;
         }
     }
+    return result;
+}
+
+ACountType Tile::CountMatchingAttributes(Tile const &rOther) const {
+    unsigned result = 0;
+    for (AIndexType ind = 0; ind < msAttributeCnt; ind++) {
+        if (HasAttribute(ind, rOther.mpArray[ind])) {
+             ++result;
+        }
+    }
+    
     return result;
 }
 
@@ -290,15 +299,11 @@ bool Tile::IsValid(void) const {
     return result;
 }
 
-ACountType Tile::CountMatchingAttributes(Tile const &rOther) const {
-    unsigned result = 0;
-    for (AIndexType ind = 0; ind < msAttributeCnt; ind++) {
-        if (HasAttribute(ind, rOther.mpArray[ind])) {
-             ++result;
-        }
-    }
-    
-    return result;
+/* static */ TileIdType Tile::NextId(void) {
+    TileIdType result = msNextId++;
+    ASSERT(msNextId < UINT_MAX);
+
+	return result;
 }
 
 bool Tile::operator<(Tile const &rOther) const {
@@ -360,7 +365,8 @@ Tile::operator String(void) const {
 
         result += attributeToString(ind, value);
     }
-    
+    ASSERT(result.Length() == msAttributeCnt);
+
     return result;
 }
 

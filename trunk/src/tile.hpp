@@ -80,6 +80,6 @@ private:
 };
 
 // Tile* utility function
-bool isValid(const Tile *);
+//bool isValid(Tile const *);
 
 #endif

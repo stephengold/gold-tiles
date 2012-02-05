@@ -53,10 +53,7 @@ called swaps.
 
 ==== Players' hands ====
 
-Each player has a *hand* which contains all tiles belonging 
-to that player.
-
-Hands are limited in the number of tiles they can hold.
+Players' hands are limited in the number of tiles they can hold.
 
 The number of tiles in each hand is visible to all players,
 and a player can see the markings on his/her own tiles.
@@ -74,14 +71,14 @@ tile must be placed.  The board has no edges or other
 features.  It grows as needed in all directions.
 
 Each cell starts out empty.  An *empty* cell becomes 
-*full* when a players *places* a tile face-up on the cell.
-Placed tiles cannot be moved.  Once filled, a tile 
+*full* when a player *places* a tile face-up on the cell.
+Placed tiles cannot be moved.  Once filled, a cell 
 remains full until the end of the game.  Once placed 
 on a cell, a tile remains there until the end of the game.
 
 ==== Stock bag ====
 
-The *stock bag* contains all the unplayed tiles which do 
+The *stock bag* contains all the unplayed tiles which don't 
 belong to any player.  Players obtain tiles by *drawing*
 from the stock bag blindly -- without looking at 
 their markings.
@@ -132,14 +129,14 @@ left) takes turn.
 
 ==== Playing ====
 
-Every tile which is played to the board must fill an empty cell.
+Every tile played to the board must fill an empty cell.
 
 Except for the origin (filled on the first turn), each 
 cell which is filled must have at least one neighbor which 
 is already full.  In other words, all full cells on
-the board must be mutually interconnected.
+the board must be interconnected.
 
-All tiles placed by a single play must lie in a single row
+The tiles placed in a single play must lie in a single row
 or column of the board, with no empty cells intervening.
 
 If two or more tiles are placed in single row or
@@ -149,7 +146,7 @@ adjacent cells must always be compatible.)
 
 ==== Swapping ====
 
-The number of tiles returns during a swap must not exceed
+The number of tiles returned during a swap must not exceed
 the number of tiles in the swap bag.
 
 === Game over ===

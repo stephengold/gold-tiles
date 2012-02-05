@@ -8,67 +8,48 @@
 // Distributed under the terms of the GNU Lesser General Public License
 
 /*
-
+ Encapsulates a GDI device context.
 */
 
 #include "project.hpp"
 
 #ifdef _WINDOWS
-#include <vector>
 #include <windows.h>
 
-class Rect {
-    RECT _bounds;
-    public:
-        Rect(void) { assert(false); };
-        //Rect(Rect const &);
-        Rect(int topY, int leftX, unsigned width, unsigned height);
-        //Rect &operator=(Rect const &);
-        //~Rect(void);
-
-        Rect centerSquare(void) const;
-        bool contains(POINT const &) const;
-
-        int getBottomY(void) const;
-        unsigned getHeight(void) const;
-        int getLeftX(void) const;
-        int getRightX(void) const;
-        int getTopY(void) const;
-        unsigned getWidth(void) const;
-
-        operator RECT(void) const;
-};
-
 class Graphics {
-    HGDIOBJ _bitmapSave, _brushSave, _penSave;
-    COLORREF _brushBkColor, _penTextColor;
-    HDC _device, _draw;
-    unsigned _height, _width;
-    bool _releaseMe;
-    HWND _window;
-
-    public:
-        Graphics(void) { assert(false); };
-        Graphics(Graphics const &) { assert(false); };
-        Graphics(HDC, HWND, bool releaseMe, bool buffer, 
+public:
+    // lifecycle
+    Graphics(void) { ASSERT(false); };
+    Graphics(Graphics const &) { ASSERT(false); };
+    Graphics(HDC, HWND, bool releaseMe, bool buffer, 
                    unsigned width, unsigned height);
-        Graphics &operator=(Graphics const &) { assert(false); };
-        ~Graphics(void);
+    ~Graphics(void);
 
-        void close(void);
-        
-        void drawPolygon(Poly const &, Rect const &);
-        Rect drawRectangle(int top, int left, unsigned width, unsigned height);
-        Rect drawRoundedSquare(int top, int left, unsigned edge, unsigned diam);
-        void drawText(Rect const &, char const *);
-        void drawText(Rect const &, string);
-        
-        void getColors(COLORREF &brushBk, COLORREF &penText) const;
-        unsigned getTextHeight(void) const;
-        unsigned getTextWidth(char const *) const;
-        unsigned getTextWidth(string) const;
+	// operators
+    Graphics &operator=(Graphics const &) { ASSERT(false); };
 
-        void useColors(COLORREF brushBk, COLORREF penText);
+	// misc
+    void     Close(void);
+    void     DrawPolygon(Poly const &, Rect const &);
+    Rect     DrawRectangle(int top, int left, unsigned width, unsigned height);
+    Rect     DrawRoundedSquare(int top, int left, unsigned edge, unsigned diameter);
+    void     DrawText(Rect const &, char const *);
+    void     DrawText(Rect const &, String const &);
+    unsigned TextWidth(char const *) const;
+    unsigned TextWidth(String const &) const;
+    void     UseColors(ColorType brushBk, ColorType penText);
+
+	// access
+    void     GetColors(ColorType &rBrushBk, ColorType &rPenText) const;
+    unsigned TextHeight(void) const;
+
+private:
+	HGDIOBJ   mBitmapSave, mBrushSave, mPenSave;
+    ColorType mBrushBkColor, mPenTextColor;
+    HDC       mDevice, mDraw;
+    unsigned  mHeight, mWidth;
+    bool      mReleaseMe;
+    HWND      mWindow;
 };
 
 #endif

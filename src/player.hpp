@@ -7,31 +7,43 @@
 // (c) Copyright 2012 Stephen Gold
 // Distributed under the terms of the GNU Lesser General Public License
 
+#include "string.hpp"
 #include "tiles.hpp"
 
 class Player {
-	Tiles _hand;
-	string _name;
-	unsigned _score;
+public:
+	// lifecycle
+    Player(void);
+    Player(String const &);
+    // Player(Player const &); The compiler-generated copy constructor is fine.
+    //~Player(void); The compiler-generated destructor is fine.
 
-	public:
-        Player(void);
-		Player(string const &);
+	// operators
+    // Player &operator=(Player const &); The compiler-generated assignment method is fine.
 
-		void addScore(unsigned);
-		Play choosePlay(void) const;
-		void display(void) const;
-		void displayHand(void) const;
-		void displayName(void) const;
-		void displayScore(void) const;
-		unsigned drawTiles(unsigned, Tiles &);
-		string getName(void) const;
-		Tiles getHand(void) const;
-		unsigned getScore(void) const;
-		bool handIsEmpty(void) const;
-		Tiles longestRun(void) const;
-		void removeTile(Tile const &);
-		void removeTiles(Tiles const &);
-		string toString(void) const;
+	// misc
+	void     AddScore(unsigned);
+	Move     ChooseMove(void) const;
+	void     Display(void) const;
+	void     DisplayHand(void) const;
+	void     DisplayName(void) const;
+	void     DisplayScore(void) const;
+	unsigned DrawTiles(unsigned, Tiles &);
+	Tiles    LongestRun(void) const;
+	void     RemoveTile(Tile const &);
+	void     RemoveTiles(Tiles const &);
+
+	// access
+	String   Name(void) const;
+	unsigned Score(void) const;
+	operator Tiles(void) const;
+
+	// inquiry
+	bool     IsEmptyHanded(void) const;
+
+private:
+	Tiles    mHand;
+	String   mName;
+	unsigned mScore;
 };
 #endif

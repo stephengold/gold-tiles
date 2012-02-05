@@ -14,29 +14,36 @@
 #include "project.hpp"
 
 #ifdef _WINDOWS
+#include <vector>
 #include <windows.h>
 #include "gui/graphics.hpp"
 #include "tile.hpp"
 
 class Canvas: public Graphics {
-    static vector<Poly> _glyphs;
-      
-    void initGlyphs(void);
-    void drawGlyph(Rect bounds, AIndex, AValue, 
-                   COLORREF background, COLORREF glyph);
-              
-    public:
-        Canvas(void) { assert(false); };
-        Canvas(Canvas const &) { assert(false); };
-        Canvas(HDC, HWND, bool releaseMe, unsigned width, unsigned height);
-        Canvas &operator=(Canvas const &) { assert(false); };
-        // ~Canvas(void);  compiler-generated destructor is OK
+public:
+	// lifecycle
+    Canvas(void) { ASSERT(false); };
+    Canvas(Canvas const &) { ASSERT(false); };
+    Canvas(HDC, HWND, bool releaseMe, unsigned width, unsigned height);
+    // ~Canvas(void);  compiler-generated destructor is OK
         
-        void drawCell(int top, int left, unsigned width,
-                  COLORREF cellColor, COLORREF gridColor);
-        Rect drawTile(int top, int left, unsigned width, 
-                  ACount numGlyphs, const AValue glyphs[],
-                  COLORREF tile, COLORREF glyph);
+	// operators
+    Canvas &operator=(Canvas const &) { ASSERT(false); };
+
+	// misc
+	void DrawCell(int top, int left, unsigned width,
+               ColorType cellColor, ColorType gridColor);
+    Rect DrawTile(int top, int left, unsigned width, 
+               ACountType numGlyphs, const AValueType glyphs[],
+               ColorType tile, ColorType glyph);
+
+private:
+    static std::vector<Poly> msGlyphs;
+    
+	// misc
+    void DrawGlyph(Rect bounds, AIndexType, AValueType, 
+                   ColorType background, ColorType glyph);
+    void InitGlyphs(void);            
 };
 
 #endif

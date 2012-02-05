@@ -11,45 +11,50 @@
  A BaseBoard object represents a two-dimensional playing grid
  which grows automatically in four directions.  The grid is
  composed of cells on which Tile objects may be played.
- Cells are referenced by means of GridRef objects.
+ Cells are referenced by means of Cell objects.
  
- The Board class extends BaseBoard and adds functionality.
+ Basboard implements minimal functionality.
+ The Board class extends BaseBoard to add functionality.
 */
 
 #include <map>
-#include "gridref.hpp"
+#include "cell.hpp"
 #include "tile.hpp"
 
 class BaseBoard {
-    // private datatype
-    typedef map<GridRef,Tile>::const_iterator const_iterator;
-    typedef map<GridRef,Tile>::iterator iterator;
-    typedef map<GridRef,Tile>::size_type size_type;
+public:
+	// lifecycle
+    BaseBoard(void);
+    // BaseBoard(BaseBoard const &);  compiler-generated copy constructor is OK
+    // ~BaseBoard(void);  compiler-generated destructor is OK
 
-    // private data
-    int _maxN, _maxS, _maxE, _maxW; // extent of played area
-    map<GridRef,Tile> _cells;
+	// operators
+    // BaseBoard &operator=(BaseBoard const &);  compiler-generated assignment method is OK
+	operator String(void) const;
 
-    // private methods
-    const_iterator find(int n, int e) const;
-    iterator find(int n, int e);
+	// misc
+    bool        FindTile(Tile const &, Cell &) const;
+    Tile const *GetCell(Cell const &) const;
+    void        MakeEmpty(Cell const &);
+	void        PlayOnCell(Cell const &, Tile const &);
 
-    public:
-        BaseBoard(void);
-        // BaseBoard(BaseBoard const &);  compiler-generated copy constructor is OK
-        // BaseBoard &operator=(BaseBoard const &)};  compiler-generated assignment method is OK
-        // ~BaseBoard(void);  compiler-generated destructor is OK
+	// access
+	int	EastMax(void) const;
+    int	NorthMax(void) const;
+    int	SouthMax(void) const;
+    int	WestMax(void) const;
 
-        void display(void) const;
-        void emptyCell(GridRef const &);
-        bool findTile(Tile const &, GridRef &) const;
-		Tile const *getCell(GridRef const &) const;
-        int getMaxN(void) const;
-        int getMaxS(void) const;
-        int getMaxE(void) const;
-        int getMaxW(void) const;
-		void playOnCell(GridRef const &, Tile const &);
-        string toString(void) const;
+private:
+    typedef std::map<Cell,Tile>::const_iterator	ConstIteratorType;
+    typedef std::map<Cell,Tile>::iterator		IteratorType;
+    typedef std::map<Cell,Tile>::size_type		SizeType;
+
+    int mNorthMax, mSouthMax, mEastMax, mWestMax; // extent of played area
+    std::map<Cell,Tile> mCells;
+
+	// meat
+    ConstIteratorType Find(int northing, int easting) const;
+    IteratorType	  Find(int northing, int easting);
 };
 
 #endif

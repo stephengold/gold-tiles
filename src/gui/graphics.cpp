@@ -10,77 +10,8 @@
 #include "gui/color.hpp"
 #include "gui/graphics.hpp"
 #include "gui/poly.hpp"
-
-Rect::Rect(int topY, int leftX, unsigned width, unsigned height) {
-    _bounds.top = topY;
-    _bounds.left = leftX;
-    _bounds.right = leftX + width;
-    _bounds.bottom = topY + height;
-}
-
-Rect Rect::centerSquare(void) const {
-    unsigned width = getWidth();
-    unsigned height = getHeight();
-    int left = getLeftX();
-    int top = getTopY();
-    
-    if (width > height) {
-        left += (width - height)/2;
-        width = height;
-    } else if (height > width) {
-        top += (height - width)/2;
-        height = width;
-    } 
-    Rect result(top, left, width, height);
-    
-    return result;
-}
-
-bool Rect::contains(POINT const &point) const {
-    unsigned dx = point.x - _bounds.left;
-    unsigned dy = point.y - _bounds.top;
-    bool result = (dx < getWidth() && dy < getHeight());
-    
-    return result; 
-}
-
-int Rect::getBottomY(void) const {
-    int result = _bounds.bottom;
-    
-    return result;
-}
-
-unsigned Rect::getHeight(void) const {
-    ASSERT(_bounds.bottom >= _bounds.top);
-    unsigned result = _bounds.bottom - _bounds.top;
-    
-    return result;
-}
-
-int Rect::getLeftX(void) const {
-    int result = _bounds.left;
-    
-    return result;
-}
-
-int Rect::getTopY(void) const {
-    int result = _bounds.top;
-    
-    return result;
-}
-
-unsigned Rect::getWidth(void) const {
-    ASSERT(_bounds.right >= _bounds.left);
-    unsigned result = _bounds.right - _bounds.left;
-    
-    return result;
-}
-
-Rect::operator RECT(void) const {
-    RECT result = _bounds;
-    
-    return result;
-}
+#include "gui/rect.hpp"
+#include "string.hpp"
 
 Graphics::Graphics(
     HDC device,
@@ -90,112 +21,114 @@ Graphics::Graphics(
     unsigned width,
     unsigned height)
 {
-    _device = device;
-    _window = window;
-    _releaseMe = releaseMe;
-    _height = height;
-    _width = width;
+    mDevice = device;
+    mWindow = window;
+    mReleaseMe = releaseMe;
+    mHeight = height;
+    mWidth = width;
     
     if (!bufferFlag) {
-        _draw = device;
+        mDraw = device;
 
     } else { // double buffering
-        _draw = ::CreateCompatibleDC(_device);
-        ASSERT(_draw != NULL);
-        ASSERT(_draw != _device);
+        mDraw = ::CreateCompatibleDC(mDevice);
+        ASSERT(mDraw != NULL);
+        ASSERT(mDraw != mDevice);
 
-        HGDIOBJ bitmap = ::CreateCompatibleBitmap(_device, _width, _height);
+        HGDIOBJ bitmap = ::CreateCompatibleBitmap(mDevice, mWidth, mHeight);
         ASSERT(bitmap != NULL);
-        _bitmapSave = ::SelectObject(_draw, bitmap);
-        ASSERT(_bitmapSave != NULL);
+        mBitmapSave = ::SelectObject(mDraw, bitmap);
+        ASSERT(mBitmapSave != NULL);
     }
 
     // brush color for filling shapes
-    _brushBkColor = WHITE_COLOR;
-    HBRUSH brush = ::CreateSolidBrush(_brushBkColor);
+    mBrushBkColor = COLOR_WHITE;
+    HBRUSH brush = ::CreateSolidBrush(mBrushBkColor);
     ASSERT(brush != NULL);
-    _brushSave = ::SelectObject(_draw, brush);
-    ASSERT(_brushSave != NULL);
+    mBrushSave = ::SelectObject(mDraw, brush);
+    ASSERT(mBrushSave != NULL);
     
     // background color for text and broken lines
     // (same as brush color)
-    COLORREF success = ::SetBkColor(_draw, _brushBkColor);
+    ColorType success = (ColorType)::SetBkColor(mDraw, mBrushBkColor);
     ASSERT(success != CLR_INVALID);
 
     // foreground color for text and broken lines
     // (same as pen color)
-    success = ::SetTextColor(_draw, _penTextColor);
+    success = (ColorType)::SetTextColor(mDraw, mPenTextColor);
     ASSERT(success != CLR_INVALID);
 
     // pen color for outlining shapes
     int penStyle = PS_SOLID;
     int penWidth = 0; // means single pixel
-    _penTextColor = BLACK_COLOR;
-    HPEN pen = ::CreatePen(penStyle, penWidth, _penTextColor);
+    mPenTextColor = COLOR_BLACK;
+    HPEN pen = ::CreatePen(penStyle, penWidth, mPenTextColor);
     ASSERT(pen != NULL);
-    _penSave = ::SelectObject(_draw, pen);
-    ASSERT(_penSave != NULL);
+    mPenSave = ::SelectObject(mDraw, pen);
+    ASSERT(mPenSave != NULL);
 }
 
 Graphics::~Graphics(void) {
-    HGDIOBJ brush = ::SelectObject(_draw, _brushSave);
+    HGDIOBJ brush = ::SelectObject(mDraw, mBrushSave);
     ASSERT(brush != NULL);
     BOOL success = ::DeleteObject(brush);
     ASSERT(success != 0);
 
-    HGDIOBJ pen = ::SelectObject(_draw, _penSave);
+    HGDIOBJ pen = ::SelectObject(mDraw, mPenSave);
     ASSERT(pen != NULL);
     success = ::DeleteObject(pen);
     ASSERT(success != 0);
 
-    if (_draw != _device) {
-        ::DeleteDC(_draw);
+    if (mDraw != mDevice) {
+        ::DeleteDC(mDraw);
     }
-    if (_releaseMe) {
-        int success = ::ReleaseDC(_window, _device);
+    if (mReleaseMe) {
+        int success = ::ReleaseDC(mWindow, mDevice);
         ASSERT(success != 0);
     }
 }
 
-void Graphics::close(void) {
-    if (_draw != _device) {
-        int destX = 0;
-        int destY = 0;
-        int sourceX = 0;
-        int sourceY = 0;
+// methods
+
+void Graphics::Close(void) {
+    if (mDraw != mDevice) {
+        int dest_x = 0;
+        int dest_y = 0;
+        int source_x = 0;
+        int source_y = 0;
         DWORD options = SRCCOPY;
-        BOOL success = ::BitBlt(_device, destX, destY, _width, _height, 
-                                _draw, sourceX, sourceY, options);
+        BOOL success = ::BitBlt(mDevice, dest_x, dest_y, mWidth, mHeight, 
+                                mDraw, source_x, source_y, options);
         ASSERT(success != 0);
          
-        HGDIOBJ bitmap = ::SelectObject(_draw, _bitmapSave);
+        HGDIOBJ bitmap = ::SelectObject(mDraw, mBitmapSave);
         ASSERT(bitmap != NULL);
         success = ::DeleteObject(bitmap);
         ASSERT(success != 0);
     }
 }
 
-void Graphics::drawPolygon(Poly const &polygon, Rect const &bounds) {
-    Rect squared = bounds.centerSquare();
+void Graphics::DrawPolygon(Poly const &rPolygon, Rect const &rBounds) {
+    Rect squared = rBounds.CenterSquare();
     
-    unsigned numberOfPoints = polygon.size();
+    unsigned numberOfPoints = rPolygon.Count();
     POINT *points = new POINT[numberOfPoints];
     ASSERT(points != NULL);
-    polygon.getPoints(points, numberOfPoints, squared);
+    rPolygon.GetPoints(points, numberOfPoints, squared);
 
-    BOOL success = ::Polygon(_draw, points, numberOfPoints);
+    BOOL success = ::Polygon(mDraw, points, numberOfPoints);
     ASSERT(success);
 } 
 
-Rect Graphics::drawRectangle(
-    int top,
+Rect Graphics::DrawRectangle(
+	int top,
     int left,
     unsigned width,
     unsigned height)
 {
 	int right = left + width;
 	int bottom = top + height;
-	BOOL success = ::Rectangle(_draw, left, top, right, bottom);
+	BOOL success = ::Rectangle(mDraw, left, top, right, bottom);
 	ASSERT(success != 0);
 	
 	Rect result(top, left, width, height);
@@ -203,7 +136,7 @@ Rect Graphics::drawRectangle(
 	return result;
 }
 
-Rect Graphics::drawRoundedSquare(
+Rect Graphics::DrawRoundedSquare(
     int top,
     int left,
     unsigned edge,
@@ -215,7 +148,7 @@ Rect Graphics::drawRoundedSquare(
     unsigned ellipseHeight = circleDiameter;
     int bottom = top + edge;
     int right = left + edge;
-    BOOL success = ::RoundRect(_draw, left, top, right, bottom,
+    BOOL success = ::RoundRect(mDraw, left, top, right, bottom,
                              ellipseWidth, ellipseHeight);
     ASSERT(success != 0);
         
@@ -224,82 +157,82 @@ Rect Graphics::drawRoundedSquare(
     return result;
 }
 
-void Graphics::drawText(Rect const &rect, char const *text) {
-    int textLen = strlen(text);
+void Graphics::DrawText(Rect const &rRect, char const *text) {
+    int textLen = ::strlen(text);
      
     UINT format = DT_CENTER | DT_EXTERNALLEADING | DT_NOPREFIX 
                 | DT_SINGLELINE | DT_VCENTER;
-    RECT r = (RECT)rect;
-    BOOL success = ::DrawText(_draw, text, textLen, &r, format);
+    RECT r = (RECT)rRect;
+    BOOL success = ::DrawText(mDraw, text, textLen, &r, format);
     ASSERT(success != 0);
 }
 
-void Graphics::drawText(Rect const &rect, string text) {
-    unsigned length = text.size();
+void Graphics::DrawText(Rect const &rRect, String const &rText) {
+    unsigned length = rText.Length();
     char *copyText = new char[length + 1];
-    strcpy(copyText, text.c_str());
-    drawText(rect, copyText);
+    ::strcpy_s(copyText, length + 1, rText.c_str());
+    DrawText(rRect, copyText);
     delete[] copyText;
 }
 
-void Graphics::getColors(COLORREF &brushBkColor, COLORREF &penTextColor) const {
-    penTextColor = _penTextColor;
-    brushBkColor = _brushBkColor;
+void Graphics::GetColors(ColorType &rBrushBkColor, ColorType &rPenTextColor) const {
+    rPenTextColor = mPenTextColor;
+    rBrushBkColor = mBrushBkColor;
 }
 
-unsigned Graphics::getTextHeight(void) const {
+unsigned Graphics::TextHeight(void) const {
     unsigned result = 16;
     
     return result;
 }
 
-unsigned Graphics::getTextWidth(char const *text) const {
-    int length = strlen(text);
+unsigned Graphics::TextWidth(char const *text) const {
+    int length = ::strlen(text);
     SIZE extent;
-    BOOL success = ::GetTextExtentPoint32(_draw, text, length, &extent);
+    BOOL success = ::GetTextExtentPoint32(mDraw, text, length, &extent);
     unsigned result = extent.cx;
     
     return result;
 }
 
-unsigned Graphics::getTextWidth(string text) const {
-    unsigned length = text.size();
+unsigned Graphics::TextWidth(String const &rText) const {
+    unsigned length = rText.Length();
     char *copyText = new char[length + 1];
-    strcpy(copyText, text.c_str());
-    unsigned result = getTextWidth(copyText);
+    ::strcpy_s(copyText, length + 1, rText.c_str());
+    unsigned result = TextWidth(copyText);
     delete[] copyText;
     return result;
 }
 
-void Graphics::useColors(COLORREF brushBkColor, COLORREF penTextColor) {
-    if (brushBkColor != _brushBkColor) {
+void Graphics::UseColors(ColorType brushBkColor, ColorType penTextColor) {
+    if (brushBkColor != mBrushBkColor) {
         HBRUSH brush = ::CreateSolidBrush(brushBkColor);
         ASSERT(brush != NULL);
-        HGDIOBJ old = ::SelectObject(_draw, brush);
+        HGDIOBJ old = ::SelectObject(mDraw, brush);
         ASSERT(old != NULL);
         BOOL success = ::DeleteObject(old);
         ASSERT(success != 0);
 
-        COLORREF oldColor = ::SetBkColor(_draw, brushBkColor);
+        ColorType oldColor = (ColorType)::SetBkColor(mDraw, brushBkColor);
         ASSERT(oldColor != CLR_INVALID);
 
-        _brushBkColor = brushBkColor;
+        mBrushBkColor = brushBkColor;
     }
        
-    if (penTextColor != _penTextColor) {
-        COLORREF oldColor = ::SetTextColor(_draw, penTextColor);
+    if (penTextColor != mPenTextColor) {
+        ColorType oldColor = (ColorType)::SetTextColor(mDraw, penTextColor);
         ASSERT(oldColor != CLR_INVALID);
 
         int penStyle = PS_SOLID;
         int penWidth = 0; // means a pen one pixel wide
         HPEN pen = ::CreatePen(penStyle, penWidth, penTextColor);
         ASSERT(pen != NULL);
-        HGDIOBJ old = ::SelectObject(_draw, pen);
+        HGDIOBJ old = ::SelectObject(mDraw, pen);
         ASSERT(old != NULL);
         BOOL success = ::DeleteObject(old);
         ASSERT(success != 0);
         
-        _penTextColor = penTextColor;
+        mPenTextColor = penTextColor;
     }
 }
 

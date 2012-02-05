@@ -10,26 +10,37 @@
 #include <set>
 #include "tile.hpp"
 
-class Tiles: public set<Tile> {
-    public:
-        void addTile(Tile const &);
-		void addTiles(Tiles const &);
-        bool areAllCompatible(void) const;
-        bool contains(Tile const &) const;
-        bool copyIds(Tiles const &);
-        void display(void) const;
-        Tile drawRandomTile(void);
-		unsigned drawTiles(unsigned, Tiles &bag);
-		Tile findTile(TileId) const;
-		Tiles getLongestRun(void) const;
-        void getUserChoice(Tiles const &);
-		bool isEmpty(void) const;
-        bool isValid(void) const;
-		void removeTile(Tile const &);
-		void removeTiles(Tiles const &);
-        string toString(void) const;
-        void unClone(Tile &) const;
-        Tiles uniqueTiles(void) const;
+class Tiles: public std::set<Tile> {
+public:
+	typedef std::set<Tile>::const_iterator ConstIteratorType;
+	typedef std::set<Tile>::iterator       IteratorType;
+
+	// operators
+	operator String(void) const;
+
+	// misc
+	void     AddTile(Tile const &);
+	void     AddTiles(Tiles const &);
+    bool     CopyIds(Tiles const &);
+    Tile     DrawRandomTile(void);
+	unsigned DrawTiles(unsigned, Tiles &rBag);
+	Tile     FindTile(TileIdType) const;
+    void     GetUserChoice(Tiles const &);
+	Tiles    LongestRun(void) const;
+	void     MakeEmpty(void);
+	void     RemoveTile(Tile const &);
+	void     RemoveTiles(Tiles const &);
+    void     UnClone(Tile &) const;
+    Tiles    UniqueTiles(void) const;
+
+	// access
+	unsigned Count(void) const;
+
+	// inquiry
+    bool     AreAllCompatible(void) const;
+    bool     Contains(Tile const &) const;
+	bool     IsEmpty(void) const;
+    bool     IsValid(void) const;
 };
 
 #endif

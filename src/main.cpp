@@ -6,6 +6,8 @@
 
 #include <time.h>
 #include "game.hpp"
+#include "string.hpp"
+#include "strings.hpp"
 
 #ifdef _WINDOWS
 // Microsoft Windows(tm) GUI interface
@@ -58,17 +60,19 @@ int main(int argc, char *argv[]) {
     ::srand(seed);
 
     // game parameters: hard-coded for now
-	unsigned numPlayers = 3;
-	string playerNames[] = { "Stephen", "Paul", "Gale" }; // oldest first!
-	ACount numAttributes = 2;
-	AValue maxAttribute[] = { 5, 5 };
-	unsigned tileRedundancy = 3;
-	unsigned handSize = 7;
+	Strings player_names;
+	player_names.Append("Stephen"); // oldest first
+	player_names.Append("Paul");
+	player_names.Append("Gale");
+	ACountType attribute_cnt = 2;
+	AValueType max_attribute[] = { 5, 5 };
+	unsigned tile_redundancy = 3;
+	unsigned hand_size = 7;
 
 #ifdef _CONSOLE
     // Instantiate the game.
-	Game game(numPlayers, playerNames, numAttributes, maxAttribute,
-        tileRedundancy, handSize);
+	Game game(player_names, attribute_cnt, max_attribute,
+        tile_redundancy, hand_size);
 	game.play();
 
     pause();
@@ -78,12 +82,12 @@ int main(int argc, char *argv[]) {
 
 #ifdef _WINDOWS
     // Instantiate the game.
-	game = new Game(numPlayers, playerNames, numAttributes, maxAttribute,
-        tileRedundancy, handSize);
+	game = new Game(player_names, attribute_cnt, max_attribute,
+        tile_redundancy, hand_size);
 
 	// Instantiate top window and display it.
 	topWindow = new TopWindow(applicationInstance);
-	topWindow->show(showHow);
+	topWindow->Show(showHow);
 
     // Retrieve and dispatch messages for this application. 
 	int exitCode = messageDispatchLoop();

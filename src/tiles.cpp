@@ -5,31 +5,47 @@
 // Distributed under the terms of the GNU Lesser General Public License
 
 #include <iostream>
+#include "string.hpp"
+#include "strings.hpp"
 #include "tiles.hpp"
 
-void Tiles::addTile(Tile const &tile) {
+Tiles::operator String(void) const {
+    String result;
+
+    result += "{";
+    ConstIteratorType tile;
+    for (tile = begin(); tile != end(); tile++) {
+        if (tile != begin()) {
+            result += ", ";
+        } 
+        result += String(*tile);
+    }       
+    result += "}";
+
+    return result;
+}
+
+void Tiles::AddTile(Tile const &tile) {
     std::pair<Tiles::iterator, bool> ins;
     ins = insert(tile);
     bool success = ins.second;
     ASSERT(success);
 }
 
-void Tiles::addTiles(Tiles const &tiles) {
-    const_iterator tile;
-    for (tile = tiles.begin(); tile != tiles.end(); tile++) {
-        std::pair<Tiles::iterator, bool> ins;
-        ins = insert(*tile);
-        bool success = ins.second;
-        ASSERT(success);
+void Tiles::AddTiles(Tiles const &tiles) {
+    ConstIteratorType i_tile;
+    for (i_tile = tiles.begin(); i_tile != tiles.end(); i_tile++) {
+		AddTile(*i_tile);
 	}
 }
 
-bool Tiles::areAllCompatible(void) const {
-    const_iterator i;
-    for (i = begin(); i != end(); i++) {
-        const_iterator j = i;
-        for (j++; j != end(); j++) {
-            if (!i->isCompatibleWith(&*j)) {
+bool Tiles::AreAllCompatible(void) const {
+    ConstIteratorType i_tile;
+    for (i_tile = begin(); i_tile != end(); i_tile++) {
+		Tile tile = *i_tile;
+        ConstIteratorType i_tile2 = i_tile;
+        for (i_tile2++; i_tile2 != end(); i_tile2++) {
+            if (!i_tile2->IsCompatibleWith(&tile)) {
                 return false;
             }
         }
@@ -38,130 +54,104 @@ bool Tiles::areAllCompatible(void) const {
     return true; 
 }
 
-bool Tiles::contains(Tile const &tile) const {
-    const_iterator t = find(tile);
-    bool result = (t != end());
+bool Tiles::Contains(Tile const &rTile) const {
+    ConstIteratorType i_tile = find(rTile);
+    bool result = (i_tile != end());
     
     return result;
 }
 
-Tile Tiles::drawRandomTile(void) {
-    unsigned n = size();
-    ASSERT(n > 0);
-    unsigned r = rand() % n;
-    
-     // find the "r"th tile in the bag
-    iterator tile = begin();
-    for (unsigned ti = 0; ti < r; ti++) {
-        tile++;
-    }
-    ASSERT(tile != end());
-
-    Tile result = *tile;
-    erase(tile);
-
-    return result;
-}
-
-unsigned Tiles::drawTiles(unsigned tileCount, Tiles &bag) {
-	unsigned numTilesDrawn;
-
-    for (numTilesDrawn = 0; numTilesDrawn < tileCount; ++numTilesDrawn) {
-        if (bag.isEmpty()) {
-            break;
-        }
-        Tile tile = bag.drawRandomTile();
-        D(cout << "Drew " << tile.toString() << "." << endl);
-		insert(tile);
-	}
-
-	return numTilesDrawn;
-}
-
-Tile Tiles::findTile(TileId id) const {
-    Tile result;
-    const_iterator tile;
-    for (tile = begin(); tile != end(); tile++) {
-        if (tile->getId() == id) {
-            result = *tile;
-            break;
-        }
-    }
-    ASSERT(tile != end());
-    
-    return result; 
-}
-
-Tiles Tiles::getLongestRun(void) const {
-	Tiles unique = uniqueTiles();
-	D(cout << plural(unique.size(), "unique tile") << ":" << endl
-        << " " << unique.toString() << "." << endl);
-
-	Tiles result;
-	string raString;
-    const_iterator tile;
-    for (tile = unique.begin(); tile != unique.end(); tile++) {
-        Tile t = *tile;
-        for (AIndex ind = 0; ind < t.getNumAttributes(); ind++) {
-            AValue value = t.getAttribute(ind);
-            Tiles run;
-            const_iterator t2;
-            for (t2 = tile; t2 != unique.end(); t2++) {
-                if (t2->hasAttribute(ind, value)) {
-                    run.insert(*t2);
-                }
-            }
-            if (run.size() > result.size()) {
-                result = run;
-                raString = attributeToString(ind, value);
-            }
-        }
-    }
-    
-    D(cout << "Found a run of " << result.size() << " " 
-		<< raString << plural(result.size()) << "." << endl);
+unsigned Tiles::Count(void) const {
+	unsigned result = size();
 
 	return result;
 }
 
-void Tiles::getUserChoice(Tiles const &availableTiles) {
-    clear();
+Tile Tiles::DrawRandomTile(void) {
+    unsigned n = Count();
+    ASSERT(n > 0);
+    unsigned r = ::rand() % n;
+    
+     // find the "r"th tile in the bag
+    IteratorType i_tile = begin();
+    for (unsigned i = 0; i < r; i++) {
+        i_tile++;
+    }
+    ASSERT(i_tile != end());
+
+    Tile result = *i_tile;
+    erase(i_tile);
+
+    return result;
+}
+
+unsigned Tiles::DrawTiles(unsigned tileCount, Tiles &bag) {
+	unsigned draw_cnt;
+
+    for (draw_cnt = 0; draw_cnt < tileCount; ++draw_cnt) {
+        if (bag.IsEmpty()) {
+            break;
+        }
+        Tile tile = bag.DrawRandomTile();
+        D(std::cout << "Drew " << (String)tile << "." << std::endl);
+		insert(tile);
+	}
+
+	return draw_cnt;
+}
+
+Tile Tiles::FindTile(TileIdType id) const {
+    Tile result;
+    ConstIteratorType i_tile;
+    for (i_tile = begin(); i_tile != end(); i_tile++) {
+        if (i_tile->Id() == id) {
+            result = *i_tile;
+            break;
+        }
+    }
+    ASSERT(i_tile != end());
+    
+    return result; 
+}
+
+void Tiles::GetUserChoice(Tiles const &rAvailableTiles) {
+    MakeEmpty();
 
     while (true) {
 		Strings alts;
-		if (size() == 0) {
-			alts.insert("none");
+		if (IsEmpty()) {
+			alts.Append("none");
 		} else {
-   		    alts.insert("end");
+   		    alts.Append("end");
 		}
 
 		Tile tile;
-		string input = tile.getUserChoice(availableTiles, alts);
+		String input = tile.GetUserChoice(rAvailableTiles, alts);
 		if (input == "end" || input == "none") {
 			break;
 		}
 
-		if (tile.isCloneAny(*this)) {
-            cout << input << " is already selected." << endl;
+		if (tile.IsCloneAny(*this)) {
+            std::cout << input << " is already selected." << std::endl;
         } else {
-            availableTiles.unClone(tile);
+            rAvailableTiles.UnClone(tile);
             insert(tile);
         }
     }
 }
 
-bool Tiles::isEmpty(void) const {
-    bool result = (size() == 0);
+bool Tiles::IsEmpty(void) const {
+    bool result = (Count() == 0);
     
     return result;
 }
 
-bool Tiles::isValid(void) const {
+bool Tiles::IsValid(void) const {
     bool result = true;
     
-    Tiles::iterator tile;
-    for (tile = begin(); tile != end(); tile++) {
-        if (!tile->isValid()) {
+    IteratorType i_tile;
+    for (i_tile = begin(); i_tile != end(); i_tile++) {
+        if (!i_tile->IsValid()) {
             result = false;
             break;
         }
@@ -170,52 +160,72 @@ bool Tiles::isValid(void) const {
     return result;
 }
 
-void Tiles::removeTile(Tile const &tile) {
-	iterator position = find(tile);
-    ASSERT(position != end());
-	erase(position);
+Tiles Tiles::LongestRun(void) const {
+	Tiles unique = UniqueTiles();
+	D(std::cout << plural(unique.Count(), "unique tile") << ":" << std::endl
+        << " " << String(unique) << "." << std::endl);
+
+	Tiles result;
+	String raString;
+    ConstIteratorType i_tile;
+    for (i_tile = unique.begin(); i_tile != unique.end(); i_tile++) {
+        Tile t = *i_tile;
+        for (AIndexType ind = 0; ind < t.AttributeCnt(); ind++) {
+            AValueType value = t.Attribute(ind);
+            Tiles run;
+            ConstIteratorType i_tile2;
+            for (i_tile2 = i_tile; i_tile2 != unique.end(); i_tile2++) {
+                if (i_tile2->HasAttribute(ind, value)) {
+                    run.insert(*i_tile2);
+                }
+            }
+            if (run.Count() > result.Count()) {
+                result = run;
+                raString = attributeToString(ind, value);
+            }
+        }
+    }
+    
+    D(std::cout << "Found a run of " << result.Count() << " " 
+		<< raString << plural(result.Count()) << "." << std::endl);
+
+	return result;
 }
 
-void Tiles::removeTiles(Tiles const &tiles) {
-	const_iterator tile;
-	for (tile = tiles.begin(); tile != tiles.end(); tile++) {
-        removeTile(*tile);
+void Tiles::MakeEmpty(void) {
+	clear();
+}
+
+void Tiles::RemoveTile(Tile const &rTile) {
+	IteratorType i_tile = find(rTile);
+    ASSERT(i_tile != end());
+	erase(i_tile);
+}
+
+void Tiles::RemoveTiles(Tiles const &rTiles) {
+	ConstIteratorType i_tile;
+	for (i_tile = rTiles.begin(); i_tile != rTiles.end(); i_tile++) {
+        RemoveTile(*i_tile);
     }
 }
 
-string Tiles::toString(void) const {
-    string result;
-
-    result += "{";
-    const_iterator tile;
-    for (tile = begin(); tile != end(); tile++) {
-        if (tile != begin()) {
-            result += ", ";
-        } 
-        result += tile->toString();
-    }       
-    result += "}";
-
-    return result;
-}
-
-void Tiles::unClone(Tile &clone) const {
-    const_iterator t;
-    for (t = begin(); t != end(); t++) {
-       if (clone.isClone(*t)) {
-           clone = *t;
+void Tiles::UnClone(Tile &rClone) const {
+    ConstIteratorType i_tile;
+    for (i_tile = begin(); i_tile != end(); i_tile++) {
+       if (rClone.IsClone(*i_tile)) {
+           rClone = *i_tile;
            break;
        }
     }
 }
 
 // return a new set containing only one copy of each clone
-Tiles Tiles::uniqueTiles(void) const {
+Tiles Tiles::UniqueTiles(void) const {
     Tiles result;
     
-    const_iterator tile;
+    ConstIteratorType tile;
     for (tile = begin(); tile != end(); tile++) {
-        if (!tile->isCloneAny(result)) {
+        if (!tile->IsCloneAny(result)) {
             result.insert(*tile);
         }
     }

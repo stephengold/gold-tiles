@@ -8,7 +8,7 @@
 // Distributed under the terms of the GNU Lesser General Public License
 
 /*
- A Window object represents a generic window.
+ A Window object represents a generic Microsoft Windows window.
 
  The Window class is implemented by encapsulating an HWND.
  */
@@ -19,39 +19,46 @@
 #include <map>
 #include <windows.h>
 
-typedef std::map<unsigned long, Window*> WMap;
-typedef std::pair<unsigned long, Window*> WPair;
-
 class Window {
-	static WMap _map;
+public:
+	// lifecycle
+	Window(void);
+    Window(Window const &) { ASSERT(false); };
+    // ~WindowClass(void);  implicitly declared destructor is OK
+
+	// operator
+    Window &operator=(Window const &) { ASSERT(false); };
+
+	// misc
+	void           ForceRepaint(void);
+	LRESULT        HandleMessage(UINT message, WPARAM, LPARAM);
+    HDC            Initialize(CREATESTRUCT const *);
+    static Window *Lookup(HWND);
+	void           SelfDestruct(void);
+	void           Show(int showHow);
+
+	// access
+	char const *Name(void) const;
+	HWND        Handle(void) const;
+	void        SetClientArea(unsigned width, unsigned height);
+	void        SetHandle(HWND);
+	void        SetIcons(char const *iconResourceName);
+
+protected:
+    unsigned mClientAreaWidth, mClientAreaHeight;
+    HINSTANCE mModule; // the module which owns this window
+
+	// access
+    virtual char const *ClassName(void) const = 0;
+    virtual WNDPROC     MessageHandler(void) const = 0;
+
+private:
+    typedef std::map<unsigned long, Window*> Map;
+    typedef std::pair<unsigned long, Window*> Pair;
+
+	static Map msMap;
 	
-    HWND _handle;
-
-    protected:
-        unsigned _clientAreaWidth, _clientAreaHeight;
-        HINSTANCE _module; // the module which owns this window
-
-	    virtual char const *getClassName(void) const = 0;
-        virtual WNDPROC getMessageHandler(void) const = 0;
-
-    public:
-		Window(void);
-        Window(Window const &) { assert(false); };
-        Window &operator=(Window const &) { assert(false); };
-        // ~WindowClass(void);  implicitly declared destructor is fine
-
-		static Window *lookup(HWND);
-
-		void destroy(void);
-		void forceRepaint(void);
-		HWND getHandle(void) const;
-	    char const *getName(void) const;
-		LRESULT handleMessage(UINT message, WPARAM, LPARAM);
-        HDC initialize(CREATESTRUCT const *);
-	    void setClientArea(unsigned width, unsigned height);
-	    void setHandle(HWND);
-	    void setIcons(char const *iconResourceName);
-		void show(int showHow);
+    HWND mHandle;
 };
 
 #endif

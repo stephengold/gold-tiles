@@ -18,17 +18,22 @@
 #include <windows.h>
 
 class WindowClass: public WNDCLASSEX {
-    public:
-        WindowClass(void) { assert(false); };
-        WindowClass(WindowClass const &) { assert(false); };
-        WindowClass &operator=(WindowClass const &) { assert(false); };
-        // ~WindowClass(void);  implicitly declared destructor is fine
+public:
+	// lifecycle
+    WindowClass(void) { ASSERT(false); };
+    WindowClass(HINSTANCE, WNDPROC, char const *);
+    WindowClass(WindowClass const &) { ASSERT(false); };
+    // ~WindowClass(void);  implicitly declared destructor is fine
 
-		WindowClass(HINSTANCE, WNDPROC, char const *);
+	// operator
+    WindowClass &operator=(WindowClass const &) { ASSERT(false); };
 
-		HINSTANCE getModule(void) const;
-		char const *getName(void) const;
-        void registerClass(void);
+	// misc
+    void RegisterClass(void);
+
+	// access
+    HINSTANCE   Module(void) const;
+	char const *Name(void) const;
 };
 
 #endif

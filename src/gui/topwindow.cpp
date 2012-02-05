@@ -9,23 +9,20 @@
 #ifdef _WINDOWS
 #include <windows.h>
 //#include "about.h"
+#include "cell.hpp"
+#include "cells.hpp"
 #include "game.hpp"
-#include "gridref.hpp"
 #include "gui/canvas.hpp"
 #include "gui/color.hpp"
 #include "gui/resource.hpp"
 #include "gui/topwindow.hpp"
 #include "gui/windowclass.hpp"
-#include "locus.hpp"
-#include "play.hpp"
-
-#define WIDTH_SMALL_TILE 21
-#define WIDTH_MEDIUM_TILE 41
-#define WIDTH_LARGE_TILE 61
+#include "move.hpp"
+#include "player.hpp"
 
 // static member of TopWindow
 
-WindowClass *TopWindow::_class = NULL;
+WindowClass *TopWindow::mspClass = NULL;
 
 // message handler (callback) for top window
 static TopWindow *newlyCreatedTopWindow = NULL;
@@ -39,9 +36,9 @@ static LRESULT CALLBACK topMessageHandler(
 	if (message == WM_CREATE && newlyCreatedTopWindow != NULL) {
 		window = newlyCreatedTopWindow;
 		newlyCreatedTopWindow = NULL;
-		window->setHandle(windowHandle);
+		window->SetHandle(windowHandle);
 	} else {
-       window = (TopWindow *)Window::lookup(windowHandle);
+       window = (TopWindow *)Window::Lookup(windowHandle);
 	}
 
 	LRESULT result;
@@ -49,40 +46,61 @@ static LRESULT CALLBACK topMessageHandler(
 		// invoke default message handler
 		result = ::DefWindowProc(windowHandle, message, wParam, lParam);
 	} else {
-     	assert(window->getHandle() == windowHandle);
-        result = window->handleMessage(message, wParam, lParam);
+     	ASSERT(window->Handle() == windowHandle);
+        result = window->HandleMessage(message, wParam, lParam);
 	}
 	return result;
 }
 
-// non-static members of TopWindow
+// constructors, assignment operator, destructor, and cast operators
 
 TopWindow::TopWindow(HINSTANCE applicationInstance):
-	_application(applicationInstance),
-    _fileName("Game1"),
-    _handRect(0, 0, 0, 0),
-    _playMenu(NULL),
-    _swapRect(0, 0, 0, 0),
-	_tileWidth(WIDTH_LARGE_TILE),
-    _viewMenu(NULL)
+    mHandRect(0, 0, 0, 0),
+    mSwapRect(0, 0, 0, 0)
 {
-	assert(getHandle() == 0);
+	ASSERT(Handle() == 0);
 
-	char const *className = getClassName();
-    if (_class == NULL) {
+	char const *className = ClassName();
+    if (mspClass == NULL) {
 		// constructing first instance:  create a Microsoft Windows window class
-		WNDPROC messageHandler = getMessageHandler();
-		_class = new WindowClass(applicationInstance, messageHandler, className);
-		_class->registerClass();
+		WNDPROC messageHandler = MessageHandler();
+		mspClass = new WindowClass(applicationInstance, messageHandler, className);
+		mspClass->RegisterClass();
 	}
-	assert(_class != NULL);
+	ASSERT(mspClass != NULL);
 
 	// Make this TopWindow object accessable to its message handler before WM_CREATE.
     assert(newlyCreatedTopWindow == NULL);
 	newlyCreatedTopWindow = this;
 
+    ASSERT(game != NULL);
+    Player activePlayer = game->ActivePlayer();
+    
+	mApplication = applicationInstance;
+    mAutopauseFlag = false;
+    mBoard = Board(*game);
+    mColorAttributeCnt = 1;
+    mDragBoardFlag = false;
+    mDragTileFlag = false;
+    mFileName = "Game1";
+    mHandTiles = Tiles(activePlayer);
+    mMouseLastX = 0;
+    mMouseLastY = 0;
+    mOriginIsCentered = false;
+    mOriginX = 0;
+    mOriginY = 0;
+    mPadPixels = 6;
+	mPauseFlag = mAutopauseFlag;
+    mpPlayMenu = NULL;
+    mPlayedTileCnt = 0;    
+	mShowClocksFlag = false;
+	mShowGridFlag = true;
+	mShowScoresFlag = true;
+	mShowTilesFlag = false;    
+	mTileWidth = TILE_WIDTH_LARGE;
+    mpViewMenu = NULL;
+
 	// create Microsoft Windows window
-	char const *windowName = getName();
 	DWORD windowStyle = WS_OVERLAPPEDWINDOW;
 	int x = CW_USEDEFAULT;
 	int y = CW_USEDEFAULT;
@@ -91,846 +109,875 @@ TopWindow::TopWindow(HINSTANCE applicationInstance):
 	HWND parent = NULL;
 	HMENU menu = NULL;
 	LPVOID parameters = NULL;
-    HWND handle = ::CreateWindow(className, windowName, windowStyle, x, y, 
+    HWND handle = ::CreateWindow(className, Name(), windowStyle, x, y, 
                              width, height, parent, menu, applicationInstance, 
                              parameters);
-    assert(handle != 0);
-    setHandle(handle);
+    ASSERT(handle != 0);
+    SetHandle(handle);
 
-    assert(game != NULL);
-    Player activePlayer = game->getActivePlayer();
-    
-    _autopauseFlag = false;
-    _board = game->getBoard();
-    _dragBoardFlag = false;
-    _dragTileFlag = false;
-    _handTiles = activePlayer.getHand();
-    _mouseLastX = 0;
-    _mouseLastY = 0;
-    _numberOfColorAttributes = 1;
-    _originHasBeenCentered = false;
-    _originX = 0;
-    _originY = 0;
-    _padPixels = 6;
-	_pauseFlag = _autopauseFlag;
-    _playedTileCount = 0;    
-	_showClocksFlag = false;
-	_showGridFlag = true;
-	_showScoresFlag = true;
-	_showTilesFlag = false;    
 }
 
-void TopWindow::buttonDown(int x, int y) {
-    if (_pauseFlag) {
-        menuCommand(IDM_PAUSE);
+TopWindow::~TopWindow(void) {
+	delete mpPlayMenu;
+	delete mpViewMenu;
+}
+
+// TopWindow methods
+
+void TopWindow::ButtonDown(int x, int y) {
+    if (mPauseFlag) {
+        MenuCommand(IDM_PAUSE);
 		return;
     }
-    HWND thisWindow = getHandle();
+    HWND this_window = Handle();
     POINT pt; pt.x = x; pt.y = y;
     
-    TileMap::const_iterator it;
-    for (it = _tileMap.begin(); it != _tileMap.end(); it++) {
+    TileMapType::const_iterator it;
+    for (it = mTileMap.begin(); it != mTileMap.end(); it++) {
         Rect rect = it->second;
-        if (rect.contains(pt)) {
+        if (rect.Contains(pt)) {
             break;
         }
     }
-    if (it != _tileMap.end()) {
+    if (it != mTileMap.end()) {
         // Capture mouse to drag a tile
-        ::SetCapture(thisWindow);
-        _mouseLastX = x;
-        _mouseLastY = y;
-        _dragTileDeltaX = 0;
-        _dragTileDeltaY = 0;
-        _dragTileFlag = true;
-        _dragTileId = it->first;
+        ::SetCapture(this_window);
+        mMouseLastX = x;
+        mMouseLastY = y;
+        mDragTileDeltaX = 0;
+        mDragTileDeltaY = 0;
+        mDragTileFlag = true;
+        mDragTileId = it->first;
         
-    } else if (!_handRect.contains(pt) && !_swapRect.contains(pt)) {
+    } else if (!mHandRect.Contains(pt) && !mSwapRect.Contains(pt)) {
         // Capture mouse to drag the board
-    	::SetCapture(thisWindow);
+    	::SetCapture(this_window);
 
-        _mouseLastX = x;
-        _mouseLastY = y;
-        _dragBoardFlag = true;
+        mMouseLastX = x;
+        mMouseLastY = y;
+        mDragBoardFlag = true;
     }
 }
 
-void TopWindow::buttonUp(int x, int y) {
-    HWND thisWindow = getHandle();
+void TopWindow::ButtonUp(int x, int y) {
+    HWND this_window = Handle();
 	HWND captor = ::GetCapture();
-    if (captor != thisWindow) {
+    if (captor != this_window) {
 		return;
     } else {
         ::ReleaseCapture();
     }
 		
-    int dragX = x - _mouseLastX;
-    int dragY = y - _mouseLastY;
-    if (_dragBoardFlag) {
-        _originX += dragX;
-        _originY += dragY;
+    int drag_x = x - mMouseLastX;
+    int drag_y = y - mMouseLastY;
+    if (mDragBoardFlag) {
+        mOriginX += drag_x;
+        mOriginY += drag_y;
         
     } else {
-        assert(_dragTileFlag);
+        ASSERT(mDragTileFlag);
         
-        _dragTileDeltaX += dragX;
-        _dragTileDeltaY += dragY;
+        mDragTileDeltaX += drag_x;
+        mDragTileDeltaY += drag_y;
         
-        // Determine where the tile was dragged from.
-        bool fromBoard = false;
-        bool fromSwap = false;
-        GridRef fromSquare;
-        
-        Tile dragTile = _handTiles.findTile(_dragTileId);
-        if (_board.findTile(dragTile, fromSquare)) {
-            fromBoard = true;
-            _board.emptyCell(fromSquare);
-            --_playedTileCount;
-        } else if (_swapTiles.contains(dragTile)) {
-            fromSwap = true;
-            _swapTiles.removeTile(dragTile);
+        Tile drag_tile = mHandTiles.FindTile(mDragTileId);
+
+		// Determine where the tile was dragged from.
+        bool from_board = false;
+        bool from_swap = false;
+		Cell from_cell;
+        if (mBoard.FindTile(drag_tile, from_cell)) {
+            from_board = true;
+            mBoard.MakeEmpty(from_cell);
+            --mPlayedTileCnt;
+        } else if (mSwapTiles.Contains(drag_tile)) {
+            from_swap = true;
+            mSwapTiles.RemoveTile(drag_tile);
         }
 
         // Determine where the tile got dragged to.
-        POINT point; point.x = x; point.y = y;
+        POINT point;
+		point.x = x;
+		point.y = y;
         
-        if (_swapRect.contains(point)) { // to swap
-            if (_playedTileCount == 0) {
-                _swapTiles.addTile(dragTile);
-            } else if (fromBoard) {
-                _board.playOnCell(fromSquare, dragTile);
-                ++_playedTileCount;
+        if (mSwapRect.Contains(point)) { // to swap
+            if (mPlayedTileCnt == 0) {
+                mSwapTiles.AddTile(drag_tile);
+            } else if (from_board) {
+                mBoard.PlayOnCell(from_cell, drag_tile);
+                ++mPlayedTileCnt;
             }
             
-        } else if (!_handRect.contains(point)) { // to board
-            GridRef toSquare = getCellRef(x, y);
-            Play play;
-            play.add(dragTile, toSquare);
-            if (_swapTiles.size() == 0 && _board.isLegalPlay(play)) {
-                _board.playTiles(play);
-                ++_playedTileCount;
-            } else if (fromBoard) {
-                _board.playOnCell(fromSquare, dragTile);
-                ++_playedTileCount;
-            } else if (fromSwap) {
-                _swapTiles.addTile(dragTile);
+        } else if (!mHandRect.Contains(point)) { // to board
+            Cell to_cell = GetCell(x, y);
+            Move move;
+            move.Add(drag_tile, to_cell);
+            if (mSwapTiles.Count() == 0 && mBoard.IsLegalMove(move)) {
+                mBoard.PlayMove(move);
+                ++mPlayedTileCnt;
+            } else if (from_board) {
+                mBoard.PlayOnCell(from_cell, drag_tile);
+                ++mPlayedTileCnt;
+            } else if (from_swap) {
+                mSwapTiles.AddTile(drag_tile);
             }
         }
     }
-    forceRepaint();
     
-    _dragBoardFlag = false;
-    _dragTileFlag = false;
-    _mouseLastX = x;
-    _mouseLastY = y;
+    mDragBoardFlag = false;
+    mDragTileFlag = false;
+    mMouseLastX = x;
+    mMouseLastY = y;
+
+	ForceRepaint();
 }
 
-void TopWindow::createdWindow(CREATESTRUCT const *createStruct) {
-    // Initializatio that happens after the Microsoft Windows window
-    // has been created.
-    HMENU topMenu = createStruct->hMenu;
-    HDC privateDC = initialize(createStruct);
-    HWND windowHandle = getHandle();
+unsigned TopWindow::CellHeight(void) const {
+    unsigned result = CellWidth();
 
-    _playMenu = new PlayMenu(topMenu, IDM_PLAY);
-	assert(_playMenu != NULL);
-	_viewMenu = new ViewMenu(topMenu, IDM_VIEW);
-	assert(_viewMenu != NULL);
-	updateMenus();
+	return result;
 }
 
-void TopWindow::dragMouse(int x, int y) {
-    HWND thisWindow = getHandle();
+unsigned TopWindow::CellWidth(void) const {
+    unsigned result = mTileWidth;
+    if (mShowGridFlag) {
+        result = mTileWidth + 1;
+    }
+
+    return result;
+}
+
+int TopWindow::CellX(int column) const {
+    unsigned grid_unit = GridUnit();
+    int result = mOriginX + grid_unit*column;
+
+    return result;
+}
+
+int TopWindow::CellY(int row) const {
+    unsigned grid_unit = GridUnit();
+    int result = mOriginY - grid_unit*row;
+
+    return result;
+}
+
+char const *TopWindow::ClassName(void) const {
+	return "GOLDTILETOP";
+}
+
+
+void TopWindow::DragMouse(int x, int y) {
+    HWND this_window = Handle();
 	HWND captor = ::GetCapture();
-    if (captor != thisWindow) {
+    if (captor != this_window) {
 		return;
     }
 
-    int dragX = x - _mouseLastX;
-    int dragY = y - _mouseLastY;
-    if (_dragBoardFlag) {
-        _originX += dragX;
-        _originY += dragY;
-        forceRepaint();
-    } else if (_dragTileFlag) {
-        _dragTileDeltaX += dragX;
-        _dragTileDeltaY += dragY;
-        forceRepaint();
+    int dragX = x - mMouseLastX;
+    int dragY = y - mMouseLastY;
+    if (mDragBoardFlag) {
+        mOriginX += dragX;
+        mOriginY += dragY;
+        ForceRepaint();
+    } else if (mDragTileFlag) {
+        mDragTileDeltaX += dragX;
+        mDragTileDeltaY += dragY;
+        ForceRepaint();
     }
 
-    _mouseLastX = x;
-    _mouseLastY = y;
+    mMouseLastX = x;
+    mMouseLastY = y;
 }
 
 
-void TopWindow::drawActivePlayer(Canvas &canvas) {
+void TopWindow::DrawActivePlayer(Canvas &rCanvas) {
     // draw header
-    int top = _padPixels;
-    int left = _padPixels;
-    Player activePlayer = game->getActivePlayer();
-    COLORREF areaColor = BLACK_COLOR;
-    bool leftFlag = true;
-    RECT headerRect = drawPlayerHeader(canvas, top, left, activePlayer, areaColor, leftFlag);
-    left = headerRect.left;
-    unsigned width = headerRect.right - left;
+    int top_y = mPadPixels;
+    int left_x = mPadPixels;
+    Player active_player = game->ActivePlayer();
+    ColorType area_color = COLOR_BLACK;
+    bool left = true;
+    Rect header_rect = DrawPlayerHeader(rCanvas, top_y, left_x, active_player, area_color, left);
+    left_x = header_rect.LeftX();
+    unsigned width = header_rect.Width();
     
-    // draw hand area (_handRect)
-    unsigned cellHeight = getCellWidth();
-    unsigned tileCount = _handTiles.size() - _swapTiles.size() - _playedTileCount;
-    unsigned height = tileCount*cellHeight + 2*_padPixels;
-    if (tileCount < _handTiles.size()) {
-        height += cellHeight/2;
-        areaColor = DARK_GREEN_COLOR;
+    // draw hand area (mHandRect)
+    unsigned cell_height = CellHeight();
+    unsigned tile_count = mHandTiles.Count() - mSwapTiles.Count() - mPlayedTileCnt;
+    unsigned height = tile_count*cell_height + 2*mPadPixels;
+    if (tile_count < mHandTiles.Count()) {
+        height += cell_height/2;
+        area_color = COLOR_DARK_GREEN;
     } else { // hand is full
-        areaColor = BROWN_COLOR;
+        area_color = COLOR_BROWN;
     }
-    COLORREF edgeColor = WHITE_COLOR;
-    canvas.useColors(areaColor, edgeColor);
-    top = headerRect.bottom - 1;
-    _handRect = canvas.drawRectangle(top, left, width, height);
-    left = _handRect.getLeftX();
-    width = _handRect.getWidth();
+    ColorType edge_color = COLOR_WHITE;
+    rCanvas.UseColors(area_color, edge_color);
+    top_y = header_rect.BottomY() - 1;
+    mHandRect = rCanvas.DrawRectangle(top_y, left_x, width, height);
+    left_x = mHandRect.LeftX();
+    width = mHandRect.Width();
     
     // draw swap area (_swapRect)
-    tileCount = _swapTiles.size();
-    unsigned bagHeight = canvas.getTextHeight();
-    height = tileCount*cellHeight + bagHeight + 3*_padPixels;
-    if (tileCount < _handTiles.size() && _playedTileCount == 0) {
-        height += cellHeight/2;
-        areaColor = DARK_GREEN_COLOR;
+    tile_count = mSwapTiles.Count();
+    unsigned bagHeight = rCanvas.TextHeight();
+    height = tile_count*cell_height + bagHeight + 3*mPadPixels;
+    if (tile_count < mHandTiles.Count() && mPlayedTileCnt == 0) {
+        height += cell_height/2;
+        area_color = COLOR_DARK_GREEN;
     } else { // can't add tiles to swap area
-        areaColor = BROWN_COLOR;
+        area_color = COLOR_BROWN;
     }
-    canvas.useColors(areaColor, edgeColor);
-    top = _handRect.getBottomY() - 1;
-    _swapRect = canvas.drawRectangle(top, left, width, height);
+    rCanvas.UseColors(area_color, edge_color);
+    top_y = mHandRect.BottomY() - 1;
+    mSwapRect = rCanvas.DrawRectangle(top_y, left_x, width, height);
     
-    unsigned stock = game->getStock();
-    string stockText = plural(stock, "tile");
-    int y = _swapRect.getBottomY() - _padPixels - bagHeight;
-    Rect bounds(y, left, width, bagHeight);
-    canvas.drawText(bounds, stockText);
+    unsigned stock = game->CountStock();
+    String stock_text = plural(stock, "tile");
+    int y = mSwapRect.BottomY() - mPadPixels - bagHeight;
+    Rect bounds(y, left_x, width, bagHeight);
+    rCanvas.DrawText(bounds, stock_text);
 }
 
-Rect TopWindow::drawBlankTile(Canvas &canvas, int topY, int leftX) {
-    COLORREF baseColor = LIGHT_GRAY_COLOR;
-    unsigned width = getCellWidth() - 2;
-    AValue glyphs[4];
-    Rect result = canvas.drawTile(topY, leftX, width, 0, glyphs, baseColor, baseColor);
+Rect TopWindow::DrawBlankTile(Canvas &rCanvas, int topY, int leftX) {
+    ColorType tile_color = COLOR_LIGHT_GRAY;
+	ColorType glyph_color = tile_color;
+    unsigned width = CellWidth() - 2;
+    AValueType glyphs[4];
+    Rect result = rCanvas.DrawTile(topY, leftX, width, 0, glyphs, tile_color, glyph_color);
     
     return result;
 }
 
-void TopWindow::drawBoard(Canvas &canvas) {
-    int topRow = 1 + _board.getMaxN();
-    int bottomRow = -1 - (int)_board.getMaxS();
-    int rightColumn = 1 + _board.getMaxE();
-    int leftColumn = -1 - (int)_board.getMaxW();
-    ASSERT(bottomRow <= topRow);
-    ASSERT(leftColumn <= rightColumn);
+void TopWindow::DrawBoard(Canvas &rCanvas) {
+    int top_row = 1 + (int)mBoard.NorthMax();
+    int bottom_row = -1 - (int)mBoard.SouthMax();
+    int right_column = 1 + (int)mBoard.EastMax();
+    int left_column = -1 - (int)mBoard.WestMax();
+    ASSERT(bottom_row <= top_row);
+    ASSERT(left_column <= right_column);
     
-    for (int row = topRow; row >= bottomRow; row--) {
-        if (getCellY(row) > (int)_clientAreaHeight) {
+    for (int row = top_row; row >= bottom_row; row--) {
+        if (CellY(row) > (int)mClientAreaHeight) {
             break;
         }
-        for (int column = leftColumn; column <= rightColumn; column++) {
-            if (getCellX(column) > (int)_clientAreaWidth) {
+        for (int column = left_column; column <= right_column; column++) {
+            if (CellX(column) > (int)mClientAreaWidth) {
                 break;
             }
-            GridRef square(row, column);
-            drawCell(canvas, square);
+            Cell cell(row, column);
+            DrawCell(rCanvas, cell);
         }
     }
 }
 
-void TopWindow::drawCell(Canvas &canvas, GridRef const &square) {
-    int row = square.getRow();
-    int column = square.getColumn();
-    int ulcX = getCellX(column);
-    int ulcY = getCellY(row);
+void TopWindow::DrawCell(Canvas &rCanvas, Cell const &rCell) {
+    int row = rCell.Row();
+    int column = rCell.Column();
+    int ulc_x = CellX(column);
+    int ulc_y = CellY(row);
 
-    Locus done;
-    bool connected = _board.connectsToOrigin(square, done);
+    Cells done;
+    bool connected = mBoard.ConnectsToOrigin(rCell, done);
 
-    COLORREF cellColor = DARK_GREEN_COLOR;
+    ColorType cellColor = COLOR_DARK_GREEN;
     if (!connected) {
-        cellColor = BLACK_COLOR;
-    } else if (_swapTiles.size() != 0) {
-        cellColor = BROWN_COLOR;
+        cellColor = COLOR_BLACK;
+    } else if (!mSwapTiles.IsEmpty()) {
+        cellColor = COLOR_BROWN;
     }
-    COLORREF gridColor = cellColor;
-    if (_showGridFlag) {
-        if (_swapTiles.size() != 0) {
-            gridColor = YELLOW_COLOR;
+    ColorType gridColor = cellColor;
+    if (mShowGridFlag) {
+        if (mSwapTiles.IsEmpty()) {
+            gridColor = COLOR_GREEN;
         } else {
-            gridColor = GREEN_COLOR;
+            gridColor = COLOR_YELLOW;
         }
     }
 
-    unsigned cellWidth = getCellWidth();
-    canvas.drawCell(ulcY, ulcX, cellWidth, cellColor, gridColor);
+    unsigned cellWidth = CellWidth();
+    rCanvas.DrawCell(ulc_y, ulc_x, cellWidth, cellColor, gridColor);
     
-    Tile const *tile = _board.getCell(square);
-    if (tile != NULL && (!_dragTileFlag || tile->getId() != _dragTileId)) {
-        drawTile(canvas, ulcY + 1, ulcX + 1, *tile);
+    Tile const *tile = mBoard.GetCell(rCell);
+    if (tile != NULL && (!mDragTileFlag || tile->Id() != mDragTileId)) {
+        DrawTile(rCanvas, ulc_y + 1, ulc_x + 1, *tile);
     }
 }
 
-void TopWindow::drawHandTiles(Canvas &canvas) {   
-    int handY = _handRect.getTopY() + _padPixels;
+void TopWindow::DrawHandTiles(Canvas &canvas) {   
+    int hand_y = mHandRect.TopY() + mPadPixels;
+    int swap_y = mSwapRect.TopY() + mPadPixels;
     
-    unsigned cellWidth = getCellWidth();
-    unsigned cellHeight = cellWidth;
-    int swapY = _swapRect.getTopY() + _padPixels;
-    if (_swapTiles.size() < _handTiles.size() && _playedTileCount == 0) {
-        swapY += cellHeight/2;
+    unsigned cell_height = CellHeight();
+    if (mSwapTiles.Count() < mHandTiles.Count() && mPlayedTileCnt == 0) {
+        swap_y += cell_height/2;
     }
 
-    _tileMap.clear();
-    Tiles::const_iterator it;
-    for (it = _handTiles.begin(); it != _handTiles.end(); it++) {
+    mTileMap.clear();
+    unsigned cell_width = CellWidth();
+    Tiles::ConstIteratorType it;
+    for (it = mHandTiles.begin(); it != mHandTiles.end(); it++) {
         Tile tile = *it;
         int x, y;
-        GridRef square;
-        if (_board.findTile(tile, square)) {
-            int row = square.getRow();
-            int column = square.getColumn();
-            x = getCellX(column);
-            y = getCellY(row);
+        Cell cell;
+        if (mBoard.FindTile(tile, cell)) {
+            int row = cell.Row();
+            int column = cell.Column();
+            x = CellX(column);
+            y = CellY(row);
         } else {
-            if (_swapTiles.contains(tile)) {
-                int left = _swapRect.getLeftX();
-                int width = _swapRect.getWidth();
-                int pad = (width - cellWidth)/2;
+            if (mSwapTiles.Contains(tile)) {
+                int left = mSwapRect.LeftX();
+                int width = mSwapRect.Width();
+                int pad = (width - cell_width)/2;
                 x = left + pad;
-                y = swapY;
-                swapY += cellHeight;
+                y = swap_y;
+                swap_y += cell_height;
             } else { 
-                int left = _handRect.getLeftX();
-                int width = _handRect.getWidth();
-                int pad = (width - cellWidth)/2;
+                int left = mHandRect.LeftX();
+                int width = mHandRect.Width();
+                int pad = (width - cell_width)/2;
                 x = left + pad;
-                y = handY;
-                handY += cellHeight;
+                y = hand_y;
+                hand_y += cell_height;
             }
         }
-        Rect rect = drawTile(canvas, y + 1, x + 1, tile);
+        Rect rect = DrawTile(canvas, y + 1, x + 1, tile);
         
-        TileId id = tile.getId();
-        TilePair pair(id, rect);
-        std::pair<TileMap::iterator, bool> ins;
-        ins = _tileMap.insert(pair);
+        TileIdType id = tile.Id();
+        TilePairType pair(id, rect);
+        std::pair<TileMapType::iterator, bool> ins;
+        ins = mTileMap.insert(pair);
         bool success = ins.second;
         ASSERT(success);
     }
 }
 
-void TopWindow::drawInactivePlayers(Canvas &canvas) {     
-    unsigned cellWidth = getCellWidth();
-    unsigned cellHeight = cellWidth;
-    unsigned width = cellWidth + 2*_padPixels;
-    int right = _clientAreaWidth - _padPixels;
-    COLORREF areaColor = DARK_BLUE_COLOR;
-    COLORREF edgeColor = LIGHT_GRAY_COLOR;
-    Players otherPlayers = game->getInactivePlayers();
-    Players::const_iterator player;
-    for (player = otherPlayers.begin(); player < otherPlayers.end(); player++) {
+void TopWindow::DrawInactivePlayers(Canvas &rCanvas) {     
+    unsigned cell_width = CellWidth();
+    unsigned cell_height = CellHeight();
+    unsigned width = cell_width + 2*mPadPixels;
+    ColorType area_color = COLOR_DARK_BLUE;
+    ColorType edge_color = COLOR_LIGHT_GRAY;
+
+    Players other_players = game->InactivePlayers();
+    Players::ConstIteratorType i_player;
+    int right_x = mClientAreaWidth - mPadPixels;
+    for (i_player = other_players.begin(); i_player < other_players.end(); i_player++) {
         // draw header
-        int top = _padPixels;
-        bool leftFlag = false;
-        COLORREF headerColor = BLACK_COLOR;
-        RECT headerRect = drawPlayerHeader(canvas, top, right, *player, headerColor, leftFlag);
+        int top_y = mPadPixels;
+        bool rightFlag = false;
+        ColorType header_color = COLOR_BLACK;
+        Rect header_rect = DrawPlayerHeader(rCanvas, top_y, right_x, *i_player, header_color, rightFlag);
 
         // draw hand area below the header
-        top = headerRect.bottom - 1;
-        int left = headerRect.left;
-        int width = headerRect.right - left;
-        Tiles handTiles = player->getHand();
-        unsigned tileCount = handTiles.size();
-        unsigned height = tileCount*cellHeight + 2*_padPixels;
-        areaColor = DARK_BLUE_COLOR;
-        canvas.useColors(areaColor, edgeColor);
-        RECT handRect = canvas.drawRectangle(top, left, width, height);
+        top_y = header_rect.BottomY() - 1;
+        int left_x = header_rect.LeftX();
+        int width = header_rect.Width();
+        Tiles hand_tiles = Tiles(*i_player);
+        unsigned tile_count = hand_tiles.Count();
+        unsigned height = tile_count*cell_height + 2*mPadPixels;
+        area_color = COLOR_DARK_BLUE;
+        rCanvas.UseColors(area_color, edge_color);
+        Rect hand_rect = rCanvas.DrawRectangle(top_y, left_x, width, height);
 
         // draw tiles
-        int pad = (width - cellWidth)/2;
-        int x = left + pad + 1;
-        int y = handRect.top + _padPixels + 1;
+        int pad = (width - cell_width)/2;
+        int tile_x = left_x + pad + 1;
+        int tile_y = hand_rect.TopY() + mPadPixels + 1;
 
-        Tiles::const_iterator it;
-        for (it = handTiles.begin(); it != handTiles.end(); it++) {
+        Tiles::ConstIteratorType it;
+        for (it = hand_tiles.begin(); it != hand_tiles.end(); it++) {
             Tile tile = *it;
-            if (_showTilesFlag) {
-                drawTile(canvas, y, x, tile);
+            if (mShowTilesFlag) {
+                DrawTile(rCanvas, tile_y, tile_x, tile);
             } else {
-                drawBlankTile(canvas, y, x);
+                DrawBlankTile(rCanvas, tile_y, tile_x);
             } 
-            y += cellHeight;
+            tile_y += cell_height;
         }
 
-        right = headerRect.left - _padPixels;
+		// pad between players
+        right_x = header_rect.LeftX() - mPadPixels;
     }
 }
 
-Rect TopWindow::drawPlayerHeader(
-    Canvas &canvas, 
-    int top, 
+Rect TopWindow::DrawPlayerHeader(
+    Canvas &rCanvas, 
+    int topY, 
     int leftRight, 
-    Player const &player, 
-    COLORREF areaColor, 
+    Player const &rPlayer, 
+    ColorType areaColor, 
     bool leftFlag)
 {
-    unsigned cellWidth = getCellWidth();
+    unsigned cell_width = CellWidth();
 
-    string nameText = player.getName();
-    Player activePlayer = game->getActivePlayer();
-    if (nameText == activePlayer.getName()) {
-        nameText += "'s turn";
+    String name_text = rPlayer.Name();
+    Player active_player = game->ActivePlayer();
+    if (name_text == active_player.Name()) {
+        name_text += "'s turn";
     }
-    unsigned w = canvas.getTextWidth(nameText);
-    unsigned width = (cellWidth > w) ? cellWidth : w;
+    unsigned w = rCanvas.TextWidth(name_text);
+    unsigned width = (cell_width > w) ? cell_width : w;
 
-    string scoreText;
-    if (_showScoresFlag) {
-        unsigned score = player.getScore();
+    String scoreText;
+    if (mShowScoresFlag) {
+        unsigned score = rPlayer.Score();
         scoreText = plural(score, "point");
-        w = canvas.getTextWidth(scoreText);
+        w = rCanvas.TextWidth(scoreText);
         if (w > width) {
             width = w;
         }
     }
     
-    char const *clockText = "";
-    if (_showClocksFlag) {
-        clockText = "0:00";
-        w = canvas.getTextWidth(clockText);
+    char const *clock_text = "";
+    if (mShowClocksFlag) {
+        clock_text = "0:00";
+        w = rCanvas.TextWidth(clock_text);
         if (w > width) {
             width = w;
         }
     }
                                  
-    width += 2*_padPixels;
-    int left, right;
+    width += 2*mPadPixels;
+    int left_x, right_x;
     if (leftFlag) {
-        left = leftRight;
-        right = left + width;
+        left_x = leftRight;
+        right_x = left_x + width;
     } else {
-        right = leftRight;
-        left = right - width;
+        right_x = leftRight;
+        left_x = right_x - width;
     }
-    unsigned textHeight = canvas.getTextHeight();
+    unsigned text_height = rCanvas.TextHeight();
 
-    unsigned scoreHeight = 0;
-    if (_showScoresFlag) {
-        scoreHeight = textHeight;
+    unsigned score_height = 0;
+    if (mShowScoresFlag) {
+        score_height = text_height;
     }
-    unsigned clockHeight = 0;
-    if (_showClocksFlag) {
-        clockHeight = textHeight;
+    unsigned clock_height = 0;
+    if (mShowClocksFlag) {
+        clock_height = text_height;
     }
-    unsigned height = textHeight + scoreHeight + clockHeight + 2*_padPixels;
-    canvas.useColors(areaColor, areaColor);
-    Rect result = canvas.drawRectangle(top, left, width, height);
+    unsigned height = text_height + score_height + clock_height + 2*mPadPixels;
+    rCanvas.UseColors(areaColor, areaColor);
+    Rect result = rCanvas.DrawRectangle(topY, left_x, width, height);
 
-    COLORREF textColor = WHITE_COLOR;
-    canvas.useColors(areaColor, textColor);
+    ColorType text_color = COLOR_WHITE;
+    rCanvas.UseColors(areaColor, text_color);
 
-    int y = top + _padPixels;
-    Rect bounds(y, left, width, textHeight);
-    canvas.drawText(bounds, nameText);
-    y += textHeight;
+    int y = topY + mPadPixels;
+    Rect bounds(y, left_x, width, text_height);
+    rCanvas.DrawText(bounds, name_text);
+    y += text_height;
     
-    if (_showScoresFlag) {
-        Rect scoreBox(y, left, width, scoreHeight);
-        canvas.drawText(scoreBox, scoreText);
-        y += scoreHeight;
+    if (mShowScoresFlag) {
+        Rect score_box(y, left_x, width, score_height);
+        rCanvas.DrawText(score_box, scoreText);
+        y += score_height;
     }
 
-    if (_showClocksFlag) {
-        Rect clockBox(y, left, width, textHeight);
-        canvas.drawText(clockBox, clockText);
+    if (mShowClocksFlag) {
+        Rect clock_box(y, left_x, width, text_height);
+        rCanvas.DrawText(clock_box, clock_text);
     }
     
     return result;
 }
 
-Rect TopWindow::drawTile(Canvas &canvas, int topY, int leftX, Tile const &tile) {
-    COLORREF tileColor = LIGHT_GRAY_COLOR;
-    if (_handTiles.contains(tile)) {
-        tileColor = WHITE_COLOR;
+Rect TopWindow::DrawTile(Canvas &rCanvas, int topY, int leftX, Tile const &rTile) {
+    ColorType tile_color = COLOR_LIGHT_GRAY;
+    if (mHandTiles.Contains(rTile)) {
+        tile_color = COLOR_WHITE;
     }
-    if (_dragTileFlag && tile.getId() == _dragTileId) {
-       topY += _dragTileDeltaY;
-       leftX += _dragTileDeltaX;
+    if (mDragTileFlag && rTile.Id() == mDragTileId) {
+       topY += mDragTileDeltaY;
+       leftX += mDragTileDeltaX;
     }
 	
-	AIndex colorInd;
-	if (_numberOfColorAttributes == 1) {
-        colorInd = tile.getAttribute(0);
+	AIndexType colorInd;
+	if (mColorAttributeCnt == 1) {
+        colorInd = rTile.Attribute(0);
 	} else {
-		assert(_numberOfColorAttributes == 0);
+		ASSERT(mColorAttributeCnt == 0);
         colorInd = 0;
 	}
 	assert(colorInd < 9);
-	static COLORREF GlyphColors[9] = {
-		BLACK_COLOR,      RED_COLOR,       DARK_BLUE_COLOR, 
-        DARK_GREEN_COLOR, PURPLE_COLOR,    BROWN_COLOR, 
-        DARK_GRAY_COLOR,  PINK_COLOR,      LIGHT_BLUE_COLOR
+	static ColorType GlyphColors[9] = {
+		COLOR_BLACK,      COLOR_RED,       COLOR_DARK_BLUE, 
+        COLOR_DARK_GREEN, COLOR_PURPLE,    COLOR_BROWN, 
+        COLOR_DARK_GRAY,  COLOR_PINK,      COLOR_LIGHT_BLUE
 	};
-    COLORREF glyphColor = GlyphColors[colorInd];
+    ColorType glyph_color = GlyphColors[colorInd];
 
-    unsigned nca = _numberOfColorAttributes;
-    ACount numberOfGlyphAttributes = Tile::getNumAttributes() - nca;
-    AValue glyphs[4];
-    for (AIndex gi = 0; gi < 4; gi++) {
-		AIndex ind = gi + nca;
+    ACountType numberOfGlyphAttributes = Tile::AttributeCnt() - mColorAttributeCnt;
+    AValueType glyphs[4];
+    for (AIndexType gi = 0; gi < 4; gi++) {
+		AIndexType ind = gi + mColorAttributeCnt;
          if (gi < numberOfGlyphAttributes) {
-             glyphs[gi] = tile.getAttribute(ind);
+             glyphs[gi] = rTile.Attribute(ind);
          } else {
              glyphs[gi] = 0;
          }
     }
 
-    unsigned width = getCellWidth() - 2;
-    Rect result = canvas.drawTile(topY, leftX, width, 
-                    numberOfGlyphAttributes, glyphs, tileColor, glyphColor);
+    unsigned width = CellWidth() - 2;
+    Rect result = rCanvas.DrawTile(topY, leftX, width, 
+                    numberOfGlyphAttributes, glyphs, tile_color, glyph_color);
     
     return result;
 }
 
-GridRef TopWindow::getCellRef(int x, int y) {
-    unsigned gridUnit = getGridUnit();
-    int column = -100 + (x - _originX + 100*gridUnit)/gridUnit;
-    int row = 100 - (y - _originY + 100*gridUnit)/gridUnit;
-    GridRef result(row, column);
+Cell TopWindow::GetCell(int x, int y) const {
+    unsigned grid_unit = GridUnit();
+    int column = -400 + (x - mOriginX + 400*grid_unit)/grid_unit;
+    int row = 400 - (y - mOriginY + 400*grid_unit)/grid_unit;
+    Cell result(row, column);
     
     return result;
 }
 
-unsigned TopWindow::getCellWidth(void) const {
-    unsigned result = _tileWidth;
-    if (_showGridFlag) {
-        result = _tileWidth + 1;
+unsigned TopWindow::GridUnit(void) const {
+    unsigned result = mTileWidth - 1;
+    if (mShowGridFlag) {
+        result = mTileWidth;
     }
 
     return result;
 }
 
-int TopWindow::getCellX(int column) const {
-    unsigned gridUnit = getGridUnit();
-    int result = _originX + gridUnit*column;
-
-    return result;
-}
-
-int TopWindow::getCellY(int row) const {
-    unsigned gridUnit = getGridUnit();
-    int result = _originY - gridUnit*row;
-
-    return result;
-}
-
-char const *TopWindow::getClassName(void) const {
-	return "GOLDTILETOP";
-}
-
-unsigned TopWindow::getGridUnit(void) const {
-    unsigned result = _tileWidth - 1;
-    if (_showGridFlag) {
-        result = _tileWidth;
-    }
-
-    return result;
-}
-
-WNDPROC TopWindow::getMessageHandler(void) const {
+WNDPROC TopWindow::MessageHandler(void) const {
     return &topMessageHandler;
 }
 
-char const *TopWindow::getName(void) const {
+char const *TopWindow::Name(void) const {
 	return "Gold Tile - a game by Stephen Gold";
 }
 
-LRESULT TopWindow::handleMessage(UINT message, WPARAM wParam, LPARAM lParam) {
+LRESULT TopWindow::HandleMessage(UINT message, WPARAM wParam, LPARAM lParam) {
 	LRESULT result = 0;
     switch (message) {
         case WM_COMMAND: { // menu command
-			int command = LOWORD(wParam);
-            menuCommand(command);
+	        int command = LOWORD(wParam);
+            MenuCommand(command);
             break;
-		}
+  	    }
 
         case WM_CREATE: { // initialize window
-			CREATESTRUCT *createStruct = (CREATESTRUCT *)lParam;
-            createdWindow(createStruct);
+		    CREATESTRUCT *p_create_struct = (CREATESTRUCT *)lParam;
+            Initialize(p_create_struct);
             break;
-		}
+        }
 
-        case WM_DESTROY: { // destroy window
-			destroy();
+        case WM_LBUTTONDOWN: { // left-click
+			POINTS point = MAKEPOINTS(lParam);
+            ButtonDown(point.x, point.y);
             break;
-	   }
-
-		case WM_LBUTTONDOWN: { // left-click
-			POINTS xy = MAKEPOINTS(lParam);
-            buttonDown(xy.x, xy.y);
-            break;
-		}
+	    }
 
         case WM_LBUTTONUP: {
-			POINTS xy = MAKEPOINTS(lParam);
-            buttonUp(xy.x, xy.y);
-            break;
+			POINTS point = MAKEPOINTS(lParam);
+            ButtonUp(point.x, point.y);
+  		    break;
 		}
 
         case WM_MOUSEMOVE:
             if (wParam & MK_LBUTTON) { // dragging with left button
-				POINTS xy = MAKEPOINTS(lParam);
-                dragMouse(xy.x, xy.y);
-			}
+	  	        POINTS point = MAKEPOINTS(lParam);
+                DragMouse(point.x, point.y);
+		    }
             break;
 
-		case WM_PAINT: // repaint
-		    updateMenus();
-            repaint();
+	    case WM_PAINT: // repaint
+	        UpdateMenus();
+            Repaint();
             break;
-            
+           
         case WM_SIZE: { // resize
             unsigned long clientAreaWidth = LOWORD(lParam);
             unsigned long clientAreaHeight = HIWORD(lParam);
-            resize(clientAreaWidth, clientAreaHeight);
+            Resize(clientAreaWidth, clientAreaHeight);
             break;
         }
 
-		default:  // invoke base class message handler
-			Window *base = (Window *)this;
-			result = base->handleMessage(message, wParam, lParam);
-			break;
+	    default:  // invoke message handler of the base class
+		    Window *base = (Window *)this;
+		    result = base->HandleMessage(message, wParam, lParam);
+		    break;
     }
 
     return result;
 }
 
-void TopWindow::menuCommand(int command) {
-	assert(_playMenu != NULL);
-	assert(_viewMenu != NULL);
+void TopWindow::Initialize(CREATESTRUCT const *pCreateStruct) {
+    // Initialization which happens after the Microsoft Windows window
+    // has been created.
 
-	HWND window = getHandle();
+	Window::Initialize(pCreateStruct);
+
+    HMENU menu_bar = pCreateStruct->hMenu;
+
+    mpPlayMenu = new PlayMenu(menu_bar, IDM_PLAY);
+	ASSERT(mpPlayMenu != NULL);
+
+	mpViewMenu = new ViewMenu(menu_bar, IDM_VIEW);
+	ASSERT(mpViewMenu != NULL);
+
+	UpdateMenus();
+}
+
+void TopWindow::MenuCommand(int command) {
+	ASSERT(mpPlayMenu != NULL);
+	ASSERT(mpViewMenu != NULL);
+
+	HWND this_window = Handle();
 
     switch (command) {
-  	    // File menu options
+    // File menu options
         case IDM_NEW: {
-			// TODO
-			_fileName = "Game1";
+	        // TODO
+		    mFileName = "Game1";
             break;
 	    }
-
+		case IDM_OPEN:
+		    break;
+		case IDM_REOPEN:
+		    break;
+		case IDM_REVERT:
+		    break;
+		case IDM_SAVE:
+		    break;
+		case IDM_SAVE_AS:
+		    break;
+		case IDM_CLOSE:
+		    break;
+		case IDM_PRINT:
+		    break;
         case IDM_EXIT: { // terminate the application
-			// TODO prompt for save
-			UINT message = WM_CLOSE;
-            ::SendMessage(window, message, 0, 0L);
+		    // TODO prompt for save
+	    	UINT message = WM_CLOSE;
+            ::SendMessage(this_window, message, 0, 0L);
             break;
 	    }
 
-		// Play menu options
-		case IDM_PAUSE:
-			_pauseFlag = !_pauseFlag;
-			forceRepaint();
+	    // Play menu options
+	    case IDM_PAUSE:
+		    mPauseFlag = !mPauseFlag;
+		    ForceRepaint();
+		    break;
+		case IDM_ACCEPT:
 			break;
-		case IDM_PLAY_PLAY: {
+	    case IDM_PLAY_PLAY: {
             bool passFlag = false;
-			play(passFlag);
-			break;
+			Play(passFlag);
+		    break;
         }
-		case IDM_PASS: {
+	    case IDM_PASS: {
             bool passFlag = true;
-            play(passFlag);
+            Play(passFlag);
             break;
         }
-            
+		case IDM_RESIGN:
+			break;
+		case IDM_RESTART:
+			break;
+		case IDM_UNDO:
+			break;
+		case IDM_REDO:
+			break;
         case IDM_AUTOPAUSE:
-            _autopauseFlag = !_autopauseFlag;
-			updateMenus();
+            mAutopauseFlag = !mAutopauseFlag;
+	        UpdateMenus();
             break;
 
 	    // View menu options
         case IDM_SMALL_TILES:
-            _tileWidth = WIDTH_SMALL_TILE;
-			forceRepaint();
+            mTileWidth = TILE_WIDTH_SMALL;
+	        ForceRepaint();
             break;
         case IDM_MEDIUM_TILES:
-            _tileWidth = WIDTH_MEDIUM_TILE;
-			forceRepaint();
+            mTileWidth = TILE_WIDTH_MEDIUM;
+		    ForceRepaint();
             break;
         case IDM_LARGE_TILES:
-            _tileWidth = WIDTH_LARGE_TILE;
-			forceRepaint();
+            mTileWidth = TILE_WIDTH_LARGE;
+		    ForceRepaint();
             break;
         case IDM_RECENTER:
-            _originHasBeenCentered = false;
-            resize(_clientAreaWidth, _clientAreaHeight);
+            mOriginIsCentered = false;
+            Resize(mClientAreaWidth, mClientAreaHeight);
             break;
-
-        case IDM_SHOW_CLOCKS:
-            _showClocksFlag = !_showClocksFlag;
-			forceRepaint();
+		case IDM_ATTRIBUTES:
+			break;
+	    case IDM_SHOW_CLOCKS:
+            mShowClocksFlag = !mShowClocksFlag;
+	        ForceRepaint();
             break;
         case IDM_SHOW_GRID:
-            _showGridFlag = !_showGridFlag;
-	        forceRepaint();
+            mShowGridFlag = !mShowGridFlag;
+	        ForceRepaint();
             break;
         case IDM_SHOW_HINTS:
-            _showHintsFlag = !_showHintsFlag;
-			forceRepaint();
+            mShowHintsFlag = !mShowHintsFlag;
+	        ForceRepaint();
             break;
         case IDM_SHOW_SCORES:
-            _showScoresFlag = !_showScoresFlag;
-			forceRepaint();
+            mShowScoresFlag = !mShowScoresFlag;
+	        ForceRepaint();
             break;
         case IDM_SHOW_TILES:
-            _showTilesFlag = !_showTilesFlag;
-			forceRepaint();
+            mShowTilesFlag = !mShowTilesFlag;
+	        ForceRepaint();
             break;
+		case IDM_ANIMATION:
+			break;
 
-    	// Help menu options
+        // Help menu options
         case IDM_RULES:
-            ::MessageBox(window, "The Rules of Gold Tile", "Gold Tile", MB_ICONINFORMATION | MB_OK);
+            ::MessageBox(this_window, "The Rules of Gold Tile", 
+		       "Gold Tile", MB_ICONINFORMATION | MB_OK);
             break;
         case IDM_ABOUT:
-	    	//AboutDialog about(_hInst, "About", window);
+	   	    //AboutDialog about(_hInst, "About", window);
             break;
+
+		default:
+			ASSERT(false);
     }
 }
 
-void TopWindow::play(bool passFlag) {
-    Play pl;
+void TopWindow::Play(bool passFlag) {
+    Move pl;
     
-    Tiles::const_iterator it;
-    for (it = _handTiles.begin(); it != _handTiles.end(); it++) {
+    Tiles::ConstIteratorType it;
+    for (it = mHandTiles.begin(); it != mHandTiles.end(); it++) {
         Tile tile = *it;
-        GridRef square;
-        if (_board.findTile(tile, square)) {
-           pl.add(tile, square);
-        } else if (_swapTiles.contains(tile)) {
-           pl.add(tile);
+        Cell cell;
+        if (mBoard.FindTile(tile, cell)) {
+           pl.Add(tile, cell);
+        } else if (mSwapTiles.Contains(tile)) {
+           pl.Add(tile);
         }
     }
     
-    if (pl.isPass() == passFlag && game->isValidPlay(pl)) {
-        game->playTiles(pl);
-        if (game->isOver()) {
-            _showClocksFlag = true;
-            _showScoresFlag = true;
-            _showTilesFlag = true;
-            game->goingOutBonus();
+    if (pl.IsPass() == passFlag && game->IsLegalMove(pl)) {
+        game->FinishTurn(pl);
+        if (game->IsOver()) {
+            mShowClocksFlag = true;
+            mShowScoresFlag = true;
+            mShowTilesFlag = true;
+            game->GoingOutBonus();
         } else {
-            game->activateNextPlayer();
-            if (_autopauseFlag) {
-                _pauseFlag = true;
+            game->ActivateNextPlayer();
+            if (mAutopauseFlag) {
+                mPauseFlag = true;
             }
         }
 
-        _board = game->getBoard();
-        Player activePlayer = game->getActivePlayer();
-        _handTiles = activePlayer.getHand();
-        _playedTileCount = 0;
-        _swapTiles.clear();
+        mBoard = Board(*game);
+        Player activePlayer = game->ActivePlayer();
+        mHandTiles = Tiles(activePlayer);
+        mPlayedTileCnt = 0;
+        mSwapTiles.MakeEmpty();
        
         // center the origin
-        _originHasBeenCentered = false;
-        resize(_clientAreaWidth, _clientAreaHeight);
+        mOriginIsCentered = false;
+        Resize(mClientAreaWidth, mClientAreaHeight);
     }
-    
 }
 
-void TopWindow::recenter(unsigned oldHeight, unsigned oldWidth) {
-    if (_originHasBeenCentered) {
+void TopWindow::Recenter(unsigned oldHeight, unsigned oldWidth) {
+    if (mOriginIsCentered) {
         //_originX += (_clientAreaWidth - oldWidth)/2;
         //_originY += (_clientAreaHeight - oldHeight)/2;
-    } else if (_clientAreaWidth > 250 && _clientAreaHeight > 100) {
-        _originX = _clientAreaWidth/2; // TODO
-        _originY = _clientAreaHeight/2;
-        _originHasBeenCentered = true;
+    } else if (mClientAreaWidth > 250 && mClientAreaHeight > 100) {
+        mOriginX = mClientAreaWidth/2; // TODO
+        mOriginY = mClientAreaHeight/2;
+        mOriginIsCentered = true;
     }
 }
 
-void TopWindow::repaint(void) {
-    HWND windowHandle = getHandle();
-    PAINTSTRUCT paintStruct;    
-    HDC contextHandle = ::BeginPaint(windowHandle, &paintStruct);
-    assert(contextHandle != NULL);
+void TopWindow::Repaint(void) {
+    HWND this_window = Handle();
+    PAINTSTRUCT paint_struct;    
+    HDC context = ::BeginPaint(this_window, &paint_struct);
+    ASSERT(context != NULL);
     
-    bool releaseMe = false;
-    Canvas canvas(contextHandle, windowHandle, releaseMe, _clientAreaWidth, _clientAreaHeight);
+    bool release_me = false;
+    Canvas canvas(context, this_window, release_me, mClientAreaWidth, mClientAreaHeight);
     
-    if (_pauseFlag) {
-        COLORREF bgColor = BLACK_COLOR;
-        COLORREF textColor = WHITE_COLOR;
-        canvas.useColors(bgColor, textColor);
+    if (mPauseFlag) {
+        ColorType bgColor = COLOR_BLACK;
+        ColorType textColor = COLOR_WHITE;
+        canvas.UseColors(bgColor, textColor);
 
         int x = 0;
         int y = 0;
-        Rect clientArea(y, x, _clientAreaWidth, _clientAreaHeight);
-        canvas.drawText(clientArea, "The game is paused.  Click here to proceed.");
+        Rect clientArea(y, x, mClientAreaWidth, mClientAreaHeight);
+        canvas.DrawText(clientArea, "The game is paused.  Click here to proceed.");
         
-        int top = _padPixels;
-        int left = _padPixels;
-        Player activePlayer = game->getActivePlayer();
-        COLORREF areaColor = BLACK_COLOR;
-        bool leftFlag = true;
-        drawPlayerHeader(canvas, top, left, activePlayer, areaColor, leftFlag);
+        int top_y = mPadPixels;
+        int left_x = mPadPixels;
+        Player activePlayer = game->ActivePlayer();
+        bool left = true;
+        DrawPlayerHeader(canvas, top_y, left_x, activePlayer, bgColor, left);
 
     } else {
-        drawBoard(canvas);
-        drawInactivePlayers(canvas);
-        drawActivePlayer(canvas);
-        drawHandTiles(canvas);
+        DrawBoard(canvas);
+        DrawInactivePlayers(canvas);
+        DrawActivePlayer(canvas);
+        DrawHandTiles(canvas);
     }
 
-    canvas.close();
-    ::EndPaint(windowHandle, &paintStruct);
+    canvas.Close();
+    ::EndPaint(this_window, &paint_struct);
 }
 
-void TopWindow::resize(unsigned clientAreaWidth, unsigned clientAreaHeight) {
-    unsigned oldHeight = _clientAreaHeight;
-    unsigned oldWidth = _clientAreaWidth;
-    setClientArea(clientAreaWidth, clientAreaHeight);
-    recenter(oldHeight, oldWidth);
-    forceRepaint();
+void TopWindow::Resize(unsigned clientAreaWidth, unsigned clientAreaHeight) {
+    unsigned old_height = mClientAreaHeight;
+    unsigned old_width = mClientAreaWidth;
+    SetClientArea(clientAreaWidth, clientAreaHeight);
+    Recenter(old_height, old_width);
+    ForceRepaint();
 }
 
-void TopWindow::updateMenus(void) {
-    _playMenu->autopause(_autopauseFlag);
-    _playMenu->pause(_pauseFlag);
-	switch (_tileWidth) {
- 	    case WIDTH_SMALL_TILE:
-	        _viewMenu->tileSize(IDM_SMALL_TILES);
+void TopWindow::UpdateMenus(void) {
+    unsigned count = mSwapTiles.Count() + mPlayedTileCnt;
+    bool playable = (count > 0);
+	UINT tile_size;
+	switch (mTileWidth) {
+ 	    case TILE_WIDTH_SMALL:
+	        tile_size = IDM_SMALL_TILES;
 			break;
- 	    case WIDTH_MEDIUM_TILE:
-	        _viewMenu->tileSize(IDM_MEDIUM_TILES);
+ 	    case TILE_WIDTH_MEDIUM:
+	        tile_size = IDM_MEDIUM_TILES;
 			break;
- 	    case WIDTH_LARGE_TILE:
-	        _viewMenu->tileSize(IDM_LARGE_TILES);
+ 	    case TILE_WIDTH_LARGE:
+	        tile_size = IDM_LARGE_TILES;
 			break;
 		default:
-			assert(false);
+			ASSERT(false);
 	}
-    unsigned count = _swapTiles.size() + _playedTileCount;
-    bool playable = (count > 0);
-    _playMenu->enableItems(_pauseFlag, playable);
 
-    // "View" menu
-    _viewMenu->showClocks(_showClocksFlag);
-    _viewMenu->showGrid(_showGridFlag);
-    _viewMenu->showHints(_showHintsFlag);
-    _viewMenu->showScores(_showScoresFlag);
-    _viewMenu->showTiles(_showTilesFlag);
-    
-	_viewMenu->enable(!_pauseFlag);
+	// "Play" menu
+    mpPlayMenu->Autopause(mAutopauseFlag);
+    mpPlayMenu->Pause(mPauseFlag);
+	mpPlayMenu->EnableItems(mPauseFlag, playable);
+
+	mpPlayMenu->Enable(true);
+
+	// "View" menu
+    mpViewMenu->TileSize(tile_size);
+    mpViewMenu->ShowClocks(mShowClocksFlag);
+    mpViewMenu->ShowGrid(mShowGridFlag);
+    mpViewMenu->ShowHints(mShowHintsFlag);
+    mpViewMenu->ShowScores(mShowScoresFlag);
+    mpViewMenu->ShowTiles(mShowTilesFlag);
+
+	mpViewMenu->Enable(!mPauseFlag);
 	
-	// redraw
-	HWND thisWindow = getHandle(); 
-	BOOL success = ::DrawMenuBar(thisWindow);
+	// redraw all menus
+	HWND this_window = Handle(); 
+	BOOL success = ::DrawMenuBar(this_window);
 	ASSERT(success);
 }
 #endif

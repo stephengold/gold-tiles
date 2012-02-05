@@ -8,7 +8,8 @@
 // Distributed under the terms of the GNU Lesser General Public License
 
 /*
-
+ A Poly object represents a closed polygon which can be scaled to
+ fit inside a given rectangle.
 */
 
 #include "project.hpp"
@@ -16,25 +17,19 @@
 #ifdef _WINDOWS
 #include <vector>
 #include <windows.h>
+#include "fractionpair.hpp"
 
-class FractionPair {
-    float _x, _y;
-    public:
-        FractionPair(void);
-        //FractionPair(FractionPair const &);
-        FractionPair(float x, float y);
-        //FractionPair &operator=(FractionPair const &);
-        //~FractionPair(void);
-        
-        float getX(void) const;
-        float getY(void) const;
-};
+class Poly: public std::vector<FractionPair> {
+public:
+	typedef std::vector<FractionPair>::const_iterator ConstIteratorType;
 
-class Poly: public vector<FractionPair> {
-     public:
-         void add(double x, double y);
-         void getPoints(POINT points[], unsigned numPoints, 
-                        Rect const &bounds) const;     
+	// misc
+    void     Add(double x, double y);
+
+	// access
+	unsigned Count(void) const;
+    void     GetPoints(POINT points[], unsigned numPoints, 
+                        Rect const &rBounds) const;    
 };
 
 #endif

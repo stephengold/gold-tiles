@@ -9,30 +9,10 @@
 #ifdef _WINDOWS
 #include "gui/graphics.hpp"
 #include "gui/poly.hpp"
+#include "gui/rect.hpp"
+#include "fractionpair.hpp"
 
-FractionPair::FractionPair(float x, float y) {
-    ASSERT(x >= 0.0);
-    ASSERT(y >= 0.0);
-    ASSERT(x <= 1.0);
-    ASSERT(y <= 1.0);
-    
-    _x = x;
-    _y = y;
-}
-
-float FractionPair::getX(void) const {
-    float result = _x;
-    
-    return result;
-}
-
-float FractionPair::getY(void) const {
-    float result = _y;
-    
-    return result;
-}
-
-void Poly::add(double x, double y) {
+void Poly::Add(double x, double y) {
     ASSERT(x >= 0.0);
     ASSERT(y >= 0.0);
     ASSERT(x <= 1.0);
@@ -42,27 +22,32 @@ void Poly::add(double x, double y) {
     push_back(pair);
 }
 
-void Poly::getPoints(
+unsigned Poly::Count(void) const {
+	unsigned result = size();
+
+	return result;
+}
+
+void Poly::GetPoints(
     POINT points[], 
     unsigned numPoints, 
-    Rect const &bounds) const
+    Rect const &rBounds) const
 {
-    ASSERT(numPoints <= size());
+    ASSERT(numPoints <= Count());
     
-    unsigned height = bounds.getHeight();
-    unsigned width = bounds.getWidth();
-    int bottomY = bounds.getBottomY();
-    int leftX = bounds.getLeftX();
+    unsigned height = rBounds.Height();
+    unsigned width = rBounds.Width();
+    int bottomY = rBounds.BottomY();
+    int leftX = rBounds.LeftX();
     vector<FractionPair>::const_iterator it = begin();
     for (unsigned i = 0; i < numPoints; i++) {
         ASSERT(it < end());
-        long dx = (long)(0.5 + it->getX()*width);
+        long dx = (long)(0.5 + it->X()*width);
         points[i].x = leftX + dx;
-        long dy = (long)(0.5 + it->getY()*height);
+        long dy = (long)(0.5 + it->Y()*height);
         points[i].y = bottomY - dy;
         it++;
     }
 }
 
 #endif
-

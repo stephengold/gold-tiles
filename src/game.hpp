@@ -7,53 +7,55 @@
 // (c) Copyright 2012 Stephen Gold
 // Distributed under the terms of the GNU Lesser General Public License
 
-#include <string>
-#include <vector>
 #include "board.hpp"
-#include "player.hpp"
-#include "tiles.hpp"
-
-class Players: public vector<Player> {};
+#include "move.hpp"
+#include "players.hpp"
 
 class Game {
-    // private data
-    Players::iterator _activePlayer;
-    Tiles _bag;        // stock bag from which tiles are drawn
-    unsigned _bestRunLength; // zero after the first turn
-    Board _board;      // extensible playing surface
-    Players _players;
+public:
+	// lifecycle
+    Game(void) { ASSERT(false); };
+    Game(Strings player_names,
+             ACountType attribute_cnt,
+             AValueType max_attribute_values[],
+             unsigned tile_redundancy,
+             unsigned hand_size);
+    Game(Game const &) { ASSERT(false); };
+    // ~Game(void);  compiler-generated destructor is OK
 
-    // private methods
-    void addTiles(unsigned aIndex, unsigned redundancy, Tile &);
-    GridRef chooseSquare(void) const;
-    void playFirstTurn(void);
-    void playTurn(void);
-    void printScores(void) const;
-    unsigned scorePlay(Play const &) const;
+	// operators
+	Game &operator=(Game const &) { ASSERT(false); };
 
-    public:
-        Game(void) { ASSERT(false); };
-        Game(Game const &) { ASSERT(false); };
-        Game &operator=(Game const &) { ASSERT(false); };
-        // ~Game(void);  implicitly declared destructor is fine
+	// misc
+    void     ActivateNextPlayer(void);
+    void     FinishTurn(Move const &);
+    void     GoingOutBonus(void);
+    void     PlayGame(void);
 
-    Game(unsigned numPlayers,
-         string playerNames[],
-         ACount numAttributes,
-         AValue maxAttributes[],
-         unsigned tileRedundancy,
-         unsigned handSize);
-    
-    void activateNextPlayer(void);
-    Player getActivePlayer(void) const;
-    Players getInactivePlayers(void) const;
-    Board getBoard(void) const;
-    unsigned getStock(void) const;
-    void goingOutBonus(void);
-    bool isOver(void) const;
-    bool isValidPlay(Play const &) const;
-	void play(void);
-    void playTiles(Play const &);
+	// access
+    Player   ActivePlayer(void) const;
+    operator Board(void) const;
+    unsigned CountStock(void) const;
+    Players  InactivePlayers(void) const;
+
+	// inquiry
+    bool     IsLegalMove(Move const &) const;
+    bool     IsOver(void) const;
+
+private:
+    Players::IteratorType miActivePlayer; // whose turn it is
+    unsigned              mBestRunLength; // zero after the first turn
+    Board                 mBoard;         // extensible playing surface
+    Players               mPlayers;       // who is playing
+    Tiles                 mStockBag;      // stock bag from which tiles are drawn
+
+	// misc
+    void     AddTiles(AIndexType, unsigned redundancy, Tile &);
+    Cell     ChooseCell(void) const;
+    void     DisplayScores(void) const;
+    void     FirstTurn(void);
+    void     NextTurn(void);
+    unsigned ScoreMove(Move const &) const;
 };
 
 #endif

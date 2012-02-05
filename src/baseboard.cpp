@@ -5,59 +5,86 @@
 // Distributed under the terms of the GNU Lesser General Public License
 
 #include <iostream>
-#include <string>
 #include "baseboard.hpp"
+#include "string.hpp"
 
-// constructors, assignment, and destructor
+// lifecycle
 
 BaseBoard::BaseBoard(void) {
-    _maxN = 0;
-    _maxS = 0;
-    _maxE = 0;
-    _maxW = 0;
+    mNorthMax = 0;
+    mSouthMax = 0;
+    mEastMax = 0;
+    mWestMax = 0;
 }
 
 // The compiler-generated copy constructor is OK.
-// The compiler-generated assignment method is OK.
 // The compiler-generated destructor is OK.
 
-// public methods
 
-// display the entire board to the console
-void BaseBoard::display(void) const {
-    cout << endl << this->toString() << endl;
+// operators
+
+// The compiler-generated assignment operator is OK.
+
+// convert the entire board to a string
+BaseBoard::operator String(void) const {
+    D(std::cout << "maxN=" << mNorthMax << " maxS=" << mSouthMax 
+		   << " maxE=" << mEastMax << " maxW=" << mWestMax
+           << " in Board::operator String()" << std::endl);
+
+    String result(5, ' ');
+    for (int column = -(int)mWestMax; column <= (int)mEastMax; column++) {
+       String column_tag(column);
+       result += String(5 - column_tag.Length(), ' ');
+       result += column_tag;
+    }
+    result += "\n";
+    for (int row = (int)mNorthMax; row >= -(int)mSouthMax; row--) {
+        String row_tag(row);
+        result += String(5 - row_tag.Length(), ' ');
+        result += row_tag;
+	    for (int column = -(int)mWestMax; column <= (int)mEastMax; column++) {
+            ConstIteratorType it = Find(row, column);
+			if (it == mCells.end()) {
+				result += " .";
+                result += Tile::StringEmpty();
+                result += ".";
+			} else {
+                Tile tile = it->second;
+				result += " [";
+                result += String(tile);
+                result += "]";
+			}
+		}
+		result += "\n";
+	}
+
+	return result;
 }
 
-// make a specific cell empty
-void BaseBoard::emptyCell(GridRef const &square) {
-    int row = square.getRow();
-    int column = square.getColumn();
-    iterator it = find(row, column);
-    ASSERT(it != _cells.end());
-    _cells.erase(it);
-}
+
+// methods
 
 // get iterators to specific cells
-BaseBoard::const_iterator BaseBoard::find(int n, int e) const {
-    GridRef ref(n, e);
-    const_iterator result = _cells.find(ref);
+BaseBoard::ConstIteratorType BaseBoard::Find(int northing, int easting) const {
+    Cell ref(northing, easting);
+    ConstIteratorType result = mCells.find(ref);
 
     return result;
 }
-BaseBoard::iterator BaseBoard::find(int n, int e) {
-    GridRef ref(n, e);
-    iterator result = _cells.find(ref);
+BaseBoard::IteratorType BaseBoard::Find(int northing, int easting) {
+    Cell ref(northing, easting);
+    IteratorType result = mCells.find(ref);
 
     return result;
 }
 
-// get a GridRef to the cell containing a specific Tile
-bool BaseBoard::findTile(Tile const &tile, GridRef &square) const {
-    for (int row = _maxN; row >= -(int)_maxS; row--) {
-	    for (int column = -_maxW; column <= _maxE; column++) {
-            const_iterator it = find(row, column);
-			if (it != _cells.end() && it->second == tile) {
-                square = it->first;
+// get a Cell to the cell containing a specific Tile
+bool BaseBoard::FindTile(Tile const &rTile, Cell &rSquare) const {
+    for (int row = mNorthMax; row >= -(int)mSouthMax; row--) {
+	    for (int column = -mWestMax; column <= mEastMax; column++) {
+            ConstIteratorType it = Find(row, column);
+			if (it != mCells.end() && it->second == rTile) {
+                rSquare = it->first;
                 return true;
             }
         }
@@ -65,86 +92,78 @@ bool BaseBoard::findTile(Tile const &tile, GridRef &square) const {
     return false;
 }
 
-// get a pointer to the Tile (if any) in a specific cell
-Tile const *BaseBoard::getCell(GridRef const &square) const {
-    Tile const *result = NULL;
-
-    const_iterator it = _cells.find(square);
-    if (it != _cells.end()) {
-        result = &(it->second);
-    }
-
-    return result;
-}
-
-// get the limits of the board in each direction
-int BaseBoard::getMaxN(void) const {
-    return _maxN;
-}
-int BaseBoard::getMaxS(void) const {
-    return _maxS;
-}
-int BaseBoard::getMaxE(void) const {
-    return _maxE;
-}
-int BaseBoard::getMaxW(void) const {
-    return _maxW;
+// make a specific cell empty
+void BaseBoard::MakeEmpty(Cell const &rSquare) {
+    int row = rSquare.Row();
+    int column = rSquare.Column();
+    IteratorType it = Find(row, column);
+    ASSERT(it != mCells.end());
+    mCells.erase(it);
 }
 
 // play a Tile on a specific cell
-void BaseBoard::playOnCell(GridRef const &ref, Tile const &tile) {
-    D(cout << "Play " << tile.toString() << " at " << ref.toString() << endl);
+void BaseBoard::PlayOnCell(Cell const &rRef, Tile const &rTile) {
+    D(std::cout << "Play " << (String)rTile << " on " << (String)rRef << std::endl);
 
-    ASSERT(getCell(ref) == NULL);
+    ASSERT(GetCell(rRef) == NULL);
 
-    int n = ref.getN();
-    if (n > (int)_maxN) {
-        _maxN = n;
+    int n = rRef.Row();
+    if (n > (int)mNorthMax) {
+        mNorthMax = n;
     }
-    if (n < -(int)_maxS) {
-        _maxS = -n;
+    if (n < -(int)mSouthMax) {
+        mSouthMax = -n;
     }
 
-    int e = ref.getE();
-    if (e > (int)_maxE) {
-        _maxE = e;
+    int e = rRef.Column();
+    if (e > (int)mEastMax) {
+        mEastMax = e;
     }
-    if (e < -(int)_maxW) {
-        _maxW = -e;
+    if (e < -(int)mWestMax) {
+        mWestMax = -e;
     }
-    _cells[ref] = tile;
+    mCells[rRef] = rTile;
 }
 
-// convert the entire board to a string
-string BaseBoard::toString(void) const {
-    D(cout << "maxN=" << _maxN << " maxS=" << _maxS << " maxE=" << _maxE << " maxW=" << _maxW
-        << " in Board::toString()" << endl);
 
-    string result = string(5, ' ');
-    for (int column = -_maxW; column <= _maxE; column++) {
-       string cTag = itoa(column);
-       result += string(5 - cTag.size(), ' ');
-       result += cTag;
+// access methods
+
+// get the eastern limit of the board
+int BaseBoard::EastMax(void) const {
+    int result = mEastMax;
+
+	return result;
+}
+
+// get a pointer to the Tile (if any) in a specific cell
+Tile const *BaseBoard::GetCell(Cell const &rSquare) const {
+    Tile const *p_result = NULL;
+
+    ConstIteratorType it = mCells.find(rSquare);
+    if (it != mCells.end()) {
+        p_result = &(it->second);
     }
-    result += "\n";
-    for (int row = _maxN; row >= -(int)_maxS; row--) {
-        string rTag = itoa(row);
-        result += string(5 - rTag.size(), ' ');
-        result += rTag;
-	    for (int column = -_maxW; column <= _maxE; column++) {
-            const_iterator it = find(row, column);
-			if (it == _cells.end()) {
-				result += " .";
-                result += Tile::toStringEmpty();
-                result += ".";
-			} else {
-                Tile tile = it->second;
-				result += " [";
-                result += tile.toString();
-                result += "]";
-			}
-		}
-		result += "\n";
-	}
+
+    return p_result;
+}
+
+// get the northern limit of the board
+int BaseBoard::NorthMax(void) const {
+    int result = mNorthMax;
+
+	return result;
+}
+
+// get the southern limit of the board
+int BaseBoard::SouthMax(void) const {
+    int result = mSouthMax;
+
+	return result;
+}
+
+// get the western limit of the board
+int BaseBoard::WestMax(void) const {
+    int result = mWestMax;
+
 	return result;
 }

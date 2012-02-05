@@ -33,19 +33,19 @@ WindowClass::WindowClass(
 	style = CS_HREDRAW | CS_VREDRAW | CS_OWNDC;
 }
 
-HINSTANCE WindowClass::getModule(void) const {
+HINSTANCE WindowClass::Module(void) const {
     HINSTANCE result = hInstance;
     
 	return result;
 }
 
-char const *WindowClass::getName(void) const {
+char const *WindowClass::Name(void) const {
     char const *result = lpszClassName;
     
 	return result;
 }
 
-void WindowClass::registerClass(void) {
+void WindowClass::RegisterClass(void) {
     ATOM classAtom = ::RegisterClassEx(this);
 	ASSERT(classAtom != 0);
 };

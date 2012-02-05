@@ -25,9 +25,9 @@ static LRESULT CALLBACK messageHandler(
 	if (message == WM_CREATE && newlyCreatedWindow != NULL) {
 		window = newlyCreatedWindow;
 		newlyCreatedWindow = NULL;
-		window->setHandle(windowHandle);
+		window->SetHandle(windowHandle);
 	} else {
-       window = Window::lookup(windowHandle);
+       window = Window::Lookup(windowHandle);
 	}
 
 	LRESULT result;
@@ -35,22 +35,22 @@ static LRESULT CALLBACK messageHandler(
 		// invoke default message handler
 		result = ::DefWindowProc(windowHandle, message, wParam, lParam);
 	} else {
-     	ASSERT(window->getHandle() == windowHandle);
-        result = window->handleMessage(message, wParam, lParam);
+     	ASSERT(window->Handle() == windowHandle);
+        result = window->HandleMessage(message, wParam, lParam);
 	}
 	return result;
 }
 
 // static members
-WMap Window::_map;
+Window::Map Window::msMap;
 
-Window *Window::lookup(HWND handle) {
+Window *Window::Lookup(HWND handle) {
 	unsigned long key = (unsigned long)handle;
-	WMap::const_iterator it;
-	it = _map.find(key);
+	Map::const_iterator it;
+	it = msMap.find(key);
 
 	Window *result = NULL;
-	if (it != _map.end()) {
+	if (it != msMap.end()) {
 	    result = it->second;
 	    ASSERT(result != NULL);
 	}
@@ -58,128 +58,126 @@ Window *Window::lookup(HWND handle) {
 	return result;
 }
 
-// non-static members
-
 Window::Window(void) {
-	_handle = 0;
+	mHandle = 0;
 }
 
-void Window::destroy(void) {
-	int applicationExitCode = 0;
-    ::PostQuitMessage(applicationExitCode);
-}
-
-void Window::forceRepaint(void) {
-     RECT *entireClientArea = NULL;
-     BOOL eraseFlag = TRUE;
-     BOOL success = ::InvalidateRect(_handle, entireClientArea, eraseFlag);
+void Window::ForceRepaint(void) {
+     RECT *entire_client_area = NULL;
+     BOOL erase = TRUE;
+     BOOL success = ::InvalidateRect(mHandle, entire_client_area, erase);
      ASSERT(success != 0);
 }
 
-HWND Window::getHandle(void) const {
-	HWND result = _handle;
+HWND Window::Handle(void) const {
+	HWND result = mHandle;
 	
 	return result;
 }
 
-LRESULT Window::handleMessage(UINT message, WPARAM wParam, LPARAM lParam) {
+LRESULT Window::HandleMessage(UINT message, WPARAM wParam, LPARAM lParam) {
 	LRESULT result = 0;
     switch (message) {
         case WM_CREATE: { // initialize window
-			CREATESTRUCT *createStruct = (CREATESTRUCT *)lParam;
-            initialize(createStruct);
+			CREATESTRUCT *create_struct = (CREATESTRUCT *)lParam;
+            Initialize(create_struct);
             break;
 		}
 
         case WM_DESTROY: // destroy window
-			destroy();
+			SelfDestruct();
             break;
 
         case WM_SIZE: { // resize window
 			unsigned width = LOWORD(lParam);
 			unsigned height = HIWORD(lParam);
-            setClientArea(width, height);
+            SetClientArea(width, height);
             break;
 		}
 
 		default:  // invoke default message handler
-			result = ::DefWindowProc(this->getHandle(), message, wParam, lParam);
+			result = ::DefWindowProc(Handle(), message, wParam, lParam);
 			break;
     }
 
     return result;
 }
 
-HDC Window::initialize(CREATESTRUCT const *createStruct) {
-   	ASSERT(createStruct != NULL);
-	_module = createStruct->hInstance;
+HDC Window::Initialize(CREATESTRUCT const *pCreateStruct) {
+   	ASSERT(pCreateStruct != NULL);
+	mModule = pCreateStruct->hInstance;
 
-    HDC privateDC = ::GetDC(_handle);
-    ASSERT(privateDC != NULL);
+    HDC private_dc = ::GetDC(mHandle);
+    ASSERT(private_dc != NULL);
     // It's a private DC because CS_OWNDC is hard-coded into the
     // WindowClass constructor.
 
 	// record size of client area
-	SIZE clientAreaSize;
-	BOOL success = ::GetWindowExtEx(privateDC, &clientAreaSize);
+	SIZE client_area_size;
+	BOOL success = ::GetWindowExtEx(private_dc, &client_area_size);
     ASSERT(success != 0);
-    setClientArea(clientAreaSize.cx, clientAreaSize.cy);
+    SetClientArea(client_area_size.cx, client_area_size.cy);
 
-	char const *iconResourceName = getClassName(); // use same name
-	setIcons(iconResourceName);
+	char const *icon_resource_name = ClassName(); // use same name
+	SetIcons(icon_resource_name);
 	
-	return privateDC;
+	return private_dc;
 }
 
-void Window::setClientArea(unsigned width, unsigned height) {
+void Window::SelfDestruct(void) {
+	int applicationExitCode = 0;
+    ::PostQuitMessage(applicationExitCode);
+}
+
+void Window::SetClientArea(unsigned width, unsigned height) {
     ASSERT(width < 4000);
     ASSERT(height < 4000);
-    _clientAreaWidth = width;
-    _clientAreaHeight = height;
+    mClientAreaWidth = width;
+    mClientAreaHeight = height;
 }
 
-void Window::setHandle(HWND handle) {
-	_handle = handle;
+void Window::SetHandle(HWND handle) {
+	mHandle = handle;
 
 	unsigned long key = (unsigned long)handle;
 	Window *value = this;
-	WPair newMapping(key, value); 
-	_map.insert(newMapping);
+	Pair newMapping(key, value); 
+	msMap.insert(newMapping);
 }
 
 // set large and small icons for a window
-void Window::setIcons(char const *iconResourceName) {
-    HINSTANCE moduleInstance = _module;
-    HWND windowHandle = _handle;
+void Window::SetIcons(char const *iconResourceName) {
+    HINSTANCE module_instance = mModule;
+    HWND window_handle = mHandle;
 	UINT message = WM_SETICON;
-	UINT imageType = IMAGE_ICON;
+	UINT image_type = IMAGE_ICON;
 	UINT option = LR_DEFAULTCOLOR;
-	int desiredWidth;
-    int desiredHeight;
-	WPARAM whichIcon;
+	int desired_width;
+    int desired_height;
+	WPARAM which_icon;
 
 	// small icon for title bar
-	whichIcon = ICON_SMALL;
-	desiredWidth = ::GetSystemMetrics(SM_CXSMICON);
-    desiredHeight = ::GetSystemMetrics(SM_CYSMICON);
-	HICON smallIconHandle = (HICON)::LoadImage(moduleInstance, iconResourceName, imageType,
-		desiredWidth, desiredWidth, option);
-    ::SendMessage(windowHandle, message, whichIcon, LPARAM(smallIconHandle));
+	which_icon = ICON_SMALL;
+	desired_width = ::GetSystemMetrics(SM_CXSMICON);
+    desired_height = ::GetSystemMetrics(SM_CYSMICON);
+	HICON smallIconHandle = (HICON)::LoadImage(module_instance, iconResourceName, image_type,
+		desired_width, desired_width, option);
+    ::SendMessage(window_handle, message, which_icon, LPARAM(smallIconHandle));
 
 	// large icon for ALT+TAB dialog box
-	whichIcon = ICON_BIG;
-	desiredWidth = ::GetSystemMetrics(SM_CXICON);
-    desiredHeight = ::GetSystemMetrics(SM_CYICON);
-	HICON largeIconHandle = (HICON)::LoadImage(moduleInstance, iconResourceName, imageType,
-		desiredWidth, desiredWidth, option);
-    ::SendMessage(windowHandle, message, whichIcon, LPARAM(largeIconHandle));
+	which_icon = ICON_BIG;
+	desired_width = ::GetSystemMetrics(SM_CXICON);
+    desired_height = ::GetSystemMetrics(SM_CYICON);
+	HICON largeIconHandle = (HICON)::LoadImage(module_instance, iconResourceName, image_type,
+		desired_width, desired_width, option);
+    ::SendMessage(window_handle, message, which_icon, LPARAM(largeIconHandle));
 }
 
-void Window::show(int how) {
-	ASSERT(_handle != 0);
+void Window::Show(int how) {
+	ASSERT(mHandle != 0);
 
-    ::ShowWindow(_handle, how);
-    BOOL success = ::UpdateWindow(_handle);
+    ::ShowWindow(mHandle, how);
+    BOOL success = ::UpdateWindow(mHandle);
     ASSERT(success != 0);
 }
 

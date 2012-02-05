@@ -23,26 +23,29 @@
 #endif
 //#define ASSERT(expression) ((void)0)
 
-//#define D(debug_only_code) (debug_only_code)
-#define D(debug_only_code) ((void)0)
-
-#include <string>
-using namespace std;
+#define D(debug_only_code) (debug_only_code)
+//#define D(debug_only_code) ((void)0)
 
 // forward declarations of project-wide classes
 class BaseBoard;
 class Board;
+class Cell;
+class Cells;
+class FractionPair;
 class Game;
-class GridRef;
-class Locus;
-class Play;
+class Indices;
+class Move;
 class Player;
+class Players;
+class String;
+class Strings;
 class Tile;
 class Tiles;
-class TileSquare;
+class TileCell;
 
 #ifdef _GUI
 class Canvas;
+enum  ColorType;
 class Graphics;
 class MenuItem;
 class PlayMenu;
@@ -57,11 +60,9 @@ class WindowClass;
 
 // project-wide utility functions
 void assertionFailed(const char *, unsigned);
-int atoi(string const &);
-string itoa(int);
 void pause(void);
 const char *plural(unsigned);
-string plural(unsigned n, const char *);
+String plural(unsigned n, const char *);
 
 // global pointers
 #ifdef _GUI

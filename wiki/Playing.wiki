@@ -111,14 +111,12 @@ blindly drawing replacement tiles from the stock bag until
 either his/her hand is full or the stock bag is empty.
 
 There are four legal moves:
- * The player may *play* one or more tiles from his/her hand 
-   to the board, filling empty cells in order to earn points.
- * The player may *swap* -- return one or more tiles 
-   from his/her hand to the stock bag by way of the swap area.
- * The player may *pass* -- do nothing.  In this case,
-   s/he does not draw any replacement tiles.
- * The player may *resign* and drop out of the game.  In this
-   case, the tiles in his/her hand return to the stock bag
+ * The player may *play* one or more tiles from his/her hand to the board, filling empty cells in order to earn points.
+ * The player may *swap* -- return one or more tiles from his/her hand to the stock bag by way of the swap area.
+ * The player may *pass* -- do nothing.
+   In this case, s/he does not draw any replacement tiles.
+ * The player may *resign* and drop out of the game.
+   In this case, the tiles in his/her hand return to the stock bag
    and s/he does not draw replacements.
 
 At the end of a player's turn, if the player has played all

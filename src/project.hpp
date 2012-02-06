@@ -2,10 +2,10 @@
 #define PROJECT_HPP_INCLUDED
 
 // File:    project.hpp
-// Purpose: project-wide definitions for the Gold Tile game
+// Purpose: project-wide definitions for the Gold Tile Game
 // Author:  Stephen Gold sgold@sonic.net
 // (c) Copyright 2012 Stephen Gold
-// Distributed under the terms of the GNU Lesser General Public License
+// Distributed under the terms of the GNU General Public License
 
 // project-wide macros
 #ifdef _WINDOWS
@@ -31,6 +31,7 @@ class BaseBoard;
 class Board;
 class Cell;
 class Cells;
+enum DirectionType;
 class FractionPair;
 class Game;
 class Indices;
@@ -44,7 +45,6 @@ class Tiles;
 class TileCell;
 
 #ifdef _GUI
-class AboutDialog;
 class Canvas;
 enum ColorType;
 class Dialog;

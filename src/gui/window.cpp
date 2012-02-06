@@ -1,8 +1,25 @@
 // File:    window.cpp
-// Purpose: Window class for the Gold Tile game.
+// Purpose: Window class
 // Author:  Stephen Gold sgold@sonic.net
 // (c) Copyright 2012 Stephen Gold
-// Distributed under the terms of the GNU Lesser General Public License
+// Distributed under the terms of the GNU General Public License
+
+/*
+This file is part of the Gold Tile game.
+
+The Gold Tile game is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by the 
+Free Software Foundation, either version 3 of the License, or (at your 
+option) any later version.
+
+The Gold Tile game is distributed in the hope that it will be useful, but 
+WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY 
+or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License 
+for more details.
+
+You should have received a copy of the GNU General Public License
+along with the Gold Tile game.  If not, see <http://www.gnu.org/licenses/>.
+*/
 
 #include "project.hpp"
 
@@ -83,6 +100,28 @@ Window::operator Rect(void) const {
     Rect result(y, x, mClientAreaWidth, mClientAreaHeight);
 
 	return result;
+}
+
+// Center a window on its parent.
+// If it has no parent, center it on the desktop.
+void Window::CenterWindow(void) {
+	HWND window = Handle();
+    HWND owner = ::GetParent(window);
+    if (owner == NULL) {
+        owner = ::GetDesktopWindow();
+	}
+
+	Rect owner_bounds(0, 0, 0, 0);
+	::GetWindowRect(owner, &(RECT &)owner_bounds);
+
+    Rect window_bounds(0, 0, 0, 0);
+    ::GetWindowRect(window, &(RECT &)window_bounds);
+
+	int pad_left = (owner_bounds.Width() - window_bounds.Width())/2;
+	int pad_top = (owner_bounds.Height() - window_bounds.Height())/2;
+
+    ::SetWindowPos(window, HWND_TOP, 
+		owner_bounds.LeftX() + pad_left, owner_bounds.TopY() + pad_top, 0, 0, SWP_NOSIZE); 
 }
 
 unsigned Window::ClientAreaHeight(void) const {

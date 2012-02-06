@@ -2,7 +2,6 @@
 #define IDC_STATIC (-1)
 #endif
 
-#define IDI_ICON1                               100
 #define IDM_NEW                                 6000
 #define IDM_OPEN                                6001
 #define IDM_REOPEN                              6002
@@ -34,3 +33,4 @@
 #define IDM_ANIMATION                           6210
 #define IDM_RULES                               6900
 #define IDM_ABOUT                               6901
+#define IDM_WARRANTY                            6902

@@ -2,16 +2,33 @@
 #define WINDOW_HPP_INCLUDED
 
 // File:    window.hpp
-// Purpose: Window class for the Gold Tile game
+// Purpose: Window class
 // Author:  Stephen Gold sgold@sonic.net
 // (c) Copyright 2012 Stephen Gold
-// Distributed under the terms of the GNU Lesser General Public License
+// Distributed under the terms of the GNU General Public License
 
 /*
- A Window object represents a generic Microsoft Windows window.
+This file is part of the Gold Tile game.
 
- The Window class is implemented by encapsulating an HWND.
- */
+The Gold Tile game is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by the 
+Free Software Foundation, either version 3 of the License, or (at your 
+option) any later version.
+
+The Gold Tile game is distributed in the hope that it will be useful, but 
+WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY 
+or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License 
+for more details.
+
+You should have received a copy of the GNU General Public License
+along with the Gold Tile game.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+/*
+A Window object represents a generic Microsoft Windows window.
+
+The Window class encapsulates an HWND.
+*/
 
 #include "project.hpp"
 
@@ -32,6 +49,7 @@ public:
     operator Rect(void) const;
 
 	// misc
+	void      CenterWindow(void);
 	HINSTANCE CopyModule(Window const &);
 	void      ForceRepaint(void);
 	LRESULT   HandleMessage(UINT message, WPARAM, LPARAM);

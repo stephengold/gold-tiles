@@ -2,11 +2,11 @@
 
 There are two builds of the gold-tiles application:
 
- * gold-tiles-windows - The main product, targeting the Microsoft Windows(tm) platform.
+ * gold-tile-Win32 - The main product, targeting the Microsoft Windows(tm) platform.
 
 This build implements a graphical user interface (GUI) which assumes the presence of a mouse or other pointing device.  The graphics are based on GDI.  The _WINDOWS and _GUI preprocessor macros are defined.
 
- * gold-tiles-console - implements a console user interface.
+ * gold-tile-console - implements a console user interface.
 
 This is barely playable and used mainly for debug.  It might 
 also be of interest to users wishing to play remotely (over 
@@ -41,4 +41,3 @@ See [http://www.possibility.com/Cpp/CppCodingStandard.html] for rationale.
 === Indentation ===
 
  * Use Unix-style indentation when the curly brace fits on the same line with the preceding keyword.
-

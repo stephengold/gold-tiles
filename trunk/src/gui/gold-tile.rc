@@ -7,13 +7,35 @@
 #include <richedit.h>
 #include "resource.hpp"
 
+// File:    gold-tile.rc
+// Purpose: RC file for the Gold Tile Game.
+// Author:  Stephen Gold sgold@sonic.net
+// (c) Copyright 2012 Stephen Gold
+// Distributed under the terms of the GNU General Public License
+
+/*
+This file is part of the Gold Tile Game.
+
+The Gold Tile Game is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by the 
+Free Software Foundation, either version 3 of the License, or (at your 
+option) any later version.
+
+The Gold Tile Game is distributed in the hope that it will be useful, but 
+WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY 
+or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License 
+for more details.
+
+You should have received a copy of the GNU General Public License
+along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
 
 
 
 //
 // Menu resources
 //
-LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
 TOPWINDOW MENU
 {
     POPUP "&File"
@@ -57,8 +79,9 @@ TOPWINDOW MENU
     }
     POPUP "&Help", HELP
     {
-        MENUITEM "&Rules", IDM_RULES
+        MENUITEM "&Rules...", IDM_RULES
         MENUITEM "&About Gold Tile...", IDM_ABOUT
+        MENUITEM "&Warranty...", IDM_WARRANTY
     }
 }
 
@@ -67,16 +90,40 @@ TOPWINDOW MENU
 //
 // Dialog resources
 //
-LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
-ABOUT DIALOGEX 20, 20, 117, 86
+ABOUT DIALOGEX 20, 20, 117, 116
 STYLE DS_MODALFRAME | DS_SETFONT | WS_VISIBLE | WS_POPUP
-FONT 8, "MS Sans Serif", 400, 0, 0
+FONT 10, "Microsoft Sans Serif", 700, 0, 0
 {
-    DEFPUSHBUTTON   "OK", IDOK, 48, 66, 23, 15, WS_GROUP
-    CTEXT           "Gold Tile", IDC_STATIC, 45, 3, 29, 8, SS_CENTER
-    CTEXT           "(c) Copyright 2012 Stephen Gold", IDC_STATIC, 10, 25, 97, 8, SS_CENTER
+    DEFPUSHBUTTON   "OK", IDOK, 48, 93, 23, 15, WS_GROUP
+    CTEXT           "Gold Tile Game", IDC_STATIC, 34, 4, 49, 8, SS_CENTER
+    CTEXT           "(c) Copyright 2012 Stephen Gold", IDC_STATIC, 4, 39, 107, 8, SS_CENTER
     CTEXT           "Release 0.5 (20120205)", IDC_STATIC, 23, 13, 71, 8, SS_CENTER
-    CTEXT           "Distributed under the terms of the GNU Lesser General Public License", IDC_STATIC, 15, 36, 91, 23, SS_CENTER
+    CTEXT           "Distributed under the terms of the GNU General Public License", IDC_STATIC, 14, 60, 90, 16, SS_CENTER
+    CTEXT           "sgold@sonic.net", IDC_STATIC, 32, 47, 52, 8, SS_CENTER
+    CTEXT           "http://code.google.com/p/gold-tiles", IDC_STATIC, 6, 24, 106, 8, SS_CENTER
+    CTEXT           "http://www.gnu.org/licenses/gpl.txt", IDC_STATIC, 6, 76, 106, 8, SS_CENTER
+}
+
+
+
+RULES DIALOG 0, 0, 175, 54
+STYLE DS_MODALFRAME | DS_SETFONT | WS_VISIBLE | WS_POPUP
+FONT 8, "Ms Shell Dlg"
+{
+    DEFPUSHBUTTON   "OK", IDOK, 64, 32, 50, 14
+    CTEXT           "The rules of Gold Tile are available online at http://code.google.com/p/gold-tiles/wiki/Playing", IDC_STATIC, 10, 4, 150, 21, SS_CENTER
+}
+
+
+
+WARRANTY DIALOG 0, 0, 176, 132
+STYLE DS_MODALFRAME | DS_SETFONT | WS_VISIBLE | WS_POPUP
+FONT 8, "Ms Shell Dlg"
+{
+    DEFPUSHBUTTON   "OK", IDOK, 77, 109, 28, 14
+    LTEXT           "There is NO warranty for the program, to the extent permitted by applicable law. Except when otherwise stated in writing the copyright holders and/or other ", IDC_STATIC, 10, 9, 160, 27, SS_LEFT
+    LTEXT           "other parties provide the program “as is” without warranty of any kind, either expressed or implied, including, but not limited to, the implied warranties of merchantability and fitness for a particular purpose.", IDC_STATIC, 10, 33, 160, 35, SS_LEFT
+    LTEXT           "The entire risk as to the quality and performance of the program is with you. Should the program prove defective, you assume the cost  of all necessary servicing, repair or correction.", IDC_STATIC, 10, 68, 160, 33, SS_LEFT
 }
 
 
@@ -84,5 +131,4 @@ FONT 8, "MS Sans Serif", 400, 0, 0
 //
 // Icon resources
 //
-LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
-TOPWINDOWICON      ICON           "gold-tile.ico"
+TOPWINDOWICON      ICON           "../gold-tile.ico"

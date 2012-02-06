@@ -1,8 +1,25 @@
 // File:    topwindow.cpp
-// Purpose: TopWindow class for the Gold Tile game.
+// Purpose: TopWindow class
 // Author:  Stephen Gold sgold@sonic.net
 // (c) Copyright 2012 Stephen Gold
-// Distributed under the terms of the GNU Lesser General Public License
+// Distributed under the terms of the GNU General Public License
+
+/*
+This file is part of the Gold Tile game.
+
+The Gold Tile game is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by the 
+Free Software Foundation, either version 3 of the License, or (at your 
+option) any later version.
+
+The Gold Tile game is distributed in the hope that it will be useful, but 
+WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY 
+or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License 
+for more details.
+
+You should have received a copy of the GNU General Public License
+along with the Gold Tile game.  If not, see <http://www.gnu.org/licenses/>.
+*/
 
 #include "project.hpp"
 
@@ -11,9 +28,9 @@
 #include "cell.hpp"
 #include "cells.hpp"
 #include "game.hpp"
-#include "gui/aboutdialog.hpp"
 #include "gui/canvas.hpp"
 #include "gui/color.hpp"
+#include "gui/dialog.hpp"
 #include "gui/resource.hpp"
 #include "gui/topwindow.hpp"
 #include "gui/windowclass.hpp"
@@ -792,12 +809,16 @@ void TopWindow::HandleMenuCommand(int command) {
 			break;
 
         // Help menu options
-        case IDM_RULES:
-            ::MessageBox(this_window, "The Rules of Gold Tile", 
-		       "Gold Tile", MB_ICONINFORMATION | MB_OK);
+        case IDM_RULES: {
+	   	    Dialog rules("RULES", *this);
             break;
+		}
         case IDM_ABOUT: {
-	   	    AboutDialog about(*this);
+	   	    Dialog about("ABOUT", *this);
+            break;
+		}
+        case IDM_WARRANTY: {
+	   	    Dialog warranty("WARRANTY", *this);
             break;
 		}
 

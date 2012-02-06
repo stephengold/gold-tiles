@@ -2,20 +2,37 @@
 #define BOARD_HPP_INCLUDED
 
 // File:    board.hpp
-// Purpose: Board class for the Gold Tile game.
+// Purpose: Board class
 // Author:  Stephen Gold sgold@sonic.net
 // (c) Copyright 2012 Stephen Gold
-// Distributed under the terms of the GNU Lesser General Public License
+// Distributed under the terms of the GNU General Public License
 
 /*
- A Board object represents a two-dimensional playing surface
- which may be extended in four directions.  The surface is
- modeled as a grid of cells onto which Tile objects may be
- played.  Cells are referenced by means of Cell objects.
- A given cell may only be played on once.
+This file is part of the Gold Tile Game.
 
- Board extends the BaseBoard class.  The implementation of
- BaseBoard is hidden from these extensions.
+The Gold Tile Game is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by the 
+Free Software Foundation, either version 3 of the License, or (at your 
+option) any later version.
+
+The Gold Tile Game is distributed in the hope that it will be useful, but 
+WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY 
+or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License 
+for more details.
+
+You should have received a copy of the GNU General Public License
+along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+/*
+A Board object represents a two-dimensional playing surface
+which may be extended in four directions.  The surface is
+modeled as a grid of cells onto which Tile objects may be
+played.  Cells are referenced by means of Cell objects.
+A given cell may only be played on once.
+
+The Board class extends the BaseBoard class.  The implementation of
+BaseBoard is hidden from these extensions.
 */
 
 #include "baseboard.hpp"

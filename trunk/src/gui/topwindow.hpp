@@ -2,16 +2,32 @@
 #define TOPWINDOW_HPP_INCLUDED
 
 // File:    topwindow.hpp
-// Purpose: top window for the Gold Tile game
+// Purpose: TopWindow class
 // Author:  Stephen Gold sgold@sonic.net
 // (c) Copyright 2012 Stephen Gold
-// Distributed under the terms of the GNU Lesser General Public License
+// Distributed under the terms of the GNU General Public License
 
 /*
- A TopWindow object represents the main window
- for the game.
+This file is part of the Gold Tile game.
 
- The TopWindow class is implemented by extending Window.
+The Gold Tile game is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by the 
+Free Software Foundation, either version 3 of the License, or (at your 
+option) any later version.
+
+The Gold Tile game is distributed in the hope that it will be useful, but 
+WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY 
+or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License 
+for more details.
+
+You should have received a copy of the GNU General Public License
+along with the Gold Tile game.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+/*
+A TopWindow object represents the primary window for the game.
+
+The TopWindow class is an extension of the Window class.
 */
 
 #include "project.hpp"

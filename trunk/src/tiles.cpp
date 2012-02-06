@@ -26,107 +26,113 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 #include "strings.hpp"
 #include "tiles.hpp"
 
+
+// operators
+bool Tiles::operator==(Tiles const &rOther) const {
+	ASSERT(false);  // not implemented yet
+	return false;
+}
+
+Tile Tiles::operator[](unsigned r) const {
+    ConstIteratorType i_tile = mMap.begin();
+    ASSERT(i_tile != mMap.end());
+    for (unsigned i = 0; i < r; i++) {
+        i_tile++;
+        ASSERT(i_tile != mMap.end());
+	}
+	Tile result = i_tile->second;
+
+	return result;
+}
+
 Tiles::operator String(void) const {
     String result;
 
     result += "{";
-    ConstIteratorType tile;
-    for (tile = begin(); tile != end(); tile++) {
-        if (tile != begin()) {
+    ConstIteratorType i_tile;
+    for (i_tile = mMap.begin(); i_tile != mMap.end(); i_tile++) {
+        if (i_tile != mMap.begin()) {
             result += ", ";
         } 
-        result += String(*tile);
+		Tile tile = i_tile->second;
+        result += String(tile);
     }       
     result += "}";
 
     return result;
 }
 
-void Tiles::AddTile(Tile const &tile) {
-    std::pair<Tiles::iterator, bool> ins;
-    ins = insert(tile);
+
+// misc
+
+void Tiles::Add(Tile const &tile) {
+	ASSERT(!Contains(tile));
+
+	TileIdType id = tile.Id();
+	std::pair<const TileIdType,Tile> add(id, tile);
+    std::pair<IteratorType, bool> ins = mMap.insert(add);
     bool success = ins.second;
     ASSERT(success);
+
+	ASSERT(Contains(tile));
 }
 
 void Tiles::AddTiles(Tiles const &tiles) {
     ConstIteratorType i_tile;
-    for (i_tile = tiles.begin(); i_tile != tiles.end(); i_tile++) {
-		AddTile(*i_tile);
+    for (i_tile = tiles.mMap.begin(); i_tile != tiles.mMap.end(); i_tile++) {
+		Tile tile = i_tile->second;
+		Add(tile);
 	}
 }
 
-bool Tiles::AreAllCompatible(void) const {
-    ConstIteratorType i_tile;
-    for (i_tile = begin(); i_tile != end(); i_tile++) {
-		Tile tile = *i_tile;
-        ConstIteratorType i_tile2 = i_tile;
-        for (i_tile2++; i_tile2 != end(); i_tile2++) {
-            if (!i_tile2->IsCompatibleWith(&tile)) {
-                return false;
-            }
-        }
-    }
-    
-    return true; 
-}
-
-bool Tiles::Contains(Tile const &rTile) const {
-    ConstIteratorType i_tile = find(rTile);
-    bool result = (i_tile != end());
-    
-    return result;
-}
 
 unsigned Tiles::Count(void) const {
-	unsigned result = size();
+	unsigned result = mMap.size();
 
 	return result;
 }
 
 Tile Tiles::DrawRandomTile(void) {
+	ASSERT(!IsEmpty());
     unsigned n = Count();
     ASSERT(n > 0);
     unsigned r = ::rand() % n;
     
      // find the "r"th tile in the bag
-    IteratorType i_tile = begin();
+    IteratorType i_tile = mMap.begin();
+    ASSERT(i_tile != mMap.end());
     for (unsigned i = 0; i < r; i++) {
         i_tile++;
+        ASSERT(i_tile != mMap.end());
     }
-    ASSERT(i_tile != end());
 
-    Tile result = *i_tile;
-    erase(i_tile);
+    Tile result = i_tile->second;
+    mMap.erase(i_tile);
 
+	ASSERT(Count() == n-1);
     return result;
 }
 
-unsigned Tiles::DrawTiles(unsigned tileCount, Tiles &bag) {
+unsigned Tiles::DrawTiles(unsigned tileCnt, Tiles &bag) {
 	unsigned draw_cnt;
 
-    for (draw_cnt = 0; draw_cnt < tileCount; ++draw_cnt) {
+    for (draw_cnt = 0; draw_cnt < tileCnt; ++draw_cnt) {
         if (bag.IsEmpty()) {
             break;
         }
         Tile tile = bag.DrawRandomTile();
         D(std::cout << "Drew " << String(tile) << "." << std::endl);
-		insert(tile);
+		Add(tile);
 	}
 
 	return draw_cnt;
 }
 
 Tile Tiles::FindTile(TileIdType id) const {
-    Tile result;
-    ConstIteratorType i_tile;
-    for (i_tile = begin(); i_tile != end(); i_tile++) {
-        if (i_tile->Id() == id) {
-            result = *i_tile;
-            break;
-        }
-    }
-    ASSERT(i_tile != end());
+    ConstIteratorType i_tile = mMap.find(id);
+    ASSERT(i_tile != mMap.end());
+	ASSERT(i_tile->first == id);
+    Tile result = i_tile->second;
     
     return result; 
 }
@@ -152,29 +158,9 @@ void Tiles::GetUserChoice(Tiles const &rAvailableTiles) {
             std::cout << input << " is already selected." << std::endl;
         } else {
             rAvailableTiles.UnClone(tile);
-            insert(tile);
+            Add(tile);
         }
     }
-}
-
-bool Tiles::IsEmpty(void) const {
-    bool result = (Count() == 0);
-    
-    return result;
-}
-
-bool Tiles::IsValid(void) const {
-    bool result = true;
-    
-    IteratorType i_tile;
-    for (i_tile = begin(); i_tile != end(); i_tile++) {
-        if (!i_tile->IsValid()) {
-            result = false;
-            break;
-        }
-    }
-
-    return result;
 }
 
 Tiles Tiles::LongestRun(void) const {
@@ -185,15 +171,16 @@ Tiles Tiles::LongestRun(void) const {
 	Tiles result;
 	String raString;
     ConstIteratorType i_tile;
-    for (i_tile = unique.begin(); i_tile != unique.end(); i_tile++) {
-        Tile t = *i_tile;
-        for (AIndexType ind = 0; ind < t.AttributeCnt(); ind++) {
-            AValueType value = t.Attribute(ind);
+    for (i_tile = unique.mMap.begin(); i_tile != unique.mMap.end(); i_tile++) {
+        Tile tile = i_tile->second;
+        for (AIndexType ind = 0; ind < Tile::AttributeCnt(); ind++) {
+            AValueType value = tile.Attribute(ind);
             Tiles run;
             ConstIteratorType i_tile2;
-            for (i_tile2 = i_tile; i_tile2 != unique.end(); i_tile2++) {
-                if (i_tile2->HasAttribute(ind, value)) {
-                    run.insert(*i_tile2);
+            for (i_tile2 = i_tile; i_tile2 != unique.mMap.end(); i_tile2++) {
+				Tile tile2 = i_tile2->second;
+                if (tile2.HasAttribute(ind, value)) {
+                    run.Add(tile2);
                 }
             }
             if (run.Count() > result.Count()) {
@@ -210,42 +197,134 @@ Tiles Tiles::LongestRun(void) const {
 }
 
 void Tiles::MakeEmpty(void) {
-	clear();
+	mMap.clear();
+	ASSERT(IsEmpty());
 }
 
 void Tiles::RemoveTile(Tile const &rTile) {
-	IteratorType i_tile = find(rTile);
-    ASSERT(i_tile != end());
-	erase(i_tile);
+	ASSERT(Contains(rTile));
+
+	TileIdType id = rTile.Id();
+	RemoveTileId(id);
+
+	ASSERT(!Contains(rTile));
+}
+
+void Tiles::RemoveTileId(TileIdType id) {
+	ASSERT(ContainsId(id));
+
+	IteratorType i_tile = mMap.find(id);
+    ASSERT(i_tile != mMap.end());
+	ASSERT(i_tile->first == id);
+
+	mMap.erase(i_tile);
+
+	ASSERT(!ContainsId(id));
 }
 
 void Tiles::RemoveTiles(Tiles const &rTiles) {
+	ASSERT(Count() >= rTiles.Count());
+
 	ConstIteratorType i_tile;
-	for (i_tile = rTiles.begin(); i_tile != rTiles.end(); i_tile++) {
-        RemoveTile(*i_tile);
+	for (i_tile = rTiles.mMap.begin(); i_tile != rTiles.mMap.end(); i_tile++) {
+        RemoveTileId(i_tile->first);
     }
 }
 
 void Tiles::UnClone(Tile &rClone) const {
+	ASSERT(ContainsClone(rClone));
+
     ConstIteratorType i_tile;
-    for (i_tile = begin(); i_tile != end(); i_tile++) {
-       if (rClone.IsClone(*i_tile)) {
-           rClone = *i_tile;
+    for (i_tile = mMap.begin(); i_tile != mMap.end(); i_tile++) {
+	   Tile tile = i_tile->second;
+       if (rClone.IsClone(tile)) {
+           rClone = tile;
            break;
        }
     }
+
+	ASSERT(Contains(rClone));
 }
 
 // return a new set containing only one copy of each clone
 Tiles Tiles::UniqueTiles(void) const {
     Tiles result;
     
-    ConstIteratorType tile;
-    for (tile = begin(); tile != end(); tile++) {
-        if (!tile->IsCloneAny(result)) {
-            result.insert(*tile);
+    ConstIteratorType i_tile;
+    for (i_tile = mMap.begin(); i_tile != mMap.end(); i_tile++) {
+		Tile tile = i_tile->second;
+        if (!tile.IsCloneAny(result)) {
+            result.Add(tile);
         }
     }
     
     return result; 
+}
+
+
+// inquiries
+
+bool Tiles::AreAllCompatible(void) const {
+    ConstIteratorType i_tile;
+    for (i_tile = mMap.begin(); i_tile != mMap.end(); i_tile++) {
+		Tile tile = i_tile->second;
+        ConstIteratorType i_tile2 = i_tile;
+        for (i_tile2++; i_tile2 != mMap.end(); i_tile2++) {
+     		Tile tile2 = i_tile2->second;
+            if (!tile2.IsCompatibleWith(&tile)) {
+                return false;
+            }
+        }
+    }
+    
+    return true; 
+}
+
+bool Tiles::Contains(Tile const &tile) const {
+	TileIdType id = tile.Id();
+    bool result = ContainsId(id);
+    
+    return result;
+}
+
+bool Tiles::ContainsId(TileIdType id) const {
+    ConstIteratorType i_tile = mMap.find(id);
+    bool result = (i_tile != mMap.end());
+    
+    return result;
+}
+
+bool Tiles::ContainsClone(Tile const &rTile) const {
+    bool result = false;
+    
+    ConstIteratorType i_tile;
+    for (i_tile = mMap.begin(); i_tile != mMap.end(); i_tile++) {
+		Tile tile = i_tile->second;
+        if (tile.IsClone(rTile)) {
+            result = true;
+            break;
+        }
+    }
+    
+    return result;
+}
+
+bool Tiles::IsEmpty(void) const {
+    bool result = (Count() == 0);
+    
+    return result;
+}
+
+bool Tiles::IsValid(void) const {
+    bool result = true;
+    
+    ConstIteratorType i_tile;
+    for (i_tile = mMap.begin(); i_tile != mMap.end(); i_tile++) {
+        if (!i_tile->second.IsValid()) {
+            result = false;
+            break;
+        }
+    }
+
+    return result;
 }

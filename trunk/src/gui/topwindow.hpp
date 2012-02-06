@@ -74,13 +74,14 @@ private:
 	bool          mAutopauseFlag;
 	Board         mBoard;
 	ACountType    mColorAttributeCnt;
-	bool          mDragBoardFlag, mDragTileFlag;
+	bool          mDragBoardFlag;
 	int           mDragTileDeltaX, mDragTileDeltaY;
 	Game *       mpGame;
 	char *        mFileName;
 	Rect          mHandRect;
 	Tiles         mHandTiles;
 	int           mMouseLastX, mMouseLastY; // coordinates of last mouse down
+	int           mMouseUpCnt;
 	bool          mOriginIsCentered;
 	long          mOriginX, mOriginY; // logical coordinates of ulc of origin cell
 	unsigned      mPadPixels;
@@ -97,36 +98,46 @@ private:
     ViewMenu *    mpViewMenu;
 
 	// misc
-    void DrawActivePlayer(Canvas &);
-	Rect DrawBlankTile(Canvas &, int topY, int leftX);
-    void DrawBoard(Canvas &);
-    void DrawCell(Canvas &, Cell const &);
-    void DrawHandTiles(Canvas &);
-    void DrawInactivePlayers(Canvas &);
-	void DrawPaused(Canvas &);
-    Rect DrawPlayerHeader(Canvas &, int top, int leftRight, Player const &, 
-                          ColorType, bool leftFlag);
-	Rect DrawTile(Canvas &, int topY, int leftX, Tile const &);
-    void HandleButtonDown(int x, int y);
-	void HandleButtonUp(int x, int y);
-	void HandleDragMouse(int x, int y);
-    void HandleMenuCommand(int);
-    void Initialize(CREATESTRUCT const *);
-    void Play(bool passFlag);
-	void Recenter(unsigned oldWidth, unsigned oldHeight);
-    void Resize(unsigned width, unsigned height);
-    void Repaint(void);
-	void UpdateMenus(void);
-
-	// access
     unsigned     CellHeight(void) const;
     int          CellX(int column) const;
     int          CellY(int row) const;
     unsigned     CellWidth(void) const;
     char const * ClassName(void) const;
+    void         DrawActivePlayer(Canvas &);
+	Rect         DrawBlankTile(Canvas &, int topY, int leftX);
+    void         DrawBoard(Canvas &);
+    void         DrawCell(Canvas &, Cell const &, unsigned swapCnt);
+    void         DrawHandTiles(Canvas &);
+    void         DrawInactivePlayers(Canvas &);
+	void         DrawPaused(Canvas &);
+    Rect         DrawPlayerHeader(Canvas &, int top, int leftRight, Player const &, 
+                          ColorType, bool leftFlag);
+	Rect         DrawTile(Canvas &, int topY, int leftX, Tile const &);
 	Cell         GetCell(int x, int y) const;
+	TileIdType   GetTileId(int x, int y) const;
     unsigned     GridUnit(void) const;
+    void         HandleButtonDown(int x, int y);
+	void         HandleButtonUp(int x, int y);
+	void         HandleDragMouse(int x, int y);
+    void         HandleMenuCommand(int);
+    void         Initialize(CREATESTRUCT const *);
 	char const * Name(void) const;
+    void         Play(bool passFlag);
+	void         PlayOnCell(Cell const &, Tile const &);
+	void         Recenter(unsigned oldWidth, unsigned oldHeight);
+	void         ReleaseActiveTile(int x, int y);
+    void         Resize(unsigned width, unsigned height);
+    void         Repaint(void);
+	void         StopDragging(void);
+	void         UnplayOnCell(Cell const &cell, TileIdType id);
+	void         UpdateMenus(void);
+
+	// inquiry
+	bool         IsDragging(void) const;
+	bool         IsInHandArea(int x, int y) const;
+	bool         IsInSwapArea(int x, int y) const;
+	bool         IsInTile(int x, int y) const;
+	bool         IsPaused(void) const;
 };
 
 #endif

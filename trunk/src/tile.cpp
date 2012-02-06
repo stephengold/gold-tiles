@@ -27,9 +27,6 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 #include "strings.hpp"
 #include "tile.hpp"
 #include "tiles.hpp"
-#ifdef _GUI
-#include "gui/topwindow.hpp"
-#endif
 
 // attribute utility functions
 
@@ -94,10 +91,10 @@ AValueType charToAttribute(AIndexType ind, char ch) {
 // static private data
 
 ACountType  Tile:: msAttributeCnt = 0;
-TileIdType  Tile:: msNextId = 0;
+TileIdType  Tile:: msNextId = 2; // 0 is invalid, 1 is default tile
 AValueType *Tile::mspValueMax = NULL;
 
-// constructors and destructor
+// lifecycle
 
 Tile::Tile(void) {
     ASSERT(msAttributeCnt >= 2);
@@ -106,7 +103,7 @@ Tile::Tile(void) {
     for (AIndexType i = 0; i < msAttributeCnt; i++) {
         mpArray[i] = 0;
     }
-    mId = NextId();
+    mId = 1;
 }
 
 // Mint a new tile based on a string.
@@ -145,13 +142,62 @@ Tile::Tile(Tile const &rBase) {
     mId = rBase.mId;
 }
 
-// destroy a tile
 Tile::~Tile(void) {
+    ASSERT(IsValid());
     delete[] mpArray;
+	mpArray = NULL;
 }
 
 
-// methods
+// operators
+
+bool Tile::operator<(Tile const &rOther) const {
+     bool result = (mId < rOther.mId);
+     
+     return result;
+}
+
+Tile &Tile::operator=(Tile const &rOther) {
+	ASSERT(rOther.IsValid());
+
+    mpArray = new AValueType[msAttributeCnt];
+    for (AIndexType ind = 0; ind < msAttributeCnt; ind++) {
+        AValueType value = rOther.mpArray[ind];
+        ASSERT(value <= mspValueMax[ind]);
+        mpArray[ind] = value;
+    }
+    mId = rOther.mId;
+     
+    return *this;
+}
+
+bool Tile::operator==(Tile const &rOther) const {
+	ASSERT(IsValid());
+	ASSERT(rOther.IsValid());
+
+	bool result = (mId == rOther.mId);
+
+	ASSERT(!result || CountMatchingAttributes(rOther) == msAttributeCnt);
+
+    return result;
+}
+
+Tile::operator String(void) const {
+    String result;
+
+    for (AIndexType ind = 0; ind < msAttributeCnt; ind++) {
+        AValueType value = mpArray[ind];
+        ASSERT(value <= mspValueMax[ind]);
+
+        result += attributeToString(ind, value);
+    }
+    ASSERT(result.Length() == msAttributeCnt);
+
+    return result;
+}
+
+
+// misc
 
 AValueType Tile::Attribute(AIndexType ind) const {
     ASSERT(ind < msAttributeCnt);
@@ -171,7 +217,8 @@ ACountType Tile::AttributeCnt(void) {
 Tile Tile::Clone(void) const {
     Tile result = Tile(*this);
     result.mId = NextId();
-    
+	ASSERT(result.IsValid());
+
     return result;
 }
 
@@ -200,8 +247,8 @@ ACountType Tile::CountMatchingAttributes(Tile const &rOther) const {
 }
 
 void Tile::Display(void) const {
+	ASSERT(IsValid());
     std::cout << " [" << String(*this) << "]";
-
 }
 
 // display an empty cell
@@ -240,6 +287,57 @@ String Tile::GetUserChoice(Tiles const &availableTiles, Strings const &alts) {
 	return result;
 }
 
+TileIdType Tile::Id(void) const {
+    TileIdType result = mId;
+
+    return result;
+}
+
+/* static */ TileIdType Tile::NextId(void) {
+    TileIdType result = msNextId;
+	++msNextId;
+    ASSERT(msNextId < ULONG_MAX);
+
+	return result;
+}
+
+void Tile::SetAttribute(AIndexType ind, AValueType value) {
+    ASSERT(ind < msAttributeCnt);
+    ASSERT(value <= mspValueMax[ind]);
+    mpArray[ind] = value;
+	ASSERT(IsValid());
+}
+
+/* static */ void Tile::SetStatic(ACountType aCnt, AValueType const pValueMax[]) {
+    ASSERT(aCnt >= 2);
+#ifdef _GUI
+    ASSERT(aCnt <= 4);
+#endif
+    msAttributeCnt = aCnt;
+    
+    mspValueMax = new AValueType[aCnt];
+    for (AIndexType i = 0; i < aCnt; i++) {
+        ASSERT(pValueMax[i] >= 3);
+        ASSERT(pValueMax[i] <= 8);
+        mspValueMax[i] = pValueMax[i];
+    }
+}
+
+String Tile::StringEmpty(void) {
+    String result(msAttributeCnt, '.');
+
+    return result;
+}
+
+AValueType Tile::ValueMax(AIndexType attr) {
+    ASSERT(attr < msAttributeCnt);
+    AValueType result = mspValueMax[attr];
+    
+    return result;
+}
+
+// inquiry
+
 bool Tile::HasAttribute(AIndexType ind, AValueType value) const {
     ASSERT(ind < msAttributeCnt);
     AValueType attrib = mpArray[ind];
@@ -248,42 +346,32 @@ bool Tile::HasAttribute(AIndexType ind, AValueType value) const {
     return result;
 }
 
-TileIdType Tile::Id(void) const {
-    TileIdType result = mId;
+bool Tile::HasId(TileIdType id) const {
+	bool result = (mId == id);
 
-    return result;
+	return result;
 }
 
-bool Tile::IsClone(Tile const &other) const {
+bool Tile::IsClone(Tile const &rOther) const {
+	ASSERT(IsValid());
+	ASSERT(rOther.IsValid());
+
     bool result = false;
     
-    if (mId != other.mId) {
-        result = true;
-        for (AIndexType i = 0; i < msAttributeCnt; i++) {
-            if (mpArray[i] != other.mpArray[i]) {
-                result = false;
-                break;
-            }
-        }
+    if (mId != rOther.mId) {
+		ACountType cnt = CountMatchingAttributes(rOther);
+        result = (cnt == msAttributeCnt);
     }
 
-    D(std::cout << "Tile::IsClone(" << String(*this) << ", " << String(other)
+    D(std::cout << "Tile::IsClone(" << String(*this) << ", " << String(rOther)
         << ") returns " << result << std::endl);
     return result;
 }
 
 bool Tile::IsCloneAny(Tiles const &s) const {
-    bool result = false;
-    
-    Tiles::const_iterator tile;
-    for (tile = s.begin(); tile != s.end(); tile++) {
-        if (IsClone(*tile)) {
-            result = true;
-            break;
-        }
-    }
-    
-    return result;
+    bool result = s.ContainsClone(*this);
+
+	return result;
 }
 
 bool Tile::IsCompatibleWith(Tile const *other) const {
@@ -302,7 +390,7 @@ bool Tile::IsCompatibleWith(Tile const *other) const {
 bool Tile::IsValid(void) const {
     bool result = false;
     
-    if (mId < msNextId) {
+    if (mId >= 1 && mId < msNextId && mpArray != NULL) {
         result = true;
     
         for (AIndexType ind = 0; ind < msAttributeCnt; ind++) {
@@ -312,90 +400,6 @@ bool Tile::IsValid(void) const {
             }
         }
     }
-    
-    return result;
-}
-
-/* static */ TileIdType Tile::NextId(void) {
-    TileIdType result = msNextId++;
-    ASSERT(msNextId < UINT_MAX);
-
-	return result;
-}
-
-bool Tile::operator<(Tile const &rOther) const {
-     bool result = (mId < rOther.mId);
-     
-     return result;
-}
-
-Tile &Tile::operator=(Tile const &rOther) {
-    mpArray = new AValueType[msAttributeCnt];
-    for (AIndexType ind = 0; ind < msAttributeCnt; ind++) {
-        AValueType value = rOther.mpArray[ind];
-        ASSERT(value <= mspValueMax[ind]);
-        mpArray[ind] = value;
-    }
-    mId = rOther.mId;
-     
-    return *this;
-}
-
-bool Tile::operator==(Tile const &rOther) const {
-    bool result = (mId == rOther.mId);
-    if (result) {
-        for (AIndexType i = 0; i < msAttributeCnt; i++) {
-            ASSERT(mpArray[i] == rOther.mpArray[i]);
-        }
-    }
-    
-    return result;
-}
-
-void Tile::SetAttribute(AIndexType ind, AValueType value) {
-    ASSERT(ind < msAttributeCnt);
-    ASSERT(value <= mspValueMax[ind]);
-    mpArray[ind] = value;
-}
-
-void Tile::SetStatic(ACountType aCnt, AValueType const pValueMax[]) {
-    ASSERT(aCnt >= 2);
-#ifdef _GUI
-    ASSERT(aCnt <= 4);
-#endif
-    msAttributeCnt = aCnt;
-    
-    mspValueMax = new AValueType[aCnt];
-    for (AIndexType i = 0; i < aCnt; i++) {
-        ASSERT(pValueMax[i] >= 3);
-        ASSERT(pValueMax[i] <= 8);
-        mspValueMax[i] = pValueMax[i];
-    }
-}
-
-Tile::operator String(void) const {
-    String result;
-
-    for (AIndexType ind = 0; ind < msAttributeCnt; ind++) {
-        AValueType value = mpArray[ind];
-        ASSERT(value <= mspValueMax[ind]);
-
-        result += attributeToString(ind, value);
-    }
-    ASSERT(result.Length() == msAttributeCnt);
-
-    return result;
-}
-
-String Tile::StringEmpty(void) {
-    String result(msAttributeCnt, '.');
-
-    return result;
-}
-
-AValueType Tile::ValueMax(AIndexType attr) {
-    ASSERT(attr < msAttributeCnt);
-    AValueType result = mspValueMax[attr];
     
     return result;
 }

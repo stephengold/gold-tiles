@@ -125,6 +125,13 @@ bool Cell::IsOrigin(void) const {
     return result;
 }
 
+bool Cell::operator!=(const Cell &rOther) const {
+	bool same_row = (mRow == rOther.mRow);
+    bool result = (!same_row || mColumn != rOther.mColumn);
+    
+    return result;
+}
+
 bool Cell::operator<(Cell const &rOther) const {
     bool result;
 	bool same_row = (mRow == rOther.mRow);

@@ -41,11 +41,14 @@ BaseBoard is hidden from these extensions.
 class Board: public BaseBoard {
 public:
 	// misc
-    void	 PlayMove(Move const &);
-    unsigned ScoreMove(Move const &) const;
+	TileIdType GetId(Cell const &) const;
+    void	   PlayMove(Move const &);
+    bool       LocateTile(Tile const &, Cell &) const;
+    unsigned   ScoreMove(Move const &) const;
 
 	// inquiry
-	bool	 ConnectsToOrigin(Cell const &, Cells &) const;
+	bool     ContainsId(TileIdType) const;
+	bool	 ConnectsToOrigin(Cell const &) const;
     bool	 HasEmptyCell(Cell const &) const;
     bool	 IsLegalMove(Move const &) const;
 
@@ -65,6 +68,7 @@ private:
     bool		AreAllCompatible(Cells const &) const;
     bool		AreAllEmpty(Cells const &) const;
     bool		AreAllRowsCompatible(Cells const &) const;
+	bool	    ConnectsToOrigin(Cell const &, Cells &) const;
     bool		DoesAnyConnectToOrigin(Cells const &) const;
 	bool		HasEmptyCell(int row, int column) const;
     bool		IsColumnCompatible(Cell const &) const;

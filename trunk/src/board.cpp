@@ -31,14 +31,186 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 #include "tilecell.hpp"
 #include "tiles.hpp"
 
-// constructors, assignment, and destructor
+// lifecycle
 
 // The compiler-generated default constructor is OK.
 // The compiler-generated copy constructor is OK.
-// The compiler-generated assignment method is OK.
 // The compiler-generated destructor is OK.
 
-// public methods
+
+// operators
+
+// The compiler-generated assignment method is OK.
+
+
+// misc
+
+void Board::GetColumnLimits(
+    Cell const &rCell,
+    int &rFirstRow,
+    int &rLastRow,
+    int &rColumn) const
+{
+    rColumn = rCell.Column();
+
+    rFirstRow = rCell.Row();
+    while (!HasEmptyCell(rFirstRow - 1, rColumn)) {
+        rFirstRow--;
+    }
+
+    rLastRow = rCell.Row();
+    while (!HasEmptyCell(rLastRow + 1, rColumn)) {
+        rLastRow++;
+    }
+}
+
+TileIdType Board::GetId(Cell const &rCell) const {
+    TileIdType result = 0;
+    Tile const *p_tile = GetCell(rCell);
+	if (p_tile != NULL) {
+		result = p_tile->Id();
+	}
+
+	return result;
+}
+
+Tile const *Board::GetPtr(int northing, int easting) const {
+    Cell ref(northing, easting);
+    Tile const *p_result = GetCell(ref);
+
+    return p_result;
+}
+
+void Board::GetRowLimits(
+    Cell const &rCell,
+    int &rRow,
+    int &rFirstColumn,
+    int &rLastColumn) const
+{
+    rRow = rCell.Row();
+    
+    rFirstColumn = rCell.Column();
+    while (!HasEmptyCell(rRow, rFirstColumn - 1)) {
+        rFirstColumn--;
+    }
+    
+    rLastColumn = rCell.Column();
+    while (!HasEmptyCell(rRow, rLastColumn + 1)) {
+        rLastColumn++;
+    }
+}
+
+Tile Board::GetTile(int northing, int easting) const {
+    Tile const *p_tile = GetPtr(northing, easting);
+    ASSERT(p_tile != NULL);
+    Tile result = *p_tile;
+
+    return result;
+}
+
+Tiles Board::GetTiles(Cells const &rCells) const {
+    Tiles result;
+    
+    Cells::const_iterator i_cell;
+    for (i_cell = rCells.begin(); i_cell != rCells.end(); i_cell++) {    
+        Tile const *p_tile = GetCell(*i_cell);
+        if (p_tile != NULL) {
+            result.Add(*p_tile);
+        }
+    }
+
+    return result;
+}
+
+bool Board::LocateTile(Tile const &rTile, Cell &rCell) const {
+	TileIdType id = rTile.Id();
+	bool result = BaseBoard::LocateTileId(id, rCell);
+
+	return result;
+}
+
+void Board::PlayMove(Move const &rMove) {
+    Move::const_iterator i_place;
+    for (i_place = rMove.begin(); i_place != rMove.end(); i_place++) {
+        PlayTile(*i_place);
+    }
+}
+
+void Board::PlayTile(TileCell const &rTileCell) {
+    Cell cell = Cell(rTileCell);
+    Tile tile = Tile(rTileCell);
+    ASSERT(HasEmptyCell(cell));
+    PlayOnCell(cell, tile);
+}
+
+unsigned Board::ScoreColumn(Cell const &rCell) const {
+    int first_row, last_row, column;
+    GetColumnLimits(rCell, first_row, last_row, column);
+    ASSERT(first_row <= last_row);
+    unsigned result = 0;
+
+    if (first_row != last_row) {
+        unsigned length = last_row + 1 - first_row;
+        Tile first_tile = GetTile(first_row, column);
+        Tile last_tile = GetTile(last_row, column);
+        AIndexType attr = first_tile.CommonAttribute(last_tile);
+        unsigned max_length = 1 + Tile::ValueMax(attr);
+        if (length == max_length) {
+            result = 2*length;
+        } else {
+            result = length;
+        }
+    }
+
+    return result;
+}
+
+unsigned Board::ScoreMove(Move const &rMove) const {
+    unsigned result = 0;
+
+    Move::const_iterator i_place;
+    Indices done_columns, done_rows;
+    for (i_place = rMove.begin(); i_place != rMove.end(); i_place++) {
+        Cell cell = Cell(*i_place);
+        
+        int row = cell.Row();
+        if (!done_rows.Contains(row)) {
+            result += ScoreRow(cell);
+            done_rows.insert(row);
+        }
+        int column = cell.Column();
+        if (!done_columns.Contains(column)) {
+            result += ScoreColumn(cell);
+            done_columns.insert(column);
+        }
+    }
+
+    return result;
+}
+
+unsigned Board::ScoreRow(Cell const &rCell) const {
+    int row, first_column, last_column;
+    GetRowLimits(rCell, row, first_column, last_column);
+    ASSERT(first_column <= last_column);
+    unsigned result = 0;
+
+    if (first_column != last_column) {
+        unsigned run_length = last_column + 1 - first_column;
+        Tile first_tile = GetTile(row, first_column);
+        Tile last_tile = GetTile(row, last_column);
+        AIndexType attr = first_tile.CommonAttribute(last_tile);
+        unsigned max_length = 1 + Tile::ValueMax(attr);
+        if (run_length == max_length) {
+            result = 2*run_length;
+        } else {
+            result = run_length;
+        }
+    }
+
+    return result;
+}
+
+// inquiry
 
 bool Board::AreAllColumnsCompatible(Cells const &rCells) const {
     D(std::cout << "Board::AreAllColumnsCompatible(" << String(rCells) << ")" << std::endl);
@@ -109,6 +281,13 @@ bool Board::AreAllRowsCompatible(Cells const &rCells) const {
     return result; 
 }
 
+bool Board::ConnectsToOrigin(Cell const &rCell) const {
+	Cells done;
+    bool result = ConnectsToOrigin(rCell, done);
+
+	return result;
+}
+
 bool Board::ConnectsToOrigin(Cell const &rCell, Cells &rDoneCells) const { // recursive
     bool result = true;
     
@@ -130,82 +309,22 @@ bool Board::ConnectsToOrigin(Cell const &rCell, Cells &rDoneCells) const { // re
     return result;
 }
 
+bool Board::ContainsId(TileIdType id) const {
+	Cell cell;
+	bool result = LocateTileId(id, cell);
+
+	return result;
+}
+
 bool Board::DoesAnyConnectToOrigin(Cells const &rCells) const {
     bool result = false;
     
     Cells::const_iterator i_cell;
     for (i_cell = rCells.begin(); i_cell != rCells.end(); i_cell++) {
-        Cells done_cells;
-        if (ConnectsToOrigin(*i_cell, done_cells)) {
+		Cell cell = *i_cell;
+        if (ConnectsToOrigin(cell)) {
             result = true;
             break;
-        }
-    }
-
-    return result;
-}
-
-void Board::GetColumnLimits(
-    Cell const &rCell,
-    int &rFirstRow,
-    int &rLastRow,
-    int &rColumn) const
-{
-    rColumn = rCell.Column();
-
-    rFirstRow = rCell.Row();
-    while (!HasEmptyCell(rFirstRow - 1, rColumn)) {
-        rFirstRow--;
-    }
-
-    rLastRow = rCell.Row();
-    while (!HasEmptyCell(rLastRow + 1, rColumn)) {
-        rLastRow++;
-    }
-}
-
-Tile const *Board::GetPtr(int northing, int easting) const {
-    Cell ref(northing, easting);
-    Tile const *p_result = GetCell(ref);
-
-    return p_result;
-}
-
-void Board::GetRowLimits(
-    Cell const &rCell,
-    int &rRow,
-    int &rFirstColumn,
-    int &rLastColumn) const
-{
-    rRow = rCell.Row();
-    
-    rFirstColumn = rCell.Column();
-    while (!HasEmptyCell(rRow, rFirstColumn - 1)) {
-        rFirstColumn--;
-    }
-    
-    rLastColumn = rCell.Column();
-    while (!HasEmptyCell(rRow, rLastColumn + 1)) {
-        rLastColumn++;
-    }
-}
-
-Tile Board::GetTile(int northing, int easting) const {
-    Tile const *p_tile = GetPtr(northing, easting);
-    ASSERT(p_tile != NULL);
-    Tile result = *p_tile;
-
-    return result;
-}
-
-Tiles Board::GetTiles(Cells const &rCells) const {
-    Tiles result;
-    
-    Cells::const_iterator i_cell;
-    for (i_cell = rCells.begin(); i_cell != rCells.end(); i_cell++) {    
-        Tile const *p_tile = GetCell(*i_cell);
-        if (p_tile != NULL) {
-            result.insert(*p_tile);
         }
     }
 
@@ -413,86 +532,5 @@ bool Board::IsRowCompatible(Cell const &rCell) const {
         }
     }
     
-    return result;
-}
-
-void Board::PlayMove(Move const &rMove) {
-    Move::const_iterator i_place;
-    for (i_place = rMove.begin(); i_place != rMove.end(); i_place++) {
-        PlayTile(*i_place);
-    }
-}
-
-void Board::PlayTile(TileCell const &rTileCell) {
-    Cell cell = Cell(rTileCell);
-    Tile tile = Tile(rTileCell);
-    ASSERT(HasEmptyCell(cell));
-    PlayOnCell(cell, tile);
-}
-
-unsigned Board::ScoreColumn(Cell const &rCell) const {
-    int first_row, last_row, column;
-    GetColumnLimits(rCell, first_row, last_row, column);
-    ASSERT(first_row <= last_row);
-    unsigned result = 0;
-
-    if (first_row != last_row) {
-        unsigned length = last_row + 1 - first_row;
-        Tile first_tile = GetTile(first_row, column);
-        Tile last_tile = GetTile(last_row, column);
-        AIndexType attr = first_tile.CommonAttribute(last_tile);
-        unsigned max_length = 1 + Tile::ValueMax(attr);
-        if (length == max_length) {
-            result = 2*length;
-        } else {
-            result = length;
-        }
-    }
-
-    return result;
-}
-
-unsigned Board::ScoreMove(Move const &rMove) const {
-    unsigned result = 0;
-
-    Move::const_iterator i_place;
-    Indices done_columns, done_rows;
-    for (i_place = rMove.begin(); i_place != rMove.end(); i_place++) {
-        Cell cell = Cell(*i_place);
-        
-        int row = cell.Row();
-        if (!done_rows.Contains(row)) {
-            result += ScoreRow(cell);
-            done_rows.insert(row);
-        }
-        int column = cell.Column();
-        if (!done_columns.Contains(column)) {
-            result += ScoreColumn(cell);
-            done_columns.insert(column);
-        }
-    }
-
-    return result;
-}
-
-unsigned Board::ScoreRow(Cell const &rCell) const {
-    int row, first_column, last_column;
-    GetRowLimits(rCell, row, first_column, last_column);
-    ASSERT(first_column <= last_column);
-    unsigned result = 0;
-
-    if (first_column != last_column) {
-        unsigned run_length = last_column + 1 - first_column;
-        Tile first_tile = GetTile(row, first_column);
-        Tile last_tile = GetTile(row, last_column);
-        AIndexType attr = first_tile.CommonAttribute(last_tile);
-        unsigned max_length = 1 + Tile::ValueMax(attr);
-        if (run_length == max_length) {
-            result = 2*run_length;
-        } else {
-            result = run_length;
-        }
-    }
-
     return result;
 }

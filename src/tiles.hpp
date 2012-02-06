@@ -24,21 +24,27 @@ You should have received a copy of the GNU General Public License
 along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <set>
+#include <map>
 #include "tile.hpp"
 
-class Tiles: public std::set<Tile> {
+class Tiles {
 public:
-	typedef std::set<Tile>::const_iterator ConstIteratorType;
-	typedef std::set<Tile>::iterator       IteratorType;
+    // lifecycle
+    // Tiles(void); compiler-generated default constructor is OK
+    // Tiles(BaseBoard const &);  compiler-generated copy constructor is OK
+    // ~Tiles(void);  compiler-generated destructor is OK
 
 	// operators
+    // Tiles &operator=(Tiles const &);  compiler-generated assignment method is OK
+	bool operator==(Tiles const &) const;
+	Tile operator[](unsigned) const;
 	operator String(void) const;
 
 	// misc
-	void     AddTile(Tile const &);
+	void     Add(Tile const &);
 	void     AddTiles(Tiles const &);
     bool     CopyIds(Tiles const &);
+	unsigned Count(void) const;
     Tile     DrawRandomTile(void);
 	unsigned DrawTiles(unsigned, Tiles &rBag);
 	Tile     FindTile(TileIdType) const;
@@ -46,18 +52,24 @@ public:
 	Tiles    LongestRun(void) const;
 	void     MakeEmpty(void);
 	void     RemoveTile(Tile const &);
+	void     RemoveTileId(TileIdType);
 	void     RemoveTiles(Tiles const &);
     void     UnClone(Tile &) const;
     Tiles    UniqueTiles(void) const;
 
-	// access
-	unsigned Count(void) const;
-
 	// inquiry
     bool     AreAllCompatible(void) const;
     bool     Contains(Tile const &) const;
+	bool     ContainsClone(Tile const &) const;
+    bool     ContainsId(TileIdType) const;
 	bool     IsEmpty(void) const;
     bool     IsValid(void) const;
+
+private:
+	typedef std::map<TileIdType,Tile>::const_iterator ConstIteratorType;
+	typedef std::map<TileIdType,Tile>::iterator       IteratorType;
+
+	std::map<TileIdType,Tile> mMap;
 };
 
 #endif

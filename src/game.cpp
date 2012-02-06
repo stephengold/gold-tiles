@@ -106,7 +106,7 @@ void Game::AddTiles(  // recursive
         ASSERT(attributeIndex == na);
 		for (unsigned ci = 0; ci < tileRedundancy; ci++) {
             Tile clo = modelTile.Clone();
-			mStockBag.insert(clo);
+			mStockBag.Add(clo);
 		}
 	}
 }

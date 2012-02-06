@@ -27,6 +27,7 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 
 // lifecycle
 
+// construct an empty board
 BaseBoard::BaseBoard(void) {
     mNorthMax = 0;
     mSouthMax = 0;
@@ -79,7 +80,7 @@ BaseBoard::operator String(void) const {
 }
 
 
-// methods
+// misc
 
 // get iterators to specific cells
 BaseBoard::ConstIteratorType BaseBoard::Find(int northing, int easting) const {
@@ -95,13 +96,13 @@ BaseBoard::IteratorType BaseBoard::Find(int northing, int easting) {
     return result;
 }
 
-// get a Cell to the cell containing a specific Tile
-bool BaseBoard::FindTile(Tile const &rTile, Cell &rSquare) const {
+// locate the Cell which contains a specific Tile
+bool BaseBoard::LocateTileId(TileIdType id, Cell &rSquare) const {
     for (int row = mNorthMax; row >= -(int)mSouthMax; row--) {
 	    for (int column = -mWestMax; column <= mEastMax; column++) {
-            ConstIteratorType it = Find(row, column);
-			if (it != mCells.end() && it->second == rTile) {
-                rSquare = it->first;
+            ConstIteratorType i_tile = Find(row, column);
+			if (i_tile != mCells.end() && i_tile->second.HasId(id)) {
+                rSquare = i_tile->first;
                 return true;
             }
         }

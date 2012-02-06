@@ -50,26 +50,23 @@ public:
 	operator String(void) const;
 
 	// misc
-    bool        FindTile(Tile const &, Cell &) const;
+	int	        EastMax(void) const;
     Tile const *GetCell(Cell const &) const;
+    bool        LocateTileId(TileIdType, Cell &) const;
     void        MakeEmpty(Cell const &);
+    int	        NorthMax(void) const;
 	void        PlayOnCell(Cell const &, Tile const &);
-
-	// access
-	int	EastMax(void) const;
-    int	NorthMax(void) const;
-    int	SouthMax(void) const;
-    int	WestMax(void) const;
+    int	        SouthMax(void) const;
+    int	        WestMax(void) const;
 
 private:
     typedef std::map<Cell,Tile>::const_iterator	ConstIteratorType;
     typedef std::map<Cell,Tile>::iterator		IteratorType;
-    typedef std::map<Cell,Tile>::size_type		SizeType;
 
-    int mNorthMax, mSouthMax, mEastMax, mWestMax; // extent of played area
+	int mNorthMax, mSouthMax, mEastMax, mWestMax; // extent of played area
     std::map<Cell,Tile> mCells;
 
-	// meat
+	// misc
     ConstIteratorType Find(int northing, int easting) const;
     IteratorType	  Find(int northing, int easting);
 };

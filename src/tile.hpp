@@ -37,7 +37,7 @@ between clones.
 #include "string.hpp"
 
 // tile identifier type
-typedef unsigned TileIdType;
+typedef unsigned long TileIdType;
 
 // attribute types and utilities
 typedef unsigned ACountType, AIndexType;
@@ -49,7 +49,7 @@ AValueType charToAttribute(AIndexType, char ch);
 class Tile {
 public:
 	// lifecycle
-	Tile(void);          // construct a blank
+	Tile(void);
 	Tile(String const &);
 	Tile(Tile const &);  // copy a tile
 	~Tile(void);
@@ -61,24 +61,23 @@ public:
 	operator String(void) const;
 
 	// misc
-	Tile          Clone(void) const;
-	unsigned      CommonAttribute(Tile const &) const;
-	ACountType    CountMatchingAttributes(Tile const &) const;
-	void          Display(void) const;
-    static void   DisplayEmpty(void);
-	String        GetUserChoice(Tiles const &, Strings const &);
-    static String StringEmpty(void);
-
-    // access
 	AValueType        Attribute(AIndexType) const;
     static ACountType AttributeCnt(void);
+	Tile              Clone(void) const;
+	unsigned          CommonAttribute(Tile const &) const;
+	ACountType        CountMatchingAttributes(Tile const &) const;
+	void              Display(void) const;
+    static void       DisplayEmpty(void);
+	String            GetUserChoice(Tiles const &, Strings const &);
 	TileIdType        Id(void) const;
 	void              SetAttribute(AIndexType, AValueType);
 	static void       SetStatic(ACountType, AValueType const pValueMax[]);
+    static String     StringEmpty(void);
     static AValueType ValueMax(AIndexType);
 
 	// inquiry
 	bool HasAttribute(AIndexType, AValueType) const;
+	bool HasId(TileIdType) const;
 	bool IsClone(Tile const &) const;
 	bool IsCloneAny(Tiles const &) const;
 	bool IsCompatibleWith(Tile const *) const;

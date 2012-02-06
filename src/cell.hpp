@@ -54,6 +54,7 @@ public:
     // ~Cell(void);  compiler-generated destructor is OK
 
 	// operators
+	bool operator!=(Cell const &) const;
 	bool operator<(Cell const &) const;
 	// Cell &operator=(Cell const &);  compiler-generated assignment method is OK
 	bool operator==(Cell const &) const;

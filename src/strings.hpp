@@ -36,7 +36,7 @@ public:
     typedef std::list<String>::const_iterator ConstIteratorType;
 
 	// misc
-	void Append(String const &);
+	void              Append(String const &);
 	ConstIteratorType Begin(void) const;
 	ConstIteratorType End(void) const;
 	ConstIteratorType Find(String const &) const;

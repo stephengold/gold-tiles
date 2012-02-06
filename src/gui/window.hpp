@@ -49,21 +49,23 @@ public:
     operator Rect(void) const;
 
 	// misc
-	void      CenterWindow(void);
-	HINSTANCE CopyModule(Window const &);
-	void      ForceRepaint(void);
-	LRESULT   HandleMessage(UINT message, WPARAM, LPARAM);
-	void      SelfDestruct(void);
-	void      Show(int showHow);
+	void            CaptureMouse(void);
+	void            CenterWindow(void);
+	unsigned        ClientAreaHeight(void) const;
+	unsigned        ClientAreaWidth(void) const;
+	HINSTANCE       CopyModule(Window const &);
+	void            ForceRepaint(void);
+	HWND            Handle(void) const;
+	LRESULT         HandleMessage(UINT message, WPARAM, LPARAM);
+    static Window * Lookup(HWND);
+	void            SelfDestruct(void);
+	void            SetClientArea(unsigned width, unsigned height);
+	void            SetHandle(HWND);
+	void            SetIcons(char const *iconResourceName);
+	void            Show(int showHow);
 
-	// access
-	unsigned       ClientAreaHeight(void) const;
-	unsigned       ClientAreaWidth(void) const;
-	HWND           Handle(void) const;
-    static Window *Lookup(HWND);
-	void           SetClientArea(unsigned width, unsigned height);
-	void           SetHandle(HWND);
-	void           SetIcons(char const *iconResourceName);
+	// inquiry
+	bool IsMouseCaptured(void) const;
 
 private:
     typedef std::map<unsigned long, Window*> Map;

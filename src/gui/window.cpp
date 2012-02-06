@@ -5,7 +5,7 @@
 // Distributed under the terms of the GNU General Public License
 
 /*
-This file is part of the Gold Tile game.
+This file is part of the Gold Tile Game.
 
 The Gold Tile game is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by the 
@@ -92,7 +92,7 @@ HDC Window::Initialize(CREATESTRUCT const *pCreateStruct) {
 	return private_dc;
 }
 
-// methods
+// operators
 
 Window::operator Rect(void) const {
 	int x = 0;
@@ -102,11 +102,21 @@ Window::operator Rect(void) const {
 	return result;
 }
 
+
+// misc
+
+void Window::CaptureMouse(void) {
+	HWND this_window = Handle();
+    ::SetCapture(this_window);
+
+	ASSERT(IsMouseCaptured());
+}
+
 // Center a window on its parent.
 // If it has no parent, center it on the desktop.
 void Window::CenterWindow(void) {
-	HWND window = Handle();
-    HWND owner = ::GetParent(window);
+	HWND this_window = Handle();
+    HWND owner = ::GetParent(this_window);
     if (owner == NULL) {
         owner = ::GetDesktopWindow();
 	}
@@ -115,12 +125,12 @@ void Window::CenterWindow(void) {
 	::GetWindowRect(owner, &(RECT &)owner_bounds);
 
     Rect window_bounds(0, 0, 0, 0);
-    ::GetWindowRect(window, &(RECT &)window_bounds);
+    ::GetWindowRect(this_window, &(RECT &)window_bounds);
 
 	int pad_left = (owner_bounds.Width() - window_bounds.Width())/2;
 	int pad_top = (owner_bounds.Height() - window_bounds.Height())/2;
 
-    ::SetWindowPos(window, HWND_TOP, 
+    ::SetWindowPos(this_window, HWND_TOP, 
 		owner_bounds.LeftX() + pad_left, owner_bounds.TopY() + pad_top, 0, 0, SWP_NOSIZE); 
 }
 
@@ -257,6 +267,15 @@ void Window::Show(int how) {
     ::ShowWindow(mHandle, how);
     BOOL success = ::UpdateWindow(mHandle);
     ASSERT(success != 0);
+}
+
+// inquiry
+
+bool Window::IsMouseCaptured(void) const {
+	HWND captor = ::GetCapture();
+    bool result = (captor == mHandle);
+	
+	return result;
 }
 
 #endif

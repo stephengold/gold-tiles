@@ -90,7 +90,7 @@ Tiles Move::GetTiles(void) const {
     const_iterator i_tile_cell;
     for (i_tile_cell = begin(); i_tile_cell != end(); i_tile_cell++) {
         Tile tile = Tile(*i_tile_cell);
-        result.insert(tile);
+        result.Add(tile);
     }
 
     return result;
@@ -160,16 +160,16 @@ bool Move::RepeatsTile(void) const {
     bool result = false;
     
     if (Count() > 1) {
-        Tiles tiles_so_far;
+        Tiles tiles_seen;
         ConstIteratorType i_tile;
         
         for (i_tile = begin(); i_tile != end(); i_tile++) {
             Tile tile = Tile(*i_tile);
-            if (tiles_so_far.Contains(tile)) {
+            if (tiles_seen.Contains(tile)) {
                 result = true;
                 break;
             } else {
-                tiles_so_far.AddTile(tile);
+                tiles_seen.Add(tile);
             }
         }
     }

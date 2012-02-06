@@ -4,13 +4,13 @@ There are two builds of the gold-tiles application:
 
  * gold-tile-Win32 - The main product, targeting the Microsoft Windows(tm) platform.
 
-This build implements a graphical user interface (GUI) which assumes the presence of a mouse or other pointing device.  The graphics are based on GDI.  The _WINDOWS and _GUI preprocessor macros are defined.
+This build implements a graphical user interface (GUI) which assumes the presence of a mouse or other pointing device.  The graphics are based on GDI.  The `_WINDOWS` and `_GUI` preprocessor macros are defined.
 
  * gold-tile-console - implements a console user interface.
 
 This is barely playable and used mainly for debug.  It might 
 also be of interest to users wishing to play remotely (over 
-telnet/rsh) or users lacking a pointing device.  The _CONSOLE preprocessor macro is defined.
+telnet/rsh) or users lacking a pointing device.  The `_CONSOLE` preprocessor macro is defined.
 
 == Coding standards ==
 
@@ -26,15 +26,15 @@ Project-wide definitions belong in "project.hpp"
 
 === Identifiers ===
 
- * attributes - mMixedCasePrefixedByLowercaseM (this->mWidth)
- * auto variables - all_lowercase_with_underscores (int all_done;)
- * classes - MixedCaseStartingWithUppercase (class MenuItem)
- * enum values - use ALL_UPPER_CASE_WITH_UNDERSCORES (COLOR_BLACK)
- * formal parameters - mixedCaseStartingWithLowercase  (bool goFlag)
- * global variables - gMixedCasePrefixedByLowercaseG (gData)
- * methods - MixedCaseStartingWithUppercase (this->HideAll())
- * preproc macros - use ALL_UPPER_CASE_WITH_UNDERSCORES (ASSERT(e))
- * types - use MixedCaseSuffixedWithType (typedef int IdType;)
+ * attributes - `mMixedCasePrefixedByLowercaseM (this->mWidth)`
+ * auto variables - `all_lowercase_with_underscores (int all_done;)`
+ * classes - `MixedCaseStartingWithUppercase (class MenuItem)`
+ * enum values - `ALL_UPPER_CASE_WITH_UNDERSCORES (COLOR_BLACK)`
+ * formal parameters - `mixedCaseStartingWithLowercase  (bool goFlag)`
+ * global variables - `gMixedCasePrefixedByLowercaseG (gData)`
+ * methods - `MixedCaseStartingWithUppercase (this->HideAll())`
+ * preproc macros - `ALL_UPPER_CASE_WITH_UNDERSCORES (ASSERT(e))`
+ * types - `MixedCaseSuffixedWithType (typedef int IdType;)`
 
 See [http://www.possibility.com/Cpp/CppCodingStandard.html] for rationale.
 

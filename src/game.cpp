@@ -272,7 +272,7 @@ bool Game::IsLegalMove(Move const &rMove, char const *&rReason) const {
 	    result = false;
 	} else if (mBestRunLength > 0 
 		&& (rMove.Count() != mBestRunLength || rMove.InvolvesSwap())) {
-        std::cout << "On your first turn, you must play as many tiles as you can."
+        std::cout << "On your first turn, you must play as many tiles as possible."
 			<< std::endl;
 	    rReason = "FIRST";
         result = false;

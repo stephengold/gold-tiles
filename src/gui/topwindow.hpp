@@ -65,6 +65,7 @@ public:
 
 	// misc
 	LRESULT HandleMessage(UINT message, WPARAM, LPARAM);
+	int     MessageDispatchLoop(void);
 
 private:
 	static WindowClass *mspClass;
@@ -98,6 +99,9 @@ private:
 	TileWidthType mTileWidth;
     ViewMenu *   mpViewMenu;
 
+	// lifecycle
+    void Initialize(CREATESTRUCT const *);
+
 	// misc
     unsigned     CellHeight(void) const;
     int          CellX(int column) const;
@@ -122,7 +126,6 @@ private:
 	void         HandleButtonUp(int x, int y);
 	void         HandleDragMouse(int x, int y);
     void         HandleMenuCommand(int);
-    void         Initialize(CREATESTRUCT const *);
 	char const * Name(void) const;
     void         Play(bool passFlag);
 	void         PlayOnCell(Cell const &, Tile const &);
@@ -131,6 +134,7 @@ private:
     void         Resize(unsigned width, unsigned height);
     void         Repaint(void);
 	void         StopDragging(void);
+	void         TakeBack(void);
 	void         UnplayOnCell(Cell const &cell, TileIdType id);
 	void         UpdateMenus(void);
 

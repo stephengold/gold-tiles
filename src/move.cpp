@@ -107,13 +107,13 @@ void Move::GetUserChoice(Tiles const &rAvailableTiles) {
 		if (IsPass()) {
 			alts.Append("pass");
 		} else {
-			alts.Append("go");
+			alts.Append("move");
 		}
 
 		TileCell tile_cell;
 		String input = tile_cell.GetUserChoice(rAvailableTiles, alts);
 		D(std::cout << "input=\'" << input << "'" << std::endl);
-        if (input == "pass" || input == "go") {
+        if (input == "pass" || input == "move") {
             break;
         }
 

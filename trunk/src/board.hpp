@@ -47,6 +47,7 @@ public:
     unsigned   ScoreMove(Move const &) const;
 
 	// inquiry
+	bool Contains(Tile const &) const;
 	bool ContainsId(TileIdType) const;
 	bool ConnectsToStart(Cell const &) const;
     bool HasEmptyCell(Cell const &) const;

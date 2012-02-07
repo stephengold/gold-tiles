@@ -309,6 +309,14 @@ bool Board::ConnectsToStart(Cell const &rCell, Cells &rDoneCells) const { // rec
     return result;
 }
 
+bool Board::Contains(Tile const &rTile) const {
+	Cell cell;
+	TileIdType id = rTile.Id();
+	bool result = LocateTileId(id, cell);
+
+	return result;
+}
+
 bool Board::ContainsId(TileIdType id) const {
 	Cell cell;
 	bool result = LocateTileId(id, cell);

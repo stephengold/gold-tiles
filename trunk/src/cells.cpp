@@ -47,12 +47,24 @@ Cells::operator String(void) const {
     return result;
 }
 
-// public methods
+// misc methods
 
 void Cells::Add(Cell const &cell) {
 	ASSERT(!Contains(cell));
 	insert(cell);
 }
+
+unsigned Cells::Count(void) const {
+	unsigned result = size();
+
+	return result;
+}
+
+void Cells::MakeEmpty(void) {
+	clear();
+}
+
+// inquiry methods
 
 bool Cells::AreAllInSameRow(void) const {
     bool result = true;
@@ -93,10 +105,4 @@ bool Cells::Contains(Cell const &rCell) const {
     bool result = (i_cell != end());
     
     return result;
-}
-
-unsigned Cells::Count(void) const {
-	unsigned result = size();
-
-	return result;
 }

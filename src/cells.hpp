@@ -40,10 +40,9 @@ public:
     operator String(void) const;
 
 	// misc
-	void Add(Cell const &);
-
-	// access
+	void     Add(Cell const &);
 	unsigned Count(void) const;
+	void     MakeEmpty(void);
 
 	// inquiry
 	bool AreAllInSameRow(void) const;

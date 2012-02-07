@@ -135,13 +135,13 @@ FONT 10, "Microsoft Sans Serif"
 
 
 
-FIRST DIALOG 0, 0, 116, 51
+FIRST DIALOG 0, 0, 116, 55
 STYLE DS_3DLOOK | DS_CENTER | DS_MODALFRAME | DS_SHELLFONT | WS_CAPTION | WS_VISIBLE | WS_POPUP | WS_SYSMENU
 CAPTION "First Turn Rule - Gold Tile"
 FONT 10, "Microsoft Sans Serif"
 {
-    DEFPUSHBUTTON   "OK", IDOK, 34, 29, 50, 14
-    CTEXT           "On your first turn, you must play as many tiles as possible.", IDC_STATIC, 10, 6, 97, 20, SS_CENTER
+    DEFPUSHBUTTON   "OK", IDOK, 36, 35, 50, 14
+    CTEXT           "On the first turn, you must play as many tiles as possible.  Keep looking!", IDC_STATIC, 12, 6, 94, 27, SS_CENTER
 }
 
 
@@ -207,7 +207,18 @@ CAPTION "Start Rule - Gold Tile"
 FONT 10, "Microsoft Sans Serif"
 {
     DEFPUSHBUTTON   "OK", IDOK, 43, 36, 50, 14
-    CTEXT           "Your first tile must be played on the start cell. To change this tile, you must take back ALL your tiles.", IDC_STATIC, 10, 6, 114, 30, SS_CENTER
+    CTEXT           "Your first tile must use the start cell. To change this tile, you must take back ALL your tiles.", IDC_STATIC, 10, 6, 114, 30, SS_CENTER
+}
+
+
+
+STARTSIMPLE DIALOG 0, 0, 138, 43
+STYLE DS_3DLOOK | DS_CENTER | DS_MODALFRAME | DS_SHELLFONT | WS_CAPTION | WS_VISIBLE | WS_POPUP | WS_SYSMENU
+CAPTION "Start Rule - Gold Tile"
+FONT 10, "Microsoft Sans Serif"
+{
+    DEFPUSHBUTTON   "OK", IDOK, 43, 21, 50, 14
+    CTEXT           "Your first tile must use the start cell.", IDC_STATIC, 10, 6, 114, 12, SS_CENTER
 }
 
 
@@ -255,12 +266,12 @@ HOTKEYS ACCELERATORS
     VK_ESCAPE,     IDM_TAKE_BACK, VIRTKEY
     VK_F1,         IDM_RULES, VIRTKEY
     VK_F4,         IDM_EXIT, VIRTKEY, ALT
-    "C",            IDM_RECENTER, ASCII
-    "H",            IDM_HINT, ASCII
-    "P",            IDM_PRINT, ASCII
-    "S",            IDM_SAVE, ASCII
-    "Y",            IDM_REDO, ASCII
-    "Z",            IDM_UNDO, ASCII
+    67,            IDM_RECENTER, VIRTKEY
+    72,            IDM_HINT, VIRTKEY
+    80,            IDM_PRINT, VIRTKEY
+    83,            IDM_SAVE, VIRTKEY
+    89,            IDM_REDO, VIRTKEY
+    90,            IDM_UNDO, VIRTKEY
 }
 
 

@@ -5,20 +5,20 @@
 // Distributed under the terms of the GNU General Public License
 
 /*
-This file is part of the Gold Tile game.
+This file is part of the Gold Tile Game.
 
-The Gold Tile game is free software: you can redistribute it and/or modify
+The Gold Tile Game is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by the 
 Free Software Foundation, either version 3 of the License, or (at your 
 option) any later version.
 
-The Gold Tile game is distributed in the hope that it will be useful, but 
+The Gold Tile Game is distributed in the hope that it will be useful, but 
 WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY 
 or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License 
 for more details.
 
 You should have received a copy of the GNU General Public License
-along with the Gold Tile game.  If not, see <http://www.gnu.org/licenses/>.
+along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "project.hpp"
@@ -93,6 +93,7 @@ TopWindow::TopWindow(HINSTANCE applicationInstance, Game *pGame):
     ASSERT(pGame != NULL);
 	mpGame = pGame;
 
+	mActiveCellFlag = true;
     mActiveTileId = 0;
 	mApplication = applicationInstance;
     mAutopauseFlag = false;
@@ -102,6 +103,7 @@ TopWindow::TopWindow(HINSTANCE applicationInstance, Game *pGame):
     mFileName = "Game1";
 	mpGame = pGame;
     mHandTiles = Tiles(pGame->ActivePlayer());
+	mHintStrength = 2;
     mIsStartCentered = false;
     mMouseLastX = 0;
     mMouseLastY = 0;
@@ -271,10 +273,13 @@ Rect TopWindow::DrawBlankTile(Canvas &rCanvas, int topY, int leftX) {
 }
 
 void TopWindow::DrawBoard(Canvas &rCanvas) {
-    int top_row = 1 + (int)mBoard.NorthMax();
-    int bottom_row = -1 - (int)mBoard.SouthMax();
-    int right_column = 1 + (int)mBoard.EastMax();
-    int left_column = -1 - (int)mBoard.WestMax();
+
+	SetValidNextUses();
+
+    int top_row = 1 + mBoard.NorthMax();
+    int bottom_row = -1 - mBoard.SouthMax();
+    int right_column = 1 + mBoard.EastMax();
+    int left_column = -1 - mBoard.WestMax();
     ASSERT(bottom_row <= top_row);
     ASSERT(left_column <= right_column);
 
@@ -306,10 +311,10 @@ void TopWindow::DrawCell(Canvas &rCanvas, Cell const &rCell, unsigned swapCnt) {
     int ulc_y = CellY(row);
 
     Cells done;
-    bool connected = mBoard.ConnectsToStart(rCell);
+    bool hinted = IsHinted(rCell);
 
     ColorType cellColor = COLOR_DARK_GREEN;
-    if (!connected) {
+    if (!hinted) {
         cellColor = COLOR_BLACK;
     } else if (swapCnt > 0) {
         cellColor = COLOR_BROWN;
@@ -329,6 +334,10 @@ void TopWindow::DrawCell(Canvas &rCanvas, Cell const &rCell, unsigned swapCnt) {
 	if (rCell.IsStart()) {
 	    rCanvas.DrawText(rect, "START");
 	}
+	if (mActiveCellFlag && rCell == mActiveCell) {
+	    rCanvas.DrawTarget(rect);
+	}
+
     Tile const *tile = mBoard.GetCell(rCell);
     if (tile != NULL && tile->Id() != mActiveTileId) {
         DrawTile(rCanvas, ulc_y + 1, ulc_x + 1, *tile);
@@ -643,46 +652,31 @@ void TopWindow::HandleButtonDown(int x, int y) {
         // Capture mouse to drag the board
     	CaptureMouse();
         mDragBoardFlag = true;
+		mDragBoardPixelCnt = 0;
     }
 }
 
 void TopWindow::HandleButtonUp(int x, int y) {	
-    int drag_x = x - mMouseLastX;
-    int drag_y = y - mMouseLastY;
-    mMouseLastX = x;
-    mMouseLastY = y;
+	HandleMouseMove(x, y);
 
 	if (mDragBoardFlag) {
-        ASSERT(mActiveTileId == 0);
-        mStartX += drag_x;
-        mStartY += drag_y;
-        StopDragging();
-        
+		if (mDragBoardPixelCnt < 5) {
+		    // Trivial drags of less than five pixels 
+			// are treated as normal mouse-clicks 
+			// which activate/deactivate the cell.
+			Cell cell = GetCell(x, y);
+			if (mActiveCellFlag && cell == mActiveCell) {
+     			mActiveCellFlag = false;
+			} else if (IsHinted(cell)) {
+				mActiveCell = cell;
+				mActiveCellFlag = true;
+			}
+		}
+   		StopDragging();
     } else {
         ASSERT(mActiveTileId != 0);        
-        mDragTileDeltaX += drag_x;
-        mDragTileDeltaY += drag_y;
 		ReleaseActiveTile(x, y);
     }
-    
-	ForceRepaint();
-}
-
-void TopWindow::HandleDragMouse(int x, int y) {
-    int dragX = x - mMouseLastX;
-    int dragY = y - mMouseLastY;
-    mMouseLastX = x;
-    mMouseLastY = y;
-
-    if (mDragBoardFlag) {
-        mStartX += dragX;
-        mStartY += dragY;
-    } else {
-        ASSERT(mActiveTileId != 0);        
-        mDragTileDeltaX += dragX;
-        mDragTileDeltaY += dragY;
-    }
-    ForceRepaint();
 }
 
 void TopWindow::HandleMenuCommand(int command) {
@@ -827,7 +821,7 @@ LRESULT TopWindow::HandleMessage(UINT message, WPARAM wParam, LPARAM lParam) {
             break;
         }
 
-        case WM_LBUTTONDOWN: // left-click
+        case WM_LBUTTONDOWN: // begin left-click
 			if (mPauseFlag) {
                 mPauseFlag = false;
 		        ForceRepaint();
@@ -837,7 +831,7 @@ LRESULT TopWindow::HandleMessage(UINT message, WPARAM wParam, LPARAM lParam) {
 			}
             break;
 
-        case WM_LBUTTONUP:
+        case WM_LBUTTONUP: // end left-click
 			if (IsDragging()) {
                 if (IsMouseCaptured()) {
 				    POINTS point = MAKEPOINTS(lParam);
@@ -845,17 +839,19 @@ LRESULT TopWindow::HandleMessage(UINT message, WPARAM wParam, LPARAM lParam) {
 				} else {
 					StopDragging();
 				}
-			}
+    		    ForceRepaint();
+        	}
   		    break;
 
         case WM_MOUSEMOVE:
 			if (IsDragging()) {
                 if (IsMouseCaptured()) {
 				    POINTS point = MAKEPOINTS(lParam);
-                    HandleDragMouse(point.x, point.y);
+	                HandleMouseMove(point.x, point.y);
 				} else {
 					StopDragging();
 				}
+                ForceRepaint();
 			}
             break;
 
@@ -878,6 +874,24 @@ LRESULT TopWindow::HandleMessage(UINT message, WPARAM wParam, LPARAM lParam) {
     }
 
     return result;
+}
+
+void TopWindow::HandleMouseMove(int x, int y) {
+    int drag_x = x - mMouseLastX;
+    int drag_y = y - mMouseLastY;
+    mMouseLastX = x;
+    mMouseLastY = y;
+
+    if (mDragBoardFlag) {
+        mStartX += drag_x;
+        mStartY += drag_y;
+		mDragBoardPixelCnt += ::abs(drag_x) + ::abs(drag_y);
+
+	} else {
+        ASSERT(mActiveTileId != 0);        
+        mDragTileDeltaX += drag_x;
+        mDragTileDeltaY += drag_y;
+    }
 }
 
 void TopWindow::Initialize(CREATESTRUCT const *pCreateStruct) {
@@ -1004,12 +1018,21 @@ void TopWindow::ReleaseActiveTile(int x, int y) {
 	{
 		// Trivial drags which don't actually move the tile
 		// are treated as normal mouse-clicks which
-		// activate/deactivate the tile.
-		++mMouseUpCnt;
-		if (mMouseUpCnt > 1) {
-			StopDragging();
- 		}
-		return;
+		// activate/deactivate the tile or play it to the
+		// active cell.
+		if (mMouseUpCnt == 1) {
+			StopDragging(); // deactivates the tile
+    		return;
+		} else {
+		    ASSERT(mMouseUpCnt == 0);
+			if (mActiveCellFlag) {
+			    to_board = true;
+				to_cell = mActiveCell;
+			} else {
+        		++mMouseUpCnt;
+				return;
+			}
+		}
 	}
 
 	// move the tile
@@ -1032,8 +1055,12 @@ void TopWindow::ReleaseActiveTile(int x, int y) {
     char const *reason;
 	bool legal = mpGame->IsLegalMove(move_so_far, reason);
 
-	if (!legal && (to_swap || strcmp(reason, "FIRST") != 0)) {  
-		// It's illegal, even as a partial move.
+	if (legal || (!to_swap && ::strcmp(reason, "FIRST") == 0)) {  
+		// It's legal, at least as a partial move.
+	    mActiveCellFlag = false;
+
+	} else {
+		// It's illegal, even as a partial move:  undo it.
 		if (to_swap) {
             mSwapTiles.RemoveTileId(mActiveTileId);
 		} else if (to_board) {
@@ -1047,6 +1074,9 @@ void TopWindow::ReleaseActiveTile(int x, int y) {
 		}
 
 		// Explain the issue to the user.
+		if (::strcmp(reason, "START") == 0 && !from_board) {
+			reason = "STARTSIMPLE";
+	    }
 	    Dialog(reason, *this);
 	}
 
@@ -1152,11 +1182,97 @@ void TopWindow::UpdateMenus(void) {
 	ASSERT(success);
 }
 
+void TopWindow::SetHintedCells(void) {
+    mHintedCells.MakeEmpty();
 
-// inquiry
+	Move move = GetMove();
+
+	if (mActiveTileId == 0) {
+		for (unsigned i = 0; i < mHandTiles.Count(); i++) {
+            Tile tile = mHandTiles[i];
+			TileIdType id = tile.Id();
+
+			if (id == mActiveTileId) {
+		        AddValidNextUses(move, tile);
+			}
+		}
+
+	} else {
+		Tile tile = mHandTiles.FindTile(mActiveTileId);
+		AddValidNextUses(move, tile);
+	}
+}
+
+
+void TopWindow::AddValidNextUses(Move const &rMove, Tile const &rTile) const {
+    int top_row = 1 + mBoard.NorthMax();
+    int bottom_row = -1 - mBoard.SouthMax();
+    int right_column = 1 + mBoard.EastMax();
+    int left_column = -1 - mBoard.WestMax();
+    ASSERT(bottom_row <= top_row);
+    ASSERT(left_column <= right_column);
+
+    for (int row = top_row; row >= bottom_row; row--) {
+        for (int column = left_column; column <= right_column; column++) {
+            Cell cell(row, column);
+            if (IsValidNextStep(rMove, cell, rTile)) {
+				mValidNextUses.Add(cell);
+			}
+        }
+    }
+}
+
+
+// inquiry methods
+
+bool TopWindow::IsAnyValidNextUse(Cell const &rCell) const {
+	bool result = false;
+
+	Move move = GetMove();
+	if (mActiveTileId == 0) {
+		for (unsigned i = 0; i < mHandTiles.Count(); i++) {
+            Tile tile = mHandTiles[i];
+            Cell tmp_cell;
+
+			if (tile.Id() == mActiveTileId
+				|| !mBoard.LocateTile(tile, tmp_cell))
+			{
+		        if (IsValidNextStep(move, rCell, tile)) {
+					result = true;
+					break;
+				}
+			}
+		}
+
+	} else {
+		Tile tile = mHandTiles.FindTile(mActiveTileId);
+		result = IsValidNextStep(move, rCell, tile);
+	}
+
+    return result;
+}
 
 bool TopWindow::IsDragging(void) const {
 	bool result = (mDragBoardFlag || mActiveTileId != 0);
+
+	return result;
+}
+
+bool TopWindow::IsHinted(Cell const &rCell) const {
+	bool result;
+	switch(mHintStrength) {
+	    case 0:
+			result = IsInBounds(rCell);
+			break;
+		case 1:
+			result = mBoard.ConnectsToStart(rCell);
+			break;
+		case 2:
+			result = IsAnyValidMove(rCell);
+			break;
+		default:
+			ASSERT(false);
+	}
 
 	return result;
 }
@@ -1173,6 +1289,29 @@ bool TopWindow::IsInSwapArea(int x, int y) const {
 	return result;
 }
 
+bool TopWindow::IsInBounds(Cell const &rCell) const {
+	bool result = true;
+
+	int n = rCell.Row();
+    if (n > 1 + mBoard.NorthMax()) {
+        result = false;
+    }
+    if (n < -1 - mBoard.SouthMax()) {
+        result = false;
+    }
+
+    int e = rCell.Column();
+    if (e > 1 + mBoard.EastMax()) {
+        result = false;
+    }
+    if (e < -1 - mBoard.WestMax()) {
+        result = false;
+    }
+
+	return result;
+}
+
+
 bool TopWindow::IsInTile(int x, int y) const {
 	TileIdType id = GetTileId(x, y);
 	bool result = (id != 0);
@@ -1182,6 +1321,21 @@ bool TopWindow::IsInTile(int x, int y) const {
 
 bool TopWindow::IsPaused(void) const {
 	bool result = mPauseFlag;
+
+	return result;
+}
+
+bool TopWindow::IsValidNextStep(Move const &base, Cell const &rCell, Tile const &rTile) const {
+	// Check whether a hypothetical next step would be legal.
+	Move move = base;
+	move.Add(rTile, rCell);
+    char const *reason;
+	bool result = mpGame->IsLegalMove(move, reason);
+
+	if (!result && ::strcmp(reason, "FIRST") == 0) {  
+		// legal as a partial move.
+	    result = true;
+	}
 
 	return result;
 }

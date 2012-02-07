@@ -8,20 +8,20 @@
 // Distributed under the terms of the GNU General Public License
 
 /*
-This file is part of the Gold Tile game.
+This file is part of the Gold Tile Game.
 
-The Gold Tile game is free software: you can redistribute it and/or modify
+The Gold Tile Game is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by the 
 Free Software Foundation, either version 3 of the License, or (at your 
 option) any later version.
 
-The Gold Tile game is distributed in the hope that it will be useful, but 
+The Gold Tile Game is distributed in the hope that it will be useful, but 
 WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY 
 or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License 
 for more details.
 
 You should have received a copy of the GNU General Public License
-along with the Gold Tile game.  If not, see <http://www.gnu.org/licenses/>.
+along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 /*
@@ -70,17 +70,22 @@ public:
 private:
 	static WindowClass *mspClass;
 
+	Cell          mActiveCell;
+	bool          mActiveCellFlag;
 	TileIdType    mActiveTileId;
 	HINSTANCE     mApplication;	
 	bool          mAutopauseFlag;
 	Board         mBoard;
 	ACountType    mColorAttributeCnt;
 	bool          mDragBoardFlag;
+	unsigned      mDragBoardPixelCnt;
 	int           mDragTileDeltaX, mDragTileDeltaY;
 	Game *       mpGame;
 	char *        mFileName;
 	Rect          mHandRect;
 	Tiles         mHandTiles;
+	Cells         mHintedCells;
+	unsigned      mHintStrength;
 	bool          mIsStartCentered;
 	int           mMouseLastX, mMouseLastY; // coordinates of last mouse down
 	int           mMouseUpCnt;
@@ -91,7 +96,7 @@ private:
 	unsigned      mRunLength;
 	bool          mShowClocksFlag, mShowGridFlag, mShowHintsFlag;
 	bool          mShowScoresFlag, mShowTilesFlag;
-	bool          mSquareGrid;
+	bool          mSquareGrid;      // false = hex grid
 	long          mStartX, mStartY; // logical coordinates of center of start cell
 	Tiles         mSwapTiles;
 	Rect          mSwapRect;
@@ -103,6 +108,7 @@ private:
     void Initialize(CREATESTRUCT const *);
 
 	// misc
+	void         AddValidNextUses(Cells &, Move const &, Tile const &) const;
     unsigned     CellHeight(void) const;
     int          CellX(int column) const;
     int          CellY(int row) const;
@@ -124,8 +130,8 @@ private:
     unsigned     GridUnit(void) const;
     void         HandleButtonDown(int x, int y);
 	void         HandleButtonUp(int x, int y);
-	void         HandleDragMouse(int x, int y);
     void         HandleMenuCommand(int);
+	void         HandleMouseMove(int x, int y);
 	char const * Name(void) const;
     void         Play(bool passFlag);
 	void         PlayOnCell(Cell const &, Tile const &);
@@ -133,17 +139,22 @@ private:
 	void         ReleaseActiveTile(int x, int y);
     void         Resize(unsigned width, unsigned height);
     void         Repaint(void);
+	void         SetHintedCells(void);
 	void         StopDragging(void);
 	void         TakeBack(void);
-	void         UnplayOnCell(Cell const &cell, TileIdType id);
+	void         UnplayOnCell(Cell const &, TileIdType id);
 	void         UpdateMenus(void);
 
 	// inquiry
-	bool         IsDragging(void) const;
-	bool         IsInHandArea(int x, int y) const;
-	bool         IsInSwapArea(int x, int y) const;
-	bool         IsInTile(int x, int y) const;
-	bool         IsPaused(void) const;
+	bool IsAnyValidNextUse(Cell const &) const;
+	bool IsDragging(void) const;
+    bool IsInBounds(Cell const &) const;
+	bool IsInHandArea(int x, int y) const;
+	bool IsInSwapArea(int x, int y) const;
+	bool IsInTile(int x, int y) const;
+	bool IsHinted(Cell const &rCell) const;
+	bool IsPaused(void) const;
+	bool IsValidNextStep(Move const &, Cell const &, Tile const &) const;
 };
 
 #endif

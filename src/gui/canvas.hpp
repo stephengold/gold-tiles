@@ -8,26 +8,28 @@
 // Distributed under the terms of the GNU General Public License
 
 /*
-This file is part of the Gold Tile game.
+This file is part of the Gold Tile Game.
 
-The Gold Tile game is free software: you can redistribute it and/or modify
+The Gold Tile Game is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by the 
 Free Software Foundation, either version 3 of the License, or (at your 
 option) any later version.
 
-The Gold Tile game is distributed in the hope that it will be useful, but 
+The Gold Tile Game is distributed in the hope that it will be useful, but 
 WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY 
 or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License 
 for more details.
 
 You should have received a copy of the GNU General Public License
-along with the Gold Tile game.  If not, see <http://www.gnu.org/licenses/>.
+along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 /*
 A Canvas object represents ...
 
-The Canvas class is implemented ...
+The Canvas class extends the Graphics class with features specific to the
+Gold Tile Game.
+
 */
 
 #include "project.hpp"
@@ -52,6 +54,7 @@ public:
 	// misc
 	Rect DrawCell(int top, int left, unsigned width,
                ColorType cellColor, ColorType gridColor);
+    void DrawTarget(Rect);
     Rect DrawTile(int top, int left, unsigned width, 
                ACountType numGlyphs, const AValueType glyphs[],
                ColorType tile, ColorType glyph);

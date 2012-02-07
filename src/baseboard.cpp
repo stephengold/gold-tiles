@@ -126,12 +126,12 @@ void BaseBoard::MakeEmpty(Cell const &rSquare) {
 }
 
 // play a Tile on a specific cell
-void BaseBoard::PlayOnCell(Cell const &rRef, Tile const &rTile) {
+void BaseBoard::PlayOnCell(Cell const &rCell, Tile const &rTile) {
     D(std::cout << "Play " << (String)rTile << " on " << (String)rRef << std::endl);
 
-    ASSERT(GetCell(rRef) == NULL);
+    ASSERT(GetCell(rCell) == NULL);
 
-    int n = rRef.Row();
+    int n = rCell.Row();
     if (n > (int)mNorthMax) {
         mNorthMax = n;
     }
@@ -139,14 +139,14 @@ void BaseBoard::PlayOnCell(Cell const &rRef, Tile const &rTile) {
         mSouthMax = -n;
     }
 
-    int e = rRef.Column();
+    int e = rCell.Column();
     if (e > (int)mEastMax) {
         mEastMax = e;
     }
     if (e < -(int)mWestMax) {
         mWestMax = -e;
     }
-    mCells[rRef] = rTile;
+    mCells[rCell] = rTile;
 }
 
 

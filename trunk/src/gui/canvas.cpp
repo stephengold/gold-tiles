@@ -46,7 +46,7 @@ Canvas::Canvas(
     Graphics(context, window, releaseMe, true, width, height)
 {}
 
-void Canvas::DrawCell(
+Rect Canvas::DrawCell(
     int top,
     int left,
     unsigned width,
@@ -55,7 +55,9 @@ void Canvas::DrawCell(
 {
     UseColors(cellColor, gridColor);
     int height = width;
-    DrawRectangle(top, left, width, height);
+    Rect result = DrawRectangle(top, left, width, height);
+
+	return result;
 }
 
 void Canvas::DrawGlyph(

@@ -102,12 +102,10 @@ TopWindow::TopWindow(HINSTANCE applicationInstance, Game *pGame):
     mFileName = "Game1";
 	mpGame = pGame;
     mHandTiles = Tiles(pGame->ActivePlayer());
+    mIsStartCentered = false;
     mMouseLastX = 0;
     mMouseLastY = 0;
 	mMouseUpCnt = 0;
-    mOriginIsCentered = false;
-    mOriginX = 0;
-    mOriginY = 0;
     mPadPixels = 6;
 	mPauseFlag = mAutopauseFlag;
     mpPlayMenu = NULL;
@@ -115,7 +113,10 @@ TopWindow::TopWindow(HINSTANCE applicationInstance, Game *pGame):
 	mShowClocksFlag = false;
 	mShowGridFlag = true;
 	mShowScoresFlag = true;
-	mShowTilesFlag = false;    
+	mShowTilesFlag = false;
+	mSquareGrid = true;
+	mStartX = 0;
+    mStartY = 0;
 	mTileWidth = TILE_WIDTH_LARGE;
     mpViewMenu = NULL;
 
@@ -159,14 +160,14 @@ unsigned TopWindow::CellWidth(void) const {
 
 int TopWindow::CellX(int column) const {
     unsigned grid_unit = GridUnit();
-    int result = mOriginX + grid_unit*column;
+    int result = mStartX + grid_unit*column;
 
     return result;
 }
 
 int TopWindow::CellY(int row) const {
     unsigned grid_unit = GridUnit();
-    int result = mOriginY - grid_unit*row;
+    int result = mStartY - grid_unit*row;
 
     return result;
 }
@@ -305,7 +306,7 @@ void TopWindow::DrawCell(Canvas &rCanvas, Cell const &rCell, unsigned swapCnt) {
     int ulc_y = CellY(row);
 
     Cells done;
-    bool connected = mBoard.ConnectsToOrigin(rCell);
+    bool connected = mBoard.ConnectsToStart(rCell);
 
     ColorType cellColor = COLOR_DARK_GREEN;
     if (!connected) {
@@ -323,8 +324,11 @@ void TopWindow::DrawCell(Canvas &rCanvas, Cell const &rCell, unsigned swapCnt) {
     }
 
     unsigned cellWidth = CellWidth();
-    rCanvas.DrawCell(ulc_y, ulc_x, cellWidth, cellColor, gridColor);
+    Rect rect = rCanvas.DrawCell(ulc_y, ulc_x, cellWidth, cellColor, gridColor);
     
+	if (rCell.IsStart()) {
+	    rCanvas.DrawText(rect, "START");
+	}
     Tile const *tile = mBoard.GetCell(rCell);
     if (tile != NULL && tile->Id() != mActiveTileId) {
         DrawTile(rCanvas, ulc_y + 1, ulc_x + 1, *tile);
@@ -571,12 +575,28 @@ Rect TopWindow::DrawTile(Canvas &rCanvas, int topY, int leftX, Tile const &rTile
 }
 
 Cell TopWindow::GetCell(int x, int y) const {
-    unsigned grid_unit = GridUnit();
-    int column = -400 + (x - mOriginX + 400*grid_unit)/grid_unit;
-    int row = 400 - (y - mOriginY + 400*grid_unit)/grid_unit;
+    unsigned long grid_unit = GridUnit();
+    int column = -400 + (x - mStartX + 400*grid_unit)/grid_unit;
+    int row = 400 - (y - mStartY + 400*grid_unit)/grid_unit;
     Cell result(row, column);
     
     return result;
+}
+
+Move TopWindow::GetMove(void) const {
+    Move result;
+    
+    for (unsigned i = 0; i < mHandTiles.Count(); i++) {
+        Tile tile = mHandTiles[i];
+        Cell cell;
+        if (mBoard.LocateTile(tile, cell)) {
+           result.Add(tile, cell);
+        } else if (mSwapTiles.Contains(tile)) {
+           result.Add(tile);
+        }
+    }
+
+	return result;
 }
 
 TileIdType TopWindow::GetTileId(int x, int y) const {
@@ -634,8 +654,8 @@ void TopWindow::HandleButtonUp(int x, int y) {
 
 	if (mDragBoardFlag) {
         ASSERT(mActiveTileId == 0);
-        mOriginX += drag_x;
-        mOriginY += drag_y;
+        mStartX += drag_x;
+        mStartY += drag_y;
         StopDragging();
         
     } else {
@@ -648,7 +668,6 @@ void TopWindow::HandleButtonUp(int x, int y) {
 	ForceRepaint();
 }
 
-
 void TopWindow::HandleDragMouse(int x, int y) {
     int dragX = x - mMouseLastX;
     int dragY = y - mMouseLastY;
@@ -656,8 +675,8 @@ void TopWindow::HandleDragMouse(int x, int y) {
     mMouseLastY = y;
 
     if (mDragBoardFlag) {
-        mOriginX += dragX;
-        mOriginY += dragY;
+        mStartX += dragX;
+        mStartY += dragY;
     } else {
         ASSERT(mActiveTileId != 0);        
         mDragTileDeltaX += dragX;
@@ -743,7 +762,7 @@ void TopWindow::HandleMenuCommand(int command) {
 		    ForceRepaint();
             break;
         case IDM_RECENTER:
-            mOriginIsCentered = false;
+            mIsStartCentered = false;
             Resize(ClientAreaWidth(), ClientAreaHeight());
             break;
 		case IDM_ATTRIBUTES:
@@ -880,20 +899,12 @@ char const *TopWindow::Name(void) const {
 }
 
 void TopWindow::Play(bool passFlag) {
-    Move pl;
+    Move move = GetMove();
     
-    for (unsigned i = 0; i < mHandTiles.Count(); i++) {
-        Tile tile = mHandTiles[i];
-        Cell cell;
-        if (mBoard.LocateTile(tile, cell)) {
-           pl.Add(tile, cell);
-        } else if (mSwapTiles.Contains(tile)) {
-           pl.Add(tile);
-        }
-    }
-    
-    if (pl.IsPass() == passFlag && mpGame->IsLegalMove(pl)) {
-        mpGame->FinishTurn(pl);
+	char const *reason;
+	bool is_legal = mpGame->IsLegalMove(move, reason);
+    if (move.IsPass() == passFlag && is_legal) {
+        mpGame->FinishTurn(move);
         if (mpGame->IsOver()) {
             mShowClocksFlag = true;
             mShowScoresFlag = true;
@@ -911,10 +922,17 @@ void TopWindow::Play(bool passFlag) {
         mPlayedTileCnt = 0;
         mSwapTiles.MakeEmpty();
        
-        // center the origin
-        mOriginIsCentered = false;
+        // center the start cell
+        mIsStartCentered = false;
         Resize(ClientAreaWidth(), ClientAreaHeight());
     }
+
+	if (!is_legal) {
+		// explain the issue
+		if (mSwapTiles.Count() > 0) {
+		    Dialog(reason, *this);
+		}
+	}
 }
 
 void TopWindow::PlayOnCell(Cell const &cell, Tile const &tile) {
@@ -924,25 +942,25 @@ void TopWindow::PlayOnCell(Cell const &cell, Tile const &tile) {
 
 
 void TopWindow::Recenter(unsigned oldHeight, unsigned oldWidth) {
-    if (mOriginIsCentered) {
-        //_originX += (_clientAreaWidth - oldWidth)/2;
-        //_originY += (_clientAreaHeight - oldHeight)/2;
+    if (mIsStartCentered) {
+        //_startX += (_clientAreaWidth - oldWidth)/2;
+        //_startY += (_clientAreaHeight - oldHeight)/2;
     } else if (ClientAreaWidth() > 250 && ClientAreaHeight() > 100) {
-        mOriginX = ClientAreaWidth()/2; // TODO
-        mOriginY = ClientAreaHeight()/2;
-        mOriginIsCentered = true;
+        mStartX = ClientAreaWidth()/2; // TODO
+        mStartY = ClientAreaHeight()/2;
+        mIsStartCentered = true;
     }
 }
 
 void TopWindow::ReleaseActiveTile(int x, int y) {
-	// Determine where the active tile got picked up.
+	// Determine where the active tile came from.
 	Cell from_cell;
     bool from_board = mBoard.LocateTileId(mActiveTileId, from_cell);
     bool from_swap = mSwapTiles.ContainsId(mActiveTileId);
 	ASSERT(!(from_swap && from_board)); 
 	bool from_hand = !(from_board || from_swap);
 
-	// Determine where the active tile got released.
+	// Determine where the active tile was released to.
 	Cell to_cell;
 	bool to_hand = IsInHandArea(x, y);
 	bool to_swap = IsInSwapArea(x, y);
@@ -956,9 +974,9 @@ void TopWindow::ReleaseActiveTile(int x, int y) {
 	    from_swap && to_swap ||
 	    from_board && to_board && from_cell == to_cell)
 	{
-		// trivial cases which don't actually move the tile
+		// trivial drags which don't actually move the tile
+		// are treated as simple mouse-clicks
 		++mMouseUpCnt;
-
 		if (mMouseUpCnt > 1) {
 			StopDragging();
  		}
@@ -974,27 +992,28 @@ void TopWindow::ReleaseActiveTile(int x, int y) {
     Tile drag_tile = mHandTiles.FindTile(mActiveTileId);
 
     if (to_swap) {
-        if (mPlayedTileCnt == 0) {
-	        // legal addition to swap
-            mSwapTiles.Add(drag_tile);
-		} else {
-		    ASSERT(!from_swap);
+        ASSERT(!from_swap);
+        mSwapTiles.Add(drag_tile);
+        Move move = GetMove();
+		char const *reason;
+        if (!mpGame->IsLegalMove(move, reason)) {
+            mSwapTiles.RemoveTileId(mActiveTileId);
+
 		    if (from_board) { // return tile to board
                 PlayOnCell(from_cell, drag_tile);
 		    }
 
 			// explain the issue
-			Dialog("MIXED", *this);
+		    Dialog(reason, *this);
 		}
 
 	} else if (to_board) { // dragged to board
-        Move move;
-        move.Add(drag_tile, to_cell);
-        if (mSwapTiles.Count() == 0 && mBoard.IsLegalMove(move)) {
-		    // a legal move (by itself)
-            PlayOnCell(to_cell, drag_tile);
+        PlayOnCell(to_cell, drag_tile);
+        Move move = GetMove();
+		char const *reason;
+        if (!mpGame->IsLegalMove(move, reason) && strcmp(reason, "FIRST") != 0) {
+            UnplayOnCell(to_cell, mActiveTileId);
 
-		} else {
 		    if (from_board) { // return tile to board
                 PlayOnCell(from_cell, drag_tile);
 		    } else if (from_swap) { // return tile to swap
@@ -1002,17 +1021,7 @@ void TopWindow::ReleaseActiveTile(int x, int y) {
 		    }
 
 			// explain the issue
-			if (mSwapTiles.Count() > 0) {
-			    Dialog("MIXED", *this);
-			} else if (mBoard.HasEmptyCell(Cell(0,0))) {
-			    Dialog("FIRST", *this);
-			} else if (from_board && from_cell.IsOrigin()) {
-			    Dialog("ORIGIN", *this);
-			} else if (!mBoard.ConnectsToOrigin(to_cell)) {
-			    Dialog("CONNECTED", *this);
-			} else {
-			    Dialog("COMPATIBLE", *this);
-			}
+		    Dialog(reason, *this);
 		}
 	}
 	StopDragging();

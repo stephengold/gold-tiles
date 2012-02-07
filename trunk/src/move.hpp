@@ -38,19 +38,17 @@ public:
  	typedef std::set<TileCell>::iterator       IteratorType;
 
 	// operators
+    operator Cells(void) const;
     operator String(void) const;
+    operator Tiles(void) const;
 
 	// misc
     void     Add(Tile const &);
     void     Add(Tile const &, Cell const &);
+    unsigned Count(void) const;
     void     GetUserChoice(Tiles const &);
 	void     MakeEmpty(void);
  
-	// access
-    unsigned Count(void) const;
-    Cells    GetCells(void) const;
-    Tiles    GetTiles(void) const;
-
 	// inquiry
 	bool     InvolvesSwap(void) const;
 	bool     IsPass(void) const;

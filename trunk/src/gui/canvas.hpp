@@ -50,7 +50,7 @@ public:
     Canvas &operator=(Canvas const &) { ASSERT(false); };
 
 	// misc
-	void DrawCell(int top, int left, unsigned width,
+	Rect DrawCell(int top, int left, unsigned width,
                ColorType cellColor, ColorType gridColor);
     Rect DrawTile(int top, int left, unsigned width, 
                ACountType numGlyphs, const AValueType glyphs[],

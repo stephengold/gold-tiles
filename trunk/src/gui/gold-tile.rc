@@ -54,7 +54,7 @@ TOPWINDOW MENU
     {
         MENUITEM "Pa&use", IDM_PAUSE
         MENUITEM "&Accept Hint", IDM_ACCEPT
-        MENUITEM "&Play", IDM_PLAY_PLAY
+        MENUITEM "&Play+Enter", IDM_PLAY_PLAY
         MENUITEM "Pa&ss", IDM_PASS
         MENUITEM "Res&ign", IDM_RESIGN
         MENUITEM "R&estart", IDM_RESTART
@@ -91,7 +91,8 @@ TOPWINDOW MENU
 // Dialog resources
 //
 ABOUT DIALOGEX 20, 20, 117, 116
-STYLE DS_MODALFRAME | DS_SETFONT | WS_VISIBLE | WS_POPUP
+STYLE DS_MODALFRAME | DS_SETFONT | WS_CAPTION | WS_VISIBLE | WS_POPUP
+CAPTION "About Gold Tile"
 FONT 10, "Microsoft Sans Serif", 700, 0, 0
 {
     DEFPUSHBUTTON   "OK", IDOK, 48, 93, 23, 15, WS_GROUP
@@ -106,78 +107,134 @@ FONT 10, "Microsoft Sans Serif", 700, 0, 0
 
 
 
-COMPATIBLE DIALOG 0, 0, 113, 57
+COLUMNCOMPAT DIALOG 0, 0, 115, 64
 STYLE DS_3DLOOK | DS_CENTER | DS_MODALFRAME | DS_SHELLFONT | WS_CAPTION | WS_VISIBLE | WS_POPUP | WS_SYSMENU
-CAPTION "Dialog"
+CAPTION "Column Compatibility Rule - Gold Tile"
 FONT 10, "Microsoft Sans Serif"
 {
-    DEFPUSHBUTTON   "OK", IDOK, 30, 36, 50, 14
-    CTEXT           "Any tiles in single row or column without intervening empty cells must be mutually compatible.", IDC_STATIC, 2, 5, 107, 26, SS_CENTER
+    DEFPUSHBUTTON   "OK", IDOK, 32, 39, 50, 14
+    CTEXT           "Tiles in a column (with no intervening empty cells) must all be mutually compatible.", IDC_STATIC, 10, 6, 96, 27, SS_CENTER
 }
 
 
 
-CONNECTED DIALOG 0, 0, 108, 52
+EMPTY DIALOG 0, 0, 82, 54
 STYLE DS_3DLOOK | DS_CENTER | DS_MODALFRAME | DS_SHELLFONT | WS_CAPTION | WS_VISIBLE | WS_POPUP | WS_SYSMENU
-CAPTION "Dialog"
+CAPTION "Empty Cell Rule - Gold Tile"
 FONT 10, "Microsoft Sans Serif"
 {
-    DEFPUSHBUTTON   "OK", IDOK, 30, 29, 50, 14
-    CTEXT           "Each cell you fill must have a neighbor that is already full.", IDC_STATIC, 8, 6, 93, 19, SS_CENTER
+    DEFPUSHBUTTON   "OK", IDOK, 14, 29, 50, 14
+    CTEXT           "You can only use empty cells.", IDC_STATIC, 9, 7, 65, 20, SS_CENTER
 }
 
 
 
-FIRST DIALOG 0, 0, 141, 43
+FIRST DIALOG 0, 0, 112, 51
 STYLE DS_3DLOOK | DS_CENTER | DS_MODALFRAME | DS_SHELLFONT | WS_CAPTION | WS_VISIBLE | WS_POPUP | WS_SYSMENU
-CAPTION "Dialog"
+CAPTION "First Turn Rule - Gold Tile"
 FONT 10, "Microsoft Sans Serif"
 {
-    DEFPUSHBUTTON   "OK", IDOK, 46, 23, 50, 14
-    CTEXT           "Your first tile must be played on the origin.", IDC_STATIC, 4, 7, 132, 11, SS_CENTER
+    DEFPUSHBUTTON   "OK", IDOK, 31, 29, 50, 14
+    CTEXT           "On your first turn, you must play as many tiles as you can.", IDC_STATIC, 10, 6, 93, 20, SS_CENTER
 }
 
 
 
-MIXED DIALOG 0, 0, 129, 46
+NEIGHBOR DIALOG 0, 0, 100, 54
 STYLE DS_3DLOOK | DS_CENTER | DS_MODALFRAME | DS_SHELLFONT | WS_CAPTION | WS_VISIBLE | WS_POPUP | WS_SYSMENU
-CAPTION "Dialog"
+CAPTION "Neighbor Rule - Gold Tile"
 FONT 10, "Microsoft Sans Serif"
 {
-    DEFPUSHBUTTON   "OK", IDOK, 38, 27, 50, 14
-    CTEXT           "You can play tiles or swap tiles, but you can't do both in the same turn.", IDC_STATIC, 12, 3, 106, 21, SS_CENTER
+    DEFPUSHBUTTON   "OK", IDOK, 24, 30, 50, 14
+    CTEXT           "Each cell you use must be a neighbor of a used cell.", IDC_STATIC, 10, 6, 79, 20, SS_CENTER
 }
 
 
 
-ORIGIN DIALOG 0, 0, 138, 60
+ROWCOLUMN DIALOG 0, 0, 112, 52
 STYLE DS_3DLOOK | DS_CENTER | DS_MODALFRAME | DS_SHELLFONT | WS_CAPTION | WS_VISIBLE | WS_POPUP | WS_SYSMENU
-CAPTION "Dialog"
+CAPTION "Row/Column Rule - Gold Tile"
 FONT 10, "Microsoft Sans Serif"
 {
-    DEFPUSHBUTTON   "OK", IDOK, 43, 36, 50, 14
-    CTEXT           "Your first tile must be played on the origin. In order change your first play, you must take back all your tiles.", IDC_STATIC, 11, 5, 114, 28, SS_CENTER
+    DEFPUSHBUTTON   "OK", IDOK, 31, 31, 50, 14
+    CTEXT           "The cells you use must all lie in a single row or column.", IDC_STATIC, 11, 8, 93, 18, SS_CENTER
+}
+
+
+
+ROWCOMPAT DIALOG 0, 0, 116, 56
+STYLE DS_3DLOOK | DS_CENTER | DS_MODALFRAME | DS_SHELLFONT | WS_CAPTION | WS_VISIBLE | WS_POPUP | WS_SYSMENU
+CAPTION "Row Compatibility Rule - Gold Tile"
+FONT 10, "Microsoft Sans Serif"
+{
+    DEFPUSHBUTTON   "OK", IDOK, 31, 35, 50, 14
+    CTEXT           "Tiles in a row (with no intervening empty cells) must all be mutually compatible.", IDC_STATIC, 14, 4, 88, 27, SS_CENTER
+}
+
+
+
+GAP DIALOG 0, 0, 112, 52
+STYLE DS_3DLOOK | DS_CENTER | DS_MODALFRAME | DS_SHELLFONT | WS_CAPTION | WS_VISIBLE | WS_POPUP | WS_SYSMENU
+CAPTION "Gap Rule - Gold Tile"
+FONT 10, "Microsoft Sans Serif"
+{
+    DEFPUSHBUTTON   "OK", IDOK, 28, 29, 50, 14
+    CTEXT           "You must not leave any empty cells between the tiles you play.", IDC_STATIC, 8, 7, 95, 19, SS_CENTER
 }
 
 
 
 RULES DIALOG 0, 0, 160, 54
-STYLE DS_MODALFRAME | DS_SETFONT | WS_VISIBLE | WS_POPUP
+STYLE DS_MODALFRAME | DS_SETFONT | WS_CAPTION | WS_VISIBLE | WS_POPUP
+CAPTION "Rules - Gold Tile"
 FONT 10, "Microsoft Sans Serif"
 {
     DEFPUSHBUTTON   "OK", IDOK, 55, 32, 50, 14
-    CTEXT           "The rules of Gold Tile are available online at http://code.google.com/p/gold-tiles/wiki/Playing", IDC_STATIC, 6, 8, 150, 19, SS_CENTER
+    CTEXT           "The rules of Gold Tile are available online at http://code.google.com/p/gold-tiles/wiki/Playing", IDC_STATIC, 10, 6, 150, 20, SS_CENTER
+}
+
+
+
+START DIALOG 0, 0, 138, 60
+STYLE DS_3DLOOK | DS_CENTER | DS_MODALFRAME | DS_SHELLFONT | WS_CAPTION | WS_VISIBLE | WS_POPUP | WS_SYSMENU
+CAPTION "Start Rule - Gold Tile"
+FONT 10, "Microsoft Sans Serif"
+{
+    DEFPUSHBUTTON   "OK", IDOK, 43, 36, 50, 14
+    CTEXT           "Your first tile must be played on the start cell. To change this tile, you must take back ALL your tiles.", IDC_STATIC, 10, 6, 114, 30, SS_CENTER
+}
+
+
+
+STOCK DIALOG 0, 0, 129, 47
+STYLE DS_3DLOOK | DS_CENTER | DS_MODALFRAME | DS_SHELLFONT | WS_CAPTION | WS_VISIBLE | WS_POPUP | WS_SYSMENU
+CAPTION "Stock Rule - Gold Tile"
+FONT 10, "Microsoft Sans Serif"
+{
+    DEFPUSHBUTTON   "OK", IDOK, 41, 28, 50, 14
+    CTEXT           "You can't swap more tiles than the number remaining in the stock bag.", IDC_STATIC, 5, 6, 119, 18, SS_CENTER
+}
+
+
+
+SWAP DIALOG 0, 0, 129, 46
+STYLE DS_3DLOOK | DS_CENTER | DS_MODALFRAME | DS_SHELLFONT | WS_CAPTION | WS_VISIBLE | WS_POPUP | WS_SYSMENU
+CAPTION "Swap Rule - Gold Tile"
+FONT 10, "Microsoft Sans Serif"
+{
+    DEFPUSHBUTTON   "OK", IDOK, 38, 27, 50, 14
+    CTEXT           "You can play tiles or swap them, but you can't do both in the same turn.", IDC_STATIC, 10, 6, 109, 20, SS_CENTER
 }
 
 
 
 WARRANTY DIALOG 0, 0, 176, 132
 STYLE DS_MODALFRAME | DS_SETFONT | WS_VISIBLE | WS_POPUP
-FONT 8, "Ms Shell Dlg"
+FONT 8, "Microsoft Sans Serif"
 {
     DEFPUSHBUTTON   "OK", IDOK, 77, 109, 28, 14
-    LTEXT           "There is NO warranty for the program, to the extent permitted by applicable law. Except when otherwise stated in writing the copyright holders and/or other ", IDC_STATIC, 10, 9, 160, 27, SS_LEFT
-    LTEXT           "other parties provide the program “as is” without warranty of any kind, either expressed or implied, including, but not limited to, the implied warranties of merchantability and fitness for a particular purpose.", IDC_STATIC, 10, 33, 160, 35, SS_LEFT
+    LTEXT           "There is NO warranty for the program, to the extent permitted by applicable law. Except when otherwise stated in writing the copyright holders and/or other ", IDC_STATIC, 10, 9, 160, 33, SS_LEFT
+    LTEXT           "other parties provide the program “as is” without warranty of any kind, either expressed or implied, including, but not limited to, the implied warranties of merchantability and fitness for a particular purpose.", IDC_STATIC, 10, 33, 160, 33, SS_LEFT
     LTEXT           "The entire risk as to the quality and performance of the program is with you. Should the program prove defective, you assume the cost  of all necessary servicing, repair or correction.", IDC_STATIC, 10, 68, 160, 33, SS_LEFT
 }
 

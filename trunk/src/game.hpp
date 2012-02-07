@@ -42,21 +42,20 @@ public:
 
 	// operators
 	Game &operator=(Game const &) { ASSERT(false); };
+    operator Board(void) const;
 
-	// misc
+	// misc methods
     void     ActivateNextPlayer(void);
+    Player   ActivePlayer(void) const;
+    unsigned CountStock(void) const;
     void     FinishTurn(Move const &);
     void     GoingOutBonus(void);
+    Players  InactivePlayers(void) const;
     void     PlayGame(void);
 
-	// access
-    Player   ActivePlayer(void) const;
-    operator Board(void) const;
-    unsigned CountStock(void) const;
-    Players  InactivePlayers(void) const;
-
-	// inquiry
+	// inquiry methods
     bool     IsLegalMove(Move const &) const;
+    bool     IsLegalMove(Move const &, char const *&rReason) const;
     bool     IsOver(void) const;
 	bool     IsStockEmpty(void) const;
 
@@ -67,7 +66,7 @@ private:
     Players                mPlayers;       // who is playing
     Tiles                  mStockBag;      // stock bag from which tiles are drawn
 
-	// misc
+	// misc methods
     void     AddTiles(AIndexType, unsigned redundancy, Tile &);
     Cell     ChooseCell(void) const;
     void     DisplayScores(void) const;

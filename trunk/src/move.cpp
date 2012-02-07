@@ -29,12 +29,29 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 #include "tile.hpp"
 #include "tiles.hpp"
 
-// constructors, assignment, destructor, and stringification
+// lifecycle
 
 // The compiler.generated default constructor is fine.
 // The compiler-generated copy constructor is fine.
-// The compiler-generated assignment method is fine.
 // The compiler-generated destructor is fine.
+
+// operators
+
+// The compiler-generated assignment operator is fine.
+
+Move::operator Cells(void) const {
+    Cells result;
+    
+    ConstIteratorType i_tile_cell;
+    for (i_tile_cell = begin(); i_tile_cell != end(); i_tile_cell++) {
+		if (!i_tile_cell->IsSwap()) {
+            Cell cell = Cell(*i_tile_cell);
+            result.insert(cell);
+		}
+    }
+
+    return result;
+}
 
 Move::operator String(void) const {
 	String result;
@@ -52,7 +69,19 @@ Move::operator String(void) const {
     return result;
 }
 
-// methods
+Move::operator Tiles(void) const {
+    Tiles result;
+    
+    ConstIteratorType i_tile_cell;
+    for (i_tile_cell = begin(); i_tile_cell != end(); i_tile_cell++) {
+        Tile tile = Tile(*i_tile_cell);
+        result.Add(tile);
+    }
+
+    return result;
+}
+
+// misc
 
 void Move::Add(Tile const &rTile) {
     TileCell tile_cell(rTile);
@@ -68,32 +97,6 @@ unsigned Move::Count(void) const {
     unsigned result = size();
 
 	return result;
-}
-
-Cells Move::GetCells(void) const {
-    Cells result;
-    
-    const_iterator i_tile_cell;
-    for (i_tile_cell = begin(); i_tile_cell != end(); i_tile_cell++) {
-		if (!i_tile_cell->IsSwap()) {
-            Cell cell = Cell(*i_tile_cell);
-            result.insert(cell);
-		}
-    }
-
-    return result;
-}
-
-Tiles Move::GetTiles(void) const {
-    Tiles result;
-    
-    const_iterator i_tile_cell;
-    for (i_tile_cell = begin(); i_tile_cell != end(); i_tile_cell++) {
-        Tile tile = Tile(*i_tile_cell);
-        result.Add(tile);
-    }
-
-    return result;
 }
 
 void Move::GetUserChoice(Tiles const &rAvailableTiles) {
@@ -117,6 +120,13 @@ void Move::GetUserChoice(Tiles const &rAvailableTiles) {
         insert(tile_cell);
     }
 }
+
+
+void Move::MakeEmpty(void) {
+	clear();
+}
+
+// inquiries
 
 bool Move::InvolvesSwap(void) const {
     bool result = false;
@@ -150,10 +160,6 @@ bool Move::IsPureSwap(void) const {
 	}
 
 	return result;
-}
-
-void Move::MakeEmpty(void) {
-	clear();
 }
 
 bool Move::RepeatsTile(void) const {

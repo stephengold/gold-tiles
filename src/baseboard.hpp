@@ -50,6 +50,7 @@ public:
 	operator String(void) const;
 
 	// misc
+	unsigned    Count(void) const;
 	int	        EastMax(void) const;
     Tile const *GetCell(Cell const &) const;
     bool        LocateTileId(TileIdType, Cell &) const;

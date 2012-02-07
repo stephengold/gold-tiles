@@ -956,7 +956,7 @@ void TopWindow::ReleaseActiveTile(int x, int y) {
 	    from_swap && to_swap ||
 	    from_board && to_board && from_cell == to_cell)
 	{
-		// trivial cases
+		// trivial cases which don't actually move the tile
 		++mMouseUpCnt;
 
 		if (mMouseUpCnt > 1) {
@@ -1004,6 +1004,10 @@ void TopWindow::ReleaseActiveTile(int x, int y) {
 			// explain the issue
 			if (mSwapTiles.Count() > 0) {
 			    Dialog("MIXED", *this);
+			} else if (mBoard.HasEmptyCell(Cell(0,0))) {
+			    Dialog("FIRST", *this);
+			} else if (from_board && from_cell.IsOrigin()) {
+			    Dialog("ORIGIN", *this);
 			} else if (!mBoard.ConnectsToOrigin(to_cell)) {
 			    Dialog("CONNECTED", *this);
 			} else {

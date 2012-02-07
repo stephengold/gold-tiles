@@ -106,12 +106,67 @@ FONT 10, "Microsoft Sans Serif", 700, 0, 0
 
 
 
-RULES DIALOG 0, 0, 175, 54
-STYLE DS_MODALFRAME | DS_SETFONT | WS_VISIBLE | WS_POPUP
-FONT 8, "Ms Shell Dlg"
+COMPATIBLE DIALOG 0, 0, 113, 57
+STYLE DS_3DLOOK | DS_CENTER | DS_MODALFRAME | DS_SHELLFONT | WS_CAPTION | WS_VISIBLE | WS_POPUP | WS_SYSMENU
+CAPTION "Dialog"
+FONT 10, "Microsoft Sans Serif"
 {
-    DEFPUSHBUTTON   "OK", IDOK, 64, 32, 50, 14
-    CTEXT           "The rules of Gold Tile are available online at http://code.google.com/p/gold-tiles/wiki/Playing", IDC_STATIC, 10, 4, 150, 21, SS_CENTER
+    DEFPUSHBUTTON   "OK", IDOK, 30, 36, 50, 14
+    CTEXT           "Any tiles in single row or column without intervening empty cells must be mutually compatible.", IDC_STATIC, 2, 5, 107, 26, SS_CENTER
+}
+
+
+
+CONNECTED DIALOG 0, 0, 108, 52
+STYLE DS_3DLOOK | DS_CENTER | DS_MODALFRAME | DS_SHELLFONT | WS_CAPTION | WS_VISIBLE | WS_POPUP | WS_SYSMENU
+CAPTION "Dialog"
+FONT 10, "Microsoft Sans Serif"
+{
+    DEFPUSHBUTTON   "OK", IDOK, 30, 29, 50, 14
+    CTEXT           "Each cell you fill must have a neighbor that is already full.", IDC_STATIC, 8, 6, 93, 19, SS_CENTER
+}
+
+
+
+FIRST DIALOG 0, 0, 141, 43
+STYLE DS_3DLOOK | DS_CENTER | DS_MODALFRAME | DS_SHELLFONT | WS_CAPTION | WS_VISIBLE | WS_POPUP | WS_SYSMENU
+CAPTION "Dialog"
+FONT 10, "Microsoft Sans Serif"
+{
+    DEFPUSHBUTTON   "OK", IDOK, 46, 23, 50, 14
+    CTEXT           "Your first tile must be played on the origin.", IDC_STATIC, 4, 7, 132, 11, SS_CENTER
+}
+
+
+
+MIXED DIALOG 0, 0, 129, 46
+STYLE DS_3DLOOK | DS_CENTER | DS_MODALFRAME | DS_SHELLFONT | WS_CAPTION | WS_VISIBLE | WS_POPUP | WS_SYSMENU
+CAPTION "Dialog"
+FONT 10, "Microsoft Sans Serif"
+{
+    DEFPUSHBUTTON   "OK", IDOK, 38, 27, 50, 14
+    CTEXT           "You can play tiles or swap tiles, but you can't do both in the same turn.", IDC_STATIC, 12, 3, 106, 21, SS_CENTER
+}
+
+
+
+ORIGIN DIALOG 0, 0, 138, 60
+STYLE DS_3DLOOK | DS_CENTER | DS_MODALFRAME | DS_SHELLFONT | WS_CAPTION | WS_VISIBLE | WS_POPUP | WS_SYSMENU
+CAPTION "Dialog"
+FONT 10, "Microsoft Sans Serif"
+{
+    DEFPUSHBUTTON   "OK", IDOK, 43, 36, 50, 14
+    CTEXT           "Your first tile must be played on the origin. In order change your first play, you must take back all your tiles.", IDC_STATIC, 11, 5, 114, 28, SS_CENTER
+}
+
+
+
+RULES DIALOG 0, 0, 160, 54
+STYLE DS_MODALFRAME | DS_SETFONT | WS_VISIBLE | WS_POPUP
+FONT 10, "Microsoft Sans Serif"
+{
+    DEFPUSHBUTTON   "OK", IDOK, 55, 32, 50, 14
+    CTEXT           "The rules of Gold Tile are available online at http://code.google.com/p/gold-tiles/wiki/Playing", IDC_STATIC, 6, 8, 150, 19, SS_CENTER
 }
 
 

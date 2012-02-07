@@ -47,10 +47,12 @@ public:
     unsigned   ScoreMove(Move const &) const;
 
 	// inquiry
-	bool     ContainsId(TileIdType) const;
-	bool	 ConnectsToOrigin(Cell const &) const;
-    bool	 HasEmptyCell(Cell const &) const;
-    bool	 IsLegalMove(Move const &) const;
+	bool ContainsId(TileIdType) const;
+	bool ConnectsToStart(Cell const &) const;
+    bool HasEmptyCell(Cell const &) const;
+	bool IsEmpty(void) const;
+    bool IsValidMove(Move const &) const;
+    bool IsValidMove(Move const &, char const *&rReason) const;
 
 private:
 	// misc
@@ -68,8 +70,8 @@ private:
     bool		AreAllCompatible(Cells const &) const;
     bool		AreAllEmpty(Cells const &) const;
     bool		AreAllRowsCompatible(Cells const &) const;
-	bool	    ConnectsToOrigin(Cell const &, Cells &) const;
-    bool		DoesAnyConnectToOrigin(Cells const &) const;
+	bool	    ConnectsToStart(Cell const &, Cells &) const;
+    bool		DoesAnyConnectToStart(Cells const &) const;
 	bool		HasEmptyCell(int row, int column) const;
     bool		IsColumnCompatible(Cell const &) const;
     bool		IsConnectedColumn(Cells const &) const;

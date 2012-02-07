@@ -82,6 +82,12 @@ BaseBoard::operator String(void) const {
 
 // misc
 
+unsigned BaseBoard::Count(void) const {
+	unsigned result = mCells.size();
+
+	return result;
+}
+
 // get iterators to specific cells
 BaseBoard::ConstIteratorType BaseBoard::Find(int northing, int easting) const {
     Cell ref(northing, easting);
@@ -97,12 +103,12 @@ BaseBoard::IteratorType BaseBoard::Find(int northing, int easting) {
 }
 
 // locate the Cell which contains a specific Tile
-bool BaseBoard::LocateTileId(TileIdType id, Cell &rSquare) const {
+bool BaseBoard::LocateTileId(TileIdType id, Cell &rCell) const {
     for (int row = mNorthMax; row >= -(int)mSouthMax; row--) {
 	    for (int column = -mWestMax; column <= mEastMax; column++) {
             ConstIteratorType i_tile = Find(row, column);
 			if (i_tile != mCells.end() && i_tile->second.HasId(id)) {
-                rSquare = i_tile->first;
+                rCell = i_tile->first;
                 return true;
             }
         }

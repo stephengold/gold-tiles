@@ -27,6 +27,7 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 #include "strings.hpp"
 
 // lifecycle
+
 Game::Game(
     Strings playerNames,
     ACountType attributeCnt,
@@ -77,7 +78,17 @@ Game::Game(
     mBestRunLength = bestRunLength;
 }
 
-// methods
+
+// operators
+
+Game::operator Board(void) const {
+    Board result = mBoard;
+    
+    return result;
+}
+
+
+// misc methods
 
 void Game::ActivateNextPlayer(void) {
     mPlayers.Next(miActivePlayer);
@@ -111,12 +122,6 @@ void Game::AddTiles(  // recursive
 	}
 }
 
-Game::operator Board(void) const {
-    Board result = mBoard;
-    
-    return result;
-}
-
 unsigned Game::CountStock(void) const {
     unsigned result = mStockBag.Count();
     
@@ -133,10 +138,10 @@ void Game::DisplayScores(void) const {
 
 void Game::FinishTurn(Move const &move) {
     D(std::cout << "Game::FinishTurn(" << (String)move << ")" << std::endl);
-    ASSERT(mBoard.IsLegalMove(move));
+    ASSERT(mBoard.IsValidMove(move));
 
     // remove played/swapped tiles from the player's hand
-    Tiles tiles = move.GetTiles();
+    Tiles tiles = Tiles(move);
     miActivePlayer->RemoveTiles(tiles);
 
     // attempt to draw replacement tiles from the stock bag
@@ -147,7 +152,7 @@ void Game::FinishTurn(Move const &move) {
 	}
 
 	if (move.InvolvesSwap()) {
-		// put swapped tiles back into the bag
+		// return swapped tiles to the stock bag
 		mStockBag.AddTiles(tiles);
 		std::cout << miActivePlayer->Name() << " put " << plural(count, "tile")
 			<< " back into the stock bag." << std::endl;
@@ -208,50 +213,6 @@ Players Game::InactivePlayers(void) const {
     return result;
 }
 
-bool Game::IsLegalMove(Move const &move) const {
-    unsigned stock = CountStock();
-    bool result = true;
-    
-    if (mBestRunLength > 0 && (move.Count() != mBestRunLength || move.InvolvesSwap())) {
-       std::cout << "You must play at least " << mBestRunLength << " tiles on this turn." << std::endl;
-       result = false;
-    } else if (move.IsPureSwap() && move.Count() > stock) {
-       std::cout << "There aren't enough tiles in the stock bag." << std::endl;
-       result = false;
-	} else if (!mBoard.IsLegalMove(move)) {
-       std::cout << "That isn't a legal play." << std::endl;
-	   result = false;
-    }
-
-    return result;
-}
-
-bool Game::IsOver(void) const {
-    bool result = false;
-    
-    // The game is over if (and only if) the stock bag is empty 
-    // and a player has gone out.
-
-	if (IsStockEmpty()) {
-        Players::const_iterator player;
-        for (player = mPlayers.begin(); player < mPlayers.end(); player++) {
-	        if (player->IsEmptyHanded()) {
-		        result = true;
-		        break;
-	        }
-        }
-   }
-
-   D(std::cout << "Game::IsOver() returns " << result << std::endl);
-   return result;
-}
-
-bool Game::IsStockEmpty(void) const {
-	bool result = mStockBag.IsEmpty();
-
-	return result;
-}
-
 void Game::NextTurn(void) {
      D(std::cout << "Game::NextTurn()" << std::endl);
 
@@ -289,4 +250,64 @@ unsigned Game::ScoreMove(Move const &move) const {
      unsigned result = mBoard.ScoreMove(move);
 
      return result;
+}
+
+
+// inquiry methods
+
+bool Game::IsLegalMove(Move const &rMove) const {
+    char const *reason;
+	bool result = IsLegalMove(rMove, reason);
+
+	return result;
+}
+
+bool Game::IsLegalMove(Move const &rMove, char const *&rReason) const {
+    unsigned stock = CountStock();
+    bool result = true;
+    
+	if (!mBoard.IsValidMove(rMove, rReason)) {
+        std::cout << "Not a valid move."
+			<< std::endl;
+	    result = false;
+	} else if (mBestRunLength > 0 
+		&& (rMove.Count() != mBestRunLength || rMove.InvolvesSwap())) {
+        std::cout << "On your first turn, you must play as many tiles as you can."
+			<< std::endl;
+	    rReason = "FIRST";
+        result = false;
+    } else if (rMove.IsPureSwap() && rMove.Count() > stock) {
+        std::cout << "You can't swap more tiles than the number remaining in the stock bag." 
+			<< std::endl;
+	    rReason = "STOCK";
+        result = false;
+    }
+
+    return result;
+}
+
+bool Game::IsOver(void) const {
+    bool result = false;
+    
+    // The game is over if (and only if) the stock bag is empty 
+    // and a player has gone out.
+
+	if (IsStockEmpty()) {
+        Players::const_iterator player;
+        for (player = mPlayers.begin(); player < mPlayers.end(); player++) {
+	        if (player->IsEmptyHanded()) {
+		        result = true;
+		        break;
+	        }
+        }
+   }
+
+   D(std::cout << "Game::IsOver() returns " << result << std::endl);
+   return result;
+}
+
+bool Game::IsStockEmpty(void) const {
+	bool result = (CountStock() == 0);
+
+	return result;
 }

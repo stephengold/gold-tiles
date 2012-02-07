@@ -281,17 +281,17 @@ bool Board::AreAllRowsCompatible(Cells const &rCells) const {
     return result; 
 }
 
-bool Board::ConnectsToOrigin(Cell const &rCell) const {
+bool Board::ConnectsToStart(Cell const &rCell) const {
 	Cells done;
-    bool result = ConnectsToOrigin(rCell, done);
+    bool result = ConnectsToStart(rCell, done);
 
 	return result;
 }
 
-bool Board::ConnectsToOrigin(Cell const &rCell, Cells &rDoneCells) const { // recursive
+bool Board::ConnectsToStart(Cell const &rCell, Cells &rDoneCells) const { // recursive
     bool result = true;
     
-    if (!rCell.IsOrigin()) {
+    if (!rCell.IsStart()) {
         result = false;
         rDoneCells.insert(rCell);
 
@@ -299,7 +299,7 @@ bool Board::ConnectsToOrigin(Cell const &rCell, Cells &rDoneCells) const { // re
             Cell look(rCell, (DirectionType)direction, 1);
             if (!HasEmptyCell(look) && 
 				!rDoneCells.Contains(look) && 
-				ConnectsToOrigin(look, rDoneCells))
+				ConnectsToStart(look, rDoneCells))
 			{
                 result = true;
                 break;
@@ -316,13 +316,13 @@ bool Board::ContainsId(TileIdType id) const {
 	return result;
 }
 
-bool Board::DoesAnyConnectToOrigin(Cells const &rCells) const {
+bool Board::DoesAnyConnectToStart(Cells const &rCells) const {
     bool result = false;
     
     Cells::const_iterator i_cell;
     for (i_cell = rCells.begin(); i_cell != rCells.end(); i_cell++) {
 		Cell cell = *i_cell;
-        if (ConnectsToOrigin(cell)) {
+        if (ConnectsToStart(cell)) {
             result = true;
             break;
         }
@@ -432,41 +432,59 @@ bool Board::IsConnectedRow(Cells const &rCells) const {
     return result;
 }
 
-bool Board::IsLegalMove(Move const &rMove) const {
+bool Board::IsEmpty(void) const {
+	bool result = (Count() == 0);
+
+	return result;
+}
+
+bool Board::IsValidMove(Move const &rMove) const {
+	char const *reason;
+	bool result = IsValidMove(rMove, reason);
+
+	return result;
+}
+
+bool Board::IsValidMove(Move const &rMove, char const *&rReason) const {
     // a pass (no tiles played or swapped) is always legal
     if (rMove.IsPass()) {
-        D(std::cout << "Legal pass." << std::endl);
+        D(std::cout << "The move is a pass." << std::endl);
         return true;
     }
 
     // check for repeated tiles
     if (rMove.RepeatsTile()) {
-        D(std::cout << "Not legal: repeated tile(s)." << std::endl);
+        D(std::cout << "You can't use the same tile twice." << std::endl);
+		rReason = "REPEATTILE";
         return false;
     }
 
 	if (rMove.InvolvesSwap()) {
 		if (!rMove.IsPureSwap()) {
-            D(std::cout << "Not legal: mixture of place and swap." << std::endl);
+            D(std::cout << "You can play tiles or swap them, "
+				<< "but you can't do both in the same turn." << std::endl);
+   		    rReason = "SWAP";
             return false;
 		}
         
-		D(std::cout << "Legal swap." << std::endl);
+		D(std::cout << "The move is a valid swap." << std::endl);
         return true;
 	}
 
-	// check for repeated squares
+	// check for repeated cells
     if (rMove.RepeatsCell()) {
-        D(std::cout << "Not legal: repeated cell(s)." << std::endl);
+        D(std::cout << "You can't use the same cell twice." << std::endl);
+		rReason = "REPEATCELL";
         return false;
     }
 
     // get the set of board cells to be played
-    Cells cells = rMove.GetCells();
+    Cells cells = Cells(rMove);
 
     // make sure all those cells are empty
     if (!AreAllEmpty(cells)) {
-        D(std::cout << "Not legal: cell(s) already played." << std::endl);
+        D(std::cout << "You can only use empty cells." << std::endl);
+		rReason = "EMPTY";
         return false;
     }
 
@@ -474,13 +492,21 @@ bool Board::IsLegalMove(Move const &rMove) const {
     bool is_single_row = cells.AreAllInSameRow();
     bool is_single_column = cells.AreAllInSameColumn();
     if (!is_single_row && !is_single_column) {
-        D(std::cout << "Not legal: multiple rows and columns." << std::endl);
+        D(std::cout << "The cells you use must all lie in a single row or column." << std::endl);
+		rReason = "ROWCOLUMN";
         return false;
     }
 
-    // make sure one of the cells will connect to the origin
-    if (!DoesAnyConnectToOrigin(cells)) {
-        D(std::cout << "Not legal: no connection to origin." << std::endl);
+    // make sure one of the cells will connect to the start
+    if (!DoesAnyConnectToStart(cells)) {
+		if (IsEmpty()) {
+            D(std::cout << "Your first tile must be played on the start cell. "
+				>> "To change this tile, you must take back ALL your tiles." << std::endl);
+		    rReason = "START";
+		} else {
+            D(std::cout << "Each cell you use must be a neighbor of a used cell." << std::endl);
+		    rReason = "NEIGHBOR";
+		}
         return false;
     }
 
@@ -491,27 +517,35 @@ bool Board::IsLegalMove(Move const &rMove) const {
     // make sure there are no empty squares between played tiles
     if (is_single_row) {
         if (!after.IsConnectedRow(cells)) {
-            D(std::cout << "Not legal: gaps in row." << std::endl);
+            D(std::cout << "You must not leave any empty cells between the tiles you play." 
+				<< std::endl);
+     		rReason = "GAP";
             return false;
         }
     } else {
         if (!after.IsConnectedColumn(cells)) {
-            D(std::cout << "Not legal: gaps in column." << std::endl);
-            return false;
+            D(std::cout << "You must not leave any empty cells between the tiles you play." 
+				<< std::endl);
+     		rReason = "GAP";
+			return false;
         }
     }
 
     // check compatibility of connected tiles in each row and column played
     if (!after.AreAllRowsCompatible(cells)) {
-        D(std::cout << "Not legal: incompatible tiles in same row." << std::endl);
+        D(std::cout << "Tiles in a row (with no intervening empty cells) "
+			>> "must all be mutually compatible." << std::endl);
+		rReason = "ROWCOMPAT";
         return false;
     }
     if (!after.AreAllColumnsCompatible(cells)) {
-        D(std::cout << "Not legal: incompatible tiles in same column." << std::endl);
+        D(std::cout << "Tiles in a column (with no intervening empty cells) "
+			>> "must all be mutually compatible." << std::endl);
+		rReason = "COLUMNCOMPAT";
         return false;
     }
 
-    D(std::cout << "Legal play." << std::endl);
+    D(std::cout << "The move is a valid play." << std::endl);
     return true;
 }
 

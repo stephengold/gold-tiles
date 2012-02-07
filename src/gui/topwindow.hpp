@@ -80,22 +80,23 @@ private:
 	char *        mFileName;
 	Rect          mHandRect;
 	Tiles         mHandTiles;
+	bool          mIsStartCentered;
 	int           mMouseLastX, mMouseLastY; // coordinates of last mouse down
 	int           mMouseUpCnt;
-	bool          mOriginIsCentered;
-	long          mOriginX, mOriginY; // logical coordinates of ulc of origin cell
 	unsigned      mPadPixels;
 	bool          mPauseFlag;
-    PlayMenu *    mpPlayMenu;
+    PlayMenu *   mpPlayMenu;
     unsigned      mPlayedTileCnt;
 	unsigned      mRunLength;
 	bool          mShowClocksFlag, mShowGridFlag, mShowHintsFlag;
 	bool          mShowScoresFlag, mShowTilesFlag;
+	bool          mSquareGrid;
+	long          mStartX, mStartY; // logical coordinates of center of start cell
 	Tiles         mSwapTiles;
 	Rect          mSwapRect;
 	TileMapType   mTileMap;
 	TileWidthType mTileWidth;
-    ViewMenu *    mpViewMenu;
+    ViewMenu *   mpViewMenu;
 
 	// misc
     unsigned     CellHeight(void) const;
@@ -104,7 +105,7 @@ private:
     unsigned     CellWidth(void) const;
     char const * ClassName(void) const;
     void         DrawActivePlayer(Canvas &);
-	Rect         DrawBlankTile(Canvas &, int topY, int leftX);
+	Rect         DrawBlankTile(Canvas &, int centerY, int centerX);
     void         DrawBoard(Canvas &);
     void         DrawCell(Canvas &, Cell const &, unsigned swapCnt);
     void         DrawHandTiles(Canvas &);
@@ -112,8 +113,9 @@ private:
 	void         DrawPaused(Canvas &);
     Rect         DrawPlayerHeader(Canvas &, int top, int leftRight, Player const &, 
                           ColorType, bool leftFlag);
-	Rect         DrawTile(Canvas &, int topY, int leftX, Tile const &);
+	Rect         DrawTile(Canvas &, int centerY, int centerX, Tile const &);
 	Cell         GetCell(int x, int y) const;
+	Move         GetMove(void) const;
 	TileIdType   GetTileId(int x, int y) const;
     unsigned     GridUnit(void) const;
     void         HandleButtonDown(int x, int y);

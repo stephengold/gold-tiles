@@ -61,14 +61,12 @@ public:
 	operator String(void) const;
 
 	// misc
-    bool GetUserChoice(String const &);
-
-	// access
 	int  Column(void) const;
+    bool GetUserChoice(String const &);
 	int  Row(void) const;
 
 	// inquiry
-	bool IsOrigin(void) const;
+	bool IsStart(void) const;
 
 private:
 	int mColumn, mRow;

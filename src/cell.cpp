@@ -27,7 +27,7 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 
 // constructors, assignment, and destructor
 
-// default constructor:  refer to the origin
+// default constructor:  refer to the start cell
 Cell::Cell(void) {
 	mColumn = 0;
 	mRow = 0;
@@ -119,7 +119,7 @@ bool Cell::GetUserChoice(String const &alt) {
 	return false;
 }
 
-bool Cell::IsOrigin(void) const {
+bool Cell::IsStart(void) const {
     bool result = (mRow == 0) && (mColumn == 0);
 
     return result;

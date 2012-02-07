@@ -31,28 +31,8 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 // Microsoft Windows(tm) GUI interface
 
 #include <windows.h>
+#include "gui/resource.hpp"
 #include "gui/topwindow.hpp"
-
-static int messageDispatchLoop(void) {
-    int exitCode;
-    
-	while (true) {
-        MSG msg;
-	    HWND anyWindow = NULL;
-        BOOL success = ::GetMessage(&msg, anyWindow, 0, 0);
-        if (success == 0) {   // retrieved a WM_QUIT message
-			exitCode = msg.wParam;
-			break;
-		} else if (success == -1) { // error in GetMessage()
-            exitCode = -1;
-			break;
-		}
-        ::TranslateMessage(&msg);
-        ::DispatchMessage(&msg);
-    }
-
-	return exitCode;
-}
 
 TopWindow *gTopWindow = NULL;
 
@@ -110,7 +90,7 @@ int main(int argc, char *argv[]) {
 	gTopWindow->Show(showHow);
 
     // Retrieve and dispatch messages for this application. 
-	int exitCode = messageDispatchLoop();
+	int exitCode = gTopWindow->MessageDispatchLoop();
 #endif
 
 	return exitCode;

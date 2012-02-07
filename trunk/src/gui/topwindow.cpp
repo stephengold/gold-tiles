@@ -719,17 +719,20 @@ void TopWindow::HandleMenuCommand(int command) {
 	    }
 
 	    // Play menu options
-	    case IDM_PAUSE:
-		    mPauseFlag = !mPauseFlag;
-		    ForceRepaint();
-		    break;
-		case IDM_ACCEPT:
-			break;
 	    case IDM_PLAY_PLAY: {
             bool passFlag = false;
 			Play(passFlag);
 		    break;
         }
+	    case IDM_TAKE_BACK:
+			TakeBack();
+		    break;
+	    case IDM_PAUSE:
+		    mPauseFlag = !mPauseFlag;
+		    ForceRepaint();
+		    break;
+		case IDM_HINT:
+			break;
 	    case IDM_PASS: {
             bool passFlag = true;
             Play(passFlag);
@@ -894,6 +897,33 @@ void TopWindow::Initialize(CREATESTRUCT const *pCreateStruct) {
 	UpdateMenus();
 }
 
+int TopWindow::MessageDispatchLoop(void) {
+    int exitCode;
+
+	HACCEL table = GetAcceleratorTable("HOTKEYS");
+
+	while (true) {
+        MSG message;
+	    HWND anyWindow = NULL;
+        BOOL success = ::GetMessage(&message, anyWindow, 0, 0);
+        if (success == 0) {   // retrieved a WM_QUIT message
+			exitCode = message.wParam;
+			break;
+		} else if (success == -1) { // error in GetMessage()
+            exitCode = -1;
+			break;
+		}
+
+		int translated = ::TranslateAccelerator(Handle(), table, &message);
+		if (!translated) {
+            ::TranslateMessage(&message); 
+            ::DispatchMessage(&message); 
+        } 
+    }
+
+	return exitCode;
+}
+
 char const *TopWindow::Name(void) const {
 	return "Gold Tile - a game by Stephen Gold";
 }
@@ -929,9 +959,7 @@ void TopWindow::Play(bool passFlag) {
 
 	if (!is_legal) {
 		// explain the issue
-		if (mSwapTiles.Count() > 0) {
-		    Dialog(reason, *this);
-		}
+        Dialog(reason, *this);
 	}
 }
 
@@ -974,8 +1002,9 @@ void TopWindow::ReleaseActiveTile(int x, int y) {
 	    from_swap && to_swap ||
 	    from_board && to_board && from_cell == to_cell)
 	{
-		// trivial drags which don't actually move the tile
-		// are treated as simple mouse-clicks
+		// Trivial drags which don't actually move the tile
+		// are treated as normal mouse-clicks which
+		// activate/deactivate the tile.
 		++mMouseUpCnt;
 		if (mMouseUpCnt > 1) {
 			StopDragging();
@@ -983,6 +1012,7 @@ void TopWindow::ReleaseActiveTile(int x, int y) {
 		return;
 	}
 
+	// move the tile
 	if (from_board) {
         UnplayOnCell(from_cell, mActiveTileId);
     } else if (from_swap) {
@@ -990,40 +1020,36 @@ void TopWindow::ReleaseActiveTile(int x, int y) {
     }
 
     Tile drag_tile = mHandTiles.FindTile(mActiveTileId);
-
     if (to_swap) {
         ASSERT(!from_swap);
         mSwapTiles.Add(drag_tile);
-        Move move = GetMove();
-		char const *reason;
-        if (!mpGame->IsLegalMove(move, reason)) {
-            mSwapTiles.RemoveTileId(mActiveTileId);
-
-		    if (from_board) { // return tile to board
-                PlayOnCell(from_cell, drag_tile);
-		    }
-
-			// explain the issue
-		    Dialog(reason, *this);
-		}
-
-	} else if (to_board) { // dragged to board
+	} else if (to_board) {
         PlayOnCell(to_cell, drag_tile);
-        Move move = GetMove();
-		char const *reason;
-        if (!mpGame->IsLegalMove(move, reason) && strcmp(reason, "FIRST") != 0) {
-            UnplayOnCell(to_cell, mActiveTileId);
-
-		    if (from_board) { // return tile to board
-                PlayOnCell(from_cell, drag_tile);
-		    } else if (from_swap) { // return tile to swap
-                mSwapTiles.Add(drag_tile);
-		    }
-
-			// explain the issue
-		    Dialog(reason, *this);
-		}
 	}
+
+	// Check whether the move so far is legal.
+    Move move_so_far = GetMove();
+    char const *reason;
+	bool legal = mpGame->IsLegalMove(move_so_far, reason);
+
+	if (!legal && (to_swap || strcmp(reason, "FIRST") != 0)) {  
+		// It's illegal, even as a partial move.
+		if (to_swap) {
+            mSwapTiles.RemoveTileId(mActiveTileId);
+		} else if (to_board) {
+            UnplayOnCell(to_cell, mActiveTileId);
+		}
+
+        if (from_swap) { // return tile to swap
+            mSwapTiles.Add(drag_tile);
+		} else if (from_board) { // return tile to board
+            PlayOnCell(from_cell, drag_tile);
+		}
+
+		// Explain the issue to the user.
+	    Dialog(reason, *this);
+	}
+
 	StopDragging();
 }
 
@@ -1065,6 +1091,15 @@ void TopWindow::StopDragging(void) {
 
 	ASSERT(!IsDragging());
 	ASSERT(!IsMouseCaptured());
+}
+
+// take back an incomplete move
+void TopWindow::TakeBack(void) {
+    mBoard = Board(*mpGame);
+    mPlayedTileCnt = 0;
+    mSwapTiles.MakeEmpty();
+
+    ForceRepaint();
 }
 
 void TopWindow::UnplayOnCell(Cell const &cell, TileIdType id) {

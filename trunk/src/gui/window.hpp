@@ -55,13 +55,14 @@ public:
 	unsigned        ClientAreaWidth(void) const;
 	HINSTANCE       CopyModule(Window const &);
 	void            ForceRepaint(void);
+	HACCEL          GetAcceleratorTable(char const *resourceName);
 	HWND            Handle(void) const;
-	LRESULT         HandleMessage(UINT message, WPARAM, LPARAM);
+	LRESULT         HandleMessage(UINT message, WPARAM, LPARAM); 
     static Window * Lookup(HWND);
 	void            SelfDestruct(void);
 	void            SetClientArea(unsigned width, unsigned height);
 	void            SetHandle(HWND);
-	void            SetIcons(char const *iconResourceName);
+	void            SetIcons(char const *resourceName);
 	void            Show(int showHow);
 
 	// inquiry

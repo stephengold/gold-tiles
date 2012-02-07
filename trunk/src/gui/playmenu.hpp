@@ -47,7 +47,7 @@ public:
 	void Pause(bool);
 
 public:
-    MenuItem mPause, mAccept, mPlay, mPass, mResign;
+    MenuItem mPlay, mTakeBack, mHint, mPause, mPass, mResign;
     MenuItem mRestart, mUndo, mRedo, mAutopause;
 };
 

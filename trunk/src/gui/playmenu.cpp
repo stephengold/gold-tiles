@@ -30,9 +30,10 @@ along with the Gold Tile game.  If not, see <http://www.gnu.org/licenses/>.
 
 PlayMenu::PlayMenu(HMENU menu, UINT position):	
 	SubMenu(menu, position),
-    mPause(menu, IDM_PAUSE),
-    mAccept(menu, IDM_ACCEPT),
     mPlay(menu, IDM_PLAY_PLAY),
+    mTakeBack(menu, IDM_TAKE_BACK),
+    mHint(menu, IDM_HINT),
+    mPause(menu, IDM_PAUSE),
     mPass(menu, IDM_PASS),
     mResign(menu, IDM_RESIGN),
     mRestart(menu, IDM_RESTART),
@@ -48,9 +49,10 @@ void PlayMenu::Pause(bool paused) {
 	mPause.Check(paused);
 }
 void PlayMenu::EnableItems(bool paused, bool play) {
-    mPause.Enable(true);
-    mAccept.Enable(false);
     mPlay.Enable(!paused && play);
+    mTakeBack.Enable(!paused && play);
+    mHint.Enable(false);
+    mPause.Enable(true);
     mPass.Enable(!paused && !play);
     mResign.Enable(false);
     mRestart.Enable(false);

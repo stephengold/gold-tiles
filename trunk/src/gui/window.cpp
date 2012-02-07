@@ -161,6 +161,13 @@ void Window::ForceRepaint(void) {
     ASSERT(success != 0);
 }
 
+HACCEL Window::GetAcceleratorTable(char const *resourceName) {
+	HACCEL result = ::LoadAccelerators(mModule, resourceName);
+	ASSERT(result != NULL);
+
+	return result;
+}
+
 HWND Window::Handle(void) const {
 	HWND result = mHandle;
 	

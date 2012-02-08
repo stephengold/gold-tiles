@@ -94,6 +94,12 @@ void Game::ActivateNextPlayer(void) {
     mPlayers.Next(miActivePlayer);
 }
 
+Tiles Game::ActiveHand(void) const {
+    Tiles result = Tiles(*miActivePlayer);
+    
+    return result;
+}
+
 Player Game::ActivePlayer(void) const {
     Player result = *miActivePlayer;
     

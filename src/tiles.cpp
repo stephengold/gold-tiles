@@ -34,6 +34,8 @@ bool Tiles::operator==(Tiles const &rOther) const {
 }
 
 Tile Tiles::operator[](unsigned r) const {
+    ASSERT(r < mMap.size());
+    
     ConstIteratorType i_tile = mMap.begin();
     ASSERT(i_tile != mMap.end());
     for (unsigned i = 0; i < r; i++) {
@@ -129,11 +131,14 @@ unsigned Tiles::DrawTiles(unsigned tileCnt, Tiles &bag) {
 }
 
 Tile Tiles::FindTile(TileIdType id) const {
+    ASSERT(ContainsId(id));
+     
     ConstIteratorType i_tile = mMap.find(id);
     ASSERT(i_tile != mMap.end());
 	ASSERT(i_tile->first == id);
     Tile result = i_tile->second;
     
+    ASSERT(result.Id() == id);
     return result; 
 }
 

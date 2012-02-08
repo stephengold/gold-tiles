@@ -25,27 +25,29 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 /*
-An Indices object represents a set of rows or columns in a grid.
+An Indices object represents a set of indices, which may be rows or 
+columns in a grid or tile IDs.
 
 The Indices class is implemented as a set of integers.
 */
 
 #include <set>
 
-class Indices: public std::set<int> {
+class Indices: public std::set<long> {
 public:
-	typedef std::set<int>::const_iterator ConstIteratorType;
+	typedef std::set<long>::const_iterator ConstIteratorType;
+	typedef std::set<long>::iterator IteratorType;
 
 	// misc
-	void     Add(int);
-	void     Remove(int);
+	void     Add(long);
+	void     Remove(long);
 
 	// access
     unsigned Count(void) const;
 
 	// inquiry
-    bool     Contains(int) const;
-	bool     IsEmpty(void) const;
+    bool     Contains(long) const;
+	bool     IsEmpty(long) const;
 };
 
 #endif

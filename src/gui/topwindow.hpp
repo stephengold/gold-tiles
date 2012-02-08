@@ -42,6 +42,7 @@ The TopWindow class is an extension of the Window class.
 #include "gui/playmenu.hpp"
 #include "gui/viewmenu.hpp"
 #include "gui/window.hpp"
+#include "partial.hpp"
 #include "tile.hpp"
 
 typedef std::map<TileIdType,Rect>  TileMapType;
@@ -73,11 +74,9 @@ private:
 
 	Cell          mActiveCell;
 	bool          mActiveCellFlag;
-	TileIdType    mActiveTileId;
 	HINSTANCE     mApplication;	
 	bool          mAutopauseFlag;
 	bool          mAutocenterFlag;
-	Board         mBoard;
 	ACountType    mColorAttributeCnt;
 	bool          mDragBoardFlag;
 	unsigned      mDragBoardPixelCnt;
@@ -85,22 +84,18 @@ private:
 	Game *       mpGame;
 	char *        mFileName;
 	Rect          mHandRect;
-	Tiles         mHandTiles;
-	Cells         mHintedCells;
-	unsigned      mHintStrength;
 	bool          mIsStartCentered;
 	int           mMouseLastX, mMouseLastY; // coordinates of last mouse down
 	int           mMouseUpCnt;
 	unsigned      mPadPixels;
+	Partial       mPartial;
 	bool          mPauseFlag;
     PlayMenu *   mpPlayMenu;
-    unsigned      mPlayedTileCnt;
 	unsigned      mRunLength;
 	bool          mShowClocksFlag, mShowGridFlag, mShowHintsFlag;
 	bool          mShowScoresFlag, mShowTilesFlag;
 	bool          mSquareGrid;      // false = hex grid
 	long          mStartX, mStartY; // logical coordinates of center of start cell
-	Tiles         mSwapTiles;
 	Rect          mSwapRect;
 	TileMapType   mTileMap;
 	TileWidthType mTileWidth;
@@ -110,7 +105,6 @@ private:
     void Initialize(CREATESTRUCT const *);
 
 	// misc
-	void         AddValidNextUses(Move const &, Tile const &, Cells const &);
     unsigned     CellHeight(void) const;
     int          CellX(int column) const;
     int          CellY(int row) const;
@@ -128,8 +122,7 @@ private:
                           ColorType, bool leftFlag);
 	Rect         DrawTile(Canvas &, int centerY, int centerX, Tile const &);
 	Cell         GetCell(int x, int y) const;
-	Move         GetMove(void) const;
-	TileIdType   GetTileId(int x, int y) const;
+    TileIdType   GetTileId(int x, int y) const;
     unsigned     GridUnit(void) const;
     void         HandleButtonDown(int x, int y);
 	void         HandleButtonUp(int x, int y);
@@ -137,15 +130,12 @@ private:
 	void         HandleMouseMove(int x, int y);
 	char const * Name(void) const;
     void         Play(bool passFlag);
-	void         PlayOnCell(Cell const &, Tile const &);
 	void         Recenter(unsigned oldWidth, unsigned oldHeight);
 	void         ReleaseActiveTile(int x, int y);
     void         Resize(unsigned width, unsigned height);
     void         Repaint(void);
-	void         SetHintedCells(void);
 	void         StopDragging(void);
 	void         TakeBack(void);
-	void         UnplayOnCell(Cell const &, TileIdType id);
 	void         UpdateMenus(void);
 
 	// inquiry
@@ -154,9 +144,7 @@ private:
 	bool IsInHandArea(int x, int y) const;
 	bool IsInSwapArea(int x, int y) const;
 	bool IsInTile(int x, int y) const;
-	bool IsHinted(Cell const &rCell) const;
 	bool IsPaused(void) const;
-	bool IsValidNextStep(Move const &, Cell const &, Tile const &) const;
 };
 
 #endif

@@ -24,15 +24,37 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 #include "indices.hpp"
 #include "project.hpp"
 
-// methods
+// misc methods
 
-void Indices::Add(int index) {
+void Indices::Add(long index) {
 	ASSERT(!Contains(index));
 
 	insert(index);
+
+	ASSERT(Contains(index));
 }
 
-bool Indices::Contains(int index) const {
+unsigned Indices::Count(void) const {
+	unsigned result = size();
+
+	return result;
+}
+
+void Indices::Remove(long index) {
+	ASSERT(Contains(index));
+
+	IteratorType i_index = find(index);
+    ASSERT(i_index != end());
+	ASSERT(*i_index == index);
+
+	erase(i_index);
+
+	ASSERT(!Contains(index));
+}
+
+
+// inquiry methods
+bool Indices::Contains(long index) const {
 	bool result = (find(index) != end());
 
 	return result;

@@ -110,7 +110,7 @@ private:
     void Initialize(CREATESTRUCT const *);
 
 	// misc
-	void         AddValidNextUses(Move const &, Tile const &);
+	void         AddValidNextUses(Move const &, Tile const &, Cells const &);
     unsigned     CellHeight(void) const;
     int          CellX(int column) const;
     int          CellY(int row) const;
@@ -120,6 +120,7 @@ private:
 	Rect         DrawBlankTile(Canvas &, int centerY, int centerX);
     void         DrawBoard(Canvas &);
     void         DrawCell(Canvas &, Cell const &, unsigned swapCnt);
+    void         DrawHandTile(Canvas &, int y, int x, Tile const &);
     void         DrawHandTiles(Canvas &);
     void         DrawInactivePlayers(Canvas &);
 	void         DrawPaused(Canvas &);
@@ -148,7 +149,6 @@ private:
 	void         UpdateMenus(void);
 
 	// inquiry
-	bool IsAnyValidNextUse(Cell const &) const;
 	bool IsDragging(void) const;
     bool IsInBounds(Cell const &) const;
 	bool IsInHandArea(int x, int y) const;

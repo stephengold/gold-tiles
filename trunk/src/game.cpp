@@ -246,14 +246,20 @@ void Game::PlayGame(void) {
     DisplayScores();
 }
 
-unsigned Game::ScoreMove(Move const &move) const {
-     unsigned result = mBoard.ScoreMove(move);
+unsigned Game::ScoreMove(Move const &rMove) const {
+    unsigned result = mBoard.ScoreMove(rMove);
 
-     return result;
+    return result;
 }
 
 
 // inquiry methods
+
+bool Game::HasEmptyCell(Cell const &rCell) const {
+    bool result = mBoard.HasEmptyCell(rCell);
+    
+    return result; 
+}
 
 bool Game::IsLegalMove(Move const &rMove) const {
     char const *reason;

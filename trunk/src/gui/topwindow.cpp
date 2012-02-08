@@ -104,7 +104,7 @@ TopWindow::TopWindow(HINSTANCE applicationInstance, Game *pGame):
     mFileName = "Game1";
 	mpGame = pGame;
     mHandTiles = Tiles(pGame->ActivePlayer());
-	mHintStrength = 2;
+	mHintStrength = 3;
     mIsStartCentered = false;
     mMouseLastX = 0;
     mMouseLastY = 0;
@@ -145,6 +145,22 @@ TopWindow::~TopWindow(void) {
 }
 
 // misc
+
+void TopWindow::AddValidNextUses(
+    Move const &rMove, 
+    Tile const &rTile, 
+    Cells const &rBase)
+{
+    Cells::ConstIteratorType i_cell;
+    for (i_cell = rBase.begin(); i_cell != rBase.end(); i_cell++) {
+        Cell cell = *i_cell;
+        if (!mHintedCells.Contains(cell) 
+         && IsValidNextStep(rMove, cell, rTile))
+        {
+      		mHintedCells.Add(cell);
+        }
+    }
+}
 
 unsigned TopWindow::CellHeight(void) const {
     unsigned result = CellWidth();
@@ -245,9 +261,12 @@ void TopWindow::DrawActivePlayer(Canvas &rCanvas) {
 		ASSERT(played_tile_cnt > 0);
 		--played_tile_cnt;
 	}
-    if (played_tile_cnt == 0 && tile_cnt < mHandTiles.Count()) {
+    if (played_tile_cnt == 0
+        && tile_cnt < mHandTiles.Count()
+        && tile_cnt < mpGame->CountStock())
+    {
         area_color = COLOR_DARK_GREEN;
-    } else { // can't add tiles to swap area
+    } else { // can't add more tiles to swap area
         area_color = COLOR_BROWN;
     }
     rCanvas.UseColors(area_color, edge_color);
@@ -274,7 +293,7 @@ Rect TopWindow::DrawBlankTile(Canvas &rCanvas, int topY, int leftX) {
 }
 
 void TopWindow::DrawBoard(Canvas &rCanvas) {
-
+    // TODO - reuse hinted cells if situation is unchanged
 	SetHintedCells();
 
     int top_row = 1 + mBoard.NorthMax();
@@ -311,7 +330,6 @@ void TopWindow::DrawCell(Canvas &rCanvas, Cell const &rCell, unsigned swapCnt) {
     int ulc_x = CellX(column);
     int ulc_y = CellY(row);
 
-    Cells done;
     bool hinted = IsHinted(rCell);
 
     ColorType cellColor = COLOR_DARK_GREEN;
@@ -339,13 +357,25 @@ void TopWindow::DrawCell(Canvas &rCanvas, Cell const &rCell, unsigned swapCnt) {
 	    rCanvas.DrawTarget(rect);
 	}
 
+    // Draw the active tile last so it isn't obscured.
     Tile const *tile = mBoard.GetCell(rCell);
     if (tile != NULL && tile->Id() != mActiveTileId) {
         DrawTile(rCanvas, ulc_y + 1, ulc_x + 1, *tile);
     }
 }
 
-void TopWindow::DrawHandTiles(Canvas &canvas) {   
+void TopWindow::DrawHandTile(Canvas &rCanvas, int y, int x, Tile const &rTile) {
+    Rect rect = DrawTile(rCanvas, y, x, rTile);
+        
+    TileIdType id = rTile.Id();
+    TilePairType pair(id, rect);
+    std::pair<TileMapType::iterator, bool> ins;
+    ins = mTileMap.insert(pair);
+    bool success = ins.second;
+    ASSERT(success);
+}
+
+void TopWindow::DrawHandTiles(Canvas &rCanvas) {   
     int hand_y = mHandRect.TopY() + mPadPixels;
     int swap_y = mSwapRect.TopY() + mPadPixels;
     
@@ -356,6 +386,10 @@ void TopWindow::DrawHandTiles(Canvas &canvas) {
 
     mTileMap.clear();
     unsigned cell_width = CellWidth();
+    
+    int active_x, active_y;
+    Tile active_tile;
+
     for (unsigned i = 0; i < mHandTiles.Count(); i++) {
         Tile tile = mHandTiles[i];
         int x, y;
@@ -365,31 +399,34 @@ void TopWindow::DrawHandTiles(Canvas &canvas) {
             int column = cell.Column();
             x = CellX(column);
             y = CellY(row);
-        } else {
-            if (mSwapTiles.Contains(tile)) {
-                int left = mSwapRect.LeftX();
-                int width = mSwapRect.Width();
-                int pad = (width - cell_width)/2;
-                x = left + pad;
-                y = swap_y;
-                swap_y += cell_height;
-            } else { 
-                int left = mHandRect.LeftX();
-                int width = mHandRect.Width();
-                int pad = (width - cell_width)/2;
-                x = left + pad;
-                y = hand_y;
-                hand_y += cell_height;
-            }
+        } else if (mSwapTiles.Contains(tile)) {
+            int left = mSwapRect.LeftX();
+            int width = mSwapRect.Width();
+            int pad = (width - cell_width)/2;
+            x = left + pad;
+            y = swap_y;
+            swap_y += cell_height;
+        } else { 
+            int left = mHandRect.LeftX();
+            int width = mHandRect.Width();
+            int pad = (width - cell_width)/2;
+            x = left + pad;
+            y = hand_y;
+            hand_y += cell_height;
         }
-        Rect rect = DrawTile(canvas, y + 1, x + 1, tile);
         
         TileIdType id = tile.Id();
-        TilePairType pair(id, rect);
-        std::pair<TileMapType::iterator, bool> ins;
-        ins = mTileMap.insert(pair);
-        bool success = ins.second;
-        ASSERT(success);
+        if (id != mActiveTileId) {
+            DrawHandTile(rCanvas, y + 1, x + 1, tile);
+        } else {
+            active_y = y + 1;
+            active_x = x + 1;
+            active_tile = tile;
+        }
+    }
+    
+    if (mActiveTileId != 0) {
+        DrawHandTile(rCanvas, active_y, active_x, active_tile);
     }
 }
 
@@ -1095,7 +1132,9 @@ void TopWindow::Repaint(void) {
     ASSERT(context != NULL);
     
     bool release_me = false;
-    Canvas canvas(context, this_window, release_me, ClientAreaWidth(), ClientAreaHeight());
+    unsigned width = ClientAreaWidth();
+    unsigned height = ClientAreaHeight();
+    Canvas canvas(context, this_window, release_me, width, height);
     
     if (mPauseFlag) {
 		DrawPaused(canvas);
@@ -1117,6 +1156,60 @@ void TopWindow::Resize(unsigned clientAreaWidth, unsigned clientAreaHeight) {
     SetClientArea(clientAreaWidth, clientAreaHeight);
     Recenter(old_height, old_width);
     ForceRepaint();
+}
+
+void TopWindow::SetHintedCells(void) {
+    mHintedCells.MakeEmpty();
+
+    // for mHintStrength == 0, empty cells (from start of turn) are hinted
+    int top_row = 1 + mBoard.NorthMax();
+    int bottom_row = -1 - mBoard.SouthMax();
+    int right_column = 1 + mBoard.EastMax();
+    int left_column = -1 - mBoard.WestMax();
+    ASSERT(bottom_row <= top_row);
+    ASSERT(left_column <= right_column);
+    for (int row = top_row; row >= bottom_row; row--) {
+        for (int column = left_column; column <= right_column; column++) {
+            Cell cell(row, column);
+            if (mpGame->HasEmptyCell(cell)) {
+                mHintedCells.Add(cell);
+            }
+        }
+    }
+    
+    if (mHintStrength > 0) {
+        // for mHintStrength == 1, only cells connected to the start are hinted
+        
+        Cells::IteratorType i_cell;
+        for (i_cell = mHintedCells.begin(); i_cell != mHintedCells.end(); i_cell++) {
+            Cell cell = *i_cell;
+            if (!mBoard.ConnectsToStart(cell)) {
+                mHintedCells.erase(i_cell);
+            }
+        }
+    }
+
+    if (mHintStrength > 1) {
+        // for mHintStrength == 2, only cells usable with available tiles are hinted
+        // for mHintStrength == 3, only cells usable with active tile are hinted
+        Cells base = mHintedCells;
+        mHintedCells.MakeEmpty();
+	    Move move = GetMove();
+
+	    for (unsigned i = 0; i < mHandTiles.Count(); i++) {
+            Tile tile = mHandTiles[i];
+	        TileIdType id = tile.Id();
+
+            bool include_tile = (!mBoard.ContainsId(id) || id == mActiveTileId);
+            if (mHintStrength == 3 && mActiveTileId != 0) {
+                include_tile = (mActiveTileId == id);
+            }
+            
+		    if (include_tile) {
+                 AddValidNextUses(move, tile, base);
+            }
+		}
+    }
 }
 
 void TopWindow::StopDragging(void) {
@@ -1188,74 +1281,8 @@ void TopWindow::UpdateMenus(void) {
 	ASSERT(success);
 }
 
-void TopWindow::SetHintedCells(void) {
-    mHintedCells.MakeEmpty();
-
-	Move move = GetMove();
-
-	if (mActiveTileId == 0) {
-		for (unsigned i = 0; i < mHandTiles.Count(); i++) {
-            Tile tile = mHandTiles[i];
-			TileIdType id = tile.Id();
-
-			if (id == mActiveTileId || !mBoard.ContainsId(id)) {
-		        AddValidNextUses(move, tile);
-			}
-		}
-
-	} else {
-		Tile tile = mHandTiles.FindTile(mActiveTileId);
-		AddValidNextUses(move, tile);
-	}
-}
-
-
-void TopWindow::AddValidNextUses(Move const &rMove, Tile const &rTile) {
-    int top_row = 1 + mBoard.NorthMax();
-    int bottom_row = -1 - mBoard.SouthMax();
-    int right_column = 1 + mBoard.EastMax();
-    int left_column = -1 - mBoard.WestMax();
-    ASSERT(bottom_row <= top_row);
-    ASSERT(left_column <= right_column);
-
-    for (int row = top_row; row >= bottom_row; row--) {
-        for (int column = left_column; column <= right_column; column++) {
-            Cell cell(row, column);
-            if (!mHintedCells.Contains(cell) 
-             && IsValidNextStep(rMove, cell, rTile)) {
-				mHintedCells.Add(cell);
-			}
-        }
-    }
-}
-
 
 // inquiry methods
-
-bool TopWindow::IsAnyValidNextUse(Cell const &rCell) const {
-	bool result = false;
-
-	Move move = GetMove();
-	if (mActiveTileId == 0) {
-		for (unsigned i = 0; i < mHandTiles.Count(); i++) {
-            Tile tile = mHandTiles[i];
-            TileIdType id = tile.Id();
-
-			if (id == mActiveTileId || !mBoard.ContainsId(id)) {
-		        if (IsValidNextStep(move, rCell, tile)) {
-					result = true;
-					break;
-				}
-			}
-		}
-
-	} else {
-		Tile tile = mHandTiles.FindTile(mActiveTileId);
-		result = IsValidNextStep(move, rCell, tile);
-	}
-
-    return result;
-}
 
 bool TopWindow::IsDragging(void) const {
 	bool result = (mDragBoardFlag || mActiveTileId != 0);
@@ -1266,21 +1293,6 @@ bool TopWindow::IsDragging(void) const {
 bool TopWindow::IsHinted(Cell const &rCell) const {
 	bool result = mHintedCells.Contains(rCell);
 	
-#if 0
-	switch(mHintStrength) {
-	    case 0:
-			result = IsInBounds(rCell);
-			break;
-		case 1:
-			result = mBoard.ConnectsToStart(rCell);
-			break;
-		case 2:
-			result = IsAnyValidMove(rCell);
-			break;
-		default:
-			ASSERT(false);
-	}
-#endif
 	return result;
 }
 
@@ -1296,6 +1308,7 @@ bool TopWindow::IsInSwapArea(int x, int y) const {
 	return result;
 }
 
+#if 0
 bool TopWindow::IsInBounds(Cell const &rCell) const {
 	bool result = true;
 
@@ -1317,7 +1330,7 @@ bool TopWindow::IsInBounds(Cell const &rCell) const {
 
 	return result;
 }
-
+#endif
 
 bool TopWindow::IsInTile(int x, int y) const {
 	TileIdType id = GetTileId(x, y);

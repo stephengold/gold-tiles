@@ -102,7 +102,7 @@ Rect Canvas::DrawTile(
 {
     assert(numGlyphs <= 4);
     
-    UseColors(tileColor, tileColor);
+    UseColors(tileColor, COLOR_DARK_GRAY);
     unsigned circleDiameter = edge/5;
 	Rect result = DrawRoundedSquare(top, left, edge, circleDiameter);
  

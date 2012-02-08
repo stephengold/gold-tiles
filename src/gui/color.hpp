@@ -36,7 +36,7 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 enum ColorType {
     COLOR_BLACK       = PALETTERGB(0, 0, 0),
     COLOR_DARK_GRAY   = PALETTERGB(80, 80, 80),
-    COLOR_LIGHT_GRAY  = PALETTERGB(192, 192, 192),
+    COLOR_LIGHT_GRAY  = PALETTERGB(160, 160, 160),
     COLOR_WHITE       = PALETTERGB(255, 255, 255),
 
     COLOR_RED         = PALETTERGB(255, 0, 0),

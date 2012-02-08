@@ -52,6 +52,7 @@ Cells::operator String(void) const {
 void Cells::Add(Cell const &cell) {
 	ASSERT(!Contains(cell));
 	insert(cell);
+	ASSERT(Contains(cell));
 }
 
 unsigned Cells::Count(void) const {

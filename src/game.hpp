@@ -54,6 +54,7 @@ public:
     void     PlayGame(void);
 
 	// inquiry methods
+	bool     HasEmptyCell(Cell const &) const;
     bool     IsLegalMove(Move const &) const;
     bool     IsLegalMove(Move const &, char const *&rReason) const;
     bool     IsOver(void) const;

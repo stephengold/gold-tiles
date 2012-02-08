@@ -37,6 +37,7 @@ public:
 
 	// operators
     // Player &operator=(Player const &); The compiler-generated assignment method is fine.
+	operator Tiles(void) const;
 
 	// misc
 	void     AddScore(unsigned);
@@ -53,7 +54,6 @@ public:
 	// access
 	String   Name(void) const;
 	unsigned Score(void) const;
-	operator Tiles(void) const;
 
 	// inquiry
 	bool     IsEmptyHanded(void) const;

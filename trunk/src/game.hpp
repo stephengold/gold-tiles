@@ -46,6 +46,7 @@ public:
 
 	// misc methods
     void     ActivateNextPlayer(void);
+    Tiles    ActiveHand(void) const;
     Player   ActivePlayer(void) const;
     unsigned CountStock(void) const;
     void     FinishTurn(Move const &);

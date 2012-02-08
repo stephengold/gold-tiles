@@ -24,6 +24,7 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 #include "project.hpp"
 
 #ifdef _WINDOWS
+#include <vector>
 #include "gui/graphics.hpp"
 #include "gui/poly.hpp"
 #include "gui/rect.hpp"
@@ -56,7 +57,7 @@ void Poly::GetPoints(
     unsigned width = rBounds.Width();
     int bottomY = rBounds.BottomY();
     int leftX = rBounds.LeftX();
-    vector<FractionPair>::const_iterator it = begin();
+    std::vector<FractionPair>::const_iterator it = begin();
     for (unsigned i = 0; i < numPoints; i++) {
         ASSERT(it < end());
         long dx = (long)(0.5 + it->X()*width);

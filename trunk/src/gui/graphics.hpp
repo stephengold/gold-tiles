@@ -32,6 +32,7 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 
 #ifdef _WINDOWS
 #include <windows.h>
+#include "color.hpp"
 
 class Graphics {
 public:

@@ -80,10 +80,18 @@ BaseBoard::operator String(void) const {
 }
 
 
-// misc
+// misc methods
 
 unsigned BaseBoard::Count(void) const {
 	unsigned result = mCells.size();
+	ASSERT(mTiles.size() == result);
+
+	return result;
+}
+
+// get the eastern limit of the board
+int BaseBoard::EastMax(void) const {
+    int result = mEastMax;
 
 	return result;
 }
@@ -102,34 +110,59 @@ BaseBoard::IteratorType BaseBoard::Find(int northing, int easting) {
     return result;
 }
 
+// get a pointer to the Tile (if any) in a specific cell
+Tile const *BaseBoard::GetCell(Cell const &rSquare) const {
+    Tile const *p_result = NULL;
+
+    ConstIteratorType it = mCells.find(rSquare);
+    if (it != mCells.end()) {
+        p_result = &(it->second);
+    }
+
+    return p_result;
+}
+
 // locate the Cell which contains a specific Tile
 bool BaseBoard::LocateTileId(TileIdType id, Cell &rCell) const {
-    for (int row = mNorthMax; row >= -(int)mSouthMax; row--) {
-	    for (int column = -mWestMax; column <= mEastMax; column++) {
-            ConstIteratorType i_tile = Find(row, column);
-			if (i_tile != mCells.end() && i_tile->second.HasId(id)) {
-                rCell = i_tile->first;
-                return true;
-            }
-        }
+    ConstTileIteratorType i_tile = mTiles.find(id);
+    bool result = (i_tile != mTiles.end());
+    if (result) {
+        rCell = i_tile->second;
     }
-    return false;
+    return result;
 }
 
 // make a specific cell empty
-void BaseBoard::MakeEmpty(Cell const &rSquare) {
-    int row = rSquare.Row();
-    int column = rSquare.Column();
-    IteratorType it = Find(row, column);
-    ASSERT(it != mCells.end());
-    mCells.erase(it);
+void BaseBoard::MakeEmpty(Cell const &rCell) {
+    int row = rCell.Row();
+    int column = rCell.Column();
+    
+    IteratorType i_cell = Find(row, column);
+    Tile tile = i_cell->second;
+    TileIdType id = tile.Id();
+    ASSERT(i_cell != mCells.end());
+    mCells.erase(i_cell);
+    
+    TileIteratorType i_tile = mTiles.find(id);
+    ASSERT(i_tile != mTiles.end());
+    mTiles.erase(i_tile);
+}
+
+// get the northern limit of the board
+int BaseBoard::NorthMax(void) const {
+    int result = mNorthMax;
+
+	return result;
 }
 
 // play a Tile on a specific cell
 void BaseBoard::PlayOnCell(Cell const &rCell, Tile const &rTile) {
-    D(std::cout << "Play " << (String)rTile << " on " << (String)rRef << std::endl);
+    D(std::cout << "Play " << String(rTile) << " on " << String(rRef)
+                << std::endl);
 
     ASSERT(GetCell(rCell) == NULL);
+    TileIdType id = rTile.Id();
+    ASSERT(mTiles.find(id) == mTiles.end());
 
     int n = rCell.Row();
     if (n > (int)mNorthMax) {
@@ -146,36 +179,12 @@ void BaseBoard::PlayOnCell(Cell const &rCell, Tile const &rTile) {
     if (e < -(int)mWestMax) {
         mWestMax = -e;
     }
+
     mCells[rCell] = rTile;
-}
+    mTiles[id] = rCell;
 
-
-// access methods
-
-// get the eastern limit of the board
-int BaseBoard::EastMax(void) const {
-    int result = mEastMax;
-
-	return result;
-}
-
-// get a pointer to the Tile (if any) in a specific cell
-Tile const *BaseBoard::GetCell(Cell const &rSquare) const {
-    Tile const *p_result = NULL;
-
-    ConstIteratorType it = mCells.find(rSquare);
-    if (it != mCells.end()) {
-        p_result = &(it->second);
-    }
-
-    return p_result;
-}
-
-// get the northern limit of the board
-int BaseBoard::NorthMax(void) const {
-    int result = mNorthMax;
-
-	return result;
+    ASSERT(GetCell(rCell) != NULL);
+    ASSERT(mTiles.find(id) != mTiles.end());
 }
 
 // get the southern limit of the board

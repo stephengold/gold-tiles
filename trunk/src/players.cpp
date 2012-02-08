@@ -28,4 +28,11 @@ void Players::Next(ConstIteratorType &riCurrentPlayer) const {
     if (riCurrentPlayer >= end()) {
         riCurrentPlayer = begin();
     }
-};
+}
+
+void Players::Next(IteratorType &riCurrentPlayer) {
+	riCurrentPlayer++;
+    if (riCurrentPlayer >= end()) {
+        riCurrentPlayer = begin();
+    }
+}

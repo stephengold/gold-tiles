@@ -74,7 +74,8 @@ Move::operator Tiles(void) const {
     
     ConstIteratorType i_tile_cell;
     for (i_tile_cell = begin(); i_tile_cell != end(); i_tile_cell++) {
-        Tile tile = Tile(*i_tile_cell);
+        TileCell tc = *i_tile_cell;
+        Tile tile = tc.operator Tile();
         result.Add(tile);
     }
 
@@ -170,7 +171,7 @@ bool Move::RepeatsTile(void) const {
         ConstIteratorType i_tile;
         
         for (i_tile = begin(); i_tile != end(); i_tile++) {
-            Tile tile = Tile(*i_tile);
+            Tile tile = i_tile->operator Tile();
             if (tiles_seen.Contains(tile)) {
                 result = true;
                 break;

@@ -40,9 +40,13 @@ ViewMenu::ViewMenu(HMENU menu, UINT position):
     mShowHints(menu, IDM_SHOW_HINTS),
     mShowScores(menu, IDM_SHOW_SCORES),
     mShowTiles(menu, IDM_SHOW_TILES),
-    mAnimation(menu, IDM_ANIMATION)
+    mAnimation(menu, IDM_ANIMATION),
+    mAutocenter(menu, IDM_AUTOCENTER)
 {}
 
+void ViewMenu::Autocenter(bool shown) {
+	mAutocenter.Check(shown);
+}
 void ViewMenu::ShowClocks(bool shown) {
 	mShowClocks.Check(shown);
 }

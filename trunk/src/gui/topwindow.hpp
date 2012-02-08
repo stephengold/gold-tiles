@@ -36,6 +36,7 @@ The TopWindow class is an extension of the Window class.
 #include <map>
 #include <windows.h>
 #include "board.hpp"
+#include "cells.hpp"
 #include "gui/canvas.hpp"
 #include "gui/rect.hpp"
 #include "gui/playmenu.hpp"
@@ -75,6 +76,7 @@ private:
 	TileIdType    mActiveTileId;
 	HINSTANCE     mApplication;	
 	bool          mAutopauseFlag;
+	bool          mAutocenterFlag;
 	Board         mBoard;
 	ACountType    mColorAttributeCnt;
 	bool          mDragBoardFlag;
@@ -108,7 +110,7 @@ private:
     void Initialize(CREATESTRUCT const *);
 
 	// misc
-	void         AddValidNextUses(Cells &, Move const &, Tile const &) const;
+	void         AddValidNextUses(Move const &, Tile const &);
     unsigned     CellHeight(void) const;
     int          CellX(int column) const;
     int          CellY(int row) const;

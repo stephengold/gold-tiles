@@ -97,6 +97,7 @@ TopWindow::TopWindow(HINSTANCE applicationInstance, Game *pGame):
     mActiveTileId = 0;
 	mApplication = applicationInstance;
     mAutopauseFlag = false;
+    mAutocenterFlag = false;
     mBoard = Board(*pGame);
     mColorAttributeCnt = 1;
     mDragBoardFlag = false;
@@ -274,7 +275,7 @@ Rect TopWindow::DrawBlankTile(Canvas &rCanvas, int topY, int leftX) {
 
 void TopWindow::DrawBoard(Canvas &rCanvas) {
 
-	SetValidNextUses();
+	SetHintedCells();
 
     int top_row = 1 + mBoard.NorthMax();
     int bottom_row = -1 - mBoard.SouthMax();
@@ -786,6 +787,10 @@ void TopWindow::HandleMenuCommand(int command) {
             break;
 		case IDM_ANIMATION:
 			break;
+		case IDM_AUTOCENTER:
+            mAutocenterFlag = !mAutocenterFlag;
+	        UpdateMenus();
+			break;
 
         // Help menu options
         case IDM_RULES: {
@@ -1173,6 +1178,7 @@ void TopWindow::UpdateMenus(void) {
     mpViewMenu->ShowHints(mShowHintsFlag);
     mpViewMenu->ShowScores(mShowScoresFlag);
     mpViewMenu->ShowTiles(mShowTilesFlag);
+    mpViewMenu->Autocenter(mAutocenterFlag);
 
 	mpViewMenu->Enable(!mPauseFlag);
 	
@@ -1192,7 +1198,7 @@ void TopWindow::SetHintedCells(void) {
             Tile tile = mHandTiles[i];
 			TileIdType id = tile.Id();
 
-			if (id == mActiveTileId) {
+			if (id == mActiveTileId || !mBoard.ContainsId(id)) {
 		        AddValidNextUses(move, tile);
 			}
 		}
@@ -1204,7 +1210,7 @@ void TopWindow::SetHintedCells(void) {
 }
 
 
-void TopWindow::AddValidNextUses(Move const &rMove, Tile const &rTile) const {
+void TopWindow::AddValidNextUses(Move const &rMove, Tile const &rTile) {
     int top_row = 1 + mBoard.NorthMax();
     int bottom_row = -1 - mBoard.SouthMax();
     int right_column = 1 + mBoard.EastMax();
@@ -1215,8 +1221,9 @@ void TopWindow::AddValidNextUses(Move const &rMove, Tile const &rTile) const {
     for (int row = top_row; row >= bottom_row; row--) {
         for (int column = left_column; column <= right_column; column++) {
             Cell cell(row, column);
-            if (IsValidNextStep(rMove, cell, rTile)) {
-				mValidNextUses.Add(cell);
+            if (!mHintedCells.Contains(cell) 
+             && IsValidNextStep(rMove, cell, rTile)) {
+				mHintedCells.Add(cell);
 			}
         }
     }
@@ -1232,11 +1239,9 @@ bool TopWindow::IsAnyValidNextUse(Cell const &rCell) const {
 	if (mActiveTileId == 0) {
 		for (unsigned i = 0; i < mHandTiles.Count(); i++) {
             Tile tile = mHandTiles[i];
-            Cell tmp_cell;
+            TileIdType id = tile.Id();
 
-			if (tile.Id() == mActiveTileId
-				|| !mBoard.LocateTile(tile, tmp_cell))
-			{
+			if (id == mActiveTileId || !mBoard.ContainsId(id)) {
 		        if (IsValidNextStep(move, rCell, tile)) {
 					result = true;
 					break;
@@ -1259,7 +1264,9 @@ bool TopWindow::IsDragging(void) const {
 }
 
 bool TopWindow::IsHinted(Cell const &rCell) const {
-	bool result;
+	bool result = mHintedCells.Contains(rCell);
+	
+#if 0
 	switch(mHintStrength) {
 	    case 0:
 			result = IsInBounds(rCell);
@@ -1273,7 +1280,7 @@ bool TopWindow::IsHinted(Cell const &rCell) const {
 		default:
 			ASSERT(false);
 	}
-
+#endif
 	return result;
 }
 

@@ -34,6 +34,7 @@ public:
 
 	// misc
     void     Next(ConstIteratorType &) const;
+    void     Next(IteratorType &);
 
 	// access
     unsigned Count(void) const;

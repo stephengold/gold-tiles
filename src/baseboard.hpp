@@ -46,7 +46,7 @@ public:
     // ~BaseBoard(void);  compiler-generated destructor is OK
 
 	// operators
-    // BaseBoard &operator=(BaseBoard const &);  compiler-generated assignment method is OK
+    // BaseBoard &operator=(BaseBoard const &);  compiler-generated assignment operator is OK
 	operator String(void) const;
 
 	// misc
@@ -63,9 +63,12 @@ public:
 private:
     typedef std::map<Cell,Tile>::const_iterator	ConstIteratorType;
     typedef std::map<Cell,Tile>::iterator		IteratorType;
+    typedef std::map<TileIdType,Cell>::const_iterator	ConstTileIteratorType;
+    typedef std::map<TileIdType,Cell>::iterator		    TileIteratorType;
 
 	int mNorthMax, mSouthMax, mEastMax, mWestMax; // extent of played area
     std::map<Cell,Tile> mCells;
+    std::map<TileIdType,Cell> mTiles;
 
 	// misc
     ConstIteratorType Find(int northing, int easting) const;
@@ -73,3 +76,4 @@ private:
 };
 
 #endif
+

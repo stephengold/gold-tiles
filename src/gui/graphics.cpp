@@ -30,6 +30,9 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 #include "gui/rect.hpp"
 #include "string.hpp"
 
+//extern int strcpy_s(char *, size_t, const char *);
+#define strcpy_s(a, sz, b) strcpy(a, b)
+
 Graphics::Graphics(
     HDC device,
     HWND window,

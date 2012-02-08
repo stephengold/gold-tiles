@@ -138,7 +138,7 @@ void Board::PlayMove(Move const &rMove) {
 
 void Board::PlayTile(TileCell const &rTileCell) {
     Cell cell = Cell(rTileCell);
-    Tile tile = Tile(rTileCell);
+    Tile tile = rTileCell.operator Tile();
     ASSERT(HasEmptyCell(cell));
     PlayOnCell(cell, tile);
 }

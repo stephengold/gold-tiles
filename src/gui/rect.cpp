@@ -106,5 +106,4 @@ unsigned Rect::Width(void) const {
     return result;
 }
 
-
 #endif

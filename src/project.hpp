@@ -26,12 +26,11 @@
 //#define D(debug_only_code) (debug_only_code)
 #define D(debug_only_code) ((void)0)
 
-// forward declarations of project-wide classes and enums
+// forward declarations of project-wide classes
 class BaseBoard;
 class Board;
 class Cell;
 class Cells;
-enum DirectionType;
 class FractionPair;
 class Game;
 class Indices;
@@ -46,7 +45,6 @@ class TileCell;
 
 #ifdef _GUI
 class Canvas;
-enum ColorType;
 class Dialog;
 class Graphics;
 class MenuItem;

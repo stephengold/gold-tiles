@@ -41,21 +41,21 @@ public:
 	ViewMenu(void) { ASSERT(false); }
     ViewMenu(HMENU menu, UINT position);
 
-	// misc
-    void TileSize(UINT);
-
-	// access
+	// misc methods
     void Animation(bool);
+    void Autocenter(bool);
 	void ShowClocks(bool);
 	void ShowGrid(bool);
 	void ShowHints(bool);
 	void ShowScores(bool);
 	void ShowTiles(bool);
+    void TileSize(UINT);
 
 private:
+    MenuItem mSmallTiles, mMediumTiles, mLargeTiles;
     MenuItem mRecenter, mAnimation, mAttributes;
     MenuItem mShowClocks, mShowGrid, mShowHints, mShowScores, mShowTiles;
-    MenuItem mSmallTiles, mMediumTiles, mLargeTiles;
+    MenuItem mAutocenter;
 
 	// misc
 	void UncheckAllSizes(void);

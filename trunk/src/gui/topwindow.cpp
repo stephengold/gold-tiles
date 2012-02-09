@@ -31,6 +31,7 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 #include "gui/canvas.hpp"
 #include "gui/color.hpp"
 #include "gui/dialog.hpp"
+#include "gui/parmbox.hpp"
 #include "gui/resource.hpp"
 #include "gui/topwindow.hpp"
 #include "gui/windowclass.hpp"
@@ -140,7 +141,26 @@ TopWindow::~TopWindow(void) {
 	delete mpViewMenu;
 }
 
-// misc
+void TopWindow::Initialize(CREATESTRUCT const *pCreateStruct) {
+    // Object initialization which occurs after the Microsoft Windows window
+    // has been created.
+
+	Window::Initialize(pCreateStruct);
+
+    HMENU menu_bar = pCreateStruct->hMenu;
+
+    mpPlayMenu = new PlayMenu(menu_bar, 1);
+	ASSERT(mpPlayMenu != NULL);
+
+	mpViewMenu = new ViewMenu(menu_bar, 2);
+	ASSERT(mpViewMenu != NULL);
+
+	UpdateMenus();
+	ParmBox(*this);
+}
+
+
+// misc methods
 
 unsigned TopWindow::CellHeight(void) const {
     unsigned result = CellWidth();
@@ -857,6 +877,13 @@ LRESULT TopWindow::HandleMessage(UINT message, WPARAM wParam, LPARAM lParam) {
 			}
             break;
 
+		case WM_MOUSEWHEEL: {
+            int zDelta = GET_WHEEL_DELTA_WPARAM(wParam);
+            mStartY -= zDelta/5;
+			ForceRepaint();
+			break;
+		}
+
 	    case WM_PAINT: // repaint
 	        UpdateMenus();
             Repaint();
@@ -894,23 +921,6 @@ void TopWindow::HandleMouseMove(int x, int y) {
         mDragTileDeltaX += drag_x;
         mDragTileDeltaY += drag_y;
     }
-}
-
-void TopWindow::Initialize(CREATESTRUCT const *pCreateStruct) {
-    // Object initialization which occurs after the Microsoft Windows window
-    // has been created.
-
-	Window::Initialize(pCreateStruct);
-
-    HMENU menu_bar = pCreateStruct->hMenu;
-
-    mpPlayMenu = new PlayMenu(menu_bar, 1);
-	ASSERT(mpPlayMenu != NULL);
-
-	mpViewMenu = new ViewMenu(menu_bar, 2);
-	ASSERT(mpViewMenu != NULL);
-
-	UpdateMenus();
 }
 
 int TopWindow::MessageDispatchLoop(void) {

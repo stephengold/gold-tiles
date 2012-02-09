@@ -2,6 +2,11 @@
 #define IDC_STATIC (-1)
 #endif
 
+#define IDC_SLIDER1                             1000
+#define IDC_SLIDER2                             1001
+#define IDC_EDIT2                               1002
+#define IDC_SLIDER3                             1003
+#define IDC_EDIT3                               1004
 #define IDM_NEW                                 6000
 #define IDM_OPEN                                6001
 #define IDM_REOPEN                              6002
@@ -35,4 +40,5 @@
 #define IDM_AUTOCENTER                          6211
 #define IDM_RULES                               6900
 #define IDM_WARRANTY                            6901
+#define IDC_EDIT1                               6902
 #define IDM_ABOUT                               6902

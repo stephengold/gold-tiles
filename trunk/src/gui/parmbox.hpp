@@ -1,8 +1,8 @@
-#ifndef DIALOG_HPP_INCLUDED
-#define DIALOG_HPP_INCLUDED
+#ifndef PARMBOX_HPP_INCLUDED
+#define PARMBOX_HPP_INCLUDED
 
-// File:    dialog.hpp
-// Purpose: Dialog class
+// File:    parmbox.hpp
+// Purpose: ParmBox class
 // Author:  Stephen Gold sgold@sonic.net
 // (c) Copyright 2012 Stephen Gold
 // Distributed under the terms of the GNU General Public License
@@ -25,41 +25,31 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 /*
-A Dialog object represents a generic Microsoft Windows dialog box.
+A ParmBox object represents a dialog box for setting game parameters
+such as the number of tile in a player's hand.
 
-The Dialog class is an extension of the Window class.
+The ParmBox class is an extension of the Dialog class.
 */
 
 #include "project.hpp"
 
 #ifdef _WINDOWS
 #include <windows.h>
-#include "window.hpp"
+#include "dialog.hpp"
 
-class Dialog: public Window {
+class ParmBox: public Dialog {
 public:
-	// lifecycle
-	Dialog(void) { ASSERT(false); };
-	Dialog(char const *templateName, Window const &parent);
-	Dialog(char const *templateName, Window const &parent, DLGPROC);
-    Dialog(Dialog const &) { ASSERT(false); };
-    // ~Dialog(void);  implicitly declared destructor is OK
-	void Initialize(char const *templateName, Window const &parent, DLGPROC);
+	ParmBox(void) { ASSERT(false); };
+	ParmBox(Window const &parent); 
+    ParmBox(ParmBox const &) { ASSERT(false); };
+    // ~ParmBox(void);  compiler-generated destructor is OK
 
 	// operators
-    Dialog &operator=(Dialog const &) { ASSERT(false); };
-	
-	// misc public methods
+    ParmBox &operator=(ParmBox const &) { ASSERT(false); };
+
+	// misc methods
 	INT_PTR HandleMessage(UINT message, WPARAM, LPARAM);
-	INT_PTR Result(void) const;
-
-private:
-	INT_PTR mResult;
 };
-
-// globals
-
-extern Dialog *gpNewlyCreatedDialog;
 
 #endif
 #endif

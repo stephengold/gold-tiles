@@ -39,7 +39,7 @@ public:
     TileCell(Tile const &);  // swap to swap area
     TileCell(Tile const &, Cell const &);  // place on a cell
 	// TileCell(TileCell const &);  compiler-generated copy constructor is OK
-    // ~TileCell(void);  implicitly declared destructor is fine
+    // ~TileCell(void);  compiler-generated destructor is OK
 
 	// operators
     bool   operator<(TileCell const &) const;

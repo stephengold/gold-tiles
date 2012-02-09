@@ -31,7 +31,7 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 #include "gui/windowclass.hpp"
 #include "rect.hpp"
 
-// message handler (callback)
+// message handler (callback) for generic window
 static Window *spNewlyCreatedWindow = NULL;
 static LRESULT CALLBACK messageHandler(
 	HWND windowHandle,

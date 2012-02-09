@@ -1,5 +1,5 @@
-// File:    dialog.cpp
-// Purpose: Dialog class
+// File:    parmbox.cpp
+// Purpose: ParmBox class
 // Author:  Stephen Gold sgold@sonic.net
 // (c) Copyright 2012 Stephen Gold
 // Distributed under the terms of the GNU General Public License
@@ -25,59 +25,40 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 
 #ifdef _WINDOWS
 #include <windows.h>
-#include "gui/dialog.hpp"
+#include "gui/parmbox.hpp"
 
-Dialog *gpNewlyCreatedDialog = NULL;
-
-// message handler (callback) for generic dialog
-static INT_PTR CALLBACK dialogMessageHandler(
+// message handler (callback) for this dialog
+static INT_PTR CALLBACK parmBoxMessageHandler(
 	HWND windowHandle,
 	UINT message,
 	WPARAM wParameter, 
 	LPARAM lParameter)
 {
-    Dialog *p_dialog;
+    ParmBox *p_box;
 	if (gpNewlyCreatedDialog != NULL) {
-		p_dialog = gpNewlyCreatedDialog;
+		p_box = (ParmBox *)gpNewlyCreatedDialog;
 		gpNewlyCreatedDialog = NULL;
-		p_dialog->SetHandle(windowHandle);
+		p_box->SetHandle(windowHandle);
 	} else {
-       p_dialog = (Dialog *)Window::Lookup(windowHandle);
+       p_box = (ParmBox *)Window::Lookup(windowHandle);
 	}
 
 	INT_PTR result;
-    ASSERT(p_dialog->Handle() == windowHandle);
-    result = p_dialog->HandleMessage(message, wParameter, lParameter);
+    ASSERT(p_box->Handle() == windowHandle);
+    result = p_box->HandleMessage(message, wParameter, lParameter);
 
 	return result;
 }
 
-// lifecycle
-
-Dialog::Dialog(char const *templateName, Window const &parent) {
-	gpNewlyCreatedDialog = this;
-	Initialize(templateName, parent, &dialogMessageHandler);
-}
-
-Dialog::Dialog(char const *templateName, Window const &parent, DLGPROC messageHandler) {
-	gpNewlyCreatedDialog = this;
-	Initialize(templateName, parent, messageHandler);
-}
-
-void Dialog::Initialize(
-	char const *templateName,
-	Window const &rParent,
-	DLGPROC messageHandler)
+ParmBox::ParmBox(Window const &parent):
+    Dialog("PARMBOX", parent, &parmBoxMessageHandler) 
 {
-	// create a modal dialog box
-	HINSTANCE module = CopyModule(rParent);
-	HWND parent = rParent.Handle();
-	mResult = ::DialogBox(module, templateName, parent, messageHandler);
 }
+
 
 // misc methods
 
-INT_PTR Dialog::HandleMessage(UINT message, WPARAM wParam, LPARAM lParam) {
+INT_PTR ParmBox::HandleMessage(UINT message, WPARAM wParam, LPARAM lParam) {
 	INT_PTR result = FALSE;
 	HWND window = Handle();
 
@@ -104,10 +85,5 @@ INT_PTR Dialog::HandleMessage(UINT message, WPARAM wParam, LPARAM lParam) {
     return result;
 }
 
-INT_PTR Dialog::Result(void) const {
-	INT_PTR result = mResult;
-
-	return result;
-}
 
 #endif

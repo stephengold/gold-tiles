@@ -46,6 +46,7 @@ Partial::Partial(Game const *pGame, unsigned hintStrength) {
 void Partial::Reset(void) {
     mActiveId = 0;
     mBoard = Board(*mpGame);
+    mHintedCellsValid = false;
     mPlayedTileCnt = 0;
     mTiles = mpGame->ActiveHand();
 }
@@ -189,7 +190,7 @@ Tile Partial::GetTileById(TileIdType id) const {
         ASSERT(found);
         Tile const *p_tile = mBoard.GetCell(cell);
         ASSERT(p_tile != NULL);
-        Tile result = *p_tile;
+        result = *p_tile;
     }
     
     ASSERT(result.Id() == id); 
@@ -260,12 +261,15 @@ void Partial::SetHintedCells(void) {
     
     if (mHintStrength > 0) {
         // for mHintStrength == 1, only cells connected to the start are hinted
-        
+
+		Cells base = mHintedCells;
+		mHintedCells.MakeEmpty();
+
         Cells::IteratorType i_cell;
-        for (i_cell = mHintedCells.begin(); i_cell != mHintedCells.end(); i_cell++) {
+        for (i_cell = base.begin(); i_cell != base.end(); i_cell++) {
             Cell cell = *i_cell;
-            if (!mBoard.ConnectsToStart(cell)) {
-                mHintedCells.erase(i_cell);
+            if (mBoard.ConnectsToStart(cell)) {
+                mHintedCells.insert(cell);
             }
         }
     }

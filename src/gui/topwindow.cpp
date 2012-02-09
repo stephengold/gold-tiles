@@ -192,7 +192,7 @@ void TopWindow::DrawActivePlayer(Canvas &rCanvas) {
 	}
 
 	// choose colors for hand area (mHandRect)
-	TileIdType active_tile;
+	TileIdType active_tile = mPartial.GetActive();
 	if (mPartial.IsInHand(active_tile)) {
         // The active tile came from this hand.
 		ASSERT(tile_cnt > 0);
@@ -355,7 +355,7 @@ void TopWindow::DrawHandTiles(Canvas &rCanvas) {
     unsigned cell_height = CellHeight();
     unsigned cell_width = CellWidth();
 
-    int tile_cnt = mPartial.CountSwap();
+    unsigned tile_cnt = mPartial.CountSwap();
     unsigned stock_cnt = mpGame->CountStock();
     if (tile_cnt < mPartial.CountTiles() 
      && tile_cnt < stock_cnt) {
@@ -973,6 +973,7 @@ void TopWindow::Play(bool passFlag) {
     } else if (!is_legal) { // explain the issue
         Dialog(reason, *this);
 	}
+	ForceRepaint();
 }
 
 void TopWindow::Recenter(unsigned oldHeight, unsigned oldWidth) {
@@ -1001,8 +1002,7 @@ void TopWindow::ReleaseActiveTile(int x, int y) {
 
 	// Determine where the active tile was released to.
 	bool to_hand = IsInHandArea(x, y);
-	bool to_swap = IsInSwapArea(x, y);
-	ASSERT(!(to_hand && to_swap));
+	bool to_swap = (!to_hand) && IsInSwapArea(x, y); // overlap is possible
 	bool to_board = !(to_hand || to_swap);
 	Cell to_cell;
 	if (to_board) {
@@ -1032,20 +1032,27 @@ void TopWindow::ReleaseActiveTile(int x, int y) {
 		}
 	}
 
-	// move the active tile back into the active hand
+	if (to_board && mPartial.GetCell(to_cell) != 0) {
+		// cell conflict - can't construct move in the normal way
+	    Dialog("EMPTY", *this);
+    	StopDragging();
+		return;
+	}
+
+	// move the active tile back to the active hand
 	if (from_board) {
         mPartial.BoardToHand();
     } else if (from_swap) {
         mPartial.SwapToHand();
     }
 
-	// then move it to its destination
-	if (to_board) {
+	// move tile from the active hand to its destination
+    if (to_board) {
         mPartial.HandToCell(to_cell);
     } else if (to_swap) {
         ASSERT(!from_swap);
         mPartial.HandToSwap();
-	}
+    }
 
 	// Check whether the move so far is legal.
     Move move_so_far = Move(mPartial);
@@ -1054,12 +1061,11 @@ void TopWindow::ReleaseActiveTile(int x, int y) {
 
 	if (!legal && (to_swap || ::strcmp(reason, "FIRST") != 0)) {  
 		// It's illegal, even as a partial move:  reverse it.
-		if (to_board) {
+        if (to_board) {
             mPartial.BoardToHand();
-		} else if (to_swap) {
+        } else if (to_swap) {
             mPartial.SwapToHand();
-		}
-
+        }
      	if (from_board) {
             mPartial.HandToCell(from_cell);
         } else if (from_swap) {
@@ -1078,6 +1084,7 @@ void TopWindow::ReleaseActiveTile(int x, int y) {
         // active cell got filled
         mActiveCellFlag = false;
     }
+
 	StopDragging();
 }
 

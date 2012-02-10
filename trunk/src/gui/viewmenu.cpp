@@ -28,6 +28,8 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 #include "gui/resource.hpp"
 #include "gui/viewmenu.hpp"
 
+// lifecycle
+
 ViewMenu::ViewMenu(HMENU menu, UINT position):
 	SubMenu(menu, position),
     mSmallTiles(menu, IDM_SMALL_TILES),
@@ -43,6 +45,9 @@ ViewMenu::ViewMenu(HMENU menu, UINT position):
     mAnimation(menu, IDM_ANIMATION),
     mAutocenter(menu, IDM_AUTOCENTER)
 {}
+
+// misc methods
+
 
 void ViewMenu::Autocenter(bool shown) {
 	mAutocenter.Check(shown);

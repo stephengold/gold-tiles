@@ -35,18 +35,10 @@ The TopWindow class is an extension of the Window class.
 #ifdef _WINDOWS
 #include <map>
 #include <windows.h>
-#include "board.hpp"
-#include "cells.hpp"
-#include "gui/canvas.hpp"
+#include "gui/color.hpp"
 #include "gui/rect.hpp"
-#include "gui/playmenu.hpp"
-#include "gui/viewmenu.hpp"
 #include "gui/window.hpp"
 #include "partial.hpp"
-#include "tile.hpp"
-
-typedef std::map<TileIdType,Rect>  TileMapType;
-typedef std::pair<TileIdType,Rect> TilePairType;
 
 enum TileWidthType {
     TILE_WIDTH_SMALL = 21,
@@ -65,11 +57,16 @@ public:
 	// operator
     TopWindow &operator=(TopWindow const &) { ASSERT(false); };
 
-	// misc
+	// misc public methods
 	LRESULT HandleMessage(UINT message, WPARAM, LPARAM);
 	int     MessageDispatchLoop(void);
 
 private:
+    typedef std::map<TileIdType,Rect>   TileMapType;
+    typedef std::pair<TileIdType,Rect>  TilePairType;
+    typedef TileMapType::iterator       TileIterType;
+    typedef std::pair<TileIterType,bool> TileInsResultType;
+
 	static WindowClass *mspClass;
 
 	Cell          mActiveCell;
@@ -85,9 +82,9 @@ private:
 	char *        mFileName;
 	Rect          mHandRect;
 	bool          mIsStartCentered;
-	int           mMouseLastX, mMouseLastY; // coordinates of last mouse down
+	Point         mMouseLast; // coordinates of last mouse down
 	int           mMouseUpCnt;
-	unsigned      mPadPixels;
+	PCntType      mPadPixels;
 	Partial       mPartial;
 	bool          mPauseFlag;
     PlayMenu *   mpPlayMenu;
@@ -95,7 +92,7 @@ private:
 	bool          mShowClocksFlag, mShowGridFlag, mShowHintsFlag;
 	bool          mShowScoresFlag, mShowTilesFlag;
 	bool          mSquareGrid;      // false = hex grid
-	long          mStartX, mStartY; // logical coordinates of center of start cell
+	Point         mStartCell; // logical coordinates of center of start cell
 	Rect          mSwapRect;
 	TileMapType   mTileMap;
 	TileWidthType mTileWidth;
@@ -104,46 +101,46 @@ private:
 	// lifecycle
     void Initialize(CREATESTRUCT const *);
 
-	// misc
-    unsigned     CellHeight(void) const;
-    int          CellX(int column) const;
-    int          CellY(int row) const;
-    unsigned     CellWidth(void) const;
+	// misc private methods
+    PCntType     CellHeight(void) const;
+    LogicalXType CellX(int column) const;
+    LogicalYType CellY(int row) const;
+    PCntType     CellWidth(void) const;
     char const * ClassName(void) const;
     void         DrawActivePlayer(Canvas &);
-	Rect         DrawBlankTile(Canvas &, int centerY, int centerX);
+	Rect         DrawBlankTile(Canvas &, Point const &);
     void         DrawBoard(Canvas &);
     void         DrawCell(Canvas &, Cell const &, unsigned swapCnt);
-    void         DrawHandTile(Canvas &, int y, int x, Tile const &);
+    void         DrawHandTile(Canvas &, Point const &, Tile const &);
     void         DrawHandTiles(Canvas &);
     void         DrawInactivePlayers(Canvas &);
 	void         DrawPaused(Canvas &);
     Rect         DrawPlayerHeader(Canvas &, int top, int leftRight, Player const &, 
                           ColorType, bool leftFlag);
-	Rect         DrawTile(Canvas &, int centerY, int centerX, Tile const &);
-	Cell         GetCell(int x, int y) const;
-    TileIdType   GetTileId(int x, int y) const;
+	Rect         DrawTile(Canvas &, Point, Tile const &);
+	Cell         GetCell(Point const &) const;
+    TileIdType   GetTileId(Point const &) const;
     unsigned     GridUnit(void) const;
-    void         HandleButtonDown(int x, int y);
-	void         HandleButtonUp(int x, int y);
+    void         HandleButtonDown(Point const &);
+	void         HandleButtonUp(Point const &);
     void         HandleMenuCommand(int);
-	void         HandleMouseMove(int x, int y);
+	void         HandleMouseMove(Point const &);
 	char const * Name(void) const;
     void         Play(bool passFlag);
-	void         Recenter(unsigned oldWidth, unsigned oldHeight);
-	void         ReleaseActiveTile(int x, int y);
-    void         Resize(unsigned width, unsigned height);
+	void         Recenter(PCntType oldWidth, PCntType oldHeight);
+	void         ReleaseActiveTile(Point const &);
+    void         Resize(PCntType width, PCntType height);
     void         Repaint(void);
 	void         StopDragging(void);
 	void         TakeBack(void);
 	void         UpdateMenus(void);
 
-	// inquiry
+	// private inquiry methods
 	bool IsDragging(void) const;
     bool IsInBounds(Cell const &) const;
-	bool IsInHandArea(int x, int y) const;
-	bool IsInSwapArea(int x, int y) const;
-	bool IsInTile(int x, int y) const;
+	bool IsInHandArea(Point const &) const;
+	bool IsInSwapArea(Point const &) const;
+	bool IsInTile(Point const &) const;
 	bool IsPaused(void) const;
 };
 

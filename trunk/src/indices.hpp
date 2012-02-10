@@ -33,21 +33,21 @@ The Indices class is implemented as a set of integers.
 
 #include <set>
 
-class Indices: public std::set<long> {
-public:
-	typedef std::set<long>::const_iterator ConstIteratorType;
-	typedef std::set<long>::iterator IteratorType;
+typedef long IndexType;
 
-	// misc
+class Indices: public std::set<IndexType> {
+public:
+	typedef std::set<IndexType>::const_iterator ConstIteratorType;
+	typedef std::set<IndexType>::iterator IteratorType;
+
+	// misc public methods
 	void     Add(long);
+    unsigned Count(void) const;
 	void     Remove(long);
 
-	// access
-    unsigned Count(void) const;
-
-	// inquiry
-    bool     Contains(long) const;
-	bool     IsEmpty(long) const;
+	// public inquiry methods
+    bool     Contains(IndexType) const;
+	bool     IsEmpty(IndexType) const;
 };
 
 #endif

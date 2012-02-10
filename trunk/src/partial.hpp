@@ -34,6 +34,7 @@ The Partial class is ...
 #include "cells.hpp"
 #include "indices.hpp"
 #include "partial.hpp"
+#include "tiles.hpp"
 
 class Partial {
 public:

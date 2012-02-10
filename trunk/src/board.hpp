@@ -40,13 +40,13 @@ BaseBoard is hidden from these extensions.
 
 class Board: public BaseBoard {
 public:
-	// misc
+	// misc public methods
 	TileIdType GetId(Cell const &) const;
     void	   PlayMove(Move const &);
     bool       LocateTile(Tile const &, Cell &) const;
     unsigned   ScoreMove(Move const &) const;
 
-	// inquiry
+	// public inquiry methods
 	bool Contains(Tile const &) const;
 	bool ContainsId(TileIdType) const;
 	bool ConnectsToStart(Cell const &) const;
@@ -56,7 +56,7 @@ public:
     bool IsValidMove(Move const &, char const *&rReason) const;
 
 private:
-	// misc
+	// misc private methods
 	void		GetColumnLimits(Cell const &, int &rRow1, int &rRow2, int &rColumn) const;
 	Tile const *GetPtr(int northing, int easting) const;
 	void		GetRowLimits(Cell const &, int &rRow, int &rColumn1, int &rColumn2) const;
@@ -66,18 +66,18 @@ private:
     unsigned	ScoreColumn(Cell const &) const;
     unsigned	ScoreRow(Cell const &) const;
 
-	// inquiry
-    bool		AreAllColumnsCompatible(Cells const &) const;
-    bool		AreAllCompatible(Cells const &) const;
-    bool		AreAllEmpty(Cells const &) const;
-    bool		AreAllRowsCompatible(Cells const &) const;
-	bool	    ConnectsToStart(Cell const &, Cells &) const;
-    bool		DoesAnyConnectToStart(Cells const &) const;
-	bool		HasEmptyCell(int row, int column) const;
-    bool		IsColumnCompatible(Cell const &) const;
-    bool		IsConnectedColumn(Cells const &) const;
-    bool		IsConnectedRow(Cells const &) const;
-    bool		IsRowCompatible(Cell const &) const;
+	// private inquiry methods
+    bool AreAllColumnsCompatible(Cells const &) const;
+    bool AreAllCompatible(Cells const &) const;
+    bool AreAllEmpty(Cells const &) const;
+    bool AreAllRowsCompatible(Cells const &) const;
+	bool ConnectsToStart(Cell const &, Cells &) const;
+    bool DoesAnyConnectToStart(Cells const &) const;
+	bool HasEmptyCell(int row, int column) const;
+    bool IsColumnCompatible(Cell const &) const;
+    bool IsConnectedColumn(Cells const &) const;
+    bool IsConnectedRow(Cells const &) const;
+    bool IsRowCompatible(Cell const &) const;
 };
 
 #endif

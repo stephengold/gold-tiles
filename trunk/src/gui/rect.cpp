@@ -25,34 +25,117 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 
 #ifdef _WINDOWS
 #include <windows.h>
+#include "fractionpair.hpp"
 #include "rect.hpp"
 
-Rect::Rect(int topY, int leftX, unsigned width, unsigned height) {
-    mBounds.top = topY;
-    mBounds.left = leftX;
-    mBounds.right = leftX + width;
-    mBounds.bottom = topY + height;
+Rect::Rect(RECT const &rStruct) {
+    mTop = rStruct.top;
+    mLeft = rStruct.left;
+    mRight = rStruct.right;
+    mBottom = rStruct.bottom;
 }
+
+Rect::Rect(Point const &rUlc, PCntType width, PCntType height) {
+    ASSERT(width < 10000);
+    ASSERT(height < 10000);
+
+    mTop = rUlc.Y();
+    mLeft = rUlc.X();
+    mRight = mLeft + width;
+    mBottom = mTop + height;
+
+    ASSERT(Width() == width);
+    ASSERT(Height() == height);
+}
+
+Rect::Rect(
+    LogicalYType topY,
+    LogicalXType leftX,
+    PCntType width,
+    PCntType height)
+{
+    ASSERT(width < 10000);
+    ASSERT(height < 10000);
+
+    mTop = topY;
+    mLeft = leftX;
+    mRight = mLeft + width;
+    mBottom = mTop + height;
+
+    ASSERT(Width() == width);
+    ASSERT(Height() == height);
+}
+
+// operators
 
 Rect::operator RECT(void) const {
-    RECT result = mBounds;
+    RECT result;
+    result.top = mTop;
+    result.bottom = mBottom;
+    result.left = mLeft;
+    result.right = mRight;
     
     return result;
 }
 
-// methods
+// misc methods
 
-int Rect::BottomY(void) const {
-    int result = mBounds.bottom;
+float Rect::AspectRatio(void) const {
+    float width = Width();
+    ASSERT(width > 0.5);
+
+    float height = Height();
+    ASSERT(height > 0.5);
+
+    float result = width/height;
     
     return result;
 }
 
+LogicalYType Rect::BottomY(void) const {
+    LogicalYType result = mBottom;
+    
+    return result;
+}
+
+Point Rect::Brc(void) const {
+    Point result(mRight, mBottom);
+    
+    return result;
+}
+
+// construct the largest Rect with a given aspect ratio
+// that is centered and contained within this Rect
+
+Rect Rect::CenterRect(float aspectRatio) const {
+    ASSERT(aspectRatio > 0.01);
+    ASSERT(aspectRatio < 100.0);
+    
+    PCntType width = Width();
+    PCntType height = Height();
+    LogicalXType left = LeftX();
+    LogicalYType top = TopY();
+    
+    if (width > height*aspectRatio) {
+        left += (unsigned)(width - height*aspectRatio)/2;
+        width = height;
+    } else if (height > width/aspectRatio) {
+        top += (unsigned)(height - width/aspectRatio)/2;
+        height = width;
+    } 
+    Rect result(top, left, width, height);
+    
+    ASSERT(Contains(result));
+    return result;
+}
+
+// construct the largest square that is centered and contained
+// within this Rect
 Rect Rect::CenterSquare(void) const {
-    unsigned width = Width();
-    unsigned height = Height();
-    int left = LeftX();
-    int top = TopY();
+    PCntType width = Width();
+    PCntType height = Height();
+    LogicalXType left = LeftX();
+    LogicalYType top = TopY();
     
     if (width > height) {
         left += (width - height)/2;
@@ -63,47 +146,113 @@ Rect Rect::CenterSquare(void) const {
     } 
     Rect result(top, left, width, height);
     
+    ASSERT(Contains(result));
     return result;
 }
 
-bool Rect::Contains(int x, int y) const {
-    unsigned dx = x - mBounds.left;
-    unsigned dy = y - mBounds.top;
+PCntType Rect::Height(void) const {
+    ASSERT(BottomY() >= TopY());
+    PCntType result = BottomY() - TopY();
+    
+    return result;
+}
+
+Point Rect::Interpolate(FractionPair const &rPair) const {
+    double x = rPair.X();
+    double y = rPair.Y();
+
+    Point result = Interpolate(x, y);
+
+    return result;
+}
+
+Point Rect::Interpolate(double xFrac, double yFrac) const {
+    ASSERT(xFrac >= 0.0);
+    ASSERT(xFrac <= 1.0);
+    ASSERT(yFrac >= 0.0);
+    ASSERT(yFrac <= 1.0);
+
+    double height = double(Height() - 1);
+    double width = double(Width() - 1);
+
+    PCntType dx = PCntType(0.5 + xFrac*width);
+    ASSERT(dx < Width());
+    LogicalXType x = LeftX() + dx;
+    
+    PCntType dy = PCntType(0.5 + (1.0 - yFrac)*height);
+    ASSERT(dy < Height());
+    LogicalYType y = TopY() + dy;  
+
+    ASSERT(Contains(x, y));
+        
+    Point result(x, y);
+    
+    return result;
+}
+
+LogicalXType Rect::LeftX(void) const {
+    LogicalXType result = mLeft;
+    
+    return result;
+}
+
+LogicalXType Rect::RightX(void) const {
+    LogicalXType result = mRight;
+    
+    return result;
+}
+
+LogicalYType Rect::TopY(void) const {
+    LogicalYType result = mTop;
+    
+    return result;
+}
+
+Point Rect::Ulc(void) const {
+    Point result(mLeft, mTop);
+    
+    return result;
+}
+
+PCntType Rect::Width(void) const {
+    ASSERT(RightX() >= LeftX());
+    PCntType result = RightX() - LeftX();
+    
+    return result;
+}
+
+
+// inquiry methods 
+
+bool Rect::Contains(Point const &rPoint) const {
+    LogicalXType x = rPoint.X();
+    LogicalYType y = rPoint.Y();
+    bool result = Contains(x, y);
+    
+    return result; 
+}
+
+bool Rect::Contains(LogicalXType x, LogicalYType y) const {
+    PCntType dx = x - mLeft;
+    PCntType dy = y - mTop;
     bool result = (dx < Width() && dy < Height());
     
     return result; 
 }
 
-unsigned Rect::Height(void) const {
-    ASSERT(BottomY() >= TopY());
-    unsigned result = BottomY() - TopY();
+bool Rect::Contains(Rect const &rOther) const {
+    Point ulc = rOther.Ulc();
+    bool result = Contains(ulc);
     
-    return result;
-}
-
-int Rect::LeftX(void) const {
-    int result = mBounds.left;
+    if (result) {
+        LogicalXType x_max = rOther.RightX() - 1;
+        LogicalYType y_max = rOther.BottomY() - 1;
+        if (!Contains(x_max, y_max)) {
+            result = false;
+        }
+    }
     
-    return result;
-}
-
-int Rect::RightX(void) const {
-    int result = mBounds.right;
-    
-    return result;
-}
-
-int Rect::TopY(void) const {
-    int result = mBounds.top;
-    
-    return result;
-}
-
-unsigned Rect::Width(void) const {
-    ASSERT(RightX() >= LeftX());
-    unsigned result = RightX() - LeftX();
-    
-    return result;
+    return result; 
 }
 
 #endif

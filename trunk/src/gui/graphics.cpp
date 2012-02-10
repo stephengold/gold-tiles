@@ -35,19 +35,20 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 #define strcpy_s(a, sz, b) strcpy(a, b)
 #endif
 
+// lifecycle
+
 Graphics::Graphics(
     HDC device,
     HWND window,
     bool releaseMe,
     bool bufferFlag,
-    unsigned width,
-    unsigned height)
+    PCntType width,
+    PCntType height):
+    mRect(0, 0, width, height)
 {
     mDevice = device;
     mWindow = window;
     mReleaseMe = releaseMe;
-    mHeight = height;
-    mWidth = width;
     
     if (!bufferFlag) {
         mDraw = device;
@@ -57,7 +58,7 @@ Graphics::Graphics(
         ASSERT(mDraw != NULL);
         ASSERT(mDraw != mDevice);
 
-        HGDIOBJ bitmap = ::CreateCompatibleBitmap(mDevice, mWidth, mHeight);
+        HGDIOBJ bitmap = ::CreateCompatibleBitmap(mDevice, width, height);
         ASSERT(bitmap != NULL);
         mBitmapSave = ::SelectObject(mDraw, bitmap);
         ASSERT(mBitmapSave != NULL);
@@ -110,16 +111,18 @@ Graphics::~Graphics(void) {
     }
 }
 
-// methods
+// misc methods
 
 void Graphics::Close(void) {
     if (mDraw != mDevice) {
-        int dest_x = 0;
-        int dest_y = 0;
-        int source_x = 0;
-        int source_y = 0;
+        LogicalXType dest_x = 0;
+        LogicalYType dest_y = 0;
+        PCntType width = mRect.Width();
+        PCntType height = mRect.Height();
+        LogicalXType source_x = 0;
+        LogicalYType source_y = 0;
         DWORD options = SRCCOPY;
-        BOOL success = ::BitBlt(mDevice, dest_x, dest_y, mWidth, mHeight, 
+        BOOL success = ::BitBlt(mDevice, dest_x, dest_y, width, height, 
                                 mDraw, source_x, source_y, options);
         ASSERT(success != 0);
          
@@ -130,7 +133,21 @@ void Graphics::Close(void) {
     }
 }
 
-void Graphics::DrawLine(int x1, int y1, int x2, int y2) {
+void Graphics::DrawLine(Point const &rPoint1, Point const &rPoint2) {
+    LogicalXType x1 = rPoint1.X();
+    LogicalYType y1 = rPoint1.Y();
+    LogicalXType x2 = rPoint2.X();
+    LogicalYType y2 = rPoint2.Y();
+
+    DrawLine(x1, y1, x2, y2);
+}
+
+void Graphics::DrawLine(
+    LogicalXType x1,
+    LogicalYType y1,
+    LogicalXType x2,
+    LogicalYType y2)
+{
     BOOL success = ::MoveToEx(mDraw, x1, y1, NULL);
 	ASSERT(success);
 
@@ -141,23 +158,34 @@ void Graphics::DrawLine(int x1, int y1, int x2, int y2) {
 void Graphics::DrawPolygon(Poly const &rPolygon, Rect const &rBounds) {
     Rect squared = rBounds.CenterSquare();
     
-    unsigned numberOfPoints = rPolygon.Count();
-    POINT *points = new POINT[numberOfPoints];
+    unsigned pointCnt = rPolygon.Count();
+    POINT *points = new POINT[pointCnt];
     ASSERT(points != NULL);
-    rPolygon.GetPoints(points, numberOfPoints, squared);
+    rPolygon.GetPoints(points, pointCnt, squared);
 
-    BOOL success = ::Polygon(mDraw, points, numberOfPoints);
+    BOOL success = ::Polygon(mDraw, points, pointCnt);
     ASSERT(success);
 } 
 
+Rect Graphics::DrawRectangle(Rect const &rRect) {
+	LogicalXType left = rRect.LeftX();
+	LogicalYType top = rRect.TopY();
+	LogicalXType right = rRect.RightX();
+	LogicalYType bottom = rRect.BottomY();
+	BOOL success = ::Rectangle(mDraw, left, top, right, bottom);
+	ASSERT(success != 0);
+	
+	return rRect;
+}
+
 Rect Graphics::DrawRectangle(
-	int top,
-    int left,
-    unsigned width,
-    unsigned height)
+	LogicalYType top,
+    LogicalXType left,
+    PCntType width,
+    PCntType height)
 {
-	int right = left + width;
-	int bottom = top + height;
+	LogicalXType right = left + width;
+	LogicalYType bottom = top + height;
 	BOOL success = ::Rectangle(mDraw, left, top, right, bottom);
 	ASSERT(success != 0);
 	
@@ -167,22 +195,27 @@ Rect Graphics::DrawRectangle(
 }
 
 Rect Graphics::DrawRoundedSquare(
-    int top,
-    int left,
-    unsigned edge,
-    unsigned circleDiameter)
+    Point const &rPoint,
+    PCntType edge,
+    PCntType circleDiameter)
 {
     ASSERT(edge > circleDiameter);
     
-    unsigned ellipseWidth = circleDiameter;
-    unsigned ellipseHeight = circleDiameter;
-    int bottom = top + edge;
-    int right = left + edge;
-    BOOL success = ::RoundRect(mDraw, left, top, right, bottom,
+    PCntType ellipseWidth = circleDiameter;
+    PCntType ellipseHeight = circleDiameter;
+    LogicalXType leftX = rPoint.X();
+    LogicalXType rightX = leftX + edge;
+    LogicalYType topY = rPoint.Y();
+    LogicalYType bottomY = topY + edge;
+    BOOL success = ::RoundRect(mDraw, leftX, topY, rightX, bottomY,
                              ellipseWidth, ellipseHeight);
     ASSERT(success != 0);
-        
-    Rect result(top, left, edge, edge);
+
+    // estimate the dimensions of the interior rectangle        
+    topY += circleDiameter/2;
+    leftX += circleDiameter/2;
+    edge -= circleDiameter;
+    Rect result(topY, leftX, edge, edge);
     
     return result;
 }
@@ -210,26 +243,28 @@ void Graphics::GetColors(ColorType &rBrushBkColor, ColorType &rPenTextColor) con
     rBrushBkColor = mBrushBkColor;
 }
 
-unsigned Graphics::TextHeight(void) const {
-    unsigned result = 16;
+PCntType Graphics::TextHeight(void) const {
+    PCntType result = 16;
     
     return result;
 }
 
-unsigned Graphics::TextWidth(char const *text) const {
+PCntType Graphics::TextWidth(char const *text) const {
     int length = ::strlen(text);
     SIZE extent;
     BOOL success = ::GetTextExtentPoint32(mDraw, text, length, &extent);
-    unsigned result = extent.cx;
+    PCntType result = extent.cx;
     
     return result;
 }
 
-unsigned Graphics::TextWidth(String const &rText) const {
+PCntType Graphics::TextWidth(String const &rText) const {
     unsigned length = rText.Length();
     char *copyText = new char[length + 1];
+    
     ::strcpy_s(copyText, length + 1, rText.c_str());
-    unsigned result = TextWidth(copyText);
+    PCntType result = TextWidth(copyText);
+    
     delete[] copyText;
     return result;
 }

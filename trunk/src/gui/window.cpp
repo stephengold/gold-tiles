@@ -72,6 +72,7 @@ Window::Window(void) {
 
 HDC Window::Initialize(CREATESTRUCT const *pCreateStruct) {
 	ASSERT(mHandle != 0);
+	ASSERT(mModule == 0);
    	ASSERT(pCreateStruct != NULL);
 	mModule = pCreateStruct->hInstance;
 
@@ -95,15 +96,14 @@ HDC Window::Initialize(CREATESTRUCT const *pCreateStruct) {
 // operators
 
 Window::operator Rect(void) const {
-	int x = 0;
-    int y = 0;
-    Rect result(y, x, mClientAreaWidth, mClientAreaHeight);
+	Point origin(0,0);
+    Rect result(origin, mClientAreaWidth, mClientAreaHeight);
 
 	return result;
 }
 
 
-// misc
+// misc methods
 
 void Window::CaptureMouse(void) {
 	HWND this_window = Handle();
@@ -121,33 +121,35 @@ void Window::Center(void) {
         owner = ::GetDesktopWindow();
 	}
 
-	Rect owner_bounds(0, 0, 0, 0);
-	::GetWindowRect(owner, &(RECT &)owner_bounds);
+	RECT bounds;
+	::GetWindowRect(owner, &bounds);
+	Rect owner_bounds(bounds);
 
-    Rect window_bounds(0, 0, 0, 0);
-    ::GetWindowRect(this_window, &(RECT &)window_bounds);
+    ::GetWindowRect(this_window, &bounds);
+    Rect window_bounds(bounds);
 
-	int pad_left = (owner_bounds.Width() - window_bounds.Width())/2;
-	int pad_top = (owner_bounds.Height() - window_bounds.Height())/2;
+	PCntType pad_left = (owner_bounds.Width() - window_bounds.Width())/2;
+	PCntType pad_top = (owner_bounds.Height() - window_bounds.Height())/2;
 
-    ::SetWindowPos(this_window, HWND_TOP, 
-		owner_bounds.LeftX() + pad_left, owner_bounds.TopY() + pad_top, 0, 0, SWP_NOSIZE); 
+    LogicalXType x = owner_bounds.LeftX() + pad_left;
+    LogicalYType y = owner_bounds.TopY() + pad_top;
+    ::SetWindowPos(this_window, HWND_TOP, x, y, 0, 0, SWP_NOSIZE); 
 }
 
-unsigned Window::ClientAreaHeight(void) const {
-	unsigned result = mClientAreaHeight;
+PCntType Window::ClientAreaHeight(void) const {
+	PCntType result = mClientAreaHeight;
 
 	return result;
 }
 
-unsigned Window::ClientAreaWidth(void) const {
-	unsigned result = mClientAreaWidth;
+PCntType Window::ClientAreaWidth(void) const {
+	PCntType result = mClientAreaWidth;
 
 	return result;
 }
 
-HINSTANCE Window::CopyModule(Window const &other) {
-	mModule = other.mModule;
+HINSTANCE Window::CopyModule(Window const &rOther) {
+	mModule = rOther.mModule;
     HINSTANCE result = mModule;
 
 	return result;
@@ -189,8 +191,8 @@ LRESULT Window::HandleMessage(UINT message, WPARAM wParameter, LPARAM lParameter
             break;
 
         case WM_SIZE: { // resize window
-			unsigned width = LOWORD(lParameter);
-			unsigned height = HIWORD(lParameter);
+			PCntType width = LOWORD(lParameter);
+			PCntType height = HIWORD(lParameter);
             SetClientArea(width, height);
             break;
 		}
@@ -204,7 +206,7 @@ LRESULT Window::HandleMessage(UINT message, WPARAM wParameter, LPARAM lParameter
 }
 
 /* static */ Window *Window::Lookup(HWND handle) {
-	unsigned long key = (unsigned long)handle;
+	Key key = Key(handle);
 	Map::const_iterator it;
 	it = msMap.find(key);
 
@@ -222,7 +224,7 @@ void Window::SelfDestruct(void) {
     ::PostQuitMessage(applicationExitCode);
 }
 
-void Window::SetClientArea(unsigned width, unsigned height) {
+void Window::SetClientArea(PCntType width, PCntType height) {
     ASSERT(width < 4000);
     ASSERT(height < 4000);
     mClientAreaWidth = width;
@@ -230,12 +232,15 @@ void Window::SetClientArea(unsigned width, unsigned height) {
 }
 
 void Window::SetHandle(HWND handle) {
+    ASSERT(mHandle == 0);
 	mHandle = handle;
 
-	unsigned long key = (unsigned long)handle;
+	Key key = Key(handle);
 	Window *value = this;
-	Pair newMapping(key, value); 
-	msMap.insert(newMapping);
+	Pair new_mapping(key, value); 
+	InsertResultType ins_result = msMap.insert(new_mapping);
+	bool success = ins_result.second;
+	ASSERT(success);
 }
 
 // set large and small icons for a window
@@ -247,8 +252,8 @@ void Window::SetIcons(char const *iconResourceName) {
 	UINT message = WM_SETICON;
 	UINT image_type = IMAGE_ICON;
 	UINT option = LR_DEFAULTCOLOR;
-	int desired_width;
-    int desired_height;
+	PCntType desired_width;
+    PCntType desired_height;
 	WPARAM which_icon;
 
 	// small icon for title bar
@@ -276,7 +281,8 @@ void Window::Show(int how) {
     ASSERT(success != 0);
 }
 
-// inquiry
+
+// inquiry methods
 
 bool Window::IsMouseCaptured(void) const {
 	HWND captor = ::GetCapture();

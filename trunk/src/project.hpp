@@ -49,6 +49,7 @@ class Dialog;
 class Graphics;
 class MenuItem;
 class PlayMenu;
+class Point;
 class Poly;
 class Rect;
 class SubMenu;

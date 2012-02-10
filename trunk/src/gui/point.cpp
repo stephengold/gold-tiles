@@ -1,8 +1,5 @@
-#ifndef VIEWMENU_HPP_INCLUDED
-#define VIEWMENU_HPP_INCLUDED
-
-// File:    viewmenu.hpp
-// Purpose: ViewMenu class
+// File:    point.cpp
+// Purpose: Point class
 // Author:  Stephen Gold sgold@sonic.net
 // (c) Copyright 2012 Stephen Gold
 // Distributed under the terms of the GNU General Public License
@@ -24,42 +21,62 @@ You should have received a copy of the GNU General Public License
 along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-/*
-A ViewMenu object represents the "view" SubMenu in the menu bar.
-*/
-
 #include "project.hpp"
 
 #ifdef _WINDOWS
 #include <windows.h>
-#include "gui/menuitem.hpp"
-#include "gui/submenu.hpp"
+#include "point.hpp"
 
-class ViewMenu: public SubMenu {
-public:
-	// lifecycle
-	ViewMenu(void) { ASSERT(false); }
-    ViewMenu(HMENU menu, UINT position);
+Point::Point(LogicalXType x, LogicalYType y) {
+    mX = x;
+    mY = y;
+}
 
-	// misc public methods
-    void Animation(bool);
-    void Autocenter(bool);
-	void ShowClocks(bool);
-	void ShowGrid(bool);
-	void ShowHints(bool);
-	void ShowScores(bool);
-	void ShowTiles(bool);
-    void TileSize(UINT);
+Point::Point(POINT const &pt) {
+    mX = pt.x;
+    mY = pt.y;
+}
 
-private:
-    MenuItem mSmallTiles, mMediumTiles, mLargeTiles;
-    MenuItem mRecenter, mAnimation, mAttributes;
-    MenuItem mShowClocks, mShowGrid, mShowHints, mShowScores, mShowTiles;
-    MenuItem mAutocenter;
+Point::Point(POINTS const &pt) {
+    mX = pt.x;
+    mY = pt.y;
+}
 
-	// misc private methods
-	void UncheckAllSizes(void);
-};
+// operators
 
-#endif
+Point::operator POINT(void) const {
+    POINT result;
+    result.x = mX;
+    result.y = mY;
+    
+    return result;
+}
+
+Point::operator POINTS(void) const {
+    POINTS result;
+    result.x = mX;
+    result.y = mY;
+    
+    return result;
+}
+
+// misc methods
+
+void Point::Offset(long dx, long dy) {
+    mX += dx;
+    mY += dy;     
+}
+
+LogicalXType Point::X(void) const {
+    LogicalYType result = mX;
+    
+    return result;
+}
+
+LogicalYType Point::Y(void) const {
+    LogicalYType result = mY;
+    
+    return result;
+}
+
 #endif

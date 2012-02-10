@@ -1,5 +1,5 @@
 README.txt for Release 0.5 of the Gold Tile Game
-created by Stephen Gold (sgold@sonic.net)
+programmed by Stephen Gold (sgold@sonic.net)
 
 Gold Tile is a turn-based multi-player game in which square tiles 
 are drawn from a bag and played on a 2-D grid.  Tiles played to 
@@ -7,13 +7,28 @@ adjacent grid squares must share exactly one attribute.
 
 The Gold Tile Game is (c) Copyright 2012 Stephen Gold and is
 released under the terms of the GNU General Public License, a copy 
-of which is distributed in the file LICENSE.txt
+of which is distributed in the file COPYING.txt
 
 The latest version of the GNU General Public License is 
 online at http://www.gnu.org/licenses/gpl.txt
 
 Documentation, downloads, and source code are 
 online at http://code.google.com/p/gold-tiles
+
+
+ACKNOWLEGMENTS
+
+With gratitude I acknowledge those whose inspiration and support
+helped me create this software:
+ + Susan McKinley Ross for creating Qwirkle(TM) and MindWare
+   for publishing it
+ + my sweetie Gale for her encouragement and understanding
+ + Noah Picard for his help with the user interface design
+ + Colin Laplace and Bloodshed Software for creating and providing
+   the Dev-C++ integrated development environment (IDE)
+ + the Microsoft Developers Network (MSDN) for application programming
+   interface (API) documentation and examples 
+
 
 RELEASE LOG
 

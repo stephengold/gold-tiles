@@ -114,7 +114,7 @@ void Window::CaptureMouse(void) {
 
 // Center a window on its parent.
 // If it has no parent, center it on the desktop.
-void Window::CenterWindow(void) {
+void Window::Center(void) {
 	HWND this_window = Handle();
     HWND owner = ::GetParent(this_window);
     if (owner == NULL) {

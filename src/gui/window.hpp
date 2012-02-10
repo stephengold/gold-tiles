@@ -50,7 +50,7 @@ public:
 
 	// misc
 	void            CaptureMouse(void);
-	void            CenterWindow(void);
+	void            Center(void);
 	unsigned        ClientAreaHeight(void) const;
 	unsigned        ClientAreaWidth(void) const;
 	HINSTANCE       CopyModule(Window const &);

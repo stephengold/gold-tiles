@@ -42,15 +42,13 @@ public:
     WindowClass(WindowClass const &) { ASSERT(false); };
     // ~WindowClass(void);  implicitly declared destructor is fine
 
-	// operator
+	// operators
     WindowClass &operator=(WindowClass const &) { ASSERT(false); };
 
-	// misc
-    void RegisterClass(void);
-
-	// access
+	// misc public methods
     HINSTANCE   Module(void) const;
 	char const *Name(void) const;
+    void        RegisterClass(void);
 };
 
 #endif

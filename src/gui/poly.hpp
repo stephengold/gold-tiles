@@ -40,10 +40,8 @@ class Poly: public std::vector<FractionPair> {
 public:
 	typedef std::vector<FractionPair>::const_iterator ConstIteratorType;
 
-	// misc
+	// misc public methods
     void     Add(double x, double y);
-
-	// access
 	unsigned Count(void) const;
     void     GetPoints(POINT points[], unsigned numPoints, 
                         Rect const &rBounds) const;    

@@ -51,21 +51,26 @@ public:
 	// operators
     Canvas &operator=(Canvas const &) { ASSERT(false); };
 
-	// misc
-	Rect DrawCell(int top, int left, unsigned width,
+	// misc public methods
+    Rect DrawBlankTile(Point const &, PCntType, ColorType);
+	Rect DrawCell(LogicalYType, LogicalXType, PCntType width,
                ColorType cellColor, ColorType gridColor);
-    void DrawTarget(Rect);
-    Rect DrawTile(int top, int left, unsigned width, 
+    void DrawTarget(Rect const &);
+//    Rect DrawTile(LogicalYType, LogicalXType, PCntType width, 
+//               ACountType numGlyphs, const AValueType glyphs[],
+//               ColorType tile, ColorType glyph);
+    Rect DrawTile(Point const &, PCntType width, 
                ACountType numGlyphs, const AValueType glyphs[],
                ColorType tile, ColorType glyph);
 
 private:
-    static std::vector<Poly> msGlyphs;
+    static std::vector<Poly> msShapes; // TODO more options
     
-	// misc
-    void DrawGlyph(Rect bounds, AIndexType, AValueType, 
-                   ColorType background, ColorType glyph);
-    void InitGlyphs(void);            
+    static void InitShapes(void);            
+    
+	// misc private methods
+    void DrawGlyph(Rect const &rBounds, AIndexType, AValueType, 
+                   ColorType background, ColorType glyph);                   
 };
 
 #endif

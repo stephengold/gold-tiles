@@ -34,7 +34,7 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 #define M_PI 3.141592653589793
 #endif
 
-std::vector<Poly> Canvas::msGlyphs;
+std::vector<Poly> Canvas::msShapes;
 
 Canvas::Canvas(
     HDC context,
@@ -46,101 +46,123 @@ Canvas::Canvas(
     Graphics(context, window, releaseMe, true, width, height)
 {}
 
+Rect Canvas::DrawBlankTile(
+    Point const &rWhere,
+    PCntType edge,
+    ColorType tileColor)
+{
+    UseColors(tileColor, COLOR_DARK_GRAY);
+    
+    PCntType circleDiameter = edge/5;
+	DrawRoundedSquare(rWhere, edge, circleDiameter);
+
+    Rect result = Rect(rWhere, edge, edge);
+	
+	return result;
+}
+
 Rect Canvas::DrawCell(
-    int top,
-    int left,
-    unsigned width,
+    LogicalYType top,
+    LogicalXType left,
+    PCntType width,
     ColorType cellColor,
     ColorType gridColor)
 {
     UseColors(cellColor, gridColor);
-    int height = width;
+    PCntType height = width;
     Rect result = DrawRectangle(top, left, width, height);
 
 	return result;
 }
 
 void Canvas::DrawGlyph(
-    Rect bounds, 
+    Rect const &rBounds, 
     AIndexType ind,
     AValueType glyph,
     ColorType backgroundColor,
     ColorType glyphColor)
 {
-    if (msGlyphs.size() == 0) {
-        InitGlyphs();
+    if (msShapes.size() == 0) {
+        InitShapes();
     }
     
+    // TODO less arbitrary
     if (ind == 0) {
         UseColors(glyphColor, glyphColor);
         
-        ASSERT(glyph < msGlyphs.size());
-        Poly polygon = msGlyphs[glyph];
-        DrawPolygon(polygon, bounds);
+        ASSERT(glyph < msShapes.size());
+        Poly polygon = msShapes[glyph];
+        DrawPolygon(polygon, rBounds);
         
     } else { 
         UseColors(backgroundColor, glyphColor);
 
         String str = attributeToString(ind - 1, glyph);
-        DrawText(bounds, str);
+        DrawText(rBounds, str);
     }
 }
 
-void Canvas::DrawTarget(Rect bounds) {
-	DrawLine(bounds.LeftX(), bounds.TopY(), bounds.RightX(), bounds.BottomY());
-	DrawLine(bounds.LeftX(), bounds.BottomY(), bounds.RightX(), bounds.TopY());
+void Canvas::DrawTarget(Rect const &rBounds) {
+    // for now, just draw an X
+    Point ul = rBounds.Interpolate(0.1, 0.9);
+    Point lr = rBounds.Interpolate(0.9, 0.1);
+	DrawLine(ul, lr);
+
+    Point ur = rBounds.Interpolate(0.9, 0.9);
+    Point ll = rBounds.Interpolate(0.1, 0.1);
+	DrawLine(ur, ll);
 }
 
 Rect Canvas::DrawTile(
-    int top, 
-    int left, 
-    unsigned edge,
+    Point const &rWhere,
+    PCntType edge,
     ACountType numGlyphs, 
     const AValueType glyphs[],
     ColorType tileColor,
     ColorType glyphColor)
 {
-    assert(numGlyphs <= 4);
+    ASSERT(numGlyphs > 0);
+    ASSERT(numGlyphs <= 4);
     
     UseColors(tileColor, COLOR_DARK_GRAY);
-    unsigned circleDiameter = edge/5;
-	Rect result = DrawRoundedSquare(top, left, edge, circleDiameter);
- 
-    top += circleDiameter/2;
-    left += circleDiameter/2;
-    int width = edge - circleDiameter;
-    int height = edge - circleDiameter;
+    PCntType circleDiameter = edge/5;
+    Rect result = Rect(rWhere, edge, edge);
+	Rect interior = DrawRoundedSquare(rWhere, edge, circleDiameter);
+	
+    PCntType width = interior.Width();
+    PCntType height = interior.Height();    
     if (numGlyphs == 2) {
         width /= 2;
     } else if (numGlyphs == 3 || numGlyphs == 4) {
         width /= 2;
         height /= 2;
+    } else {
+        ASSERT(numGlyphs == 1);
     }
    
     for (unsigned ind = 0; ind < numGlyphs; ind++) {
-        int glyphTop, glyphLeft;
-        if (numGlyphs == 1) {
-            glyphTop = top;
-            glyphLeft = left;
-        } else if (numGlyphs == 2) {
-            glyphTop = top;
-            glyphLeft = left + ind*width;
+        LogicalXType glyphLeft = interior.LeftX();
+        LogicalYType glyphTop = interior.TopY();
+        if (numGlyphs == 2) {
+            glyphLeft += ind*width;
+        } else if (numGlyphs == 3 || numGlyphs == 4) {
+            glyphLeft += (ind%2)*width;
+            glyphTop += (ind/2)*height;
         } else {
-            assert(numGlyphs == 3 || numGlyphs == 4);
-            glyphTop = top + (ind/2)*height;
-            glyphLeft = left + (ind%2)*width;
+            ASSERT(numGlyphs == 1);
         }
 
         Rect glyphBounds(glyphTop, glyphLeft, width, height);
         AValueType glyph = glyphs[ind];
 		DrawGlyph(glyphBounds, ind, glyph, tileColor, glyphColor);
     }
-	
-	return result;
+    
+    return result;
 }
 
-void Canvas::InitGlyphs(void) {
-    ASSERT(msGlyphs.size() == 0);
+/* static */ void Canvas::InitShapes(void) {
+    ASSERT(msShapes.size() == 0);
+    
     {
         Poly roundel;
         for (unsigned i = 0; i < 20; i++) {
@@ -149,7 +171,7 @@ void Canvas::InitGlyphs(void) {
             double y = 0.5 + 0.45*::sin(phi);
             roundel.Add(x, y);
         }
-        msGlyphs.push_back(roundel);
+        msShapes.push_back(roundel);
     }
     {
         Poly delf;
@@ -157,14 +179,14 @@ void Canvas::InitGlyphs(void) {
         delf.Add(0.85, 0.15);
         delf.Add(0.85, 0.85);
         delf.Add(0.15, 0.85);
-        msGlyphs.push_back(delf);
+        msShapes.push_back(delf);
     }        
     {
         Poly triangle;
         triangle.Add(0.0, 0.1);
         triangle.Add(0.5, 0.9);
         triangle.Add(1.0, 0.1);
-        msGlyphs.push_back(triangle);
+        msShapes.push_back(triangle);
     }        
     {
         Poly starCross;
@@ -176,7 +198,7 @@ void Canvas::InitGlyphs(void) {
         starCross.Add(0.6, 0.4);
         starCross.Add(0.5, 0.0);
         starCross.Add(0.4, 0.4);
-        msGlyphs.push_back(starCross);
+        msShapes.push_back(starCross);
     }        
     {
         Poly mulletOfSeven;
@@ -192,7 +214,7 @@ void Canvas::InitGlyphs(void) {
             }
             mulletOfSeven.Add(x, y);
         }
-        msGlyphs.push_back(mulletOfSeven);
+        msShapes.push_back(mulletOfSeven);
     }        
     {
         Poly lozenge;
@@ -200,7 +222,7 @@ void Canvas::InitGlyphs(void) {
         lozenge.Add(1.0, 0.5);
         lozenge.Add(0.5, 1.0);
         lozenge.Add(0.0, 0.5);
-        msGlyphs.push_back(lozenge);
+        msShapes.push_back(lozenge);
     }        
     {
         Poly heart;
@@ -216,7 +238,7 @@ void Canvas::InitGlyphs(void) {
         heart.Add(0.9, 0.9);
         heart.Add(0.95, 0.7);
         heart.Add(0.9, 0.5);
-        msGlyphs.push_back(heart);
+        msShapes.push_back(heart);
     }        
     {
         Poly trefoil;
@@ -248,7 +270,7 @@ void Canvas::InitGlyphs(void) {
         trefoil.Add(0.64, 0.66);
         trefoil.Add(0.7, 0.8);
         trefoil.Add(0.64, 0.94);
-        msGlyphs.push_back(trefoil);
+        msShapes.push_back(trefoil);
     }        
     {
         Poly spade;
@@ -268,8 +290,10 @@ void Canvas::InitGlyphs(void) {
         spade.Add(0.9, 0.28);
         spade.Add(0.95, 0.44);
         spade.Add(0.9, 0.6);
-        msGlyphs.push_back(spade);
+        msShapes.push_back(spade);
     }
+
+    ASSERT(msShapes.size() == 9);
 }
 
 #endif

@@ -26,6 +26,7 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "board.hpp"
 #include "move.hpp"
+#include "partial.hpp"
 #include "players.hpp"
 
 class Game {
@@ -44,7 +45,7 @@ public:
 	Game &operator=(Game const &) { ASSERT(false); };
     operator Board(void) const;
 
-	// misc methods
+	// misc public methods
     void     ActivateNextPlayer(void);
     Tiles    ActiveHand(void) const;
     Player   ActivePlayer(void) const;
@@ -54,10 +55,11 @@ public:
     Players  InactivePlayers(void) const;
     void     PlayGame(void);
 
-	// inquiry methods
+	// public inquiry methods
 	bool     HasEmptyCell(Cell const &) const;
     bool     IsLegalMove(Move const &) const;
     bool     IsLegalMove(Move const &, char const *&rReason) const;
+    bool     IsLegalPartial(Partial const &) const;
     bool     IsOver(void) const;
 	bool     IsStockEmpty(void) const;
 

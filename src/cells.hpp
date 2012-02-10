@@ -39,12 +39,12 @@ public:
 	// operators
     operator String(void) const;
 
-	// misc
+	// misc public methods
 	void     Add(Cell const &);
 	unsigned Count(void) const;
 	void     MakeEmpty(void);
 
-	// inquiry
+	// public inquiry methods
 	bool AreAllInSameRow(void) const;
     bool AreAllInSameColumn(void) const;
     bool Contains(Cell const &) const;

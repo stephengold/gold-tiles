@@ -1,8 +1,8 @@
-#ifndef VIEWMENU_HPP_INCLUDED
-#define VIEWMENU_HPP_INCLUDED
+#ifndef POINT_HPP_INCLUDED
+#define POINT_HPP_INCLUDED
 
-// File:    viewmenu.hpp
-// Purpose: ViewMenu class
+// File:    point.hpp
+// Purpose: Point class
 // Author:  Stephen Gold sgold@sonic.net
 // (c) Copyright 2012 Stephen Gold
 // Distributed under the terms of the GNU General Public License
@@ -25,40 +25,40 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 /*
-A ViewMenu object represents the "view" SubMenu in the menu bar.
+A Point object represents the location of a pixel in the client area 
+of a window.
 */
 
 #include "project.hpp"
 
 #ifdef _WINDOWS
 #include <windows.h>
-#include "gui/menuitem.hpp"
-#include "gui/submenu.hpp"
 
-class ViewMenu: public SubMenu {
+typedef long LogicalXType, LogicalYType;
+
+class Point {
 public:
 	// lifecycle
-	ViewMenu(void) { ASSERT(false); }
-    ViewMenu(HMENU menu, UINT position);
+    Point(void) { ASSERT(false); };
+    Point(LogicalXType, LogicalYType);
+    Point(POINT const &);
+    Point(POINTS const &);
+    //Point(Point const &);  compiler-generated copy constructor is OK
+    //~Point(void);
+
+	// operators
+	//Point &operator=(Point const &);  compiler-generated assignment operator is OK
+    operator POINT(void) const;
+    operator POINTS(void) const;
 
 	// misc public methods
-    void Animation(bool);
-    void Autocenter(bool);
-	void ShowClocks(bool);
-	void ShowGrid(bool);
-	void ShowHints(bool);
-	void ShowScores(bool);
-	void ShowTiles(bool);
-    void TileSize(UINT);
+    LogicalXType X(void) const;
+    LogicalYType Y(void) const;
+    void         Offset(long dx, long dy);   
 
 private:
-    MenuItem mSmallTiles, mMediumTiles, mLargeTiles;
-    MenuItem mRecenter, mAnimation, mAttributes;
-    MenuItem mShowClocks, mShowGrid, mShowHints, mShowScores, mShowTiles;
-    MenuItem mAutocenter;
-
-	// misc private methods
-	void UncheckAllSizes(void);
+	LogicalXType mX;
+	LogicalYType mY;
 };
 
 #endif

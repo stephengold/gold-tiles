@@ -27,6 +27,8 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 #include <windows.h>
 #include "gui/windowclass.hpp"
 
+// lifecycle
+
 WindowClass::WindowClass(
     HINSTANCE applicationInstance,
     WNDPROC messageHandler,
@@ -49,6 +51,9 @@ WindowClass::WindowClass(
 
 	style = CS_HREDRAW | CS_VREDRAW | CS_OWNDC;
 }
+
+
+// misc methods
 
 HINSTANCE WindowClass::Module(void) const {
     HINSTANCE result = hInstance;

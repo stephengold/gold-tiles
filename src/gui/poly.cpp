@@ -53,17 +53,12 @@ void Poly::GetPoints(
 {
     ASSERT(numPoints <= Count());
     
-    unsigned height = rBounds.Height();
-    unsigned width = rBounds.Width();
-    int bottomY = rBounds.BottomY();
-    int leftX = rBounds.LeftX();
-    std::vector<FractionPair>::const_iterator it = begin();
+    ConstIteratorType it = begin();
     for (unsigned i = 0; i < numPoints; i++) {
         ASSERT(it < end());
-        long dx = (long)(0.5 + it->X()*width);
-        points[i].x = leftX + dx;
-        long dy = (long)(0.5 + it->Y()*height);
-        points[i].y = bottomY - dy;
+        FractionPair pair = *it;
+        Point point = rBounds.Interpolate(pair);
+        points[i] = POINT(point);
         it++;
     }
 }

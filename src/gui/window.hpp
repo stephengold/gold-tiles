@@ -35,6 +35,7 @@ The Window class encapsulates an HWND.
 #ifdef _WINDOWS
 #include <map>
 #include <windows.h>
+#include "gui/rect.hpp"
 
 class Window {
 public:
@@ -44,15 +45,15 @@ public:
     // ~WindowClass(void);  implicitly declared destructor is OK
     HDC Initialize(CREATESTRUCT const *);
 
-	// operator
+	// operators
     Window &operator=(Window const &) { ASSERT(false); };
     operator Rect(void) const;
 
-	// misc
+	// misc public methods
 	void            CaptureMouse(void);
 	void            Center(void);
-	unsigned        ClientAreaHeight(void) const;
-	unsigned        ClientAreaWidth(void) const;
+	PCntType        ClientAreaHeight(void) const;
+	PCntType        ClientAreaWidth(void) const;
 	HINSTANCE       CopyModule(Window const &);
 	void            ForceRepaint(void);
 	HACCEL          GetAcceleratorTable(char const *resourceName);
@@ -60,21 +61,24 @@ public:
 	LRESULT         HandleMessage(UINT message, WPARAM, LPARAM); 
     static Window * Lookup(HWND);
 	void            SelfDestruct(void);
-	void            SetClientArea(unsigned width, unsigned height);
+	void            SetClientArea(PCntType width, PCntType height);
 	void            SetHandle(HWND);
 	void            SetIcons(char const *resourceName);
 	void            Show(int showHow);
 
-	// inquiry
+	// public inquiry methods
 	bool IsMouseCaptured(void) const;
 
 private:
-    typedef std::map<unsigned long, Window*> Map;
-    typedef std::pair<unsigned long, Window*> Pair;
+    typedef unsigned long Key;
+    typedef std::map<Key, Window*> Map;
+    typedef std::pair<Key, Window*> Pair;
+    typedef Map::iterator IteratorType;
+    typedef std::pair<IteratorType, bool> InsertResultType;
 
 	static Map msMap;
 	
-    unsigned  mClientAreaWidth, mClientAreaHeight;
+    PCntType  mClientAreaWidth, mClientAreaHeight;
     HWND      mHandle;
     HINSTANCE mModule; // the module which owns this window
 };

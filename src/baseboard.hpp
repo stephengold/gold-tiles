@@ -49,7 +49,7 @@ public:
     // BaseBoard &operator=(BaseBoard const &);  compiler-generated assignment operator is OK
 	operator String(void) const;
 
-	// misc
+	// misc public methods
 	unsigned    Count(void) const;
 	int	        EastMax(void) const;
     Tile const *GetCell(Cell const &) const;
@@ -70,7 +70,7 @@ private:
     std::map<Cell,Tile> mCells;
     std::map<TileIdType,Cell> mTiles;
 
-	// misc
+	// misc private methods
     ConstIteratorType Find(int northing, int easting) const;
     IteratorType	  Find(int northing, int easting);
 };

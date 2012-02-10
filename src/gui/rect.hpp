@@ -32,35 +32,47 @@ A Rect object represents a rectangular region in the client area of a window.
 
 #ifdef _WINDOWS
 #include <windows.h>
+#include "gui/point.hpp"
+
+typedef unsigned long PCntType;
 
 class Rect {
 public:
 	// lifecycle
     Rect(void) { ASSERT(false); };
+    Rect(RECT const &);
+    Rect(Point const &ulc, PCntType width, PCntType height);
+    Rect(LogicalYType, LogicalXType, PCntType width, PCntType height);
     //Rect(Rect const &);  compiler-generated copy constructor is OK
-    Rect(int topY, int leftX, unsigned width, unsigned height);
     //~Rect(void);
 
 	// operators
 	//Rect &operator=(Rect const &);  compiler-generated assignment method is OK
-
-	// misc
-    Rect     CenterSquare(void) const;
-
-	// access
-    int      BottomY(void) const;
-    unsigned Height(void) const;
-    int      LeftX(void) const;
     operator RECT(void) const;
-    int      RightX(void) const;
-    int      TopY(void) const;
-    unsigned Width(void) const;
 
-	// inquiry
-    bool     Contains(int x, int y) const;
+	// misc public methods
+	float        AspectRatio(void) const;
+    LogicalYType BottomY(void) const;
+    Point        Brc(void) const;  // bottom right corner
+    Rect         CenterRect(float aspectRatio) const;
+    Rect         CenterSquare(void) const;
+    PCntType     Height(void) const;
+    Point        Interpolate(FractionPair const &) const;
+    Point        Interpolate(double x, double y) const;
+    LogicalXType LeftX(void) const;
+    LogicalXType RightX(void) const;
+    LogicalYType TopY(void) const;
+    Point        Ulc(void) const;  // upper left corner
+    PCntType     Width(void) const;
+
+	// public inquiry methods
+    bool Contains(Point const &) const;
+    bool Contains(LogicalXType, LogicalYType) const;
+    bool Contains(Rect const &) const;
 
 private:
-	RECT mBounds;
+	LogicalXType mLeft, mRight;
+    LogicalYType mBottom, mTop;
 };
 
 #endif

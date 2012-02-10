@@ -33,40 +33,41 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 #ifdef _WINDOWS
 #include <windows.h>
 #include "color.hpp"
+#include "rect.hpp"
 
 class Graphics {
 public:
     // lifecycle
     Graphics(void) { ASSERT(false); };
-    Graphics(Graphics const &) { ASSERT(false); };
     Graphics(HDC, HWND, bool releaseMe, bool buffer, 
-                   unsigned width, unsigned height);
+              PCntType width, PCntType height);
+    Graphics(Graphics const &) { ASSERT(false); };
     ~Graphics(void);
 
 	// operators
     Graphics &operator=(Graphics const &) { ASSERT(false); };
 
-	// misc
+	// misc public methods
     void     Close(void);
-	void     DrawLine(int x1, int y1, int x2, int y2);
+	void     DrawLine(Point const &, Point const &);
+	void     DrawLine(LogicalXType, LogicalYType, LogicalXType, LogicalYType);
     void     DrawPolygon(Poly const &, Rect const &);
-    Rect     DrawRectangle(int top, int left, unsigned width, unsigned height);
-    Rect     DrawRoundedSquare(int top, int left, unsigned edge, unsigned diameter);
+    Rect     DrawRectangle(Rect const &);
+    Rect     DrawRectangle(LogicalYType, LogicalXType, PCntType width, PCntType height);
+    Rect     DrawRoundedSquare(Point const &, PCntType edge, PCntType diameter);
     void     DrawText(Rect const &, char const *);
     void     DrawText(Rect const &, String const &);
-    unsigned TextWidth(char const *) const;
-    unsigned TextWidth(String const &) const;
-    void     UseColors(ColorType brushBk, ColorType penText);
-
-	// access
     void     GetColors(ColorType &rBrushBk, ColorType &rPenText) const;
-    unsigned TextHeight(void) const;
+    PCntType TextHeight(void) const;
+    PCntType TextWidth(char const *) const;
+    PCntType TextWidth(String const &) const;
+    void     UseColors(ColorType brushBk, ColorType penText);
 
 private:
 	HGDIOBJ   mBitmapSave, mBrushSave, mPenSave;
     ColorType mBrushBkColor, mPenTextColor;
     HDC       mDevice, mDraw;
-    unsigned  mHeight, mWidth;
+    Rect      mRect;
     bool      mReleaseMe;
     HWND      mWindow;
 };

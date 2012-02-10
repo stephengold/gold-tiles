@@ -25,15 +25,16 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 
 #ifdef _WINDOWS
 #include <windows.h>
-#include "cell.hpp"
 #include "cells.hpp"
 #include "game.hpp"
 #include "gui/canvas.hpp"
 #include "gui/color.hpp"
 #include "gui/dialog.hpp"
 #include "gui/parmbox.hpp"
+#include "gui/playmenu.hpp"
 #include "gui/resource.hpp"
 #include "gui/topwindow.hpp"
+#include "gui/viewmenu.hpp"
 #include "gui/windowclass.hpp"
 #include "move.hpp"
 #include "player.hpp"
@@ -74,6 +75,8 @@ static LRESULT CALLBACK topMessageHandler(
 
 TopWindow::TopWindow(HINSTANCE applicationInstance, Game *pGame):
     mHandRect(0, 0, 0, 0),
+    mMouseLast(0, 0),
+    mStartCell(0, 0),
     mSwapRect(0, 0, 0, 0),
     mPartial(pGame, 3)
 {
@@ -104,8 +107,6 @@ TopWindow::TopWindow(HINSTANCE applicationInstance, Game *pGame):
     mFileName = "Game1";
 	mpGame = pGame;
     mIsStartCentered = false;
-    mMouseLastX = 0;
-    mMouseLastY = 0;
 	mMouseUpCnt = 0;
     mPadPixels = 6;
 	mPauseFlag = mAutopauseFlag;
@@ -115,8 +116,6 @@ TopWindow::TopWindow(HINSTANCE applicationInstance, Game *pGame):
 	mShowScoresFlag = true;
 	mShowTilesFlag = false;
 	mSquareGrid = true;
-	mStartX = 0;
-    mStartY = 0;
 	mTileWidth = TILE_WIDTH_LARGE;
     mpViewMenu = NULL;
 
@@ -132,8 +131,7 @@ TopWindow::TopWindow(HINSTANCE applicationInstance, Game *pGame):
     HWND handle = ::CreateWindow(className, Name(), windowStyle, x, y, 
                              width, height, parent, menu, applicationInstance, 
                              parameters);
-    ASSERT(handle != 0);
-    SetHandle(handle);
+    ASSERT(Handle() == handle);
 }
 
 TopWindow::~TopWindow(void) {
@@ -143,7 +141,7 @@ TopWindow::~TopWindow(void) {
 
 void TopWindow::Initialize(CREATESTRUCT const *pCreateStruct) {
     // Object initialization which occurs after the Microsoft Windows window
-    // has been created.
+    // has been created and has received WM_CREATE.
 
 	Window::Initialize(pCreateStruct);
 
@@ -156,20 +154,20 @@ void TopWindow::Initialize(CREATESTRUCT const *pCreateStruct) {
 	ASSERT(mpViewMenu != NULL);
 
 	UpdateMenus();
-	ParmBox(*this);
+	//ParmBox(*this);
 }
 
 
 // misc methods
 
-unsigned TopWindow::CellHeight(void) const {
-    unsigned result = CellWidth();
+PCntType TopWindow::CellHeight(void) const {
+    PCntType result = CellWidth();
 
 	return result;
 }
 
-unsigned TopWindow::CellWidth(void) const {
-    unsigned result = mTileWidth;
+PCntType TopWindow::CellWidth(void) const {
+    PCntType result = mTileWidth;
     if (mShowGridFlag) {
         result = mTileWidth + 1;
     }
@@ -177,35 +175,35 @@ unsigned TopWindow::CellWidth(void) const {
     return result;
 }
 
-int TopWindow::CellX(int column) const {
-    unsigned grid_unit = GridUnit();
-    int result = mStartX + grid_unit*column;
+LogicalXType TopWindow::CellX(int column) const {
+    PCntType grid_unit = GridUnit();
+    LogicalXType result = mStartCell.X() + grid_unit*column;
 
     return result;
 }
 
-int TopWindow::CellY(int row) const {
-    unsigned grid_unit = GridUnit();
-    int result = mStartY - grid_unit*row;
+LogicalYType TopWindow::CellY(int row) const {
+    PCntType grid_unit = GridUnit();
+    LogicalYType result = mStartCell.Y() - grid_unit*row;
 
     return result;
 }
 
 void TopWindow::DrawActivePlayer(Canvas &rCanvas) {
     // draw header
-    int top_y = mPadPixels;
-    int left_x = mPadPixels;
+    LogicalYType top_y = mPadPixels;
+    LogicalXType left_x = mPadPixels;
     Player active_player = mpGame->ActivePlayer();
     ColorType area_color = COLOR_BLACK;
     bool left = true;
     Rect header_rect = DrawPlayerHeader(rCanvas, top_y, left_x, active_player, area_color, left);
     left_x = header_rect.LeftX();
-    unsigned width = header_rect.Width();
+    PCntType width = header_rect.Width();
     
     // calculate height of hand area (mHandRect)
     unsigned tile_cnt = mPartial.CountHand();
-    unsigned cell_height = CellHeight();
-    unsigned height = tile_cnt*cell_height + 2*mPadPixels;
+    PCntType cell_height = CellHeight();
+    PCntType height = tile_cnt*cell_height + 2*mPadPixels;
     if (tile_cnt < mPartial.CountTiles()) {
         // there's room for more
         height += cell_height/2;
@@ -235,7 +233,7 @@ void TopWindow::DrawActivePlayer(Canvas &rCanvas) {
 
     // calculate height of swap area (mSwapRect)
     tile_cnt = mPartial.CountSwap();
-    unsigned bagHeight = rCanvas.TextHeight();
+    PCntType bagHeight = rCanvas.TextHeight();
     height = tile_cnt*cell_height + bagHeight + 3*mPadPixels;
 	unsigned played_tile_cnt = mPartial.CountPlayed();
     unsigned stock_cnt = mpGame->CountStock();
@@ -269,18 +267,17 @@ void TopWindow::DrawActivePlayer(Canvas &rCanvas) {
     mSwapRect = rCanvas.DrawRectangle(top_y, left_x, width, height);
     
     String stock_text = plural(stock_cnt, "tile");
-    int y = mSwapRect.BottomY() - mPadPixels - bagHeight;
+    LogicalYType y = mSwapRect.BottomY() - mPadPixels - bagHeight;
     Rect bounds(y, left_x, width, bagHeight);
     rCanvas.DrawText(bounds, stock_text);
 }
 
-Rect TopWindow::DrawBlankTile(Canvas &rCanvas, int topY, int leftX) {
+Rect TopWindow::DrawBlankTile(Canvas &rCanvas, Point const &rPoint) {    
+    ASSERT(CellWidth() > 2);
+    PCntType width = CellWidth() - 2;
     ColorType tile_color = COLOR_LIGHT_GRAY;
-	ColorType glyph_color = tile_color;
-    unsigned width = CellWidth() - 2;
-    AValueType glyphs[4];
-    Rect result = rCanvas.DrawTile(topY, leftX, width, 0, glyphs, tile_color, glyph_color);
-    
+    Rect result = rCanvas.DrawBlankTile(rPoint, width, tile_color);
+
     return result;
 }
 
@@ -318,28 +315,28 @@ void TopWindow::DrawBoard(Canvas &rCanvas) {
 void TopWindow::DrawCell(Canvas &rCanvas, Cell const &rCell, unsigned swapCnt) {
     int row = rCell.Row();
     int column = rCell.Column();
-    int ulc_x = CellX(column);
-    int ulc_y = CellY(row);
+    LogicalXType ulc_x = CellX(column);
+    LogicalYType ulc_y = CellY(row);
 
     bool hinted = mPartial.IsHinted(rCell);
 
-    ColorType cellColor = COLOR_DARK_GREEN;
+    ColorType cell_color = COLOR_DARK_GREEN;
     if (!hinted) {
-        cellColor = COLOR_BLACK;
+        cell_color = COLOR_BLACK;
     } else if (swapCnt > 0) {
-        cellColor = COLOR_BROWN;
+        cell_color = COLOR_BROWN;
     }
-    ColorType gridColor = cellColor;
+    ColorType grid_color = cell_color;
     if (mShowGridFlag) {
         if (swapCnt == 0) {
-            gridColor = COLOR_GREEN;
+            grid_color = COLOR_GREEN;
         } else {
-            gridColor = COLOR_YELLOW;
+            grid_color = COLOR_YELLOW;
         }
     }
 
-    unsigned cellWidth = CellWidth();
-    Rect rect = rCanvas.DrawCell(ulc_y, ulc_x, cellWidth, cellColor, gridColor);
+    PCntType cell_width = CellWidth();
+    Rect rect = rCanvas.DrawCell(ulc_y, ulc_x, cell_width, cell_color, grid_color);
     
 	if (rCell.IsStart()) {
 	    rCanvas.DrawText(rect, "START");
@@ -352,28 +349,32 @@ void TopWindow::DrawCell(Canvas &rCanvas, Cell const &rCell, unsigned swapCnt) {
     TileIdType id = mPartial.GetCell(rCell);
     if (id != 0 && !mPartial.IsActive(id)) {
         Tile tile = mPartial.GetTileById(id);
-        DrawTile(rCanvas, ulc_y + 1, ulc_x + 1, tile);
+        Point point(ulc_x + 1, ulc_y + 1);
+        DrawTile(rCanvas, point, tile);
     }
     // Draw the active tile later so it won't get obscured.
 }
 
-void TopWindow::DrawHandTile(Canvas &rCanvas, int y, int x, Tile const &rTile) {
-    Rect rect = DrawTile(rCanvas, y, x, rTile);
+void TopWindow::DrawHandTile(
+    Canvas &rCanvas,
+    Point const &rPoint,
+    Tile const &rTile)
+{
+    Rect rect = DrawTile(rCanvas, rPoint, rTile);
         
     TileIdType id = rTile.Id();
     TilePairType pair(id, rect);
-    std::pair<TileMapType::iterator, bool> ins;
-    ins = mTileMap.insert(pair);
-    bool success = ins.second;
+    TileInsResultType ins_result = mTileMap.insert(pair);
+    bool success = ins_result.second;
     ASSERT(success);
 }
 
 void TopWindow::DrawHandTiles(Canvas &rCanvas) {   
-    int hand_y = mHandRect.TopY() + mPadPixels;
-    int swap_y = mSwapRect.TopY() + mPadPixels;
+    LogicalYType hand_y = mHandRect.TopY() + mPadPixels;
+    LogicalYType swap_y = mSwapRect.TopY() + mPadPixels;
 
-    unsigned cell_height = CellHeight();
-    unsigned cell_width = CellWidth();
+    PCntType cell_height = CellHeight();
+    PCntType cell_width = CellWidth();
 
     unsigned tile_cnt = mPartial.CountSwap();
     unsigned stock_cnt = mpGame->CountStock();
@@ -384,57 +385,58 @@ void TopWindow::DrawHandTiles(Canvas &rCanvas) {
 
     mTileMap.clear();
     
-    int active_base_x, active_base_y;
+    Point active_base;
     for (unsigned i = 0; i < mPartial.CountTiles(); i++) {
         Tile tile = mPartial.GetTileByIndex(i);
         TileIdType id = tile.Id();
-        int x, y;
+        LogicalXType x;
+        LogicalYType y;
         if (mPartial.IsOnBoard(id)) {
             Cell cell = mPartial.LocateTile(id);
             x = CellX(cell.Column());
             y = CellY(cell.Row());
         } else if (mPartial.IsInSwap(id)) {
-            int left = mSwapRect.LeftX();
-            int width = mSwapRect.Width();
-            int pad = (width - cell_width)/2;
+            LogicalXType left = mSwapRect.LeftX();
+            PCntType width = mSwapRect.Width();
+            PCntType pad = (width - cell_width)/2;
             x = left + pad;
             y = swap_y;
             swap_y += cell_height;
         } else {
             ASSERT(mPartial.IsInHand(id)); 
-            int left = mHandRect.LeftX();
-            int width = mHandRect.Width();
-            int pad = (width - cell_width)/2;
+            LogicalXType left = mHandRect.LeftX();
+            PCntType width = mHandRect.Width();
+            PCntType pad = (width - cell_width)/2;
             x = left + pad;
             y = hand_y;
             hand_y += cell_height;
         }
         
+        Point point(x + 1, y + 1);
         if (!mPartial.IsActive(id)) {
-            DrawHandTile(rCanvas, y + 1, x + 1, tile);
+            DrawHandTile(rCanvas, point, tile);
         } else {
-            active_base_y = y + 1;
-            active_base_x = x + 1;
+            active_base = point;
         }
     }
     
     TileIdType id = mPartial.GetActive();
     if (id != 0) {
         Tile active_tile = mPartial.GetTileById(id);
-        DrawHandTile(rCanvas, active_base_y, active_base_x, active_tile);
+        DrawHandTile(rCanvas, active_base, active_tile);
     }
 }
 
 void TopWindow::DrawInactivePlayers(Canvas &rCanvas) {     
-    unsigned cell_width = CellWidth();
-    unsigned cell_height = CellHeight();
-    unsigned width = cell_width + 2*mPadPixels;
+    PCntType cell_width = CellWidth();
+    PCntType cell_height = CellHeight();
+    PCntType width = cell_width + 2*mPadPixels;
     ColorType area_color = COLOR_DARK_BLUE;
     ColorType edge_color = COLOR_LIGHT_GRAY;
 
     Players other_players = mpGame->InactivePlayers();
     Players::ConstIteratorType i_player;
-    int right_x = ClientAreaWidth() - mPadPixels;
+    LogicalXType right_x = ClientAreaWidth() - mPadPixels;
     for (i_player = other_players.begin(); i_player < other_players.end(); i_player++) {
         // draw header
         int top_y = mPadPixels;
@@ -460,10 +462,11 @@ void TopWindow::DrawInactivePlayers(Canvas &rCanvas) {
 
         for (unsigned i = 0; i < hand_tiles.Count(); i++) {
             Tile tile = hand_tiles[i];
+            Point point(tile_x, tile_y);
             if (mShowTilesFlag) {
-                DrawTile(rCanvas, tile_y, tile_x, tile);
+                DrawTile(rCanvas, point, tile);
             } else {
-                DrawBlankTile(rCanvas, tile_y, tile_x);
+                DrawBlankTile(rCanvas, point);
             } 
             tile_y += cell_height;
         }
@@ -573,15 +576,14 @@ Rect TopWindow::DrawPlayerHeader(
     return result;
 }
 
-Rect TopWindow::DrawTile(Canvas &rCanvas, int topY, int leftX, Tile const &rTile) {
+Rect TopWindow::DrawTile(Canvas &rCanvas, Point point, Tile const &rTile) {
     TileIdType id = rTile.Id();
     ColorType tile_color = COLOR_LIGHT_GRAY;
     if (mPartial.Contains(id)) {
         tile_color = COLOR_WHITE;
     }
     if (mPartial.IsActive(id)) {
-       topY += mDragTileDeltaY;
-       leftX += mDragTileDeltaX;
+       point.Offset(mDragTileDeltaX, mDragTileDeltaY);
     }
 	
 	AIndexType colorInd;
@@ -591,7 +593,7 @@ Rect TopWindow::DrawTile(Canvas &rCanvas, int topY, int leftX, Tile const &rTile
 		ASSERT(mColorAttributeCnt == 0);
         colorInd = 0;
 	}
-	assert(colorInd < 9);
+	ASSERT(colorInd < 9);
 	static ColorType GlyphColors[9] = {
 		COLOR_BLACK,      COLOR_RED,       COLOR_DARK_BLUE, 
         COLOR_DARK_GREEN, COLOR_PURPLE,    COLOR_BROWN, 
@@ -610,30 +612,44 @@ Rect TopWindow::DrawTile(Canvas &rCanvas, int topY, int leftX, Tile const &rTile
          }
     }
 
-    unsigned width = CellWidth() - 2;
-    Rect result = rCanvas.DrawTile(topY, leftX, width, 
+    ASSERT(CellWidth() > 2);
+    PCntType width = CellWidth() - 2;
+    Rect result = rCanvas.DrawTile(point, width, 
                     numberOfGlyphAttributes, glyphs, tile_color, glyph_color);
     
     return result;
 }
 
-Cell TopWindow::GetCell(int x, int y) const {
-    unsigned long grid_unit = GridUnit();
-    int column = -400 + (x - mStartX + 400*grid_unit)/grid_unit;
-    int row = 400 - (y - mStartY + 400*grid_unit)/grid_unit;
+Cell TopWindow::GetCell(Point const &rPoint) const {
+    PCntType grid_unit = GridUnit();
+    int column = -400 + (rPoint.X() - mStartCell.X() + 400*grid_unit)/grid_unit;
+    int row = 400 - (rPoint.Y() - mStartCell.Y() + 400*grid_unit)/grid_unit;
     Cell result(row, column);
     
     return result;
 }
 
-TileIdType TopWindow::GetTileId(int x, int y) const {
+TileIdType TopWindow::GetTileId(Point const &rPoint) const {
 	TileIdType result = 0;
 
 	TileMapType::const_iterator i_tile;
     for (i_tile = mTileMap.begin(); i_tile != mTileMap.end(); i_tile++) {
+        TileIdType id = i_tile->first;
         Rect rect = i_tile->second;
-        if (rect.Contains(x, y)) {
-            result = i_tile->first;
+        if (rect.Contains(rPoint)) {
+            if (mPartial.IsActive(id)) {
+                result = id;
+			    break;
+            } else if (IsInSwapArea(rPoint)) {
+                if (!mPartial.IsInSwap(id)) {                
+			        continue;
+                }
+            } else if (IsInHandArea(rPoint)) {
+                if (mPartial.IsInHand(id)) {                
+			        continue;
+                }
+            }
+            result = id;
 			break;
         }
     }
@@ -642,20 +658,21 @@ TileIdType TopWindow::GetTileId(int x, int y) const {
 }
 
 unsigned TopWindow::GridUnit(void) const {
+    ASSERT(mTileWidth > 3);
     unsigned result = mTileWidth - 1;
     if (mShowGridFlag) {
         result = mTileWidth;
     }
+    ASSERT(result > 2);
 
     return result;
 }
 
-void TopWindow::HandleButtonDown(int x, int y) {
+void TopWindow::HandleButtonDown(Point const &rMouse) {
 	ASSERT(!IsPaused());
-    mMouseLastX = x;
-    mMouseLastY = y;
+    mMouseLast = rMouse;
 
-	TileIdType id = GetTileId(x, y);
+	TileIdType id = GetTileId(rMouse);
     if (id != 0) {
         if (!IsMouseCaptured()) {
             // Capture mouse to drag the tile
@@ -666,7 +683,7 @@ void TopWindow::HandleButtonDown(int x, int y) {
 			mMouseUpCnt = 0;
 		}
         
-    } else if (!IsInHandArea(x, y) && !IsInSwapArea(x, y)) {
+    } else if (!IsInHandArea(rMouse) && !IsInSwapArea(rMouse)) {
         // Capture mouse to drag the board
     	CaptureMouse();
         mDragBoardFlag = true;
@@ -674,15 +691,15 @@ void TopWindow::HandleButtonDown(int x, int y) {
     }
 }
 
-void TopWindow::HandleButtonUp(int x, int y) {	
-	HandleMouseMove(x, y);
+void TopWindow::HandleButtonUp(Point const &rMouse) {	
+	HandleMouseMove(rMouse);
 
 	if (mDragBoardFlag) {
 		if (mDragBoardPixelCnt < 5) {
 		    // Trivial drags of less than five pixels 
 			// are treated as normal mouse-clicks 
 			// which activate/deactivate the cell.
-			Cell cell = GetCell(x, y);
+			Cell cell = GetCell(rMouse);
 			if (mActiveCellFlag && cell == mActiveCell) {
      			mActiveCellFlag = false;
 			} else if (mPartial.IsHinted(cell)) {
@@ -693,7 +710,7 @@ void TopWindow::HandleButtonUp(int x, int y) {
    		StopDragging();
     } else {
         ASSERT(mPartial.GetActive() != 0);        
-		ReleaseActiveTile(x, y);
+		ReleaseActiveTile(rMouse);
     }
 }
 
@@ -848,16 +865,18 @@ LRESULT TopWindow::HandleMessage(UINT message, WPARAM wParam, LPARAM lParam) {
                 mPauseFlag = false;
 		        ForceRepaint();
             } else if (!IsDragging()) {
-			    POINTS point = MAKEPOINTS(lParam);
-                HandleButtonDown(point.x, point.y);
+			    POINTS points = MAKEPOINTS(lParam);
+			    Point mouse(points);
+                HandleButtonDown(mouse);
 			}
             break;
 
         case WM_LBUTTONUP: // end left-click
 			if (IsDragging()) {
                 if (IsMouseCaptured()) {
-				    POINTS point = MAKEPOINTS(lParam);
-                    HandleButtonUp(point.x, point.y);
+				    POINTS points = MAKEPOINTS(lParam);
+				    Point mouse(points);
+                    HandleButtonUp(mouse);
 				} else {
 					StopDragging();
 				}
@@ -868,8 +887,9 @@ LRESULT TopWindow::HandleMessage(UINT message, WPARAM wParam, LPARAM lParam) {
         case WM_MOUSEMOVE:
 			if (IsDragging()) {
                 if (IsMouseCaptured()) {
-				    POINTS point = MAKEPOINTS(lParam);
-	                HandleMouseMove(point.x, point.y);
+				    POINTS points = MAKEPOINTS(lParam);
+				    Point mouse(points);
+	                HandleMouseMove(mouse);
 				} else {
 					StopDragging();
 				}
@@ -879,7 +899,7 @@ LRESULT TopWindow::HandleMessage(UINT message, WPARAM wParam, LPARAM lParam) {
 
 		case WM_MOUSEWHEEL: {
             int zDelta = GET_WHEEL_DELTA_WPARAM(wParam);
-            mStartY -= zDelta/5;
+            mStartCell.Offset(0, -zDelta/5);
 			ForceRepaint();
 			break;
 		}
@@ -890,8 +910,8 @@ LRESULT TopWindow::HandleMessage(UINT message, WPARAM wParam, LPARAM lParam) {
             break;
            
         case WM_SIZE: { // resize
-            unsigned long clientAreaWidth = LOWORD(lParam);
-            unsigned long clientAreaHeight = HIWORD(lParam);
+            PCntType clientAreaWidth = LOWORD(lParam);
+            PCntType clientAreaHeight = HIWORD(lParam);
             Resize(clientAreaWidth, clientAreaHeight);
             break;
         }
@@ -905,15 +925,13 @@ LRESULT TopWindow::HandleMessage(UINT message, WPARAM wParam, LPARAM lParam) {
     return result;
 }
 
-void TopWindow::HandleMouseMove(int x, int y) {
-    int drag_x = x - mMouseLastX;
-    int drag_y = y - mMouseLastY;
-    mMouseLastX = x;
-    mMouseLastY = y;
+void TopWindow::HandleMouseMove(Point const &rMouse) {
+    long drag_x = rMouse.X() - mMouseLast.X();
+    long drag_y = rMouse.Y() - mMouseLast.Y();
+    mMouseLast = rMouse;
 
     if (mDragBoardFlag) {
-        mStartX += drag_x;
-        mStartY += drag_y;
+        mStartCell.Offset(drag_x, drag_y);
 		mDragBoardPixelCnt += ::abs(drag_x) + ::abs(drag_y);
 
 	} else {
@@ -986,18 +1004,19 @@ void TopWindow::Play(bool passFlag) {
 	ForceRepaint();
 }
 
-void TopWindow::Recenter(unsigned oldHeight, unsigned oldWidth) {
+void TopWindow::Recenter(PCntType oldHeight, PCntType oldWidth) {
     if (mIsStartCentered) {
         //_startX += (_clientAreaWidth - oldWidth)/2;
         //_startY += (_clientAreaHeight - oldHeight)/2;
     } else if (ClientAreaWidth() > 250 && ClientAreaHeight() > 100) {
-        mStartX = ClientAreaWidth()/2; // TODO
-        mStartY = ClientAreaHeight()/2;
+        LogicalXType x = ClientAreaWidth()/2; // TODO
+        LogicalYType y = ClientAreaHeight()/2;
+        mStartCell = Point(x, y);
         mIsStartCentered = true;
     }
 }
 
-void TopWindow::ReleaseActiveTile(int x, int y) {
+void TopWindow::ReleaseActiveTile(Point const &rMouse) {
     TileIdType id = mPartial.GetActive(); 
      
 	// Determine where the active tile came from.
@@ -1011,12 +1030,12 @@ void TopWindow::ReleaseActiveTile(int x, int y) {
     }
 
 	// Determine where the active tile was released to.
-	bool to_hand = IsInHandArea(x, y);
-	bool to_swap = (!to_hand) && IsInSwapArea(x, y); // overlap is possible
+	bool to_hand = IsInHandArea(rMouse);
+	bool to_swap = (!to_hand) && IsInSwapArea(rMouse); // overlap is possible
 	bool to_board = !(to_hand || to_swap);
 	Cell to_cell;
 	if (to_board) {
-		to_cell = GetCell(x, y);
+		to_cell = GetCell(rMouse);
 	}
 
 	if (from_hand && to_hand ||
@@ -1105,8 +1124,8 @@ void TopWindow::Repaint(void) {
     ASSERT(context != NULL);
     
     bool release_me = false;
-    unsigned width = ClientAreaWidth();
-    unsigned height = ClientAreaHeight();
+    PCntType width = ClientAreaWidth();
+    PCntType height = ClientAreaHeight();
     Canvas canvas(context, this_window, release_me, width, height);
     
     if (mPauseFlag) {
@@ -1123,9 +1142,9 @@ void TopWindow::Repaint(void) {
     ::EndPaint(this_window, &paint_struct);
 }
 
-void TopWindow::Resize(unsigned clientAreaWidth, unsigned clientAreaHeight) {
-    unsigned old_height = ClientAreaHeight();
-    unsigned old_width = ClientAreaWidth();
+void TopWindow::Resize(PCntType clientAreaWidth, PCntType clientAreaHeight) {
+    PCntType old_height = ClientAreaHeight();
+    PCntType old_width = ClientAreaWidth();
     SetClientArea(clientAreaWidth, clientAreaHeight);
     Recenter(old_height, old_width);
     ForceRepaint();
@@ -1199,20 +1218,20 @@ bool TopWindow::IsDragging(void) const {
 	return result;
 }
 
-bool TopWindow::IsInHandArea(int x, int y) const {
-	bool result = mHandRect.Contains(x, y);
+bool TopWindow::IsInHandArea(Point const &rPoint) const {
+	bool result = mHandRect.Contains(rPoint);
 
 	return result;
 }
 
-bool TopWindow::IsInSwapArea(int x, int y) const {
-	bool result = mSwapRect.Contains(x, y);
+bool TopWindow::IsInSwapArea(Point const &rPoint) const {
+	bool result = mSwapRect.Contains(rPoint);
 
 	return result;
 }
 
-bool TopWindow::IsInTile(int x, int y) const {
-	TileIdType id = GetTileId(x, y);
+bool TopWindow::IsInTile(Point const &rPoint) const {
+	TileIdType id = GetTileId(rPoint);
 	bool result = (id != 0);
 
 	return result;

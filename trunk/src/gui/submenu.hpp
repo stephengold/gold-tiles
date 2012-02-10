@@ -37,10 +37,10 @@ the "play" submenu or the "view" submenu.
 class SubMenu {
 public:
 	// lifecycle
-	SubMenu(void) { ASSERT(false); }
     SubMenu(HMENU parent, UINT position);
+	// no default constructor
 
-	// misc
+	// misc public methods
     void Enable(bool);
 
 private:

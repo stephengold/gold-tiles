@@ -39,11 +39,12 @@ The Dialog class is an extension of the Window class.
 class Dialog: public Window {
 public:
 	// lifecycle
-	Dialog(void) { ASSERT(false); };
 	Dialog(char const *templateName, Window const &parent);
 	Dialog(char const *templateName, Window const &parent, DLGPROC);
+	// no default constructor
+	// no copy constructor
     Dialog(Dialog const &) { ASSERT(false); };
-    // ~Dialog(void);  implicitly declared destructor is OK
+    // ~Dialog(void);  compiler-generated destructor is OK
 	void Initialize(char const *templateName, Window const &parent, DLGPROC);
 
 	// operators

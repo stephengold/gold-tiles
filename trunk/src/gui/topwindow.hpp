@@ -49,9 +49,9 @@ enum TileWidthType {
 class TopWindow: public Window {
 public:
 	// lifecycle
-	TopWindow(void) { ASSERT(false); };
 	TopWindow(HINSTANCE, Game *pGame);
-    TopWindow(TopWindow const &) { ASSERT(false); };
+	// no default constructor
+    // no copy constructor
     ~TopWindow(void);
 
 	// operator

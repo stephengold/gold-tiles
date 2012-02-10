@@ -39,10 +39,10 @@ typedef long LogicalXType, LogicalYType;
 class Point {
 public:
 	// lifecycle
-    Point(void) { ASSERT(false); };
     Point(LogicalXType, LogicalYType);
     Point(POINT const &);
     Point(POINTS const &);
+	// no default constructor
     //Point(Point const &);  compiler-generated copy constructor is OK
     //~Point(void);
 

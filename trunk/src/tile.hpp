@@ -51,7 +51,7 @@ public:
 	// lifecycle
 	Tile(void);
 	Tile(String const &);
-	Tile(Tile const &);  // copy a tile
+	Tile(Tile const &);
 	~Tile(void);
 
     // operators

@@ -40,10 +40,10 @@ The ParmBox class is an extension of the Dialog class.
 class ParmBox: public Dialog {
 public:
     // lifecycle
-	ParmBox(void) { ASSERT(false); };
 	ParmBox(Window const &parent); 
-    ParmBox(ParmBox const &) { ASSERT(false); };
-    // ~ParmBox(void);  compiler-generated destructor is OK
+	// no default constructor
+	// no copy constructor
+	// ~ParmBox(void);  compiler-generated destructor is OK
 
 	// public operators
     ParmBox &operator=(ParmBox const &) { ASSERT(false); };

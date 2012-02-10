@@ -38,11 +38,11 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 class Graphics {
 public:
     // lifecycle
-    Graphics(void) { ASSERT(false); };
     Graphics(HDC, HWND, bool releaseMe, bool buffer, 
               PCntType width, PCntType height);
-    Graphics(Graphics const &) { ASSERT(false); };
-    ~Graphics(void);
+	// no default constructor
+	// no copy constructor
+	~Graphics(void);
 
 	// operators
     Graphics &operator=(Graphics const &) { ASSERT(false); };

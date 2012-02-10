@@ -42,14 +42,14 @@ public:
     operator String(void) const;
     operator Tiles(void) const;
 
-	// misc
+	// misc public methods
     void     Add(Tile const &);
     void     Add(Tile const &, Cell const &);
     unsigned Count(void) const;
     void     GetUserChoice(Tiles const &);
 	void     MakeEmpty(void);
  
-	// inquiry
+	// public inquiry methods
 	bool     InvolvesSwap(void) const;
 	bool     IsPass(void) const;
 	bool     IsPureSwap(void) const;

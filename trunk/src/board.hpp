@@ -42,8 +42,8 @@ class Board: public BaseBoard {
 public:
 	// misc public methods
 	TileIdType GetId(Cell const &) const;
-    void	   PlayMove(Move const &);
     bool       LocateTile(Tile const &, Cell &) const;
+    void	   PlayMove(Move const &);
     unsigned   ScoreMove(Move const &) const;
 
 	// public inquiry methods

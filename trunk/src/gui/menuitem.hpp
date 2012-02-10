@@ -36,10 +36,10 @@ A MenuItem object represents one item in a SubMenu.
 class MenuItem {
 public:
 	// lifecycle
-	MenuItem(void) { ASSERT(false); }
     MenuItem(HMENU, UINT);
+	// no default constructor
 
-	// misc
+	// misc public methods
     void Check(bool);
     void Enable(bool);
 

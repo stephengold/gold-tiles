@@ -32,13 +32,13 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 class Game {
 public:
 	// lifecycle
-    Game(void) { ASSERT(false); };
     Game(Strings player_names,
              ACountType attribute_cnt,
              AValueType max_attribute_values[],
              unsigned tile_redundancy,
              unsigned hand_size);
-    Game(Game const &) { ASSERT(false); };
+	// no default constructor
+	// no copy constructor
     // ~Game(void);  compiler-generated destructor is OK
 
 	// operators

@@ -34,8 +34,6 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 // lifecycle
 
 Partial::Partial(Game const *pGame, unsigned hintStrength) {
-    ASSERT(pGame != NULL);
-	
 	mpGame = pGame;
     mHintStrength = hintStrength;
     Reset();
@@ -45,10 +43,15 @@ Partial::Partial(Game const *pGame, unsigned hintStrength) {
 
 void Partial::Reset(void) {
     mActiveId = 0;
-    mBoard = Board(*mpGame);
     mHintedCellsValid = false;
     mPlayedTileCnt = 0;
-    mTiles = mpGame->ActiveHand();
+	if (mpGame == NULL) {
+	    mBoard.MakeEmpty();
+		mTiles.MakeEmpty();
+	} else {
+        mBoard = Board(*mpGame);
+        mTiles = mpGame->ActiveHand();
+	}
 }
 
 
@@ -142,7 +145,7 @@ unsigned Partial::CountSwap(void) const {
     unsigned result = mSwapIds.Count();
     
     ASSERT(result <= CountTiles());
-    ASSERT(result <= mpGame->CountStock());
+    ASSERT(mpGame == NULL || result <= mpGame->CountStock());
 
     return result; 
 }
@@ -253,7 +256,7 @@ void Partial::SetHintedCells(void) {
     for (int row = top_row; row >= bottom_row; row--) {
         for (int column = left_column; column <= right_column; column++) {
             Cell cell(row, column);
-            if (mpGame->HasEmptyCell(cell)) {
+            if (mpGame != NULL && mpGame->HasEmptyCell(cell)) {
                 mHintedCells.Add(cell);
             }
         }
@@ -367,6 +370,8 @@ bool Partial::IsPass(void) const {
 
 bool Partial::IsValidNextStep(Move const &base, Cell const &rCell, Tile const &rTile) const {
 	// Check whether a hypothetical next step would be legal.
+	ASSERT(mpGame != NULL);
+
 	Move move = base;
 	move.Add(rTile, rCell);
     char const *reason;

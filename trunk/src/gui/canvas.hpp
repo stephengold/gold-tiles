@@ -43,9 +43,9 @@ Gold Tile Game.
 class Canvas: public Graphics {
 public:
 	// lifecycle
-    Canvas(void) { ASSERT(false); };
-    Canvas(Canvas const &) { ASSERT(false); };
     Canvas(HDC, HWND, bool releaseMe, unsigned width, unsigned height);
+    // no default constructor
+	// no copy constructor
     // ~Canvas(void);  compiler-generated destructor is OK
         
 	// operators

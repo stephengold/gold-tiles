@@ -39,8 +39,8 @@ The Partial class is ...
 class Partial {
 public:
 	// lifecycle
-	Partial(void) { ASSERT(false); };
 	Partial(Game const *, unsigned hintStrength);
+	// no default constructor
     //Partial(Partial const &);  compiler-generated copy constructor is OK
     //~Partial(void);
 	void Reset(void);

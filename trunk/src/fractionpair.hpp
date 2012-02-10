@@ -34,10 +34,10 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 class FractionPair {
 public:
 	// lifecycle
-	FractionPair(void) { ASSERT(false); }
     FractionPair(float x, float y);
+	// no default constructor
     //FractionPair(FractionPair const &); compiler-generated copy constructor is OK
-    //~FractionPair(void);
+    //~FractionPair(void); compiler-generated destructor is OK
 
 	// operators
 	//FractionPair &operator=(FractionPair const &); compiler-generated assignment method is OK

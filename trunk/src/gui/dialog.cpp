@@ -71,8 +71,8 @@ void Dialog::Initialize(
 {
 	// create a modal dialog box
 	HINSTANCE module = CopyModule(rParent);
-	HWND parent = rParent.Handle();
-	mResult = ::DialogBox(module, templateName, parent, messageHandler);
+	HWND parentHandle = rParent.Handle();
+	mResult = ::DialogBox(module, templateName, parentHandle, messageHandler);
 }
 
 // misc methods

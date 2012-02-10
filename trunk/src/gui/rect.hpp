@@ -39,10 +39,10 @@ typedef unsigned long PCntType;
 class Rect {
 public:
 	// lifecycle
-    Rect(void) { ASSERT(false); };
     Rect(RECT const &);
     Rect(Point const &ulc, PCntType width, PCntType height);
     Rect(LogicalYType, LogicalXType, PCntType width, PCntType height);
+	// no default constructor
     //Rect(Rect const &);  compiler-generated copy constructor is OK
     //~Rect(void);
 

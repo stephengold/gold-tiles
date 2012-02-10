@@ -54,6 +54,7 @@ public:
 	int	        EastMax(void) const;
     Tile const *GetCell(Cell const &) const;
     bool        LocateTileId(TileIdType, Cell &) const;
+	void        MakeEmpty(void);
     void        MakeEmpty(Cell const &);
     int	        NorthMax(void) const;
 	void        PlayOnCell(Cell const &, Tile const &);

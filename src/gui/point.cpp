@@ -54,8 +54,14 @@ Point::operator POINT(void) const {
 
 Point::operator POINTS(void) const {
     POINTS result;
-    result.x = mX;
-    result.y = mY;
+
+	ASSERT(mX <= SHRT_MAX);
+	ASSERT(mX >= SHRT_MIN);
+    result.x = (SHORT)mX;
+
+	ASSERT(mY <= SHRT_MAX);
+	ASSERT(mY >= SHRT_MIN);
+    result.y = (SHORT)mY;
     
     return result;
 }

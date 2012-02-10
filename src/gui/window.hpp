@@ -42,7 +42,7 @@ public:
 	// lifecycle
 	Window(void);
     Window(Window const &) { ASSERT(false); };
-    // ~WindowClass(void);  implicitly declared destructor is OK
+    // ~WindowClass(void);  compiler-generated destructor is OK
     HDC Initialize(CREATESTRUCT const *);
 
 	// operators

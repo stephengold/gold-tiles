@@ -37,10 +37,10 @@ The WindowClass class extends the WNDCLASSEX struct.
 class WindowClass: public WNDCLASSEX {
 public:
 	// lifecycle
-    WindowClass(void) { ASSERT(false); };
     WindowClass(HINSTANCE, WNDPROC, char const *);
-    WindowClass(WindowClass const &) { ASSERT(false); };
-    // ~WindowClass(void);  implicitly declared destructor is fine
+	// no default constructor
+	// no copy constructor
+    // ~WindowClass(void);  compiler-generated destructor is fine
 
 	// operators
     WindowClass &operator=(WindowClass const &) { ASSERT(false); };

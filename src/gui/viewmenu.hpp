@@ -38,8 +38,9 @@ A ViewMenu object represents the "view" SubMenu in the menu bar.
 class ViewMenu: public SubMenu {
 public:
 	// lifecycle
-	ViewMenu(void) { ASSERT(false); }
     ViewMenu(HMENU menu, UINT position);
+	// no default constructor
+	//ViewMenu(ViewMenu const &);  compiler-generated destructor is OK
 
 	// misc public methods
     void Animation(bool);

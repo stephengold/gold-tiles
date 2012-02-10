@@ -81,10 +81,10 @@ Rect::operator RECT(void) const {
 // misc methods
 
 float Rect::AspectRatio(void) const {
-    float width = Width();
+    float width = float(Width());
     ASSERT(width > 0.5);
 
-    float height = Height();
+    float height = float(Height());
     ASSERT(height > 0.5);
 
     float result = width/height;

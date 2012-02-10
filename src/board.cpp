@@ -43,7 +43,7 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 // The compiler-generated assignment method is OK.
 
 
-// misc
+// misc methods
 
 void Board::GetColumnLimits(
     Cell const &rCell,

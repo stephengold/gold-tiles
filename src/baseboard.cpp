@@ -132,6 +132,16 @@ bool BaseBoard::LocateTileId(TileIdType id, Cell &rCell) const {
     return result;
 }
 
+// reset the board
+void BaseBoard::MakeEmpty(void) {
+	mNorthMax = 0;
+	mSouthMax = 0;
+	mEastMax = 0;
+	mWestMax = 0;
+    mCells.clear();
+    mTiles.clear();
+}
+
 // make a specific cell empty
 void BaseBoard::MakeEmpty(Cell const &rCell) {
     int row = rCell.Row();

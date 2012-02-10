@@ -95,9 +95,6 @@ TopWindow::TopWindow(HINSTANCE applicationInstance, Game *pGame):
     ASSERT(spNewlyCreatedTopWindow == NULL);
 	spNewlyCreatedTopWindow = this;
 
-    ASSERT(pGame != NULL);
-	mpGame = pGame;
-
 	mActiveCellFlag = true;
 	mApplication = applicationInstance;
     mAutopauseFlag = false;
@@ -154,7 +151,6 @@ void TopWindow::Initialize(CREATESTRUCT const *pCreateStruct) {
 	ASSERT(mpViewMenu != NULL);
 
 	UpdateMenus();
-	//ParmBox(*this);
 }
 
 
@@ -191,6 +187,8 @@ LogicalYType TopWindow::CellY(int row) const {
 
 void TopWindow::DrawActivePlayer(Canvas &rCanvas) {
     // draw header
+	ASSERT(mpGame != NULL);
+
     LogicalYType top_y = mPadPixels;
     LogicalXType left_x = mPadPixels;
     Player active_player = mpGame->ActivePlayer();
@@ -369,7 +367,9 @@ void TopWindow::DrawHandTile(
     ASSERT(success);
 }
 
-void TopWindow::DrawHandTiles(Canvas &rCanvas) {   
+void TopWindow::DrawHandTiles(Canvas &rCanvas) {
+	ASSERT(mpGame != NULL);
+
     LogicalYType hand_y = mHandRect.TopY() + mPadPixels;
     LogicalYType swap_y = mSwapRect.TopY() + mPadPixels;
 
@@ -378,14 +378,13 @@ void TopWindow::DrawHandTiles(Canvas &rCanvas) {
 
     unsigned tile_cnt = mPartial.CountSwap();
     unsigned stock_cnt = mpGame->CountStock();
-    if (tile_cnt < mPartial.CountTiles() 
-     && tile_cnt < stock_cnt) {
+    if (tile_cnt < mPartial.CountTiles()  && tile_cnt < stock_cnt) {
         swap_y += cell_height/2;
     }
 
     mTileMap.clear();
     
-    Point active_base;
+    Point active_base(0, 0);
     for (unsigned i = 0; i < mPartial.CountTiles(); i++) {
         Tile tile = mPartial.GetTileByIndex(i);
         TileIdType id = tile.Id();
@@ -422,12 +421,17 @@ void TopWindow::DrawHandTiles(Canvas &rCanvas) {
     
     TileIdType id = mPartial.GetActive();
     if (id != 0) {
+		// there's an active tile
         Tile active_tile = mPartial.GetTileById(id);
         DrawHandTile(rCanvas, active_base, active_tile);
     }
+
+	ASSERT(mTileMap.size() == mPartial.CountTiles());
 }
 
-void TopWindow::DrawInactivePlayers(Canvas &rCanvas) {     
+void TopWindow::DrawInactivePlayers(Canvas &rCanvas) {
+	ASSERT(mpGame != NULL);
+
     PCntType cell_width = CellWidth();
     PCntType cell_height = CellHeight();
     PCntType width = cell_width + 2*mPadPixels;
@@ -487,11 +491,13 @@ void TopWindow::DrawPaused(Canvas &rCanvas) {
     Rect clientArea(y, x, ClientAreaWidth(), ClientAreaHeight());
     rCanvas.DrawText(clientArea, "The game is paused.  Click here to proceed.");
         
-    int top_y = mPadPixels;
-    int left_x = mPadPixels;
-    Player active_player = mpGame->ActivePlayer();
-    bool left = true;
-    DrawPlayerHeader(rCanvas, top_y, left_x, active_player, bg_color, left);
+	if (mpGame != NULL) {
+	    int top_y = mPadPixels;
+        int left_x = mPadPixels;
+        Player active_player = mpGame->ActivePlayer();
+        bool left = true;
+        DrawPlayerHeader(rCanvas, top_y, left_x, active_player, bg_color, left);
+	}
 }
 
 Rect TopWindow::DrawPlayerHeader(
@@ -502,6 +508,8 @@ Rect TopWindow::DrawPlayerHeader(
     ColorType areaColor, 
     bool leftFlag)
 {
+    ASSERT(mpGame != NULL);
+
     unsigned cell_width = CellWidth();
 
     String name_text = rPlayer.Name();
@@ -645,7 +653,7 @@ TileIdType TopWindow::GetTileId(Point const &rPoint) const {
 			        continue;
                 }
             } else if (IsInHandArea(rPoint)) {
-                if (mPartial.IsInHand(id)) {                
+                if (!mPartial.IsInHand(id)) {                
 			        continue;
                 }
             }
@@ -973,6 +981,7 @@ char const *TopWindow::Name(void) const {
 }
 
 void TopWindow::Play(bool passFlag) {
+	ASSERT(mpGame != NULL);
     Move move = Move(mPartial);
     
 	char const *reason;
@@ -1017,6 +1026,8 @@ void TopWindow::Recenter(PCntType oldHeight, PCntType oldWidth) {
 }
 
 void TopWindow::ReleaseActiveTile(Point const &rMouse) {
+	ASSERT(mpGame != NULL);
+
     TileIdType id = mPartial.GetActive(); 
      
 	// Determine where the active tile came from.
@@ -1131,7 +1142,7 @@ void TopWindow::Repaint(void) {
     if (mPauseFlag) {
 		DrawPaused(canvas);
 
-    } else {
+    } else if (mpGame != NULL) {
         DrawBoard(canvas);
         DrawInactivePlayers(canvas);
         DrawActivePlayer(canvas);
@@ -1190,7 +1201,7 @@ void TopWindow::UpdateMenus(void) {
     bool pass = mPartial.IsPass();
 	mpPlayMenu->EnableItems(mPauseFlag, !pass);
 
-	mpPlayMenu->Enable(true);
+	mpPlayMenu->Enable(mpGame != NULL);
 
 	// "View" menu
     mpViewMenu->TileSize(tile_size);
@@ -1201,7 +1212,7 @@ void TopWindow::UpdateMenus(void) {
     mpViewMenu->ShowTiles(mShowTilesFlag);
     mpViewMenu->Autocenter(mAutocenterFlag);
 
-	mpViewMenu->Enable(!mPauseFlag);
+	mpViewMenu->Enable(!mPauseFlag && mpGame != NULL);
 	
 	// redraw all menus
 	HWND this_window = Handle(); 

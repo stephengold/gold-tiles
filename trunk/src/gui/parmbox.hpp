@@ -39,16 +39,26 @@ The ParmBox class is an extension of the Dialog class.
 
 class ParmBox: public Dialog {
 public:
+    // lifecycle
 	ParmBox(void) { ASSERT(false); };
 	ParmBox(Window const &parent); 
     ParmBox(ParmBox const &) { ASSERT(false); };
     // ~ParmBox(void);  compiler-generated destructor is OK
 
-	// operators
+	// public operators
     ParmBox &operator=(ParmBox const &) { ASSERT(false); };
 
-	// misc methods
+	// misc public methods
 	INT_PTR HandleMessage(UINT message, WPARAM, LPARAM);
+
+private:
+    // misc private methods
+    unsigned Editbox(int id);
+    int      EditboxId(int slider) const;
+    void     InitControl(int slider, unsigned value, unsigned min, unsigned max);
+    void     SetControl(int slider, unsigned value);
+    unsigned Slider(int id);
+    int      SliderId(int editbox) const;
 };
 
 #endif

@@ -83,14 +83,13 @@ INT_PTR Dialog::HandleMessage(UINT message, WPARAM wParam, LPARAM lParam) {
 
     switch (message) {
         case WM_INITDIALOG:
-		    CenterWindow();
+		    Center();
             result = TRUE;
 			break;
 
         case WM_COMMAND:
             switch (LOWORD(wParam)) {
                 case IDOK:
-                case IDCANCEL:
                     ::EndDialog(window, 0);
                     result = TRUE;
 					break;

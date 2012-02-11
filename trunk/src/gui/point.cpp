@@ -24,6 +24,7 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 #include "project.hpp"
 
 #ifdef _WINDOWS
+#include <climits>
 #include <windows.h>
 #include "point.hpp"
 

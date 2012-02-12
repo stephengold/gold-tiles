@@ -42,6 +42,8 @@ String::String(char const p_ch[]):
 	std::string(p_ch) {}
 String::String(int integer):
 	std::string(::itos(integer)) {}
+String::String(unsigned integer):
+	std::string(::itos(integer)) {}
 
 String::operator int(void) const {
 	unsigned n = Length();

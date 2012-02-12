@@ -1,8 +1,8 @@
-#ifndef PARMBOX_HPP_INCLUDED
-#define PARMBOX_HPP_INCLUDED
+#ifndef YESNO_HPP_INCLUDED
+#define YESNO_HPP_INCLUDED
 
-// File:    parmbox.hpp
-// Purpose: ParmBox class
+// File:    yesno.hpp
+// Purpose: YesNo class
 // Author:  Stephen Gold sgold@sonic.net
 // (c) Copyright 2012 Stephen Gold
 // Distributed under the terms of the GNU General Public License
@@ -36,40 +36,23 @@ The ParmBox class is an extension of the Dialog class.
 #ifdef _WINDOWS
 #include <windows.h>
 #include "gui/dialog.hpp"
-#include "tile.hpp"
 
-
-class ParmBox: public Dialog {
+class YesNo: public Dialog {
 public:
+	static const int RESULT_YES = 3;
+	static const int RESULT_NO = 4;
+
     // lifecycle
-	ParmBox(Window *pParent); 
+	YesNo(char const *templateName, Window *pParent); 
 	// no default constructor
 	// no copy constructor
-	// ~ParmBox(void);  compiler-generated destructor is OK
+	// ~YesNo(void);  compiler-generated destructor is OK
 
 	// public operators
-    ParmBox &operator=(ParmBox const &) { ASSERT(false); };
+    YesNo &operator=(ParmBox const &) { ASSERT(false); };
 
 	// misc public methods
-
-	ACountType AttributeCnt(void) const;
-	unsigned   ClonesPerTile(void) const;
-	INT_PTR    HandleMessage(UINT message, WPARAM, LPARAM);
-	unsigned   HandSize(void) const;
-	unsigned   PlayerCnt(void) const;
-
-private:
-    ValueType mAttributeCnt, mClonesPerTile, mHandSize, mPlayerCnt;
-
-	// misc private methods
-    IdType    EditboxId(IdType slider) const;
-    void      InitControl(IdType slider, ValueType value, 
-		                  ValueType min, ValueType max);
-    IdType    MaxId(IdType slider) const;
-    IdType    MinId(IdType slider) const;
-    IdType    SliderId(IdType editbox) const;
-	IdType    SliderId(HWND) const;
-	void      UpdateValue(IdType slider, ValueType);
+	INT_PTR HandleMessage(UINT message, WPARAM, LPARAM);
 };
 
 #endif

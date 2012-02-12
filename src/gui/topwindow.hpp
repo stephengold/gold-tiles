@@ -79,8 +79,8 @@ private:
 	unsigned      mDragBoardPixelCnt;
 	int           mDragTileDeltaX, mDragTileDeltaY;
 	Game *       mpGame;
-	char *        mFileName;
 	Rect          mHandRect;
+	bool          mInitialNewGame;
 	bool          mIsStartCentered;
 	Point         mMouseLast; // coordinates of last mouse down
 	int           mMouseUpCnt;
@@ -107,6 +107,8 @@ private:
     LogicalYType CellY(int row) const;
     PCntType     CellWidth(void) const;
     char const * ClassName(void) const;
+	void		 CreateNewGame(ParmBox const &);
+	void         DiscardGame(void);
     void         DrawActivePlayer(Canvas &);
 	Rect         DrawBlankTile(Canvas &, Point const &);
     void         DrawBoard(Canvas &);
@@ -126,11 +128,14 @@ private:
     void         HandleMenuCommand(int);
 	void         HandleMouseMove(Point const &);
 	char const * Name(void) const;
+	void		 OfferSaveGame(void);
+	void		 OfferNewGame(void);
     void         Play(bool passFlag);
 	void         Recenter(PCntType oldWidth, PCntType oldHeight);
 	void         ReleaseActiveTile(Point const &);
     void         Resize(PCntType width, PCntType height);
     void         Repaint(void);
+	void         SetGame(Game *);
 	void         StopDragging(void);
 	void         TakeBack(void);
 	void         UpdateMenus(void);

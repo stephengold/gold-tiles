@@ -32,11 +32,11 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 class Game {
 public:
 	// lifecycle
-    Game(Strings player_names,
-             ACountType attribute_cnt,
-             AValueType max_attribute_values[],
-             unsigned tile_redundancy,
-             unsigned hand_size);
+    Game(Strings playerNames,
+             ACountType attributeCnt,
+             AValueType maxAttributeValues[],
+             unsigned tileRedundancy,
+             unsigned handSize);
 	// no default constructor
 	// no copy constructor
     // ~Game(void);  compiler-generated destructor is OK
@@ -57,6 +57,7 @@ public:
 
 	// public inquiry methods
 	bool     HasEmptyCell(Cell const &) const;
+	bool     HasUnsavedChanges(void) const;
     bool     IsLegalMove(Move const &) const;
     bool     IsLegalMove(Move const &, char const *&rReason) const;
     bool     IsLegalPartial(Partial const &) const;
@@ -67,8 +68,10 @@ private:
     Players::IteratorType miActivePlayer; // whose turn it is
     unsigned               mBestRunLength; // zero after the first turn
     Board                  mBoard;         // extensible playing surface
+	String                 mFilename;      // name of associated file for load/save
     Players                mPlayers;       // who is playing
     Tiles                  mStockBag;      // stock bag from which tiles are drawn
+	bool                   mUnsavedChanges;
 
 	// misc methods
     void     AddTiles(AIndexType, unsigned redundancy, Tile &);

@@ -25,7 +25,6 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 
 #ifdef _WINDOWS
 #include <windows.h>
-#include <Commctrl.h>
 #include "gui/parmbox.hpp"
 #include "gui/resource.hpp"
 
@@ -52,26 +51,30 @@ static INT_PTR CALLBACK parmBoxMessageHandler(
 	return result;
 }
 
-ParmBox::ParmBox(Window const &parent):
-    Dialog("PARMBOX", parent, &parmBoxMessageHandler)
+
+// lifecycle
+
+ParmBox::ParmBox(Window *pParent):
+    Dialog("PARMBOX", pParent, &parmBoxMessageHandler)
 {}
 
 
 // misc methods
 
-unsigned ParmBox::Editbox(int editboxId) {
-	HWND windowHandle = Handle();
+unsigned ParmBox::AttributeCnt(void) const {
+    unsigned result = mAttributeCnt;
 
-    BOOL success;
-    BOOL sign = FALSE;
-    unsigned result = ::GetDlgItemInt(windowHandle, editboxId, &success, sign);
-    ASSERT(success);
-    
-    return result;
+	return result;
 }
 
-int ParmBox::EditboxId(int sliderId) const {
-    int result;
+unsigned ParmBox::ClonesPerTile(void) const {
+    unsigned result = mClonesPerTile;
+
+	return result;
+}
+
+ParmBox::IdType ParmBox::EditboxId(IdType sliderId) const {
+    IdType result;
     switch (sliderId) {
         case IDC_SLIDER1:
             result = IDC_EDIT1;
@@ -82,6 +85,9 @@ int ParmBox::EditboxId(int sliderId) const {
         case IDC_SLIDER3:
             result = IDC_EDIT3;
             break;
+        case IDC_SLIDER4:
+            result = IDC_EDIT4;
+            break;
         default:
             ASSERT(false);
     }
@@ -91,107 +97,152 @@ int ParmBox::EditboxId(int sliderId) const {
 
 INT_PTR ParmBox::HandleMessage(UINT message, WPARAM wParam, LPARAM lParam) {
 	INT_PTR result = FALSE;
-	HWND window = Handle();
 
     switch (message) {
         case WM_INITDIALOG: {
-		    Center();
+		    Dialog::HandleMessage(message, wParam, lParam);
 		    
-            unsigned player_cnt = 3;
-		    InitControl(IDC_SLIDER1, player_cnt, 1, 9);
+            mPlayerCnt = 2;
+		    InitControl(IDC_SLIDER1, mPlayerCnt, 1, 10);
             
-            unsigned hand_size = 7;
-		    InitControl(IDC_SLIDER2, hand_size, 1, 13);
+            mHandSize = 7;
+		    InitControl(IDC_SLIDER2, mHandSize, 1, 12);
             
-            unsigned attribute_cnt = 2;
-		    InitControl(IDC_SLIDER3, attribute_cnt, 2, 5);
+            mAttributeCnt = 2;
+		    InitControl(IDC_SLIDER3, mAttributeCnt, 2, 5);
 		    
+            mClonesPerTile = 2;
+		    InitControl(IDC_SLIDER4, mClonesPerTile, 0, 5);
+
             result = TRUE;
 			break;
         }
 
         case WM_COMMAND: {
-            int id = LOWORD(wParam);
+            IdType id = LOWORD(wParam);
             switch (id) {
-                case IDOK:
-                    ::EndDialog(window, 0);
-                    result = TRUE;
-					break;
                 case IDC_EDIT1:
                 case IDC_EDIT2:
-                case IDC_EDIT3: {
-                     unsigned value = Editbox(id);
-                     int slider_id = SliderId(id);
-                     SetControl(slider_id, value);
-                     break;
+                case IDC_EDIT3:
+                case IDC_EDIT4: {
+                    ValueType value = GetTextValue(id);
+					if (value != VALUE_INVALID) {
+                        IdType slider_id = SliderId(id);
+                        ValueType slider_value = SetSliderValue(slider_id, value);
+					    if (slider_value != value) {
+                            SetTextValue(id, slider_value);
+					    }
+         			    UpdateValue(slider_id, slider_value);
+					}
+                    break;
                 }
-                case IDC_SLIDER1:
-                case IDC_SLIDER2:
-                case IDC_SLIDER3: {
-                     unsigned value = Slider(id);
-                     SetControl(id, value);
-                     break;
-                }
-                default:
-                     ASSERT(false);
             }
             break;
         }
 
-	    default:
+		case WM_VSCROLL:
+        case WM_HSCROLL: {
+            IdType slider_id = SliderId((HWND)lParam);
+			ASSERT(slider_id != 0);
+            ValueType value = GetSliderValue(slider_id);
+            IdType editbox_id = EditboxId(slider_id);
+            SetTextValue(editbox_id, value);
+			UpdateValue(slider_id, value);
 			break;
+		}
     }
 
+	if (result == FALSE) {
+		result = Dialog::HandleMessage(message, wParam, lParam);
+	}
+
     return result;
 }
 
-void ParmBox::InitControl(int sliderId, unsigned value, unsigned min, unsigned max) {
-    ASSERT(value <= max);
-    ASSERT(value >= min);
-	HWND windowHandle = Handle();
+unsigned ParmBox::HandSize(void) const {
+    unsigned result = mHandSize;
+
+	return result;
+}
+
+void ParmBox::InitControl(
+	IdType sliderId,
+	ValueType value,
+	ValueType minValue,
+	ValueType maxValue)
+{
+    ASSERT(value <= maxValue);
+    ASSERT(value >= minValue);
 	
-    HWND sliderHandle = ::GetDlgItem(windowHandle, sliderId);
-    ASSERT(sliderHandle != NULL);
-    
-    WPARAM redraw = (WPARAM)FALSE;
-    ::SendMessage(sliderHandle, TBM_SETRANGEMIN, redraw, (LPARAM)min);
-    ::SendMessage(sliderHandle, TBM_SETRANGEMAX, redraw, (LPARAM)max);
-    
-    SetControl(sliderId, value);
+    WPARAM redraw = WPARAM(FALSE);
+	SetSliderRange(sliderId, minValue, maxValue);
+
+	ValueType slider_value = SetSliderValue(sliderId, value);
+	ASSERT(slider_value == value);
+
+	IdType min_id = MinId(sliderId);
+	SetTextValue(min_id, minValue);
+
+	IdType max_id = MaxId(sliderId);
+	SetTextValue(max_id, maxValue);
+
+	IdType editbox_id = EditboxId(sliderId);
+    SetTextValue(editbox_id, slider_value);
 }
 
-void ParmBox::SetControl(int sliderId, unsigned value) {
-	HWND windowHandle = Handle();
-
-    HWND sliderHandle = ::GetDlgItem(windowHandle, sliderId);
-    ASSERT(sliderHandle != NULL);
-    
-    // set slider value
-    WPARAM redraw = (WPARAM)TRUE;
-    ::SendMessage(sliderHandle, TBM_SETPOS, redraw, (LPARAM)value);
-    
-    // read it back
-    unsigned slider_value = Slider(sliderId);
-
-    // set editbox value
-    int editboxId = EditboxId(sliderId);     
-    BOOL sign = FALSE;
-    BOOL success = ::SetDlgItemInt(windowHandle, editboxId, slider_value, sign);
-    ASSERT(success);
-}
-
-unsigned ParmBox::Slider(int sliderId) {
-	HWND windowHandle = Handle();
-
-    HWND sliderHandle = ::GetDlgItem(windowHandle, sliderId);
-    ASSERT(sliderHandle != NULL);
-    unsigned result = ::SendMessage(sliderHandle, TBM_GETPOS, (WPARAM)0, (LPARAM)0);
+ParmBox::IdType ParmBox::MaxId(IdType sliderId) const {
+    IdType result;
+    switch (sliderId) {
+        case IDC_SLIDER1:
+            result = IDC_SMAX1;
+            break;
+        case IDC_SLIDER2:
+            result = IDC_SMAX2;
+            break;
+        case IDC_SLIDER3:
+            result = IDC_SMAX3;
+            break;
+        case IDC_SLIDER4:
+            result = IDC_SMAX4;
+            break;
+        default:
+            ASSERT(false);
+    }
     
     return result;
 }
 
-int ParmBox::SliderId(int editboxId) const {
-    int result;
+ParmBox::IdType ParmBox::MinId(IdType sliderId) const {
+    IdType result;
+    switch (sliderId) {
+        case IDC_SLIDER1:
+            result = IDC_SMIN1;
+            break;
+        case IDC_SLIDER2:
+            result = IDC_SMIN2;
+            break;
+        case IDC_SLIDER3:
+            result = IDC_SMIN3;
+            break;
+        case IDC_SLIDER4:
+            result = IDC_SMIN4;
+            break;
+        default:
+            ASSERT(false);
+    }
+    
+    return result;
+}
+
+
+unsigned ParmBox::PlayerCnt(void) const {
+    unsigned result = mPlayerCnt;
+
+	return result;
+}
+
+ParmBox::IdType ParmBox::SliderId(IdType editboxId) const {
+    IdType result;
     switch (editboxId) {
         case IDC_EDIT1:
             result = IDC_SLIDER1;
@@ -202,10 +253,47 @@ int ParmBox::SliderId(int editboxId) const {
         case IDC_EDIT3:
             result = IDC_SLIDER3;
             break;
+        case IDC_EDIT4:
+            result = IDC_SLIDER4;
+            break;
         default:
             ASSERT(false);
     }
     return result;
+}
+
+ParmBox::IdType ParmBox::SliderId(HWND handle) const {
+    IdType result = 0;
+	if (handle == GetControlHandle(IDC_SLIDER1)) {
+		result = IDC_SLIDER1;
+	} else if (handle == GetControlHandle(IDC_SLIDER2)) {
+		result = IDC_SLIDER2;
+	} else if (handle == GetControlHandle(IDC_SLIDER3)) {
+		result = IDC_SLIDER3;
+	} else if (handle == GetControlHandle(IDC_SLIDER4)) {
+		result = IDC_SLIDER4;
+	}
+
+	return result;
+}
+
+void ParmBox::UpdateValue(IdType sliderId, ValueType value) {
+    switch (sliderId) {
+        case IDC_SLIDER1:
+            mPlayerCnt = value;
+            break;
+        case IDC_SLIDER2:
+            mHandSize = value;
+            break;
+        case IDC_SLIDER3:
+            mAttributeCnt = value;
+            break;
+        case IDC_SLIDER4:
+            mClonesPerTile = value;
+            break;
+        default:
+            ASSERT(false);
+    }
 }
 
 #endif

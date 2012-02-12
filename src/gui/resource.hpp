@@ -2,11 +2,24 @@
 #define IDC_STATIC (-1)
 #endif
 
-#define IDC_SLIDER1                             1000
-#define IDC_SLIDER2                             1001
+#define IDC_EDIT1                               1001
 #define IDC_EDIT2                               1002
-#define IDC_SLIDER3                             1003
-#define IDC_EDIT3                               1004
+#define IDC_EDIT3                               1003
+#define IDC_EDIT4                               1004
+#define IDC_SLIDER1                             1011
+#define IDC_SLIDER2                             1012
+#define IDC_SLIDER3                             1013
+#define IDC_SLIDER4                             1014
+#define IDC_SMIN1                               1021
+#define IDC_SMIN2                               1022
+#define IDC_SMIN3                               1023
+#define IDC_SMIN4                               1024
+#define IDC_SMAX1                               1031
+#define IDC_SMAX2                               1032
+#define IDC_SMAX3                               1033
+#define IDC_SMAX4                               1034
+#define IDC_Y                                   1101
+#define IDC_N                                   1102
 #define IDM_NEW                                 6000
 #define IDM_OPEN                                6001
 #define IDM_REOPEN                              6002
@@ -40,5 +53,4 @@
 #define IDM_AUTOCENTER                          6211
 #define IDM_RULES                               6900
 #define IDM_WARRANTY                            6901
-#define IDC_EDIT1                               6902
 #define IDM_ABOUT                               6902

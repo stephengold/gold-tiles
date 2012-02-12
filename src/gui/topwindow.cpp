@@ -36,8 +36,10 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 #include "gui/topwindow.hpp"
 #include "gui/viewmenu.hpp"
 #include "gui/windowclass.hpp"
+#include "gui/yesno.hpp"
 #include "move.hpp"
 #include "player.hpp"
+#include "strings.hpp"
 
 // static data of the class
 
@@ -45,7 +47,7 @@ WindowClass *TopWindow::mspClass = NULL;
 
 // message handler (callback) for top window
 static TopWindow *spNewlyCreatedTopWindow = NULL;
-static LRESULT CALLBACK topMessageHandler(
+static LRESULT CALLBACK top_message_handler(
 	HWND windowHandle,
 	UINT message,
 	WPARAM wParam,
@@ -85,7 +87,7 @@ TopWindow::TopWindow(HINSTANCE applicationInstance, Game *pGame):
 	char const *className = "TOPWINDOW";
     if (mspClass == NULL) {
 		// constructing first instance:  create a Microsoft Windows window class
-		WNDPROC messageHandler = &topMessageHandler;
+		WNDPROC messageHandler = &top_message_handler;
 		mspClass = new WindowClass(applicationInstance, messageHandler, className);
 		mspClass->RegisterClass();
 	}
@@ -101,8 +103,8 @@ TopWindow::TopWindow(HINSTANCE applicationInstance, Game *pGame):
     mAutocenterFlag = false;
     mColorAttributeCnt = 1;
     mDragBoardFlag = false;
-    mFileName = "Game1";
 	mpGame = pGame;
+	mInitialNewGame = (pGame == NULL);
     mIsStartCentered = false;
 	mMouseUpCnt = 0;
     mPadPixels = 6;
@@ -129,6 +131,8 @@ TopWindow::TopWindow(HINSTANCE applicationInstance, Game *pGame):
                              width, height, parent, menu, applicationInstance, 
                              parameters);
     ASSERT(Handle() == handle);
+
+	// wait for top_message_handler() to receive WM_CREATE
 }
 
 TopWindow::~TopWindow(void) {
@@ -183,6 +187,31 @@ LogicalYType TopWindow::CellY(int row) const {
     LogicalYType result = mStartCell.Y() - grid_unit*row;
 
     return result;
+}
+
+void TopWindow::CreateNewGame(ParmBox const &rBox) {
+	ASSERT(mpGame == NULL);
+
+	ACountType attribute_cnt = rBox.AttributeCnt();
+	unsigned player_cnt = rBox.PlayerCnt();
+	unsigned hand_size = rBox.HandSize();
+	unsigned tile_redundancy = 1 + rBox.ClonesPerTile();
+
+	Strings player_names;
+	for (unsigned i = 1; i <= player_cnt; i++) {
+		String name = "Player #" + String(i);
+		player_names.Append(name);
+	}
+
+	AValueType *max_attribute_values = new AValueType[attribute_cnt];
+	for (unsigned i = 0; i < attribute_cnt; i++) {
+		max_attribute_values[i] = 6;
+	}
+
+	Game *p_new_game = new Game(player_names, attribute_cnt, max_attribute_values, 
+		              tile_redundancy, hand_size);
+	ASSERT(p_new_game != NULL);
+	SetGame(p_new_game);
 }
 
 void TopWindow::DrawActivePlayer(Canvas &rCanvas) {
@@ -729,10 +758,16 @@ void TopWindow::HandleMenuCommand(int command) {
     switch (command) {
     // File menu options
         case IDM_NEW: {
-	        // TODO
-		    mFileName = "Game1";
+	        if (mpGame != NULL && mpGame->HasUnsavedChanges()) {
+				OfferSaveGame();
+			}
+			if (mpGame != NULL) {
+			    SetGame(NULL);
+			}
+			OfferNewGame();
             break;
 	    }
+
 		case IDM_OPEN:
 		    break;
 		case IDM_REOPEN:
@@ -747,13 +782,9 @@ void TopWindow::HandleMenuCommand(int command) {
 		    break;
 		case IDM_PRINT:
 		    break;
-        case IDM_EXIT: { // terminate the application
-		    // TODO prompt for save
-			HWND this_window = Handle();
-    	    UINT message = WM_CLOSE;
-            ::SendMessage(this_window, message, 0, 0L);
+        case IDM_EXIT: // terminate the application
+			Close();
             break;
-	    }
 
 	    // Play menu options
 	    case IDM_PLAY_PLAY: {
@@ -836,15 +867,15 @@ void TopWindow::HandleMenuCommand(int command) {
 
         // Help menu options
         case IDM_RULES: {
-	   	    Dialog("RULES", *this);
+	   	    Dialog("RULES", this);
             break;
 		}
         case IDM_ABOUT: {
-	   	    Dialog("ABOUT", *this);
+	   	    Dialog("ABOUT", this);
             break;
 		}
         case IDM_WARRANTY: {
-	   	    Dialog("WARRANTY", *this);
+	   	    Dialog("WARRANTY", this);
             break;
 		}
 
@@ -856,6 +887,17 @@ void TopWindow::HandleMenuCommand(int command) {
 LRESULT TopWindow::HandleMessage(UINT message, WPARAM wParam, LPARAM lParam) {
 	LRESULT result = 0;
     switch (message) {
+	    case WM_CLOSE: {
+		    if (mpGame != NULL && mpGame->HasUnsavedChanges()) {
+				OfferSaveGame();
+			}
+			if (mpGame != NULL) {
+			    SetGame(NULL);
+			}
+		    result = Window::HandleMessage(message, wParam, lParam);
+			break;
+	    }
+
         case WM_COMMAND: { // menu command
 	        int command = LOWORD(wParam);
             HandleMenuCommand(command);
@@ -868,7 +910,7 @@ LRESULT TopWindow::HandleMessage(UINT message, WPARAM wParam, LPARAM lParam) {
             break;
         }
 
-        case WM_LBUTTONDOWN: // begin left-click
+        case WM_LBUTTONDOWN: // start left-click
 			if (mPauseFlag) {
                 mPauseFlag = false;
 		        ForceRepaint();
@@ -879,7 +921,7 @@ LRESULT TopWindow::HandleMessage(UINT message, WPARAM wParam, LPARAM lParam) {
 			}
             break;
 
-        case WM_LBUTTONUP: // end left-click
+        case WM_LBUTTONUP: // complete left-click
 			if (IsDragging()) {
                 if (IsMouseCaptured()) {
 				    POINTS points = MAKEPOINTS(lParam);
@@ -892,7 +934,7 @@ LRESULT TopWindow::HandleMessage(UINT message, WPARAM wParam, LPARAM lParam) {
         	}
   		    break;
 
-        case WM_MOUSEMOVE:
+        case WM_MOUSEMOVE: // mouse position update
 			if (IsDragging()) {
                 if (IsMouseCaptured()) {
 				    POINTS points = MAKEPOINTS(lParam);
@@ -925,8 +967,7 @@ LRESULT TopWindow::HandleMessage(UINT message, WPARAM wParam, LPARAM lParam) {
         }
 
 	    default:  // invoke message handler of the base class
-		    Window *base = (Window *)this;
-		    result = base->HandleMessage(message, wParam, lParam);
+		    result = Window::HandleMessage(message, wParam, lParam);
 		    break;
     }
 
@@ -980,6 +1021,22 @@ char const *TopWindow::Name(void) const {
 	return "Gold Tile - a game by Stephen Gold";
 }
 
+void TopWindow::OfferNewGame(void) {
+    ParmBox box(this);
+	int result = box.Result();
+	if (result == Dialog::RESULT_OK) {
+		CreateNewGame(box);
+	}
+
+    UpdateMenus();
+    ForceRepaint();
+}
+
+void TopWindow::OfferSaveGame(void) {
+    YesNo("UNSAVED", this);
+	// TODO
+}
+
 void TopWindow::Play(bool passFlag) {
 	ASSERT(mpGame != NULL);
     Move move = Move(mPartial);
@@ -1008,7 +1065,7 @@ void TopWindow::Play(bool passFlag) {
         mPartial.Reset();
                
     } else if (!is_legal) { // explain the issue
-        Dialog(reason, *this);
+        Dialog(reason, this);
 	}
 	ForceRepaint();
 }
@@ -1074,7 +1131,7 @@ void TopWindow::ReleaseActiveTile(Point const &rMouse) {
 
 	if (to_board && mPartial.GetCell(to_cell) != 0) {
 		// cell conflict - can't construct move in the normal way
-	    Dialog("EMPTY", *this);
+	    Dialog("EMPTY", this);
     	StopDragging();
 		return;
 	}
@@ -1117,7 +1174,7 @@ void TopWindow::ReleaseActiveTile(Point const &rMouse) {
 		if (::strcmp(reason, "START") == 0 && !from_board) {
 			reason = "STARTSIMPLE";
 	    }
-	    Dialog(reason, *this);
+	    Dialog(reason, this);
 	}
 
     if (mActiveCellFlag && mPartial.GetCell(mActiveCell) != 0) {
@@ -1151,6 +1208,12 @@ void TopWindow::Repaint(void) {
 
     canvas.Close();
     ::EndPaint(this_window, &paint_struct);
+
+	if (mInitialNewGame) {
+		mInitialNewGame = false;
+		ASSERT(mpGame == NULL);
+		OfferNewGame();
+	}
 }
 
 void TopWindow::Resize(PCntType clientAreaWidth, PCntType clientAreaHeight) {
@@ -1159,6 +1222,14 @@ void TopWindow::Resize(PCntType clientAreaWidth, PCntType clientAreaHeight) {
     SetClientArea(clientAreaWidth, clientAreaHeight);
     Recenter(old_height, old_width);
     ForceRepaint();
+}
+
+void TopWindow::SetGame(Game *pGame) {
+	// TODO: free old Game object?
+	mpGame = pGame;
+	mPartial = Partial(mpGame, 3);
+	ForceRepaint();
+    UpdateMenus();
 }
 
 void TopWindow::StopDragging(void) {

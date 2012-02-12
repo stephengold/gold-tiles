@@ -76,6 +76,7 @@ Game::Game(
     }
     miActivePlayer = bestPlayer;
     mBestRunLength = bestRunLength;
+	mUnsavedChanges = true;
 }
 
 
@@ -92,6 +93,7 @@ Game::operator Board(void) const {
 
 void Game::ActivateNextPlayer(void) {
     mPlayers.Next(miActivePlayer);
+	mUnsavedChanges = true;
 }
 
 Tiles Game::ActiveHand(void) const {
@@ -174,6 +176,7 @@ void Game::FinishTurn(Move const &move) {
 	
 	//  If it was the first turn, it no longer is.
     mBestRunLength = 0;
+	mUnsavedChanges = true;
 }
 
 void Game::FirstTurn(void) {
@@ -203,6 +206,13 @@ void Game::GoingOutBonus(void) {
         miActivePlayer->AddScore(pointsInHand);
 		mPlayers.Next(i_player);
     }
+	mUnsavedChanges = true;
+}
+
+bool Game::HasUnsavedChanges(void) const {
+	bool result = mUnsavedChanges;
+
+    return result;
 }
 
 Players Game::InactivePlayers(void) const {

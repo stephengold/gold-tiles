@@ -31,34 +31,6 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 #include "gui/windowclass.hpp"
 #include "rect.hpp"
 
-// message handler (callback) for generic window
-static Window *spNewlyCreatedWindow = NULL;
-static LRESULT CALLBACK messageHandler(
-	HWND windowHandle,
-	UINT message,
-	WPARAM wParameter,
-	LPARAM lParameter)
-{
-    Window *window;
-	if (message == WM_CREATE && spNewlyCreatedWindow != NULL) {
-		window = spNewlyCreatedWindow;
-		spNewlyCreatedWindow = NULL;
-		window->SetHandle(windowHandle);
-	} else {
-       window = Window::Lookup(windowHandle);
-	}
-
-	LRESULT result;
-	if (window == NULL) { // unknown window handle
-		// invoke default message handler
-		result = ::DefWindowProc(windowHandle, message, wParameter, lParameter);
-	} else {
-     	ASSERT(window->Handle() == windowHandle);
-        result = window->HandleMessage(message, wParameter, lParameter);
-	}
-	return result;
-}
-
 // static data
 
 Window::Map Window::msMap;
@@ -92,6 +64,7 @@ HDC Window::Initialize(CREATESTRUCT const *pCreateStruct) {
 	
 	return private_dc;
 }
+
 
 // operators
 
@@ -148,6 +121,11 @@ PCntType Window::ClientAreaWidth(void) const {
 	return result;
 }
 
+void Window::Close(void) {
+	int ignored = 0;
+    ::SendMessage(mHandle, WM_CLOSE, WPARAM(ignored), LPARAM(ignored));
+}
+
 HINSTANCE Window::CopyModule(Window const &rOther) {
 	mModule = rOther.mModule;
     HINSTANCE result = mModule;
@@ -179,7 +157,14 @@ HWND Window::Handle(void) const {
 LRESULT Window::HandleMessage(UINT message, WPARAM wParameter, LPARAM lParameter) {
 	ASSERT(mHandle != 0);
 	LRESULT result = 0;
+
     switch (message) {
+	    case WM_CLOSE: {
+			BOOL success = ::DestroyWindow(mHandle);
+			ASSERT(success);
+			break;
+		}
+
         case WM_CREATE: { // initialize window
 			CREATESTRUCT *create_struct = (CREATESTRUCT *)lParameter;
             Initialize(create_struct);

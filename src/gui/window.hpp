@@ -54,6 +54,7 @@ public:
 	void            Center(void);
 	PCntType        ClientAreaHeight(void) const;
 	PCntType        ClientAreaWidth(void) const;
+	void            Close(void);
 	HINSTANCE       CopyModule(Window const &);
 	void            ForceRepaint(void);
 	HACCEL          GetAcceleratorTable(char const *resourceName);

@@ -40,7 +40,7 @@ public:
 	Tile operator[](unsigned) const;
 	operator String(void) const;
 
-	// misc
+	// misc public methods
 	void     Add(Tile const &);
 	void     AddTiles(Tiles const &);
     bool     CopyIds(Tiles const &);
@@ -57,7 +57,7 @@ public:
     void     UnClone(Tile &) const;
     Tiles    UniqueTiles(void) const;
 
-	// inquiry
+	// public inquiry methods
     bool     AreAllCompatible(void) const;
     bool     Contains(Tile const &) const;
 	bool     ContainsClone(Tile const &) const;

@@ -32,16 +32,17 @@ increasing eastward.  Either coordinate can be negative.
 Cells are used as keys by the BaseBoard and Board classes.
 
 The Cell class encapsulates a pair of indices:  one index
-for the row and another for the column.
+for the row (or northing) and another for the column (or easting).
 */
 
-#include "project.hpp"
+#include "indices.hpp"
+#include "string.hpp"
 
 enum DirectionType {
-     DIRECTION_NORTH = 0, DIRECTION_FIRST = 0,
-     DIRECTION_SOUTH = 1,
-     DIRECTION_EAST = 2,
-     DIRECTION_WEST = 3, DIRECTION_LAST = 3
+    DIRECTION_NORTH = 0, DIRECTION_FIRST = 0,
+    DIRECTION_SOUTH = 1,
+    DIRECTION_EAST = 2,
+    DIRECTION_WEST = 3, DIRECTION_LAST = 3
 };
 
 class Cell {
@@ -60,15 +61,15 @@ public:
 	bool operator==(Cell const &) const;
 	operator String(void) const;
 
-	// misc
+	// misc public methods
 	int  Column(void) const;
     bool GetUserChoice(String const &);
 	int  Row(void) const;
 
-	// inquiry
+	// public inquiry methods
 	bool IsStart(void) const;
 
 private:
-	int mColumn, mRow;
+	IndexType mColumn, mRow;
 };
 #endif

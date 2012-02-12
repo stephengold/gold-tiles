@@ -25,7 +25,7 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 /*
-
+The ColorType enum names and defines all colors used in the game.
 */
 
 #include "project.hpp"

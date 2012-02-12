@@ -25,10 +25,10 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 /*
-A ParmBox object represents a dialog box for setting game parameters
-such as the number of tile in a player's hand.
+A HandBox object represents a dialog box for setting hand parameters
+such as the type of player.
 
-The ParmBox class is an extension of the Dialog class.
+The HandBox class is an extension of the Dialog class.
 */
 
 #include "gui/dialog.hpp"
@@ -49,7 +49,7 @@ public:
 
 	// misc public methods
 	INT_PTR HandleMessage(UINT message, WPARAM, LPARAM);
-	String  PlayerName(void) const;
+	String  HandName(void) const;
 
 	// public inquiry methods
 	bool IsAutomatic(void) const;
@@ -59,7 +59,7 @@ private:
 	bool      mAreMoreHands;
 	unsigned  mHandIndex;
     bool      mIsAutomatic, mIsRemote;
-	String    mPlayerName;
+	String    mHandName;
 };
 
 #endif

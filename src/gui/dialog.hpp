@@ -26,8 +26,10 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 
 /*
 A Dialog object represents a generic Microsoft Windows dialog box.
+It mimics a message box when its Run() method is invoked.
 
-The Dialog class is an extension of the Window class.
+The Dialog class is implemented as an extension of the Window class.
+It meant to be futher extended by adding controls.  
 */
 
 #include "project.hpp"

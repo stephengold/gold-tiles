@@ -25,7 +25,11 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 /*
- Encapsulates a GDI device context.
+A Graphics object is used to draw shapes and text to the client area
+of a Window.
+
+The Graphics class is implemented by encapsulating a pair of GDI device 
+contexts:  mDraw for drawing and mDevice for the physical device.
 */
 
 #include "project.hpp"
@@ -38,7 +42,7 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 class Graphics {
 public:
     // lifecycle
-    Graphics(HDC, HWND, bool releaseMe, bool buffer, 
+    Graphics(HDC, HWND, bool releaseMe, bool doubleBufferingOption, 
               PCntType width, PCntType height);
 	// no default constructor
 	// no copy constructor

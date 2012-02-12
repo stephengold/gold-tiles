@@ -29,8 +29,6 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
  on (0.5, 0.5).
 */
 
-#include "project.hpp"
-
 class FractionPair {
 public:
 	// lifecycle
@@ -39,10 +37,10 @@ public:
     //FractionPair(FractionPair const &); compiler-generated copy constructor is OK
     //~FractionPair(void); compiler-generated destructor is OK
 
-	// operators
+	// public operators
 	//FractionPair &operator=(FractionPair const &); compiler-generated assignment method is OK
      
-	// access
+	// misc public methods
     float X(void) const;
     float Y(void) const;
 

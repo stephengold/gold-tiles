@@ -25,8 +25,8 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 /*
-A Move object represents zero or more tiles and the
-locations where they will be played.
+A Move object represents a group of zero or more tiles and the
+location(s) where they will be played.
 */
 
 #include <set>
@@ -50,11 +50,11 @@ public:
 	void     MakeEmpty(void);
  
 	// public inquiry methods
-	bool     InvolvesSwap(void) const;
-	bool     IsPass(void) const;
-	bool     IsPureSwap(void) const;
-    bool     RepeatsCell(void) const;
-    bool     RepeatsTile(void) const;
+	bool InvolvesSwap(void) const;
+	bool IsPass(void) const;
+	bool IsPureSwap(void) const;
+    bool RepeatsCell(void) const;
+    bool RepeatsTile(void) const;
 };
 
 #endif

@@ -51,7 +51,7 @@ void Partial::Reset(void) {
 		mTiles.MakeEmpty();
 	} else {
         mBoard = Board(*mpGame);
-        mTiles = mpGame->ActiveHand();
+        mTiles = mpGame->ActiveTiles();
 	}
 }
 
@@ -165,9 +165,7 @@ void Partial::Deactivate(void) {
 }
 
 TileIdType Partial::GetActive(void) const {
-    TileIdType result = mActiveId;
-
-    return result;    
+    return mActiveId;
 }
 
 TileIdType Partial::GetCell(Cell const &rCell) const {

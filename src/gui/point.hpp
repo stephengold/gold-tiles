@@ -27,6 +27,8 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 /*
 A Point object represents the location of a pixel in the client area 
 of a window.
+
+The Point class is encapsulates a logical X coordinate and a logical Y coordinate. 
 */
 
 #include "project.hpp"
@@ -52,9 +54,9 @@ public:
     operator POINTS(void) const;
 
 	// misc public methods
+    void         Offset(long dx, long dy);   // add offsets
     LogicalXType X(void) const;
     LogicalYType Y(void) const;
-    void         Offset(long dx, long dy);   
 
 private:
 	LogicalXType mX;

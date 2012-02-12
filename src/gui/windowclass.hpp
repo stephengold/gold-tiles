@@ -26,7 +26,8 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 
 /*
 A WindowClass object represents a Microsoft Windows "window class".
-The WindowClass class extends the WNDCLASSEX struct.
+
+The WindowClass class extends the WNDCLASSEX structure.
 */
 
 #include "project.hpp"

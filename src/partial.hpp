@@ -25,7 +25,12 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 /*
-A Partial object represents the active player's move in progress.
+A Partial object represents the active hand's move in progress, including
+the location of every tile in the hand.  It also decides which cells should
+be "hinted" (that is to say highlighted) for the player's benefit.
+
+The tiles may be located in the active hand, in the swap area, or on the board.
+At any instant, only one tile may be active (in motion).
 
 The Partial class is ...
 */
@@ -51,8 +56,8 @@ public:
 	operator Move(void) const;
 
 	// misc public methods
-	void       Activate(TileIdType);
-	void       BoardToHand(void);
+	void       Activate(TileIdType);  // TODO Mobilize()
+	void       BoardToHand(void);             // move the active tile
 	unsigned   CountHand(void) const;
 	unsigned   CountSwap(void) const;
 	unsigned   CountPlayed(void) const;
@@ -62,11 +67,11 @@ public:
 	TileIdType GetCell(Cell const &) const;
 	Tile       GetTileById(TileIdType) const;
 	Tile       GetTileByIndex(unsigned) const;
-	void       HandToCell(Cell const &);
-	void       HandToSwap(void);
+	void       HandToCell(Cell const &);       // move the active tile
+	void       HandToSwap(void);               // move the active tile
 	Cell       LocateTile(void) const;
 	Cell       LocateTile(TileIdType) const;
-	void       SwapToHand(void);
+	void       SwapToHand(void);               // move the actilve tile
 	
 	// inquiry methods
 	bool Contains(TileIdType) const;
@@ -78,14 +83,14 @@ public:
 	bool IsPass(void) const;
 
 private:
-	TileIdType  mActiveId;
+	TileIdType  mActiveId;        // tile actively being dragged (or else TILE_INVALID)
     Board       mBoard;
 	Game const *mpGame;
-	Cells       mHintedCells;
+	Cells       mHintedCells;     // cached choice of cells
 	bool        mHintedCellsValid;
-	unsigned    mHintStrength;
-	unsigned    mPlayedTileCnt;
-	Indices     mSwapIds;
+	unsigned    mHintStrength;    // TODO enum
+	unsigned    mPlayedTileCnt;   // number of tiles played to the board
+	Indices     mSwapIds;         // indices of all tiles in the swap area
 	Tiles       mTiles;
 
 	// misc private methods

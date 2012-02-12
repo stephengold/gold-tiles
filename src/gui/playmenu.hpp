@@ -42,7 +42,7 @@ public:
 	// no default constructor
 	// ~PlayMenu(void);  compiler-generated destructor is fine
 
-	// misc
+	// misc public methods
 	void Autopause(bool);
 	void EnableItems(bool paused, bool play);
 	void Pause(bool);

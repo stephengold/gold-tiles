@@ -28,7 +28,8 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 An Indices object represents a set of indices, which may be rows or 
 columns in a grid or tile IDs.
 
-The Indices class is implemented as a set of integers.
+The Indices class is implemented by applying the standard "set" container 
+template to an IndexType.
 */
 
 #include <set>
@@ -47,8 +48,8 @@ public:
 	void     Remove(long);
 
 	// public inquiry methods
-    bool     Contains(IndexType) const;
-	bool     IsEmpty(IndexType) const;
+    bool Contains(IndexType) const;
+	bool IsEmpty(IndexType) const;
 };
 
 #endif

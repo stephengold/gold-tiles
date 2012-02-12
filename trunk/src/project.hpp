@@ -48,6 +48,7 @@ class Canvas;
 class Dialog;
 class Graphics;
 class MenuItem;
+class ParmBox;
 class PlayMenu;
 class Point;
 class Poly;
@@ -57,6 +58,7 @@ class TopWindow;
 class ViewMenu;
 class Window;
 class WindowClass;
+class YesNo;
 #endif
 
 // project-wide utility functions

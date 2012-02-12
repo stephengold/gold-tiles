@@ -311,10 +311,11 @@ void Tile::SetAttribute(AIndexType ind, AValueType value) {
 /* static */ void Tile::SetStatic(ACountType aCnt, AValueType const pValueMax[]) {
     ASSERT(aCnt >= 2);
 #ifdef _GUI
-    ASSERT(aCnt <= 4);
+    ASSERT(aCnt <= 5);
 #endif
     msAttributeCnt = aCnt;
-    
+
+	delete[] mspValueMax;
     mspValueMax = new AValueType[aCnt];
     for (AIndexType i = 0; i < aCnt; i++) {
         ASSERT(pValueMax[i] >= 3);

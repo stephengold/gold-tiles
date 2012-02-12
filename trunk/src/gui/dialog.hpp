@@ -38,21 +38,38 @@ The Dialog class is an extension of the Window class.
 
 class Dialog: public Window {
 public:
+    typedef int      IdType;    // id of a control
+    typedef unsigned ValueType; // value of a control
+
+	static const ValueType VALUE_INVALID = 9099;
+	static const int       RESULT_OK = 1;
+	static const int       RESULT_CANCEL = 2;
+
 	// lifecycle
-	Dialog(char const *templateName, Window const &parent);
-	Dialog(char const *templateName, Window const &parent, DLGPROC);
+	Dialog(char const *templateName, Window *pParent);
+	Dialog(char const *templateName, Window *pParent, DLGPROC);
 	// no default constructor
 	// no copy constructor
     Dialog(Dialog const &) { ASSERT(false); };
     // ~Dialog(void);  compiler-generated destructor is OK
-	void Initialize(char const *templateName, Window const &parent, DLGPROC);
+	void Initialize(char const *templateName, Window *pParent, DLGPROC);
 
 	// operators
     Dialog &operator=(Dialog const &) { ASSERT(false); };
 	
 	// misc public methods
 	INT_PTR HandleMessage(UINT message, WPARAM, LPARAM);
-	INT_PTR Result(void) const;
+	int     Result(void) const;
+
+protected:
+	// misc protected methods
+    void      Close(INT_PTR);
+	HWND      GetControlHandle(IdType) const;
+    ValueType GetSliderValue(IdType);
+    ValueType GetTextValue(IdType);
+    ValueType SetSliderValue(IdType, ValueType);
+	void      SetSliderRange(IdType, ValueType min, ValueType max);
+    void      SetTextValue(IdType, ValueType);
 
 private:
 	INT_PTR mResult;

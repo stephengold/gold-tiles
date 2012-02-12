@@ -25,7 +25,7 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 /*
-A SubMenu object represents a submenu of the menu bar, for example
+A SubMenu object represents a submenu of the menu bar, such as
 the "play" submenu or the "view" submenu.
 */
 

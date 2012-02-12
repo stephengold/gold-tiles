@@ -39,7 +39,7 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 #include "gui/windowclass.hpp"
 #include "gui/yesno.hpp"
 #include "move.hpp"
-#include "player.hpp"
+#include "hand.hpp"
 #include "strings.hpp"
 
 // static data of the class
@@ -194,17 +194,17 @@ void TopWindow::CreateNewGame(ParmBox const &rBox) {
 	ASSERT(mpGame == NULL);
 
 	ACountType attribute_cnt = rBox.AttributeCnt();
-	unsigned player_cnt = rBox.PlayerCnt();
+	unsigned hand_cnt = rBox.HandCnt();
 	unsigned hand_size = rBox.HandSize();
 	unsigned tile_redundancy = 1 + rBox.ClonesPerTile();
 
-	Strings player_names;
-	for (unsigned i = 1; i <= player_cnt; i++) {
-		bool more_flag = (i < player_cnt);
+	Strings hand_names;
+	for (unsigned i = 1; i <= hand_cnt; i++) {
+		bool more_flag = (i < hand_cnt);
 		HandBox box(i, more_flag);
 		box.Run(this);
-		String name = box.PlayerName();
-		player_names.Append(name);
+		String name = box.HandName();
+		hand_names.Append(name);
 	}
 
 	AValueType *max_attribute_values = new AValueType[attribute_cnt];
@@ -212,22 +212,22 @@ void TopWindow::CreateNewGame(ParmBox const &rBox) {
 		max_attribute_values[i] = 6;
 	}
 
-	Game *p_new_game = new Game(player_names, attribute_cnt, max_attribute_values, 
+	Game *p_new_game = new Game(hand_names, attribute_cnt, max_attribute_values, 
 		              tile_redundancy, hand_size);
 	ASSERT(p_new_game != NULL);
 	SetGame(p_new_game);
 }
 
-void TopWindow::DrawActivePlayer(Canvas &rCanvas) {
+void TopWindow::DrawActiveHand(Canvas &rCanvas) {
     // draw header
 	ASSERT(mpGame != NULL);
 
     LogicalYType top_y = mPadPixels;
     LogicalXType left_x = mPadPixels;
-    Player active_player = mpGame->ActivePlayer();
+    Hand active_hand = Hand(*mpGame);
     ColorType area_color = COLOR_BLACK;
     bool left = true;
-    Rect header_rect = DrawPlayerHeader(rCanvas, top_y, left_x, active_player, area_color, left);
+    Rect header_rect = DrawHandHeader(rCanvas, top_y, left_x, active_hand, area_color, left);
     left_x = header_rect.LeftX();
     PCntType width = header_rect.Width();
     
@@ -386,6 +386,90 @@ void TopWindow::DrawCell(Canvas &rCanvas, Cell const &rCell, unsigned swapCnt) {
     // Draw the active tile later so it won't get obscured.
 }
 
+Rect TopWindow::DrawHandHeader(
+    Canvas &rCanvas, 
+    int topY, 
+    int leftRight, 
+    Hand const &rHand, 
+    ColorType areaColor, 
+    bool leftFlag)
+{
+    ASSERT(mpGame != NULL);
+
+    unsigned cell_width = CellWidth();
+
+    String name_text = rHand.Name();
+    Hand active_hand = Hand(*mpGame);
+    if (name_text == active_hand.Name()) {
+        name_text += "'s turn";
+    }
+    unsigned w = rCanvas.TextWidth(name_text);
+    unsigned width = (cell_width > w) ? cell_width : w;
+
+    String scoreText;
+    if (mShowScoresFlag) {
+        unsigned score = rHand.Score();
+        scoreText = plural(score, "point");
+        w = rCanvas.TextWidth(scoreText);
+        if (w > width) {
+            width = w;
+        }
+    }
+    
+    char const *clock_text = "";
+    if (mShowClocksFlag) {
+        clock_text = "0:00";
+        w = rCanvas.TextWidth(clock_text);
+        if (w > width) {
+            width = w;
+        }
+    }
+                                 
+    width += 2*mPadPixels;
+    int left_x, right_x;
+    if (leftFlag) {
+        left_x = leftRight;
+        right_x = left_x + width;
+    } else {
+        right_x = leftRight;
+        left_x = right_x - width;
+    }
+    unsigned text_height = rCanvas.TextHeight();
+
+    unsigned score_height = 0;
+    if (mShowScoresFlag) {
+        score_height = text_height;
+    }
+    unsigned clock_height = 0;
+    if (mShowClocksFlag) {
+        clock_height = text_height;
+    }
+    unsigned height = text_height + score_height + clock_height + 2*mPadPixels;
+    rCanvas.UseColors(areaColor, areaColor);
+    Rect result = rCanvas.DrawRectangle(topY, left_x, width, height);
+
+    ColorType text_color = COLOR_WHITE;
+    rCanvas.UseColors(areaColor, text_color);
+
+    int y = topY + mPadPixels;
+    Rect bounds(y, left_x, width, text_height);
+    rCanvas.DrawText(bounds, name_text);
+    y += text_height;
+    
+    if (mShowScoresFlag) {
+        Rect score_box(y, left_x, width, score_height);
+        rCanvas.DrawText(score_box, scoreText);
+        y += score_height;
+    }
+
+    if (mShowClocksFlag) {
+        Rect clock_box(y, left_x, width, text_height);
+        rCanvas.DrawText(clock_box, clock_text);
+    }
+    
+    return result;
+}
+
 void TopWindow::DrawHandTile(
     Canvas &rCanvas,
     Point const &rPoint,
@@ -462,7 +546,7 @@ void TopWindow::DrawHandTiles(Canvas &rCanvas) {
 	ASSERT(mTileMap.size() == mPartial.CountTiles());
 }
 
-void TopWindow::DrawInactivePlayers(Canvas &rCanvas) {
+void TopWindow::DrawInactiveHands(Canvas &rCanvas) {
 	ASSERT(mpGame != NULL);
 
     PCntType cell_width = CellWidth();
@@ -471,21 +555,21 @@ void TopWindow::DrawInactivePlayers(Canvas &rCanvas) {
     ColorType area_color = COLOR_DARK_BLUE;
     ColorType edge_color = COLOR_LIGHT_GRAY;
 
-    Players other_players = mpGame->InactivePlayers();
-    Players::ConstIteratorType i_player;
+    Hands other_hands = mpGame->InactiveHands();
+    Hands::ConstIteratorType i_hand;
     LogicalXType right_x = ClientAreaWidth() - mPadPixels;
-    for (i_player = other_players.begin(); i_player < other_players.end(); i_player++) {
+    for (i_hand = other_hands.begin(); i_hand < other_hands.end(); i_hand++) {
         // draw header
         int top_y = mPadPixels;
         bool rightFlag = false;
         ColorType header_color = COLOR_BLACK;
-        Rect header_rect = DrawPlayerHeader(rCanvas, top_y, right_x, *i_player, header_color, rightFlag);
+        Rect header_rect = DrawHandHeader(rCanvas, top_y, right_x, *i_hand, header_color, rightFlag);
 
         // draw hand area below the header
         top_y = header_rect.BottomY() - 1;
         int left_x = header_rect.LeftX();
         int width = header_rect.Width();
-        Tiles hand_tiles = Tiles(*i_player);
+        Tiles hand_tiles = Tiles(*i_hand);
         unsigned tile_count = hand_tiles.Count();
         unsigned height = tile_count*cell_height + 2*mPadPixels;
         area_color = COLOR_DARK_BLUE;
@@ -508,7 +592,7 @@ void TopWindow::DrawInactivePlayers(Canvas &rCanvas) {
             tile_y += cell_height;
         }
 
-		// pad between players
+		// pad between hands
         right_x = header_rect.LeftX() - mPadPixels;
     }
 }
@@ -527,94 +611,10 @@ void TopWindow::DrawPaused(Canvas &rCanvas) {
 	if (mpGame != NULL) {
 	    int top_y = mPadPixels;
         int left_x = mPadPixels;
-        Player active_player = mpGame->ActivePlayer();
+        Hand active_hand = Hand(*mpGame);
         bool left = true;
-        DrawPlayerHeader(rCanvas, top_y, left_x, active_player, bg_color, left);
+        DrawHandHeader(rCanvas, top_y, left_x, active_hand, bg_color, left);
 	}
-}
-
-Rect TopWindow::DrawPlayerHeader(
-    Canvas &rCanvas, 
-    int topY, 
-    int leftRight, 
-    Player const &rPlayer, 
-    ColorType areaColor, 
-    bool leftFlag)
-{
-    ASSERT(mpGame != NULL);
-
-    unsigned cell_width = CellWidth();
-
-    String name_text = rPlayer.Name();
-    Player active_player = mpGame->ActivePlayer();
-    if (name_text == active_player.Name()) {
-        name_text += "'s turn";
-    }
-    unsigned w = rCanvas.TextWidth(name_text);
-    unsigned width = (cell_width > w) ? cell_width : w;
-
-    String scoreText;
-    if (mShowScoresFlag) {
-        unsigned score = rPlayer.Score();
-        scoreText = plural(score, "point");
-        w = rCanvas.TextWidth(scoreText);
-        if (w > width) {
-            width = w;
-        }
-    }
-    
-    char const *clock_text = "";
-    if (mShowClocksFlag) {
-        clock_text = "0:00";
-        w = rCanvas.TextWidth(clock_text);
-        if (w > width) {
-            width = w;
-        }
-    }
-                                 
-    width += 2*mPadPixels;
-    int left_x, right_x;
-    if (leftFlag) {
-        left_x = leftRight;
-        right_x = left_x + width;
-    } else {
-        right_x = leftRight;
-        left_x = right_x - width;
-    }
-    unsigned text_height = rCanvas.TextHeight();
-
-    unsigned score_height = 0;
-    if (mShowScoresFlag) {
-        score_height = text_height;
-    }
-    unsigned clock_height = 0;
-    if (mShowClocksFlag) {
-        clock_height = text_height;
-    }
-    unsigned height = text_height + score_height + clock_height + 2*mPadPixels;
-    rCanvas.UseColors(areaColor, areaColor);
-    Rect result = rCanvas.DrawRectangle(topY, left_x, width, height);
-
-    ColorType text_color = COLOR_WHITE;
-    rCanvas.UseColors(areaColor, text_color);
-
-    int y = topY + mPadPixels;
-    Rect bounds(y, left_x, width, text_height);
-    rCanvas.DrawText(bounds, name_text);
-    y += text_height;
-    
-    if (mShowScoresFlag) {
-        Rect score_box(y, left_x, width, score_height);
-        rCanvas.DrawText(score_box, scoreText);
-        y += score_height;
-    }
-
-    if (mShowClocksFlag) {
-        Rect clock_box(y, left_x, width, text_height);
-        rCanvas.DrawText(clock_box, clock_text);
-    }
-    
-    return result;
 }
 
 Rect TopWindow::DrawTile(Canvas &rCanvas, Point point, Tile const &rTile) {
@@ -1059,7 +1059,7 @@ void TopWindow::Play(bool passFlag) {
             mShowTilesFlag = true;
             mpGame->GoingOutBonus();
         } else {
-            mpGame->ActivateNextPlayer();
+            mpGame->ActivateNextHand();
             if (mAutopauseFlag) {
                 mPauseFlag = true;
             }
@@ -1212,8 +1212,8 @@ void TopWindow::Repaint(void) {
 
     } else if (mpGame != NULL) {
         DrawBoard(canvas);
-        DrawInactivePlayers(canvas);
-        DrawActivePlayer(canvas);
+        DrawInactiveHands(canvas);
+        DrawActiveHand(canvas);
         DrawHandTiles(canvas);
     }
 

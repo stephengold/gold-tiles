@@ -28,7 +28,7 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 A BaseBoard object represents a two-dimensional playing grid
 which grows automatically in four directions.  The grid is
 composed of cells on which Tile objects may be played.
-Cells are referenced by means of Cell objects.
+Cells may be referenced by means of Cell objects.
  
 The Basboard class implements minimal functionality.
 The Board class extends BaseBoard to add functionality.
@@ -62,13 +62,14 @@ public:
     int	        WestMax(void) const;
 
 private:
-    typedef std::map<Cell,Tile>::const_iterator	ConstIteratorType;
-    typedef std::map<Cell,Tile>::iterator		IteratorType;
+    typedef std::map<Cell,Tile>::const_iterator	        ConstIteratorType;
+    typedef std::map<Cell,Tile>::iterator		        IteratorType;
     typedef std::map<TileIdType,Cell>::const_iterator	ConstTileIteratorType;
     typedef std::map<TileIdType,Cell>::iterator		    TileIteratorType;
 
-	int mNorthMax, mSouthMax, mEastMax, mWestMax; // extent of played area
-    std::map<Cell,Tile> mCells;
+	int mNorthMax, mSouthMax, mEastMax, mWestMax; // extent of the played area
+
+    std::map<Cell,Tile>       mCells;
     std::map<TileIdType,Cell> mTiles;
 
 	// misc private methods

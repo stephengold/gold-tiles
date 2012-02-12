@@ -33,10 +33,10 @@ class Cell;
 class Cells;
 class FractionPair;
 class Game;
+class Hand;
+class Hands;
 class Indices;
 class Move;
-class Player;
-class Players;
 class String;
 class Strings;
 class Tile;
@@ -47,6 +47,7 @@ class TileCell;
 class Canvas;
 class Dialog;
 class Graphics;
+class HandBox;
 class MenuItem;
 class ParmBox;
 class PlayMenu;
@@ -62,15 +63,10 @@ class YesNo;
 #endif
 
 // project-wide utility functions
-void assertion_failed(const char *, unsigned);
-void pause(void);
+void        assertion_failed(const char *, unsigned);
+String      ordinal(unsigned n);
+void        pause(void);
 const char *plural(unsigned);
-String ordinal(unsigned n);
-String plural(unsigned n, const char *);
-
-// global pointers
-#ifdef _GUI
-extern TopWindow *gpTopWindow;
-#endif
+String      plural(unsigned n, const char *);
 
 #endif

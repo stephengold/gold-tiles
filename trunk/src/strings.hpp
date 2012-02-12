@@ -26,6 +26,8 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 
 /*
 A Strings object represents an ordered collection of unique text strings.
+
+The Strings class encapsulates a list of String objects.
 */
 
 #include <list>

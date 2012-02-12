@@ -51,6 +51,7 @@ public:
 	unsigned Length(void) const;
 
 	// public inquiry methods
+	bool IsBlank(void) const;
 	bool IsEmpty(void) const;
 };
 

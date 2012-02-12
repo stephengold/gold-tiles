@@ -25,7 +25,9 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 /*
-A MenuItem object represents one item in a SubMenu. 
+A MenuItem object represents a single item in a SubMenu.
+
+The MenuItem class is implemented by encapsulating and handle and item id.
 */
 
 #include "project.hpp"

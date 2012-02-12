@@ -59,7 +59,7 @@ HandBox::HandBox(unsigned handIndex, bool areMore):
 	mHandIndex = handIndex;
 	mIsAutomatic = false;
 	mIsRemote = false;
-	mPlayerName = "Player #" + String(handIndex);
+	mHandName = "Player #" + String(handIndex);
 }
 
 
@@ -81,7 +81,7 @@ INT_PTR HandBox::HandleMessage(UINT message, WPARAM wParam, LPARAM lParam) {
 				message += "last hand?";
 			}
 			SetTextString(IDC_WHO, message);
-			SetTextString(IDC_EDITNAME, mPlayerName);
+			SetTextString(IDC_EDITNAME, mHandName);
 			SetButton(IDC_RADIOLOCAL, !mIsAutomatic && !mIsRemote);
 	        SetButton(IDC_RADIOAUTO, mIsAutomatic && !mIsRemote);
 	        SetButton(IDC_RADIOREMOTE, mIsRemote);
@@ -99,8 +99,8 @@ INT_PTR HandBox::HandleMessage(UINT message, WPARAM wParam, LPARAM lParam) {
 			int notification_code = HIWORD(wParam);
             switch (id) {
                 case IDC_EDITNAME: {
-                    mPlayerName = GetTextString(id);
-					bool good_name = !mPlayerName.IsEmpty();
+                    mHandName = GetTextString(id);
+					bool good_name = !mHandName.IsEmpty();
 	                EnableButton(IDOK, good_name);
                     break;
                 }
@@ -142,8 +142,8 @@ INT_PTR HandBox::HandleMessage(UINT message, WPARAM wParam, LPARAM lParam) {
     return result;
 }
 
-String HandBox::PlayerName(void) const {
-	return mPlayerName;
+String HandBox::HandName(void) const {
+	return mHandName;
 }
 
 

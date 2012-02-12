@@ -29,15 +29,15 @@ A Tile object represents a playing piece which may be played
 on a Board object or stored in a bag or hand (Tiles).  In the
 context of a particular game, every Tile has the same number 
 of attributes.  Distinct tiles with identical attributes 
-("clones") are possible; a unique id is used to distinguish 
-between clones.
+("clones") are possible; a unique id is used to distinguish clones.
 */
 
+#include "indices.hpp"
 #include "project.hpp"
 #include "string.hpp"
 
 // tile identifier type
-typedef unsigned long TileIdType;
+typedef IndexType TileIdType;
 
 // attribute types and utilities
 typedef unsigned ACountType, AIndexType;
@@ -51,7 +51,7 @@ public:
 	static const TileIdType ID_INVALID = 0;
 	static const TileIdType ID_DEFAULT = 1;
 	static const TileIdType ID_FIRST = 2;
-	static const TileIdType ID_LAST = ULONG_MAX;
+	static const TileIdType ID_LAST = LONG_MAX;
 
 	// lifecycle
 	Tile(void);

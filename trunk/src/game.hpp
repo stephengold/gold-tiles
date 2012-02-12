@@ -27,16 +27,13 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 #include "board.hpp"
 #include "move.hpp"
 #include "partial.hpp"
-#include "players.hpp"
+#include "hands.hpp"
 
 class Game {
 public:
 	// lifecycle
-    Game(Strings playerNames,
-             ACountType attributeCnt,
-             AValueType maxAttributeValues[],
-             unsigned tileRedundancy,
-             unsigned handSize);
+    Game(Strings handNames, ACountType attributeCnt, AValueType maxAttributeValues[], 
+		 unsigned tileRedundancy, unsigned handSize);
 	// no default constructor
 	// no copy constructor
     // ~Game(void);  compiler-generated destructor is OK
@@ -44,15 +41,15 @@ public:
 	// operators
 	Game &operator=(Game const &) { ASSERT(false); };
     operator Board(void) const;
+	operator Hand(void) const;
 
 	// misc public methods
-    void     ActivateNextPlayer(void);
-    Tiles    ActiveHand(void) const;
-    Player   ActivePlayer(void) const;
+    void     ActivateNextHand(void);
+    Tiles    ActiveTiles(void) const;
     unsigned CountStock(void) const;
     void     FinishTurn(Move const &);
     void     GoingOutBonus(void);
-    Players  InactivePlayers(void) const;
+    Hands    InactiveHands(void) const;
     void     PlayGame(void);
 
 	// public inquiry methods
@@ -65,15 +62,15 @@ public:
 	bool     IsStockEmpty(void) const;
 
 private:
-    Players::IteratorType miActivePlayer; // whose turn it is
-    unsigned               mBestRunLength; // zero after the first turn
-    Board                  mBoard;         // extensible playing surface
-	String                 mFilename;      // name of associated file for load/save
-    Players                mPlayers;       // who is playing
-    Tiles                  mStockBag;      // stock bag from which tiles are drawn
-	bool                   mUnsavedChanges;
+    Hands::IteratorType miActiveHand;    // whose turn it is
+    unsigned             mBestRunLength; // zero after the first turn
+    Board                mBoard;         // extensible playing surface
+	String               mFilename;      // name of associated file for load/save
+    Hands                mHands;         // all hands being played
+    Tiles                mStockBag;      // stock bag from which tiles are drawn
+	bool                 mUnsavedChanges;
 
-	// misc methods
+	// misc private methods
     void     AddTiles(AIndexType, unsigned redundancy, Tile &);
     Cell     ChooseCell(void) const;
     void     DisplayScores(void) const;

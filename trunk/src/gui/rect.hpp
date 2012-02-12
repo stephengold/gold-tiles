@@ -53,7 +53,8 @@ public:
 	// misc public methods
 	float        AspectRatio(void) const;
     LogicalYType BottomY(void) const;
-    Point        Brc(void) const;  // bottom right corner
+    Point        Brc(void) const;  // bottom right corner coordinates
+	Point        Center(void) const; // center pixel coordinates
     Rect         CenterRect(float aspectRatio) const;
     Rect         CenterSquare(void) const;
     PCntType     Height(void) const;
@@ -62,7 +63,7 @@ public:
     LogicalXType LeftX(void) const;
     LogicalXType RightX(void) const;
     LogicalYType TopY(void) const;
-    Point        Ulc(void) const;  // upper left corner
+    Point        Ulc(void) const;  // upper left corner coordinates
     PCntType     Width(void) const;
 
 	// public inquiry methods

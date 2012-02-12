@@ -25,10 +25,9 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 /*
-A ParmBox object represents a dialog box for setting game parameters
-such as the number of tile in a player's hand.
+A YesNo object represents a dialog box for answering a yes/no question.
 
-The ParmBox class is an extension of the Dialog class.
+The YesNo class is an extension of the Dialog class.
 */
 
 #include "gui/dialog.hpp"

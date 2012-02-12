@@ -25,7 +25,9 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 /*
- A Cells object represents zero or more cells in a 2-D grid.
+A Cells object represents zero or more cells in a 2-D grid.
+
+The Cells class is implemented using the std::set container template.
 */
 
 #include <set>

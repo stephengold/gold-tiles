@@ -109,16 +109,16 @@ private:
     char const * ClassName(void) const;
 	void		 CreateNewGame(ParmBox const &);
 	void         DiscardGame(void);
-    void         DrawActivePlayer(Canvas &);
+    void         DrawActiveHand(Canvas &);
 	Rect         DrawBlankTile(Canvas &, Point const &);
     void         DrawBoard(Canvas &);
     void         DrawCell(Canvas &, Cell const &, unsigned swapCnt);
+    Rect         DrawHandHeader(Canvas &, int top, int leftRight, Hand const &, 
+                                ColorType, bool leftFlag);
     void         DrawHandTile(Canvas &, Point const &, Tile const &);
     void         DrawHandTiles(Canvas &);
-    void         DrawInactivePlayers(Canvas &);
+    void         DrawInactiveHands(Canvas &);
 	void         DrawPaused(Canvas &);
-    Rect         DrawPlayerHeader(Canvas &, int top, int leftRight, Player const &, 
-                          ColorType, bool leftFlag);
 	Rect         DrawTile(Canvas &, Point, Tile const &);
 	Cell         GetCell(Point const &) const;
     TileIdType   GetTileId(Point const &) const;
@@ -128,8 +128,8 @@ private:
     void         HandleMenuCommand(int);
 	void         HandleMouseMove(Point const &);
 	char const * Name(void) const;
-	void		 OfferSaveGame(void);
 	void		 OfferNewGame(void);
+	void		 OfferSaveGame(void);
     void         Play(bool passFlag);
 	void         Recenter(PCntType oldWidth, PCntType oldHeight);
 	void         ReleaseActiveTile(Point const &);

@@ -29,7 +29,7 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 // lifecycle
 
 Game::Game(
-    Strings playerNames,
+    Strings handNames,
     ACountType attributeCnt,
     AValueType pMaxAttributeValues[],
     unsigned tileRedundancy,
@@ -44,46 +44,49 @@ Game::Game(
     AddTiles(attribute_index, tileRedundancy, model_tile);
     D(std::cout << "Placed " << plural(CountStock(), "tile") << " in the stock bag." << std::endl);
     
-    // create players
-	Strings::ConstIteratorType i_player;
-	for (i_player = playerNames.Begin(); i_player != playerNames.End(); i_player++) {
-		String name = *i_player;
-	    Player player(name);
-	    mPlayers.push_back(player);
+    // create hands
+	Strings::ConstIteratorType i_name;
+	for (i_name = handNames.Begin(); i_name != handNames.End(); i_name++) {
+		String name = *i_name;
+	    Hand hand(name);
+	    mHands.push_back(hand);
     }
 
-    // deal each player a hand of tiles
-    Players::IteratorType player, bestPlayer;
-    for (player = mPlayers.begin(); player < mPlayers.end(); player++) {
-        player->DrawTiles(handSize, mStockBag);
+    // deal tiles to each hand from the stock bag
+    Hands::IteratorType i_hand;
+    for (i_hand = mHands.begin(); i_hand < mHands.end(); i_hand++) {
+        i_hand->DrawTiles(handSize, mStockBag);
     }
     std::cout << std::endl;
 
-    // decide which player goes first
-    unsigned bestRunLength = 0;
-    for (player = mPlayers.begin(); player < mPlayers.end(); player++) {
-        D(player->DisplayHand());
+    // the hand with the longest "run" gets the first turn
+    mBestRunLength = 0;
+    for (i_hand = mHands.begin(); i_hand < mHands.end(); i_hand++) {
+        D(hand->DisplayHand());
 
-        Tiles run = player->LongestRun();
+        Tiles run = i_hand->LongestRun();
 	    unsigned run_length = run.Count();
-        std::cout << player->Name() << " has a run of " << plural(run_length, "tile") 
+        std::cout << i_hand->Name() << " has a run of " << plural(run_length, "tile") 
 			      << "." << std::endl;
 
-	    if (run_length > bestRunLength) {
-	   	    bestRunLength = run_length;
-		    bestPlayer = player;
+	    if (run_length > mBestRunLength) {
+	   	    mBestRunLength = run_length;
+		    miActiveHand = i_hand;
 	    }
     }
-    miActivePlayer = bestPlayer;
-    mBestRunLength = bestRunLength;
-	mUnsavedChanges = false;
+
+	mUnsavedChanges = false; // pretend this game is saved, for convenience
 }
 
 
 // operators
 
 Game::operator Board(void) const {
-    Board result = mBoard;
+    return mBoard;
+}
+
+Game::operator Hand(void) const {
+    Hand result = *miActiveHand;
     
     return result;
 }
@@ -91,19 +94,14 @@ Game::operator Board(void) const {
 
 // misc methods
 
-void Game::ActivateNextPlayer(void) {
-    mPlayers.Next(miActivePlayer);
+void Game::ActivateNextHand(void) {
+    mHands.Next(miActiveHand);
 	mUnsavedChanges = true;
 }
 
-Tiles Game::ActiveHand(void) const {
-    Tiles result = Tiles(*miActivePlayer);
-    
-    return result;
-}
-
-Player Game::ActivePlayer(void) const {
-    Player result = *miActivePlayer;
+// get the tiles in the active hand
+Tiles Game::ActiveTiles(void) const {
+    Tiles result = Tiles(*miActiveHand);
     
     return result;
 }
@@ -137,41 +135,40 @@ unsigned Game::CountStock(void) const {
 }
 
 void Game::DisplayScores(void) const {
-    Players::const_iterator i_player;
+    Hands::ConstIteratorType i_hand;
 
-    for (i_player = mPlayers.begin(); i_player < mPlayers.end(); i_player++) {
-	    i_player->DisplayScore();
+    for (i_hand = mHands.begin(); i_hand < mHands.end(); i_hand++) {
+	    i_hand->DisplayScore();
     }
 }
 
 void Game::FinishTurn(Move const &move) {
-    D(std::cout << "Game::FinishTurn(" << (String)move << ")" << std::endl);
     ASSERT(mBoard.IsValidMove(move));
 
-    // remove played/swapped tiles from the player's hand
+    // remove played/swapped tiles from the hand
     Tiles tiles = Tiles(move);
-    miActivePlayer->RemoveTiles(tiles);
+    miActiveHand->RemoveTiles(tiles);
 
     // attempt to draw replacement tiles from the stock bag
     unsigned count = tiles.Count();
 	if (count > 0) {
-        unsigned actual = miActivePlayer->DrawTiles(count, mStockBag);
+        unsigned actual = miActiveHand->DrawTiles(count, mStockBag);
 		ASSERT(actual == count || !move.InvolvesSwap());
 	}
 
 	if (move.InvolvesSwap()) {
 		// return swapped tiles to the stock bag
 		mStockBag.AddTiles(tiles);
-		std::cout << miActivePlayer->Name() << " put " << plural(count, "tile")
+		std::cout << miActiveHand->Name() << " put " << plural(count, "tile")
 			<< " back into the stock bag." << std::endl;
 
 	} else {
 	    // place played tiles on the board
         mBoard.PlayMove(move);
     
-        // update the player's score    
+        // update the hand's score    
   	    unsigned points = mBoard.ScoreMove(move);
-	    miActivePlayer->AddScore(points);
+	    miActiveHand->AddScore(points);
 	}
 	
 	//  If it was the first turn, it no longer is.
@@ -181,13 +178,13 @@ void Game::FinishTurn(Move const &move) {
 
 void Game::FirstTurn(void) {
     std::cout << std::endl;
-    D(std::cout << "Game::FirstTurn(" << miActivePlayer->Name() << ")" << std::endl);
+    D(std::cout << "Game::FirstTurn(" << miActiveHand->Name() << ")" << std::endl);
 
     Move move;
     while (true) {
-    	std::cout << miActivePlayer->Name() << " plays first and must place " 
+    	std::cout << miActiveHand->Name() << " plays first and must place " 
 			<< plural(mBestRunLength, "tile") << " on the (empty) board." << std::endl;
-		move = miActivePlayer->ChooseMove();
+		move = miActiveHand->ChooseMove();
     	if (IsLegalMove(move)) {
             break;
         }
@@ -197,14 +194,14 @@ void Game::FirstTurn(void) {
 }
 
 void Game::GoingOutBonus(void) {
-    Players::ConstIteratorType i_player = miActivePlayer;
-	mPlayers.Next(i_player);
+    Hands::ConstIteratorType i_hand = miActiveHand;
+	mHands.Next(i_hand);
     
-    while (i_player != miActivePlayer) {
-        Tiles hand = Tiles(*i_player);
+    while (i_hand != miActiveHand) {
+        Tiles hand = Tiles(*i_hand);
         unsigned pointsInHand = hand.Count(); // TODO
-        miActivePlayer->AddScore(pointsInHand);
-		mPlayers.Next(i_player);
+        miActiveHand->AddScore(pointsInHand);
+		mHands.Next(i_hand);
     }
 	mUnsavedChanges = true;
 }
@@ -215,15 +212,15 @@ bool Game::HasUnsavedChanges(void) const {
     return result;
 }
 
-Players Game::InactivePlayers(void) const {
-    Players result;
+Hands Game::InactiveHands(void) const {
+    Hands result;
 
-    Players::ConstIteratorType i_player = miActivePlayer;
-	mPlayers.Next(i_player);
+    Hands::ConstIteratorType i_hand = miActiveHand;
+	mHands.Next(i_hand);
     
-    while (i_player != miActivePlayer) {
-        result.push_back(*i_player);
-        mPlayers.Next(i_player);
+    while (i_hand != miActiveHand) {
+        result.push_back(*i_hand);
+        mHands.Next(i_hand);
     }
     
     return result;
@@ -237,11 +234,11 @@ void Game::NextTurn(void) {
  	     DisplayScores();
     	 unsigned stock = CountStock();
          std::cout << std::endl
-			 << miActivePlayer->Name() << "'s turn, " 
+			 << miActiveHand->Name() << "'s turn, " 
 			 << plural(stock, "tile") << " remaining in the stock bag" << std::endl
 	         << std::endl << (String)mBoard << std::endl;
 
-		 move = miActivePlayer->ChooseMove();
+		 move = miActiveHand->ChooseMove();
 		 if (IsLegalMove(move)) {
              break;
          }
@@ -254,7 +251,7 @@ void Game::PlayGame(void) {
     FirstTurn();
 
     while (!IsOver()) {
-        ActivateNextPlayer();
+        ActivateNextHand();
 	    NextTurn();
     }
 
@@ -312,19 +309,18 @@ bool Game::IsOver(void) const {
     bool result = false;
     
     // The game is over if (and only if) the stock bag is empty 
-    // and a player has gone out.
+    // and one hand has gone out.
 
 	if (IsStockEmpty()) {
-        Players::const_iterator player;
-        for (player = mPlayers.begin(); player < mPlayers.end(); player++) {
-	        if (player->IsEmptyHanded()) {
+        Hands::ConstIteratorType hand;
+        for (hand = mHands.begin(); hand < mHands.end(); hand++) {
+	        if (hand->IsEmpty()) {
 		        result = true;
 		        break;
 	        }
         }
    }
 
-   D(std::cout << "Game::IsOver() returns " << result << std::endl);
    return result;
 }
 

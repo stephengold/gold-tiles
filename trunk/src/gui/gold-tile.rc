@@ -160,7 +160,7 @@ FONT 10, "Microsoft Sans Serif"
 
 HANDBOX DIALOG 0, 0, 204, 107
 STYLE DS_3DLOOK | DS_CENTER | DS_MODALFRAME | DS_SHELLFONT | WS_CAPTION | WS_VISIBLE | WS_POPUP | WS_SYSMENU
-CAPTION "Player information - Gold Tile"
+CAPTION "Hand info dialog - Gold Tile"
 FONT 10, "Microsoft Sans Serif"
 {
     DEFPUSHBUTTON   "Next >", IDOK, 98, 90, 103, 14

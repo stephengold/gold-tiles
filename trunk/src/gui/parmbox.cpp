@@ -94,8 +94,8 @@ INT_PTR ParmBox::HandleMessage(UINT message, WPARAM wParam, LPARAM lParam) {
         case WM_INITDIALOG: {
 		    Dialog::HandleMessage(message, wParam, lParam);
 		    
-            mPlayerCnt = 2;
-		    InitControl(IDC_SLIDER1, mPlayerCnt, 1, 10);
+            mHandCnt = 2;
+		    InitControl(IDC_SLIDER1, mHandCnt, 1, 10);
             
             mHandSize = 7;
 		    InitControl(IDC_SLIDER2, mHandSize, 1, 12);
@@ -225,8 +225,8 @@ ParmBox::IdType ParmBox::MinId(IdType sliderId) const {
 }
 
 
-unsigned ParmBox::PlayerCnt(void) const {
-    return mPlayerCnt;
+unsigned ParmBox::HandCnt(void) const {
+    return mHandCnt;
 }
 
 ParmBox::IdType ParmBox::SliderId(IdType editboxId) const {
@@ -268,7 +268,7 @@ ParmBox::IdType ParmBox::SliderId(HWND handle) const {
 void ParmBox::UpdateValue(IdType sliderId, ValueType value) {
     switch (sliderId) {
         case IDC_SLIDER1:
-            mPlayerCnt = value;
+            mHandCnt = value;
             break;
         case IDC_SLIDER2:
             mHandSize = value;

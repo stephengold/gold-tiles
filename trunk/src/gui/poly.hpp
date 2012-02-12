@@ -25,8 +25,10 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 /*
- A Poly object represents a closed polygon which can be scaled to
- fit inside a given rectangle.
+A Poly object represents a closed polygon which can be scaled to
+fit inside any rectangle.
+
+The Poly class is implemented as a list of FractionPair objects.
 */
 
 #include "project.hpp"

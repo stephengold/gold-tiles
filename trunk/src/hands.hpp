@@ -1,8 +1,8 @@
 #ifndef PLAYERS_HPP_INCLUDED
 #define PLAYERS_HPP_INCLUDED
 
-// File:    players.hpp
-// Purpose: Players class
+// File:    hands.hpp
+// Purpose: Hands class
 // Author:  Stephen Gold sgold@sonic.net
 // (c) Copyright 2012 Stephen Gold
 // Distributed under the terms of the GNU General Public License
@@ -24,20 +24,22 @@ You should have received a copy of the GNU General Public License
 along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+/*
+A Hands object represents a group of zero or more hands.
+*/
+
 #include <vector>
-#include "player.hpp"
+#include "hand.hpp"
 
-class Players: public std::vector<Player> {
+class Hands: public std::vector<Hand> {
 public:
-    typedef std::vector<Player>::const_iterator ConstIteratorType;
-    typedef std::vector<Player>::iterator IteratorType;
+    typedef std::vector<Hand>::const_iterator ConstIteratorType;
+    typedef std::vector<Hand>::iterator IteratorType;
 
-	// misc
+	// misc methods
+    unsigned Count(void) const;
     void     Next(ConstIteratorType &) const;
     void     Next(IteratorType &);
-
-	// access
-    unsigned Count(void) const;
 };
 
 #endif

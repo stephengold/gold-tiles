@@ -1,8 +1,8 @@
-#ifndef PLAYER_HPP_INCLUDED
-#define PLAYER_HPP_INCLUDED
+#ifndef HAND_HPP_INCLUDED
+#define HAND_HPP_INCLUDED
 
-// File:    player.hpp
-// Purpose: Player class
+// File:    hand.hpp
+// Purpose: Hand class
 // Author:  Stephen Gold sgold@sonic.net
 // (c) Copyright 2012 Stephen Gold
 // Distributed under the terms of the GNU General Public License
@@ -27,40 +27,38 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 #include "string.hpp"
 #include "tiles.hpp"
 
-class Player {
+class Hand {
 public:
 	// lifecycle
-    Player(void);
-    Player(String const &);
-    // Player(Player const &); The compiler-generated copy constructor is fine.
-    //~Player(void); The compiler-generated destructor is fine.
+    Hand(void);
+    Hand(String const &);
+    // Hand(Hand const &); The compiler-generated copy constructor is fine.
+    //~Hand(void); The compiler-generated destructor is fine.
 
 	// operators
-    // Player &operator=(Player const &); The compiler-generated assignment method is fine.
+    // Hand &operator=(Hand const &); The compiler-generated assignment method is fine.
 	operator Tiles(void) const;
 
-	// misc
+	// misc public methods
 	void     AddScore(unsigned);
 	Move     ChooseMove(void) const;
 	void     Display(void) const;
-	void     DisplayHand(void) const;
 	void     DisplayName(void) const;
 	void     DisplayScore(void) const;
+	void     DisplayTiles(void) const;
 	unsigned DrawTiles(unsigned, Tiles &);
 	Tiles    LongestRun(void) const;
+	String   Name(void) const;
 	void     RemoveTile(Tile const &);
 	void     RemoveTiles(Tiles const &);
-
-	// access
-	String   Name(void) const;
 	unsigned Score(void) const;
 
-	// inquiry
-	bool     IsEmptyHanded(void) const;
+	// public inquiry methods
+	bool     IsEmpty(void) const;
 
 private:
-	Tiles    mHand;
 	String   mName;
 	unsigned mScore;
+	Tiles    mTiles;
 };
 #endif

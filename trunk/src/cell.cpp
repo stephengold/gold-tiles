@@ -23,6 +23,7 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <iostream>
 #include "cell.hpp"
+#include "project.hpp"
 #include "string.hpp"
 
 // constructors, assignment, and destructor

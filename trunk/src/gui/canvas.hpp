@@ -25,18 +25,14 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 /*
-A Canvas object represents ...
+A Canvas object represents the client area of the top window.
 
 The Canvas class extends the Graphics class with features specific to the
 Gold Tile Game.
 
 */
 
-#include "project.hpp"
-
-#ifdef _WINDOWS
 #include <vector>
-#include <windows.h>
 #include "gui/graphics.hpp"
 #include "tile.hpp"
 
@@ -54,14 +50,11 @@ public:
 	// misc public methods
     Rect DrawBlankTile(Point const &, PCntType, ColorType);
 	Rect DrawCell(LogicalYType, LogicalXType, PCntType width,
-               ColorType cellColor, ColorType gridColor);
+                  ColorType cellColor, ColorType gridColor);
     void DrawTarget(Rect const &);
-//    Rect DrawTile(LogicalYType, LogicalXType, PCntType width, 
-//               ACountType numGlyphs, const AValueType glyphs[],
-//               ColorType tile, ColorType glyph);
     Rect DrawTile(Point const &, PCntType width, 
-               ACountType numGlyphs, const AValueType glyphs[],
-               ColorType tile, ColorType glyph);
+                  ACountType numGlyphs, const AValueType glyphs[],
+                  ColorType tile, ColorType glyph);
 
 private:
     static std::vector<Poly> msShapes; // TODO more options
@@ -73,5 +66,4 @@ private:
                    ColorType background, ColorType glyph);                   
 };
 
-#endif
 #endif

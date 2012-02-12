@@ -63,17 +63,17 @@ int main(int argc, char *argv[]) {
         << std::endl;
 
     // game parameters: hard-coded for now
-	Strings player_names;
-	player_names.Append("Stephen"); // oldest first
-	player_names.Append("Paul");
-	player_names.Append("Gale");
+	Strings hand_names;
+	hand_names.Append("Stephen"); // oldest first
+	hand_names.Append("Paul");
+	hand_names.Append("Gale");
 	ACountType attribute_cnt = 2;
 	AValueType max_attribute[] = { 5, 5 };
 	unsigned tile_redundancy = 3;
 	unsigned hand_size = 7;
 
     // Instantiate the game.
-	Game game(player_names, attribute_cnt, max_attribute,
+	Game game(hand_names, attribute_cnt, max_attribute,
         tile_redundancy, hand_size);
 
 #ifdef _CONSOLE

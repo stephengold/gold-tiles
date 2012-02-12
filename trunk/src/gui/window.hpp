@@ -27,7 +27,8 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 /*
 A Window object represents a generic Microsoft Windows window.
 
-The Window class encapsulates an HWND.
+The Window class encapsulates an HWND (window handle).
+It provides a static map for translating handles to Window objects. 
 */
 
 #include "project.hpp"
@@ -45,43 +46,48 @@ public:
     // ~WindowClass(void);  compiler-generated destructor is OK
     HDC Initialize(CREATESTRUCT const *);
 
-	// operators
+	// public operators
     Window &operator=(Window const &) { ASSERT(false); };
-    operator Rect(void) const;
 
 	// misc public methods
-	void            CaptureMouse(void);
-	void            Center(void);
-	PCntType        ClientAreaHeight(void) const;
-	PCntType        ClientAreaWidth(void) const;
-	void            Close(void);
-	HINSTANCE       CopyModule(Window const &);
-	void            ForceRepaint(void);
-	HACCEL          GetAcceleratorTable(char const *resourceName);
 	HWND            Handle(void) const;
 	LRESULT         HandleMessage(UINT message, WPARAM, LPARAM); 
     static Window * Lookup(HWND);
-	void            SelfDestruct(void);
-	void            SetClientArea(PCntType width, PCntType height);
 	void            SetHandle(HWND);
-	void            SetIcons(char const *resourceName);
 	void            Show(int showHow);
 
 	// public inquiry methods
 	bool IsMouseCaptured(void) const;
 
+protected:
+	// protected operators
+    operator Rect(void) const;
+
+	// protected misc methods
+	void      CaptureMouse(void);
+	void      Center(void);
+	PCntType  ClientAreaHeight(void) const;
+	PCntType  ClientAreaWidth(void) const;
+	void      Close(void);
+	HINSTANCE CopyModule(Window const &);
+	void      ForceRepaint(void);
+	HACCEL    GetAcceleratorTable(char const *resourceName);
+	void      SelfDestruct(void);
+	void      SetIcons(char const *resourceName);
+	void      SetClientArea(PCntType width, PCntType height);
+
 private:
-    typedef unsigned long Key;
-    typedef std::map<Key, Window*> Map;
-    typedef std::pair<Key, Window*> Pair;
-    typedef Map::iterator IteratorType;
+    typedef unsigned long                 Key;
+    typedef std::map<Key, Window*>        Map;
+    typedef std::pair<Key, Window*>       Pair;
+    typedef Map::iterator                 IteratorType;
     typedef std::pair<IteratorType, bool> InsertResultType;
 
 	static Map msMap;
 	
     PCntType  mClientAreaWidth, mClientAreaHeight;
     HWND      mHandle;
-    HINSTANCE mModule; // the module which owns this window
+    HINSTANCE mModule; // the module which owns this window  TODO static?
 };
 
 #endif

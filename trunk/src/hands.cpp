@@ -1,5 +1,5 @@
-// File:    players.cpp
-// Purpose: Players class
+// File:    hands.cpp
+// Purpose: Hands class
 // Author:  Stephen Gold sgold@sonic.net
 // (c) Copyright 2012 Stephen Gold
 // Distributed under the terms of the GNU General Public License
@@ -21,18 +21,18 @@ You should have received a copy of the GNU General Public License
 along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "players.hpp"
+#include "hands.hpp"
 
-void Players::Next(ConstIteratorType &riCurrentPlayer) const {
-	riCurrentPlayer++;
-    if (riCurrentPlayer >= end()) {
-        riCurrentPlayer = begin();
+void Hands::Next(ConstIteratorType &riCurrentHand) const {
+	riCurrentHand++;
+    if (riCurrentHand >= end()) {
+        riCurrentHand = begin();
     }
 }
 
-void Players::Next(IteratorType &riCurrentPlayer) {
-	riCurrentPlayer++;
-    if (riCurrentPlayer >= end()) {
-        riCurrentPlayer = begin();
+void Hands::Next(IteratorType &riCurrentHand) {
+	riCurrentHand++;
+    if (riCurrentHand >= end()) {
+        riCurrentHand = begin();
     }
 }

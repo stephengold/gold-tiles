@@ -25,8 +25,8 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 /*
-A TileCell object describes and playing piece 
-(Tile) and also how it is to be played.
+A TileCell object describes a playing piece (Tile) and also the location
+where it is to be played.
 */
 
 #include "cell.hpp"
@@ -44,20 +44,18 @@ public:
 	// operators
     bool   operator<(TileCell const &) const;
     // TileCell &operator=(TileCell const &);  compiler-generated assignment method is OK
-    operator String(void) const;
-
-	// misc
-    String GetUserChoice(Tiles const &, Strings const &);
-
-	// access
 	operator Cell(void) const;
+    operator String(void) const;
 	operator Tile(void) const;
 
-	// inquiry
+	// misc public methods
+    String GetUserChoice(Tiles const &, Strings const &);
+
+	// public inquiry methods
 	bool   IsSwap(void) const;
 
 private:
-    Cell mCell;
+    Cell mCell;  // ignored if mSwapFlag is true
 	bool mSwapFlag;
     Tile mTile;
 };

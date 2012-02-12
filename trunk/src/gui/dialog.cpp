@@ -25,13 +25,15 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 
 #ifdef _WINDOWS
 #include <windows.h>
+#include <windowsx.h>
 #include <commctrl.h>
 #include "gui/dialog.hpp"
+#include "string.hpp"
 
 Dialog *gpNewlyCreatedDialog = NULL;
 
 // message handler (callback) for generic dialog
-static INT_PTR CALLBACK dialogMessageHandler(
+static INT_PTR CALLBACK message_handler(
 	HWND windowHandle,
 	UINT message,
 	WPARAM wParameter, 
@@ -55,26 +57,26 @@ static INT_PTR CALLBACK dialogMessageHandler(
 
 // lifecycle
 
-Dialog::Dialog(char const *templateName, Window *pParent) {
-	gpNewlyCreatedDialog = this;
-	Initialize(templateName, pParent, &dialogMessageHandler);
+Dialog::Dialog(char const *templateName) {
+	mTemplateName = templateName;
+	mpMessageHandler = &message_handler;
 }
 
-Dialog::Dialog(char const *templateName, Window *pParent, DLGPROC messageHandler) {
-	gpNewlyCreatedDialog = this;
-	Initialize(templateName, pParent, messageHandler);
+Dialog::Dialog(char const *templateName, DLGPROC messageHandler) {
+	mTemplateName = templateName;
+	mpMessageHandler = messageHandler;
 }
 
-void Dialog::Initialize(
-	char const *templateName,
-	Window *pParent,
-	DLGPROC messageHandler)
-{
+INT_PTR Dialog::Run(Window *pParent) {
+	gpNewlyCreatedDialog = this;
+
 	// create a modal dialog box
 	HINSTANCE module = CopyModule(*pParent);
 	HWND parentHandle = pParent->Handle();
-	mResult = ::DialogBox(module, templateName, parentHandle, messageHandler);
-	ASSERT(mResult > 0);
+	INT_PTR result = ::DialogBox(module, mTemplateName, parentHandle, mpMessageHandler);
+
+	ASSERT(result > 0);
+	return result;
 }
 
 // misc methods
@@ -82,6 +84,12 @@ void Dialog::Initialize(
 void Dialog::Close(INT_PTR result) {
 	HWND window = Handle();
     ::EndDialog(window, result);
+}
+
+void Dialog::EnableButton(IdType buttonId, bool enable) {
+    HWND button_handle = GetControlHandle(buttonId);
+	BOOL enable_flag = enable ? TRUE : FALSE;
+	Button_Enable(button_handle, enable_flag);
 }
 
 // get the window handle for a particular control
@@ -95,19 +103,31 @@ HWND Dialog::GetControlHandle(IdType controlId) const {
 
 // fetch the numeric value of a slider control
 Dialog::ValueType Dialog::GetSliderValue(IdType sliderId) {
-    HWND sliderHandle = GetControlHandle(sliderId);
-    ValueType result = ::SendMessage(sliderHandle, TBM_GETPOS, (WPARAM)0, (LPARAM)0);
+    HWND slider_handle = GetControlHandle(sliderId);
+    ValueType result = ::SendMessage(slider_handle, TBM_GETPOS, (WPARAM)0, (LPARAM)0);
     
     return result;
 }
 
-// get the value of a numeric label or editbox control
+// get the text value of a label or editbox control
+String Dialog::GetTextString(IdType controlId) {
+	HWND window_handle = Handle();
+	char buffer[256];
+	int buffer_size = 256;
+    UINT success = ::GetDlgItemText(window_handle, controlId, buffer, buffer_size);
+
+    String result = String(buffer);
+
+    return result;
+}
+
+// get the numeric value of a label or editbox control
 Dialog::ValueType Dialog::GetTextValue(IdType controlId) {
-	HWND windowHandle = Handle();
+	HWND window_handle = Handle();
 
     BOOL success;
     BOOL sign = FALSE;
-    ValueType result = ::GetDlgItemInt(windowHandle, controlId, &success, sign);
+    ValueType result = ::GetDlgItemInt(window_handle, controlId, &success, sign);
     if (!success) {
 		result = VALUE_INVALID;
 	}
@@ -147,10 +167,12 @@ INT_PTR Dialog::HandleMessage(UINT message, WPARAM wParam, LPARAM lParam) {
     return result;
 }
 
-int Dialog::Result(void) const {
-	int result = mResult;
+void Dialog::SetButton(IdType buttonId, bool value) {
+	HWND button_handle = GetControlHandle(buttonId);
 
-	return result;
+	WPARAM wparam = value ? BST_CHECKED : BST_UNCHECKED;
+	LPARAM unused = 0;
+    ::SendMessage(button_handle, BM_SETCHECK, wparam, unused);
 }
 
 void Dialog::SetSliderRange(IdType sliderId, ValueType minValue, ValueType maxValue) {
@@ -167,11 +189,11 @@ void Dialog::SetSliderRange(IdType sliderId, ValueType minValue, ValueType maxVa
 }
 
 Dialog::ValueType Dialog::SetSliderValue(IdType id, ValueType value) {
-    HWND sliderHandle = GetControlHandle(id);
+    HWND slider_handle = GetControlHandle(id);
     
     // set slider value
     WPARAM redraw = (WPARAM)TRUE;
-    ::SendMessage(sliderHandle, TBM_SETPOS, redraw, (LPARAM)value);
+    ::SendMessage(slider_handle, TBM_SETPOS, redraw, (LPARAM)value);
     
     // read it back
     ValueType result = GetSliderValue(id);
@@ -179,12 +201,26 @@ Dialog::ValueType Dialog::SetSliderValue(IdType id, ValueType value) {
 	return result;
 }
 
+// set the text value of a label or editbox control
+void Dialog::SetTextString(IdType controlId, String const &rString) {
+	HWND window_handle = Handle();
+
+	unsigned length = rString.Length();
+    char *copy_text = new char[length + 1];
+    ::strcpy_s(copy_text, length + 1, rString.c_str());
+
+    UINT success = ::SetDlgItemText(window_handle, controlId, copy_text);
+	ASSERT(success != 0);
+
+	delete[] copy_text;
+}
+
 // change the numeric value displayed by an editbox or static label
 void Dialog::SetTextValue(IdType id, ValueType value) {
-	HWND windowHandle = Handle();
+	HWND window_handle = Handle();
 
     BOOL sign = FALSE;
-    BOOL success = ::SetDlgItemInt(windowHandle, id, value, sign);
+    BOOL success = ::SetDlgItemInt(window_handle, id, value, sign);
     ASSERT(success);
 
     ASSERT(GetTextValue(id) == value);

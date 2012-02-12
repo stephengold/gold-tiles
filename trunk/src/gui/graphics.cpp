@@ -232,10 +232,12 @@ void Graphics::DrawText(Rect const &rRect, char const *text) {
 
 void Graphics::DrawText(Rect const &rRect, String const &rText) {
     unsigned length = rText.Length();
-    char *copyText = new char[length + 1];
-    ::strcpy_s(copyText, length + 1, rText.c_str());
-    DrawText(rRect, copyText);
-    delete[] copyText;
+    char *copy_text = new char[length + 1];
+    ::strcpy_s(copy_text, length + 1, rText.c_str());
+
+    DrawText(rRect, copy_text);
+
+    delete[] copy_text;
 }
 
 void Graphics::GetColors(ColorType &rBrushBkColor, ColorType &rPenTextColor) const {
@@ -260,12 +262,12 @@ PCntType Graphics::TextWidth(char const *text) const {
 
 PCntType Graphics::TextWidth(String const &rText) const {
     unsigned length = rText.Length();
-    char *copyText = new char[length + 1];
+    char *copy_text = new char[length + 1];
     
-    ::strcpy_s(copyText, length + 1, rText.c_str());
-    PCntType result = TextWidth(copyText);
+    ::strcpy_s(copy_text, length + 1, rText.c_str());
+    PCntType result = TextWidth(copy_text);
     
-    delete[] copyText;
+    delete[] copy_text;
     return result;
 }
 

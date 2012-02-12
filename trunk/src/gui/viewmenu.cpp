@@ -21,10 +21,6 @@ You should have received a copy of the GNU General Public License
 along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "project.hpp"
-
-#ifdef _WINDOWS
-#include <windows.h>
 #include "gui/resource.hpp"
 #include "gui/viewmenu.hpp"
 
@@ -88,4 +84,3 @@ void ViewMenu::UncheckAllSizes(void) {
     mMediumTiles.Check(false);
     mLargeTiles.Check(false);
 }
-#endif

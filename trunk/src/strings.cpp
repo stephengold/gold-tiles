@@ -23,17 +23,22 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "strings.hpp"
 
-// constructors, assignment, and destructor
+// lifecycle
 
 // The compiler.generated default constructor is OK.
 // The compiler-generated copy constructor is OK.
-// The compiler-generated assignment method is OK.
 // The compiler-generated destructor is OK.
 
-// methods
 
-void Strings::Append(String const &str) {
-    mList.push_back(str);
+// operators
+
+// The compiler-generated assignment method is OK.
+
+
+// misc methods
+
+void Strings::Append(String const &rString) {
+    mList.push_back(rString);
 }
 
 Strings::ConstIteratorType Strings::Begin(void) const {
@@ -50,13 +55,21 @@ Strings::ConstIteratorType Strings::End(void) const {
 	return result;
 }
 
-Strings::ConstIteratorType Strings::Find(String const &string) const {
-    ConstIteratorType result;
-	for (result = Begin(); result != End(); result++) {
-		if (*result == string) {
+Strings::ConstIteratorType Strings::Find(String const &rString) const {
+    ConstIteratorType i_string;
+	for (i_string = Begin(); i_string != End(); i_string++) {
+		if (*i_string == rString) {
 			break;
 		}
 	}
+
+	return i_string;
+}
+
+// inquiry methods
+
+bool Strings::Contains(String const &rString) const {
+	bool result = (Find(rString) != End());
 
 	return result;
 }

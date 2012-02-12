@@ -22,11 +22,10 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include <iostream>
-#include <sstream>
 #include "project.hpp"
 #include "string.hpp"
 
-void assertionFailed(const char *file, unsigned line) {
+void assertion_failed(const char *file, unsigned line) {
     std::cout << "Assertion failed at line " << line << " in " << file << std::endl;
     pause();
     ::exit(EXIT_FAILURE);
@@ -34,6 +33,27 @@ void assertionFailed(const char *file, unsigned line) {
 
 void pause(void) {
     ::system("PAUSE");
+}
+
+String ordinal(unsigned n) {
+    String result(n);
+
+	unsigned ones_place = n % 10;
+	unsigned tens_place = (n / 10) % 10;
+
+	if (tens_place == 1) {
+		result += "th";
+	} else if (ones_place == 1) {
+		result += "st";
+	} else if (ones_place == 2) {
+		result += "nd";
+	} else if (ones_place == 3) {
+		result += "rd";
+	} else {
+		result += "th";
+	}
+
+	return result;
 }
 
 const char *plural(unsigned n) {
@@ -46,10 +66,10 @@ const char *plural(unsigned n) {
 }
 
 String plural(unsigned n, const char *noun) {
-    std::ostringstream sout;
-
-    sout << n << " " << noun << plural(n);
-    String result = sout.str();
+    String result = String(n);
+	result += " ";
+	result += noun;
+	result += plural(n);
 
     return result;
 }

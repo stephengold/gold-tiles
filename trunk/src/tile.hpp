@@ -43,11 +43,16 @@ typedef unsigned long TileIdType;
 typedef unsigned ACountType, AIndexType;
 typedef unsigned AValueType;
 
-String     attributeToString(AIndexType, AValueType);
-AValueType charToAttribute(AIndexType, char ch);
+String     attribute_to_string(AIndexType, AValueType);
+AValueType char_to_attribute(AIndexType, char ch);
 
 class Tile {
 public:
+	static const TileIdType ID_INVALID = 0;
+	static const TileIdType ID_DEFAULT = 1;
+	static const TileIdType ID_FIRST = 2;
+	static const TileIdType ID_LAST = ULONG_MAX;
+
 	// lifecycle
 	Tile(void);
 	Tile(String const &);
@@ -60,7 +65,7 @@ public:
 	bool   operator==(Tile const &) const;
 	operator String(void) const;
 
-	// misc
+	// misc public methods
 	AValueType        Attribute(AIndexType) const;
     static ACountType AttributeCnt(void);
 	Tile              Clone(void) const;
@@ -75,7 +80,7 @@ public:
     static String     StringEmpty(void);
     static AValueType ValueMax(AIndexType);
 
-	// inquiry
+	// public inquiry methods
 	bool HasAttribute(AIndexType, AValueType) const;
 	bool HasId(TileIdType) const;
 	bool IsClone(Tile const &) const;
@@ -91,11 +96,8 @@ private:
 	static TileIdType   msNextId;
 	static AValueType *mspValueMax;      // number of values for each tile attribute
 
-	// misc
+	// misc private methods
 	static TileIdType NextId(void);
 };
-
-// Tile* utility function
-//bool isValid(Tile const *);
 
 #endif

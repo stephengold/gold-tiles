@@ -41,6 +41,10 @@ unsigned Indices::Count(void) const {
 	return result;
 }
 
+void Indices::MakeEmpty(void) {
+	clear();
+}
+
 void Indices::Remove(IndexType index) {
 	ASSERT(Contains(index));
 

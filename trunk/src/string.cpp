@@ -59,10 +59,18 @@ String::operator int(void) const {
     return result;
 }
 
-// methods
+// misc methods
 
 unsigned String::Length(void) const {
 	unsigned result = size();
+
+	return result;
+}
+
+// inquiry methods
+
+bool String::IsEmpty(void) const {
+	bool result = (Length() == 0);
 
 	return result;
 }

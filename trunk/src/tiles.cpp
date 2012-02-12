@@ -190,7 +190,7 @@ Tiles Tiles::LongestRun(void) const {
             }
             if (run.Count() > result.Count()) {
                 result = run;
-                raString = attributeToString(ind, value);
+                raString = attribute_to_string(ind, value);
             }
         }
     }

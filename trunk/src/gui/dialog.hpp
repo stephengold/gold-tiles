@@ -42,37 +42,41 @@ public:
     typedef unsigned ValueType; // value of a control
 
 	static const ValueType VALUE_INVALID = 9099;
-	static const int       RESULT_OK = 1;
-	static const int       RESULT_CANCEL = 2;
+	static const INT_PTR   RESULT_OK = 1;
+	static const INT_PTR   RESULT_CANCEL = 2;
 
 	// lifecycle
-	Dialog(char const *templateName, Window *pParent);
-	Dialog(char const *templateName, Window *pParent, DLGPROC);
+	Dialog(char const *templateName);
+	Dialog(char const *templateName, DLGPROC);
 	// no default constructor
 	// no copy constructor
     Dialog(Dialog const &) { ASSERT(false); };
     // ~Dialog(void);  compiler-generated destructor is OK
-	void Initialize(char const *templateName, Window *pParent, DLGPROC);
+	INT_PTR Run(Window *pParent);
 
 	// operators
     Dialog &operator=(Dialog const &) { ASSERT(false); };
 	
 	// misc public methods
 	INT_PTR HandleMessage(UINT message, WPARAM, LPARAM);
-	int     Result(void) const;
 
 protected:
 	// misc protected methods
     void      Close(INT_PTR);
+	void      EnableButton(IdType, bool);
 	HWND      GetControlHandle(IdType) const;
     ValueType GetSliderValue(IdType);
+	String    GetTextString(IdType);
     ValueType GetTextValue(IdType);
+	void      SetButton(IdType, bool);
     ValueType SetSliderValue(IdType, ValueType);
 	void      SetSliderRange(IdType, ValueType min, ValueType max);
+	void      SetTextString(IdType, String const &);
     void      SetTextValue(IdType, ValueType);
 
 private:
-	INT_PTR mResult;
+	DLGPROC     mpMessageHandler;
+	char const * mTemplateName;
 };
 
 // globals

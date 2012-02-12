@@ -47,8 +47,11 @@ public:
     // String &operator=(String const &)};  compiler-generated assignment method is OK
 	operator int(void) const; // atoi
 
-	// access
+	// misc public methods
 	unsigned Length(void) const;
+
+	// public inquiry methods
+	bool IsEmpty(void) const;
 };
 
 #endif

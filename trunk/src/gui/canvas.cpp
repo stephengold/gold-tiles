@@ -42,8 +42,7 @@ Canvas::Canvas(
     bool releaseMe,
     unsigned width,
     unsigned height)
-:
-    Graphics(context, window, releaseMe, true, width, height)
+:   Graphics(context, window, releaseMe, true, width, height)
 {}
 
 Rect Canvas::DrawBlankTile(
@@ -97,7 +96,7 @@ void Canvas::DrawGlyph(
     } else { 
         UseColors(backgroundColor, glyphColor);
 
-        String str = attributeToString(ind - 1, glyph);
+        String str = attribute_to_string(ind - 1, glyph);
         DrawText(rBounds, str);
     }
 }

@@ -19,7 +19,7 @@
 #include <assert.h>
 #define ASSERT assert
 #else
-#define ASSERT(expression) ((expression) ? (void)0 : ::assertionFailed(__FILE__, __LINE__))
+#define ASSERT(expression) ((expression) ? (void)0 : ::assertion_failed(__FILE__, __LINE__))
 #endif
 //#define ASSERT(expression) ((void)0)
 
@@ -62,9 +62,10 @@ class YesNo;
 #endif
 
 // project-wide utility functions
-void assertionFailed(const char *, unsigned);
+void assertion_failed(const char *, unsigned);
 void pause(void);
 const char *plural(unsigned);
+String ordinal(unsigned n);
 String plural(unsigned n, const char *);
 
 // global pointers

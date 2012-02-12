@@ -30,6 +30,7 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 #include "gui/canvas.hpp"
 #include "gui/color.hpp"
 #include "gui/dialog.hpp"
+#include "gui/handbox.hpp"
 #include "gui/parmbox.hpp"
 #include "gui/playmenu.hpp"
 #include "gui/resource.hpp"
@@ -47,7 +48,7 @@ WindowClass *TopWindow::mspClass = NULL;
 
 // message handler (callback) for top window
 static TopWindow *spNewlyCreatedTopWindow = NULL;
-static LRESULT CALLBACK top_message_handler(
+static LRESULT CALLBACK message_handler(
 	HWND windowHandle,
 	UINT message,
 	WPARAM wParam,
@@ -87,7 +88,7 @@ TopWindow::TopWindow(HINSTANCE applicationInstance, Game *pGame):
 	char const *className = "TOPWINDOW";
     if (mspClass == NULL) {
 		// constructing first instance:  create a Microsoft Windows window class
-		WNDPROC messageHandler = &top_message_handler;
+		WNDPROC messageHandler = &message_handler;
 		mspClass = new WindowClass(applicationInstance, messageHandler, className);
 		mspClass->RegisterClass();
 	}
@@ -199,7 +200,10 @@ void TopWindow::CreateNewGame(ParmBox const &rBox) {
 
 	Strings player_names;
 	for (unsigned i = 1; i <= player_cnt; i++) {
-		String name = "Player #" + String(i);
+		bool more_flag = (i < player_cnt);
+		HandBox box(i, more_flag);
+		box.Run(this);
+		String name = box.PlayerName();
 		player_names.Append(name);
 	}
 
@@ -867,15 +871,18 @@ void TopWindow::HandleMenuCommand(int command) {
 
         // Help menu options
         case IDM_RULES: {
-	   	    Dialog("RULES", this);
+	   	    Dialog rules("RULES");
+			rules.Run(this);
             break;
 		}
         case IDM_ABOUT: {
-	   	    Dialog("ABOUT", this);
+	   	    Dialog about("ABOUT");
+			about.Run(this);
             break;
 		}
         case IDM_WARRANTY: {
-	   	    Dialog("WARRANTY", this);
+	   	    Dialog warranty("WARRANTY");
+			warranty.Run(this);
             break;
 		}
 
@@ -1022,8 +1029,8 @@ char const *TopWindow::Name(void) const {
 }
 
 void TopWindow::OfferNewGame(void) {
-    ParmBox box(this);
-	int result = box.Result();
+    ParmBox box;
+	int result = box.Run(this);
 	if (result == Dialog::RESULT_OK) {
 		CreateNewGame(box);
 	}
@@ -1033,7 +1040,8 @@ void TopWindow::OfferNewGame(void) {
 }
 
 void TopWindow::OfferSaveGame(void) {
-    YesNo("UNSAVED", this);
+    YesNo box("UNSAVED");
+	box.Run(this);
 	// TODO
 }
 
@@ -1065,7 +1073,8 @@ void TopWindow::Play(bool passFlag) {
         mPartial.Reset();
                
     } else if (!is_legal) { // explain the issue
-        Dialog(reason, this);
+        Dialog box(reason);
+		box.Run(this);
 	}
 	ForceRepaint();
 }
@@ -1131,7 +1140,8 @@ void TopWindow::ReleaseActiveTile(Point const &rMouse) {
 
 	if (to_board && mPartial.GetCell(to_cell) != 0) {
 		// cell conflict - can't construct move in the normal way
-	    Dialog("EMPTY", this);
+	    Dialog empty("EMPTY");
+		empty.Run(this);
     	StopDragging();
 		return;
 	}
@@ -1174,7 +1184,8 @@ void TopWindow::ReleaseActiveTile(Point const &rMouse) {
 		if (::strcmp(reason, "START") == 0 && !from_board) {
 			reason = "STARTSIMPLE";
 	    }
-	    Dialog(reason, this);
+	    Dialog box(reason);
+		box.Run(this);
 	}
 
     if (mActiveCellFlag && mPartial.GetCell(mActiveCell) != 0) {

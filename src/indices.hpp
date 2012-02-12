@@ -43,6 +43,7 @@ public:
 	// misc public methods
 	void     Add(long);
     unsigned Count(void) const;
+	void     MakeEmpty(void);
 	void     Remove(long);
 
 	// public inquiry methods

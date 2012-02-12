@@ -45,6 +45,7 @@ void Partial::Reset(void) {
     mActiveId = 0;
     mHintedCellsValid = false;
     mPlayedTileCnt = 0;
+	mSwapIds.MakeEmpty();
 	if (mpGame == NULL) {
 	    mBoard.MakeEmpty();
 		mTiles.MakeEmpty();

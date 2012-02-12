@@ -35,11 +35,14 @@ class Strings {
 public:
     typedef std::list<String>::const_iterator ConstIteratorType;
 
-	// misc
+	// misc public methods
 	void              Append(String const &);
 	ConstIteratorType Begin(void) const;
 	ConstIteratorType End(void) const;
 	ConstIteratorType Find(String const &) const;
+
+	// public inquiry methods
+	bool Contains(String const &) const;
 
 private:
 	std::list<String> mList;

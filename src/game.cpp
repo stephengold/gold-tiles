@@ -76,7 +76,7 @@ Game::Game(
     }
     miActivePlayer = bestPlayer;
     mBestRunLength = bestRunLength;
-	mUnsavedChanges = true;
+	mUnsavedChanges = false;
 }
 
 

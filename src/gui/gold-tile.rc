@@ -158,6 +158,27 @@ FONT 10, "Microsoft Sans Serif"
 
 
 
+HANDBOX DIALOG 0, 0, 204, 107
+STYLE DS_3DLOOK | DS_CENTER | DS_MODALFRAME | DS_SHELLFONT | WS_CAPTION | WS_VISIBLE | WS_POPUP | WS_SYSMENU
+CAPTION "Player information - Gold Tile"
+FONT 10, "Microsoft Sans Serif"
+{
+    DEFPUSHBUTTON   "Next >", IDOK, 98, 90, 103, 14
+    PUSHBUTTON      "Cancel", IDCANCEL, 8, 90, 30, 14
+    AUTORADIOBUTTON "someone at this computer", IDC_RADIOLOCAL, 7, 40, 94, 8
+    AUTORADIOBUTTON "someone at another computer", IDC_RADIOREMOTE, 7, 62, 105, 8
+    CONTROL         "", IDC_IPADDRESS1, WC_IPADDRESS, WS_TABSTOP, 122, 72, 76, 10
+    LTEXT           "IP address of the other computer:", IDC_STATIC, 19, 73, 101, 8, SS_LEFT
+    AUTORADIOBUTTON "this computer (automatic play)", IDC_RADIOAUTO, 7, 51, 107, 8
+    LTEXT           "Name of player:", IDC_STATIC, 6, 19, 48, 8, SS_LEFT
+    EDITTEXT        IDC_EDITNAME, 55, 18, 145, 12, ES_AUTOHSCROLL
+    LTEXT           "Who will play the Xth hand?", IDC_WHO, 7, 5, 190, 8, SS_LEFT
+    PUSHBUTTON      "< Back", IDC_BACK, 46, 90, 46, 14
+    GROUPBOX        "who is ...", IDC_STATIC, 3, 30, 198, 57
+}
+
+
+
 NEIGHBOR DIALOG 0, 0, 100, 54
 STYLE DS_3DLOOK | DS_CENTER | DS_MODALFRAME | DS_SHELLFONT | WS_CAPTION | WS_VISIBLE | WS_POPUP | WS_SYSMENU
 CAPTION "Neighbor Rule - Gold Tile"
@@ -174,27 +195,28 @@ STYLE DS_3DLOOK | DS_CENTER | DS_MODALFRAME | DS_SHELLFONT | WS_CAPTION | WS_VIS
 CAPTION "Create new game - Gold Tile"
 FONT 10, "Microsoft Sans Serif"
 {
-    DEFPUSHBUTTON   "OK", IDOK, 84, 132, 50, 14
-    RTEXT           "Number of players", IDC_STATIC, 6, 12, 90, 8, SS_RIGHT
+    DEFPUSHBUTTON   "Next >", IDOK, 84, 132, 107, 14
+    RTEXT           "Number of hands", IDC_STATIC, 44, 12, 52, 8, SS_RIGHT
     CONTROL         "", IDC_SLIDER1, TRACKBAR_CLASS, WS_TABSTOP | TBS_AUTOTICKS | TBS_BOTH, 97, 4, 80, 16
-    EDITTEXT        IDC_EDIT1, 180, 10, 12, 12, ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT1, 180, 10, 12, 12, ES_AUTOHSCROLL | ES_NUMBER
     CTEXT           "X", IDC_SMIN1, 100, 21, 8, 8, SS_CENTER
     CTEXT           "X", IDC_SMAX1, 167, 21, 8, 8, SS_CENTER
     RTEXT           "Number of tiles in a hand", IDC_STATIC, 6, 44, 90, 8, SS_RIGHT
     CONTROL         "", IDC_SLIDER2, TRACKBAR_CLASS, WS_TABSTOP | TBS_AUTOTICKS | TBS_BOTH, 97, 36, 80, 16
-    EDITTEXT        IDC_EDIT2, 180, 42, 12, 12, ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT2, 180, 42, 12, 12, ES_AUTOHSCROLL | ES_NUMBER
     CTEXT           "X", IDC_SMIN2, 100, 53, 8, 8, SS_CENTER
     CTEXT           "X", IDC_SMAX2, 167, 53, 8, 8, SS_CENTER
     RTEXT           "Number of attributes per tile", IDC_STATIC, 6, 76, 90, 8, SS_RIGHT
     CONTROL         "", IDC_SLIDER3, TRACKBAR_CLASS, WS_TABSTOP | TBS_AUTOTICKS | TBS_BOTH, 97, 68, 80, 16
-    EDITTEXT        IDC_EDIT3, 180, 74, 12, 12, ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT3, 180, 74, 12, 12, ES_AUTOHSCROLL | ES_NUMBER
     CTEXT           "X", IDC_SMIN3, 100, 85, 8, 8, SS_CENTER
     CTEXT           "X", IDC_SMAX3, 167, 85, 8, 8, SS_CENTER
-    RTEXT           "Number of clones of each tile", IDC_STATIC, 6, 108, 90, 8, SS_RIGHT
+    RTEXT           "Number of clones for each tile", IDC_STATIC, 6, 108, 91, 8, SS_RIGHT
     CONTROL         "", IDC_SLIDER4, TRACKBAR_CLASS, WS_TABSTOP | TBS_AUTOTICKS | TBS_BOTH, 97, 100, 80, 16
-    EDITTEXT        IDC_EDIT4, 180, 106, 12, 12, ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT4, 180, 106, 12, 12, ES_AUTOHSCROLL | ES_NUMBER
     CTEXT           "X", IDC_SMIN4, 100, 117, 8, 8, SS_CENTER
     CTEXT           "X", IDC_SMAX4, 167, 117, 8, 8, SS_CENTER
+    PUSHBUTTON      "Cancel", IDCANCEL, 10, 132, 26, 14
 }
 
 

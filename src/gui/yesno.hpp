@@ -31,19 +31,15 @@ such as the number of tile in a player's hand.
 The ParmBox class is an extension of the Dialog class.
 */
 
-#include "project.hpp"
-
-#ifdef _WINDOWS
-#include <windows.h>
 #include "gui/dialog.hpp"
 
 class YesNo: public Dialog {
 public:
-	static const int RESULT_YES = 3;
-	static const int RESULT_NO = 4;
+	static const INT_PTR RESULT_YES = 3;
+	static const INT_PTR RESULT_NO = 4;
 
     // lifecycle
-	YesNo(char const *templateName, Window *pParent); 
+	YesNo(char const *templateName); 
 	// no default constructor
 	// no copy constructor
 	// ~YesNo(void);  compiler-generated destructor is OK
@@ -55,5 +51,4 @@ public:
 	INT_PTR HandleMessage(UINT message, WPARAM, LPARAM);
 };
 
-#endif
 #endif

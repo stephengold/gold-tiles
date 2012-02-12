@@ -31,10 +31,6 @@ such as the number of tile in a player's hand.
 The ParmBox class is an extension of the Dialog class.
 */
 
-#include "project.hpp"
-
-#ifdef _WINDOWS
-#include <windows.h>
 #include "gui/dialog.hpp"
 #include "tile.hpp"
 
@@ -42,8 +38,7 @@ The ParmBox class is an extension of the Dialog class.
 class ParmBox: public Dialog {
 public:
     // lifecycle
-	ParmBox(Window *pParent); 
-	// no default constructor
+	ParmBox(); 
 	// no copy constructor
 	// ~ParmBox(void);  compiler-generated destructor is OK
 
@@ -51,7 +46,6 @@ public:
     ParmBox &operator=(ParmBox const &) { ASSERT(false); };
 
 	// misc public methods
-
 	ACountType AttributeCnt(void) const;
 	unsigned   ClonesPerTile(void) const;
 	INT_PTR    HandleMessage(UINT message, WPARAM, LPARAM);
@@ -72,5 +66,4 @@ private:
 	void      UpdateValue(IdType slider, ValueType);
 };
 
-#endif
 #endif

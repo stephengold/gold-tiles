@@ -21,12 +21,8 @@ You should have received a copy of the GNU General Public License
 along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "project.hpp"
-
-#ifdef _WINDOWS
-#include <windows.h>
-#include "gui/resource.hpp"
 #include "gui/playmenu.hpp"
+#include "gui/resource.hpp"
 
 PlayMenu::PlayMenu(HMENU menu, UINT position):	
 	SubMenu(menu, position),
@@ -60,5 +56,3 @@ void PlayMenu::EnableItems(bool paused, bool play) {
     mRedo.Enable(false);
     mAutopause.Enable(!paused);
 }
-
-#endif

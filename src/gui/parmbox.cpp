@@ -21,15 +21,11 @@ You should have received a copy of the GNU General Public License
 along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "project.hpp"
-
-#ifdef _WINDOWS
-#include <windows.h>
 #include "gui/parmbox.hpp"
 #include "gui/resource.hpp"
 
 // message handler (callback) for this dialog
-static INT_PTR CALLBACK parmBoxMessageHandler(
+static INT_PTR CALLBACK message_handler(
 	HWND windowHandle,
 	UINT message,
 	WPARAM wParameter, 
@@ -54,23 +50,19 @@ static INT_PTR CALLBACK parmBoxMessageHandler(
 
 // lifecycle
 
-ParmBox::ParmBox(Window *pParent):
-    Dialog("PARMBOX", pParent, &parmBoxMessageHandler)
+ParmBox::ParmBox(void):
+    Dialog("PARMBOX", &message_handler)
 {}
 
 
 // misc methods
 
 unsigned ParmBox::AttributeCnt(void) const {
-    unsigned result = mAttributeCnt;
-
-	return result;
+    return mAttributeCnt;
 }
 
 unsigned ParmBox::ClonesPerTile(void) const {
-    unsigned result = mClonesPerTile;
-
-	return result;
+    return mClonesPerTile;
 }
 
 ParmBox::IdType ParmBox::EditboxId(IdType sliderId) const {
@@ -160,9 +152,7 @@ INT_PTR ParmBox::HandleMessage(UINT message, WPARAM wParam, LPARAM lParam) {
 }
 
 unsigned ParmBox::HandSize(void) const {
-    unsigned result = mHandSize;
-
-	return result;
+    return mHandSize;
 }
 
 void ParmBox::InitControl(
@@ -236,9 +226,7 @@ ParmBox::IdType ParmBox::MinId(IdType sliderId) const {
 
 
 unsigned ParmBox::PlayerCnt(void) const {
-    unsigned result = mPlayerCnt;
-
-	return result;
+    return mPlayerCnt;
 }
 
 ParmBox::IdType ParmBox::SliderId(IdType editboxId) const {
@@ -295,5 +283,3 @@ void ParmBox::UpdateValue(IdType sliderId, ValueType value) {
             ASSERT(false);
     }
 }
-
-#endif

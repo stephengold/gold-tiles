@@ -21,12 +21,8 @@ You should have received a copy of the GNU General Public License
 along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "project.hpp"
-
-#ifdef _WINDOWS
-#include <windows.h>
-#include "gui/yesno.hpp"
 #include "gui/resource.hpp"
+#include "gui/yesno.hpp"
 
 // message handler (callback) for this dialog
 static INT_PTR CALLBACK yesNoMessageHandler(
@@ -54,8 +50,8 @@ static INT_PTR CALLBACK yesNoMessageHandler(
 
 // lifecycle
 
-YesNo::YesNo(char const *templateName, Window *pParent):
-    Dialog(templateName, pParent, &yesNoMessageHandler)
+YesNo::YesNo(char const *templateName):
+    Dialog(templateName, &yesNoMessageHandler)
 {}
 
 
@@ -94,6 +90,4 @@ INT_PTR YesNo::HandleMessage(UINT message, WPARAM wParam, LPARAM lParam) {
 
     return result;
 }
-
-#endif
 

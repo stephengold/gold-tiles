@@ -31,7 +31,9 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 #include "gui/color.hpp"
 #include "gui/dialog.hpp"
 #include "gui/handbox.hpp"
-#include "gui/parmbox.hpp"
+#include "gui/parmbox1.hpp"
+#include "gui/parmbox2.hpp"
+#include "gui/parmbox3.hpp"
 #include "gui/playmenu.hpp"
 #include "gui/resource.hpp"
 #include "gui/topwindow.hpp"
@@ -54,6 +56,8 @@ static LRESULT CALLBACK message_handler(
 	WPARAM wParam,
 	LPARAM lParam)
 {
+	ASSERT(windowHandle != NULL);
+
     TopWindow *window;
 	if (message == WM_CREATE && spNewlyCreatedTopWindow != NULL) {
 		window = spNewlyCreatedTopWindow;
@@ -188,34 +192,6 @@ LogicalYType TopWindow::CellY(int row) const {
     LogicalYType result = mStartCell.Y() - grid_unit*row;
 
     return result;
-}
-
-void TopWindow::CreateNewGame(ParmBox const &rBox) {
-	ASSERT(mpGame == NULL);
-
-	ACountType attribute_cnt = rBox.AttributeCnt();
-	unsigned hand_cnt = rBox.HandCnt();
-	unsigned hand_size = rBox.HandSize();
-	unsigned tile_redundancy = 1 + rBox.ClonesPerTile();
-
-	Strings hand_names;
-	for (unsigned i = 1; i <= hand_cnt; i++) {
-		bool more_flag = (i < hand_cnt);
-		HandBox box(i, more_flag);
-		box.Run(this);
-		String name = box.HandName();
-		hand_names.Append(name);
-	}
-
-	AValueType *max_attribute_values = new AValueType[attribute_cnt];
-	for (unsigned i = 0; i < attribute_cnt; i++) {
-		max_attribute_values[i] = 6;
-	}
-
-	Game *p_new_game = new Game(hand_names, attribute_cnt, max_attribute_values, 
-		              tile_redundancy, hand_size);
-	ASSERT(p_new_game != NULL);
-	SetGame(p_new_game);
 }
 
 void TopWindow::DrawActiveHand(Canvas &rCanvas) {
@@ -765,9 +741,6 @@ void TopWindow::HandleMenuCommand(int command) {
 	        if (mpGame != NULL && mpGame->HasUnsavedChanges()) {
 				OfferSaveGame();
 			}
-			if (mpGame != NULL) {
-			    SetGame(NULL);
-			}
 			OfferNewGame();
             break;
 	    }
@@ -997,6 +970,16 @@ void TopWindow::HandleMouseMove(Point const &rMouse) {
     }
 }
 
+String TopWindow::InventUniqueName(String const &prefix, Strings const &names) const {
+	String result = prefix;
+	unsigned i = 2;
+	while (names.Contains(result)) {
+		result = prefix + String(i);
+	}
+
+	return result;
+}
+
 int TopWindow::MessageDispatchLoop(void) {
     int exitCode;
 
@@ -1029,14 +1012,108 @@ char const *TopWindow::Name(void) const {
 }
 
 void TopWindow::OfferNewGame(void) {
-    ParmBox box;
-	int result = box.Run(this);
-	if (result == Dialog::RESULT_OK) {
-		CreateNewGame(box);
+	ParmBox1 parmbox1;
+	ParmBox2 parmbox2;
+	ParmBox3 parmbox3;
+	Strings player_names;
+    Indices auto_hands;
+    Indices remote_hands;
+	LPARAM *ip_addresses = NULL;
+
+STEP1:
+	int result = parmbox1.Run(this);
+	if (result == Dialog::RESULT_CANCEL) {
+		return;
+	}
+	ASSERT(result == Dialog::RESULT_OK);
+
+STEP2:
+	result = parmbox2.Run(this);
+	if (result == Dialog::RESULT_CANCEL) {
+		return;
+	} else if (result == Dialog::RESULT_BACK) {
+		goto STEP1;
+	}
+	ASSERT(result == Dialog::RESULT_OK);
+
+STEP3:
+	result = parmbox3.Run(this);
+	if (result == Dialog::RESULT_CANCEL) {
+	    return;
+	} else if (result == Dialog::RESULT_BACK) {
+		goto STEP2;
+	}
+	ASSERT(result == Dialog::RESULT_OK);
+
+	ACountType attribute_cnt = parmbox3.AttributeCnt();
+	AValueType *max_attribute_values = new AValueType[attribute_cnt];
+	for (unsigned i = 0; i < attribute_cnt; i++) {
+		max_attribute_values[i] = 6; // TODO
 	}
 
-    UpdateMenus();
-    ForceRepaint();
+	unsigned hand_cnt = parmbox3.HandCnt();
+   	if (hand_cnt > player_names.Count()) {
+		// allocate storage for more IP addresses
+        LPARAM *new_ip_addresses = new LPARAM[hand_cnt];
+
+		// save old addresses
+		for (unsigned i = 0; i < player_names.Count(); i++) {
+			new_ip_addresses[i] = ip_addresses[i];
+		}
+		delete[] ip_addresses;
+
+		// initialize new addresses and names
+		for (unsigned i = player_names.Count(); i < hand_cnt; i++) {
+			new_ip_addresses[i] = 0;  // produces 0.0.0.0
+			String new_name = InventUniqueName("Player", player_names);
+			player_names.Append(new_name);
+		}
+
+		ip_addresses = new_ip_addresses;
+	}
+	ASSERT(player_names.Count() == hand_cnt);
+    
+	Strings::IteratorType i_name = player_names.Begin();
+	for (unsigned i = 0; i < hand_cnt; ) {
+		bool more_flag = (i < hand_cnt - 1);
+		bool auto_flag = auto_hands.Contains(i);
+		bool remote_flag = remote_hands.Contains(i);
+		HandBox box(i + 1, more_flag, *i_name, auto_flag, remote_flag, ip_addresses[i]);
+		result = box.Run(this);
+		if (result == Dialog::RESULT_CANCEL) {
+			return;
+		} else if (result == Dialog::RESULT_BACK) {
+			if (i == 0) {
+				goto STEP3;
+			} else {
+				i--;
+				i_name--;
+			}
+		} else {
+		    ASSERT(result == Dialog::RESULT_OK);
+
+		    *i_name = box.PlayerName();
+		    auto_hands.AddRemove(i, box.IsAutomatic());
+		    remote_hands.AddRemove(i, box.IsRemote());
+		    ip_addresses[i] = box.IpAddress();
+
+			i++;
+			i_name++;
+		}
+	}
+
+	mGameStyle = GameStyleType(parmbox1);
+	//unsigned player_minutes = parmbox1.PlayerMinutes();
+	//GridType grid = GridType(parmbox2);
+	//IndexType height = parmbox2.Height();
+	//IndexType width = parmbox2.Width();
+	unsigned hand_size = parmbox3.HandSize();
+	unsigned tile_redundancy = 1 + parmbox3.ClonesPerTile();
+
+	Game *p_new_game = new Game(player_names, attribute_cnt, max_attribute_values, 
+		              tile_redundancy, hand_size);
+	ASSERT(p_new_game != NULL);
+	SetGame(p_new_game);
 }
 
 void TopWindow::OfferSaveGame(void) {

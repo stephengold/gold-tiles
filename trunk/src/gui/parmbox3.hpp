@@ -1,8 +1,8 @@
-#ifndef PARMBOX_HPP_INCLUDED
-#define PARMBOX_HPP_INCLUDED
+#ifndef PARMBOX3_HPP_INCLUDED
+#define PARMBOX3_HPP_INCLUDED
 
-// File:    parmbox.hpp
-// Purpose: ParmBox class
+// File:    parmbox3.hpp
+// Purpose: ParmBox3 class
 // Author:  Stephen Gold sgold@sonic.net
 // (c) Copyright 2012 Stephen Gold
 // Distributed under the terms of the GNU General Public License
@@ -25,24 +25,25 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 /*
-A ParmBox object represents a dialog box for setting game parameters
+A ParmBox3 object represents a dialog box for setting hand/tile parameters
 such as the number of tiles per hand.
 
-The ParmBox class is an extension of the Dialog class.
+The ParmBox class3 is an extension of the Dialog class.
 */
 
+#include "cell.hpp"
 #include "gui/dialog.hpp"
 #include "tile.hpp"
 
-class ParmBox: public Dialog {
+class ParmBox3: public Dialog {
 public:
     // lifecycle
-	ParmBox(); 
+	ParmBox3(void); 
 	// no copy constructor
-	// ~ParmBox(void);  compiler-generated destructor is OK
+	// ~ParmBox3(void);  compiler-generated destructor is OK
 
 	// public operators
-    ParmBox &operator=(ParmBox const &) { ASSERT(false); };
+    ParmBox3 &operator=(ParmBox3 const &) { ASSERT(false); };
 
 	// misc public methods
 	ACountType AttributeCnt(void) const;
@@ -55,14 +56,14 @@ private:
     ValueType mAttributeCnt, mClonesPerTile, mHandSize, mHandCnt;
 
 	// misc private methods
-    IdType    EditboxId(IdType slider) const;
-    void      InitControl(IdType slider, ValueType value, 
+    IdType EditboxId(IdType slider) const;
+    void   InitControl(IdType slider, ValueType value, 
 		                  ValueType min, ValueType max);
-    IdType    MaxId(IdType slider) const;
-    IdType    MinId(IdType slider) const;
-    IdType    SliderId(IdType editbox) const;
-	IdType    SliderId(HWND) const;
-	void      UpdateValue(IdType slider, ValueType);
+    IdType MaxId(IdType slider) const;
+    IdType MinId(IdType slider) const;
+    IdType SliderId(IdType editbox) const;
+	IdType SliderId(HWND) const;
+	void   UpdateValue(IdType slider, ValueType);
 };
 
 #endif

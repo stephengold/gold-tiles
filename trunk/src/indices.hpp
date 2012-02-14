@@ -41,8 +41,12 @@ public:
 	typedef std::set<IndexType>::const_iterator ConstIteratorType;
 	typedef std::set<IndexType>::iterator IteratorType;
 
+	static const IndexType INDEX_MAX = LONG_MAX;
+	static const IndexType INDEX_MIN = LONG_MIN;
+
 	// misc public methods
 	void     Add(long);
+	void     AddRemove(long, bool);
     unsigned Count(void) const;
 	void     MakeEmpty(void);
 	void     Remove(long);

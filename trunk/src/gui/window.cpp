@@ -217,7 +217,6 @@ void Window::SetClientArea(PCntType width, PCntType height) {
 }
 
 void Window::SetHandle(HWND handle) {
-    ASSERT(mHandle == 0);
 	mHandle = handle;
 
 	Key key = Key(handle);

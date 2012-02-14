@@ -35,6 +35,17 @@ void Indices::Add(IndexType index) {
 	ASSERT(Contains(index));
 }
 
+void Indices::AddRemove(IndexType index, bool addFlag) {
+	bool have_index = Contains(index);
+	if (have_index && !addFlag) {
+		Remove(index);
+	} else if (!have_index && addFlag) {
+		Add(index);
+	}
+
+	ASSERT(addFlag == Contains(index));
+}
+
 unsigned Indices::Count(void) const {
 	unsigned result = size();
 

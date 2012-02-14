@@ -26,50 +26,88 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 #include "project.hpp"
 #include "string.hpp"
 
-// constructors, assignment, and destructor
+// static data
+
+GridType  Cell::msGrid     = GRID_4WAY;
+IndexType Cell::msHeight   = HEIGHT_MAX;
+IndexType Cell::msWidth    = WIDTH_MAX;
+bool      Cell::msWrapFlag = false;
+
+// lifecycle
 
 // default constructor:  refer to the start cell
 Cell::Cell(void) {
 	mColumn = 0;
 	mRow = 0;
+	ASSERT(IsValid());
 }
 
-Cell::Cell(int row, int column) {
+Cell::Cell(IndexType row, IndexType column) {
 	mColumn = column;
 	mRow = row;
+	ASSERT(IsValid());
 }
 
 // The compiler-generated copy constructor is fine.
 
-// construct the Cell "count" spaces in direction "dir" from "base"
-Cell::Cell(Cell const &rBase, DirectionType direction, int count) {
-	switch (direction) {
-		case DIRECTION_NORTH:
-			mRow = rBase.mRow + count;
-            mColumn = rBase.mColumn;
-            break;
-        case DIRECTION_SOUTH:
-			mRow = rBase.mRow - count;
-            mColumn = rBase.mColumn;
-            break;
-		case DIRECTION_EAST:
-			mRow = rBase.mRow;
-            mColumn = rBase.mColumn + count;
-            break;
-        case DIRECTION_WEST:
-			mRow = rBase.mRow;
-            mColumn = rBase.mColumn - count;
-            break;
-        default:
-            ASSERT(false);
-            break;
-    }
+// construct the neighbor in direction "dir" from "base"
+Cell::Cell(Cell const &rBase, DirectionType direction) {
+	ASSERT(rBase.IsValid());
+	ASSERT(rBase.HasNeighbor(direction));
+
+	IndexType row_offset, column_offset;
+	NeighborOffsets(direction, row_offset, column_offset);
+	mRow = rBase.mRow + row_offset;
+	mColumn = rBase.mColumn + column_offset;
+	ASSERT(IsValid());
 }
 
-// The compiler-generated assignment method is fine.
 // The compiler-generated destructor is fine.
 
+
+// operators
+
+bool Cell::operator!=(const Cell &rOther) const {
+	ASSERT(IsValid());
+	ASSERT(rOther.IsValid());
+
+	bool same_row = (mRow == rOther.mRow);
+    bool result = (!same_row || mColumn != rOther.mColumn);
+    
+    return result;
+}
+
+bool Cell::operator<(Cell const &rOther) const {
+	ASSERT(IsValid());
+	ASSERT(rOther.IsValid());
+
+	bool result;
+	bool same_row = (mRow == rOther.mRow);
+     
+    if (same_row) {
+        result = (mColumn < rOther.mColumn);
+    } else {
+        result = (mRow < rOther.mRow);
+    }
+     
+    return result;
+}
+
+// The compiler-generated assignment operator is fine.
+
+bool Cell::operator==(const Cell &rOther) const {
+	ASSERT(IsValid());
+	ASSERT(rOther.IsValid());
+
+	bool same_row = (mRow == rOther.mRow);
+    bool result = (same_row && mColumn == rOther.mColumn);
+    
+    return result;
+}
+
 Cell::operator String(void) const {
+	ASSERT(IsValid());
+
     String result;
     result = "(";
 	result += String(mRow);
@@ -80,12 +118,13 @@ Cell::operator String(void) const {
     return result;
 }
 
-// methods
+
+// misc methods
 
 int Cell::Column(void) const {
-	int result = mColumn;
+	ASSERT(IsValid());
 
-	return result;
+	return mColumn;
 }
 
 bool Cell::GetUserChoice(String const &alt) {
@@ -120,42 +159,176 @@ bool Cell::GetUserChoice(String const &alt) {
 	return false;
 }
 
+void Cell::NeighborOffsets(
+	DirectionType direction,
+	IndexType &rowOffset,
+	IndexType &columnOffset) const
+{
+	switch (direction) {
+		case DIRECTION_NORTH:
+			rowOffset = +1;
+            columnOffset = 0;
+            break;
+        case DIRECTION_SOUTH:
+			rowOffset = -1;
+            columnOffset = 0;
+            break;
+		case DIRECTION_EAST:
+			rowOffset = 0;
+            columnOffset = +1;
+            break;
+		case DIRECTION_WEST:
+			rowOffset = 0;
+            columnOffset = -1;
+            break;
+		case DIRECTION_NORTHEAST:
+			rowOffset = +1;
+            columnOffset = +1;
+            break;
+		case DIRECTION_NORTHWEST:
+			rowOffset = +1;
+            columnOffset = -1;
+            break;
+		case DIRECTION_SOUTHEAST:
+			rowOffset = -1;
+            columnOffset = +1;
+            break;
+		case DIRECTION_SOUTHWEST:
+			rowOffset = -1;
+            columnOffset = -1;
+            break;
+        default:
+            ASSERT(false);
+            break;
+    }
+
+}
+
+int Cell::Row(void) const {
+	ASSERT(IsValid());
+
+	return mRow;
+}
+
+/* static */ void Cell::SetGrid(GridType grid) {
+	switch (msGrid) {
+		case GRID_HEX:
+	    case GRID_TRIANGLE:
+		case GRID_4WAY:
+		case GRID_8WAY:
+			break;
+		default:
+			ASSERT(false);
+	}
+    msGrid = grid;
+}
+
+/* static */ void Cell::SetTopology(
+	bool wrapFlag, 
+	IndexType width, 
+	IndexType height)
+{
+	ASSERT(msHeight <= HEIGHT_MAX);
+	ASSERT(msHeight >= HEIGHT_MIN);
+	ASSERT(msHeight % 2 == 0);
+
+	ASSERT(msWidth <= WIDTH_MAX);
+	ASSERT(msWidth >= WIDTH_MIN);
+	ASSERT(msWidth % 2 == 0);
+
+	msHeight = height;
+	msWidth = width;
+    msWrapFlag = wrapFlag;
+}
+
+// inquiry methods
+
+bool Cell::HasNeighbor(DirectionType direction) const {
+	bool result = true;
+
+	switch (msGrid) {
+		case GRID_HEX:
+			if (direction == DIRECTION_EAST 
+			 || direction == DIRECTION_WEST)
+			{
+				result = false;
+			}
+			break;
+
+	    case GRID_TRIANGLE:
+			if (direction == DIRECTION_NORTH && (mRow % 2) == (mColumn % 2)
+			 || direction == DIRECTION_SOUTH && (mRow % 2) == (mColumn % 2))
+			{
+				result = false;
+			}
+			// fall through
+
+		case GRID_4WAY:
+			if (direction == DIRECTION_NORTHEAST
+			 || direction == DIRECTION_NORTHWEST
+			 || direction == DIRECTION_SOUTHEAST
+			 || direction == DIRECTION_SOUTHWEST)
+			{
+				result = false;
+			}
+			break;
+
+		case GRID_8WAY:
+			// has neighbors in all directions
+			break;
+
+		default:
+			ASSERT(false);
+	}
+
+	// check for edges
+	IndexType row, column;
+	NeighborOffsets(direction, row, column);
+	row += mRow;
+	column += mColumn;
+	if (!msWrapFlag) {
+        if (row >= msHeight/2 || row < -msHeight/2) {
+	        result = false;
+		}
+        if (column >= msWidth/2 || column < -msWidth/2) {
+			result = false;
+		}
+	}
+
+	return result;
+}
+
 bool Cell::IsStart(void) const {
+	ASSERT(IsValid());
     bool result = (mRow == 0) && (mColumn == 0);
 
     return result;
 }
 
-bool Cell::operator!=(const Cell &rOther) const {
-	bool same_row = (mRow == rOther.mRow);
-    bool result = (!same_row || mColumn != rOther.mColumn);
-    
-    return result;
-}
+bool Cell::IsValid(void) const {
+    bool result = true;
 
-bool Cell::operator<(Cell const &rOther) const {
-    bool result;
-	bool same_row = (mRow == rOther.mRow);
-     
-    if (same_row) {
-        result = (mColumn < rOther.mColumn);
-    } else {
-        result = (mRow < rOther.mRow);
-    }
-     
-    return result;
-}
+	switch (msGrid) {
+		case GRID_HEX:
+			if ((mRow % 2) != (mColumn % 2)) {
+				result = false;
+			}
+			break;
+	    case GRID_TRIANGLE:
+		case GRID_4WAY:
+		case GRID_8WAY:
+			// all valid
+			break;
+		default:
+			ASSERT(false);
+	}
 
-bool Cell::operator==(const Cell &rOther) const {
-	bool same_row = (mRow == rOther.mRow);
-    bool result = (same_row && mColumn == rOther.mColumn);
-    
-    return result;
-}
-
-int Cell::Row(void) const {
-	int result = mRow;
+	if (mRow < -msHeight/2 || mRow >= msHeight/2) {
+		result = false;
+	}
+	if (mColumn < -msWidth/2 || mColumn >= msWidth/2) {
+		result = false;
+	}
 
 	return result;
 }
-

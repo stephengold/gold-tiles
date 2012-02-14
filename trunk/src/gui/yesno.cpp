@@ -31,6 +31,8 @@ static INT_PTR CALLBACK yesNoMessageHandler(
 	WPARAM wParameter, 
 	LPARAM lParameter)
 {
+	ASSERT(windowHandle != NULL);
+
     YesNo *p_box;
 	if (gpNewlyCreatedDialog != NULL) {
 		p_box = (YesNo *)gpNewlyCreatedDialog;

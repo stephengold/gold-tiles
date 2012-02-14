@@ -21,6 +21,7 @@ You should have received a copy of the GNU General Public License
 along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include "project.hpp"
 #include "strings.hpp"
 
 // lifecycle
@@ -42,15 +43,31 @@ void Strings::Append(String const &rString) {
 }
 
 Strings::ConstIteratorType Strings::Begin(void) const {
-    ConstIteratorType result;
-	result = mList.begin();
+    ConstIteratorType result = mList.begin();
+
+	return result;
+}
+
+Strings::IteratorType Strings::Begin(void) {
+    IteratorType result = mList.begin();
+
+	return result;
+}
+
+unsigned Strings::Count(void) const {
+	unsigned result = mList.size();
 
 	return result;
 }
 
 Strings::ConstIteratorType Strings::End(void) const {
-    ConstIteratorType result;
-	result = mList.end();
+    ConstIteratorType result = mList.end();
+
+	return result;
+}
+
+Strings::IteratorType Strings::End(void) {
+    IteratorType result = mList.end();
 
 	return result;
 }
@@ -66,10 +83,22 @@ Strings::ConstIteratorType Strings::Find(String const &rString) const {
 	return i_string;
 }
 
+void Strings::Unappend(void) {
+	ASSERT(!IsEmpty());
+    mList.pop_back();
+}
+
+
 // inquiry methods
 
 bool Strings::Contains(String const &rString) const {
 	bool result = (Find(rString) != End());
+
+	return result;
+}
+
+bool Strings::IsEmpty(void) const {
+	bool result = (mList.size() == 0);
 
 	return result;
 }

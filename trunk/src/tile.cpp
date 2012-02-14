@@ -84,8 +84,6 @@ Tile::Tile(Tile const &rBase) {
 }
 
 Tile::~Tile(void) {
-    ASSERT(IsValid());
-
     delete[] mpArray;
 	mpArray = NULL;
 }

@@ -291,19 +291,24 @@ bool Board::ConnectsToStart(Cell const &rCell) const {
 bool Board::ConnectsToStart(Cell const &rCell, Cells &rDoneCells) const { // recursive
     bool result = true;
     
+	ASSERT(rCell.IsValid());
     if (!rCell.IsStart()) {
         result = false;
         rDoneCells.insert(rCell);
 
-        for (int direction = DIRECTION_FIRST; direction <= DIRECTION_LAST; direction++) {
-            Cell look(rCell, (DirectionType)direction, 1);
-            if (!HasEmptyCell(look) && 
-				!rDoneCells.Contains(look) && 
-				ConnectsToStart(look, rDoneCells))
-			{
-                result = true;
-                break;
-            }
+        for (int i_dir = DIRECTION_FIRST; i_dir <= DIRECTION_LAST; i_dir++) {
+			DirectionType direction = (DirectionType)i_dir;
+			if (rCell.HasNeighbor(direction)) {
+                Cell look(rCell, direction);
+				ASSERT(look.IsValid());
+                if (!HasEmptyCell(look) && 
+				    !rDoneCells.Contains(look) && 
+				    ConnectsToStart(look, rDoneCells))
+			    {
+                    result = true;
+                    break;
+                }
+			}
         }
     }
     return result;
@@ -354,7 +359,6 @@ bool Board::HasEmptyCell(Cell const &rCell) const {
 }
 
 bool Board::IsColumnCompatible(Cell const &rCell) const {
-    D(std::cout << "Board::IsColumnCompatible(" << (String)rCell << ")" << std::endl);
     int first_row, last_row, column;
     GetColumnLimits(rCell, first_row, last_row, column);
     ASSERT(first_row <= last_row);

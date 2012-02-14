@@ -36,6 +36,7 @@ The TopWindow class is an extension of the Window class.
 #include <map>
 #include <windows.h>
 #include "gui/color.hpp"
+#include "gui/parmbox1.hpp"
 #include "gui/rect.hpp"
 #include "gui/window.hpp"
 #include "partial.hpp"
@@ -79,6 +80,7 @@ private:
 	unsigned      mDragBoardPixelCnt;
 	int           mDragTileDeltaX, mDragTileDeltaY;
 	Game *       mpGame;
+	GameStyleType mGameStyle;
 	Rect          mHandRect;
 	bool          mInitialNewGame;
 	bool          mIsStartCentered;
@@ -107,7 +109,7 @@ private:
     LogicalYType CellY(int row) const;
     PCntType     CellWidth(void) const;
     char const * ClassName(void) const;
-	void		 CreateNewGame(ParmBox const &);
+	int          CreateNewGame(void);
 	void         DiscardGame(void);
     void         DrawActiveHand(Canvas &);
 	Rect         DrawBlankTile(Canvas &, Point const &);
@@ -127,6 +129,7 @@ private:
 	void         HandleButtonUp(Point const &);
     void         HandleMenuCommand(int);
 	void         HandleMouseMove(Point const &);
+	String       InventUniqueName(String const &prefix, Strings const &names) const;
 	char const * Name(void) const;
 	void		 OfferNewGame(void);
 	void		 OfferSaveGame(void);

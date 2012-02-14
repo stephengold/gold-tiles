@@ -36,15 +36,21 @@ The Strings class encapsulates a list of String objects.
 class Strings {
 public:
     typedef std::list<String>::const_iterator ConstIteratorType;
+    typedef std::list<String>::iterator       IteratorType;
 
 	// misc public methods
 	void              Append(String const &);
 	ConstIteratorType Begin(void) const;
+	IteratorType      Begin(void);
+	unsigned          Count(void) const;
 	ConstIteratorType End(void) const;
+	IteratorType      End(void);
 	ConstIteratorType Find(String const &) const;
+	void              Unappend(void);
 
 	// public inquiry methods
 	bool Contains(String const &) const;
+	bool IsEmpty(void) const;
 
 private:
 	std::list<String> mList;

@@ -97,13 +97,13 @@ int BaseBoard::EastMax(void) const {
 }
 
 // get iterators to specific cells
-BaseBoard::ConstIteratorType BaseBoard::Find(int northing, int easting) const {
+BaseBoard::ConstIteratorType BaseBoard::Find(IndexType northing, IndexType easting) const {
     Cell ref(northing, easting);
     ConstIteratorType result = mCells.find(ref);
 
     return result;
 }
-BaseBoard::IteratorType BaseBoard::Find(int northing, int easting) {
+BaseBoard::IteratorType BaseBoard::Find(IndexType northing, IndexType easting) {
     Cell ref(northing, easting);
     IteratorType result = mCells.find(ref);
 

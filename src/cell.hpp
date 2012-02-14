@@ -66,7 +66,7 @@ public:
 	// lifecycle
     Cell(void);
     Cell(IndexType row, IndexType column);
-	Cell(Cell const &, DirectionType);
+	Cell(Cell const &, DirectionType, IndexType count = 1);
     // Cell(Cell const &);  compiler-generated copy constructor is OK
     // ~Cell(void);  compiler-generated destructor is OK
 
@@ -78,18 +78,21 @@ public:
 	operator String(void) const;
 
 	// misc public methods
-	int             Column(void) const;
+	IndexType       Column(void) const;
+	unsigned        Distance(Cell const &) const;
     bool            GetUserChoice(String const &);
     static GridType Grid(void);
-	int             Row(void) const;
+	IndexType       Group(DirectionType direction) const;
+	void            Next(DirectionType);
+	IndexType       Row(void) const;
 	static void     SetGrid(GridType);
-	static void     SetTopology(bool wrapFlag, IndexType northCircumference, 
-		                        IndexType eastCircumference);
+	static void     SetTopology(bool wrapFlag, IndexType height, IndexType width);
 
 	// public inquiry methods
-	bool HasNeighbor(DirectionType) const;
-	bool IsStart(void) const;
-	bool IsValid(void) const;
+	bool        HasNeighbor(DirectionType) const;
+	bool        IsStart(void) const;
+	bool        IsValid(void) const;
+	static bool IsValid(IndexType row, IndexType column);
 
 private:
 	static GridType  msGrid;
@@ -100,8 +103,8 @@ private:
 	IndexType mColumn, mRow;
 
 	// private inquiry methods
-	void NeighborOffsets(DirectionType, IndexType &rowOffset, 
-		                 IndexType &columnOffset) const;
 	bool IsSameRow(Cell const &) const;
+	void NextCellOffsets(DirectionType, IndexType &rowOffset, 
+		                 IndexType &columnOffset) const;
 };
 #endif

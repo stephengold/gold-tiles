@@ -73,8 +73,8 @@ private:
     std::map<TileIdType,Cell> mTiles;
 
 	// misc private methods
-    ConstIteratorType Find(int northing, int easting) const;
-    IteratorType	  Find(int northing, int easting);
+    ConstIteratorType Find(IndexType northing, IndexType easting) const;
+    IteratorType	  Find(IndexType northing, IndexType easting);
 };
 
 #endif

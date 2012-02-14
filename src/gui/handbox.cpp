@@ -31,6 +31,8 @@ static INT_PTR CALLBACK handbox_message_handler(
 	WPARAM wParameter, 
 	LPARAM lParameter)
 {
+	ASSERT(windowHandle != NULL);
+
     HandBox *p_box;
 	if (gpNewlyCreatedDialog != NULL) {
 		p_box = (HandBox *)gpNewlyCreatedDialog;
@@ -50,16 +52,21 @@ static INT_PTR CALLBACK handbox_message_handler(
 
 // lifecycle
 
-HandBox::HandBox(unsigned handIndex, bool areMore):
+HandBox::HandBox(
+	unsigned handIndex,
+	bool areMoreHands,
+	String const &playerName,
+	bool isAutomatic,
+	bool isRemote,
+	LPARAM ipAddress)
+:
     Dialog("HANDBOX", &handbox_message_handler)
 {
-	ASSERT(mHandIndex != 0);
-
-	mAreMoreHands = areMore;
+	mAreMoreHands = areMoreHands;
 	mHandIndex = handIndex;
-	mIsAutomatic = false;
-	mIsRemote = false;
-	mHandName = "Player #" + String(handIndex);
+	mIsAutomatic = isAutomatic;
+	mIsRemote = isRemote;
+	mPlayerName = playerName;
 }
 
 
@@ -81,7 +88,7 @@ INT_PTR HandBox::HandleMessage(UINT message, WPARAM wParam, LPARAM lParam) {
 				message += "last hand?";
 			}
 			SetTextString(IDC_WHO, message);
-			SetTextString(IDC_EDITNAME, mHandName);
+			SetTextString(IDC_EDITNAME, mPlayerName);
 			SetButton(IDC_RADIOLOCAL, !mIsAutomatic && !mIsRemote);
 	        SetButton(IDC_RADIOAUTO, mIsAutomatic && !mIsRemote);
 	        SetButton(IDC_RADIOREMOTE, mIsRemote);
@@ -99,8 +106,8 @@ INT_PTR HandBox::HandleMessage(UINT message, WPARAM wParam, LPARAM lParam) {
 			int notification_code = HIWORD(wParam);
             switch (id) {
                 case IDC_EDITNAME: {
-                    mHandName = GetTextString(id);
-					bool good_name = !mHandName.IsEmpty();
+                    mPlayerName = GetTextString(id);
+					bool good_name = !mPlayerName.IsEmpty();
 	                EnableButton(IDOK, good_name);
                     break;
                 }
@@ -142,10 +149,13 @@ INT_PTR HandBox::HandleMessage(UINT message, WPARAM wParam, LPARAM lParam) {
     return result;
 }
 
-String HandBox::HandName(void) const {
-	return mHandName;
+LPARAM HandBox::IpAddress(void) const {
+	return mIpAddress;
 }
 
+String HandBox::PlayerName(void) const {
+	return mPlayerName;
+}
 
 
 // inquiry methods

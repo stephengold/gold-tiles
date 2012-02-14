@@ -28,6 +28,7 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 #include <windowsx.h>
 #include <commctrl.h>
 #include "gui/dialog.hpp"
+#include "gui/resource.hpp"
 #include "string.hpp"
 
 Dialog *gpNewlyCreatedDialog = NULL;
@@ -39,6 +40,8 @@ static INT_PTR CALLBACK message_handler(
 	WPARAM wParameter, 
 	LPARAM lParameter)
 {
+	ASSERT(windowHandle != NULL);
+
     Dialog *p_dialog;
 	if (gpNewlyCreatedDialog != NULL) {
 		p_dialog = gpNewlyCreatedDialog;
@@ -154,6 +157,10 @@ INT_PTR Dialog::HandleMessage(UINT message, WPARAM wParam, LPARAM lParam) {
 					break;
                 case IDOK:
                     Close(RESULT_OK);
+                    result = TRUE;
+					break;
+                case IDC_BACK:
+                    Close(RESULT_BACK);
                     result = TRUE;
 					break;
             }

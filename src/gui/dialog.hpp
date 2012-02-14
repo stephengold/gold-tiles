@@ -40,27 +40,28 @@ It meant to be futher extended by adding controls.
 
 class Dialog: public Window {
 public:
-    typedef int      IdType;    // id of a control
-    typedef unsigned ValueType; // value of a control
+    typedef int  IdType;    // id of a control
+    typedef long ValueType; // value of a control
 
-	static const ValueType VALUE_INVALID = 9099;
-	static const INT_PTR   RESULT_OK = 1;
-	static const INT_PTR   RESULT_CANCEL = 2;
+	static const int RESULT_OK = 1;
+	static const int RESULT_CANCEL = 2;
+    static const int RESULT_BACK = 5;
+
+	static const ValueType VALUE_INVALID = LONG_MAX;
 
 	// lifecycle
 	Dialog(char const *templateName);
 	Dialog(char const *templateName, DLGPROC);
 	// no default constructor
-	// no copy constructor
     Dialog(Dialog const &) { ASSERT(false); };
     // ~Dialog(void);  compiler-generated destructor is OK
-	INT_PTR Run(Window *pParent);
+	int Run(Window *pParent);
 
 	// operators
     Dialog &operator=(Dialog const &) { ASSERT(false); };
 	
 	// misc public methods
-	INT_PTR HandleMessage(UINT message, WPARAM, LPARAM);
+	int HandleMessage(UINT message, WPARAM, LPARAM);
 
 protected:
 	// misc protected methods

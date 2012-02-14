@@ -38,19 +38,35 @@ for the row (or northing) and another for the column (or easting).
 #include "indices.hpp"
 #include "string.hpp"
 
+enum GridType {
+	GRID_TRIANGLE = 3,
+	GRID_4WAY = 4,
+	GRID_HEX = 6,
+	GRID_8WAY = 8
+};
+
 enum DirectionType {
     DIRECTION_NORTH = 0, DIRECTION_FIRST = 0,
     DIRECTION_SOUTH = 1,
     DIRECTION_EAST = 2,
-    DIRECTION_WEST = 3, DIRECTION_LAST = 3
+    DIRECTION_WEST = 3,
+	DIRECTION_NORTHEAST = 4,
+	DIRECTION_NORTHWEST = 5,
+	DIRECTION_SOUTHEAST = 6,
+	DIRECTION_SOUTHWEST = 7, DIRECTION_LAST = 7
 };
 
 class Cell {
 public:
+	static const IndexType HEIGHT_MAX = 0x40000000L;
+	static const IndexType HEIGHT_MIN = 4;
+	static const IndexType WIDTH_MAX  = 0x40000000L;
+	static const IndexType WIDTH_MIN = 4;
+
 	// lifecycle
     Cell(void);
-    Cell(int row, int column);
-	Cell(Cell const &, DirectionType, int count);
+    Cell(IndexType row, IndexType column);
+	Cell(Cell const &, DirectionType);
     // Cell(Cell const &);  compiler-generated copy constructor is OK
     // ~Cell(void);  compiler-generated destructor is OK
 
@@ -62,14 +78,30 @@ public:
 	operator String(void) const;
 
 	// misc public methods
-	int  Column(void) const;
-    bool GetUserChoice(String const &);
-	int  Row(void) const;
+	int             Column(void) const;
+    bool            GetUserChoice(String const &);
+    static GridType Grid(void);
+	int             Row(void) const;
+	static void     SetGrid(GridType);
+	static void     SetTopology(bool wrapFlag, IndexType northCircumference, 
+		                        IndexType eastCircumference);
 
 	// public inquiry methods
+	bool HasNeighbor(DirectionType) const;
 	bool IsStart(void) const;
+	bool IsValid(void) const;
 
 private:
+	static GridType  msGrid;
+	static IndexType msHeight;   // must be even and <= HEIGHT_MAX
+	static IndexType msWidth;    // must be even and <= WIDTH_MAX
+	static bool      msWrapFlag; // coordinates wrap around
+
 	IndexType mColumn, mRow;
+
+	// private inquiry methods
+	void NeighborOffsets(DirectionType, IndexType &rowOffset, 
+		                 IndexType &columnOffset) const;
+	bool IsSameRow(Cell const &) const;
 };
 #endif

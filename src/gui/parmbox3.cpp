@@ -1,5 +1,5 @@
-// File:    parmbox.cpp
-// Purpose: ParmBox class
+// File:    parmbox3.cpp
+// Purpose: ParmBox3 class
 // Author:  Stephen Gold sgold@sonic.net
 // (c) Copyright 2012 Stephen Gold
 // Distributed under the terms of the GNU General Public License
@@ -21,23 +21,26 @@ You should have received a copy of the GNU General Public License
 along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "gui/parmbox.hpp"
+#include "gui/parmbox3.hpp"
 #include "gui/resource.hpp"
 
+
 // message handler (callback) for this dialog
-static INT_PTR CALLBACK message_handler(
+static INT_PTR CALLBACK message_handler3(
 	HWND windowHandle,
 	UINT message,
 	WPARAM wParameter, 
 	LPARAM lParameter)
 {
-    ParmBox *p_box;
+	ASSERT(windowHandle != NULL);
+
+    ParmBox3 *p_box;
 	if (gpNewlyCreatedDialog != NULL) {
-		p_box = (ParmBox *)gpNewlyCreatedDialog;
+		p_box = (ParmBox3 *)gpNewlyCreatedDialog;
 		gpNewlyCreatedDialog = NULL;
 		p_box->SetHandle(windowHandle);
 	} else {
-       p_box = (ParmBox *)Window::Lookup(windowHandle);
+       p_box = (ParmBox3 *)Window::Lookup(windowHandle);
 	}
 
 	INT_PTR result;
@@ -50,22 +53,27 @@ static INT_PTR CALLBACK message_handler(
 
 // lifecycle
 
-ParmBox::ParmBox(void):
-    Dialog("PARMBOX", &message_handler)
-{}
+ParmBox3::ParmBox3(void):
+    Dialog("PARMBOX3", &message_handler3)
+{
+    mAttributeCnt = 2;		    
+    mClonesPerTile = 2;
+    mHandCnt = 2;
+    mHandSize = 7;            
+}
 
 
 // misc methods
 
-unsigned ParmBox::AttributeCnt(void) const {
+unsigned ParmBox3::AttributeCnt(void) const {
     return mAttributeCnt;
 }
 
-unsigned ParmBox::ClonesPerTile(void) const {
+unsigned ParmBox3::ClonesPerTile(void) const {
     return mClonesPerTile;
 }
 
-ParmBox::IdType ParmBox::EditboxId(IdType sliderId) const {
+ParmBox3::IdType ParmBox3::EditboxId(IdType sliderId) const {
     IdType result;
     switch (sliderId) {
         case IDC_SLIDER1:
@@ -87,23 +95,16 @@ ParmBox::IdType ParmBox::EditboxId(IdType sliderId) const {
     return result;
 }
 
-INT_PTR ParmBox::HandleMessage(UINT message, WPARAM wParam, LPARAM lParam) {
+INT_PTR ParmBox3::HandleMessage(UINT message, WPARAM wParam, LPARAM lParam) {
 	INT_PTR result = FALSE;
 
     switch (message) {
         case WM_INITDIALOG: {
 		    Dialog::HandleMessage(message, wParam, lParam);
 		    
-            mHandCnt = 2;
-		    InitControl(IDC_SLIDER1, mHandCnt, 1, 10);
-            
-            mHandSize = 7;
+			InitControl(IDC_SLIDER1, mHandCnt, 1, 10);
 		    InitControl(IDC_SLIDER2, mHandSize, 1, 12);
-            
-            mAttributeCnt = 2;
 		    InitControl(IDC_SLIDER3, mAttributeCnt, 2, 5);
-		    
-            mClonesPerTile = 2;
 		    InitControl(IDC_SLIDER4, mClonesPerTile, 0, 5);
 
             result = TRUE;
@@ -151,11 +152,11 @@ INT_PTR ParmBox::HandleMessage(UINT message, WPARAM wParam, LPARAM lParam) {
     return result;
 }
 
-unsigned ParmBox::HandSize(void) const {
+unsigned ParmBox3::HandSize(void) const {
     return mHandSize;
 }
 
-void ParmBox::InitControl(
+void ParmBox3::InitControl(
 	IdType sliderId,
 	ValueType value,
 	ValueType minValue,
@@ -180,7 +181,7 @@ void ParmBox::InitControl(
     SetTextValue(editbox_id, slider_value);
 }
 
-ParmBox::IdType ParmBox::MaxId(IdType sliderId) const {
+ParmBox3::IdType ParmBox3::MaxId(IdType sliderId) const {
     IdType result;
     switch (sliderId) {
         case IDC_SLIDER1:
@@ -202,7 +203,7 @@ ParmBox::IdType ParmBox::MaxId(IdType sliderId) const {
     return result;
 }
 
-ParmBox::IdType ParmBox::MinId(IdType sliderId) const {
+ParmBox3::IdType ParmBox3::MinId(IdType sliderId) const {
     IdType result;
     switch (sliderId) {
         case IDC_SLIDER1:
@@ -225,11 +226,11 @@ ParmBox::IdType ParmBox::MinId(IdType sliderId) const {
 }
 
 
-unsigned ParmBox::HandCnt(void) const {
+unsigned ParmBox3::HandCnt(void) const {
     return mHandCnt;
 }
 
-ParmBox::IdType ParmBox::SliderId(IdType editboxId) const {
+ParmBox3::IdType ParmBox3::SliderId(IdType editboxId) const {
     IdType result;
     switch (editboxId) {
         case IDC_EDIT1:
@@ -250,7 +251,7 @@ ParmBox::IdType ParmBox::SliderId(IdType editboxId) const {
     return result;
 }
 
-ParmBox::IdType ParmBox::SliderId(HWND handle) const {
+ParmBox3::IdType ParmBox3::SliderId(HWND handle) const {
     IdType result = 0;
 	if (handle == GetControlHandle(IDC_SLIDER1)) {
 		result = IDC_SLIDER1;
@@ -265,7 +266,7 @@ ParmBox::IdType ParmBox::SliderId(HWND handle) const {
 	return result;
 }
 
-void ParmBox::UpdateValue(IdType sliderId, ValueType value) {
+void ParmBox3::UpdateValue(IdType sliderId, ValueType value) {
     switch (sliderId) {
         case IDC_SLIDER1:
             mHandCnt = value;

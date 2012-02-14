@@ -1,8 +1,8 @@
-#ifndef HANDBOX_HPP_INCLUDED
-#define HANDBOX_HPP_INCLUDED
+#ifndef PARMBOX2_HPP_INCLUDED
+#define PARMBOX2_HPP_INCLUDED
 
-// File:    handbox.hpp
-// Purpose: HandBox class
+// File:    parmbox2.hpp
+// Purpose: ParmBox2 class
 // Author:  Stephen Gold sgold@sonic.net
 // (c) Copyright 2012 Stephen Gold
 // Distributed under the terms of the GNU General Public License
@@ -25,42 +25,49 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 /*
-A HandBox object represents a dialog box for setting hand parameters
-such as the type of player.
+A ParmBox2 object represents a dialog box for setting board parameters
+such as the number of rows and columns.
 
-The HandBox class is an extension of the Dialog class.
+The ParmBox2 class is an extension of the Dialog class.
 */
 
+#include "cell.hpp"
 #include "gui/dialog.hpp"
-#include "string.hpp"
+#include "tile.hpp"
 
-class HandBox: public Dialog {
+class ParmBox2: public Dialog {
 public:
     // lifecycle
-	HandBox(unsigned handIndex, bool more, String const &player, 
-		    bool autop, bool rem, LPARAM ip); 
-	// no default constructor
+	ParmBox2(void); 
 	// no copy constructor
-	// ~HandBox(void);  compiler-generated destructor is OK
+	// ~ParmBox2(void);  compiler-generated destructor is OK
 
 	// public operators
-    HandBox &operator=(HandBox const &) { ASSERT(false); };
+    ParmBox2 &operator=(ParmBox2 const &) { ASSERT(false); };
+	operator GridType(void) const;
 
 	// misc public methods
-	INT_PTR HandleMessage(UINT message, WPARAM, LPARAM);
-	LPARAM  IpAddress(void) const;
-	String  PlayerName(void) const;
+	INT_PTR   HandleMessage(UINT message, WPARAM, LPARAM);
+	IndexType Height(void) const;
+	IndexType Width(void) const;
 
 	// public inquiry methods
-	bool IsAutomatic(void) const;
-	bool IsRemote(void) const;
+	bool      DoesWrap(void) const;
 
 private:
-	bool     mAreMoreHands;
-	unsigned mHandIndex;
-	LPARAM   mIpAddress;
-    bool     mIsAutomatic, mIsRemote;
-	String   mPlayerName;
+	GridType     mGrid;
+	IndexType    mHeight;
+	bool         mWrapFlag;
+	IndexType    mWidth;
+
+	// misc private methods
+	ValueType GetTextIndex(IdType);
+	void      SetGrid(void);
+	void      SetGrid(IdType);
+	void      SetTextIndex(IdType, ValueType);
+	void      SetTopology(void);
+	void      SetTopology(IdType);
+	void      UpdateCellCnt(void);
 };
 
 #endif

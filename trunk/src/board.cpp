@@ -45,22 +45,20 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 
 // misc methods
 
-void Board::GetColumnLimits(
-    Cell const &rCell,
-    int &rFirstRow,
-    int &rLastRow,
-    int &rColumn) const
+void Board::GetLimits(
+	Cell const &rCell,
+	DirectionType direction,
+	Cell &rFirst,
+	Cell &rLast) const
 {
-    rColumn = rCell.Column();
-
-    rFirstRow = rCell.Row();
-    while (!HasEmptyCell(rFirstRow - 1, rColumn)) {
-        rFirstRow--;
+    Cell first_cell = rCell;
+    while (!HasEmptyCell(first_cell)) {
+        first_cell = Cell(first_cell, direction, -1);
     }
-
-    rLastRow = rCell.Row();
-    while (!HasEmptyCell(rLastRow + 1, rColumn)) {
-        rLastRow++;
+    
+    Cell last_cell = rCell;
+    while (!HasEmptyCell(last_cell)) {
+        last_cell = Cell(last_cell, direction, +1);
     }
 }
 
@@ -74,35 +72,19 @@ TileIdType Board::GetId(Cell const &rCell) const {
 	return result;
 }
 
-Tile const *Board::GetPtr(int northing, int easting) const {
+Tile const *Board::GetPtr(IndexType northing, IndexType easting) const {
     Cell ref(northing, easting);
     Tile const *p_result = GetCell(ref);
 
     return p_result;
 }
 
-void Board::GetRowLimits(
-    Cell const &rCell,
-    int &rRow,
-    int &rFirstColumn,
-    int &rLastColumn) const
-{
-    rRow = rCell.Row();
-    
-    rFirstColumn = rCell.Column();
-    while (!HasEmptyCell(rRow, rFirstColumn - 1)) {
-        rFirstColumn--;
-    }
-    
-    rLastColumn = rCell.Column();
-    while (!HasEmptyCell(rRow, rLastColumn + 1)) {
-        rLastColumn++;
-    }
-}
+Tile Board::GetTile(IndexType northing, IndexType easting) const {
+	ASSERT(Cell::IsValid(northing, easting));
 
-Tile Board::GetTile(int northing, int easting) const {
     Tile const *p_tile = GetPtr(northing, easting);
     ASSERT(p_tile != NULL);
+
     Tile result = *p_tile;
 
     return result;
@@ -143,16 +125,19 @@ void Board::PlayTile(TileCell const &rTileCell) {
     PlayOnCell(cell, tile);
 }
 
-unsigned Board::ScoreColumn(Cell const &rCell) const {
-    int first_row, last_row, column;
-    GetColumnLimits(rCell, first_row, last_row, column);
-    ASSERT(first_row <= last_row);
-    unsigned result = 0;
+unsigned Board::ScoreDirection(
+	Cell const &rCell,
+	DirectionType direction) const
+{
+    Cell first_cell, last_cell;
+    GetLimits(rCell, direction, first_cell, last_cell);
 
-    if (first_row != last_row) {
-        unsigned length = last_row + 1 - first_row;
-        Tile first_tile = GetTile(first_row, column);
-        Tile last_tile = GetTile(last_row, column);
+	unsigned result = 0;
+
+    if (first_cell != last_cell) {
+        unsigned length = first_cell.Distance(last_cell) + 1;
+        Tile first_tile = GetTile(first_cell);
+        Tile last_tile = GetTile(last_cell);
         AIndexType attr = first_tile.CommonAttribute(last_tile);
         unsigned max_length = 1 + Tile::ValueMax(attr);
         if (length == max_length) {
@@ -173,14 +158,14 @@ unsigned Board::ScoreMove(Move const &rMove) const {
     for (i_place = rMove.begin(); i_place != rMove.end(); i_place++) {
         Cell cell = Cell(*i_place);
         
-        int row = cell.Row();
+        IndexType row = cell.Row();
         if (!done_rows.Contains(row)) {
-            result += ScoreRow(cell);
+            result += ScoreDirection(cell, DIRECTION_NORTH);
             done_rows.insert(row);
         }
-        int column = cell.Column();
+        IndexType column = cell.Column();
         if (!done_columns.Contains(column)) {
-            result += ScoreColumn(cell);
+            result += ScoreDirection(cell, DIRECTION_EAST);
             done_columns.insert(column);
         }
     }
@@ -188,45 +173,23 @@ unsigned Board::ScoreMove(Move const &rMove) const {
     return result;
 }
 
-unsigned Board::ScoreRow(Cell const &rCell) const {
-    int row, first_column, last_column;
-    GetRowLimits(rCell, row, first_column, last_column);
-    ASSERT(first_column <= last_column);
-    unsigned result = 0;
 
-    if (first_column != last_column) {
-        unsigned run_length = last_column + 1 - first_column;
-        Tile first_tile = GetTile(row, first_column);
-        Tile last_tile = GetTile(row, last_column);
-        AIndexType attr = first_tile.CommonAttribute(last_tile);
-        unsigned max_length = 1 + Tile::ValueMax(attr);
-        if (run_length == max_length) {
-            result = 2*run_length;
-        } else {
-            result = run_length;
-        }
-    }
+// inquiry methods
 
-    return result;
-}
-
-// inquiry
-
-bool Board::AreAllColumnsCompatible(Cells const &rCells) const {
-    D(std::cout << "Board::AreAllColumnsCompatible(" << String(rCells) << ")" << std::endl);
+bool Board::AreAllCompatible(Cells const &rCells, DirectionType direction) const {
     bool result = true;
     
-    Indices done_columns;
+    Indices done_groups;
         
     Cells::const_iterator i_cell;
     for (i_cell = rCells.begin(); i_cell != rCells.end(); i_cell++) {
-        int column = i_cell->Column();
-        if (!done_columns.Contains(column)) {
-            if (!IsColumnCompatible(*i_cell)) {
+        IndexType group = i_cell->Group(direction);
+        if (!done_groups.Contains(group)) {
+            if (!IsDirectionCompatible(*i_cell, direction)) {
                 result = false;
                 break;
             }
-            done_columns.Add(column);
+            done_groups.Add(group);
         }
     }
     
@@ -259,26 +222,6 @@ bool Board::AreAllEmpty(Cells const &rCells) const {
     }
     
     return result;
-}
-
-bool Board::AreAllRowsCompatible(Cells const &rCells) const {
-    bool result = true;
-    
-    Indices done_rows;
-
-    Cells::const_iterator i_cell;
-    for (i_cell = rCells.begin(); i_cell != rCells.end(); i_cell++) {
-        int row = i_cell->Row();
-        if (!done_rows.Contains(row)) {
-            if (!IsRowCompatible(*i_cell)) {
-                result = false;
-                break;
-            }
-            done_rows.Add(row);
-        }
-    }
-    
-    return result; 
 }
 
 bool Board::ConnectsToStart(Cell const &rCell) const {
@@ -344,7 +287,7 @@ bool Board::DoesAnyConnectToStart(Cells const &rCells) const {
     return result;
 }
 
-bool Board::HasEmptyCell(int northing, int easting) const {
+bool Board::HasEmptyCell(IndexType northing, IndexType easting) const {
     Tile const *p_tile = GetPtr(northing, easting);
     bool result = (p_tile == NULL);
 
@@ -358,16 +301,15 @@ bool Board::HasEmptyCell(Cell const &rCell) const {
     return result;
 }
 
-bool Board::IsColumnCompatible(Cell const &rCell) const {
-    int first_row, last_row, column;
-    GetColumnLimits(rCell, first_row, last_row, column);
-    ASSERT(first_row <= last_row);
+bool Board::IsDirectionCompatible(Cell const &rCell, DirectionType direction) const {
+    Cell first_cell, last_cell;
+    GetLimits(rCell, direction, first_cell, last_cell);
     bool result = true;
     
-    for (int r1 = first_row; r1 <= last_row; r1++) {
-        Tile t1 = GetTile(r1, column);
-        for (int r2 = r1 + 1; r2 <= last_row; r2++) {
-            Tile t2 = GetTile(r2, column);
+    for (Cell cell1 = first_cell; cell1 != last_cell; cell1.Next(direction)) {
+        Tile t1 = GetTile(cell1);
+        for (Cell cell2(cell1, direction); cell1 != last_cell; cell2.Next(direction)) {
+            Tile t2 = GetTile(cell2);
             if (!t1.IsCompatibleWith(&t2)) {
                 result = false;
                 break;
@@ -378,7 +320,7 @@ bool Board::IsColumnCompatible(Cell const &rCell) const {
     return result;
 }
 
-bool Board::IsConnectedColumn(Cells const &rCells) const {
+bool Board::IsConnectedDirection(Cells const &rCells, DirectionType direction) const {
      bool result = true;
     
     if (rCells.Count() > 1) {
@@ -402,39 +344,6 @@ bool Board::IsConnectedColumn(Cells const &rCells) const {
         
         for (int i_row = first_row; i_row <= last_row; i_row++) {
             if (HasEmptyCell(i_row, column)) {
-                result = false;
-                break;
-            }
-        }
-    }
-
-    return result;
-}
-
-bool Board::IsConnectedRow(Cells const &rCells) const {
-    bool result = true;
-    
-    if (rCells.Count() > 1) {
-        Cells::ConstIteratorType i_cell = rCells.begin();
-        int row = i_cell->Row();
-        int first_column = i_cell->Column();
-        int last_column = i_cell->Column();
-        for ( ; i_cell != rCells.end(); i_cell++) {
-            if (row != i_cell->Row()) {
-                return false;
-            }
-            
-            int column = i_cell->Column();
-            if (column > last_column) {
-                last_column = column;
-            }
-            if (column < first_column) {
-                first_column = column;
-            }
-        }
-        
-        for (int i_column = first_column; i_column <= last_column; i_column++) {
-            if (HasEmptyCell(row, i_column)) {
                 result = false;
                 break;
             }
@@ -528,14 +437,14 @@ bool Board::IsValidMove(Move const &rMove, char const *&rReason) const {
 
     // make sure there are no empty squares between played tiles
     if (is_single_row) {
-        if (!after.IsConnectedRow(cells)) {
+        if (!after.IsConnectedDirection(cells, DIRECTION_EAST)) {
             D(std::cout << "You must not leave any empty cells between the tiles you play." 
 				<< std::endl);
      		rReason = "GAP";
             return false;
         }
     } else {
-        if (!after.IsConnectedColumn(cells)) {
+        if (!after.IsConnectedDirection(cells, DIRECTION_NORTH)) {
             D(std::cout << "You must not leave any empty cells between the tiles you play." 
 				<< std::endl);
      		rReason = "GAP";
@@ -544,13 +453,13 @@ bool Board::IsValidMove(Move const &rMove, char const *&rReason) const {
     }
 
     // check compatibility of connected tiles in each row and column played
-    if (!after.AreAllRowsCompatible(cells)) {
+    if (!after.AreAllCompatible(cells, DIRECTION_EAST)) {
         D(std::cout << "Tiles in a row (with no intervening empty cells) "
 			>> "must all be mutually compatible." << std::endl);
 		rReason = "ROWCOMPAT";
         return false;
     }
-    if (!after.AreAllColumnsCompatible(cells)) {
+    if (!after.AreAllCompatible(cells, DIRECTION_NORTH)) {
         D(std::cout << "Tiles in a column (with no intervening empty cells) "
 			>> "must all be mutually compatible." << std::endl);
 		rReason = "COLUMNCOMPAT";
@@ -559,24 +468,4 @@ bool Board::IsValidMove(Move const &rMove, char const *&rReason) const {
 
     D(std::cout << "The move is a valid play." << std::endl);
     return true;
-}
-
-bool Board::IsRowCompatible(Cell const &rCell) const {
-    int row, first_column, last_column;
-    GetRowLimits(rCell, row, first_column, last_column);
-    ASSERT(first_column <= last_column);
-    bool result = true;   
-    
-    for (int c1 = first_column; c1 <= last_column; c1++) {
-        Tile t1 = GetTile(row, c1);
-        for (int c2 = c1 + 1; c2 <= last_column; c2++) {
-            Tile t2 = GetTile(row, c2);
-            if (!t1.IsCompatibleWith(&t2)) {
-                result = false;
-                break;
-            }
-        }
-    }
-    
-    return result;
 }

@@ -254,10 +254,12 @@ void Partial::SetHintedCells(void) {
     ASSERT(left_column <= right_column);
     for (int row = top_row; row >= bottom_row; row--) {
         for (int column = left_column; column <= right_column; column++) {
-            Cell cell(row, column);
-            if (mpGame != NULL && mpGame->HasEmptyCell(cell)) {
-                mHintedCells.Add(cell);
-            }
+			if (Cell::IsValid(row, column)) {
+                Cell cell(row, column);
+                if (mpGame != NULL && mpGame->HasEmptyCell(cell)) {
+                    mHintedCells.Add(cell);
+                }
+			}
         }
     }
     

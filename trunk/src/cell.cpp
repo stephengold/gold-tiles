@@ -50,15 +50,33 @@ Cell::Cell(IndexType row, IndexType column) {
 
 // The compiler-generated copy constructor is fine.
 
-// construct the neighbor in direction "dir" from "base"
-Cell::Cell(Cell const &rBase, DirectionType direction) {
+// construct the next cell (not necessarily a neighbor) in direction "dir" from "base"
+Cell::Cell(Cell const &rBase, DirectionType direction, IndexType count) {
 	ASSERT(rBase.IsValid());
-	ASSERT(rBase.HasNeighbor(direction));
 
 	IndexType row_offset, column_offset;
-	NeighborOffsets(direction, row_offset, column_offset);
-	mRow = rBase.mRow + row_offset;
-	mColumn = rBase.mColumn + column_offset;
+	NextCellOffsets(direction, row_offset, column_offset);
+
+	mRow = rBase.mRow + count*row_offset;
+	if (msWrapFlag) {
+        while (mRow >= msHeight/2) {
+		    mRow -= msHeight;
+	    }
+        while (mRow < -msHeight/2) {
+		    mRow += msHeight;
+	    }
+	}
+
+	mColumn = rBase.mColumn + count*column_offset;
+	if (msWrapFlag) {
+        while (mColumn >= msWidth/2) {
+		    mColumn -= msWidth;
+	    }
+        while (mRow < -msWidth/2) {
+		    mColumn += msWidth;
+	    }
+	}
+
 	ASSERT(IsValid());
 }
 
@@ -121,7 +139,7 @@ Cell::operator String(void) const {
 
 // misc methods
 
-int Cell::Column(void) const {
+IndexType Cell::Column(void) const {
 	ASSERT(IsValid());
 
 	return mColumn;
@@ -159,27 +177,27 @@ bool Cell::GetUserChoice(String const &alt) {
 	return false;
 }
 
-void Cell::NeighborOffsets(
+void Cell::NextCellOffsets(
 	DirectionType direction,
 	IndexType &rowOffset,
 	IndexType &columnOffset) const
 {
 	switch (direction) {
 		case DIRECTION_NORTH:
-			rowOffset = +1;
+			rowOffset = (msGrid == GRID_HEX) ? +2 : +1;
             columnOffset = 0;
             break;
         case DIRECTION_SOUTH:
-			rowOffset = -1;
+			rowOffset = (msGrid == GRID_HEX) ? -2 : -1;
             columnOffset = 0;
             break;
 		case DIRECTION_EAST:
 			rowOffset = 0;
-            columnOffset = +1;
+			columnOffset = (msGrid == GRID_HEX) ? +2 : +1;
             break;
 		case DIRECTION_WEST:
 			rowOffset = 0;
-            columnOffset = -1;
+			columnOffset = (msGrid == GRID_HEX) ? -2 : -1;
             break;
 		case DIRECTION_NORTHEAST:
 			rowOffset = +1;
@@ -204,7 +222,7 @@ void Cell::NeighborOffsets(
 
 }
 
-int Cell::Row(void) const {
+IndexType Cell::Row(void) const {
 	ASSERT(IsValid());
 
 	return mRow;
@@ -283,7 +301,7 @@ bool Cell::HasNeighbor(DirectionType direction) const {
 
 	// check for edges
 	IndexType row, column;
-	NeighborOffsets(direction, row, column);
+	NextCellOffsets(direction, row, column);
 	row += mRow;
 	column += mColumn;
 	if (!msWrapFlag) {
@@ -306,27 +324,33 @@ bool Cell::IsStart(void) const {
 }
 
 bool Cell::IsValid(void) const {
+	bool result = IsValid(mRow, mColumn);
+
+	return result;
+}
+
+/* static */ bool Cell::IsValid(IndexType row, IndexType column) {
     bool result = true;
 
 	switch (msGrid) {
 		case GRID_HEX:
-			if ((mRow % 2) != (mColumn % 2)) {
+			if ((row & 0x1) != (column & 0x1)) {
 				result = false;
 			}
 			break;
 	    case GRID_TRIANGLE:
 		case GRID_4WAY:
 		case GRID_8WAY:
-			// all valid
+			// all coordinates are valid cells
 			break;
 		default:
 			ASSERT(false);
 	}
 
-	if (mRow < -msHeight/2 || mRow >= msHeight/2) {
+	if (row < -msHeight/2 || row >= msHeight/2) {
 		result = false;
 	}
-	if (mColumn < -msWidth/2 || mColumn >= msWidth/2) {
+	if (column < -msWidth/2 || column >= msWidth/2) {
 		result = false;
 	}
 

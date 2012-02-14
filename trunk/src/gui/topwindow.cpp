@@ -312,9 +312,10 @@ void TopWindow::DrawBoard(Canvas &rCanvas) {
         for (int column = left_column; column <= right_column; column++) {
             if (CellX(column) > (int)ClientAreaWidth()) {
                 break;
-            }
-            Cell cell(row, column);
-            DrawCell(rCanvas, cell, swap_cnt);
+            } else if (Cell::IsValid(row, column)) {
+                Cell cell(row, column);
+                DrawCell(rCanvas, cell, swap_cnt);
+			}
         }
     }
 }
@@ -1019,6 +1020,8 @@ void TopWindow::OfferNewGame(void) {
     Indices auto_hands;
     Indices remote_hands;
 	LPARAM *ip_addresses = NULL;
+	AValueType *max_attribute_values = NULL;
+	unsigned max_attribute_cnt = 0;
 
 STEP1:
 	int result = parmbox1.Run(this);
@@ -1046,9 +1049,23 @@ STEP3:
 	ASSERT(result == Dialog::RESULT_OK);
 
 	ACountType attribute_cnt = parmbox3.AttributeCnt();
-	AValueType *max_attribute_values = new AValueType[attribute_cnt];
-	for (unsigned i = 0; i < attribute_cnt; i++) {
-		max_attribute_values[i] = 6; // TODO
+   	if (attribute_cnt > max_attribute_cnt) {
+		// allocate storage for more attribute limits
+	    AValueType *new_max_attribute_values = new AValueType[attribute_cnt];
+
+		// copy old limits
+	    for (unsigned i = 0; i < max_attribute_cnt; i++) {
+		    new_max_attribute_values[i] = max_attribute_values[i];
+	    }
+		delete[] max_attribute_values;
+
+		// initialize new limits
+		for (unsigned i = max_attribute_cnt; i < attribute_cnt; i++) {
+			new_max_attribute_values[i] = 6;
+		}
+
+		max_attribute_cnt = attribute_cnt;
+		max_attribute_values = new_max_attribute_values;
 	}
 
 	unsigned hand_cnt = parmbox3.HandCnt();
@@ -1056,7 +1073,7 @@ STEP3:
 		// allocate storage for more IP addresses
         LPARAM *new_ip_addresses = new LPARAM[hand_cnt];
 
-		// save old addresses
+		// copy old addresses
 		for (unsigned i = 0; i < player_names.Count(); i++) {
 			new_ip_addresses[i] = ip_addresses[i];
 		}
@@ -1091,7 +1108,6 @@ STEP3:
 			}
 		} else {
 		    ASSERT(result == Dialog::RESULT_OK);
-
 		    *i_name = box.PlayerName();
 		    auto_hands.AddRemove(i, box.IsAutomatic());
 		    remote_hands.AddRemove(i, box.IsRemote());
@@ -1104,9 +1120,15 @@ STEP3:
 
 	mGameStyle = GameStyleType(parmbox1);
 	//unsigned player_minutes = parmbox1.PlayerMinutes();
-	//GridType grid = GridType(parmbox2);
-	//IndexType height = parmbox2.Height();
-	//IndexType width = parmbox2.Width();
+
+	GridType grid = GridType(parmbox2);
+	Cell::SetGrid(grid);
+
+	bool wrap_flag = parmbox2.DoesWrap();
+	IndexType height = parmbox2.Height();
+	IndexType width = parmbox2.Width();
+	Cell::SetTopology(wrap_flag, height, width);
+
 	unsigned hand_size = parmbox3.HandSize();
 	unsigned tile_redundancy = 1 + parmbox3.ClonesPerTile();
 
@@ -1114,6 +1136,9 @@ STEP3:
 		              tile_redundancy, hand_size);
 	ASSERT(p_new_game != NULL);
 	SetGame(p_new_game);
+
+	delete[] ip_addresses;
+	delete[] max_attribute_values;
 }
 
 void TopWindow::OfferSaveGame(void) {

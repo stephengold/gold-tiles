@@ -57,27 +57,23 @@ public:
 
 private:
 	// misc private methods
-	void		GetColumnLimits(Cell const &, int &rRow1, int &rRow2, int &rColumn) const;
-	Tile const *GetPtr(int northing, int easting) const;
-	void		GetRowLimits(Cell const &, int &rRow, int &rColumn1, int &rColumn2) const;
-	Tile		GetTile(int northing, int easting) const;
+	void		GetLimits(Cell const &, DirectionType, Cell &rFirst, Cell &rLast) const;
+	Tile const *GetPtr(IndexType northing, IndexType easting) const;
+	Tile		GetTile(IndexType northing, IndexType easting) const;
+	Tile        GetTile(Cell const &) const;
 	Tiles		GetTiles(Cells const &) const;
     void		PlayTile(TileCell const &);
-    unsigned	ScoreColumn(Cell const &) const;
-    unsigned	ScoreRow(Cell const &) const;
+    unsigned	ScoreDirection(Cell const &, DirectionType) const;
 
 	// private inquiry methods
-    bool AreAllColumnsCompatible(Cells const &) const;
+    bool AreAllCompatible(Cells const &, DirectionType) const;
     bool AreAllCompatible(Cells const &) const;
     bool AreAllEmpty(Cells const &) const;
-    bool AreAllRowsCompatible(Cells const &) const;
 	bool ConnectsToStart(Cell const &, Cells &) const;
     bool DoesAnyConnectToStart(Cells const &) const;
-	bool HasEmptyCell(int row, int column) const;
-    bool IsColumnCompatible(Cell const &) const;
-    bool IsConnectedColumn(Cells const &) const;
-    bool IsConnectedRow(Cells const &) const;
-    bool IsRowCompatible(Cell const &) const;
+	bool HasEmptyCell(IndexType row, IndexType column) const;
+    bool IsDirectionCompatible(Cell const &, DirectionType) const;
+    bool IsConnectedDirection(Cells const &, DirectionType) const;
 };
 
 #endif

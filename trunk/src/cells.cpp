@@ -64,35 +64,20 @@ unsigned Cells::Count(void) const {
 
 void Cells::MakeEmpty(void) {
 	clear();
+	
+	ASSERT(IsEmpty());
 }
 
 // inquiry methods
 
-bool Cells::AreAllInSameRow(void) const {
+bool Cells::AreAllInSameGroup(DirectionType direction) const {
     bool result = true;
     
     if (Count() > 1) {
         ConstIteratorType i_cell = begin();
-        int row = i_cell->Row();
+        IndexType group = i_cell->Group(direction);
         for (; i_cell != end(); i_cell++) {
-            if (i_cell->Row() != row) {
-                result = false;
-                break;
-            }     
-        }
-    }
-
-    return result;
-}
-
-bool Cells::AreAllInSameColumn(void) const {
-    bool result = true;
-    
-    if (Count() > 1) {
-        ConstIteratorType i_cell = begin();
-        int column = i_cell->Column();
-        for ( ; i_cell != end(); i_cell++) {
-            if (i_cell->Column() != column) {
+            if (i_cell->Group(direction) != group) {
                 result = false;
                 break;
             }     
@@ -107,4 +92,10 @@ bool Cells::Contains(Cell const &rCell) const {
     bool result = (i_cell != end());
     
     return result;
+}
+
+bool Cells::IsEmpty(void) const {
+	bool result = (size() == 0);
+
+	return result;
 }

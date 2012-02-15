@@ -282,7 +282,7 @@ CAPTION "Row/Column Rule - Gold Tile"
 FONT 10, "Microsoft Sans Serif"
 {
     DEFPUSHBUTTON   "OK", IDOK, 31, 31, 50, 14
-    CTEXT           "The cells you use must all lie in a single row or column.", IDC_STATIC, 11, 8, 93, 18, SS_CENTER
+    CTEXT           "The cells you use must all lie in a single row, column, or diagonal.", IDC_STATIC, 11, 8, 93, 18, SS_CENTER
 }
 
 

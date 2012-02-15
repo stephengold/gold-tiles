@@ -28,7 +28,7 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 
 // static data
 
-GridType  Cell::msGrid     = GRID_4WAY;
+GridType  Cell::msGrid     = GRID_HEX;  // TODO
 IndexType Cell::msHeight   = HEIGHT_MAX;
 IndexType Cell::msWidth    = WIDTH_MAX;
 bool      Cell::msWrapFlag = false;
@@ -45,12 +45,11 @@ Cell::Cell(void) {
 Cell::Cell(IndexType row, IndexType column) {
 	mColumn = column;
 	mRow = row;
-	ASSERT(IsValid());
 }
 
 // The compiler-generated copy constructor is fine.
 
-// construct the next cell (not necessarily a neighbor) in direction "dir" from "base"
+// construct the next valid cell (not necessarily a neighbor) in direction "dir" from "base"
 Cell::Cell(Cell const &rBase, DirectionType direction, IndexType count) {
 	ASSERT(rBase.IsValid());
 
@@ -96,9 +95,6 @@ bool Cell::operator!=(const Cell &rOther) const {
 }
 
 bool Cell::operator<(Cell const &rOther) const {
-	ASSERT(IsValid());
-	ASSERT(rOther.IsValid());
-
 	bool result;
 	bool same_row = (mRow == rOther.mRow);
      
@@ -145,6 +141,24 @@ IndexType Cell::Column(void) const {
 	return mColumn;
 }
 
+IndexType Cell::Distance(Cell const &rCell, DirectionType direction) const {
+    ASSERT(rCell != *this);
+    
+    Cell diff(rCell.mRow - mRow, rCell.mColumn - mColumn);
+    IndexType group = diff.Group(direction);
+    
+    IndexType rowOffset, columnOffset;
+    NextCellOffsets(direction, rowOffset, columnOffset);
+    Cell step(rowOffset, columnOffset);
+    IndexType unit = step.Group(direction);
+    ASSERT(unit != 0);
+    
+    IndexType result = ::abs(group/unit);
+        
+    ASSERT(result != 0);
+    return result;
+}
+          
 bool Cell::GetUserChoice(String const &alt) {
     String input;
 
@@ -177,10 +191,27 @@ bool Cell::GetUserChoice(String const &alt) {
 	return false;
 }
 
-void Cell::NextCellOffsets(
+/* static */ GridType Cell::Grid(void) {
+    return msGrid;
+}
+
+IndexType Cell::Group(DirectionType direction) const {
+    IndexType row_offset, column_offset;
+    NextCellOffsets(direction, row_offset, column_offset);
+    IndexType result = row_offset*mRow + column_offset*mColumn;
+
+    return result;        
+}
+
+void Cell::Next(DirectionType direction, IndexType count) {
+    Cell next(*this, direction, count);
+    *this = next;
+}
+
+/* static */ void Cell::NextCellOffsets(
 	DirectionType direction,
 	IndexType &rowOffset,
-	IndexType &columnOffset) const
+	IndexType &columnOffset)
 {
 	switch (direction) {
 		case DIRECTION_NORTH:
@@ -219,7 +250,6 @@ void Cell::NextCellOffsets(
             ASSERT(false);
             break;
     }
-
 }
 
 IndexType Cell::Row(void) const {
@@ -338,9 +368,9 @@ bool Cell::IsValid(void) const {
 				result = false;
 			}
 			break;
-	    case GRID_TRIANGLE:
 		case GRID_4WAY:
 		case GRID_8WAY:
+	    case GRID_TRIANGLE:
 			// all coordinates are valid cells
 			break;
 		default:
@@ -355,4 +385,59 @@ bool Cell::IsValid(void) const {
 	}
 
 	return result;
+}
+
+// utility functions
+
+bool is_scoring_direction(DirectionType direction) {
+     bool result = false;
+     switch (Cell::Grid()) {
+         case GRID_TRIANGLE:
+             result = (direction != DIRECTION_NORTH 
+                    && direction != DIRECTION_SOUTH);
+             break;
+         case GRID_4WAY:
+             result = (direction == DIRECTION_NORTH 
+                    || direction == DIRECTION_EAST
+                    || direction == DIRECTION_SOUTH
+                    || direction == DIRECTION_WEST);
+             break;
+         case GRID_HEX:
+             result = (direction != DIRECTION_EAST
+                    && direction != DIRECTION_WEST);
+             break;
+         case GRID_8WAY:
+             result = true;
+             break;
+         default:
+             ASSERT(false);
+     }
+     
+     return result;
+}
+
+DirectionType ortho_direction(DirectionType direction) {
+    DirectionType result;
+    
+    switch(direction) {
+        case DIRECTION_NORTH:
+        case DIRECTION_SOUTH:
+            result = DIRECTION_EAST;
+            break;
+        case DIRECTION_NORTHEAST:
+        case DIRECTION_SOUTHWEST:
+            result = DIRECTION_SOUTHEAST;
+            break;
+        case DIRECTION_EAST:
+        case DIRECTION_WEST:
+            result = DIRECTION_NORTH;
+            break;
+        case DIRECTION_NORTHWEST:
+        case DIRECTION_SOUTHEAST:
+            result = DIRECTION_NORTHEAST;
+            break;
+    }
+    
+    // always return a "positive" direction
+    return result;
 }

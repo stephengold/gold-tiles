@@ -71,7 +71,6 @@ private:
     bool AreAllEmpty(Cells const &) const;
 	bool ConnectsToStart(Cell const &, Cells &) const;
     bool DoesAnyConnectToStart(Cells const &) const;
-	bool HasEmptyCell(IndexType row, IndexType column) const;
     bool IsDirectionCompatible(Cell const &, DirectionType) const;
     bool IsConnectedDirection(Cells const &, DirectionType) const;
 };

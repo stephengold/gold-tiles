@@ -76,7 +76,7 @@ bool Cells::AreAllInSameGroup(DirectionType direction) const {
     if (Count() > 1) {
         ConstIteratorType i_cell = begin();
         IndexType group = i_cell->Group(direction);
-        for (; i_cell != end(); i_cell++) {
+        for (i_cell++; i_cell != end(); i_cell++) {
             if (i_cell->Group(direction) != group) {
                 result = false;
                 break;

@@ -45,23 +45,6 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 
 // misc methods
 
-void Board::GetLimits(
-	Cell const &rCell,
-	DirectionType direction,
-	Cell &rFirst,
-	Cell &rLast) const
-{
-    Cell first_cell = rCell;
-    while (!HasEmptyCell(first_cell)) {
-        first_cell = Cell(first_cell, direction, -1);
-    }
-    
-    Cell last_cell = rCell;
-    while (!HasEmptyCell(last_cell)) {
-        last_cell = Cell(last_cell, direction, +1);
-    }
-}
-
 TileIdType Board::GetId(Cell const &rCell) const {
     TileIdType result = 0;
     Tile const *p_tile = GetCell(rCell);
@@ -72,17 +55,32 @@ TileIdType Board::GetId(Cell const &rCell) const {
 	return result;
 }
 
-Tile const *Board::GetPtr(IndexType northing, IndexType easting) const {
-    Cell ref(northing, easting);
-    Tile const *p_result = GetCell(ref);
-
-    return p_result;
+void Board::GetLimits(
+	Cell const &rCell,
+	DirectionType direction,
+	Cell &rFirst,
+	Cell &rLast) const
+{
+    ASSERT(!HasEmptyCell(rCell));
+    
+    rFirst = rCell;
+    while (!HasEmptyCell(rFirst)) {
+        // TODO edge effects
+        rFirst.Next(direction, -1);
+    }
+    rFirst.Next(direction, +1);
+    
+    rLast = rCell;
+    while (!HasEmptyCell(rLast)) {
+        rLast.Next(direction, +1);
+    }
+    rLast.Next(direction, -1);
 }
 
-Tile Board::GetTile(IndexType northing, IndexType easting) const {
-	ASSERT(Cell::IsValid(northing, easting));
+Tile Board::GetTile(Cell const &rCell) const {
+	ASSERT(rCell.IsValid());
 
-    Tile const *p_tile = GetPtr(northing, easting);
+    Tile const *p_tile = GetCell(rCell);
     ASSERT(p_tile != NULL);
 
     Tile result = *p_tile;
@@ -129,13 +127,15 @@ unsigned Board::ScoreDirection(
 	Cell const &rCell,
 	DirectionType direction) const
 {
+    ASSERT(!HasEmptyCell(rCell));
+    
     Cell first_cell, last_cell;
     GetLimits(rCell, direction, first_cell, last_cell);
 
 	unsigned result = 0;
-
     if (first_cell != last_cell) {
-        unsigned length = first_cell.Distance(last_cell) + 1;
+        unsigned length = first_cell.Distance(last_cell, direction) + 1;
+        ASSERT(length > 1);
         Tile first_tile = GetTile(first_cell);
         Tile last_tile = GetTile(last_cell);
         AIndexType attr = first_tile.CommonAttribute(last_tile);
@@ -143,6 +143,7 @@ unsigned Board::ScoreDirection(
         if (length == max_length) {
             result = 2*length;
         } else {
+            ASSERT(length < max_length);
             result = length;
         }
     }
@@ -152,21 +153,26 @@ unsigned Board::ScoreDirection(
 
 unsigned Board::ScoreMove(Move const &rMove) const {
     unsigned result = 0;
+    
+    Cells cells = Cells(rMove);
+    
+    for (int dir = DIRECTION_FIRST; 
+             dir <= DIRECTION_LAST_POSITIVE;
+             dir++)
+    {
+        DirectionType direction = DirectionType(dir);
+        if (is_scoring_direction(direction)) {
+            DirectionType ortho = ::ortho_direction(direction);
+            Indices done_group;
 
-    Move::const_iterator i_place;
-    Indices done_columns, done_rows;
-    for (i_place = rMove.begin(); i_place != rMove.end(); i_place++) {
-        Cell cell = Cell(*i_place);
-        
-        IndexType row = cell.Row();
-        if (!done_rows.Contains(row)) {
-            result += ScoreDirection(cell, DIRECTION_NORTH);
-            done_rows.insert(row);
-        }
-        IndexType column = cell.Column();
-        if (!done_columns.Contains(column)) {
-            result += ScoreDirection(cell, DIRECTION_EAST);
-            done_columns.insert(column);
+            Cells::ConstIteratorType i_cell;
+            for (i_cell = cells.begin(); i_cell != cells.end(); i_cell++) {
+                IndexType group = i_cell->Group(direction);
+                if (!done_group.Contains(group)) {
+                    result += ScoreDirection(*i_cell, ortho);        
+                    done_group.Add(group);
+                }
+            }
         }
     }
 
@@ -179,17 +185,17 @@ unsigned Board::ScoreMove(Move const &rMove) const {
 bool Board::AreAllCompatible(Cells const &rCells, DirectionType direction) const {
     bool result = true;
     
-    Indices done_groups;
+    Indices done_orthos;
         
-    Cells::const_iterator i_cell;
+    Cells::ConstIteratorType i_cell;
     for (i_cell = rCells.begin(); i_cell != rCells.end(); i_cell++) {
-        IndexType group = i_cell->Group(direction);
-        if (!done_groups.Contains(group)) {
+        IndexType ortho_group = i_cell->Group(::ortho_direction(direction));
+        if (!done_orthos.Contains(ortho_group)) {
             if (!IsDirectionCompatible(*i_cell, direction)) {
                 result = false;
                 break;
             }
-            done_groups.Add(group);
+            done_orthos.Add(ortho_group);
         }
     }
     
@@ -287,36 +293,10 @@ bool Board::DoesAnyConnectToStart(Cells const &rCells) const {
     return result;
 }
 
-bool Board::HasEmptyCell(IndexType northing, IndexType easting) const {
-    Tile const *p_tile = GetPtr(northing, easting);
-    bool result = (p_tile == NULL);
-
-    return result;
-}
-
 bool Board::HasEmptyCell(Cell const &rCell) const {
     Tile const *p_tile = GetCell(rCell);
     bool result = (p_tile == NULL);
 
-    return result;
-}
-
-bool Board::IsDirectionCompatible(Cell const &rCell, DirectionType direction) const {
-    Cell first_cell, last_cell;
-    GetLimits(rCell, direction, first_cell, last_cell);
-    bool result = true;
-    
-    for (Cell cell1 = first_cell; cell1 != last_cell; cell1.Next(direction)) {
-        Tile t1 = GetTile(cell1);
-        for (Cell cell2(cell1, direction); cell1 != last_cell; cell2.Next(direction)) {
-            Tile t2 = GetTile(cell2);
-            if (!t1.IsCompatibleWith(&t2)) {
-                result = false;
-                break;
-            }
-        }
-    }
-    
     return result;
 }
 
@@ -325,31 +305,53 @@ bool Board::IsConnectedDirection(Cells const &rCells, DirectionType direction) c
     
     if (rCells.Count() > 1) {
         Cells::ConstIteratorType i_cell = rCells.begin();
-        int column = i_cell->Column();
-        int first_row = i_cell->Row();
-        int last_row = i_cell->Row();
+       
+        DirectionType ortho = ::ortho_direction(direction);
+        
+        Cell first_cell = *i_cell;
+        Cell last_cell = *i_cell;
         for ( ; i_cell != rCells.end(); i_cell++) {
-            if (column != i_cell->Column()) {
+            if (first_cell.Group(ortho) != i_cell->Group(ortho)) {
                 return false;
+            }            
+            if (i_cell->Group(direction) > last_cell.Group(direction)) {
+                last_cell = *i_cell;
             }
-            
-            int row = i_cell->Row();
-            if (row > last_row) {
-                last_row = row;
-            }
-            if (row < first_row) {
-                first_row = row;
+            if (i_cell->Group(direction) < first_cell.Group(direction)) {
+                first_cell = *i_cell;
             }
         }
         
-        for (int i_row = first_row; i_row <= last_row; i_row++) {
-            if (HasEmptyCell(i_row, column)) {
+        for (Cell cell = first_cell; cell != last_cell; cell.Next(direction)) {
+            if (HasEmptyCell(cell)) {
                 result = false;
                 break;
             }
         }
     }
 
+    return result;
+}
+
+bool Board::IsDirectionCompatible(Cell const &rCell, DirectionType direction) const {
+    ASSERT(!HasEmptyCell(rCell));
+    
+    Cell first_cell, last_cell;
+    GetLimits(rCell, direction, first_cell, last_cell);
+    Cell end_cell(last_cell, direction, 1);
+    bool result = true;
+    
+    for (Cell cell1 = first_cell; cell1 != last_cell; cell1.Next(direction)) {
+        Tile t1 = GetTile(cell1);
+        for (Cell cell2(cell1, direction); cell2 != end_cell; cell2.Next(direction)) {
+            Tile t2 = GetTile(cell2);
+            if (!t1.IsCompatibleWith(&t2)) {
+                result = false;
+                break;
+            }
+        }
+    }
+    
     return result;
 }
 
@@ -409,13 +411,24 @@ bool Board::IsValidMove(Move const &rMove, char const *&rReason) const {
         return false;
     }
 
-    // make sure the cells lie in a single row or column
-    bool is_single_row = cells.AreAllInSameRow();
-    bool is_single_column = cells.AreAllInSameColumn();
-    if (!is_single_row && !is_single_column) {
-        D(std::cout << "The cells you use must all lie in a single row or column." << std::endl);
-		rReason = "ROWCOLUMN";
-        return false;
+    DirectionType direction_of_play = DIRECTION_UNKNOWN;
+    if (cells.Count() > 1) {
+        // make sure the cells lie in a single group
+        for (int dir = DIRECTION_FIRST; 
+             dir <= DIRECTION_LAST_POSITIVE;
+             dir++)
+        {
+            DirectionType direction = DirectionType(dir);
+            if (cells.AreAllInSameGroup(direction)) {
+                direction_of_play = direction;
+            }
+        }
+        if (direction_of_play == DIRECTION_UNKNOWN) {
+            D(std::cout << "The cells you use must all lie in a single row, " 
+                        << "column, or diagonal." << std::endl);
+		    rReason = "ROWCOLUMN";
+            return false;
+        }
     }
 
     // make sure one of the cells will connect to the start
@@ -435,35 +448,53 @@ bool Board::IsValidMove(Move const &rMove, char const *&rReason) const {
     Board after(*this);
     after.PlayMove(rMove);
 
-    // make sure there are no empty squares between played tiles
-    if (is_single_row) {
-        if (!after.IsConnectedDirection(cells, DIRECTION_EAST)) {
+    if (cells.Count() > 1) {
+        // make sure there are no empty squares between played tiles
+        if (!after.IsConnectedDirection(cells, direction_of_play)) {
             D(std::cout << "You must not leave any empty cells between the tiles you play." 
 				<< std::endl);
      		rReason = "GAP";
             return false;
         }
-    } else {
-        if (!after.IsConnectedDirection(cells, DIRECTION_NORTH)) {
-            D(std::cout << "You must not leave any empty cells between the tiles you play." 
-				<< std::endl);
-     		rReason = "GAP";
-			return false;
-        }
     }
+    
+    // check compatibility of connected tiles in each group played
+    for (int dir = DIRECTION_FIRST;
+             dir <= DIRECTION_LAST_POSITIVE;
+             dir++)
+    {
+        DirectionType direction = DirectionType(dir);
+        if (is_scoring_direction(direction)) {
+            DirectionType ortho = ::ortho_direction(direction);
+            if (!after.AreAllCompatible(cells, direction)) {
+                switch (direction) {
+                    case DIRECTION_NORTH:
+                        D(std::cout << "Tiles in a column (with no intervening "
+                                    << "empty cells) must all be mutually "
+                                    << "compatible." << std::endl);
+		                rReason = "COLUMNCOMPAT";
+                        return false;
 
-    // check compatibility of connected tiles in each row and column played
-    if (!after.AreAllCompatible(cells, DIRECTION_EAST)) {
-        D(std::cout << "Tiles in a row (with no intervening empty cells) "
-			>> "must all be mutually compatible." << std::endl);
-		rReason = "ROWCOMPAT";
-        return false;
-    }
-    if (!after.AreAllCompatible(cells, DIRECTION_NORTH)) {
-        D(std::cout << "Tiles in a column (with no intervening empty cells) "
-			>> "must all be mutually compatible." << std::endl);
-		rReason = "COLUMNCOMPAT";
-        return false;
+                    case DIRECTION_EAST:
+                        D(std::cout << "Tiles in a row (with no intervening "
+                                    << "empty cells) must all be mutually "
+                                    << "compatible." << std::endl);
+		                rReason = "ROWCOMPAT";
+                        return false;
+
+                    case DIRECTION_NORTHEAST:
+                    case DIRECTION_SOUTHEAST:
+                        D(std::cout << "Tiles on a diagonal (with no intervening "
+                                    << "empty cells) must all be mutually "
+                                    << "compatible." << std::endl);
+		                rReason = "DIAGCOMPAT";
+                        return false;
+
+                    default:
+                        ASSERT(false);
+                }
+            }
+        }
     }
 
     D(std::cout << "The move is a valid play." << std::endl);

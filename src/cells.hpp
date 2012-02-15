@@ -47,8 +47,7 @@ public:
 	void     MakeEmpty(void);
 
 	// public inquiry methods
-	bool AreAllInSameRow(void) const;
-    bool AreAllInSameColumn(void) const;
+	bool AreAllInSameGroup(DirectionType) const;
     bool Contains(Cell const &) const;
 	bool IsEmpty(void) const;
 };

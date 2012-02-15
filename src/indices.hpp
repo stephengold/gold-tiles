@@ -45,8 +45,8 @@ public:
 	static const IndexType INDEX_MIN = LONG_MIN;
 
 	// misc public methods
-	void     Add(long);
-	void     AddRemove(long, bool);
+	void     Add(IndexType);
+	void     AddRemove(IndexType, bool);
     unsigned Count(void) const;
 	void     MakeEmpty(void);
 	void     Remove(long);

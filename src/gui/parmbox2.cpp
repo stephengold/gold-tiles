@@ -106,7 +106,7 @@ INT_PTR ParmBox2::HandleMessage(UINT message, WPARAM wParam, LPARAM lParam) {
                     ValueType value = GetTextIndex(id);
 					if (value >= Cell::HEIGHT_MIN
 					 && value <= Cell::HEIGHT_MAX) {
-						mHeight = value + (value % 2);
+						mHeight = value + (value & 0x1);
 			            UpdateCellCnt();
 					}
                     break;
@@ -115,7 +115,7 @@ INT_PTR ParmBox2::HandleMessage(UINT message, WPARAM wParam, LPARAM lParam) {
                     ValueType value = GetTextIndex(id);
 					if (value >= Cell::WIDTH_MIN
 					 && value <= Cell::WIDTH_MAX) {
-						mWidth = value + (value % 2);
+						mWidth = value + (value & 0x1);
 						UpdateCellCnt();
 					}
                     break;
@@ -292,6 +292,9 @@ void ParmBox2::SetTopology(IdType buttonId) {
 void ParmBox2::UpdateCellCnt(void) {
 	IndexType cell_cnt = Cell::HEIGHT_MAX;
 	if (mHeight < Cell::HEIGHT_MAX && mWidth < Cell::WIDTH_MAX) {
+        IndexType max = (mHeight < mWidth) ? mWidth : mHeight;
+        mHeight = max;
+        mWidth = max;
 		if (mGrid == GRID_HEX) {
 		    cell_cnt = (mHeight/2) * mWidth;
 		} else {

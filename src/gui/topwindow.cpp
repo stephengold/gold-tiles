@@ -83,9 +83,9 @@ static LRESULT CALLBACK message_handler(
 TopWindow::TopWindow(HINSTANCE applicationInstance, Game *pGame):
     mHandRect(0, 0, 0, 0),
     mMouseLast(0, 0),
+    mPartial(pGame, 3), // TODO
     mStartCell(0, 0),
-    mSwapRect(0, 0, 0, 0),
-    mPartial(pGame, 3)
+    mSwapRect(0, 0, 0, 0)
 {
 	ASSERT(Handle() == 0);
 
@@ -291,10 +291,10 @@ Rect TopWindow::DrawBlankTile(Canvas &rCanvas, Point const &rPoint) {
 void TopWindow::DrawBoard(Canvas &rCanvas) {
     Board board = Board(mPartial);
     
-    int top_row = 1 + board.NorthMax();
-    int bottom_row = -1 - board.SouthMax();
-    int right_column = 1 + board.EastMax();
-    int left_column = -1 - board.WestMax();
+    int top_row = 2 + board.NorthMax();
+    int bottom_row = -2 - board.SouthMax();
+    int right_column = 2 + board.EastMax();
+    int left_column = -2 - board.WestMax();
     ASSERT(bottom_row <= top_row);
     ASSERT(left_column <= right_column);
 
@@ -321,8 +321,8 @@ void TopWindow::DrawBoard(Canvas &rCanvas) {
 }
 
 void TopWindow::DrawCell(Canvas &rCanvas, Cell const &rCell, unsigned swapCnt) {
-    int row = rCell.Row();
-    int column = rCell.Column();
+    IndexType row = rCell.Row();
+    IndexType column = rCell.Column();
     LogicalXType ulc_x = CellX(column);
     LogicalYType ulc_y = CellY(row);
 
@@ -640,8 +640,8 @@ Rect TopWindow::DrawTile(Canvas &rCanvas, Point point, Tile const &rTile) {
 
 Cell TopWindow::GetCell(Point const &rPoint) const {
     PCntType grid_unit = GridUnit();
-    int column = -400 + (rPoint.X() - mStartCell.X() + 400*grid_unit)/grid_unit;
-    int row = 400 - (rPoint.Y() - mStartCell.Y() + 400*grid_unit)/grid_unit;
+    IndexType column = -400 + (rPoint.X() - mStartCell.X() + 400*grid_unit)/grid_unit;
+    IndexType row = 400 - (rPoint.Y() - mStartCell.Y() + 400*grid_unit)/grid_unit;
     Cell result(row, column);
     
     return result;
@@ -1240,7 +1240,7 @@ void TopWindow::ReleaseActiveTile(Point const &rMouse) {
 		}
 	}
 
-	if (to_board && mPartial.GetCell(to_cell) != 0) {
+	if (to_board && (!to_cell.IsValid() || mPartial.GetCell(to_cell) != 0)) {
 		// cell conflict - can't construct move in the normal way
 	    Dialog empty("EMPTY");
 		empty.Run(this);
@@ -1433,9 +1433,7 @@ bool TopWindow::IsInTile(Point const &rPoint) const {
 }
 
 bool TopWindow::IsPaused(void) const {
-	bool result = mPauseFlag;
-
-	return result;
+	return mPauseFlag;
 }
 
 #endif

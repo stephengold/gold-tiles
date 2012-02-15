@@ -38,22 +38,25 @@ for the row (or northing) and another for the column (or easting).
 #include "indices.hpp"
 #include "string.hpp"
 
+enum DirectionType {
+    // positive directions
+    DIRECTION_NORTH = 0, DIRECTION_FIRST = 0,
+	DIRECTION_NORTHEAST = 1,
+    DIRECTION_EAST = 2,
+	DIRECTION_SOUTHEAST = 3, DIRECTION_LAST_POSITIVE = 3,
+	// negative directions
+    DIRECTION_SOUTH = 4, DIRECTION_FIRST_NEGATIVE = 4,
+	DIRECTION_SOUTHWEST = 5,
+    DIRECTION_WEST = 6,
+	DIRECTION_NORTHWEST = 7, DIRECTION_LAST = 7,
+	DIRECTION_UNKNOWN = 66
+};
+
 enum GridType {
 	GRID_TRIANGLE = 3,
 	GRID_4WAY = 4,
 	GRID_HEX = 6,
 	GRID_8WAY = 8
-};
-
-enum DirectionType {
-    DIRECTION_NORTH = 0, DIRECTION_FIRST = 0,
-    DIRECTION_SOUTH = 1,
-    DIRECTION_EAST = 2,
-    DIRECTION_WEST = 3,
-	DIRECTION_NORTHEAST = 4,
-	DIRECTION_NORTHWEST = 5,
-	DIRECTION_SOUTHEAST = 6,
-	DIRECTION_SOUTHWEST = 7, DIRECTION_LAST = 7
 };
 
 class Cell {
@@ -79,11 +82,11 @@ public:
 
 	// misc public methods
 	IndexType       Column(void) const;
-	unsigned        Distance(Cell const &) const;
+    IndexType       Distance(Cell const &, DirectionType) const;
     bool            GetUserChoice(String const &);
     static GridType Grid(void);
 	IndexType       Group(DirectionType direction) const;
-	void            Next(DirectionType);
+	void            Next(DirectionType, IndexType count = 1);
 	IndexType       Row(void) const;
 	static void     SetGrid(GridType);
 	static void     SetTopology(bool wrapFlag, IndexType height, IndexType width);
@@ -102,9 +105,17 @@ private:
 
 	IndexType mColumn, mRow;
 
+    // misc private methods
+	static void NextCellOffsets(DirectionType, IndexType &rowOffset, 
+		                 IndexType &columnOffset);
+
 	// private inquiry methods
 	bool IsSameRow(Cell const &) const;
-	void NextCellOffsets(DirectionType, IndexType &rowOffset, 
-		                 IndexType &columnOffset) const;
 };
+
+// utility functions
+
+extern bool is_scoring_direction(DirectionType);
+extern DirectionType ortho_direction(DirectionType);
+
 #endif

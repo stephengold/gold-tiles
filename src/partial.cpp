@@ -61,9 +61,7 @@ void Partial::Reset(void) {
 // BaseBoard &operator=(BaseBoard const &);  compiler-generated assignment operator is OK
 
 Partial::operator Board(void) const {
-   Board result = mBoard;
-   
-   return result;
+   return mBoard;
  }
 
 Partial::operator Move(void) const {
@@ -137,9 +135,7 @@ unsigned Partial::CountHand(void) const {
 }
 
 unsigned Partial::CountPlayed(void) const {
-    unsigned result = mPlayedTileCnt;
-    
-    return result; 
+    return mPlayedTileCnt; 
 }
 
 unsigned Partial::CountSwap(void) const {
@@ -246,14 +242,14 @@ void Partial::SetHintedCells(void) {
     mHintedCells.MakeEmpty();
 
     // for mHintStrength == 0, empty cells (from start of turn) are hinted
-    int top_row = 1 + mBoard.NorthMax();
-    int bottom_row = -1 - mBoard.SouthMax();
-    int right_column = 1 + mBoard.EastMax();
-    int left_column = -1 - mBoard.WestMax();
+    IndexType top_row = 2 + mBoard.NorthMax();
+    IndexType bottom_row = -2 - mBoard.SouthMax();
+    IndexType right_column = 2 + mBoard.EastMax();
+    IndexType left_column = -2 - mBoard.WestMax();
     ASSERT(bottom_row <= top_row);
     ASSERT(left_column <= right_column);
-    for (int row = top_row; row >= bottom_row; row--) {
-        for (int column = left_column; column <= right_column; column++) {
+    for (IndexType row = top_row; row >= bottom_row; row--) {
+        for (IndexType column = left_column; column <= right_column; column++) {
 			if (Cell::IsValid(row, column)) {
                 Cell cell(row, column);
                 if (mpGame != NULL && mpGame->HasEmptyCell(cell)) {
@@ -294,7 +290,7 @@ void Partial::SetHintedCells(void) {
             }
             
 		    if (include_tile) {
-                 AddValidNextUses(move, tile, base);
+                AddValidNextUses(move, tile, base);
             }
 		}
     }
@@ -314,16 +310,16 @@ void Partial::SwapToHand(void) {
 
 // inquiry methods
 
-bool Partial::IsActive(TileIdType id) const {
-    bool result = (mActiveId == id);
-    
-    return result;
-}
-
 bool Partial::Contains(TileIdType id) const {
      bool result = mTiles.ContainsId(id);     
 
      return result;
+}
+
+bool Partial::IsActive(TileIdType id) const {
+    bool result = (mActiveId == id);
+    
+    return result;
 }
 
 bool Partial::IsHinted(Cell const &rCell) {

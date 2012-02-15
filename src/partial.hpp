@@ -59,8 +59,8 @@ public:
 	void       Activate(TileIdType);  // TODO Mobilize()
 	void       BoardToHand(void);             // move the active tile
 	unsigned   CountHand(void) const;
-	unsigned   CountSwap(void) const;
 	unsigned   CountPlayed(void) const;
+	unsigned   CountSwap(void) const;
 	unsigned   CountTiles(void) const;
 	void       Deactivate(void);
 	TileIdType GetActive(void) const;

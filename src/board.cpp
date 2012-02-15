@@ -161,15 +161,15 @@ unsigned Board::ScoreMove(Move const &rMove) const {
              dir++)
     {
         DirectionType direction = DirectionType(dir);
-        if (is_scoring_direction(direction)) {
+        if (::is_scoring_direction(direction)) {
             DirectionType ortho = ::ortho_direction(direction);
             Indices done_group;
 
             Cells::ConstIteratorType i_cell;
             for (i_cell = cells.begin(); i_cell != cells.end(); i_cell++) {
-                IndexType group = i_cell->Group(direction);
+                IndexType group = i_cell->Group(ortho);
                 if (!done_group.Contains(group)) {
-                    result += ScoreDirection(*i_cell, ortho);        
+                    result += ScoreDirection(*i_cell, direction);        
                     done_group.Add(group);
                 }
             }
@@ -310,14 +310,15 @@ bool Board::IsConnectedDirection(Cells const &rCells, DirectionType direction) c
         
         Cell first_cell = *i_cell;
         Cell last_cell = *i_cell;
-        for ( ; i_cell != rCells.end(); i_cell++) {
-            if (first_cell.Group(ortho) != i_cell->Group(ortho)) {
+        for (i_cell++ ; i_cell != rCells.end(); i_cell++) {
+			Cell cell = *i_cell;
+            if (first_cell.Group(ortho) != cell.Group(ortho)) {
                 return false;
             }            
-            if (i_cell->Group(direction) > last_cell.Group(direction)) {
+            if (cell.Group(direction) > last_cell.Group(direction)) {
                 last_cell = *i_cell;
             }
-            if (i_cell->Group(direction) < first_cell.Group(direction)) {
+            if (cell.Group(direction) < first_cell.Group(direction)) {
                 first_cell = *i_cell;
             }
         }
@@ -335,15 +336,19 @@ bool Board::IsConnectedDirection(Cells const &rCells, DirectionType direction) c
 
 bool Board::IsDirectionCompatible(Cell const &rCell, DirectionType direction) const {
     ASSERT(!HasEmptyCell(rCell));
+	ASSERT(::is_scoring_direction(direction));
     
     Cell first_cell, last_cell;
     GetLimits(rCell, direction, first_cell, last_cell);
     Cell end_cell(last_cell, direction, 1);
+
     bool result = true;
     
     for (Cell cell1 = first_cell; cell1 != last_cell; cell1.Next(direction)) {
         Tile t1 = GetTile(cell1);
         for (Cell cell2(cell1, direction); cell2 != end_cell; cell2.Next(direction)) {
+			ASSERT(cell1.Group(::ortho_direction(direction)) 
+				== cell2.Group(::ortho_direction(direction)));
             Tile t2 = GetTile(cell2);
             if (!t1.IsCompatibleWith(&t2)) {
                 result = false;
@@ -419,9 +424,12 @@ bool Board::IsValidMove(Move const &rMove, char const *&rReason) const {
              dir++)
         {
             DirectionType direction = DirectionType(dir);
-            if (cells.AreAllInSameGroup(direction)) {
-                direction_of_play = direction;
-            }
+			if (::is_scoring_direction(direction)) {
+			    DirectionType ortho = ::ortho_direction(direction);
+                if (cells.AreAllInSameGroup(ortho)) {
+                    direction_of_play = direction;
+                }
+			}
         }
         if (direction_of_play == DIRECTION_UNKNOWN) {
             D(std::cout << "The cells you use must all lie in a single row, " 
@@ -464,7 +472,7 @@ bool Board::IsValidMove(Move const &rMove, char const *&rReason) const {
              dir++)
     {
         DirectionType direction = DirectionType(dir);
-        if (is_scoring_direction(direction)) {
+        if (::is_scoring_direction(direction)) {
             DirectionType ortho = ::ortho_direction(direction);
             if (!after.AreAllCompatible(cells, direction)) {
                 switch (direction) {

@@ -69,7 +69,7 @@ public:
 	AValueType        Attribute(AIndexType) const;
     static ACountType AttributeCnt(void);
 	Tile              Clone(void) const;
-	unsigned          CommonAttribute(Tile const &) const;
+	AIndexType        CommonAttribute(Tile const &) const;
 	ACountType        CountMatchingAttributes(Tile const &) const;
 	void              Display(void) const;
     static void       DisplayEmpty(void);

@@ -173,6 +173,8 @@ void Game::FinishTurn(Move const &move) {
 	
 	//  If it was the first turn, it no longer is.
     mBestRunLength = 0;
+
+	// There are now unsaved changes.
 	mUnsavedChanges = true;
 }
 

@@ -172,7 +172,7 @@ Tile Tile::Clone(void) const {
     return result;
 }
 
-unsigned Tile::CommonAttribute(Tile const &rOther) const {
+AIndexType Tile::CommonAttribute(Tile const &rOther) const {
 	ASSERT(IsValid());
 	ASSERT(rOther.IsValid());
     ASSERT(CountMatchingAttributes(rOther) == 1);

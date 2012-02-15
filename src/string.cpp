@@ -29,6 +29,21 @@ static std::string itos(int integer) {
    sout << integer;
    return sout.str(); 
 }
+static std::string utos(unsigned integer) {
+   std::ostringstream sout;
+   sout << integer;
+   return sout.str(); 
+}
+static std::string ltos(long integer) {
+   std::ostringstream sout;
+   sout << integer;
+   return sout.str(); 
+}
+static std::string ultos(unsigned long integer) {
+   std::ostringstream sout;
+   sout << integer;
+   return sout.str(); 
+}
 
 String::String(void):
     std::string() {}
@@ -43,7 +58,11 @@ String::String(char const p_ch[]):
 String::String(int integer):
 	std::string(::itos(integer)) {}
 String::String(unsigned integer):
-	std::string(::itos(integer)) {}
+	std::string(::utos(integer)) {}
+String::String(long integer):
+	std::string(::ltos(integer)) {}
+String::String(unsigned long integer):
+	std::string(::ultos(integer)) {}
 
 String::operator int(void) const {
 	unsigned n = Length();

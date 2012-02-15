@@ -30,6 +30,11 @@ A String object represents a text string (sequence of characters).
 
 #include <string>
 
+#ifndef __STDC_WANT_SECURE_LIB__
+// for envs that don't provide strcpy_s()
+#define strcpy_s(a, sz, b) strcpy(a, b)
+#endif
+
 class String: public std::string {
 public:
 	// lifecycle
@@ -39,6 +44,8 @@ public:
 	String(char const []);
 	String(int); // itoa
 	String(unsigned); // itoa
+	String(long); // itoa
+	String(unsigned long); // itoa
 	String(std::string const &);
 	// String(String const &);  compiler-generated copy constructor is OK
     // ~String(void);  compiler-generated destructor is OK

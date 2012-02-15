@@ -30,11 +30,6 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 #include "gui/rect.hpp"
 #include "string.hpp"
 
-#ifndef __STDC_WANT_SECURE_LIB__
-// for envs that don't provide strcpy_s()
-#define strcpy_s(a, sz, b) strcpy(a, b)
-#endif
-
 // lifecycle
 
 Graphics::Graphics(

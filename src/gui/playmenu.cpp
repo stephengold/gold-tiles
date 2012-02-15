@@ -56,3 +56,4 @@ void PlayMenu::EnableItems(bool paused, bool play) {
     mRedo.Enable(false);
     mAutopause.Enable(!paused);
 }
+

@@ -60,6 +60,8 @@ public:
 	bool IsMouseCaptured(void) const;
 
 protected:
+	static Window *mspNewlyCreatedWindow;
+
 	// protected operators
     operator Rect(void) const;
 
@@ -81,6 +83,7 @@ private:
     typedef std::map<Key, Window*>        Map;
     typedef std::pair<Key, Window*>       Pair;
     typedef Map::iterator                 IteratorType;
+	typedef Map::const_iterator           ConstIteratorType;
     typedef std::pair<IteratorType, bool> InsertResultType;
 
 	static Map msMap;

@@ -124,6 +124,7 @@ FONT 10, "Microsoft Sans Serif"
 }
 
 
+
 DIAGCOMPAT DIALOG 0, 0, 115, 64
 STYLE DS_3DLOOK | DS_CENTER | DS_MODALFRAME | DS_SHELLFONT | WS_CAPTION | WS_VISIBLE | WS_POPUP | WS_SYSMENU
 CAPTION "Diagonal Compatibility Rule - Gold Tile"
@@ -132,7 +133,6 @@ FONT 10, "Microsoft Sans Serif"
     DEFPUSHBUTTON   "OK", IDOK, 32, 39, 50, 14
     CTEXT           "Tiles on a diagonal (with no intervening empty cells) must all be mutually compatible.", IDC_STATIC, 10, 6, 96, 27, SS_CENTER
 }
-
 
 
 
@@ -287,13 +287,13 @@ FONT 10, "Microsoft Sans Serif"
 
 
 
-ROWCOLUMN DIALOG 0, 0, 112, 52
+ROWCOLUMN DIALOG 0, 0, 122, 52
 STYLE DS_3DLOOK | DS_CENTER | DS_MODALFRAME | DS_SHELLFONT | WS_CAPTION | WS_VISIBLE | WS_POPUP | WS_SYSMENU
 CAPTION "Row/Column Rule - Gold Tile"
 FONT 10, "Microsoft Sans Serif"
 {
-    DEFPUSHBUTTON   "OK", IDOK, 31, 31, 50, 14
-    CTEXT           "The cells you use must all lie in a single row, column, or diagonal.", IDC_STATIC, 11, 8, 93, 18, SS_CENTER
+    DEFPUSHBUTTON   "OK", IDOK, 37, 32, 50, 14
+    CTEXT           "The cells you use must all lie in a single row, column, or diagonal.", IDC_STATIC, 11, 8, 101, 18, SS_CENTER
 }
 
 

@@ -33,7 +33,8 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 
 // static data
 
-Window::Map Window::msMap;
+/* static */ Window::Map Window::msMap;
+/* static */ Window *Window::mspNewlyCreatedWindow = NULL;
 
 // lifecycle
 
@@ -191,14 +192,17 @@ LRESULT Window::HandleMessage(UINT message, WPARAM wParameter, LPARAM lParameter
 }
 
 /* static */ Window *Window::Lookup(HWND handle) {
-	Key key = Key(handle);
-	Map::const_iterator it;
-	it = msMap.find(key);
+    Key key = Key(handle);
+    ConstIteratorType i_window = msMap.find(key);
 
 	Window *result = NULL;
-	if (it != msMap.end()) {
-	    result = it->second;
-	    ASSERT(result != NULL);
+    if (i_window != msMap.end()) {
+        result = i_window->second;
+        ASSERT(result != NULL);
+    } else if (mspNewlyCreatedWindow != NULL) {
+		result = mspNewlyCreatedWindow;
+		mspNewlyCreatedWindow = NULL;
+		result->SetHandle(handle);
 	}
 
 	return result;

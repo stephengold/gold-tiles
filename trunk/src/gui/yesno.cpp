@@ -32,19 +32,9 @@ static INT_PTR CALLBACK yesNoMessageHandler(
 	LPARAM lParameter)
 {
 	ASSERT(windowHandle != NULL);
-
-    YesNo *p_box;
-	if (gpNewlyCreatedDialog != NULL) {
-		p_box = (YesNo *)gpNewlyCreatedDialog;
-		gpNewlyCreatedDialog = NULL;
-		p_box->SetHandle(windowHandle);
-	} else {
-       p_box = (YesNo *)Window::Lookup(windowHandle);
-	}
-
-	INT_PTR result;
+    YesNo *p_box = (YesNo *)Window::Lookup(windowHandle);
     ASSERT(p_box->Handle() == windowHandle);
-    result = p_box->HandleMessage(message, wParameter, lParameter);
+	INT_PTR result = p_box->HandleMessage(message, wParameter, lParameter);
 
 	return result;
 }

@@ -49,7 +49,6 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 WindowClass *TopWindow::mspClass = NULL;
 
 // message handler (callback) for top window
-static TopWindow *spNewlyCreatedTopWindow = NULL;
 static LRESULT CALLBACK message_handler(
 	HWND windowHandle,
 	UINT message,
@@ -57,24 +56,17 @@ static LRESULT CALLBACK message_handler(
 	LPARAM lParam)
 {
 	ASSERT(windowHandle != NULL);
-
-    TopWindow *window;
-	if (message == WM_CREATE && spNewlyCreatedTopWindow != NULL) {
-		window = spNewlyCreatedTopWindow;
-		spNewlyCreatedTopWindow = NULL;
-		window->SetHandle(windowHandle);
-	} else {
-       window = (TopWindow *)Window::Lookup(windowHandle);
-	}
+    TopWindow *window = (TopWindow *)Window::Lookup(windowHandle);
 
 	LRESULT result;
-	if (window == NULL) { // unknown window handle
+	if (window == NULL) { // unknown window
 		// invoke default message handler
 		result = ::DefWindowProc(windowHandle, message, wParam, lParam);
 	} else {
      	ASSERT(window->Handle() == windowHandle);
         result = window->HandleMessage(message, wParam, lParam);
 	}
+
 	return result;
 }
 
@@ -99,8 +91,8 @@ TopWindow::TopWindow(HINSTANCE applicationInstance, Game *pGame):
 	ASSERT(mspClass != NULL);
 
 	// Make this TopWindow object accessable to its message handler before WM_CREATE.
-    ASSERT(spNewlyCreatedTopWindow == NULL);
-	spNewlyCreatedTopWindow = this;
+    ASSERT(mspNewlyCreatedWindow == NULL);
+	mspNewlyCreatedWindow = this;
 
 	mActiveCellFlag = true;
 	mApplication = applicationInstance;

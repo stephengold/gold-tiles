@@ -32,19 +32,9 @@ static INT_PTR CALLBACK message_handler(
 	LPARAM lParameter)
 {
 	ASSERT(windowHandle != NULL);
-
-	ParmBox1 *p_box;
-	if (gpNewlyCreatedDialog != NULL) {
-		p_box = (ParmBox1 *)gpNewlyCreatedDialog;
-		gpNewlyCreatedDialog = NULL;
-		p_box->SetHandle(windowHandle);
-	} else {
-       p_box = (ParmBox1 *)Window::Lookup(windowHandle);
-	}
-
-	INT_PTR result;
+	ParmBox1 *p_box = (ParmBox1 *)Window::Lookup(windowHandle);
     ASSERT(p_box->Handle() == windowHandle);
-    result = p_box->HandleMessage(message, wParameter, lParameter);
+	INT_PTR result = p_box->HandleMessage(message, wParameter, lParameter);
 
 	return result;
 }

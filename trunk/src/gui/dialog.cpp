@@ -31,8 +31,6 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 #include "gui/resource.hpp"
 #include "string.hpp"
 
-Dialog *gpNewlyCreatedDialog = NULL;
-
 // message handler (callback) for generic dialog
 static INT_PTR CALLBACK message_handler(
 	HWND windowHandle,
@@ -41,15 +39,7 @@ static INT_PTR CALLBACK message_handler(
 	LPARAM lParameter)
 {
 	ASSERT(windowHandle != NULL);
-
-    Dialog *p_dialog;
-	if (gpNewlyCreatedDialog != NULL) {
-		p_dialog = gpNewlyCreatedDialog;
-		gpNewlyCreatedDialog = NULL;
-		p_dialog->SetHandle(windowHandle);
-	} else {
-       p_dialog = (Dialog *)Window::Lookup(windowHandle);
-	}
+    Dialog *p_dialog = (Dialog *)Window::Lookup(windowHandle);
 
 	INT_PTR result;
     ASSERT(p_dialog->Handle() == windowHandle);
@@ -71,7 +61,7 @@ Dialog::Dialog(char const *templateName, DLGPROC messageHandler) {
 }
 
 INT_PTR Dialog::Run(Window *pParent) {
-	gpNewlyCreatedDialog = this;
+	mspNewlyCreatedWindow = this;
 
 	// create a modal dialog box
 	HINSTANCE module = CopyModule(*pParent);

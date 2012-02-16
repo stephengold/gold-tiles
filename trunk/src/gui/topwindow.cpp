@@ -115,12 +115,17 @@ TopWindow::TopWindow(HINSTANCE applicationInstance, Game *pGame):
 	mTileWidth = TILE_WIDTH_LARGE;
     mpViewMenu = NULL;
 
+	HWND desktop_handle = ::GetDesktopWindow();
+	RECT rect;
+	::GetWindowRect(desktop_handle, &rect);
+	Rect desktop_bounds(rect);
+
 	// create Microsoft Windows window
 	DWORD windowStyle = WS_OVERLAPPEDWINDOW;
-	int x = CW_USEDEFAULT;
-	int y = CW_USEDEFAULT;
-	int width = CW_USEDEFAULT;
-	int height = CW_USEDEFAULT;
+	int height = int(0.8*double(desktop_bounds.Height()));
+	int width = int(0.8*double(desktop_bounds.Width()));
+	int x = width/8;
+	int y = height/8;
 	HWND parent = NULL;
 	HMENU menu = NULL;
 	LPVOID parameters = NULL;
@@ -129,7 +134,7 @@ TopWindow::TopWindow(HINSTANCE applicationInstance, Game *pGame):
                              parameters);
     ASSERT(Handle() == handle);
 
-	// wait for top_message_handler() to receive WM_CREATE
+	// wait for top_message_handler() to receive a message with this handle
 }
 
 TopWindow::~TopWindow(void) {
@@ -282,11 +287,10 @@ Rect TopWindow::DrawBlankTile(Canvas &rCanvas, Point const &rPoint) {
 
 void TopWindow::DrawBoard(Canvas &rCanvas) {
     Board board = Board(mPartial);
-    
-    int top_row = 2 + board.NorthMax();
-    int bottom_row = -2 - board.SouthMax();
-    int right_column = 2 + board.EastMax();
-    int left_column = -2 - board.WestMax();
+    IndexType top_row = 2 + board.NorthMax();
+    IndexType bottom_row = -2 - board.SouthMax();
+    IndexType right_column = 2 + board.EastMax();
+    IndexType left_column = -2 - board.WestMax();
     ASSERT(bottom_row <= top_row);
     ASSERT(left_column <= right_column);
 
@@ -297,12 +301,17 @@ void TopWindow::DrawBoard(Canvas &rCanvas) {
 		--swap_cnt;
 	}
 
-    for (int row = top_row; row >= bottom_row; row--) {
-        if (CellY(row) > (int)ClientAreaHeight()) {
+	if (!mActiveCellFlag && mPartial.CountHinted() == 1) {
+		mActiveCell = mPartial.FirstHinted();
+		mActiveCellFlag = true;
+	}
+
+    for (IndexType row = top_row; row >= bottom_row; row--) {
+        if (CellY(row) > (LogicalYType)ClientAreaHeight()) {
             break;
         }
-        for (int column = left_column; column <= right_column; column++) {
-            if (CellX(column) > (int)ClientAreaWidth()) {
+        for (IndexType column = left_column; column <= right_column; column++) {
+            if (CellX(column) > (LogicalXType)ClientAreaWidth()) {
                 break;
             } else if (Cell::IsValid(row, column)) {
                 Cell cell(row, column);
@@ -763,7 +772,9 @@ void TopWindow::HandleMenuCommand(int command) {
 		    break;
         }
 	    case IDM_TAKE_BACK:
-			TakeBack();
+			mPartial.Reset();
+            ForceRepaint();
+			UpdateMenus();
 		    break;
 	    case IDM_PAUSE:
 		    mPauseFlag = !mPauseFlag;
@@ -963,16 +974,6 @@ void TopWindow::HandleMouseMove(Point const &rMouse) {
     }
 }
 
-String TopWindow::InventUniqueName(String const &prefix, Strings const &names) const {
-	String result = prefix;
-	unsigned i = 2;
-	while (names.Contains(result)) {
-		result = prefix + String(i);
-	}
-
-	return result;
-}
-
 int TopWindow::MessageDispatchLoop(void) {
     int exitCode;
 
@@ -1074,7 +1075,7 @@ STEP3:
 		// initialize new addresses and names
 		for (unsigned i = player_names.Count(); i < hand_cnt; i++) {
 			new_ip_addresses[i] = 0;  // produces 0.0.0.0
-			String new_name = InventUniqueName("Player", player_names);
+			String new_name = player_names.InventUnique("Player");
 			player_names.Append(new_name);
 		}
 
@@ -1141,7 +1142,8 @@ void TopWindow::OfferSaveGame(void) {
 
 void TopWindow::Play(bool passFlag) {
 	ASSERT(mpGame != NULL);
-    Move move = Move(mPartial);
+	ASSERT(mPartial.GetActive() == 0);
+    Move move = mPartial.GetMove(true);
     
 	char const *reason;
 	bool is_legal = mpGame->IsLegalMove(move, reason);
@@ -1168,7 +1170,11 @@ void TopWindow::Play(bool passFlag) {
                
     } else if (!is_legal) { // explain the issue
         Dialog box(reason);
-		box.Run(this);
+		box.Run(this);		
+		if (::str_eq(reason, "FIRST")) {
+			mPartial.Reset();
+		}
+
 	}
 	ForceRepaint();
 }
@@ -1226,7 +1232,7 @@ void TopWindow::ReleaseActiveTile(Point const &rMouse) {
 			    to_board = true;
 				to_cell = mActiveCell;
 			} else {
-        		++mMouseUpCnt;
+        		mMouseUpCnt = 1;
 				return;
 			}
 		}
@@ -1255,12 +1261,12 @@ void TopWindow::ReleaseActiveTile(Point const &rMouse) {
         mPartial.HandToSwap();
     }
 
-	// Check whether the move so far is legal.
-    Move move_so_far = Move(mPartial);
+	// Check whether the new partial move is legal.
+    Move move_so_far = mPartial.GetMove(true);
     char const *reason;
 	bool legal = mpGame->IsLegalMove(move_so_far, reason);
 
-	if (!legal && (to_swap || ::strcmp(reason, "FIRST") != 0)) {  
+	if (!legal && (to_swap || !::str_eq(reason, "FIRST"))) {  
 		// It's illegal, even as a partial move:  reverse it.
         if (to_board) {
             mPartial.BoardToHand();
@@ -1275,7 +1281,7 @@ void TopWindow::ReleaseActiveTile(Point const &rMouse) {
         }
 
 		// Tell the use why it was illegal.
-		if (::strcmp(reason, "START") == 0 && !from_board) {
+		if (::str_eq(reason, "START") && !from_board) {
 			reason = "STARTSIMPLE";
 	    }
 	    Dialog box(reason);
@@ -1347,12 +1353,6 @@ void TopWindow::StopDragging(void) {
     ASSERT(mPartial.GetActive() == 0);
 	ASSERT(!IsDragging());
 	ASSERT(!IsMouseCaptured());
-}
-
-// take back an incomplete move
-void TopWindow::TakeBack(void) {
-    mPartial.Reset();
-    ForceRepaint();
 }
 
 void TopWindow::UpdateMenus(void) {

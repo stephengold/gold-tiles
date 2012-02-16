@@ -64,23 +64,6 @@ Partial::operator Board(void) const {
    return mBoard;
  }
 
-Partial::operator Move(void) const {
-    Move result;
-    
-    for (unsigned i = 0; i < CountTiles(); i++) {
-        Tile tile = GetTileByIndex(i);
-        TileIdType id = tile.Id();
-        Cell cell;
-        if (mBoard.LocateTileId(id, cell)) {
-           result.Add(tile, cell);
-        } else if (IsInSwap(id)) {
-           result.Add(tile);
-        }
-    }
-
-	return result;
-}
-
 
 // misc methods
 
@@ -134,6 +117,17 @@ unsigned Partial::CountHand(void) const {
     return result; 
 }
 
+unsigned Partial::CountHinted(void) {
+    if (!mHintedCellsValid) {
+        SetHintedCells();
+    }
+    ASSERT(mHintedCellsValid);
+
+    unsigned result = mHintedCells.Count();
+
+	return result;
+}
+
 unsigned Partial::CountPlayed(void) const {
     return mPlayedTileCnt; 
 }
@@ -160,6 +154,18 @@ void Partial::Deactivate(void) {
     }
 }
 
+Cell Partial::FirstHinted(void) {
+    if (!mHintedCellsValid) {
+        SetHintedCells();
+    }
+    ASSERT(mHintedCellsValid);
+	ASSERT(!mHintedCells.IsEmpty());
+    Cells::ConstIteratorType i_cell = mHintedCells.begin();
+	Cell result = *i_cell;
+
+	return result;
+}
+
 TileIdType Partial::GetActive(void) const {
     return mActiveId;
 }
@@ -175,6 +181,25 @@ TileIdType Partial::GetCell(Cell const &rCell) const {
     return result;
 }
      
+Move Partial::GetMove(bool includeActiveFlag) const {
+    Move result;
+    
+    for (unsigned i = 0; i < CountTiles(); i++) {
+        Tile tile = GetTileByIndex(i);
+        TileIdType id = tile.Id();
+		if (includeActiveFlag || !IsActive(id)) {
+            Cell cell;
+            if (mBoard.LocateTileId(id, cell)) {
+                result.Add(tile, cell);
+            } else if (IsInSwap(id)) {
+                result.Add(tile);
+			}
+        }
+    }
+
+	return result;
+}
+
 Tile Partial::GetTileById(TileIdType id) const {
     ASSERT(id != 0);
 
@@ -241,11 +266,16 @@ void Partial::SetHintedCells(void) {
     ASSERT(!mHintedCellsValid);
     mHintedCells.MakeEmpty();
 
+	int fringe = 1;
+	if (Cell::Grid() == GRID_HEX) {
+		fringe = 2;
+	}
+
     // for mHintStrength == 0, empty cells (from start of turn) are hinted
-    IndexType top_row = 2 + mBoard.NorthMax();
-    IndexType bottom_row = -2 - mBoard.SouthMax();
-    IndexType right_column = 2 + mBoard.EastMax();
-    IndexType left_column = -2 - mBoard.WestMax();
+    IndexType top_row = fringe + mBoard.NorthMax();
+    IndexType bottom_row = -fringe - mBoard.SouthMax();
+    IndexType right_column = fringe + mBoard.EastMax();
+    IndexType left_column = -fringe - mBoard.WestMax();
     ASSERT(bottom_row <= top_row);
     ASSERT(left_column <= right_column);
     for (IndexType row = top_row; row >= bottom_row; row--) {
@@ -276,10 +306,10 @@ void Partial::SetHintedCells(void) {
 
     if (mHintStrength > 1) {
         // for mHintStrength == 2, only cells usable with available tiles are hinted
-        // for mHintStrength == 3, only cells usable with active tile are hinted
+        // for mHintStrength == 3, only cells usable with the active tile are hinted
         Cells base = mHintedCells;
         mHintedCells.MakeEmpty();
-	    Move move = Move(*this);
+	    Move move = GetMove(false);
 
 	    for (unsigned i = 0; i < CountTiles(); i++) {
             Tile tile = mTiles[i];
@@ -365,16 +395,20 @@ bool Partial::IsPass(void) const {
     return result;
 }
 
-bool Partial::IsValidNextStep(Move const &base, Cell const &rCell, Tile const &rTile) const {
+bool Partial::IsValidNextStep(
+	Move const &rBase,
+	Cell const &rCell,
+	Tile const &rTile) const
+{
 	// Check whether a hypothetical next step would be legal.
 	ASSERT(mpGame != NULL);
 
-	Move move = base;
+	Move move = rBase;
 	move.Add(rTile, rCell);
     char const *reason;
 	bool result = mpGame->IsLegalMove(move, reason);
 
-	if (!result && ::strcmp(reason, "FIRST") == 0) {  
+	if (!result && ::str_eq(reason, "FIRST")) {  
 		// legal as a partial move.
 	    result = true;
 	}

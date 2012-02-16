@@ -70,5 +70,6 @@ String      ordinal(unsigned n);
 void        pause(void);
 const char *plural(unsigned);
 String      plural(unsigned n, const char *);
+bool        str_eq(char const *string1, char const *string2);
 
 #endif

@@ -72,6 +72,17 @@ Strings::IteratorType Strings::End(void) {
 	return result;
 }
 
+String Strings::InventUnique(String const &rPrefix) const {
+	String result = rPrefix;
+	unsigned i = 2;
+	while (Contains(result)) {
+		result = rPrefix + String(i);
+		i++;
+	}
+
+	return result;
+}
+
 Strings::ConstIteratorType Strings::Find(String const &rString) const {
     ConstIteratorType i_string;
 	for (i_string = Begin(); i_string != End(); i_string++) {

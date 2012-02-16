@@ -74,3 +74,9 @@ String plural(unsigned n, const char *noun) {
     return result;
 }
 
+bool str_eq(char const *string1, char const *string2) {
+	bool result = (::strcmp(string1, string2) == 0);
+
+	return result;
+}
+

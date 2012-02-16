@@ -129,7 +129,6 @@ private:
 	void         HandleButtonUp(Point const &);
     void         HandleMenuCommand(int);
 	void         HandleMouseMove(Point const &);
-	String       InventUniqueName(String const &prefix, Strings const &names) const;
 	char const * Name(void) const;
 	void		 OfferNewGame(void);
 	void		 OfferSaveGame(void);
@@ -140,7 +139,6 @@ private:
     void         Repaint(void);
 	void         SetGame(Game *);
 	void         StopDragging(void);
-	void         TakeBack(void);
 	void         UpdateMenus(void);
 
 	// private inquiry methods

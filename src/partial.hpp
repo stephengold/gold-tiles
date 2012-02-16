@@ -53,18 +53,20 @@ public:
 	// operators
     //Partial &operator=(Partial const &);  compiler-generated assignment operator is OK
 	operator Board(void) const;
-	operator Move(void) const;
 
 	// misc public methods
 	void       Activate(TileIdType);  // TODO Mobilize()
 	void       BoardToHand(void);             // move the active tile
 	unsigned   CountHand(void) const;
+	unsigned   CountHinted(void);
 	unsigned   CountPlayed(void) const;
 	unsigned   CountSwap(void) const;
 	unsigned   CountTiles(void) const;
 	void       Deactivate(void);
+	Cell       FirstHinted(void);
 	TileIdType GetActive(void) const;
 	TileIdType GetCell(Cell const &) const;
+	Move       GetMove(bool includeActive) const;
 	Tile       GetTileById(TileIdType) const;
 	Tile       GetTileByIndex(unsigned) const;
 	void       HandToCell(Cell const &);       // move the active tile

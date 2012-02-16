@@ -46,6 +46,7 @@ public:
 	ConstIteratorType End(void) const;
 	IteratorType      End(void);
 	ConstIteratorType Find(String const &) const;
+	String            InventUnique(String const &prefix) const;
 	void              Unappend(void);
 
 	// public inquiry methods

@@ -110,9 +110,6 @@ bool Cell::operator<(Cell const &rOther) const {
 // The compiler-generated assignment operator is fine.
 
 bool Cell::operator==(const Cell &rOther) const {
-	ASSERT(IsValid());
-	ASSERT(rOther.IsValid());
-
 	bool same_row = (mRow == rOther.mRow);
     bool result = (same_row && mColumn == rOther.mColumn);
     

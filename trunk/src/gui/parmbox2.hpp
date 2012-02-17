@@ -38,7 +38,8 @@ The ParmBox2 class is an extension of the Dialog class.
 class ParmBox2: public Dialog {
 public:
     // lifecycle
-	ParmBox2(void); 
+	ParmBox2(bool wrapFlag, IndexType height, IndexType width, GridType);
+	// no default constructor
 	// no copy constructor
 	// ~ParmBox2(void);  compiler-generated destructor is OK
 

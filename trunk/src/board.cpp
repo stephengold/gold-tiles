@@ -55,26 +55,31 @@ TileIdType Board::GetId(Cell const &rCell) const {
 	return result;
 }
 
-void Board::GetLimits(
+long Board::GetLimits(
 	Cell const &rCell,
 	DirectionType direction,
 	Cell &rFirst,
 	Cell &rLast) const
 {
     ASSERT(!HasEmptyCell(rCell));
+	long result = -1;
     
     rFirst = rCell;
     while (!HasEmptyCell(rFirst)) {
         // TODO edge effects
         rFirst.Next(direction, -1);
+		++result;
     }
-    rFirst.Next(direction, +1);
+    rFirst.Next(direction);
     
     rLast = rCell;
     while (!HasEmptyCell(rLast)) {
-        rLast.Next(direction, +1);
+        rLast.Next(direction);
+		++result;
     }
     rLast.Next(direction, -1);
+
+	return result;
 }
 
 Tile Board::GetTile(Cell const &rCell) const {
@@ -130,12 +135,10 @@ unsigned Board::ScoreDirection(
     ASSERT(!HasEmptyCell(rCell));
     
     Cell first_cell, last_cell;
-    GetLimits(rCell, direction, first_cell, last_cell);
+    unsigned length = GetLimits(rCell, direction, first_cell, last_cell);
 
 	unsigned result = 0;
-    if (first_cell != last_cell) {
-        unsigned length = first_cell.Distance(last_cell, direction) + 1;
-        ASSERT(length > 1);
+    if (length > 1) {
         Tile first_tile = GetTile(first_cell);
         Tile last_tile = GetTile(last_cell);
         AIndexType attr = first_tile.CommonAttribute(last_tile);
@@ -162,15 +165,14 @@ unsigned Board::ScoreMove(Move const &rMove) const {
     {
         DirectionType direction = DirectionType(dir);
         if (::is_scoring_direction(direction)) {
-            DirectionType ortho = ::ortho_direction(direction);
-            Indices done_group;
+            Indices done_ortho;
 
             Cells::ConstIteratorType i_cell;
             for (i_cell = cells.begin(); i_cell != cells.end(); i_cell++) {
-                IndexType group = i_cell->Group(ortho);
-                if (!done_group.Contains(group)) {
+                IndexType ortho = i_cell->Ortho(direction);
+                if (!done_ortho.Contains(ortho)) {
                     result += ScoreDirection(*i_cell, direction);        
-                    done_group.Add(group);
+                    done_ortho.Add(ortho);
                 }
             }
         }
@@ -189,13 +191,13 @@ bool Board::AreAllCompatible(Cells const &rCells, DirectionType direction) const
         
     Cells::ConstIteratorType i_cell;
     for (i_cell = rCells.begin(); i_cell != rCells.end(); i_cell++) {
-        IndexType ortho_group = i_cell->Group(::ortho_direction(direction));
-        if (!done_orthos.Contains(ortho_group)) {
+        IndexType ortho = i_cell->Ortho(direction);
+        if (!done_orthos.Contains(ortho)) {
             if (!IsDirectionCompatible(*i_cell, direction)) {
                 result = false;
                 break;
             }
-            done_orthos.Add(ortho_group);
+            done_orthos.Add(ortho);
         }
     }
     
@@ -301,25 +303,29 @@ bool Board::HasEmptyCell(Cell const &rCell) const {
 }
 
 bool Board::IsConnectedDirection(Cells const &rCells, DirectionType direction) const {
+	 ASSERT(::is_scoring_direction(direction));
      bool result = true;
     
     if (rCells.Count() > 1) {
         Cells::ConstIteratorType i_cell = rCells.begin();
-       
-        DirectionType ortho = ::ortho_direction(direction);
-        
         Cell first_cell = *i_cell;
         Cell last_cell = *i_cell;
         for (i_cell++ ; i_cell != rCells.end(); i_cell++) {
 			Cell cell = *i_cell;
-            if (first_cell.Group(ortho) != cell.Group(ortho)) {
+			ASSERT(cell != first_cell);
+            if (first_cell.Ortho(direction) != cell.Ortho(direction)) {
                 return false;
-            }            
-            if (cell.Group(direction) > last_cell.Group(direction)) {
-                last_cell = *i_cell;
-            }
+			}
+			ASSERT(cell.Group(direction) != first_cell.Group(direction));
             if (cell.Group(direction) < first_cell.Group(direction)) {
                 first_cell = *i_cell;
+            }
+
+			ASSERT(cell != last_cell);
+            ASSERT(last_cell.Ortho(direction) == cell.Ortho(direction));
+			ASSERT(cell.Group(direction) != last_cell.Group(direction));
+            if (cell.Group(direction) > last_cell.Group(direction)) {
+                last_cell = *i_cell;
             }
         }
         
@@ -340,15 +346,13 @@ bool Board::IsDirectionCompatible(Cell const &rCell, DirectionType direction) co
     
     Cell first_cell, last_cell;
     GetLimits(rCell, direction, first_cell, last_cell);
-    Cell end_cell(last_cell, direction, 1);
+    Cell end_cell(last_cell, direction);
 
     bool result = true;
     
     for (Cell cell1 = first_cell; cell1 != last_cell; cell1.Next(direction)) {
         Tile t1 = GetTile(cell1);
         for (Cell cell2(cell1, direction); cell2 != end_cell; cell2.Next(direction)) {
-			ASSERT(cell1.Group(::ortho_direction(direction)) 
-				== cell2.Group(::ortho_direction(direction)));
             Tile t2 = GetTile(cell2);
             if (!t1.IsCompatibleWith(&t2)) {
                 result = false;
@@ -418,15 +422,14 @@ bool Board::IsValidMove(Move const &rMove, char const *&rReason) const {
 
     DirectionType direction_of_play = DIRECTION_UNKNOWN;
     if (cells.Count() > 1) {
-        // make sure the cells lie in a single group
+        // make sure the cells lie in a single ortho
         for (int dir = DIRECTION_FIRST; 
              dir <= DIRECTION_LAST_POSITIVE;
              dir++)
         {
             DirectionType direction = DirectionType(dir);
 			if (::is_scoring_direction(direction)) {
-			    DirectionType ortho = ::ortho_direction(direction);
-                if (cells.AreAllInSameGroup(ortho)) {
+                if (cells.AreAllInSameOrtho(direction)) {
                     direction_of_play = direction;
                 }
 			}

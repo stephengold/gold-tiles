@@ -57,7 +57,7 @@ public:
 
 private:
 	// misc private methods
-	void		GetLimits(Cell const &, DirectionType, Cell &rFirst, Cell &rLast) const;
+	long    	GetLimits(Cell const &, DirectionType, Cell &rFirst, Cell &rLast) const;
 	Tile const *GetPtr(IndexType northing, IndexType easting) const;
 	Tile		GetTile(IndexType northing, IndexType easting) const;
 	Tile        GetTile(Cell const &) const;

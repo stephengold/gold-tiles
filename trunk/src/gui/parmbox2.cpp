@@ -43,13 +43,18 @@ static INT_PTR CALLBACK message_handler(
 
 // lifecycle
 
-ParmBox2::ParmBox2(void):
+ParmBox2::ParmBox2(
+	bool wrapFlag,
+	IndexType height,
+	IndexType width,
+	GridType grid)
+:
     Dialog("PARMBOX2", &message_handler)
 {
-	mGrid = GRID_4WAY;
-	mHeight = Cell::HEIGHT_MAX;
-	mWidth = Cell::WIDTH_MAX;
-	mWrapFlag = false;
+	mGrid =grid;
+	mHeight = height;
+	mWidth = width;
+	mWrapFlag = wrapFlag;
 }
 
 // operators
@@ -96,7 +101,11 @@ INT_PTR ParmBox2::HandleMessage(UINT message, WPARAM wParam, LPARAM lParam) {
                     ValueType value = GetTextIndex(id);
 					if (value >= Cell::HEIGHT_MIN
 					 && value <= Cell::HEIGHT_MAX) {
-						mHeight = value + (value & 0x1);
+						if (::is_odd(value)) {
+							mHeight = value + 1;
+						} else {
+							mHeight = value;
+						}
 			            UpdateCellCnt();
 					}
                     break;
@@ -105,7 +114,11 @@ INT_PTR ParmBox2::HandleMessage(UINT message, WPARAM wParam, LPARAM lParam) {
                     ValueType value = GetTextIndex(id);
 					if (value >= Cell::WIDTH_MIN
 					 && value <= Cell::WIDTH_MAX) {
-						mWidth = value + (value & 0x1);
+						if (::is_odd(value)) {
+							mWidth = value + 1;
+						} else {
+							mWidth = value;
+						}
 						UpdateCellCnt();
 					}
                     break;

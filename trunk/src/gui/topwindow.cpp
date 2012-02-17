@@ -179,7 +179,7 @@ PCntType TopWindow::CellWidth(void) const {
         result += 2; // add room for two grid lines
     }
 
-	ASSERT(!is_odd(result));
+	ASSERT(::is_even(result));
     return result;
 }
 
@@ -1091,9 +1091,16 @@ char const *TopWindow::Name(void) const {
 }
 
 void TopWindow::OfferNewGame(void) {
+	GridType grid = Cell::Grid();
+
+	bool wrap_flag;
+	IndexType height, width;
+	Cell::GetTopology(wrap_flag, height, width); 
+
 	ParmBox1 parmbox1(mGameStyle, mMinutesPerHand);
-	ParmBox2 parmbox2;
+	ParmBox2 parmbox2(wrap_flag, height, width, grid);
 	ParmBox3 parmbox3;
+
 	Strings player_names;
     Indices auto_hands;
     Indices remote_hands;
@@ -1199,12 +1206,12 @@ STEP3:
 	mGameStyle = GameStyleType(parmbox1);
 	mMinutesPerHand = parmbox1.PlayerMinutes();
 
-	GridType grid = GridType(parmbox2);
+	grid = GridType(parmbox2);
 	Cell::SetGrid(grid);
 
-	bool wrap_flag = parmbox2.DoesWrap();
-	IndexType height = parmbox2.Height();
-	IndexType width = parmbox2.Width();
+	wrap_flag = parmbox2.DoesWrap();
+	height = parmbox2.Height();
+	width = parmbox2.Width();
 	Cell::SetTopology(wrap_flag, height, width);
 
 	unsigned hand_size = parmbox3.HandSize();

@@ -157,15 +157,13 @@ Rect Rect::CenterSquare(void) const {
 }
 
 LogicalXType Rect::CenterX(void) const {
-	LogicalXType sum = LeftX() + RightX();
-    LogicalXType result = (sum - (sum & 0x1))/2;
+	LogicalXType result = LeftX() + Width()/2;
 
 	return result;
 }
 
 LogicalYType Rect::CenterY(void) const {
-    LogicalYType sum = TopY() + BottomY();
-    LogicalYType result = (sum - (sum & 0x1))/2;
+	LogicalYType result = TopY() + Height()/2;
 
 	return result;
 }

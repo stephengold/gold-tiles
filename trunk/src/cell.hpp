@@ -82,11 +82,12 @@ public:
 
 	// misc public methods
 	IndexType       Column(void) const;
-    IndexType       Distance(Cell const &, DirectionType) const;
+	static void     GetTopology(bool &wrapFlag, IndexType &height, IndexType &width);
     bool            GetUserChoice(String const &);
     static GridType Grid(void);
 	IndexType       Group(DirectionType direction) const;
 	void            Next(DirectionType, IndexType count = 1);
+	IndexType       Ortho(DirectionType direction) const;
 	IndexType       Row(void) const;
 	static void     SetGrid(GridType);
 	static void     SetTopology(bool wrapFlag, IndexType height, IndexType width);
@@ -107,15 +108,13 @@ private:
 
     // misc private methods
 	static void NextCellOffsets(DirectionType, IndexType &rowOffset, 
-		                 IndexType &columnOffset);
-
-	// private inquiry methods
-	bool IsSameRow(Cell const &) const;
+		                        IndexType &columnOffset);
 };
 
 // utility functions
 
-extern bool is_scoring_direction(DirectionType);
+extern bool          is_scoring_direction(DirectionType);
+extern DirectionType opposite_direction(DirectionType);
 extern DirectionType ortho_direction(DirectionType);
 
 #endif

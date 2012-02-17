@@ -66,10 +66,11 @@ class YesNo;
 
 // project-wide utility functions
 void        assertion_failed(const char *, unsigned);
-String      ordinal(unsigned n);
+bool        is_odd(long);
+String      ordinal(unsigned);
 void        pause(void);
 const char *plural(unsigned);
-String      plural(unsigned n, const char *);
-bool        str_eq(char const *string1, char const *string2);
+String      plural(unsigned, const char *);
+bool        str_eq(char const *, char const *);
 
 #endif

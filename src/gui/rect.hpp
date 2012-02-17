@@ -40,6 +40,7 @@ class Rect {
 public:
 	// lifecycle
     Rect(RECT const &);
+    Rect(Point const &ulc, Point const &lrc);
     Rect(Point const &ulc, PCntType width, PCntType height);
     Rect(LogicalYType, LogicalXType, PCntType width, PCntType height);
 	// no default constructor
@@ -57,9 +58,10 @@ public:
 	Point        Center(void) const; // center pixel coordinates
     Rect         CenterRect(float aspectRatio) const;
     Rect         CenterSquare(void) const;
+    LogicalXType CenterX(void) const;
+    LogicalYType CenterY(void) const;
     PCntType     Height(void) const;
-    Point        Interpolate(FractionPair const &) const;
-    Point        Interpolate(double x, double y) const;
+    Point        Interpolate(FractionPair const &, bool invert = false) const;
     LogicalXType LeftX(void) const;
     LogicalXType RightX(void) const;
     LogicalYType TopY(void) const;

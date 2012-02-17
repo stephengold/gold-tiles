@@ -42,9 +42,9 @@ The TopWindow class is an extension of the Window class.
 #include "partial.hpp"
 
 enum TileWidthType {
-    TILE_WIDTH_SMALL = 21,
-	TILE_WIDTH_MEDIUM = 41,
-	TILE_WIDTH_LARGE = 61
+    TILE_WIDTH_SMALL = 20,
+	TILE_WIDTH_MEDIUM = 40,
+	TILE_WIDTH_LARGE = 60
 };
 
 class TopWindow: public Window {
@@ -63,9 +63,9 @@ public:
 	int     MessageDispatchLoop(void);
 
 private:
-    typedef std::map<TileIdType,Rect>   TileMapType;
-    typedef std::pair<TileIdType,Rect>  TilePairType;
-    typedef TileMapType::iterator       TileIterType;
+    typedef std::map<TileIdType,Rect>    TileMapType;
+    typedef std::pair<TileIdType,Rect>   TilePairType;
+    typedef TileMapType::iterator        TileIterType;
     typedef std::pair<TileIterType,bool> TileInsResultType;
 
 	static WindowClass *mspClass;
@@ -77,15 +77,16 @@ private:
 	bool          mAutocenterFlag;
 	ACountType    mColorAttributeCnt;
 	bool          mDragBoardFlag;
-	unsigned      mDragBoardPixelCnt;
-	int           mDragTileDeltaX, mDragTileDeltaY;
+	PCntType      mDragBoardPixelCnt;
+	long          mDragTileDeltaX, mDragTileDeltaY;
 	Game *       mpGame;
 	GameStyleType mGameStyle;
 	Rect          mHandRect;
 	bool          mInitialNewGame;
 	bool          mIsStartCentered;
+	unsigned      mMinutesPerHand;
 	Point         mMouseLast; // coordinates of last mouse down
-	int           mMouseUpCnt;
+	unsigned      mMouseUpCnt;
 	PCntType      mPadPixels;
 	Partial       mPartial;
 	bool          mPauseFlag;
@@ -97,7 +98,7 @@ private:
 	Point         mStartCell; // logical coordinates of center of start cell
 	Rect          mSwapRect;
 	TileMapType   mTileMap;
-	TileWidthType mTileWidth;
+	PCntType      mTileWidth;
     ViewMenu *   mpViewMenu;
 
 	// lifecycle
@@ -105,26 +106,27 @@ private:
 
 	// misc private methods
     PCntType     CellHeight(void) const;
-    LogicalXType CellX(int column) const;
-    LogicalYType CellY(int row) const;
+    LogicalXType CellX(IndexType column) const;
+    LogicalYType CellY(IndexType row) const;
     PCntType     CellWidth(void) const;
     char const * ClassName(void) const;
 	int          CreateNewGame(void);
 	void         DiscardGame(void);
     void         DrawActiveHand(Canvas &);
-	Rect         DrawBlankTile(Canvas &, Point const &);
+	Rect         DrawBlankTile(Canvas &, Point const &, bool odd);
     void         DrawBoard(Canvas &);
     void         DrawCell(Canvas &, Cell const &, unsigned swapCnt);
-    Rect         DrawHandHeader(Canvas &, int top, int leftRight, Hand const &, 
+    Rect         DrawHandHeader(Canvas &, LogicalYType top, LogicalXType leftRight, Hand const &, 
                                 ColorType, bool leftFlag);
-    void         DrawHandTile(Canvas &, Point const &, Tile const &);
+    void         DrawHandTile(Canvas &, Point const &, Tile const &, bool odd);
     void         DrawHandTiles(Canvas &);
     void         DrawInactiveHands(Canvas &);
 	void         DrawPaused(Canvas &);
-	Rect         DrawTile(Canvas &, Point, Tile const &);
+	Rect         DrawTile(Canvas &, Point, Tile const &, bool odd);
 	Cell         GetCell(Point const &) const;
     TileIdType   GetTileId(Point const &) const;
-    unsigned     GridUnit(void) const;
+    PCntType     GridUnitX(void) const;
+    PCntType     GridUnitY(void) const;
     void         HandleButtonDown(Point const &);
 	void         HandleButtonUp(Point const &);
     void         HandleMenuCommand(int);
@@ -137,6 +139,7 @@ private:
 	void         ReleaseActiveTile(Point const &);
     void         Resize(PCntType width, PCntType height);
     void         Repaint(void);
+	PCntType     TileHeight(void) const;
 	void         SetGame(Game *);
 	void         StopDragging(void);
 	void         UpdateMenus(void);

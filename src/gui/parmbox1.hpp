@@ -44,7 +44,8 @@ enum GameStyleType {
 class ParmBox1: public Dialog {
 public:
     // lifecycle
-	ParmBox1(void); 
+	ParmBox1(GameStyleType, unsigned minutesPerHand);
+	// no default constructor
 	// no copy constructor
 	// ~ParmBox1(void);  compiler-generated destructor is OK
 

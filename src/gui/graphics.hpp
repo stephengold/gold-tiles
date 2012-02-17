@@ -53,9 +53,11 @@ public:
 
 	// misc public methods
     void     Close(void);
+	Rect     DrawEquilateral(Rect const &, bool invert);
+	Rect     DrawHexagon(Rect const &);
 	void     DrawLine(Point const &, Point const &);
 	void     DrawLine(LogicalXType, LogicalYType, LogicalXType, LogicalYType);
-    void     DrawPolygon(Poly const &, Rect const &);
+    void     DrawPolygon(Poly const &, Rect const &, bool invert = false);
     Rect     DrawRectangle(Rect const &);
     Rect     DrawRectangle(LogicalYType, LogicalXType, PCntType width, PCntType height);
     Rect     DrawRoundedSquare(Point const &, PCntType edge, PCntType diameter);

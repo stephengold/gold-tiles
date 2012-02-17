@@ -46,7 +46,7 @@ public:
     void     Add(double x, double y);
 	unsigned Count(void) const;
     void     GetPoints(POINT points[], unsigned numPoints, 
-                        Rect const &rBounds) const;    
+                        Rect const &rBounds, bool invert) const;    
 };
 
 #endif

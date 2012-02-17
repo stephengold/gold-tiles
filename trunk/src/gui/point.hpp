@@ -50,6 +50,7 @@ public:
 
 	// operators
 	//Point &operator=(Point const &);  compiler-generated assignment operator is OK
+	bool operator==(Point const &) const;
     operator POINT(void) const;
     operator POINTS(void) const;
 

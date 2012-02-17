@@ -28,6 +28,8 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 #include <windows.h>
 #include "point.hpp"
 
+// lifecycle
+
 Point::Point(LogicalXType x, LogicalYType y) {
     mX = x;
     mY = y;
@@ -44,6 +46,12 @@ Point::Point(POINTS const &pt) {
 }
 
 // operators
+
+bool Point::operator== (Point const &rOther) const {
+    bool result = (mX == rOther.mX && mY == rOther.mY);
+
+	return result;
+}
 
 Point::operator POINT(void) const {
     POINT result;

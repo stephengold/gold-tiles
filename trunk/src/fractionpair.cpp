@@ -24,14 +24,14 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 #include "fractionpair.hpp"
 #include "project.hpp"
 
-FractionPair::FractionPair(float x, float y) {
+FractionPair::FractionPair(double x, double y) {
     ASSERT(x >= 0.0);
     ASSERT(y >= 0.0);
     ASSERT(x <= 1.0);
     ASSERT(y <= 1.0);
     
-    mX = x;
-    mY = y;
+    mX = float(x);
+    mY = float(y);
 }
 
 float FractionPair::X(void) const {

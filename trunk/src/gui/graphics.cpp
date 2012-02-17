@@ -128,6 +128,54 @@ void Graphics::Close(void) {
     }
 }
 
+Rect Graphics::DrawEquilateral(Rect const &rBounds, bool pointDownFlag) {
+	Poly triangle;
+    triangle.Add(0.0, 0.0);
+    triangle.Add(0.5, 1.0);
+    triangle.Add(1.0, 0.0);
+	DrawPolygon(triangle, rBounds, pointDownFlag);
+
+	FractionPair pair_ulc(0,0), pair_brc(0,0);
+	if (pointDownFlag) {
+       pair_ulc = FractionPair(0.291, 0.900);
+	   pair_brc = FractionPair(0.709, 0.418);
+	} else {
+       pair_ulc = FractionPair(0.291, 0.582);
+	   pair_brc = FractionPair(0.709, 0.100);
+	}
+
+    Point ulc = rBounds.Interpolate(pair_ulc);
+    Point brc = rBounds.Interpolate(pair_brc);
+
+	Rect result(ulc, brc);
+
+	return result;
+}
+
+Rect Graphics::DrawHexagon(Rect const &rBounds) {
+	Poly hex;
+
+	hex.Add(0.0, 0.5);
+	hex.Add(0.25, 1.0);
+	hex.Add(0.75, 1.0);
+	hex.Add(1.0, 0.5);
+	hex.Add(0.75, 0.0);
+	hex.Add(0.25, 0.0);
+	DrawPolygon(hex, rBounds);
+
+	double sqrt_3 = sqrt(3.0);
+	double den = 4 + 4*sqrt_3;
+    FractionPair pair_ulc(2/den, (6 + 2*sqrt_3)/den);
+    Point ulc = rBounds.Interpolate(pair_ulc);
+
+	FractionPair pair_brc((2 + 4*sqrt_3)/den, (2*sqrt_3 - 2)/den);
+    Point brc = rBounds.Interpolate(pair_brc);
+
+	Rect result(ulc, brc);
+
+	return result;
+}
+
 void Graphics::DrawLine(Point const &rPoint1, Point const &rPoint2) {
     LogicalXType x1 = rPoint1.X();
     LogicalYType y1 = rPoint1.Y();
@@ -150,13 +198,11 @@ void Graphics::DrawLine(
 	ASSERT(success);
 }
 
-void Graphics::DrawPolygon(Poly const &rPolygon, Rect const &rBounds) {
-    Rect squared = rBounds.CenterSquare();
-    
+void Graphics::DrawPolygon(Poly const &rPolygon, Rect const &rBounds, bool invertFlag) {
     unsigned pointCnt = rPolygon.Count();
     POINT *points = new POINT[pointCnt];
     ASSERT(points != NULL);
-    rPolygon.GetPoints(points, pointCnt, squared);
+    rPolygon.GetPoints(points, pointCnt, rBounds, invertFlag);
 
     BOOL success = ::Polygon(mDraw, points, pointCnt);
     ASSERT(success);
@@ -190,27 +236,29 @@ Rect Graphics::DrawRectangle(
 }
 
 Rect Graphics::DrawRoundedSquare(
-    Point const &rPoint,
+    Point const &rCenter,
     PCntType edge,
     PCntType circleDiameter)
 {
     ASSERT(edge > circleDiameter);
     
-    PCntType ellipseWidth = circleDiameter;
-    PCntType ellipseHeight = circleDiameter;
-    LogicalXType leftX = rPoint.X();
-    LogicalXType rightX = leftX + edge;
-    LogicalYType topY = rPoint.Y();
-    LogicalYType bottomY = topY + edge;
-    BOOL success = ::RoundRect(mDraw, leftX, topY, rightX, bottomY,
-                             ellipseWidth, ellipseHeight);
+    PCntType ellipse_width = circleDiameter;
+    PCntType ellipse_height = circleDiameter;
+    LogicalXType left_x = rCenter.X() - edge/2;
+    LogicalXType right_x = left_x + edge;
+    LogicalYType top_y = rCenter.Y() - edge/2;
+    LogicalYType bottom_y = top_y + edge;
+    BOOL success = ::RoundRect(mDraw, left_x, top_y, right_x, bottom_y,
+                             ellipse_width, ellipse_height);
     ASSERT(success != 0);
 
-    // estimate the dimensions of the interior rectangle        
-    topY += circleDiameter/2;
-    leftX += circleDiameter/2;
-    edge -= circleDiameter;
-    Rect result(topY, leftX, edge, edge);
+    // estimate the interior sqaure
+	PCntType radius = circleDiameter/2;
+	PCntType pad = radius - (unsigned long)(0.7 * float(radius));
+    top_y += pad;
+    left_x += pad;
+    edge -= 2*pad;
+    Rect result(top_y, left_x, edge, edge);
     
     return result;
 }

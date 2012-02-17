@@ -39,7 +39,7 @@ Gold Tile Game.
 class Canvas: public Graphics {
 public:
 	// lifecycle
-    Canvas(HDC, HWND, bool releaseMe, unsigned width, unsigned height);
+    Canvas(HDC, HWND, bool releaseMe, PCntType width, PCntType height);
     // no default constructor
 	// no copy constructor
     // ~Canvas(void);  compiler-generated destructor is OK
@@ -48,13 +48,14 @@ public:
     Canvas &operator=(Canvas const &) { ASSERT(false); };
 
 	// misc public methods
-    Rect DrawBlankTile(Point const &, PCntType, ColorType);
-	Rect DrawCell(LogicalYType, LogicalXType, PCntType width,
-                  ColorType cellColor, ColorType gridColor);
+    Rect DrawBlankTile(Point const &, PCntType width, PCntType height, 
+		          ColorType, bool odd);
+	Rect DrawCell(Point const &, PCntType width, PCntType height,
+                  ColorType cellColor, ColorType gridColor, bool odd);
     void DrawTarget(Rect const &);
-    Rect DrawTile(Point const &, PCntType width, 
+    Rect DrawTile(Point const &, PCntType width, PCntType height,
                   ACountType numGlyphs, const AValueType glyphs[],
-                  ColorType tile, ColorType glyph);
+                  ColorType tile, ColorType glyph, bool odd);
 
 private:
     static std::vector<Poly> msShapes; // TODO more options
@@ -63,7 +64,9 @@ private:
     
 	// misc private methods
     void DrawGlyph(Rect const &rBounds, AIndexType, AValueType, 
-                   ColorType background, ColorType glyph);                   
+                   ColorType background, ColorType glyph);
+	Rect DrawGridShape(Point const &rCenter, PCntType width, 
+		               PCntType height, bool oddFlag);
 };
 
 #endif

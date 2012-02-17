@@ -35,10 +35,16 @@ Rect::Rect(RECT const &rStruct) {
     mBottom = rStruct.bottom;
 }
 
-Rect::Rect(Point const &rUlc, PCntType width, PCntType height) {
-    ASSERT(width < 10000);
-    ASSERT(height < 10000);
+Rect::Rect(Point const &rUlc, Point const &rBrc) {
+    mTop = rUlc.Y();
+    mLeft = rUlc.X();
+    mRight = rBrc.X();
+    mBottom = rBrc.Y();
 
+    ASSERT(Brc() == rBrc);
+}
+
+Rect::Rect(Point const &rUlc, PCntType width, PCntType height) {
     mTop = rUlc.Y();
     mLeft = rUlc.X();
     mRight = mLeft + width;
@@ -150,6 +156,20 @@ Rect Rect::CenterSquare(void) const {
     return result;
 }
 
+LogicalXType Rect::CenterX(void) const {
+	LogicalXType sum = LeftX() + RightX();
+    LogicalXType result = (sum - (sum & 0x1))/2;
+
+	return result;
+}
+
+LogicalYType Rect::CenterY(void) const {
+    LogicalYType sum = TopY() + BottomY();
+    LogicalYType result = (sum - (sum & 0x1))/2;
+
+	return result;
+}
+
 PCntType Rect::Height(void) const {
     ASSERT(BottomY() >= TopY());
     PCntType result = BottomY() - TopY();
@@ -157,29 +177,19 @@ PCntType Rect::Height(void) const {
     return result;
 }
 
-Point Rect::Interpolate(FractionPair const &rPair) const {
-    double x = rPair.X();
-    double y = rPair.Y();
-
-    Point result = Interpolate(x, y);
-
-    return result;
-}
-
-Point Rect::Interpolate(double xFrac, double yFrac) const {
-    ASSERT(xFrac >= 0.0);
-    ASSERT(xFrac <= 1.0);
-    ASSERT(yFrac >= 0.0);
-    ASSERT(yFrac <= 1.0);
-
+Point Rect::Interpolate(FractionPair const &rPair, bool invertFlag) const {
     double height = double(Height() - 1);
     double width = double(Width() - 1);
 
-    PCntType dx = PCntType(0.5 + xFrac*width);
+    PCntType dx = PCntType(0.5 + rPair.X()*width);
     ASSERT(dx < Width());
     LogicalXType x = LeftX() + dx;
     
-    PCntType dy = PCntType(0.5 + (1.0 - yFrac)*height);
+	double y_fraction = rPair.Y();
+	if (!invertFlag) {
+		y_fraction = 1.0 - y_fraction;
+	}
+    PCntType dy = PCntType(0.5 + y_fraction*height);
     ASSERT(dy < Height());
     LogicalYType y = TopY() + dy;  
 

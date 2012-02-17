@@ -42,11 +42,11 @@ static INT_PTR CALLBACK message_handler(
 
 // lifecycle
 
-ParmBox1::ParmBox1(void):
+ParmBox1::ParmBox1(GameStyleType gameStyle, unsigned minutesPerHand):
     Dialog("PARMBOX1", &message_handler)
 {
-	mGameStyle = GAME_STYLE_PRACTICE;
-	mPlayerMinutes = 30;
+	mGameStyle = gameStyle;
+	mPlayerMinutes = minutesPerHand;
 }
 
 // operators

@@ -24,6 +24,7 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 #include "project.hpp"
 
 #ifdef _WINDOWS
+#include "cell.hpp"
 #include "gui/canvas.hpp"
 #include "gui/poly.hpp"
 #include "gui/rect.hpp"
@@ -34,44 +35,103 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 #define M_PI 3.141592653589793
 #endif
 
+#define TILE_POINTEDNESS 3
+
 std::vector<Poly> Canvas::msShapes;
+
+// lifecycle
 
 Canvas::Canvas(
     HDC context,
     HWND window,
     bool releaseMe,
-    unsigned width,
-    unsigned height)
+    PCntType width,
+    PCntType height)
 :   Graphics(context, window, releaseMe, true, width, height)
 {}
 
-Rect Canvas::DrawBlankTile(
-    Point const &rWhere,
-    PCntType edge,
-    ColorType tileColor)
-{
-    UseColors(tileColor, COLOR_DARK_GRAY);
-    
-    PCntType circleDiameter = edge/5;
-	DrawRoundedSquare(rWhere, edge, circleDiameter);
 
-    Rect result = Rect(rWhere, edge, edge);
+// misc methods
+
+Rect Canvas::DrawBlankTile(
+    Point const &rCenter,
+    PCntType width,
+	PCntType height,
+    ColorType tileColor,
+	bool oddFlag)
+{
+	ASSERT(!is_odd(width));
+
+	ColorType border_color = COLOR_DARK_GRAY;
+    UseColors(tileColor, border_color);
+
+	Rect interior(0,0,0,0);
+	switch (Cell::Grid()) {
+	    case GRID_4WAY:
+	    case GRID_8WAY: {
+			ASSERT(width == height);
+            PCntType circle_diameter = width/TILE_POINTEDNESS;
+	        interior = DrawRoundedSquare(rCenter, width, circle_diameter);
+			break;
+		}
+	    case GRID_HEX:
+	    case GRID_TRIANGLE: 
+			interior = DrawGridShape(rCenter, width, height, oddFlag);
+			break;
+		default:
+			ASSERT(false);
+	}
 	
-	return result;
+	return interior;
 }
 
 Rect Canvas::DrawCell(
-    LogicalYType top,
-    LogicalXType left,
+    Point const &rCenter,
     PCntType width,
+	PCntType height,
     ColorType cellColor,
-    ColorType gridColor)
+    ColorType gridColor,
+	bool oddFlag)
 {
-    UseColors(cellColor, gridColor);
-    PCntType height = width;
-    Rect result = DrawRectangle(top, left, width, height);
+	ASSERT(!is_odd(width));
 
-	return result;
+	UseColors(cellColor, gridColor);
+	Rect interior = DrawGridShape(rCenter, width, height, oddFlag);
+
+	return interior;
+}
+
+Rect Canvas::DrawGridShape(
+    Point const &rCenter,
+    PCntType width,
+	PCntType height,
+	bool oddFlag)
+{
+    Point ulc = rCenter;
+	ulc.Offset(-long(width/2), -long(height/2));
+	Rect rectangle = Rect(ulc, width, height);
+
+	Rect interior(0,0,0,0);
+	switch (Cell::Grid()) {
+	    case GRID_4WAY:
+	    case GRID_8WAY: // square
+            ASSERT(height == width);
+            interior = DrawRectangle(rectangle);
+			break;
+	    case GRID_HEX:
+			ASSERT(!oddFlag);
+            ASSERT(height < width);
+			interior = DrawHexagon(rectangle);
+			break;
+	    case GRID_TRIANGLE: 
+			ASSERT(height < width);
+			interior = DrawEquilateral(rectangle, oddFlag);
+			break;
+		default:
+			ASSERT(false);
+	}
+
+	return interior;
 }
 
 void Canvas::DrawGlyph(
@@ -91,7 +151,8 @@ void Canvas::DrawGlyph(
         
         ASSERT(glyph < msShapes.size());
         Poly polygon = msShapes[glyph];
-        DrawPolygon(polygon, rBounds);
+		Rect square = rBounds.CenterSquare();
+        DrawPolygon(polygon, square);
         
     } else { 
         UseColors(backgroundColor, glyphColor);
@@ -103,60 +164,83 @@ void Canvas::DrawGlyph(
 
 void Canvas::DrawTarget(Rect const &rBounds) {
     // for now, just draw an X
-    Point ul = rBounds.Interpolate(0.1, 0.9);
-    Point lr = rBounds.Interpolate(0.9, 0.1);
-	DrawLine(ul, lr);
+	FractionPair pair_ulc(0.1, 0.9);
+    Point ulc = rBounds.Interpolate(pair_ulc);
+	FractionPair pair_brc(0.9, 0.1);
+    Point brc = rBounds.Interpolate(pair_brc);
+	DrawLine(ulc, brc);
 
-    Point ur = rBounds.Interpolate(0.9, 0.9);
-    Point ll = rBounds.Interpolate(0.1, 0.1);
-	DrawLine(ur, ll);
+
+	FractionPair pair_urc(0.9, 0.9);
+    Point urc = rBounds.Interpolate(pair_urc);
+	FractionPair pair_blc(0.1, 0.1);
+    Point blc = rBounds.Interpolate(pair_blc);
+	DrawLine(urc, blc);
 }
 
 Rect Canvas::DrawTile(
-    Point const &rWhere,
-    PCntType edge,
+    Point const &rCenter,
+	PCntType width,
+    PCntType height,
     ACountType numGlyphs, 
     const AValueType glyphs[],
     ColorType tileColor,
-    ColorType glyphColor)
+    ColorType glyphColor,
+	bool oddFlag)
 {
     ASSERT(numGlyphs > 0);
     ASSERT(numGlyphs <= 4);
-    
-    UseColors(tileColor, COLOR_DARK_GRAY);
-    PCntType circleDiameter = edge/5;
-    Rect result = Rect(rWhere, edge, edge);
-	Rect interior = DrawRoundedSquare(rWhere, edge, circleDiameter);
-	
-    PCntType width = interior.Width();
-    PCntType height = interior.Height();    
+	ASSERT(!is_odd(width));
+
+	ColorType border_color = COLOR_DARK_GRAY;
+    UseColors(tileColor, border_color);
+
+	Rect interior(0,0,0,0);
+	switch (Cell::Grid()) {
+	    case GRID_4WAY:
+	    case GRID_8WAY: {
+			ASSERT(width == height);
+            PCntType circle_diameter = width/TILE_POINTEDNESS;
+	        interior = DrawRoundedSquare(rCenter, width, circle_diameter);
+			break;
+		}
+	    case GRID_HEX:
+	    case GRID_TRIANGLE: 
+			interior = DrawGridShape(rCenter, width, height, oddFlag);
+			break;
+		default:
+			ASSERT(false);
+	}
+
+    PCntType glyph_width = interior.Width();
+    PCntType glyph_height = interior.Height();    
     if (numGlyphs == 2) {
-        width /= 2;
+        glyph_width /= 2;
     } else if (numGlyphs == 3 || numGlyphs == 4) {
-        width /= 2;
-        height /= 2;
+        glyph_width /= 2;
+        glyph_height /= 2;
     } else {
         ASSERT(numGlyphs == 1);
     }
    
     for (unsigned ind = 0; ind < numGlyphs; ind++) {
-        LogicalXType glyphLeft = interior.LeftX();
-        LogicalYType glyphTop = interior.TopY();
+        LogicalXType glyph_left = interior.LeftX();
+        LogicalYType glyph_top = interior.TopY();
         if (numGlyphs == 2) {
-            glyphLeft += ind*width;
+            glyph_left += ind*glyph_width;
         } else if (numGlyphs == 3 || numGlyphs == 4) {
-            glyphLeft += (ind%2)*width;
-            glyphTop += (ind/2)*height;
+            glyph_left += (ind%2)*glyph_width;
+            glyph_top += (ind/2)*glyph_height;
         } else {
             ASSERT(numGlyphs == 1);
         }
 
-        Rect glyphBounds(glyphTop, glyphLeft, width, height);
+        Rect glyphBounds(glyph_top, glyph_left, glyph_width, glyph_height);
         AValueType glyph = glyphs[ind];
 		DrawGlyph(glyphBounds, ind, glyph, tileColor, glyphColor);
     }
     
-    return result;
+    return interior;
 }
 
 /* static */ void Canvas::InitShapes(void) {
@@ -166,8 +250,8 @@ Rect Canvas::DrawTile(
         Poly roundel;
         for (unsigned i = 0; i < 20; i++) {
             double phi = M_PI/10 * (double)i;
-            double x = 0.5 + 0.45*::cos(phi);
-            double y = 0.5 + 0.45*::sin(phi);
+            double x = 0.5 + 0.44*::cos(phi);
+            double y = 0.5 + 0.44*::sin(phi);
             roundel.Add(x, y);
         }
         msShapes.push_back(roundel);
@@ -182,9 +266,9 @@ Rect Canvas::DrawTile(
     }        
     {
         Poly triangle;
-        triangle.Add(0.0, 0.1);
-        triangle.Add(0.5, 0.9);
-        triangle.Add(1.0, 0.1);
+        triangle.Add(0.05, 0.2);
+        triangle.Add(0.5, 0.95);
+        triangle.Add(0.95, 0.2);
         msShapes.push_back(triangle);
     }        
     {
@@ -226,17 +310,17 @@ Rect Canvas::DrawTile(
     {
         Poly heart;
         heart.Add(0.5, 0.0);
-        heart.Add(0.1, 0.5);
-        heart.Add(0.05, 0.7);
-        heart.Add(0.1, 0.9);
-        heart.Add(0.2, 1.0);
-        heart.Add(0.4, 1.0);
-        heart.Add(0.5, 0.85);
-        heart.Add(0.6, 1.0);
-        heart.Add(0.8, 1.0);
-        heart.Add(0.9, 0.9);
-        heart.Add(0.95, 0.7);
-        heart.Add(0.9, 0.5);
+        heart.Add(0.1, 0.45);
+        heart.Add(0.05, 0.65);
+        heart.Add(0.1, 0.8);
+        heart.Add(0.2, 0.9);
+        heart.Add(0.4, 0.9);
+        heart.Add(0.5, 0.75);
+        heart.Add(0.6, 0.9);
+        heart.Add(0.8, 0.9);
+        heart.Add(0.9, 0.8);
+        heart.Add(0.95, 0.65);
+        heart.Add(0.9, 0.45);
         msShapes.push_back(heart);
     }        
     {

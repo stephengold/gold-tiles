@@ -28,7 +28,7 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 
 // static data
 
-GridType  Cell::msGrid     = GRID_HEX;  // TODO
+GridType  Cell::msGrid     = GRID_SQUARE;
 IndexType Cell::msHeight   = HEIGHT_MAX;
 IndexType Cell::msWidth    = WIDTH_MAX;
 bool      Cell::msWrapFlag = false;
@@ -52,11 +52,45 @@ Cell::Cell(IndexType row, IndexType column) {
 // construct the next valid cell (not necessarily a neighbor) in direction "dir" from "base"
 Cell::Cell(Cell const &rBase, DirectionType direction, IndexType count) {
 	ASSERT(rBase.IsValid());
+	ASSERT(count == 1 || count == -1);
 
-	IndexType row_offset, column_offset;
-	NextCellOffsets(direction, row_offset, column_offset);
+	IndexType old_count = count;
+	DirectionType old_direction = direction;
+	IndexType old_group = rBase.Group(old_direction);
+	IndexType old_ortho = rBase.Ortho(old_direction);
 
-	mRow = rBase.mRow + count*row_offset;
+	if (count < 0) {
+		direction = ::opposite_direction(direction);
+		count = -count;
+	}
+
+    IndexType row_offset, column_offset;
+
+	if (Grid() == GRID_TRIANGLE) {
+		bool odd = ::is_odd(rBase.Row() + rBase.Column());
+		switch (direction) {
+		    case DIRECTION_NORTHEAST:
+				direction = odd ? DIRECTION_NORTH : DIRECTION_EAST;
+				break;
+		    case DIRECTION_SOUTHEAST:
+				direction = odd ? DIRECTION_EAST : DIRECTION_SOUTH;
+				break;
+		    case DIRECTION_NORTHWEST:
+				direction = odd ? DIRECTION_NORTH : DIRECTION_WEST;
+				break;
+		    case DIRECTION_SOUTHWEST:
+				direction = odd ? DIRECTION_WEST : DIRECTION_SOUTH;
+				break;
+		}
+	    NextCellOffsets(direction, row_offset, column_offset);
+	    mRow = rBase.mRow + count*row_offset;
+	    mColumn = rBase.mColumn + count*column_offset;
+	} else {
+	    NextCellOffsets(direction, row_offset, column_offset);
+	    mRow = rBase.mRow + count*row_offset;
+	    mColumn = rBase.mColumn + count*column_offset;
+	}
+
 	if (msWrapFlag) {
         while (mRow >= msHeight/2) {
 		    mRow -= msHeight;
@@ -66,7 +100,6 @@ Cell::Cell(Cell const &rBase, DirectionType direction, IndexType count) {
 	    }
 	}
 
-	mColumn = rBase.mColumn + count*column_offset;
 	if (msWrapFlag) {
         while (mColumn >= msWidth/2) {
 		    mColumn -= msWidth;
@@ -76,6 +109,10 @@ Cell::Cell(Cell const &rBase, DirectionType direction, IndexType count) {
 	    }
 	}
 
+	IndexType new_ortho = Ortho(old_direction);
+	ASSERT(old_ortho == new_ortho);
+	IndexType new_group = Group(old_direction);
+	ASSERT(old_group != new_group);
 	ASSERT(IsValid());
 }
 
@@ -138,24 +175,24 @@ IndexType Cell::Column(void) const {
 	return mColumn;
 }
 
-IndexType Cell::Distance(Cell const &rCell, DirectionType direction) const {
-    ASSERT(rCell != *this);
-    
-    Cell diff(rCell.mRow - mRow, rCell.mColumn - mColumn);
-    IndexType group = diff.Group(direction);
-    
-    IndexType rowOffset, columnOffset;
-    NextCellOffsets(direction, rowOffset, columnOffset);
-    Cell step(rowOffset, columnOffset);
-    IndexType unit = step.Group(direction);
-    ASSERT(unit != 0);
-    
-    IndexType result = ::abs(group/unit);
-        
-    ASSERT(result != 0);
-    return result;
+/* static */ void Cell::GetTopology(
+	bool &wrapFlag, 
+	IndexType &width, 
+	IndexType &height)
+{
+	ASSERT(msHeight <= HEIGHT_MAX);
+	ASSERT(msHeight >= HEIGHT_MIN);
+	ASSERT(!::is_odd(msHeight));
+
+	ASSERT(msWidth <= WIDTH_MAX);
+	ASSERT(msWidth >= WIDTH_MIN);
+	ASSERT(!::is_odd(msWidth));
+
+	height = msHeight;
+	width = msWidth;
+    wrapFlag = msWrapFlag;
 }
-          
+
 bool Cell::GetUserChoice(String const &alt) {
     String input;
 
@@ -193,14 +230,82 @@ bool Cell::GetUserChoice(String const &alt) {
 }
 
 IndexType Cell::Group(DirectionType direction) const {
-    IndexType row_offset, column_offset;
-    NextCellOffsets(direction, row_offset, column_offset);
-    IndexType result = row_offset*mRow + column_offset*mColumn;
+	IndexType result;
+	if (Grid() != GRID_TRIANGLE) {
+        IndexType row_offset, column_offset;
+        NextCellOffsets(direction, row_offset, column_offset);
+        result = row_offset*mRow + column_offset*mColumn;
+
+	} else switch (direction) {
+		case DIRECTION_NORTH:
+		    result = mRow;
+			break;
+	    case DIRECTION_EAST:
+		    result = mColumn;
+			break;
+		case DIRECTION_SOUTH:
+		    result = -mRow;
+			break;
+	    case DIRECTION_WEST:
+		    result = -mColumn;
+			break;
+		case DIRECTION_NORTHEAST: {
+		    long row_pair = (mRow + (::is_odd(mRow) ? 1 : 0))/2;
+		    long column_pair = (mColumn + (::is_odd(mColumn) ? 1 : 0))/2;
+		    result = column_pair + 3*row_pair;
+		    if (::is_odd(mRow) && ::is_even(mColumn)) {
+			    result -= 1;
+		    } else if (::is_odd(mRow) && ::is_odd(mColumn)) {
+			    result -= 2;
+		    }
+			break;
+        }
+		case DIRECTION_SOUTHEAST: {
+		    long row_pair = (mRow + (::is_odd(mRow) ? 1 : 0))/2;
+		    long column_pair = (mColumn + (::is_odd(mColumn) ? 1 : 0))/2;
+		    result = column_pair - 3*row_pair;
+		    if (::is_even(mRow) && ::is_odd(mColumn)) {
+			    result -= 1;
+		    } else if (::is_odd(mRow)) {
+			    result += 1;
+		    }
+			break;
+	    }
+		case DIRECTION_NORTHWEST: {
+		    long row_pair = (mRow + (::is_odd(mRow) ? 1 : 0))/2;
+		    long column_pair = (mColumn + (::is_odd(mColumn) ? 1 : 0))/2;
+		    result = - column_pair + 3*row_pair;
+		    if (::is_odd(mRow) && ::is_even(mColumn)) {
+			    result -= 1;
+		    } else if (::is_odd(mRow) && ::is_odd(mColumn)) {
+			    result -= 1;
+		    } else if (::is_even(mRow) && ::is_odd(mColumn)) {
+			    result += 1;
+		    }
+			break;
+        }
+		case DIRECTION_SOUTHWEST: {
+		    long row_pair = (mRow + (::is_odd(mRow) ? 1 : 0))/2;
+		    long column_pair = (mColumn + (::is_odd(mColumn) ? 1 : 0))/2;
+		    result = - column_pair - 3*row_pair;
+		    if (::is_odd(mRow) && ::is_odd(mColumn)) {
+			    result += 2;
+		    } else if (::is_odd(mRow) && ::is_even(mColumn)) {
+			    result += 1;
+		    }
+			break;
+	    }
+
+		default:
+			ASSERT(false);
+	}
 
     return result;        
 }
 
 void Cell::Next(DirectionType direction, IndexType count) {
+	ASSERT(count == 1 || count == -1);
+
     Cell next(*this, direction, count);
     *this = next;
 }
@@ -249,6 +354,47 @@ void Cell::Next(DirectionType direction, IndexType count) {
     }
 }
 
+IndexType Cell::Ortho(DirectionType direction) const {
+    DirectionType ortho = ::ortho_direction(direction);
+
+	IndexType result;
+	if (Grid() != GRID_TRIANGLE) {
+        IndexType row_offset, column_offset;
+        NextCellOffsets(ortho, row_offset, column_offset);
+        result = row_offset*mRow + column_offset*mColumn;
+
+	} else switch (ortho) {
+	    case DIRECTION_NORTH:
+		    result = mRow;
+			break;
+		case DIRECTION_EAST:
+		    result = mColumn;
+			break;
+		case DIRECTION_SOUTHEAST: {
+		    long row_pair = (mRow + (::is_odd(mRow) ? 1 : 0))/2;
+		    long column_pair = (mColumn + (::is_odd(mColumn) ? 1 : 0))/2;
+		    result = column_pair - row_pair;
+		    if (::is_even(mRow) && ::is_odd(mColumn)) {
+			    result -= 1;
+		    }
+			break;
+		}
+		case DIRECTION_NORTHEAST: {
+		    long row_pair = (mRow + (::is_odd(mRow) ? 1 : 0))/2;
+		    long column_pair = (mColumn + (::is_odd(mColumn) ? 1 : 0))/2;
+            result = column_pair + row_pair;
+		    if (::is_odd(mRow) && ::is_odd(mColumn)) {
+			    result -= 1;
+		    }
+			break;
+		}
+		default:
+			ASSERT(false);
+	} 
+
+    return result;        
+}
+
 IndexType Cell::Row(void) const {
 	ASSERT(IsValid());
 
@@ -273,13 +419,13 @@ IndexType Cell::Row(void) const {
 	IndexType width, 
 	IndexType height)
 {
-	ASSERT(msHeight <= HEIGHT_MAX);
-	ASSERT(msHeight >= HEIGHT_MIN);
-	ASSERT(msHeight % 2 == 0);
+	ASSERT(height <= HEIGHT_MAX);
+	ASSERT(height >= HEIGHT_MIN);
+	ASSERT(!::is_odd(height));
 
-	ASSERT(msWidth <= WIDTH_MAX);
-	ASSERT(msWidth >= WIDTH_MIN);
-	ASSERT(msWidth % 2 == 0);
+	ASSERT(width <= WIDTH_MAX);
+	ASSERT(width >= WIDTH_MIN);
+	ASSERT(!::is_odd(width));
 
 	msHeight = height;
 	msWidth = width;
@@ -301,13 +447,12 @@ bool Cell::HasNeighbor(DirectionType direction) const {
 			break;
 
 	    case GRID_TRIANGLE:
-			if (direction == DIRECTION_NORTH && (mRow % 2) == (mColumn % 2)
-			 || direction == DIRECTION_SOUTH && (mRow % 2) == (mColumn % 2))
+			if (direction == DIRECTION_NORTH && !::is_odd(mRow + mColumn)
+			 || direction == DIRECTION_SOUTH && ::is_odd(mRow + mColumn))
 			{
 				result = false;
 			}
 			// fall through
-
 		case GRID_4WAY:
 			if (direction == DIRECTION_NORTHEAST
 			 || direction == DIRECTION_NORTHWEST
@@ -361,7 +506,7 @@ bool Cell::IsValid(void) const {
 
 	switch (msGrid) {
 		case GRID_HEX:
-			if ((row & 0x1) != (column & 0x1)) {
+			if (::is_odd(row + column)) {
 				result = false;
 			}
 			break;
@@ -413,6 +558,42 @@ bool is_scoring_direction(DirectionType direction) {
      return result;
 }
 
+DirectionType opposite_direction(DirectionType direction) {
+    DirectionType result;
+    
+    switch(direction) {
+        case DIRECTION_NORTH:
+			result = DIRECTION_SOUTH;
+			break;
+        case DIRECTION_SOUTH:
+            result = DIRECTION_NORTH;
+            break;
+        case DIRECTION_NORTHEAST:
+			result = DIRECTION_SOUTHWEST;
+			break;
+        case DIRECTION_SOUTHWEST:
+            result = DIRECTION_NORTHEAST;
+            break;
+        case DIRECTION_EAST:
+			result = DIRECTION_WEST;
+			break;
+        case DIRECTION_WEST:
+            result = DIRECTION_EAST;
+            break;
+        case DIRECTION_NORTHWEST:
+			result = DIRECTION_SOUTHEAST;
+			break;
+        case DIRECTION_SOUTHEAST:
+            result = DIRECTION_NORTHWEST;
+            break;
+		default:
+			ASSERT(false);
+    }
+    
+    // always return a "positive" direction
+    return result;
+}
+
 DirectionType ortho_direction(DirectionType direction) {
     DirectionType result;
     
@@ -433,6 +614,8 @@ DirectionType ortho_direction(DirectionType direction) {
         case DIRECTION_SOUTHEAST:
             result = DIRECTION_NORTHEAST;
             break;
+		default:
+			ASSERT(false);
     }
     
     // always return a "positive" direction

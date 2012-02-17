@@ -66,6 +66,7 @@ class YesNo;
 
 // project-wide utility functions
 void        assertion_failed(const char *, unsigned);
+bool        is_even(long);
 bool        is_odd(long);
 String      ordinal(unsigned);
 void        pause(void);

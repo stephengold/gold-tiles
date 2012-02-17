@@ -60,7 +60,7 @@ Rect Canvas::DrawBlankTile(
     ColorType tileColor,
 	bool oddFlag)
 {
-	ASSERT(!is_odd(width));
+	ASSERT(::is_even(width));
 
 	ColorType border_color = COLOR_DARK_GRAY;
     UseColors(tileColor, border_color);
@@ -93,7 +93,7 @@ Rect Canvas::DrawCell(
     ColorType gridColor,
 	bool oddFlag)
 {
-	ASSERT(!is_odd(width));
+	ASSERT(::is_even(width));
 
 	UseColors(cellColor, gridColor);
 	Rect interior = DrawGridShape(rCenter, width, height, oddFlag);
@@ -190,7 +190,7 @@ Rect Canvas::DrawTile(
 {
     ASSERT(numGlyphs > 0);
     ASSERT(numGlyphs <= 4);
-	ASSERT(!is_odd(width));
+	ASSERT(::is_even(width));
 
 	ColorType border_color = COLOR_DARK_GRAY;
     UseColors(tileColor, border_color);
@@ -288,7 +288,7 @@ Rect Canvas::DrawTile(
         for (unsigned i = 0; i < 14; i++) {
             double phi = M_PI/7 * (float)i;
             double x, y;
-            if (i % 2) {
+            if (::is_odd(i)) {
                 x = 0.5 + 0.2*::sin(phi);
                 y = 0.5 + 0.2*::cos(phi);
             } else {

@@ -70,14 +70,14 @@ void Cells::MakeEmpty(void) {
 
 // inquiry methods
 
-bool Cells::AreAllInSameGroup(DirectionType direction) const {
+bool Cells::AreAllInSameOrtho(DirectionType direction) const {
     bool result = true;
     
     if (Count() > 1) {
         ConstIteratorType i_cell = begin();
-        IndexType group = i_cell->Group(direction);
+        IndexType ortho = i_cell->Ortho(direction);
         for (i_cell++; i_cell != end(); i_cell++) {
-            if (i_cell->Group(direction) != group) {
+            if (i_cell->Ortho(direction) != ortho) {
                 result = false;
                 break;
             }     

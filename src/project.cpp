@@ -31,8 +31,14 @@ void assertion_failed(const char *file, unsigned line) {
     ::exit(EXIT_FAILURE);
 }
 
+bool is_even(long number) {
+	bool result = ((number & 0x1) == 0);
+
+	return result;
+}
+
 bool is_odd(long number) {
-	bool result = (number & 0x1);
+	bool result = ((number & 0x1) == 0x1);
 
 	return result;
 }

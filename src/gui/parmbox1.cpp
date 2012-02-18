@@ -42,11 +42,24 @@ static INT_PTR CALLBACK message_handler(
 
 // lifecycle
 
-ParmBox1::ParmBox1(GameStyleType gameStyle, unsigned minutesPerHand):
+ParmBox1::ParmBox1(GameStyleType gameStyle, unsigned secondsPerHand):
     Dialog("PARMBOX1", &message_handler)
 {
 	mGameStyle = gameStyle;
-	mPlayerMinutes = minutesPerHand;
+
+	if (secondsPerHand == 0) {
+		mPlayerMinutes = 30;
+	} else {
+	    mPlayerMinutes = (secondsPerHand + 59)/60;
+		if (mPlayerMinutes < 2) {
+			mPlayerMinutes = 2;
+		}
+		if (mPlayerMinutes > 120) {
+			mPlayerMinutes = 120;
+		}
+	}
+	ASSERT(mPlayerMinutes >= 2);
+	ASSERT(mPlayerMinutes <= 120);
 }
 
 // operators
@@ -130,8 +143,13 @@ INT_PTR ParmBox1::HandleMessage(UINT message, WPARAM wParam, LPARAM lParam) {
     return result;
 }
 
-unsigned ParmBox1::PlayerMinutes(void) const {
-	return mPlayerMinutes;
+unsigned ParmBox1::PlayerSeconds(void) const {
+	unsigned result = mPlayerMinutes*60;
+	if (mGameStyle != GAME_STYLE_CHALLENGE) {
+		result = 0;
+	}
+
+	return result;
 }
 
 void ParmBox1::SetStyle(void) {

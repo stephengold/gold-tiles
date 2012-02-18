@@ -33,7 +33,8 @@ Game::Game(
     ACountType attributeCnt,
     AValueType pMaxAttributeValues[],
     unsigned tileRedundancy,
-    unsigned handSize)
+    unsigned handSize,
+	unsigned secondsPerHand)
 {
 	ASSERT(attributeCnt >= 2);
 	ASSERT(tileRedundancy >= 1);
@@ -41,9 +42,11 @@ Game::Game(
 
     // copy game parameters
     Tile::SetStatic(attributeCnt, pMaxAttributeValues);
+	mRedundancy = tileRedundancy;
+	mHandSize = handSize;
+	mSecondsPerHand = secondsPerHand;
 
     // generate all possible tiles
-	mRedundancy = tileRedundancy;
     unsigned attribute_index = 0;
     Tile model_tile;
     AddTiles(attribute_index, model_tile);
@@ -53,12 +56,11 @@ Game::Game(
 	Strings::ConstIteratorType i_name;
 	for (i_name = handNames.Begin(); i_name != handNames.End(); i_name++) {
 		String name = *i_name;
-	    Hand hand(name);
+	    Hand hand(name, mSecondsPerHand);
 	    mHands.push_back(hand);
     }
 
     // deal tiles to each hand from the stock bag
-	mHandSize = handSize;
     Hands::IteratorType i_hand;
     for (i_hand = mHands.begin(); i_hand < mHands.end(); i_hand++) {
         i_hand->DrawTiles(mHandSize, mStockBag);
@@ -255,11 +257,15 @@ void Game::NextTurn(void) {
 }
 
 void Game::PlayGame(void) {
+	StartClock();
     FirstTurn();
+	StopClock();
 
     while (!IsOver()) {
         ActivateNextHand();
+		StartClock();
 	    NextTurn();
+		StopClock();
     }
 
     // display final scores
@@ -278,6 +284,29 @@ unsigned Game::ScoreMove(Move const &rMove) const {
     return result;
 }
 
+int Game::Seconds(Hand &rHand) const {
+	int result = rHand.Seconds(); 
+	if (mSecondsPerHand > 0) {
+		result = mSecondsPerHand - result;
+		if (result < 0) {
+			// TODO
+		}
+	}
+
+	return result;
+}
+
+unsigned Game::SecondsPerHand(void) const {
+	return mSecondsPerHand;
+}
+
+void Game::StartClock(void) {
+	miActiveHand->StartClock();
+}
+
+void Game::StopClock(void) {
+	miActiveHand->StopClock();
+}
 
 // inquiry methods
 
@@ -339,6 +368,12 @@ bool Game::IsOver(void) const {
    }
 
    return result;
+}
+
+bool Game::IsPaused(void) const {
+	bool result = !miActiveHand->IsRunning();
+
+	return result;
 }
 
 bool Game::IsStockEmpty(void) const {

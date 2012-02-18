@@ -41,6 +41,8 @@ The TopWindow class is an extension of the Window class.
 #include "gui/window.hpp"
 #include "partial.hpp"
 
+#define SECONDS_PER_MINUTE 60
+
 class TopWindow: public Window {
 public:
 	// lifecycle
@@ -78,12 +80,10 @@ private:
 	Rect          mHandRect;
 	bool          mInitialNewGame;
 	bool          mIsStartCentered;
-	unsigned      mMinutesPerHand;
 	Point         mMouseLast; // coordinates of last mouse down
 	unsigned      mMouseUpCnt;
 	PCntType      mPadPixels;
 	Partial       mPartial;
-	bool          mPauseFlag;
     PlayMenu *   mpPlayMenu;
 	unsigned      mRunLength;
 	bool          mShowClocksFlag, mShowGridFlag, mShowHintsFlag;
@@ -105,13 +105,14 @@ private:
     LogicalYType CellY(IndexType row) const;
     PCntType     CellWidth(void) const;
     char const * ClassName(void) const;
+	String       ClockText(Hand &) const;
 	int          CreateNewGame(void);
 	void         DiscardGame(void);
     void         DrawActiveHand(Canvas &);
 	Rect         DrawBlankTile(Canvas &, Point const &, bool odd);
     void         DrawBoard(Canvas &);
     void         DrawCell(Canvas &, Cell const &, unsigned swapCnt);
-    Rect         DrawHandHeader(Canvas &, LogicalYType top, LogicalXType leftRight, Hand const &, 
+    Rect         DrawHandHeader(Canvas &, LogicalYType top, LogicalXType leftRight, Hand &, 
                                 ColorType, bool leftFlag);
     void         DrawHandTile(Canvas &, Point const &, Tile const &, bool odd);
     void         DrawHandTiles(Canvas &);
@@ -138,6 +139,7 @@ private:
 	void         SetTileWidth(int command);
 	void         StopDragging(void);
 	PCntType     TileHeight(void) const;
+	void         TogglePause(void);
 	void         UpdateMenus(void);
 
 	// private inquiry methods

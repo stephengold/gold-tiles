@@ -22,19 +22,19 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include <iostream>
-#include "move.hpp"
+#include <time.h>
 #include "hand.hpp"
+#include "move.hpp"
+
 
 // lifecycle
 
-Hand::Hand(void) {
-	mScore = 0;
-}
-
-Hand::Hand(const String &name):
+Hand::Hand(const String &name, unsigned seconds):
     mName(name)
 {
+	mRunning = false;
 	mScore = 0;
+	mSeconds = 0;
 }
 
 // The compiler-generated copy constructor is fine.
@@ -43,18 +43,19 @@ Hand::Hand(const String &name):
 
 // operators
 
+// The compiler-generated assignment method is fine.
+
 Hand::operator Tiles(void) const {
     return mTiles;
 }
-// The compiler-generated assignment method is fine.
 
 
 // misc methods
 
 void Hand::AddScore(unsigned points) {
-	mScore += points;
-
-	D(std::cout << Name() << " scored " << plural(points, "point") << "." << std::endl);
+	unsigned new_score = mScore + points;
+	ASSERT(new_score >= mScore); // check for wrap
+	mScore = new_score;
 }
 
 Move Hand::ChooseMove(void) const {
@@ -113,6 +114,32 @@ unsigned Hand::Score(void) const {
     return mScore;
 }
 
+unsigned Hand::Seconds(void) const {
+	unsigned result = mSeconds;
+
+    if (mRunning) {
+	    time_t now = ::time(NULL);
+		ASSERT(now >= mStartTime);
+        result += unsigned(now - mStartTime);
+	}
+
+	return result;
+}
+
+void Hand::StartClock(void) {
+	ASSERT(!mRunning);
+	mStartTime = ::time(NULL);
+	mRunning = true;
+}
+
+unsigned Hand::StopClock(void) {
+	ASSERT(mRunning);
+	mSeconds = Seconds();
+	mRunning = false;
+
+	return mSeconds;
+}
+
 
 // inquiry methods
 
@@ -120,4 +147,8 @@ bool Hand::IsEmpty(void) const {
      bool result = mTiles.IsEmpty();
      
      return result;
+}
+
+bool Hand::IsRunning(void) const {
+	return mRunning;
 }

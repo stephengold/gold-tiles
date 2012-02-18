@@ -35,13 +35,18 @@ Game::Game(
     unsigned tileRedundancy,
     unsigned handSize)
 {
+	ASSERT(attributeCnt >= 2);
+	ASSERT(tileRedundancy >= 1);
+	ASSERT(handSize >= 1);
+
     // copy game parameters
     Tile::SetStatic(attributeCnt, pMaxAttributeValues);
 
     // generate all possible tiles
+	mRedundancy = tileRedundancy;
     unsigned attribute_index = 0;
     Tile model_tile;
-    AddTiles(attribute_index, tileRedundancy, model_tile);
+    AddTiles(attribute_index, model_tile);
     D(std::cout << "Placed " << plural(CountStock(), "tile") << " in the stock bag." << std::endl);
     
     // create hands
@@ -53,9 +58,10 @@ Game::Game(
     }
 
     // deal tiles to each hand from the stock bag
+	mHandSize = handSize;
     Hands::IteratorType i_hand;
     for (i_hand = mHands.begin(); i_hand < mHands.end(); i_hand++) {
-        i_hand->DrawTiles(handSize, mStockBag);
+        i_hand->DrawTiles(mHandSize, mStockBag);
     }
     std::cout << std::endl;
 
@@ -109,7 +115,6 @@ Tiles Game::ActiveTiles(void) const {
 // create tiles and add them to the stock bag
 void Game::AddTiles(  // recursive
     unsigned attributeIndex,
-    unsigned tileRedundancy,
     Tile &modelTile) {
 
     ACountType na = Tile::AttributeCnt();
@@ -117,11 +122,11 @@ void Game::AddTiles(  // recursive
 		AValueType max = Tile::ValueMax(attributeIndex);
 		for (AValueType attr = 0; attr <= max; attr++) {
         	modelTile.SetAttribute(attributeIndex, attr);
-	        AddTiles(attributeIndex + 1, tileRedundancy, modelTile);
+	        AddTiles(attributeIndex + 1, modelTile);
          }
 	} else {
         ASSERT(attributeIndex == na);
-		for (unsigned ci = 0; ci < tileRedundancy; ci++) {
+		for (unsigned ci = 0; ci < mRedundancy; ci++) {
             Tile clo = modelTile.Clone();
 			mStockBag.Add(clo);
 		}
@@ -208,10 +213,10 @@ void Game::GoingOutBonus(void) {
 	mUnsavedChanges = true;
 }
 
-bool Game::HasUnsavedChanges(void) const {
-	bool result = mUnsavedChanges;
+unsigned Game::HandSize(void) const {
+	ASSERT(mHandSize > 0);
 
-    return result;
+	return mHandSize;
 }
 
 Hands Game::InactiveHands(void) const {
@@ -261,6 +266,12 @@ void Game::PlayGame(void) {
     DisplayScores();
 }
 
+unsigned Game::Redundancy(void) const {
+	ASSERT(mRedundancy > 0);
+
+	return mRedundancy;
+}
+
 unsigned Game::ScoreMove(Move const &rMove) const {
     unsigned result = mBoard.ScoreMove(rMove);
 
@@ -274,6 +285,10 @@ bool Game::HasEmptyCell(Cell const &rCell) const {
     bool result = mBoard.HasEmptyCell(rCell);
     
     return result; 
+}
+
+bool Game::HasUnsavedChanges(void) const {
+	return mUnsavedChanges;
 }
 
 bool Game::IsLegalMove(Move const &rMove) const {

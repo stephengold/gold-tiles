@@ -41,12 +41,6 @@ The TopWindow class is an extension of the Window class.
 #include "gui/window.hpp"
 #include "partial.hpp"
 
-enum TileWidthType {
-    TILE_WIDTH_SMALL = 20,
-	TILE_WIDTH_MEDIUM = 40,
-	TILE_WIDTH_LARGE = 60
-};
-
 class TopWindow: public Window {
 public:
 	// lifecycle
@@ -98,6 +92,7 @@ private:
 	Point         mStartCell; // logical coordinates of center of start cell
 	Rect          mSwapRect;
 	TileMapType   mTileMap;
+	int           mTileSizeCmd;
 	PCntType      mTileWidth;
     ViewMenu *   mpViewMenu;
 
@@ -139,9 +134,10 @@ private:
 	void         ReleaseActiveTile(Point const &);
     void         Resize(PCntType width, PCntType height);
     void         Repaint(void);
-	PCntType     TileHeight(void) const;
 	void         SetGame(Game *);
+	void         SetTileWidth(int command);
 	void         StopDragging(void);
+	PCntType     TileHeight(void) const;
 	void         UpdateMenus(void);
 
 	// private inquiry methods

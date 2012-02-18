@@ -49,8 +49,10 @@ public:
     unsigned CountStock(void) const;
     void     FinishTurn(Move const &);
     void     GoingOutBonus(void);
+	unsigned HandSize(void) const;
     Hands    InactiveHands(void) const;
     void     PlayGame(void);
+	unsigned Redundancy(void) const;
 
 	// public inquiry methods
 	bool     HasEmptyCell(Cell const &) const;
@@ -67,11 +69,13 @@ private:
     Board                mBoard;         // extensible playing surface
 	String               mFilename;      // name of associated file for load/save
     Hands                mHands;         // all hands being played
+	unsigned             mHandSize;      // max tiles per hand
+	unsigned             mRedundancy;    // number of instances of each possible tile
     Tiles                mStockBag;      // stock bag from which tiles are drawn
 	bool                 mUnsavedChanges;
 
 	// misc private methods
-    void     AddTiles(AIndexType, unsigned redundancy, Tile &);
+    void     AddTiles(AIndexType, Tile &);
     Cell     ChooseCell(void) const;
     void     DisplayScores(void) const;
     void     FirstTurn(void);

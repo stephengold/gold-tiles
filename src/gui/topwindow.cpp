@@ -36,6 +36,7 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 #include "gui/parmbox3.hpp"
 #include "gui/playmenu.hpp"
 #include "gui/resource.hpp"
+#include "gui/tilebox.hpp"
 #include "gui/topwindow.hpp"
 #include "gui/viewmenu.hpp"
 #include "gui/windowclass.hpp"
@@ -43,6 +44,8 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 #include "move.hpp"
 #include "hand.hpp"
 #include "strings.hpp"
+
+const double sqrt_3 = sqrt(3.0);
 
 // static data of the class
 
@@ -114,8 +117,9 @@ TopWindow::TopWindow(HINSTANCE applicationInstance, Game *pGame):
 	mShowScoresFlag = true;
 	mShowTilesFlag = false;
 	mSquareGrid = true;
-	mTileWidth = TILE_WIDTH_LARGE;
     mpViewMenu = NULL;
+
+	SetTileWidth(IDM_LARGE_TILES);
 
 	HWND desktop_handle = ::GetDesktopWindow();
 	RECT rect;
@@ -607,8 +611,8 @@ void TopWindow::DrawPaused(Canvas &rCanvas) {
     ColorType text_color = COLOR_WHITE;
     rCanvas.UseColors(bg_color, text_color);
 
-    int x = 0;
-    int y = 0;
+    LogicalXType x = 0;
+    LogicalYType y = 0;
     Rect clientArea(y, x, ClientAreaWidth(), ClientAreaHeight());
     rCanvas.DrawText(clientArea, "The game is paused.  Click here to proceed.");
         
@@ -743,7 +747,7 @@ PCntType TopWindow::GridUnitX(void) const {
 	}
 
     if (mShowGridFlag) {
-        result -= 1; // width of grid line
+        result -= 1; // shring by the width of one grid line
     }
 
     return result;
@@ -887,16 +891,10 @@ void TopWindow::HandleMenuCommand(int command) {
 
 	    // View menu options
         case IDM_SMALL_TILES:
-            mTileWidth = TILE_WIDTH_SMALL;
-	        ForceRepaint();
-            break;
         case IDM_MEDIUM_TILES:
-            mTileWidth = TILE_WIDTH_MEDIUM;
-		    ForceRepaint();
-            break;
         case IDM_LARGE_TILES:
-            mTileWidth = TILE_WIDTH_LARGE;
-		    ForceRepaint();
+            SetTileWidth(command);
+	        ForceRepaint();
             break;
         case IDM_RECENTER:
             mIsStartCentered = false;
@@ -1091,22 +1089,30 @@ char const *TopWindow::Name(void) const {
 }
 
 void TopWindow::OfferNewGame(void) {
-	GridType grid = Cell::Grid();
+	ParmBox1 parmbox1(mGameStyle, mMinutesPerHand);
 
 	bool wrap_flag;
 	IndexType height, width;
 	Cell::GetTopology(wrap_flag, height, width); 
-
-	ParmBox1 parmbox1(mGameStyle, mMinutesPerHand);
+	GridType grid = Cell::Grid();
 	ParmBox2 parmbox2(wrap_flag, height, width, grid);
-	ParmBox3 parmbox3;
+
+	unsigned attributeCnt = Tile::AttributeCnt();
+	unsigned clonesPerTile = mpGame->Redundancy() - 1;
+	unsigned handCnt = mpGame->InactiveHands().Count() + 1;
+	unsigned handSize = mpGame->HandSize();
+	ParmBox3 parmbox3(attributeCnt, clonesPerTile, handSize, handCnt);
+
+	unsigned max_attribute_cnt = Tile::AttributeCnt();
+	AValueType *max_attribute_values = new AValueType[max_attribute_cnt];
+	for (unsigned i_attr = 0; i_attr < max_attribute_cnt; i_attr++) {
+		max_attribute_values[i_attr] = Tile::ValueMax(i_attr);
+	}
 
 	Strings player_names;
     Indices auto_hands;
     Indices remote_hands;
 	LPARAM *ip_addresses = NULL;
-	AValueType *max_attribute_values = NULL;
-	unsigned max_attribute_cnt = 0;
 
 STEP1:
 	int result = parmbox1.Run(this);
@@ -1139,19 +1145,36 @@ STEP3:
 	    AValueType *new_max_attribute_values = new AValueType[attribute_cnt];
 
 		// copy old limits
-	    for (unsigned i = 0; i < max_attribute_cnt; i++) {
-		    new_max_attribute_values[i] = max_attribute_values[i];
+	    for (unsigned i_attr = 0; i_attr < max_attribute_cnt; i_attr++) {
+		    new_max_attribute_values[i_attr] = max_attribute_values[i_attr];
 	    }
 		delete[] max_attribute_values;
 
 		// initialize new limits
-		for (unsigned i = max_attribute_cnt; i < attribute_cnt; i++) {
-			new_max_attribute_values[i] = 6;
+		for (unsigned i_attr = max_attribute_cnt; i_attr < attribute_cnt; i_attr++) {
+			new_max_attribute_values[i_attr] = 6; // TODO
 		}
 
 		max_attribute_cnt = attribute_cnt;
 		max_attribute_values = new_max_attribute_values;
 	}
+
+STEP4:
+	String template_name = "TILEBOX" + String(max_attribute_cnt);
+	TileBox tilebox((char const *)template_name, max_attribute_cnt, max_attribute_values);
+	result = tilebox.Run(this);
+	if (result == Dialog::RESULT_CANCEL) {
+	    return;
+	} else if (result == Dialog::RESULT_BACK) {
+		goto STEP3;
+	}
+	ASSERT(result == Dialog::RESULT_OK);
+    TileBox::ValueType *num_values = tilebox.NumValues();
+
+	// copy new limits
+    for (unsigned i_attr = 0; i_attr < max_attribute_cnt; i_attr++) {
+	    max_attribute_values[i_attr] = num_values[i_attr] - 1;
+    }
 
 	unsigned hand_cnt = parmbox3.HandCnt();
    	if (hand_cnt > player_names.Count()) {
@@ -1186,7 +1209,7 @@ STEP3:
 			return;
 		} else if (result == Dialog::RESULT_BACK) {
 			if (i == 0) {
-				goto STEP3;
+				goto STEP4;
 			} else {
 				i--;
 				i_name--;
@@ -1217,6 +1240,7 @@ STEP3:
 	unsigned hand_size = parmbox3.HandSize();
 	unsigned tile_redundancy = 1 + parmbox3.ClonesPerTile();
 
+	// Tile::SetStatic();  TODO - take this out of Game() constructor
 	Game *p_new_game = new Game(player_names, attribute_cnt, max_attribute_values, 
 		              tile_redundancy, hand_size);
 	ASSERT(p_new_game != NULL);
@@ -1435,6 +1459,41 @@ void TopWindow::SetGame(Game *pGame) {
     UpdateMenus();
 }
 
+void TopWindow::SetTileWidth(int command) {
+	PCntType width;
+
+	switch(Cell::Grid()) {
+	case GRID_4WAY:
+	case GRID_8WAY:
+	    width = 20;
+	    break;
+	case GRID_HEX:
+		width = 24;
+		break;
+	case GRID_TRIANGLE:
+		width = 32;
+		break;
+	default:
+		ASSERT(false);
+	}
+
+	switch(command) {
+    case IDM_SMALL_TILES:
+        mTileWidth = width;
+        break;
+    case IDM_MEDIUM_TILES:
+        mTileWidth = 2*width;
+        break;
+    case IDM_LARGE_TILES:
+        mTileWidth = 3*width;
+        break;
+	default:
+		ASSERT(false);
+	}
+	
+	mTileSizeCmd = command;
+}
+
 void TopWindow::StopDragging(void) {
 	ASSERT(IsDragging());
 
@@ -1451,39 +1510,22 @@ PCntType TopWindow::TileHeight(void) const {
     PCntType result;
 
 	switch(Cell::Grid()) {
-	    case GRID_4WAY:
-	    case GRID_8WAY:
-		    result = mTileWidth;
-		    break;
-	    case GRID_HEX:
-	    case GRID_TRIANGLE: {
-			double sqrt_3 = sqrt(3.0);
-			result = PCntType(0.5*(1 + sqrt_3*mTileWidth));
-		    break;
-		}
-	    default:
-		    ASSERT(false);
+	case GRID_4WAY:
+	case GRID_8WAY:
+	    result = mTileWidth;
+	    break;
+	case GRID_HEX:
+	case GRID_TRIANGLE:
+		result = PCntType(0.5*(1 + sqrt_3*mTileWidth));
+		break;
+	default:
+	    ASSERT(false);
 	}
 
     return result;
 }
 
 void TopWindow::UpdateMenus(void) {
-	UINT tile_size;
-	switch (mTileWidth) {
- 	    case TILE_WIDTH_SMALL:
-	        tile_size = IDM_SMALL_TILES;
-			break;
- 	    case TILE_WIDTH_MEDIUM:
-	        tile_size = IDM_MEDIUM_TILES;
-			break;
- 	    case TILE_WIDTH_LARGE:
-	        tile_size = IDM_LARGE_TILES;
-			break;
-		default:
-			ASSERT(false);
-	}
-
 	// "Play" menu
     mpPlayMenu->Autopause(mAutopauseFlag);
     mpPlayMenu->Pause(mPauseFlag);
@@ -1493,7 +1535,7 @@ void TopWindow::UpdateMenus(void) {
 	mpPlayMenu->Enable(mpGame != NULL);
 
 	// "View" menu
-    mpViewMenu->TileSize(tile_size);
+    mpViewMenu->TileSize(mTileSizeCmd);
     mpViewMenu->ShowClocks(mShowClocksFlag);
     mpViewMenu->ShowGrid(mShowGridFlag);
     mpViewMenu->ShowHints(mShowHintsFlag);

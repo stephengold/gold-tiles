@@ -52,6 +52,7 @@ public:
 
 	// operators
     // String &operator=(String const &)};  compiler-generated assignment method is OK
+	operator char const*(void) const;
 	operator int(void) const; // atoi
 
 	// misc public methods

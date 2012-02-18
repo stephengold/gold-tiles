@@ -33,7 +33,7 @@ class Game {
 public:
 	// lifecycle
     Game(Strings handNames, ACountType attributeCnt, AValueType maxAttributeValues[], 
-		 unsigned tileRedundancy, unsigned handSize);
+		 unsigned tileRedundancy = 3, unsigned handSize = 6, unsigned secondsPerHand = 0);
 	// no default constructor
 	// no copy constructor
     // ~Game(void);  compiler-generated destructor is OK
@@ -53,6 +53,10 @@ public:
     Hands    InactiveHands(void) const;
     void     PlayGame(void);
 	unsigned Redundancy(void) const;
+	int      Seconds(Hand &) const;
+	unsigned SecondsPerHand(void) const;
+	void     StartClock(void);
+	void     StopClock(void);
 
 	// public inquiry methods
 	bool     HasEmptyCell(Cell const &) const;
@@ -61,6 +65,7 @@ public:
     bool     IsLegalMove(Move const &, char const *&rReason) const;
     bool     IsLegalPartial(Partial const &) const;
     bool     IsOver(void) const;
+	bool     IsPaused(void) const;
 	bool     IsStockEmpty(void) const;
 
 private:
@@ -71,6 +76,7 @@ private:
     Hands                mHands;         // all hands being played
 	unsigned             mHandSize;      // max tiles per hand
 	unsigned             mRedundancy;    // number of instances of each possible tile
+	unsigned             mSecondsPerHand; // 0 indicates count up instead of down
     Tiles                mStockBag;      // stock bag from which tiles are drawn
 	bool                 mUnsavedChanges;
 

@@ -69,18 +69,13 @@ int main(int argc, char *argv[]) {
 	hand_names.Append("Gale");
 	ACountType attribute_cnt = 2;
 	AValueType max_attribute[] = { 5, 5 };
-	unsigned tile_redundancy = 3;
-	unsigned hand_size = 7;
 
     // Instantiate the game.
-	Game game(hand_names, attribute_cnt, max_attribute,
-        tile_redundancy, hand_size);
+	Game game(hand_names, attribute_cnt, max_attribute);
 
 #ifdef _CONSOLE
 	game.PlayGame();
-
     ::pause();
-
 	int exitCode = EXIT_SUCCESS;
 #endif
 

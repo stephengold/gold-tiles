@@ -30,8 +30,8 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 class Hand {
 public:
 	// lifecycle
-    Hand(void);
-    Hand(String const &);
+    Hand(String const &name, unsigned seconds);
+	// no default constructor
     // Hand(Hand const &); The compiler-generated copy constructor is fine.
     //~Hand(void); The compiler-generated destructor is fine.
 
@@ -52,13 +52,20 @@ public:
 	void     RemoveTile(Tile const &);
 	void     RemoveTiles(Tiles const &);
 	unsigned Score(void) const;
+	unsigned Seconds(void) const;
+	void     StartClock(void);
+	unsigned StopClock(void);
 
 	// public inquiry methods
-	bool     IsEmpty(void) const;
+	bool IsEmpty(void) const;
+	bool IsRunning(void) const;
 
 private:
 	String   mName;
+	bool     mRunning; // is the clock running?
 	unsigned mScore;
+	unsigned mSeconds;
+	time_t   mStartTime;
 	Tiles    mTiles;
 };
 #endif

@@ -64,6 +64,14 @@ String::String(long integer):
 String::String(unsigned long integer):
 	std::string(::ultos(integer)) {}
 
+// operators
+
+String::operator const char *(void) const {
+	const char *result = c_str();
+
+	return result;
+}
+
 String::operator int(void) const {
 	unsigned n = Length();
 

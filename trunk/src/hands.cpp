@@ -23,6 +23,13 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "hands.hpp"
 
+// misc methods
+unsigned Hands::Count(void) const {
+    unsigned result = size();
+
+	return result;
+}
+
 void Hands::Next(ConstIteratorType &riCurrentHand) const {
 	riCurrentHand++;
     if (riCurrentHand >= end()) {

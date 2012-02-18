@@ -28,7 +28,7 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 
 // static data
 
-GridType  Cell::msGrid     = GRID_SQUARE;
+GridType  Cell::msGrid     = GRID_4WAY;
 IndexType Cell::msHeight   = HEIGHT_MAX;
 IndexType Cell::msWidth    = WIDTH_MAX;
 bool      Cell::msWrapFlag = false;

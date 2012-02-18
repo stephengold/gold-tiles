@@ -1,8 +1,8 @@
-#ifndef PARMBOX3_HPP_INCLUDED
-#define PARMBOX3_HPP_INCLUDED
+#ifndef TILEBOX_HPP_INCLUDED
+#define TILEBOX_HPP_INCLUDED
 
-// File:    parmbox3.hpp
-// Purpose: ParmBox3 class
+// File:    tilebox.hpp
+// Purpose: TileBox class
 // Author:  Stephen Gold sgold@sonic.net
 // (c) Copyright 2012 Stephen Gold
 // Distributed under the terms of the GNU General Public License
@@ -25,37 +25,34 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 /*
-A ParmBox3 object represents a dialog box for setting hand/tile parameters
-such as the number of tiles per hand.
+A TileBox object represents a dialog box for adjusting the number of values
+for each attribute.
 
-The ParmBox3 class is an extension of the Dialog class.
+The TileBox class is an extension of the Dialog class.
 */
 
 #include "cell.hpp"
 #include "gui/dialog.hpp"
 #include "tile.hpp"
 
-class ParmBox3: public Dialog {
+class TileBox: public Dialog {
 public:
     // lifecycle
-	ParmBox3(unsigned attributeCnt, unsigned clonesPerTile, 
-		     unsigned handSize, unsigned handCnt);
+	TileBox(char const *templateName, ACountType attributeCnt, AValueType pValueMax[5]);
 	// no default constructor
 	// no copy constructor
-	// ~ParmBox3(void);  compiler-generated destructor is OK
+	// ~TileBox(void);  compiler-generated destructor is OK
 
 	// public operators
-    ParmBox3 &operator=(ParmBox3 const &) { ASSERT(false); };
+    TileBox &operator=(TileBox const &) { ASSERT(false); };
 
 	// misc public methods
-	ACountType AttributeCnt(void) const;
-	unsigned   ClonesPerTile(void) const;
-	unsigned   HandCnt(void) const;
 	INT_PTR    HandleMessage(UINT message, WPARAM, LPARAM);
-	unsigned   HandSize(void) const;
+	ValueType *NumValues(void);
 
 private:
-    ValueType mAttributeCnt, mClonesPerTile, mHandSize, mHandCnt;
+	ACountType mAttributeCnt;
+    ValueType mpNumValues[5];
 
 	// misc private methods
     IdType EditboxId(IdType slider) const;

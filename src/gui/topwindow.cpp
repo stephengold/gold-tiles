@@ -45,7 +45,9 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 #include "hand.hpp"
 #include "strings.hpp"
 
-const double sqrt_3 = sqrt(3.0);
+const double SQRT_3 = sqrt(3.0);
+const unsigned TIMEOUT_MSEC = 1000;
+const unsigned ID_TIMER = 1;
 
 // static data of the class
 
@@ -141,7 +143,7 @@ TopWindow::TopWindow(HINSTANCE applicationInstance, Game *pGame):
                              parameters);
     ASSERT(Handle() == handle);
 
-	// wait for top_message_handler() to receive a message with this handle
+	// wait for message_handler() to receive a message with this handle
 }
 
 TopWindow::~TopWindow(void) {
@@ -163,6 +165,7 @@ void TopWindow::Initialize(CREATESTRUCT const *pCreateStruct) {
 	mpViewMenu = new ViewMenu(menu_bar, 2);
 	ASSERT(mpViewMenu != NULL);
 
+	SetTimer(TIMEOUT_MSEC, ID_TIMER);
 	UpdateMenus();
 }
 
@@ -217,7 +220,7 @@ String TopWindow::ClockText(Hand &rHand) const {
 	}
 
 	unsigned minutes, tens_of_seconds;
-	minutes = seconds/SECONDS_PER_MINUTE;
+	minutes = seconds / SECONDS_PER_MINUTE;
 	seconds -= minutes*SECONDS_PER_MINUTE;
     tens_of_seconds = seconds / 10;
 	seconds -= tens_of_seconds*10;
@@ -904,8 +907,6 @@ void TopWindow::HandleMenuCommand(int command) {
 		    break;
 	    case IDM_PAUSE:
 			TogglePause();
-		    ForceRepaint();
-			UpdateMenus();
 		    break;
 		case IDM_HINT:
 			break;
@@ -1015,11 +1016,10 @@ LRESULT TopWindow::HandleMessage(UINT message, WPARAM wParam, LPARAM lParam) {
             break;
         }
 
-        case WM_LBUTTONDOWN: // start left-click
+        case WM_LBUTTONDOWN: // begin left-click
 			if (IsPaused()) {
                 ASSERT(mpGame != NULL);
-				mpGame->StartClock();
-		        ForceRepaint();
+				TogglePause();
             } else if (!IsDragging()) {
 			    POINTS points = MAKEPOINTS(lParam);
 			    Point mouse(points);
@@ -1061,7 +1061,6 @@ LRESULT TopWindow::HandleMessage(UINT message, WPARAM wParam, LPARAM lParam) {
 		}
 
 	    case WM_PAINT: // repaint
-	        UpdateMenus();
             Repaint();
             break;
            
@@ -1071,6 +1070,18 @@ LRESULT TopWindow::HandleMessage(UINT message, WPARAM wParam, LPARAM lParam) {
             Resize(clientAreaWidth, clientAreaHeight);
             break;
         }
+
+		case WM_TIMER: { // timeout
+			int id = int(wParam);
+			if (id == ID_TIMER) {
+			    if (mShowClocksFlag && !IsPaused()) {
+			        ForceRepaint();
+			    } else {
+					SetTimer(TIMEOUT_MSEC, ID_TIMER);
+				}
+			}
+			break;
+		}
 
 	    default:  // invoke message handler of the base class
 		    result = Window::HandleMessage(message, wParam, lParam);
@@ -1485,6 +1496,9 @@ void TopWindow::Repaint(void) {
     canvas.Close();
     ::EndPaint(this_window, &paint_struct);
 
+	// restart the timer
+	SetTimer(TIMEOUT_MSEC, ID_TIMER);
+
 	if (mInitialNewGame) {
 		mInitialNewGame = false;
 		ASSERT(mpGame == NULL);
@@ -1571,7 +1585,7 @@ PCntType TopWindow::TileHeight(void) const {
 	    break;
 	case GRID_HEX:
 	case GRID_TRIANGLE:
-		result = PCntType(0.5*(1 + sqrt_3*mTileWidth));
+		result = PCntType((1 + SQRT_3*mTileWidth)/2);
 		break;
 	default:
 	    ASSERT(false);
@@ -1588,6 +1602,8 @@ void TopWindow::TogglePause(void) {
 			mpGame->StopClock();
 		}
 	}
+    ForceRepaint();
+    UpdateMenus();
 }
 
 void TopWindow::UpdateMenus(void) {

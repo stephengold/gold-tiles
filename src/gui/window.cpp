@@ -261,6 +261,12 @@ void Window::SetIcons(char const *iconResourceName) {
     ::SendMessage(window_handle, message, which_icon, LPARAM(largeIconHandle));
 }
 
+void Window::SetTimer(unsigned interval_msecs, unsigned event_id) {
+	TIMERPROC callback = NULL;
+	int success = ::SetTimer(mHandle, event_id, interval_msecs, callback);
+    ASSERT(success != 0);
+}
+
 void Window::Show(int how) {
 	ASSERT(mHandle != 0);
 

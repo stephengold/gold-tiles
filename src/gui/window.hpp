@@ -75,8 +75,9 @@ protected:
 	void      ForceRepaint(void);
 	HACCEL    GetAcceleratorTable(char const *resourceName);
 	void      SelfDestruct(void);
-	void      SetIcons(char const *resourceName);
 	void      SetClientArea(PCntType width, PCntType height);
+	void      SetIcons(char const *resourceName);
+	void      SetTimer(unsigned msecs, unsigned id=1);
 
 private:
     typedef unsigned long                 Key;

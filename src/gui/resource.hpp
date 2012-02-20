@@ -53,6 +53,11 @@
 #define IDC_RADIOAUTO                           1512
 #define IDC_RADIOREMOTE                         1513
 #define IDC_IPADDRESS1                          1521
+#define IDC_RADIO_NONE                          1601
+#define IDC_RADIO_EMPTY                         1602
+#define IDC_RADIO_CONNECTED                     1603
+#define IDC_RADIO_USABLE_ANY                    1604
+#define IDC_RADIO_USABLE_SELECTED               1605
 #define IDM_NEW                                 6000
 #define IDM_OPEN                                6001
 #define IDM_REOPEN                              6002
@@ -77,9 +82,9 @@
 #define IDM_LARGE_TILES                         6202
 #define IDM_RECENTER                            6203
 #define IDM_ATTRIBUTES                          6204
-#define IDM_SHOW_CLOCKS                         6205
-#define IDM_SHOW_GRID                           6206
-#define IDM_SHOW_HINTS                          6207
+#define IDM_HINTS                               6205
+#define IDM_SHOW_CLOCKS                         6206
+#define IDM_SHOW_GRID                           6207
 #define IDM_SHOW_SCORES                         6208
 #define IDM_SHOW_TILES                          6209
 #define IDM_ANIMATION                           6210

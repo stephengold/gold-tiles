@@ -25,7 +25,7 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 #include "gui/resource.hpp"
 
 // message handler (callback) for this dialog
-static INT_PTR CALLBACK handbox_message_handler(
+static INT_PTR CALLBACK message_handler(
 	HWND windowHandle,
 	UINT message,
 	WPARAM wParameter, 
@@ -50,7 +50,7 @@ HandBox::HandBox(
 	bool isRemote,
 	LPARAM ipAddress)
 :
-    Dialog("HANDBOX", &handbox_message_handler)
+    Dialog("HANDBOX", &message_handler)
 {
 	mAreMoreHands = areMoreHands;
 	mHandIndex = handIndex;
@@ -79,6 +79,14 @@ INT_PTR HandBox::HandleMessage(UINT message, WPARAM wParam, LPARAM lParam) {
 			}
 			SetTextString(IDC_WHO, message);
 			SetTextString(IDC_EDITNAME, mPlayerName);
+#if 1
+			// TODO
+			mIsAutomatic = false;
+			mIsRemote = false;
+			EnableButton(IDC_RADIOLOCAL, true);
+	        EnableButton(IDC_RADIOAUTO, false);
+	        EnableButton(IDC_RADIOREMOTE, false);
+#endif
 			SetButton(IDC_RADIOLOCAL, !mIsAutomatic && !mIsRemote);
 	        SetButton(IDC_RADIOAUTO, mIsAutomatic && !mIsRemote);
 	        SetButton(IDC_RADIOREMOTE, mIsRemote);

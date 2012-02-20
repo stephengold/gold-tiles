@@ -61,12 +61,10 @@ public:
     Rect     DrawRectangle(Rect const &);
     Rect     DrawRectangle(LogicalYType, LogicalXType, PCntType width, PCntType height);
     Rect     DrawRoundedSquare(Point const &, PCntType edge, PCntType diameter);
-    void     DrawText(Rect const &, char const *);
-    void     DrawText(Rect const &, String const &);
+    void     DrawText(Rect const &, char const *, char const *alt = NULL);
     void     GetColors(ColorType &rBrushBk, ColorType &rPenText) const;
     PCntType TextHeight(void) const;
     PCntType TextWidth(char const *) const;
-    PCntType TextWidth(String const &) const;
     void     UseColors(ColorType brushBk, ColorType penText);
 
 private:

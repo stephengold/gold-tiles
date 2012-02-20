@@ -32,14 +32,8 @@ The ParmBox1 class is an extension of the Dialog class.
 
 #include "cell.hpp"
 #include "gui/dialog.hpp"
+#include "gui/topwindow.hpp"
 #include "tile.hpp"
-
-enum GameStyleType {
-	GAME_STYLE_DEBUG = 0,    // allows peeking, undo, all hints; clock is optional
-	GAME_STYLE_PRACTICE = 1, // no peeking; allows undo, all hints; clock is optional
-	GAME_STYLE_FRIENDLY = 2, // no peeking, no undo; allows all hints; clock is optional
-	GAME_STYLE_CHALLENGE = 3 // no peeking, no undo, no hints; time limits
-};
 
 class ParmBox1: public Dialog {
 public:
@@ -56,6 +50,11 @@ public:
 	// misc public methods
 	INT_PTR  HandleMessage(UINT message, WPARAM, LPARAM);
 	unsigned PlayerSeconds(void) const;
+
+	// constants
+	static const ValueType PLAYER_MINUTES_MIN = 2;
+	static const ValueType PLAYER_MINUTES_DEFAULT = 30;
+	static const ValueType PLAYER_MINUTES_MAX = 120;
 
 private:
 	GameStyleType mGameStyle;

@@ -24,6 +24,8 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 #include "gui/playmenu.hpp"
 #include "gui/resource.hpp"
 
+// lifecycle
+
 PlayMenu::PlayMenu(HMENU menu, UINT position):	
 	SubMenu(menu, position),
     mPlay(menu, IDM_PLAY_PLAY),
@@ -38,12 +40,16 @@ PlayMenu::PlayMenu(HMENU menu, UINT position):
     mAutopause(menu, IDM_AUTOPAUSE)
  {}
 
+// misc methods
+
 void PlayMenu::Autopause(bool active) {
 	mAutopause.Check(active);
 }
+
 void PlayMenu::Pause(bool paused) {
 	mPause.Check(paused);
 }
+
 void PlayMenu::EnableItems(bool paused, bool play) {
     mPlay.Enable(!paused && play);
     mTakeBack.Enable(!paused && play);

@@ -33,9 +33,9 @@ ViewMenu::ViewMenu(HMENU menu, UINT position):
     mLargeTiles(menu, IDM_LARGE_TILES),
     mRecenter(menu, IDM_RECENTER),
     mAttributes(menu, IDM_ATTRIBUTES),
+    mHints(menu, IDM_HINTS),
     mShowClocks(menu, IDM_SHOW_CLOCKS),
     mShowGrid(menu, IDM_SHOW_GRID),
-    mShowHints(menu, IDM_SHOW_HINTS),
     mShowScores(menu, IDM_SHOW_SCORES),
     mShowTiles(menu, IDM_SHOW_TILES),
     mAnimation(menu, IDM_ANIMATION),
@@ -48,14 +48,27 @@ ViewMenu::ViewMenu(HMENU menu, UINT position):
 void ViewMenu::Autocenter(bool shown) {
 	mAutocenter.Check(shown);
 }
+
+void ViewMenu::EnableItems(GameStyleType gameStyle) {
+    mSmallTiles.Enable(true);
+    mMediumTiles.Enable(true);
+    mLargeTiles.Enable(true);
+    mRecenter.Enable(true);
+    mAttributes.Enable(false); // TODO
+    mHints.Enable(true);
+    mShowClocks.Enable(true);
+    mShowGrid.Enable(true);
+    mShowScores.Enable(true);
+    mShowTiles.Enable(gameStyle == GAME_STYLE_DEBUG);
+    mAnimation.Enable(false); // TODO
+    mAutocenter.Enable(true);
+}
+
 void ViewMenu::ShowClocks(bool shown) {
 	mShowClocks.Check(shown);
 }
 void ViewMenu::ShowGrid(bool shown) {
 	mShowGrid.Check(shown);
-}
-void ViewMenu::ShowHints(bool shown) {
-	mShowHints.Check(shown);
 }
 void ViewMenu::ShowScores(bool shown) {
 	mShowScores.Check(shown);

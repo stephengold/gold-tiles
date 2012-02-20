@@ -21,10 +21,12 @@ You should have received a copy of the GNU General Public License
 along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include "game.hpp"
 #include "gui/parmbox1.hpp"
 #include "gui/resource.hpp"
 
-// message handler (callback) for this dialog
+// message handler (callback) for this dialog box
+
 static INT_PTR CALLBACK message_handler(
 	HWND windowHandle,
 	UINT message,
@@ -47,19 +49,25 @@ ParmBox1::ParmBox1(GameStyleType gameStyle, unsigned secondsPerHand):
 {
 	mGameStyle = gameStyle;
 
-	if (secondsPerHand == 0) {
-		mPlayerMinutes = 30;
-	} else {
-	    mPlayerMinutes = (secondsPerHand + 59)/60;
-		if (mPlayerMinutes < 2) {
-			mPlayerMinutes = 2;
+	if (secondsPerHand == Game::TIME_UNLIMITED) {
+		mPlayerMinutes = PLAYER_MINUTES_DEFAULT;
+
+	} else { // limited time
+
+    	// convert to minutes so slider doesn't have to deal with small change
+	    mPlayerMinutes = (secondsPerHand + SECONDS_PER_MINUTE - 1)/SECONDS_PER_MINUTE;
+
+		// limit range so value will fit on the slider
+		if (mPlayerMinutes < PLAYER_MINUTES_MIN) {
+			mPlayerMinutes = PLAYER_MINUTES_MIN;
 		}
-		if (mPlayerMinutes > 120) {
-			mPlayerMinutes = 120;
+		if (mPlayerMinutes > PLAYER_MINUTES_MAX) {
+			mPlayerMinutes = PLAYER_MINUTES_MAX;
 		}
+
 	}
-	ASSERT(mPlayerMinutes >= 2);
-	ASSERT(mPlayerMinutes <= 120);
+	ASSERT(mPlayerMinutes >= PLAYER_MINUTES_MIN);
+	ASSERT(mPlayerMinutes <= PLAYER_MINUTES_MAX);
 }
 
 // operators
@@ -80,8 +88,8 @@ INT_PTR ParmBox1::HandleMessage(UINT message, WPARAM wParam, LPARAM lParam) {
 			SetStyle();
 
 			IdType slider_id = IDC_SLIDERMINUTES;
-			ValueType min_value = 2;
-			ValueType max_value = 120;
+			ValueType min_value = PLAYER_MINUTES_MIN;
+			ValueType max_value = PLAYER_MINUTES_MAX;
 	        SetSliderRange(slider_id, min_value, max_value);
 	        ValueType slider_value = SetSliderValue(slider_id, mPlayerMinutes);
 	        ASSERT(slider_value == mPlayerMinutes);
@@ -144,9 +152,10 @@ INT_PTR ParmBox1::HandleMessage(UINT message, WPARAM wParam, LPARAM lParam) {
 }
 
 unsigned ParmBox1::PlayerSeconds(void) const {
-	unsigned result = mPlayerMinutes*60;
-	if (mGameStyle != GAME_STYLE_CHALLENGE) {
-		result = 0;
+	unsigned result = Game::TIME_UNLIMITED;
+
+	if (mGameStyle == GAME_STYLE_CHALLENGE) {
+		result = mPlayerMinutes * SECONDS_PER_MINUTE;
 	}
 
 	return result;

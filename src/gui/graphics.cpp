@@ -263,24 +263,24 @@ Rect Graphics::DrawRoundedSquare(
     return result;
 }
 
-void Graphics::DrawText(Rect const &rRect, char const *text) {
-    int textLen = ::strlen(text);
-     
-    UINT format = DT_CENTER | DT_EXTERNALLEADING | DT_NOPREFIX 
+void Graphics::DrawText(Rect const &rRect, char const *text, char const *altText) {
+	ASSERT(text != NULL);
+
+	char const *str;
+
+    if (altText == NULL || TextWidth(text) <= rRect.Width()) {
+		str = text;
+	} else {
+		str = altText;
+	}
+
+    int str_length = ::strlen(str);
+
+	UINT format = DT_CENTER | DT_EXTERNALLEADING | DT_NOPREFIX 
                 | DT_SINGLELINE | DT_VCENTER;
-    RECT r = (RECT)rRect;
-    BOOL success = ::DrawText(mDraw, text, textLen, &r, format);
+    RECT bounds = (RECT)rRect;
+    BOOL success = ::DrawText(mDraw, str, str_length, &bounds, format);
     ASSERT(success != 0);
-}
-
-void Graphics::DrawText(Rect const &rRect, String const &rText) {
-    unsigned length = rText.Length();
-    char *copy_text = new char[length + 1];
-    ::strcpy_s(copy_text, length + 1, rText.c_str());
-
-    DrawText(rRect, copy_text);
-
-    delete[] copy_text;
 }
 
 void Graphics::GetColors(ColorType &rBrushBkColor, ColorType &rPenTextColor) const {
@@ -300,17 +300,6 @@ PCntType Graphics::TextWidth(char const *text) const {
     BOOL success = ::GetTextExtentPoint32(mDraw, text, length, &extent);
     PCntType result = extent.cx;
     
-    return result;
-}
-
-PCntType Graphics::TextWidth(String const &rText) const {
-    unsigned length = rText.Length();
-    char *copy_text = new char[length + 1];
-    
-    ::strcpy_s(copy_text, length + 1, rText.c_str());
-    PCntType result = TextWidth(copy_text);
-    
-    delete[] copy_text;
     return result;
 }
 

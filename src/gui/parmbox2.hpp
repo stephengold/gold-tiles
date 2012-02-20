@@ -55,6 +55,10 @@ public:
 	// public inquiry methods
 	bool      DoesWrap(void) const;
 
+	// constants
+	static const IndexType HEIGHT_DEFAULT = 32;
+	static const IndexType WIDTH_DEFAULT = 32;
+
 private:
 	GridType     mGrid;
 	IndexType    mHeight;

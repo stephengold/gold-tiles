@@ -34,6 +34,7 @@ A ViewMenu object represents the "view" SubMenu in the menu bar.
 #include <windows.h>
 #include "gui/menuitem.hpp"
 #include "gui/submenu.hpp"
+#include "gui/topwindow.hpp"
 
 class ViewMenu: public SubMenu {
 public:
@@ -45,6 +46,7 @@ public:
 	// misc public methods
     void Animation(bool);
     void Autocenter(bool);
+	void EnableItems(GameStyleType);
 	void ShowClocks(bool);
 	void ShowGrid(bool);
 	void ShowHints(bool);
@@ -54,8 +56,8 @@ public:
 
 private:
     MenuItem mSmallTiles, mMediumTiles, mLargeTiles;
-    MenuItem mRecenter, mAnimation, mAttributes;
-    MenuItem mShowClocks, mShowGrid, mShowHints, mShowScores, mShowTiles;
+    MenuItem mRecenter, mAnimation, mAttributes, mHints;
+    MenuItem mShowClocks, mShowGrid, mShowScores, mShowTiles;
     MenuItem mAutocenter;
 
 	// misc private methods

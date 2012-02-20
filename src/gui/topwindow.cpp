@@ -30,7 +30,9 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 #include "gui/canvas.hpp"
 #include "gui/color.hpp"
 #include "gui/dialog.hpp"
+#include "gui/filemenu.hpp"
 #include "gui/handbox.hpp"
+#include "gui/hintbox.hpp"
 #include "gui/parmbox1.hpp"
 #include "gui/parmbox2.hpp"
 #include "gui/parmbox3.hpp"
@@ -45,13 +47,12 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 #include "hand.hpp"
 #include "strings.hpp"
 
-const double SQRT_3 = sqrt(3.0);
-const unsigned TIMEOUT_MSEC = 1000;
-const unsigned ID_TIMER = 1;
-
 // static data of the class
 
 WindowClass *TopWindow::mspClass = NULL;
+
+static const unsigned HAND_CNT_DEFAULT = 2;
+static const unsigned HAND_SIZE_DEFAULT = 6;
 
 // message handler (callback) for top window
 static LRESULT CALLBACK message_handler(
@@ -80,7 +81,7 @@ static LRESULT CALLBACK message_handler(
 TopWindow::TopWindow(HINSTANCE applicationInstance, Game *pGame):
     mHandRect(0, 0, 0, 0),
     mMouseLast(0, 0),
-    mPartial(pGame, 3), // TODO
+    mPartial(pGame),
     mStartCell(0, 0),
     mSwapRect(0, 0, 0, 0)
 {
@@ -99,25 +100,27 @@ TopWindow::TopWindow(HINSTANCE applicationInstance, Game *pGame):
     ASSERT(mspNewlyCreatedWindow == NULL);
 	mspNewlyCreatedWindow = this;
 
-	mActiveCellFlag = true;
+	mTargetCellFlag = true;
 	mApplication = applicationInstance;
-    mAutopauseFlag = false;
-    mAutocenterFlag = false;
     mColorAttributeCnt = 1;
     mDragBoardFlag = false;
+	mpFileMenu = NULL;
 	mpGame = pGame;
-	mGameStyle = GAME_STYLE_DEBUG;
+	mGameStyle = GAME_STYLE_CHALLENGE;
 	mInitialNewGame = (pGame == NULL);
     mIsStartCentered = false;
 	mMouseUpCnt = 0;
     mPadPixels = 6;
     mpPlayMenu = NULL;
-	mShowClocksFlag = false;
 	mShowGridFlag = true;
 	mShowScoresFlag = true;
 	mShowTilesFlag = false;
 	mSquareGrid = true;
     mpViewMenu = NULL;
+
+    mAutocenterFlag = (mGameStyle == GAME_STYLE_CHALLENGE);
+    mAutopauseFlag = (mGameStyle == GAME_STYLE_CHALLENGE);
+	mShowClocksFlag = (mGameStyle == GAME_STYLE_CHALLENGE);
 
 	SetTileWidth(IDM_LARGE_TILES);
 	if (mpGame != NULL && !mAutopauseFlag) {
@@ -147,6 +150,7 @@ TopWindow::TopWindow(HINSTANCE applicationInstance, Game *pGame):
 }
 
 TopWindow::~TopWindow(void) {
+	delete mpFileMenu;
 	delete mpPlayMenu;
 	delete mpViewMenu;
 }
@@ -155,17 +159,24 @@ void TopWindow::Initialize(CREATESTRUCT const *pCreateStruct) {
     // Object initialization which occurs after the Microsoft Windows window
     // has been created and has received WM_CREATE.
 
+	ASSERT(mpFileMenu == NULL);
+	ASSERT(mpPlayMenu == NULL);
+	ASSERT(mpViewMenu == NULL);
+
 	Window::Initialize(pCreateStruct);
 
     HMENU menu_bar = pCreateStruct->hMenu;
 
-    mpPlayMenu = new PlayMenu(menu_bar, 1);
+	mpFileMenu = new FileMenu(menu_bar, 0);
+	ASSERT(mpFileMenu != NULL);
+
+	mpPlayMenu = new PlayMenu(menu_bar, 1);
 	ASSERT(mpPlayMenu != NULL);
 
 	mpViewMenu = new ViewMenu(menu_bar, 2);
 	ASSERT(mpViewMenu != NULL);
 
-	SetTimer(TIMEOUT_MSEC, ID_TIMER);
+	SetTimer(TIMEOUT_MSEC, ID_CLOCK_TIMER);
 	UpdateMenus();
 }
 
@@ -334,7 +345,7 @@ Rect TopWindow::DrawBlankTile(Canvas &rCanvas, Point const &rCenter, bool oddFla
     return result;
 }
 
-void TopWindow::DrawBoard(Canvas &rCanvas) {
+void TopWindow::DrawBoard(Canvas &rCanvas, unsigned showLayer) {
     Board board = Board(mPartial);
 
 	int fringe = 1;
@@ -356,9 +367,9 @@ void TopWindow::DrawBoard(Canvas &rCanvas) {
 		--swap_cnt;
 	}
 
-	if (!mActiveCellFlag && mPartial.CountHinted() == 1) {
-		mActiveCell = mPartial.FirstHinted();
-		mActiveCellFlag = true;
+	if (!mTargetCellFlag && mPartial.CountHinted() == 1) {
+		mTargetCell = mPartial.FirstHinted();
+		mTargetCellFlag = true;
 	}
 
     for (IndexType row = top_row; row >= bottom_row; row--) {
@@ -370,15 +381,21 @@ void TopWindow::DrawBoard(Canvas &rCanvas) {
                 break;
             } else if (Cell::IsValid(row, column)) {
                 Cell cell(row, column);
-                DrawCell(rCanvas, cell, swap_cnt);
+				bool hinted = mPartial.IsHinted(cell);
+				bool empty = mPartial.IsEmpty(cell);
+				unsigned layer = 0;
+				if (hinted || empty) {
+					layer = 1;
+				}
+				if (layer == showLayer) {
+                    DrawCell(rCanvas, cell, swap_cnt);
+				}
 			}
         }
     }
 }
 
 void TopWindow::DrawCell(Canvas &rCanvas, Cell const &rCell, unsigned swapCnt) {
-	TileIdType id = mPartial.GetCell(rCell);
-
 	IndexType row = rCell.Row();
     IndexType column = rCell.Column();
 	LogicalXType center_x = CellX(column);
@@ -386,41 +403,44 @@ void TopWindow::DrawCell(Canvas &rCanvas, Cell const &rCell, unsigned swapCnt) {
     Point center(center_x, center_y);
 
     bool hinted = mPartial.IsHinted(rCell);
-	bool used = (id != 0);
+	bool used = !mPartial.IsEmpty(rCell);
 
     ColorType cell_color = COLOR_BLACK;
+	ColorType feature_color = COLOR_LIGHT_GRAY;
 	if (used) {
 		cell_color = COLOR_DARK_BLUE;
+		feature_color = COLOR_LIGHT_BLUE;
 	} else if (hinted) {
         if (swapCnt == 0) {
             cell_color = COLOR_DARK_GREEN;
+		    feature_color = COLOR_LIGHT_GREEN;
 		} else {
             cell_color = COLOR_BROWN;
+		    feature_color = COLOR_YELLOW;
 		}
     }
-    ColorType grid_color = cell_color;
+	ColorType grid_color = cell_color;
     if (mShowGridFlag) {
-        if (swapCnt == 0) {
-            grid_color = COLOR_GREEN;
-        } else {
-            grid_color = COLOR_YELLOW;
-        }
-    }
+		grid_color = feature_color;
+	}
 
     PCntType cell_height = CellHeight();
     PCntType cell_width = CellWidth();
 	bool odd_flag = (is_odd(row) != is_odd(column));
     Rect rect = rCanvas.DrawCell(center, cell_width, cell_height, cell_color, grid_color, odd_flag);
     
+	// draw cell features
+	rCanvas.UseColors(cell_color, feature_color);
 	if (rCell.IsStart()) {
-	    rCanvas.DrawText(rect, "START");
+	    rCanvas.DrawText(rect, "START", "S");
 	}
 	
-	if (mActiveCellFlag && rCell == mActiveCell) {
+	if (mTargetCellFlag && rCell == mTargetCell) {
 	    rCanvas.DrawTarget(rect);
 	}
 
     // Draw the active tile later (not now) so it won't get obscured.
+	TileIdType id = mPartial.GetCell(rCell);
     if (id != 0 && !mPartial.IsActive(id)) {
         Tile tile = mPartial.GetTileById(id);
         DrawTile(rCanvas, center, tile, odd_flag);
@@ -848,11 +868,11 @@ void TopWindow::HandleButtonUp(Point const &rMouse) {
 			// are treated as normal mouse-clicks 
 			// which activate/deactivate the cell.
 			Cell cell = GetCell(rMouse);
-			if (mActiveCellFlag && cell == mActiveCell) {
-     			mActiveCellFlag = false;
-			} else if (mPartial.IsHinted(cell)) {
-				mActiveCell = cell;
-				mActiveCellFlag = true;
+			if (mTargetCellFlag && cell == mTargetCell) {
+     			mTargetCellFlag = false;
+			} else if (mPartial.IsEmpty(cell)) {
+				mTargetCell = cell;
+				mTargetCellFlag = true;
 			}
 		}
    		StopDragging();
@@ -877,29 +897,33 @@ void TopWindow::HandleMenuCommand(int command) {
 	    }
 
 		case IDM_OPEN:
-		    break;
 		case IDM_REOPEN:
-		    break;
 		case IDM_REVERT:
-		    break;
 		case IDM_SAVE:
-		    break;
 		case IDM_SAVE_AS:
-		    break;
-		case IDM_CLOSE:
-		    break;
 		case IDM_PRINT:
+		    ASSERT(false); // TODO
 		    break;
+
+		case IDM_CLOSE:
+	        if (mpGame != NULL && mpGame->HasUnsavedChanges()) {
+				OfferSaveGame();
+			}
+			SetGame(NULL);
+		    break;
+
         case IDM_EXIT: // terminate the application
 			Close();
             break;
 
 	    // Play menu options
-	    case IDM_PLAY_PLAY: {
-            bool passFlag = false;
-			Play(passFlag);
+	    case IDM_PLAY_PLAY: 
+			if (!IsPaused()) {
+                bool passFlag = false;
+			    Play(passFlag);
+			}
 		    break;
-        }
+
 	    case IDM_TAKE_BACK:
 			mPartial.Reset();
             ForceRepaint();
@@ -908,8 +932,6 @@ void TopWindow::HandleMenuCommand(int command) {
 	    case IDM_PAUSE:
 			TogglePause();
 		    break;
-		case IDM_HINT:
-			break;
 	    case IDM_PASS: {
             bool passFlag = true;
             Play(passFlag);
@@ -917,13 +939,14 @@ void TopWindow::HandleMenuCommand(int command) {
         }
 		case IDM_RESIGN:
 			break;
+
 		case IDM_RESTART:
-			break;
 		case IDM_UNDO:
-			break;
 		case IDM_REDO:
+		    ASSERT(false); // TODO
 			break;
-        case IDM_AUTOPAUSE:
+
+		case IDM_AUTOPAUSE:
             mAutopauseFlag = !mAutopauseFlag;
 	        UpdateMenus();
             break;
@@ -934,34 +957,47 @@ void TopWindow::HandleMenuCommand(int command) {
         case IDM_LARGE_TILES:
             SetTileWidth(command);
 	        ForceRepaint();
+	        UpdateMenus();
             break;
         case IDM_RECENTER:
             mIsStartCentered = false;
             Resize(ClientAreaWidth(), ClientAreaHeight());
             break;
 		case IDM_ATTRIBUTES:
+		    ASSERT(false); // TODO
 			break;
 	    case IDM_SHOW_CLOCKS:
             mShowClocksFlag = !mShowClocksFlag;
 	        ForceRepaint();
+			UpdateMenus();
             break;
         case IDM_SHOW_GRID:
             mShowGridFlag = !mShowGridFlag;
 	        ForceRepaint();
+			UpdateMenus();
             break;
-        case IDM_SHOW_HINTS:
-            mShowHintsFlag = !mShowHintsFlag;
-	        ForceRepaint();
-            break;
+        case IDM_HINTS: {
+			HintType hint_strength = HintType(mPartial);
+			HintBox box(hint_strength, mGameStyle);
+			box.Run(this);
+			hint_strength = HintType(box);
+			mPartial.SetHintStrength(hint_strength);
+			ForceRepaint();
+			break;
+		}
         case IDM_SHOW_SCORES:
             mShowScoresFlag = !mShowScoresFlag;
 	        ForceRepaint();
+			UpdateMenus();
             break;
         case IDM_SHOW_TILES:
+			ASSERT(mGameStyle == GAME_STYLE_DEBUG);
             mShowTilesFlag = !mShowTilesFlag;
 	        ForceRepaint();
+			UpdateMenus();
             break;
 		case IDM_ANIMATION:
+		    ASSERT(false); // TODO
 			break;
 		case IDM_AUTOCENTER:
             mAutocenterFlag = !mAutocenterFlag;
@@ -1017,13 +1053,14 @@ LRESULT TopWindow::HandleMessage(UINT message, WPARAM wParam, LPARAM lParam) {
         }
 
         case WM_LBUTTONDOWN: // begin left-click
-			if (IsPaused()) {
-                ASSERT(mpGame != NULL);
-				TogglePause();
-            } else if (!IsDragging()) {
-			    POINTS points = MAKEPOINTS(lParam);
-			    Point mouse(points);
-                HandleButtonDown(mouse);
+			if (mpGame != NULL) {
+			    if (IsPaused()) {
+				    TogglePause();
+                } else if (!IsDragging()) {
+			        POINTS points = MAKEPOINTS(lParam);
+			        Point mouse(points);
+                    HandleButtonDown(mouse);
+				}
 			}
             break;
 
@@ -1033,6 +1070,7 @@ LRESULT TopWindow::HandleMessage(UINT message, WPARAM wParam, LPARAM lParam) {
 				    POINTS points = MAKEPOINTS(lParam);
 				    Point mouse(points);
                     HandleButtonUp(mouse);
+					UpdateMenus();
 				} else {
 					StopDragging();
 				}
@@ -1054,8 +1092,8 @@ LRESULT TopWindow::HandleMessage(UINT message, WPARAM wParam, LPARAM lParam) {
             break;
 
 		case WM_MOUSEWHEEL: {
-            int zDelta = GET_WHEEL_DELTA_WPARAM(wParam);
-            mStartCell.Offset(0, -zDelta/5);
+            int z_delta = GET_WHEEL_DELTA_WPARAM(wParam);
+            mStartCell.Offset(0, -z_delta/5);
 			ForceRepaint();
 			break;
 		}
@@ -1073,11 +1111,11 @@ LRESULT TopWindow::HandleMessage(UINT message, WPARAM wParam, LPARAM lParam) {
 
 		case WM_TIMER: { // timeout
 			int id = int(wParam);
-			if (id == ID_TIMER) {
+			if (id == ID_CLOCK_TIMER) {
 			    if (mShowClocksFlag && !IsPaused()) {
 			        ForceRepaint();
 			    } else {
-					SetTimer(TIMEOUT_MSEC, ID_TIMER);
+					SetTimer(TIMEOUT_MSEC, id);
 				}
 			}
 			break;
@@ -1140,7 +1178,7 @@ char const *TopWindow::Name(void) const {
 }
 
 void TopWindow::OfferNewGame(void) {
-	unsigned seconds_per_hand = 1800;  // TODO
+	unsigned seconds_per_hand = SECONDS_PER_MINUTE * ParmBox1::PLAYER_MINUTES_DEFAULT;
 	if (mpGame != NULL) {
 		seconds_per_hand = mpGame->SecondsPerHand();
 	}
@@ -1153,10 +1191,15 @@ void TopWindow::OfferNewGame(void) {
 	ParmBox2 parmbox2(wrap_flag, height, width, grid);
 
 	unsigned attribute_cnt = Tile::AttributeCnt();
-	unsigned tile_redundancy = mpGame->Redundancy();
+	unsigned tile_redundancy = 1 + ParmBox3::CLONES_PER_TILE_DEFAULT;
+	unsigned hand_cnt = HAND_CNT_DEFAULT;
+	unsigned hand_size = HAND_SIZE_DEFAULT;
+	if (mpGame != NULL) {
+		tile_redundancy = mpGame->Redundancy();
+	    hand_cnt = mpGame->InactiveHands().Count() + 1;
+	    hand_size = mpGame->HandSize();
+	}
 	unsigned clones_per_tile = tile_redundancy - 1;
-	unsigned hand_cnt = mpGame->InactiveHands().Count() + 1;
-	unsigned hand_size = mpGame->HandSize();
 	ParmBox3 parmbox3(attribute_cnt, clones_per_tile, hand_size, hand_cnt);
 
 	unsigned max_attribute_cnt = Tile::AttributeCnt();
@@ -1305,6 +1348,15 @@ STEP4:
 
 	delete[] ip_addresses;
 	delete[] max_attribute_values;
+
+    mAutocenterFlag = (mGameStyle == GAME_STYLE_CHALLENGE);
+    mAutopauseFlag = (mGameStyle == GAME_STYLE_CHALLENGE);
+	mShowClocksFlag = (mGameStyle == GAME_STYLE_CHALLENGE);
+
+	SetTileWidth(IDM_LARGE_TILES);
+	if (mpGame != NULL && !mAutopauseFlag) {
+		mpGame->StartClock();
+	}
 }
 
 void TopWindow::OfferSaveGame(void) {
@@ -1315,7 +1367,7 @@ void TopWindow::OfferSaveGame(void) {
 
 void TopWindow::Play(bool passFlag) {
 	ASSERT(mpGame != NULL);
-	ASSERT(mPartial.GetActive() == 0);
+	ASSERT(mPartial.GetActive() == Tile::ID_NONE);
 	ASSERT(!IsPaused());
     Move move = mPartial.GetMove(true);
     
@@ -1404,9 +1456,9 @@ void TopWindow::ReleaseActiveTile(Point const &rMouse) {
     		return;
 		} else {
 		    ASSERT(mMouseUpCnt == 0);
-			if (mActiveCellFlag) {
+			if (mTargetCellFlag) {
 			    to_board = true;
-				to_cell = mActiveCell;
+				to_cell = mTargetCell;
 			} else {
         		mMouseUpCnt = 1;
 				return;
@@ -1415,7 +1467,7 @@ void TopWindow::ReleaseActiveTile(Point const &rMouse) {
 	}
 
 	if (to_board && (!to_cell.IsValid() || mPartial.GetCell(to_cell) != 0)) {
-		// cell conflict - can't construct move in the normal way
+		// cell conflict - can't construct a move in the usual way
 	    Dialog empty("EMPTY");
 		empty.Run(this);
     	StopDragging();
@@ -1464,9 +1516,9 @@ void TopWindow::ReleaseActiveTile(Point const &rMouse) {
 		box.Run(this);
 	}
 
-    if (mActiveCellFlag && mPartial.GetCell(mActiveCell) != 0) {
+    if (mTargetCellFlag && mPartial.GetCell(mTargetCell) != Tile::ID_NONE) {
         // active cell got filled
-        mActiveCellFlag = false;
+        mTargetCellFlag = false;
     }
 
 	StopDragging();
@@ -1483,11 +1535,15 @@ void TopWindow::Repaint(void) {
     PCntType height = ClientAreaHeight();
     Canvas canvas(context, this_window, release_me, width, height);
     
-    if (IsPaused()) {
+	if (mpGame == NULL) {
+		// TODO
+
+	} else if (IsPaused()) {
 		DrawPaused(canvas);
 
-    } else if (mpGame != NULL) {
-        DrawBoard(canvas);
+    } else {
+        DrawBoard(canvas, 0);
+        DrawBoard(canvas, 1);
         DrawInactiveHands(canvas);
         DrawActiveHand(canvas);
         DrawHandTiles(canvas);
@@ -1497,7 +1553,7 @@ void TopWindow::Repaint(void) {
     ::EndPaint(this_window, &paint_struct);
 
 	// restart the timer
-	SetTimer(TIMEOUT_MSEC, ID_TIMER);
+	SetTimer(TIMEOUT_MSEC, ID_CLOCK_TIMER);
 
 	if (mInitialNewGame) {
 		mInitialNewGame = false;
@@ -1518,7 +1574,11 @@ void TopWindow::SetGame(Game *pGame) {
 	// TODO: free old Game object?
 	mpGame = pGame;
 
-	mPartial = Partial(mpGame, 3);
+	if (mGameStyle == GAME_STYLE_CHALLENGE) {
+	    mPartial = Partial(mpGame, HINT_CHALLENGE_DEFAULT);
+	} else {
+	    mPartial = Partial(mpGame, HINT_DEFAULT);
+	}
 	if (!IsPaused()) {
 		ASSERT(mpGame != NULL);
 		mpGame->StartClock();
@@ -1529,18 +1589,18 @@ void TopWindow::SetGame(Game *pGame) {
 }
 
 void TopWindow::SetTileWidth(int command) {
-	PCntType width;
+	PCntType small_width;
 
 	switch(Cell::Grid()) {
 	case GRID_4WAY:
 	case GRID_8WAY:
-	    width = 20;
+	    small_width = 20; // TODO define named constants
 	    break;
 	case GRID_HEX:
-		width = 24;
+		small_width = 24;
 		break;
 	case GRID_TRIANGLE:
-		width = 32;
+		small_width = 32;
 		break;
 	default:
 		ASSERT(false);
@@ -1548,13 +1608,13 @@ void TopWindow::SetTileWidth(int command) {
 
 	switch(command) {
     case IDM_SMALL_TILES:
-        mTileWidth = width;
+        mTileWidth = small_width;
         break;
     case IDM_MEDIUM_TILES:
-        mTileWidth = 2*width;
+        mTileWidth = 2*small_width;
         break;
     case IDM_LARGE_TILES:
-        mTileWidth = 3*width;
+        mTileWidth = 3*small_width;
         break;
 	default:
 		ASSERT(false);
@@ -1570,7 +1630,7 @@ void TopWindow::StopDragging(void) {
 	mPartial.Deactivate();
 	::ReleaseCapture();
 
-    ASSERT(mPartial.GetActive() == 0);
+    ASSERT(mPartial.GetActive() == Tile::ID_NONE);
 	ASSERT(!IsDragging());
 	ASSERT(!IsMouseCaptured());
 }
@@ -1610,35 +1670,40 @@ void TopWindow::UpdateMenus(void) {
 	bool is_paused = IsPaused();
     bool is_pass = mPartial.IsPass();
 
+	// "File" menu
+	mpFileMenu->EnableItems();
+	mpFileMenu->Enable(true);
+
 	// "Play" menu
     mpPlayMenu->Autopause(mAutopauseFlag);
     mpPlayMenu->Pause(is_paused);
 	mpPlayMenu->EnableItems(is_paused, !is_pass);
-
 	mpPlayMenu->Enable(mpGame != NULL);
 
 	// "View" menu
     mpViewMenu->TileSize(mTileSizeCmd);
     mpViewMenu->ShowClocks(mShowClocksFlag);
     mpViewMenu->ShowGrid(mShowGridFlag);
-    mpViewMenu->ShowHints(mShowHintsFlag);
     mpViewMenu->ShowScores(mShowScoresFlag);
     mpViewMenu->ShowTiles(mShowTilesFlag);
     mpViewMenu->Autocenter(mAutocenterFlag);
-
+	mpViewMenu->EnableItems(mGameStyle);
 	mpViewMenu->Enable(!is_paused);
 	
-	// redraw all menus
-	HWND this_window = Handle(); 
-	BOOL success = ::DrawMenuBar(this_window);
-	ASSERT(success);
+	UpdateMenuBar();
 }
 
 
 // inquiry methods
 
 bool TopWindow::IsDragging(void) const {
-	bool result = (mDragBoardFlag || mPartial.GetActive() != 0);
+	bool result = false;
+
+	if (mpGame != NULL 
+	  && (mDragBoardFlag || mPartial.GetActive() != Tile::ID_NONE))
+	{
+		result = true;
+	}
 
 	return result;
 }
@@ -1657,7 +1722,7 @@ bool TopWindow::IsInSwapArea(Point const &rPoint) const {
 
 bool TopWindow::IsInTile(Point const &rPoint) const {
 	TileIdType id = GetTileId(rPoint);
-	bool result = (id != 0);
+	bool result = (id != Tile::ID_NONE);
 
 	return result;
 }

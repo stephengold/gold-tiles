@@ -25,7 +25,8 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 #include "gui/resource.hpp"
 
 
-// message handler (callback) for this dialog
+// message handler (callback) for this dialog box
+
 static INT_PTR CALLBACK message_handler(
 	HWND windowHandle,
 	UINT message,
@@ -58,6 +59,7 @@ ParmBox2::ParmBox2(
 }
 
 // operators
+
 ParmBox2::operator GridType(void) const {
 	return mGrid;
 }
@@ -101,7 +103,7 @@ INT_PTR ParmBox2::HandleMessage(UINT message, WPARAM wParam, LPARAM lParam) {
                     ValueType value = GetTextIndex(id);
 					if (value >= Cell::HEIGHT_MIN
 					 && value <= Cell::HEIGHT_MAX) {
-						if (::is_odd(value)) {
+						if (::is_odd(value)) { // make even
 							mHeight = value + 1;
 						} else {
 							mHeight = value;
@@ -114,7 +116,7 @@ INT_PTR ParmBox2::HandleMessage(UINT message, WPARAM wParam, LPARAM lParam) {
                     ValueType value = GetTextIndex(id);
 					if (value >= Cell::WIDTH_MIN
 					 && value <= Cell::WIDTH_MAX) {
-						if (::is_odd(value)) {
+						if (::is_odd(value)) { // make even
 							mWidth = value + 1;
 						} else {
 							mWidth = value;
@@ -210,6 +212,19 @@ void ParmBox2::SetTextIndex(IdType controlId, ValueType value) {
 }
 
 void ParmBox2::SetTopology(void) {
+#if 1
+	// TODO
+	EnableButton(IDC_ENDLESS, true);
+	EnableButton(IDC_RECT, false);
+	EnableButton(IDC_TORUS, false);
+	EnableButton(IDC_VSTRIP, false);
+	EnableButton(IDC_HSTRIP, false);
+	EnableButton(IDC_VCYLINDER, false);
+	EnableButton(IDC_HCYLINDER, false);
+	mHeight = Cell::HEIGHT_MAX;
+	mWidth = Cell::WIDTH_MAX;
+#endif
+
 	SetButton(IDC_ENDLESS, mHeight == Cell::HEIGHT_MAX 
 	                    && mWidth == Cell::WIDTH_MAX);
 	SetButton(IDC_RECT, !mWrapFlag 
@@ -242,10 +257,10 @@ void ParmBox2::SetTopology(IdType buttonId) {
 		case IDC_RECT:
 		case IDC_TORUS:
 			if (mHeight == Cell::HEIGHT_MAX) {
-				mHeight = 32;
+				mHeight = HEIGHT_DEFAULT;
 			}
 			if (mWidth == Cell::WIDTH_MAX) {
-				mWidth = 32;
+				mWidth = WIDTH_DEFAULT;
 			}
 			break;
 
@@ -253,14 +268,14 @@ void ParmBox2::SetTopology(IdType buttonId) {
 		case IDC_VCYLINDER:
 			mHeight = Cell::HEIGHT_MAX;
 			if (mWidth == Cell::WIDTH_MAX) {
-				mWidth = 32;
+				mWidth = WIDTH_DEFAULT;
 			}
 			break;
 
 		case IDC_HSTRIP:
 		case IDC_HCYLINDER:
 			if (mHeight == Cell::HEIGHT_MAX) {
-				mHeight = 32;
+				mHeight = HEIGHT_DEFAULT;
 			}
 			mWidth = Cell::WIDTH_MAX;
 			break;
@@ -298,7 +313,7 @@ void ParmBox2::UpdateCellCnt(void) {
         IndexType max = (mHeight < mWidth) ? mWidth : mHeight;
         mHeight = max;
         mWidth = max;
-		if (mGrid == GRID_HEX) {
+		if (mGrid == GRID_HEX) { // hex grids have half as many cells
 		    cell_cnt = (mHeight/2) * mWidth;
 		} else {
 		    cell_cnt = mHeight * mWidth;

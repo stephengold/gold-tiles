@@ -30,12 +30,7 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 #include "gui/rect.hpp"
 #include "string.hpp"
 
-#include <math.h>
-#ifndef M_PI
-#define M_PI 3.141592653589793
-#endif
-
-#define TILE_POINTEDNESS 3
+// static data
 
 std::vector<Poly> Canvas::msShapes;
 
@@ -47,7 +42,8 @@ Canvas::Canvas(
     bool releaseMe,
     PCntType width,
     PCntType height)
-:   Graphics(context, window, releaseMe, true, width, height)
+:   
+    Graphics(context, window, releaseMe, true, width, height)
 {}
 
 

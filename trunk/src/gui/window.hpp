@@ -74,10 +74,12 @@ protected:
 	HINSTANCE CopyModule(Window const &);
 	void      ForceRepaint(void);
 	HACCEL    GetAcceleratorTable(char const *resourceName);
+	HMENU     GetMenu(char const *resourceName);
 	void      SelfDestruct(void);
 	void      SetClientArea(PCntType width, PCntType height);
 	void      SetIcons(char const *resourceName);
-	void      SetTimer(unsigned msecs, unsigned id=1);
+	void      SetTimer(unsigned msecs, unsigned id);
+	void      UpdateMenuBar(void);
 
 private:
     typedef unsigned long                 Key;

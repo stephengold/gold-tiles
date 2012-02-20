@@ -149,6 +149,13 @@ HACCEL Window::GetAcceleratorTable(char const *resourceName) {
 	return result;
 }
 
+HMENU Window::GetMenu(char const *resourceName) {
+	HMENU result = ::LoadMenu(mModule, resourceName);
+	ASSERT(result != NULL);
+
+	return result;
+}
+
 HWND Window::Handle(void) const {
 	HWND result = mHandle;
 	
@@ -275,6 +282,11 @@ void Window::Show(int how) {
     ASSERT(success != 0);
 }
 
+void Window::UpdateMenuBar(void) {
+	// redraw all menus
+	BOOL success = ::DrawMenuBar(mHandle);
+	ASSERT(success);
+}
 
 // inquiry methods
 

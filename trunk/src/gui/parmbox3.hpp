@@ -54,6 +54,9 @@ public:
 	INT_PTR    HandleMessage(UINT message, WPARAM, LPARAM);
 	unsigned   HandSize(void) const;
 
+	// constants
+	static const ValueType CLONES_PER_TILE_DEFAULT = 2; 
+
 private:
     ValueType mAttributeCnt, mClonesPerTile, mHandSize, mHandCnt;
 

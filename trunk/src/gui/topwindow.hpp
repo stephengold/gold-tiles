@@ -32,6 +32,13 @@ The TopWindow class is an extension of the Window class.
 
 #include "project.hpp"
 
+enum GameStyleType {
+	GAME_STYLE_DEBUG = 0,    // allows peeking, undo, all hints; clock is optional
+	GAME_STYLE_PRACTICE = 1, // no peeking; allows undo, all hints; clock is optional
+	GAME_STYLE_FRIENDLY = 2, // no peeking, no undo; allows all hints; clock is optional
+	GAME_STYLE_CHALLENGE = 3 // no peeking, no undo, no hints; time limits
+};
+
 #ifdef _WINDOWS
 #include <map>
 #include <windows.h>
@@ -40,8 +47,6 @@ The TopWindow class is an extension of the Window class.
 #include "gui/rect.hpp"
 #include "gui/window.hpp"
 #include "partial.hpp"
-
-#define SECONDS_PER_MINUTE 60
 
 class TopWindow: public Window {
 public:
@@ -66,8 +71,6 @@ private:
 
 	static WindowClass *mspClass;
 
-	Cell          mActiveCell;
-	bool          mActiveCellFlag;
 	HINSTANCE     mApplication;	
 	bool          mAutopauseFlag;
 	bool          mAutocenterFlag;
@@ -75,6 +78,7 @@ private:
 	bool          mDragBoardFlag;
 	PCntType      mDragBoardPixelCnt;
 	long          mDragTileDeltaX, mDragTileDeltaY;
+    FileMenu *   mpFileMenu;
 	Game *       mpGame;
 	GameStyleType mGameStyle;
 	Rect          mHandRect;
@@ -86,11 +90,13 @@ private:
 	Partial       mPartial;
     PlayMenu *   mpPlayMenu;
 	unsigned      mRunLength;
-	bool          mShowClocksFlag, mShowGridFlag, mShowHintsFlag;
+	bool          mShowClocksFlag, mShowGridFlag;
 	bool          mShowScoresFlag, mShowTilesFlag;
 	bool          mSquareGrid;      // false = hex grid
 	Point         mStartCell; // logical coordinates of center of start cell
 	Rect          mSwapRect;
+	Cell          mTargetCell;
+	bool          mTargetCellFlag;
 	TileMapType   mTileMap;
 	int           mTileSizeCmd;
 	PCntType      mTileWidth;
@@ -110,7 +116,7 @@ private:
 	void         DiscardGame(void);
     void         DrawActiveHand(Canvas &);
 	Rect         DrawBlankTile(Canvas &, Point const &, bool odd);
-    void         DrawBoard(Canvas &);
+    void         DrawBoard(Canvas &, unsigned layer);
     void         DrawCell(Canvas &, Cell const &, unsigned swapCnt);
     Rect         DrawHandHeader(Canvas &, LogicalYType top, LogicalXType leftRight, Hand &, 
                                 ColorType, bool leftFlag);
@@ -149,6 +155,10 @@ private:
 	bool IsInSwapArea(Point const &) const;
 	bool IsInTile(Point const &) const;
 	bool IsPaused(void) const;
+
+	//constants
+	static const unsigned TIMEOUT_MSEC = 1000;
+    static const unsigned ID_CLOCK_TIMER = 1;
 };
 
 #endif

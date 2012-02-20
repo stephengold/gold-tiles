@@ -28,12 +28,14 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 #include "gui/resource.hpp"
 #include "gui/menuitem.hpp"
 
-// MenuItem
+// lifecycle
 
 MenuItem::MenuItem(HMENU handle, UINT itemId):
     mHandle(handle),
 	mItemId(itemId)
 {}
+
+// misc menus
 
 void MenuItem::Check(bool checkedFlag) {
 	if (checkedFlag) {

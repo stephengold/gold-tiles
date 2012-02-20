@@ -67,6 +67,9 @@ private:
                    ColorType background, ColorType glyph);
 	Rect DrawGridShape(Point const &rCenter, PCntType width, 
 		               PCntType height, bool oddFlag);
+
+	// constants
+	static const unsigned TILE_POINTEDNESS = 3;
 };
 
 #endif

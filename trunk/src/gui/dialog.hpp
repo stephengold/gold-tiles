@@ -43,12 +43,6 @@ public:
     typedef int  IdType;    // id of a control
     typedef long ValueType; // value of a control
 
-	static const int RESULT_OK = 1;
-	static const int RESULT_CANCEL = 2;
-    static const int RESULT_BACK = 5;
-
-	static const ValueType VALUE_INVALID = LONG_MAX;
-
 	// lifecycle
 	Dialog(char const *templateName);
 	Dialog(char const *templateName, DLGPROC);
@@ -62,6 +56,13 @@ public:
 	
 	// misc public methods
 	int HandleMessage(UINT message, WPARAM, LPARAM);
+
+	// constants
+	static const int RESULT_OK = 1;
+	static const int RESULT_CANCEL = 2;
+    static const int RESULT_BACK = 5;
+
+	static const ValueType VALUE_INVALID = LONG_MAX;
 
 protected:
 	// misc protected methods

@@ -28,10 +28,14 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 #include "gui/resource.hpp"
 #include "gui/submenu.hpp"
 
-SubMenu::SubMenu(HMENU parent, UINT position):
-	mParent(parent),
-    mPosition(position)
- {}
+// lifecycle
+
+SubMenu::SubMenu(HMENU parent, UINT position) {
+    mParent = parent;
+    mPosition = position;
+}
+
+// misc methods
 
 void SubMenu::Enable(bool enabledFlag) {
 	if (enabledFlag) {

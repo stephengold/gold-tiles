@@ -33,16 +33,16 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 
 // lifecycle
 
-Partial::Partial(Game const *pGame, unsigned hintStrength) {
+Partial::Partial(Game const *pGame, HintType strength) {
 	mpGame = pGame;
-    mHintStrength = hintStrength;
+    mHintStrength = strength;
     Reset();
 }
 // Partial(Partial const &);  compiler-generated copy constructor is OK
 // ~Partial(void);  compiler-generated destructor is OK
 
 void Partial::Reset(void) {
-    mActiveId = 0;
+    mActiveId = Tile::ID_NONE;
     mHintedCellsValid = false;
     mPlayedTileCnt = 0;
 	mSwapIds.MakeEmpty();
@@ -64,12 +64,16 @@ Partial::operator Board(void) const {
    return mBoard;
  }
 
+Partial::operator HintType(void) const {
+	return mHintStrength;
+}
+
 
 // misc methods
 
 void Partial::Activate(TileIdType id) {
-    ASSERT(id != 0);
-    ASSERT(mActiveId == 0);
+    ASSERT(id != Tile::ID_NONE);
+    ASSERT(mActiveId == Tile::ID_NONE);
     ASSERT(Contains(id));
 
     mActiveId = id;     
@@ -95,7 +99,7 @@ void Partial::AddValidNextUses(
 }
 
 void Partial::BoardToHand(void) {
-    ASSERT(mActiveId != 0);
+    ASSERT(mActiveId != Tile::ID_NONE);
     ASSERT(IsOnBoard(mActiveId));
     ASSERT(!IsInHand(mActiveId));
     
@@ -148,8 +152,8 @@ unsigned Partial::CountTiles(void) const {
 }
 
 void Partial::Deactivate(void) {
-    if (mActiveId != 0) {
-        mActiveId = 0;     
+    if (mActiveId != Tile::ID_NONE) {
+        mActiveId = Tile::ID_NONE;     
         mHintedCellsValid = false;
     }
 }
@@ -171,7 +175,7 @@ TileIdType Partial::GetActive(void) const {
 }
 
 TileIdType Partial::GetCell(Cell const &rCell) const {
-    TileIdType result = 0;
+    TileIdType result = Tile::ID_NONE;
     
     Tile const *p_tile = mBoard.GetCell(rCell);
     if (p_tile != NULL) {
@@ -201,7 +205,7 @@ Move Partial::GetMove(bool includeActiveFlag) const {
 }
 
 Tile Partial::GetTileById(TileIdType id) const {
-    ASSERT(id != 0);
+    ASSERT(id != Tile::ID_NONE);
 
     Tile result;
      
@@ -229,7 +233,7 @@ Tile Partial::GetTileByIndex(unsigned i) const {
 }
 
 void Partial::HandToCell(Cell const &cell) {
-    ASSERT(mActiveId != 0);
+    ASSERT(mActiveId != Tile::ID_NONE);
 	ASSERT(IsInHand(mActiveId));
 	ASSERT(mBoard.HasEmptyCell(cell));
 	ASSERT(!IsOnBoard(mActiveId));
@@ -245,7 +249,7 @@ void Partial::HandToCell(Cell const &cell) {
 }
 
 void Partial::HandToSwap(void) {
-    ASSERT(mActiveId != 0);
+    ASSERT(mActiveId != Tile::ID_NONE);
 	ASSERT(!mSwapIds.Contains(mActiveId));
 	
 	mSwapIds.Add(mActiveId);
@@ -264,14 +268,19 @@ Cell Partial::LocateTile(TileIdType id) const {
 
 void Partial::SetHintedCells(void) {
     ASSERT(!mHintedCellsValid);
-    mHintedCells.MakeEmpty();
 
+	// start with no cells hinted
+    mHintedCells.MakeEmpty();
+	if (mHintStrength == HINT_NONE) {
+        mHintedCellsValid = true;
+		return;
+	}
+
+    // hint all valid empty cells (from start of turn)
 	int fringe = 1;
 	if (Cell::Grid() == GRID_HEX) {
 		fringe = 2;
 	}
-
-    // for mHintStrength == 0, empty cells (from start of turn) are hinted
     IndexType top_row = fringe + mBoard.NorthMax();
     IndexType bottom_row = -fringe - mBoard.SouthMax();
     IndexType right_column = fringe + mBoard.EastMax();
@@ -288,48 +297,70 @@ void Partial::SetHintedCells(void) {
 			}
         }
     }
+	if (mHintStrength == HINT_EMPTY) {
+        mHintedCellsValid = true;
+		return;
+	}
     
-    if (mHintStrength > 0) {
-        // for mHintStrength == 1, only cells connected to the start are hinted
-
-		Cells base = mHintedCells;
-		mHintedCells.MakeEmpty();
-
-        Cells::IteratorType i_cell;
-        for (i_cell = base.begin(); i_cell != base.end(); i_cell++) {
-            Cell cell = *i_cell;
-            if (mBoard.ConnectsToStart(cell)) {
-                mHintedCells.insert(cell);
-            }
+    // unhint any cells not connected to the Start
+	Cells base = mHintedCells;
+	mHintedCells.MakeEmpty();
+    Cells::IteratorType i_cell;
+    for (i_cell = base.begin(); i_cell != base.end(); i_cell++) {
+        Cell cell = *i_cell;
+        if (mBoard.ConnectsToStart(cell)) {
+            mHintedCells.insert(cell);
         }
     }
+	if (mHintStrength == HINT_CONNECTED) {
+        mHintedCellsValid = true;
+		return;
+	}
 
-    if (mHintStrength > 1) {
-        // for mHintStrength == 2, only cells usable with available tiles are hinted
-        // for mHintStrength == 3, only cells usable with the active tile are hinted
-        Cells base = mHintedCells;
-        mHintedCells.MakeEmpty();
-	    Move move = GetMove(false);
+	// unhint cells not usable ...
+	//   HINT_USABLE_ANY:       by any available tile
+	//   HINT_USABLE_SELECTED:  by the selected tile
 
-	    for (unsigned i = 0; i < CountTiles(); i++) {
-            Tile tile = mTiles[i];
-	        TileIdType id = tile.Id();
-            bool include_tile = (!mBoard.ContainsId(id) || id == mActiveId);
-            if (mHintStrength == 3 && mActiveId != 0) {
-                include_tile = (mActiveId == id);
-            }
+    base = mHintedCells;
+    mHintedCells.MakeEmpty();
+    Move move = GetMove(false);
+
+	for (unsigned i = 0; i < CountTiles(); i++) {
+        Tile tile = mTiles[i];
+	    TileIdType id = tile.Id();
+        bool include_tile = (!mBoard.ContainsId(id) || id == mActiveId);
+        if (mHintStrength == HINT_USABLE_SELECTED && mActiveId != Tile::ID_NONE) {
+            include_tile = (mActiveId == id);
+        }
             
-		    if (include_tile) {
-                AddValidNextUses(move, tile, base);
-            }
-		}
+		if (include_tile) {
+            AddValidNextUses(move, tile, base);
+        }
     }
     
     mHintedCellsValid = true;
 }
 
+void Partial::SetHintStrength(HintType strength) {
+	switch (strength) {
+	    case HINT_NONE:
+		case HINT_EMPTY:
+		case HINT_CONNECTED:
+		case HINT_USABLE_ANY:
+		case HINT_USABLE_SELECTED:
+		    break;
+		default:
+			ASSERT(false);
+	}
+
+	if (mHintStrength != strength) {
+        mHintedCellsValid = false;
+	}
+    mHintStrength = strength;
+}
+
 void Partial::SwapToHand(void) {
-    ASSERT(mActiveId != 0);
+    ASSERT(mActiveId != Tile::ID_NONE);
 	ASSERT(mSwapIds.Contains(mActiveId));
 	
 	mSwapIds.Remove(mActiveId);
@@ -349,6 +380,13 @@ bool Partial::Contains(TileIdType id) const {
 bool Partial::IsActive(TileIdType id) const {
     bool result = (mActiveId == id);
     
+    return result;
+}
+
+bool Partial::IsEmpty(Cell const &rCell) const {
+    Tile const *p_tile = mBoard.GetCell(rCell);
+    bool result = (p_tile == NULL);
+
     return result;
 }
 

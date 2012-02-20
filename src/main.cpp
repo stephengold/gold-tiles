@@ -81,7 +81,7 @@ int main(int argc, char *argv[]) {
 
 #ifdef _WINDOWS
 	// Instantiate top window and display it.
-	gTopWindow = new TopWindow(applicationInstance, &game);
+	gTopWindow = new TopWindow(applicationInstance, NULL); // &game);
 	gTopWindow->Show(showHow);
 
     // Retrieve and dispatch messages for this application. 

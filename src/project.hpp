@@ -46,8 +46,10 @@ class TileCell;
 #ifdef _GUI
 class Canvas;
 class Dialog;
+class FileMenu;
 class Graphics;
 class HandBox;
+class HintBox;
 class MenuItem;
 class ParmBox1;
 class ParmBox2;
@@ -73,5 +75,12 @@ void        pause(void);
 const char *plural(unsigned);
 String      plural(unsigned, const char *);
 bool        str_eq(char const *, char const *);
+
+// project-wide constants
+#ifndef M_PI
+const double M_PI = 3.14159265358979323846;
+#endif
+const double SQRT_3 = 1.732050807568877;
+const unsigned SECONDS_PER_MINUTE = 60;
 
 #endif

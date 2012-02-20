@@ -48,7 +48,7 @@ AValueType char_to_attribute(AIndexType, char ch);
 
 class Tile {
 public:
-	static const TileIdType ID_INVALID = 0;
+	static const TileIdType ID_NONE = 0;
 	static const TileIdType ID_DEFAULT = 1;
 	static const TileIdType ID_FIRST = 2;
 	static const TileIdType ID_LAST = LONG_MAX;

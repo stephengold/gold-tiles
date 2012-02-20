@@ -41,10 +41,20 @@ The Partial class is ...
 #include "partial.hpp"
 #include "tiles.hpp"
 
+enum HintType {
+	HINT_NONE,
+	HINT_EMPTY,
+	HINT_CONNECTED,
+	HINT_USABLE_ANY,
+	HINT_USABLE_SELECTED,
+	HINT_DEFAULT = HINT_USABLE_SELECTED,
+	HINT_CHALLENGE_DEFAULT = HINT_EMPTY
+};
+
 class Partial {
 public:
 	// lifecycle
-	Partial(Game const *, unsigned hintStrength);
+	Partial(Game const *, HintType strength = HINT_DEFAULT);
 	// no default constructor
     //Partial(Partial const &);  compiler-generated copy constructor is OK
     //~Partial(void);
@@ -53,6 +63,7 @@ public:
 	// operators
     //Partial &operator=(Partial const &);  compiler-generated assignment operator is OK
 	operator Board(void) const;
+	operator HintType(void) const;
 
 	// misc public methods
 	void       Activate(TileIdType);  // TODO Mobilize()
@@ -73,12 +84,14 @@ public:
 	void       HandToSwap(void);               // move the active tile
 	Cell       LocateTile(void) const;
 	Cell       LocateTile(TileIdType) const;
+	void       SetHintStrength(HintType);
 	void       SwapToHand(void);               // move the actilve tile
 	
 	// inquiry methods
 	bool Contains(TileIdType) const;
 	bool IsActive(TileIdType) const;
-	bool IsHinted(Cell const &rCell);
+	bool IsEmpty(Cell const &) const;
+	bool IsHinted(Cell const &);
 	bool IsInHand(TileIdType) const;
 	bool IsInSwap(TileIdType) const;
 	bool IsOnBoard(TileIdType) const;
@@ -90,10 +103,10 @@ private:
 	Game const *mpGame;
 	Cells       mHintedCells;     // cached choice of cells
 	bool        mHintedCellsValid;
-	unsigned    mHintStrength;    // TODO enum
+	HintType    mHintStrength;
 	unsigned    mPlayedTileCnt;   // number of tiles played to the board
 	Indices     mSwapIds;         // indices of all tiles in the swap area
-	Tiles       mTiles;
+	Tiles       mTiles;           // the set of all available tiles
 
 	// misc private methods
 	void AddValidNextUses(Move const &, Tile const &, Cells const &);

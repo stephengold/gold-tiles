@@ -68,6 +68,9 @@ public:
 	bool     IsPaused(void) const;
 	bool     IsStockEmpty(void) const;
 
+	// constants
+	static const unsigned TIME_UNLIMITED = 0;
+
 private:
     Hands::IteratorType miActiveHand;    // whose turn it is
     unsigned             mBestRunLength; // zero after the first turn

@@ -21,11 +21,13 @@ ACKNOWLEGMENTS
 With gratitude I acknowledge those whose inspiration and support
 helped me create this software:
  + Susan McKinley Ross for creating Qwirkle(TM) and MindWare
-   for publishing it
+   for publishing it (http://www.mindware.com/p/Qwirkle/32016)
  + my sweetie Gale for her encouragement and understanding
  + Noah Picard for his help with the user interface design
- + Colin Laplace and Bloodshed Software for creating and providing
-   the Dev-C++ integrated development environment (IDE)
+ + the creators of the ResEdit free resource editor (www.resedit.net)
+ + Colin Laplace and Bloodshed Software for creating and distributing
+   the Dev-C++ integrated development environment 
+   (http://www.bloodshed.net/devcpp.html)
  + the Microsoft Developers Network (MSDN) for application programming
    interface (API) documentation and examples 
 

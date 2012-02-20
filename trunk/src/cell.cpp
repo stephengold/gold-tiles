@@ -488,6 +488,12 @@ bool Cell::HasNeighbor(DirectionType direction) const {
 	return result;
 }
 
+bool Cell::IsOdd(void) const {
+    bool result = (::is_odd(mRow) != ::is_odd(mColumn));
+
+	return result;
+}
+
 bool Cell::IsStart(void) const {
 	ASSERT(IsValid());
     bool result = (mRow == 0) && (mColumn == 0);

@@ -68,6 +68,7 @@ protected:
 	// misc protected methods
     void      Close(INT_PTR);
 	void      EnableButton(IdType, bool);
+	void      EnableEditBox(IdType, bool);
 	HWND      GetControlHandle(IdType) const;
     ValueType GetSliderValue(IdType);
 	String    GetTextString(IdType);

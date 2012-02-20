@@ -43,7 +43,7 @@ public:
 	//FileMenu(FileMenu const &);  compiler-generated destructor is OK
 
 	// misc public methods
-	void EnableItems(void);
+	void EnableItems(bool isGame);
 
 private:
     MenuItem mNew, mOpen, mReopen, mRevert;

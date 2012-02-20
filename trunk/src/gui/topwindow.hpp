@@ -115,7 +115,7 @@ private:
 	int          CreateNewGame(void);
 	void         DiscardGame(void);
     void         DrawActiveHand(Canvas &);
-	Rect         DrawBlankTile(Canvas &, Point const &, bool odd);
+	void         DrawBlankTile(Canvas &, Point const &, bool odd);
     void         DrawBoard(Canvas &, unsigned layer);
     void         DrawCell(Canvas &, Cell const &, unsigned swapCnt);
     Rect         DrawHandHeader(Canvas &, LogicalYType top, LogicalXType leftRight, Hand &, 
@@ -151,14 +151,17 @@ private:
 	// private inquiry methods
 	bool IsDragging(void) const;
     bool IsInBounds(Cell const &) const;
+	bool IsInCellArea(Point const &, Cell const &) const;
 	bool IsInHandArea(Point const &) const;
 	bool IsInSwapArea(Point const &) const;
 	bool IsInTile(Point const &) const;
 	bool IsPaused(void) const;
 
 	//constants
-	static const unsigned TIMEOUT_MSEC = 1000;
+	static const unsigned HAND_CNT_DEFAULT = 2;
+    static const unsigned HAND_SIZE_DEFAULT = 6;
     static const unsigned ID_CLOCK_TIMER = 1;
+	static const unsigned TIMEOUT_MSEC = 1000;
 };
 
 #endif

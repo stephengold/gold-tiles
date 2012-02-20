@@ -51,8 +51,11 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 
 WindowClass *TopWindow::mspClass = NULL;
 
-static const unsigned HAND_CNT_DEFAULT = 2;
-static const unsigned HAND_SIZE_DEFAULT = 6;
+static const ColorType GlyphColors[9] = {
+	COLOR_BLACK,      COLOR_RED,       COLOR_DARK_BLUE, 
+    COLOR_DARK_GREEN, COLOR_PURPLE,    COLOR_BROWN, 
+    COLOR_DARK_GRAY,  COLOR_PINK,      COLOR_LIGHT_BLUE
+};
 
 // message handler (callback) for top window
 static LRESULT CALLBACK message_handler(
@@ -100,13 +103,12 @@ TopWindow::TopWindow(HINSTANCE applicationInstance, Game *pGame):
     ASSERT(mspNewlyCreatedWindow == NULL);
 	mspNewlyCreatedWindow = this;
 
-	mTargetCellFlag = true;
 	mApplication = applicationInstance;
     mColorAttributeCnt = 1;
     mDragBoardFlag = false;
 	mpFileMenu = NULL;
 	mpGame = pGame;
-	mGameStyle = GAME_STYLE_CHALLENGE;
+	mGameStyle = GAME_STYLE_PRACTICE;
 	mInitialNewGame = (pGame == NULL);
     mIsStartCentered = false;
 	mMouseUpCnt = 0;
@@ -116,6 +118,7 @@ TopWindow::TopWindow(HINSTANCE applicationInstance, Game *pGame):
 	mShowScoresFlag = true;
 	mShowTilesFlag = false;
 	mSquareGrid = true;
+	mTargetCellFlag = false;
     mpViewMenu = NULL;
 
     mAutocenterFlag = (mGameStyle == GAME_STYLE_CHALLENGE);
@@ -337,12 +340,10 @@ void TopWindow::DrawActiveHand(Canvas &rCanvas) {
     rCanvas.DrawText(bounds, stock_text);
 }
 
-Rect TopWindow::DrawBlankTile(Canvas &rCanvas, Point const &rCenter, bool oddFlag) {
+void TopWindow::DrawBlankTile(Canvas &rCanvas, Point const &rCenter, bool oddFlag) {
 	PCntType height = TileHeight();
     ColorType tile_color = COLOR_LIGHT_GRAY;
-    Rect result = rCanvas.DrawBlankTile(rCenter, mTileWidth, height, tile_color, oddFlag);
-
-    return result;
+    rCanvas.DrawBlankTile(rCenter, mTileWidth, height, tile_color, oddFlag);
 }
 
 void TopWindow::DrawBoard(Canvas &rCanvas, unsigned showLayer) {
@@ -426,7 +427,7 @@ void TopWindow::DrawCell(Canvas &rCanvas, Cell const &rCell, unsigned swapCnt) {
 
     PCntType cell_height = CellHeight();
     PCntType cell_width = CellWidth();
-	bool odd_flag = (is_odd(row) != is_odd(column));
+	bool odd_flag = rCell.IsOdd();
     Rect rect = rCanvas.DrawCell(center, cell_width, cell_height, cell_color, grid_color, odd_flag);
     
 	// draw cell features
@@ -704,11 +705,6 @@ Rect TopWindow::DrawTile(Canvas &rCanvas, Point point, Tile const &rTile, bool o
         colorInd = 0;
 	}
 	ASSERT(colorInd < 9);
-	static ColorType GlyphColors[9] = {
-		COLOR_BLACK,      COLOR_RED,       COLOR_DARK_BLUE, 
-        COLOR_DARK_GREEN, COLOR_PURPLE,    COLOR_BROWN, 
-        COLOR_DARK_GRAY,  COLOR_PINK,      COLOR_LIGHT_BLUE
-	};
     ColorType glyph_color = GlyphColors[colorInd];
 
     ACountType numberOfGlyphAttributes = Tile::AttributeCnt() - mColorAttributeCnt;
@@ -868,16 +864,18 @@ void TopWindow::HandleButtonUp(Point const &rMouse) {
 			// are treated as normal mouse-clicks 
 			// which activate/deactivate the cell.
 			Cell cell = GetCell(rMouse);
-			if (mTargetCellFlag && cell == mTargetCell) {
-     			mTargetCellFlag = false;
-			} else if (mPartial.IsEmpty(cell)) {
-				mTargetCell = cell;
-				mTargetCellFlag = true;
+			if (IsInCellArea(rMouse, cell)) {
+			    if (mTargetCellFlag && cell == mTargetCell) {
+     			    mTargetCellFlag = false;
+			    } else if (mPartial.IsEmpty(cell)) {
+				    mTargetCell = cell;
+				    mTargetCellFlag = true;
+				}
 			}
 		}
    		StopDragging();
     } else {
-        ASSERT(mPartial.GetActive() != 0);        
+        ASSERT(mPartial.GetActive() != Tile::ID_NONE);        
 		ReleaseActiveTile(rMouse);
     }
 }
@@ -1357,12 +1355,16 @@ STEP4:
 	if (mpGame != NULL && !mAutopauseFlag) {
 		mpGame->StartClock();
 	}
+	UpdateMenus();
+	ForceRepaint();
 }
 
 void TopWindow::OfferSaveGame(void) {
+#if 0
     YesNo box("UNSAVED");
 	box.Run(this);
 	// TODO
+#endif
 }
 
 void TopWindow::Play(bool passFlag) {
@@ -1441,6 +1443,9 @@ void TopWindow::ReleaseActiveTile(Point const &rMouse) {
 	Cell to_cell;
 	if (to_board) {
 		to_cell = GetCell(rMouse);
+		if (!IsInCellArea(rMouse, to_cell)) {
+			return;
+		}
 	}
 
 	if (from_hand && to_hand ||
@@ -1450,7 +1455,7 @@ void TopWindow::ReleaseActiveTile(Point const &rMouse) {
 		// Trivial drags which don't actually move the tile
 		// are treated as normal mouse-clicks which
 		// activate/deactivate the tile or play it to the
-		// active cell.
+		// target cell.
 		if (mMouseUpCnt == 1) {
 			StopDragging(); // deactivates the tile
     		return;
@@ -1516,8 +1521,8 @@ void TopWindow::ReleaseActiveTile(Point const &rMouse) {
 		box.Run(this);
 	}
 
-    if (mTargetCellFlag && mPartial.GetCell(mTargetCell) != Tile::ID_NONE) {
-        // active cell got filled
+    if (mTargetCellFlag && !mPartial.IsEmpty(mTargetCell)) {
+        // target cell got filled
         mTargetCellFlag = false;
     }
 
@@ -1667,11 +1672,12 @@ void TopWindow::TogglePause(void) {
 }
 
 void TopWindow::UpdateMenus(void) {
+	bool is_game = (mpGame != NULL);
 	bool is_paused = IsPaused();
     bool is_pass = mPartial.IsPass();
 
 	// "File" menu
-	mpFileMenu->EnableItems();
+	mpFileMenu->EnableItems(is_game);
 	mpFileMenu->Enable(true);
 
 	// "Play" menu
@@ -1704,6 +1710,24 @@ bool TopWindow::IsDragging(void) const {
 	{
 		result = true;
 	}
+
+	return result;
+}
+
+bool TopWindow::IsInCellArea(Point const &rPoint, Cell const &rCell) const {
+	IndexType row = rCell.Row();
+    IndexType column = rCell.Column();
+	LogicalXType center_x = CellX(column);
+    LogicalYType center_y = CellY(row);
+    Point center(center_x, center_y);
+
+	PCntType cell_height = CellHeight();
+    PCntType cell_width = CellWidth();
+	bool odd_flag = rCell.IsOdd();
+	Rect cell_rect = Canvas::InteriorGridShape(center, cell_width, 
+		               cell_height, odd_flag);
+
+	bool result = cell_rect.Contains(rPoint);
 
 	return result;
 }

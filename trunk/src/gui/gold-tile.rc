@@ -105,7 +105,7 @@ FONT 10, "Microsoft Sans Serif", 700, 0, 0
     DEFPUSHBUTTON   "OK", IDOK, 48, 93, 23, 15, WS_GROUP
     CTEXT           "Gold Tile Game", IDC_STATIC, 34, 4, 49, 8, SS_CENTER
     CTEXT           "(c) Copyright 2012 Stephen Gold", IDC_STATIC, 4, 39, 107, 8, SS_CENTER
-    CTEXT           "Release 0.5 (20120205)", IDC_STATIC, 23, 13, 71, 8, SS_CENTER
+    CTEXT           "Release 0.6 (20120220)", IDC_STATIC, 23, 13, 73, 8, SS_CENTER
     CTEXT           "Distributed under the terms of the GNU General Public License", IDC_STATIC, 14, 60, 90, 16, SS_CENTER
     CTEXT           "sgold@sonic.net", IDC_STATIC, 32, 47, 52, 8, SS_CENTER
     CTEXT           "http://code.google.com/p/gold-tiles", IDC_STATIC, 6, 24, 106, 8, SS_CENTER
@@ -200,8 +200,8 @@ FONT 10, "Microsoft Sans Serif"
     AUTORADIOBUTTON "none", IDC_RADIO_NONE, 7, 15, 59, 8
     AUTORADIOBUTTON "all empty cells", IDC_RADIO_EMPTY, 7, 26, 59, 8
     AUTORADIOBUTTON "empty cells connected to the start", IDC_RADIO_CONNECTED, 7, 37, 117, 8
-    AUTORADIOBUTTON "those usable with available tiles", IDC_RADIO_USABLE_ANY, 7, 48, 115, 8
-    AUTORADIOBUTTON "those usable with the selected tile", IDC_RADIO_USABLE_SELECTED, 7, 59, 122, 8
+    AUTORADIOBUTTON "cells usable by the available tiles", IDC_RADIO_USABLE_ANY, 7, 48, 114, 8
+    AUTORADIOBUTTON "cells usable by the selected tile", IDC_RADIO_USABLE_SELECTED, 7, 59, 110, 8
     LTEXT           "What cells would you like highlighted?", IDC_STATIC, 6, 4, 153, 8, SS_LEFT
 }
 
@@ -245,7 +245,7 @@ FONT 10, "Microsoft Sans Serif"
     PUSHBUTTON      "Cancel", IDCANCEL, 5, 124, 33, 14
     PUSHBUTTON      "< Back", IDC_BACK, 44, 124, 26, 14
     DEFPUSHBUTTON   "Next >", IDOK, 79, 124, 154, 14
-    GROUPBOX        "What shape do you want the board to be?", IDC_STATIC, 4, 3, 230, 58
+    GROUPBOX        "What sort of board do you want?", IDC_STATIC, 4, 3, 230, 58
     AUTORADIOBUTTON "Flat and endless (no wrap)", IDC_ENDLESS, 6, 18, 96, 8
     AUTORADIOBUTTON "Rectangle (four edges)", IDC_RECT, 6, 33, 84, 8
     AUTORADIOBUTTON "Torus (wraps in all directions)", IDC_TORUS, 6, 48, 102, 8
@@ -293,7 +293,7 @@ FONT 10, "Microsoft Sans Serif"
     EDITTEXT        IDC_EDIT3, 180, 74, 12, 12, ES_AUTOHSCROLL | ES_NUMBER
     CTEXT           "X", IDC_SMIN3, 100, 85, 8, 8, SS_CENTER
     CTEXT           "X", IDC_SMAX3, 167, 85, 8, 8, SS_CENTER
-    RTEXT           "Number of clones for each tile", IDC_STATIC, 6, 108, 91, 8, SS_RIGHT
+    RTEXT           "Number of clones of each tile", IDC_STATIC, 6, 108, 91, 8, SS_RIGHT
     CONTROL         "", IDC_SLIDER4, TRACKBAR_CLASS, WS_TABSTOP | TBS_AUTOTICKS | TBS_BOTH, 97, 100, 80, 16
     EDITTEXT        IDC_EDIT4, 180, 106, 12, 12, ES_AUTOHSCROLL | ES_NUMBER
     CTEXT           "X", IDC_SMIN4, 100, 117, 8, 8, SS_CENTER
@@ -387,12 +387,12 @@ CAPTION "Tile Attributes - Gold Tile"
 FONT 10, "Microsoft Sans Serif"
 {
     DEFPUSHBUTTON   "Next >", IDOK, 84, 70, 107, 14
-    RTEXT           "Attribute #1", IDC_STATIC, 44, 12, 52, 8, SS_RIGHT
+    RTEXT           "Values for first tile attribute", IDC_STATIC, 6, 12, 90, 8, SS_RIGHT
     CONTROL         "", IDC_SLIDER1, TRACKBAR_CLASS, WS_TABSTOP | TBS_AUTOTICKS | TBS_BOTH, 97, 4, 80, 16
     EDITTEXT        IDC_EDIT1, 180, 10, 12, 12, ES_AUTOHSCROLL | ES_NUMBER
     CTEXT           "X", IDC_SMIN1, 100, 21, 8, 8, SS_CENTER
     CTEXT           "X", IDC_SMAX1, 167, 21, 8, 8, SS_CENTER
-    RTEXT           "Attribute #2", IDC_STATIC, 6, 44, 90, 8, SS_RIGHT
+    RTEXT           "Values for 2nd tile attribute", IDC_STATIC, 6, 44, 90, 8, SS_RIGHT
     CONTROL         "", IDC_SLIDER2, TRACKBAR_CLASS, WS_TABSTOP | TBS_AUTOTICKS | TBS_BOTH, 97, 36, 80, 16
     EDITTEXT        IDC_EDIT2, 180, 42, 12, 12, ES_AUTOHSCROLL | ES_NUMBER
     CTEXT           "X", IDC_SMIN2, 100, 53, 8, 8, SS_CENTER
@@ -409,17 +409,17 @@ CAPTION "Tile Attributes - Gold Tile"
 FONT 10, "Microsoft Sans Serif"
 {
     DEFPUSHBUTTON   "Next >", IDOK, 84, 102, 107, 14
-    RTEXT           "Attribute #1", IDC_STATIC, 44, 12, 52, 8, SS_RIGHT
+    RTEXT           "Values for first tile attribute", IDC_STATIC, 6, 12, 90, 8, SS_RIGHT
     CONTROL         "", IDC_SLIDER1, TRACKBAR_CLASS, WS_TABSTOP | TBS_AUTOTICKS | TBS_BOTH, 97, 4, 80, 16
     EDITTEXT        IDC_EDIT1, 180, 10, 12, 12, ES_AUTOHSCROLL | ES_NUMBER
     CTEXT           "X", IDC_SMIN1, 100, 21, 8, 8, SS_CENTER
     CTEXT           "X", IDC_SMAX1, 167, 21, 8, 8, SS_CENTER
-    RTEXT           "Attribute #2", IDC_STATIC, 6, 44, 90, 8, SS_RIGHT
+    RTEXT           "Values for 2nd tile attribute", IDC_STATIC, 6, 44, 90, 8, SS_RIGHT
     CONTROL         "", IDC_SLIDER2, TRACKBAR_CLASS, WS_TABSTOP | TBS_AUTOTICKS | TBS_BOTH, 97, 36, 80, 16
     EDITTEXT        IDC_EDIT2, 180, 42, 12, 12, ES_AUTOHSCROLL | ES_NUMBER
     CTEXT           "X", IDC_SMIN2, 100, 53, 8, 8, SS_CENTER
     CTEXT           "X", IDC_SMAX2, 167, 53, 8, 8, SS_CENTER
-    RTEXT           "Attribute #3", IDC_STATIC, 6, 76, 90, 8, SS_RIGHT
+    RTEXT           "Values for third tile attribute", IDC_STATIC, 6, 76, 90, 8, SS_RIGHT
     CONTROL         "", IDC_SLIDER3, TRACKBAR_CLASS, WS_TABSTOP | TBS_AUTOTICKS | TBS_BOTH, 97, 68, 80, 16
     EDITTEXT        IDC_EDIT3, 180, 74, 12, 12, ES_AUTOHSCROLL | ES_NUMBER
     CTEXT           "X", IDC_SMIN3, 100, 85, 8, 8, SS_CENTER
@@ -436,22 +436,22 @@ CAPTION "Tile Attributes - Gold Tile"
 FONT 10, "Microsoft Sans Serif"
 {
     DEFPUSHBUTTON   "Next >", IDOK, 84, 134, 107, 14
-    RTEXT           "Attribute #1", IDC_STATIC, 44, 12, 52, 8, SS_RIGHT
+    RTEXT           "Values for first tile attribute", IDC_STATIC, 6, 12, 90, 8, SS_RIGHT
     CONTROL         "", IDC_SLIDER1, TRACKBAR_CLASS, WS_TABSTOP | TBS_AUTOTICKS | TBS_BOTH, 97, 4, 80, 16
     EDITTEXT        IDC_EDIT1, 180, 10, 12, 12, ES_AUTOHSCROLL | ES_NUMBER
     CTEXT           "X", IDC_SMIN1, 100, 21, 8, 8, SS_CENTER
     CTEXT           "X", IDC_SMAX1, 167, 21, 8, 8, SS_CENTER
-    RTEXT           "Attribute #2", IDC_STATIC, 6, 44, 90, 8, SS_RIGHT
+    RTEXT           "Values for 2nd tile attribute", IDC_STATIC, 6, 44, 90, 8, SS_RIGHT
     CONTROL         "", IDC_SLIDER2, TRACKBAR_CLASS, WS_TABSTOP | TBS_AUTOTICKS | TBS_BOTH, 97, 36, 80, 16
     EDITTEXT        IDC_EDIT2, 180, 42, 12, 12, ES_AUTOHSCROLL | ES_NUMBER
     CTEXT           "X", IDC_SMIN2, 100, 53, 8, 8, SS_CENTER
     CTEXT           "X", IDC_SMAX2, 167, 53, 8, 8, SS_CENTER
-    RTEXT           "Attribute #3", IDC_STATIC, 6, 76, 90, 8, SS_RIGHT
+    RTEXT           "Values for third tile attribute", IDC_STATIC, 6, 76, 90, 8, SS_RIGHT
     CONTROL         "", IDC_SLIDER3, TRACKBAR_CLASS, WS_TABSTOP | TBS_AUTOTICKS | TBS_BOTH, 97, 68, 80, 16
     EDITTEXT        IDC_EDIT3, 180, 74, 12, 12, ES_AUTOHSCROLL | ES_NUMBER
     CTEXT           "X", IDC_SMIN3, 100, 85, 8, 8, SS_CENTER
     CTEXT           "X", IDC_SMAX3, 167, 85, 8, 8, SS_CENTER
-    RTEXT           "Attribute #4", IDC_STATIC, 6, 108, 91, 8, SS_RIGHT
+    RTEXT           "Values for fourth tile attribute", IDC_STATIC, 6, 108, 91, 8, SS_RIGHT
     CONTROL         "", IDC_SLIDER4, TRACKBAR_CLASS, WS_TABSTOP | TBS_AUTOTICKS | TBS_BOTH, 97, 100, 80, 16
     EDITTEXT        IDC_EDIT4, 180, 106, 12, 12, ES_AUTOHSCROLL | ES_NUMBER
     CTEXT           "X", IDC_SMIN4, 100, 117, 8, 8, SS_CENTER
@@ -468,29 +468,29 @@ CAPTION "Tile Attributes - Gold Tile"
 FONT 10, "Microsoft Sans Serif"
 {
     DEFPUSHBUTTON   "Next >", IDOK, 84, 166, 107, 14
-    RTEXT           "Attribute #1", IDC_STATIC, 44, 12, 52, 8, SS_RIGHT
+    RTEXT           "Values for first tile attribute", IDC_STATIC, 6, 12, 90, 8, SS_RIGHT
     CONTROL         "", IDC_SLIDER1, TRACKBAR_CLASS, WS_TABSTOP | TBS_AUTOTICKS | TBS_BOTH, 97, 4, 80, 16
     EDITTEXT        IDC_EDIT1, 180, 10, 12, 12, ES_AUTOHSCROLL | ES_NUMBER
     CTEXT           "X", IDC_SMIN1, 100, 21, 8, 8, SS_CENTER
     CTEXT           "X", IDC_SMAX1, 167, 21, 8, 8, SS_CENTER
-    RTEXT           "Attribute #2", IDC_STATIC, 6, 44, 90, 8, SS_RIGHT
+    RTEXT           "Values for 2nd tile attribute", IDC_STATIC, 6, 44, 90, 8, SS_RIGHT
     CONTROL         "", IDC_SLIDER2, TRACKBAR_CLASS, WS_TABSTOP | TBS_AUTOTICKS | TBS_BOTH, 97, 36, 80, 16
     EDITTEXT        IDC_EDIT2, 180, 42, 12, 12, ES_AUTOHSCROLL | ES_NUMBER
     CTEXT           "X", IDC_SMIN2, 100, 53, 8, 8, SS_CENTER
     CTEXT           "X", IDC_SMAX2, 167, 53, 8, 8, SS_CENTER
-    RTEXT           "Attribute #3", IDC_STATIC, 6, 76, 90, 8, SS_RIGHT
+    RTEXT           "Values for third tile attribute", IDC_STATIC, 6, 76, 90, 8, SS_RIGHT
     CONTROL         "", IDC_SLIDER3, TRACKBAR_CLASS, WS_TABSTOP | TBS_AUTOTICKS | TBS_BOTH, 97, 68, 80, 16
     EDITTEXT        IDC_EDIT3, 180, 74, 12, 12, ES_AUTOHSCROLL | ES_NUMBER
     CTEXT           "X", IDC_SMIN3, 100, 85, 8, 8, SS_CENTER
     CTEXT           "X", IDC_SMAX3, 167, 85, 8, 8, SS_CENTER
-    RTEXT           "Attribute #4", IDC_STATIC, 6, 108, 91, 8, SS_RIGHT
+    RTEXT           "Values for fourth tile attribute", IDC_STATIC, 6, 108, 91, 8, SS_RIGHT
     CONTROL         "", IDC_SLIDER4, TRACKBAR_CLASS, WS_TABSTOP | TBS_AUTOTICKS | TBS_BOTH, 97, 100, 80, 16
     EDITTEXT        IDC_EDIT4, 180, 106, 12, 12, ES_AUTOHSCROLL | ES_NUMBER
     CTEXT           "X", IDC_SMIN4, 100, 117, 8, 8, SS_CENTER
     CTEXT           "X", IDC_SMAX4, 167, 117, 8, 8, SS_CENTER
-    RTEXT           "Attribute #5", IDC_STATIC, 6, 140, 91, 8, SS_RIGHT
+    RTEXT           "Values for fifth tile attribute", IDC_STATIC, 6, 140, 91, 8, SS_RIGHT
     CONTROL         "", IDC_SLIDER5, TRACKBAR_CLASS, WS_TABSTOP | TBS_AUTOTICKS | TBS_BOTH, 97, 132, 80, 16
-    EDITTEXT        IDC_EDIT5, 180, 106, 12, 12, ES_AUTOHSCROLL | ES_NUMBER
+    EDITTEXT        IDC_EDIT5, 180, 138, 12, 12, ES_AUTOHSCROLL | ES_NUMBER
     CTEXT           "X", IDC_SMIN5, 100, 149, 8, 8, SS_CENTER
     CTEXT           "X", IDC_SMAX5, 167, 149, 8, 8, SS_CENTER
     PUSHBUTTON      "Cancel", IDCANCEL, 6, 166, 26, 14

@@ -48,14 +48,16 @@ public:
     Canvas &operator=(Canvas const &) { ASSERT(false); };
 
 	// misc public methods
-    Rect DrawBlankTile(Point const &, PCntType width, PCntType height, 
-		          ColorType, bool odd);
-	Rect DrawCell(Point const &, PCntType width, PCntType height,
-                  ColorType cellColor, ColorType gridColor, bool odd);
-    void DrawTarget(Rect const &);
-    Rect DrawTile(Point const &, PCntType width, PCntType height,
-                  ACountType numGlyphs, const AValueType glyphs[],
-                  ColorType tile, ColorType glyph, bool odd);
+    void        DrawBlankTile(Point const &, PCntType width, PCntType height, 
+		             ColorType, bool odd);
+	Rect        DrawCell(Point const &, PCntType width, PCntType height,
+                     ColorType cellColor, ColorType gridColor, bool odd);
+    void        DrawTarget(Rect const &);
+    Rect        DrawTile(Point const &, PCntType width, PCntType height,
+                     ACountType numGlyphs, const AValueType glyphs[],
+                     ColorType tile, ColorType glyph, bool odd);
+	static Rect InteriorGridShape(Point const &rCenter, PCntType width, 
+		             PCntType height, bool oddFlag);
 
 private:
     static std::vector<Poly> msShapes; // TODO more options
@@ -65,7 +67,7 @@ private:
 	// misc private methods
     void DrawGlyph(Rect const &rBounds, AIndexType, AValueType, 
                    ColorType background, ColorType glyph);
-	Rect DrawGridShape(Point const &rCenter, PCntType width, 
+	void DrawGridShape(Point const &rCenter, PCntType width, 
 		               PCntType height, bool oddFlag);
 
 	// constants

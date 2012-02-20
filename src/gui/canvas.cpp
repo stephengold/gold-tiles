@@ -49,7 +49,7 @@ Canvas::Canvas(
 
 // misc methods
 
-Rect Canvas::DrawBlankTile(
+void Canvas::DrawBlankTile(
     Point const &rCenter,
     PCntType width,
 	PCntType height,
@@ -61,24 +61,21 @@ Rect Canvas::DrawBlankTile(
 	ColorType border_color = COLOR_DARK_GRAY;
     UseColors(tileColor, border_color);
 
-	Rect interior(0,0,0,0);
 	switch (Cell::Grid()) {
 	    case GRID_4WAY:
 	    case GRID_8WAY: {
 			ASSERT(width == height);
             PCntType circle_diameter = width/TILE_POINTEDNESS;
-	        interior = DrawRoundedSquare(rCenter, width, circle_diameter);
+	        DrawRoundedSquare(rCenter, width, circle_diameter);
 			break;
 		}
 	    case GRID_HEX:
 	    case GRID_TRIANGLE: 
-			interior = DrawGridShape(rCenter, width, height, oddFlag);
+			DrawGridShape(rCenter, width, height, oddFlag);
 			break;
 		default:
 			ASSERT(false);
 	}
-	
-	return interior;
 }
 
 Rect Canvas::DrawCell(
@@ -92,12 +89,13 @@ Rect Canvas::DrawCell(
 	ASSERT(::is_even(width));
 
 	UseColors(cellColor, gridColor);
-	Rect interior = DrawGridShape(rCenter, width, height, oddFlag);
+	DrawGridShape(rCenter, width, height, oddFlag);
+	Rect interior = InteriorGridShape(rCenter, width, height, oddFlag);
 
 	return interior;
 }
 
-Rect Canvas::DrawGridShape(
+void Canvas::DrawGridShape(
     Point const &rCenter,
     PCntType width,
 	PCntType height,
@@ -112,22 +110,20 @@ Rect Canvas::DrawGridShape(
 	    case GRID_4WAY:
 	    case GRID_8WAY: // square
             ASSERT(height == width);
-            interior = DrawRectangle(rectangle);
+            DrawRectangle(rectangle);
 			break;
 	    case GRID_HEX:
 			ASSERT(!oddFlag);
             ASSERT(height < width);
-			interior = DrawHexagon(rectangle);
+			DrawHexagon(rectangle);
 			break;
 	    case GRID_TRIANGLE: 
 			ASSERT(height < width);
-			interior = DrawEquilateral(rectangle, oddFlag);
+			DrawEquilateral(rectangle, oddFlag);
 			break;
 		default:
 			ASSERT(false);
 	}
-
-	return interior;
 }
 
 void Canvas::DrawGlyph(
@@ -197,12 +193,14 @@ Rect Canvas::DrawTile(
 	    case GRID_8WAY: {
 			ASSERT(width == height);
             PCntType circle_diameter = width/TILE_POINTEDNESS;
-	        interior = DrawRoundedSquare(rCenter, width, circle_diameter);
+	        DrawRoundedSquare(rCenter, width, circle_diameter);
+	        interior = InteriorRoundedSquare(rCenter, width, circle_diameter);
 			break;
 		}
 	    case GRID_HEX:
 	    case GRID_TRIANGLE: 
-			interior = DrawGridShape(rCenter, width, height, oddFlag);
+			DrawGridShape(rCenter, width, height, oddFlag);
+			interior = InteriorGridShape(rCenter, width, height, oddFlag);
 			break;
 		default:
 			ASSERT(false);
@@ -373,6 +371,39 @@ Rect Canvas::DrawTile(
     }
 
     ASSERT(msShapes.size() == 9);
+}
+
+/* static */ Rect Canvas::InteriorGridShape(
+    Point const &rCenter,
+    PCntType width,
+	PCntType height,
+	bool oddFlag)
+{
+    Point ulc = rCenter;
+	ulc.Offset(-long(width/2), -long(height/2));
+	Rect rectangle = Rect(ulc, width, height);
+
+	Rect interior(0,0,0,0);
+	switch (Cell::Grid()) {
+	    case GRID_4WAY:
+	    case GRID_8WAY: // square
+            ASSERT(height == width);
+            interior = rectangle;
+			break;
+	    case GRID_HEX:
+			ASSERT(!oddFlag);
+            ASSERT(height < width);
+			interior = InteriorHexagon(rectangle);
+			break;
+	    case GRID_TRIANGLE: 
+			ASSERT(height < width);
+			interior = InteriorEquilateral(rectangle, oddFlag);
+			break;
+		default:
+			ASSERT(false);
+	}
+
+	return interior;
 }
 
 #endif

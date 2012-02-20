@@ -94,6 +94,7 @@ public:
 
 	// public inquiry methods
 	bool        HasNeighbor(DirectionType) const;
+	bool        IsOdd(void) const;
 	bool        IsStart(void) const;
 	bool        IsValid(void) const;
 	static bool IsValid(IndexType row, IndexType column);

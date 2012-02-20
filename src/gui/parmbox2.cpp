@@ -223,6 +223,8 @@ void ParmBox2::SetTopology(void) {
 	EnableButton(IDC_HCYLINDER, false);
 	mHeight = Cell::HEIGHT_MAX;
 	mWidth = Cell::WIDTH_MAX;
+	EnableEditBox(IDC_EDITHEIGHT, false);
+	EnableEditBox(IDC_EDITWIDTH, false);
 #endif
 
 	SetButton(IDC_ENDLESS, mHeight == Cell::HEIGHT_MAX 

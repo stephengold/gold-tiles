@@ -82,7 +82,12 @@ void Dialog::Close(INT_PTR result) {
 void Dialog::EnableButton(IdType buttonId, bool enable) {
     HWND button_handle = GetControlHandle(buttonId);
 	BOOL enable_flag = enable ? TRUE : FALSE;
-	Button_Enable(button_handle, enable_flag);
+	::Button_Enable(button_handle, enable_flag);
+}
+
+void Dialog::EnableEditBox(IdType boxId, bool enable) {
+    HWND box_handle = GetControlHandle(boxId);
+	::Edit_Enable(box_handle, enable);
 }
 
 // get the window handle for a particular control

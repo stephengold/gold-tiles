@@ -41,14 +41,14 @@ FileMenu::FileMenu(HMENU menu, UINT position):
 
 // misc methods
 
-void FileMenu::EnableItems(void) {
+void FileMenu::EnableItems(bool isGame) {
     mNew.Enable(true);
     mOpen.Enable(false); // TODO
     mReopen.Enable(false);
     mRevert.Enable(false);
     mSave.Enable(false);
     mSaveAs.Enable(false);
-    mClose.Enable(true);
+    mClose.Enable(isGame);
     mPrint.Enable(false);
     mExit.Enable(true);
 }

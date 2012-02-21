@@ -38,7 +38,6 @@ The Partial class is ...
 #include "board.hpp"
 #include "cells.hpp"
 #include "indices.hpp"
-#include "partial.hpp"
 #include "tiles.hpp"
 
 enum HintType {
@@ -96,6 +95,7 @@ public:
 	bool IsInSwap(TileIdType) const;
 	bool IsOnBoard(TileIdType) const;
 	bool IsPass(void) const;
+	bool IsVisible(Cell const &);
 
 private:
 	TileIdType  mActiveId;        // tile actively being dragged (or else TILE_INVALID)

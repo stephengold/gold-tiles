@@ -28,17 +28,13 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 A FileMenu object represents the "File" SubMenu in the menu bar.
 */
 
-#include "project.hpp"
-
-#ifdef _WINDOWS
-#include <windows.h>
 #include "gui/menuitem.hpp"
 #include "gui/submenu.hpp"
 
 class FileMenu: public SubMenu {
 public:
 	// lifecycle
-    FileMenu(HMENU menu, UINT position);
+    FileMenu(HMENU menu, unsigned position);
 	// no default constructor
 	//FileMenu(FileMenu const &);  compiler-generated destructor is OK
 
@@ -50,5 +46,4 @@ private:
 	MenuItem mSave, mSaveAs, mClose, mPrint, mExit;
 };
 
-#endif
 #endif

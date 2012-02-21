@@ -44,7 +44,7 @@ public:
 	// ~YesNo(void);  compiler-generated destructor is OK
 
 	// public operators
-    YesNo &operator=(YesNo const &) { ASSERT(false); };
+    YesNo &operator=(YesNo const &) { FAIL(); };
 
 	// misc public methods
 	INT_PTR HandleMessage(UINT message, WPARAM, LPARAM);

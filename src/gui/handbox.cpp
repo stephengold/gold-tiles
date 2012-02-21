@@ -56,6 +56,7 @@ HandBox::HandBox(
 	mHandIndex = handIndex;
 	mIsAutomatic = isAutomatic;
 	mIsRemote = isRemote;
+	mIpAddress = ipAddress;
 	mPlayerName = playerName;
 }
 

@@ -56,7 +56,8 @@ TileBox::TileBox(char const *templateName, ACountType attributeCnt, AValueType *
 // misc methods
 
 TileBox::IdType TileBox::EditboxId(IdType sliderId) const {
-    IdType result;
+    IdType result = IDC_STATIC;
+
     switch (sliderId) {
         case IDC_SLIDER1:
             result = IDC_EDIT1;
@@ -74,7 +75,7 @@ TileBox::IdType TileBox::EditboxId(IdType sliderId) const {
             result = IDC_EDIT5;
             break;
         default:
-            ASSERT(false);
+            FAIL();
     }
     
     return result;
@@ -153,7 +154,6 @@ void TileBox::InitControl(
     ASSERT(value <= maxValue);
     ASSERT(value >= minValue);
 	
-    WPARAM redraw = WPARAM(FALSE);
 	SetSliderRange(sliderId, minValue, maxValue);
 
 	ValueType slider_value = SetSliderValue(sliderId, value);
@@ -170,7 +170,7 @@ void TileBox::InitControl(
 }
 
 TileBox::IdType TileBox::MaxId(IdType sliderId) const {
-    IdType result;
+    IdType result = IDC_STATIC;
     switch (sliderId) {
         case IDC_SLIDER1:
             result = IDC_SMAX1;
@@ -188,14 +188,14 @@ TileBox::IdType TileBox::MaxId(IdType sliderId) const {
             result = IDC_SMAX5;
             break;
         default:
-            ASSERT(false);
+            FAIL();
     }
     
     return result;
 }
 
 TileBox::IdType TileBox::MinId(IdType sliderId) const {
-    IdType result;
+    IdType result = IDC_STATIC;
     switch (sliderId) {
         case IDC_SLIDER1:
             result = IDC_SMIN1;
@@ -213,7 +213,7 @@ TileBox::IdType TileBox::MinId(IdType sliderId) const {
             result = IDC_SMIN5;
             break;
         default:
-            ASSERT(false);
+            FAIL();
     }
     
     return result;
@@ -224,7 +224,7 @@ TileBox::ValueType *TileBox::NumValues(void) {
 }
 
 TileBox::IdType TileBox::SliderId(IdType editboxId) const {
-    IdType result;
+    IdType result = IDC_STATIC;
     switch (editboxId) {
         case IDC_EDIT1:
             result = IDC_SLIDER1;
@@ -242,13 +242,13 @@ TileBox::IdType TileBox::SliderId(IdType editboxId) const {
             result = IDC_SLIDER5;
             break;
         default:
-            ASSERT(false);
+            FAIL();
     }
     return result;
 }
 
 TileBox::IdType TileBox::SliderId(HWND handle) const {
-    IdType result = 0;
+    IdType result = IDC_STATIC;
 	if (handle == GetControlHandle(IDC_SLIDER1)) {
 		result = IDC_SLIDER1;
 	} else if (handle == GetControlHandle(IDC_SLIDER2)) {
@@ -259,6 +259,8 @@ TileBox::IdType TileBox::SliderId(HWND handle) const {
 		result = IDC_SLIDER4;
 	} else if (handle == GetControlHandle(IDC_SLIDER5)) {
 		result = IDC_SLIDER5;
+	} else {
+		FAIL();
 	}
 
 	return result;
@@ -282,7 +284,7 @@ void TileBox::UpdateValue(IdType sliderId, ValueType value) {
             mpNumValues[4] = value;
             break;
         default:
-            ASSERT(false);
+            FAIL();
     }
 }
 

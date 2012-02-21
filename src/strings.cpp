@@ -21,7 +21,7 @@ You should have received a copy of the GNU General Public License
 along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "project.hpp"
+#include "project.hpp"  // ASSERT
 #include "strings.hpp"
 
 // lifecycle

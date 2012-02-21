@@ -28,10 +28,7 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 The ColorType enum names and defines all colors used in the game.
 */
 
-#include "project.hpp"
-
-#ifdef _WINDOWS
-#include <windows.h>
+#include <Windows.h> // PALETTERGB
 
 enum ColorType {
     COLOR_BLACK       = PALETTERGB(0, 0, 0),
@@ -55,5 +52,4 @@ enum ColorType {
     COLOR_PURPLE     = PALETTERGB(128, 0, 128)
 };
 
-#endif
 #endif

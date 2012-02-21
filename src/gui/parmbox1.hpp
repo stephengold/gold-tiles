@@ -30,10 +30,8 @@ A ParmBox1 object represents a dialog box for setting the style of the game.
 The ParmBox1 class is an extension of the Dialog class.
 */
 
-#include "cell.hpp"
+#include "game.hpp"
 #include "gui/dialog.hpp"
-#include "gui/topwindow.hpp"
-#include "tile.hpp"
 
 class ParmBox1: public Dialog {
 public:
@@ -44,7 +42,7 @@ public:
 	// ~ParmBox1(void);  compiler-generated destructor is OK
 
 	// public operators
-    ParmBox1 &operator=(ParmBox1 const &) { ASSERT(false); };
+    ParmBox1 &operator=(ParmBox1 const &) { FAIL(); };
 	operator GameStyleType(void) const;
 
 	// misc public methods

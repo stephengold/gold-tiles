@@ -34,7 +34,7 @@ Hand::Hand(const String &name, unsigned seconds):
 {
 	mRunning = false;
 	mScore = 0;
-	mSeconds = 0;
+	mSeconds = seconds;
 }
 
 // The compiler-generated copy constructor is fine.

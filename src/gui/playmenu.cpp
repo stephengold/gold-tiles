@@ -26,7 +26,7 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 
 // lifecycle
 
-PlayMenu::PlayMenu(HMENU menu, UINT position):	
+PlayMenu::PlayMenu(HMENU menu, unsigned position):	
 	SubMenu(menu, position),
     mPlay(menu, IDM_PLAY_PLAY),
     mTakeBack(menu, IDM_TAKE_BACK),
@@ -50,16 +50,16 @@ void PlayMenu::Pause(bool paused) {
 	mPause.Check(paused);
 }
 
-void PlayMenu::EnableItems(bool paused, bool play) {
-    mPlay.Enable(!paused && play);
-    mTakeBack.Enable(!paused && play);
-    mHint.Enable(false);
-    mPause.Enable(true);
-    mPass.Enable(!paused && !play);
-    mResign.Enable(false);
-    mRestart.Enable(false);
-    mUndo.Enable(false);
-    mRedo.Enable(false);
-    mAutopause.Enable(!paused);
+void PlayMenu::EnableItems(GameStyleType gameStyle, bool isOver, bool isPaused, bool isPass) {
+    mPlay.Enable(!isOver && !isPaused && !isPass);
+    mTakeBack.Enable(!isOver && !isPaused && !isPass);
+    mHint.Enable(false);    // TODO
+    mPause.Enable(!isOver);
+    mPass.Enable(!isOver && !isPaused && isPass);
+    mResign.Enable(false);  // TODO
+    mRestart.Enable(false); // TODO
+    mUndo.Enable(false);    // TODO
+    mRedo.Enable(false);    // TODO
+    mAutopause.Enable(gameStyle != GAME_STYLE_CHALLENGE && !isOver && !isPaused);
 }
 

@@ -21,9 +21,6 @@ You should have received a copy of the GNU General Public License
 along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "project.hpp"
-
-#ifdef _WINDOWS
 #include "gui/color.hpp"
 #include "gui/graphics.hpp"
 #include "gui/poly.hpp"
@@ -311,6 +308,7 @@ PCntType Graphics::TextWidth(char const *text) const {
     int length = ::strlen(text);
     SIZE extent;
     BOOL success = ::GetTextExtentPoint32(mDraw, text, length, &extent);
+	ASSERT(success != 0);
     PCntType result = extent.cx;
     
     return result;
@@ -347,5 +345,3 @@ void Graphics::UseColors(ColorType brushBkColor, ColorType penTextColor) {
         mPenTextColor = penTextColor;
     }
 }
-
-#endif

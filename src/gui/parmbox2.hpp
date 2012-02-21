@@ -33,7 +33,6 @@ The ParmBox2 class is an extension of the Dialog class.
 
 #include "cell.hpp"
 #include "gui/dialog.hpp"
-#include "tile.hpp"
 
 class ParmBox2: public Dialog {
 public:
@@ -44,7 +43,7 @@ public:
 	// ~ParmBox2(void);  compiler-generated destructor is OK
 
 	// public operators
-    ParmBox2 &operator=(ParmBox2 const &) { ASSERT(false); };
+    ParmBox2 &operator=(ParmBox2 const &) { FAIL(); };
 	operator GridType(void) const;
 
 	// misc public methods

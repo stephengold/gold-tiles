@@ -32,10 +32,6 @@ The Dialog class is implemented as an extension of the Window class.
 It meant to be futher extended by adding controls.  
 */
 
-#include "project.hpp"
-
-#ifdef _WINDOWS
-#include <windows.h>
 #include "window.hpp"
 
 class Dialog: public Window {
@@ -47,12 +43,12 @@ public:
 	Dialog(char const *templateName);
 	Dialog(char const *templateName, DLGPROC);
 	// no default constructor
-    Dialog(Dialog const &) { ASSERT(false); };
+    Dialog(Dialog const &) { FAIL(); };
     // ~Dialog(void);  compiler-generated destructor is OK
 	int Run(Window *pParent);
 
 	// operators
-    Dialog &operator=(Dialog const &) { ASSERT(false); };
+    Dialog &operator=(Dialog const &) { FAIL(); };
 	
 	// misc public methods
 	int HandleMessage(UINT message, WPARAM, LPARAM);
@@ -88,5 +84,4 @@ private:
 
 extern Dialog *gpNewlyCreatedDialog;
 
-#endif
 #endif

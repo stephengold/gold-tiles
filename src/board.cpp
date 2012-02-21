@@ -446,7 +446,7 @@ bool Board::IsValidMove(Move const &rMove, char const *&rReason) const {
     if (!DoesAnyConnectToStart(cells)) {
 		if (IsEmpty()) {
             D(std::cout << "Your first tile must be played on the start cell. "
-				>> "To change this tile, you must take back ALL your tiles." << std::endl);
+				<< "To change this tile, you must take back ALL your tiles." << std::endl);
 		    rReason = "START";
 		} else {
             D(std::cout << "Each cell you use must be a neighbor of a used cell." << std::endl);
@@ -476,7 +476,6 @@ bool Board::IsValidMove(Move const &rMove, char const *&rReason) const {
     {
         DirectionType direction = DirectionType(dir);
         if (::is_scoring_direction(direction)) {
-            DirectionType ortho = ::ortho_direction(direction);
             if (!after.AreAllCompatible(cells, direction)) {
                 switch (direction) {
                     case DIRECTION_NORTH:
@@ -502,7 +501,7 @@ bool Board::IsValidMove(Move const &rMove, char const *&rReason) const {
                         return false;
 
                     default:
-                        ASSERT(false);
+                        FAIL();
                 }
             }
         }

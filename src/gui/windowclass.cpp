@@ -21,10 +21,6 @@ You should have received a copy of the GNU General Public License
 along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "project.hpp"
-
-#ifdef _WINDOWS
-#include <windows.h>
 #include "gui/windowclass.hpp"
 
 // lifecycle
@@ -71,5 +67,3 @@ void WindowClass::RegisterClass(void) {
     ATOM classAtom = ::RegisterClassEx(this);
 	ASSERT(classAtom != 0);
 };
-
-#endif

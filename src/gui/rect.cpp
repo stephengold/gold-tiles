@@ -21,10 +21,6 @@ You should have received a copy of the GNU General Public License
 along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "project.hpp"
-
-#ifdef _WINDOWS
-#include <windows.h>
 #include "fractionpair.hpp"
 #include "rect.hpp"
 
@@ -262,5 +258,3 @@ bool Rect::Contains(Rect const &rOther) const {
     
     return result; 
 }
-
-#endif

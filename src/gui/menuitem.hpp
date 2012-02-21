@@ -27,19 +27,17 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 /*
 A MenuItem object represents a single item in a SubMenu.
 
-The MenuItem class is implemented by encapsulating and handle and item id.
+The MenuItem class is implemented by encapsulating a handle and an item id.
 */
 
-#include "project.hpp"
-
-#ifdef _WINDOWS
-#include <windows.h>
+#include <Windows.h> // HMENU
 
 class MenuItem {
 public:
 	// lifecycle
     MenuItem(HMENU, UINT);
 	// no default constructor
+	// ~MenuItem(void);  compiler-generated destructor is OK
 
 	// misc public methods
     void Check(bool);
@@ -50,5 +48,4 @@ private:
     UINT  mItemId;
 };
 
-#endif
 #endif

@@ -184,7 +184,7 @@ void ParmBox1::SetStyle(IdType buttonId) {
 			mGameStyle = GAME_STYLE_CHALLENGE;
 			break;
 		default:
-			ASSERT(false);
+			FAIL();
 	}
 	EnableEditBox(IDC_EDITMINUTES, mGameStyle == GAME_STYLE_CHALLENGE);
 }

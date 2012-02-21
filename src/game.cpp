@@ -30,18 +30,14 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 
 Game::Game(
     Strings handNames,
-    ACountType attributeCnt,
-    AValueType pMaxAttributeValues[],
     unsigned tileRedundancy,
     unsigned handSize,
 	unsigned secondsPerHand)
 {
-	ASSERT(attributeCnt >= 2);
 	ASSERT(tileRedundancy >= 1);
 	ASSERT(handSize >= 1);
 
     // copy game parameters
-    Tile::SetStatic(attributeCnt, pMaxAttributeValues);
 	mRedundancy = tileRedundancy;
 	mHandSize = handSize;
 	mSecondsPerHand = secondsPerHand;
@@ -70,8 +66,6 @@ Game::Game(
     // the hand with the longest "run" gets the first turn
     mBestRunLength = 0;
     for (i_hand = mHands.begin(); i_hand < mHands.end(); i_hand++) {
-        D(hand->DisplayHand());
-
         Tiles run = i_hand->LongestRun();
 	    unsigned run_length = run.Count();
         std::cout << i_hand->Name() << " has a run of " << plural(run_length, "tile") 
@@ -301,6 +295,7 @@ unsigned Game::SecondsPerHand(void) const {
 }
 
 void Game::StartClock(void) {
+	ASSERT(!IsOver());
 	miActiveHand->StartClock();
 }
 
@@ -371,7 +366,7 @@ bool Game::IsOver(void) const {
 }
 
 bool Game::IsPaused(void) const {
-	bool result = !miActiveHand->IsRunning();
+	bool result = !miActiveHand->IsRunning() && !IsOver();
 
 	return result;
 }

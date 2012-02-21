@@ -62,10 +62,10 @@ public:
     int	        WestMax(void) const;
 
 private:
-    typedef std::map<Cell,Tile>::const_iterator	        ConstIteratorType;
-    typedef std::map<Cell,Tile>::iterator		        IteratorType;
-    typedef std::map<TileIdType,Cell>::const_iterator	ConstTileIteratorType;
-    typedef std::map<TileIdType,Cell>::iterator		    TileIteratorType;
+    typedef std::map<Cell,Tile>::const_iterator	      ConstIteratorType;
+    typedef std::map<Cell,Tile>::iterator		      IteratorType;
+    typedef std::map<TileIdType,Cell>::const_iterator ConstTileIteratorType;
+    typedef std::map<TileIdType,Cell>::iterator		  TileIteratorType;
 
 	int mNorthMax, mSouthMax, mEastMax, mWestMax; // extent of the played area
 

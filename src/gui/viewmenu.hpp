@@ -28,25 +28,21 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 A ViewMenu object represents the "view" SubMenu in the menu bar.
 */
 
-#include "project.hpp"
-
-#ifdef _WINDOWS
-#include <windows.h>
+#include "game.hpp"
 #include "gui/menuitem.hpp"
 #include "gui/submenu.hpp"
-#include "gui/topwindow.hpp"
 
 class ViewMenu: public SubMenu {
 public:
 	// lifecycle
-    ViewMenu(HMENU menu, UINT position);
+    ViewMenu(HMENU menu, unsigned position);
 	// no default constructor
 	//ViewMenu(ViewMenu const &);  compiler-generated destructor is OK
 
 	// misc public methods
     void Animation(bool);
     void Autocenter(bool);
-	void EnableItems(GameStyleType);
+	void EnableItems(GameStyleType, bool over, bool paused, bool pass);
 	void ShowClocks(bool);
 	void ShowGrid(bool);
 	void ShowHints(bool);
@@ -64,5 +60,4 @@ private:
 	void UncheckAllSizes(void);
 };
 
-#endif
 #endif

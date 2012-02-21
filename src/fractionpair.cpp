@@ -22,7 +22,7 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "fractionpair.hpp"
-#include "project.hpp"
+#include "project.hpp"  // ASSERT
 
 FractionPair::FractionPair(double x, double y) {
     ASSERT(x >= 0.0);

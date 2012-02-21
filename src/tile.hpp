@@ -33,8 +33,7 @@ of attributes.  Distinct tiles with identical attributes
 */
 
 #include "indices.hpp"
-#include "project.hpp"
-#include "string.hpp"
+#include "project.hpp"  // Tiles
 
 // tile identifier type
 typedef IndexType TileIdType;
@@ -87,6 +86,9 @@ public:
 	bool IsCloneAny(Tiles const &) const;
 	bool IsCompatibleWith(Tile const *) const;
 	bool IsValid(void) const;
+
+	static const ACountType ATTRIBUTE_CNT_MIN = 2;
+	static const ACountType ATTRIBUTE_CNT_DEFAULT = 2;
 
 private:
 	AValueType *mpArray;

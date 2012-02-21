@@ -167,9 +167,6 @@ int BaseBoard::NorthMax(void) const {
 
 // play a Tile on a specific cell
 void BaseBoard::PlayOnCell(Cell const &rCell, Tile const &rTile) {
-    D(std::cout << "Play " << String(rTile) << " on " << String(rRef)
-                << std::endl);
-
     ASSERT(GetCell(rCell) == NULL);
     TileIdType id = rTile.Id();
     ASSERT(mTiles.find(id) == mTiles.end());

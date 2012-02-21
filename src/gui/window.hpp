@@ -31,23 +31,19 @@ The Window class encapsulates an HWND (window handle).
 It provides a static map for translating handles to Window objects. 
 */
 
-#include "project.hpp"
-
-#ifdef _WINDOWS
 #include <map>
-#include <windows.h>
-#include "gui/rect.hpp"
+#include "rect.hpp"    // PCntType
 
 class Window {
 public:
 	// lifecycle
 	Window(void);
-    Window(Window const &) { ASSERT(false); };
+    Window(Window const &) { FAIL(); };
     // ~WindowClass(void);  compiler-generated destructor is OK
     HDC Initialize(CREATESTRUCT const *);
 
 	// public operators
-    Window &operator=(Window const &) { ASSERT(false); };
+    Window &operator=(Window const &) { FAIL(); };
 
 	// misc public methods
 	HWND            Handle(void) const;
@@ -96,5 +92,4 @@ private:
     HINSTANCE mModule; // the module which owns this window  TODO static?
 };
 
-#endif
 #endif

@@ -45,7 +45,7 @@ public:
     // ~Canvas(void);  compiler-generated destructor is OK
         
 	// operators
-    Canvas &operator=(Canvas const &) { ASSERT(false); };
+    Canvas &operator=(Canvas const &) { FAIL(); };
 
 	// misc public methods
     void        DrawBlankTile(Point const &, PCntType width, PCntType height, 

@@ -27,7 +27,7 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 
 // lifecycle
 
-ViewMenu::ViewMenu(HMENU menu, unsigned position):
+ViewMenu::ViewMenu(SubMenu const &menu, unsigned position):
 	SubMenu(menu, position),
     mSmallTiles(menu, IDM_SMALL_TILES),
     mMediumTiles(menu, IDM_MEDIUM_TILES),

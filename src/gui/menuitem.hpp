@@ -31,13 +31,14 @@ The MenuItem class is implemented by encapsulating a handle and an item id.
 */
 
 #include "gui/win.hpp"
+#include "project.hpp"
 
 typedef Win::UINT IdType;
 
 class MenuItem {
 public:
 	// lifecycle
-    MenuItem(Win::HMENU, IdType);
+    MenuItem(SubMenu const &parent, IdType);
 	// no default constructor
 	// ~MenuItem(void);  compiler-generated destructor is OK
 

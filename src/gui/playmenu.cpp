@@ -27,18 +27,18 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 
 // lifecycle
 
-PlayMenu::PlayMenu(HMENU menu, unsigned position):	
-	SubMenu(menu, position),
-    mPlay(menu, IDM_PLAY_PLAY),
-    mTakeBack(menu, IDM_TAKE_BACK),
-    mHint(menu, IDM_HINT),
-    mPause(menu, IDM_PAUSE),
-    mPass(menu, IDM_PASS),
-    mResign(menu, IDM_RESIGN),
-    mRestart(menu, IDM_RESTART),
-    mUndo(menu, IDM_UNDO),
-    mRedo(menu, IDM_REDO),
-    mAutopause(menu, IDM_AUTOPAUSE)
+PlayMenu::PlayMenu(SubMenu const &parent, unsigned position):	
+	SubMenu(parent, position),
+    mPlay(parent, IDM_PLAY_PLAY),
+    mTakeBack(parent, IDM_TAKE_BACK),
+    mHint(parent, IDM_HINT),
+    mPause(parent, IDM_PAUSE),
+    mPass(parent, IDM_PASS),
+    mResign(parent, IDM_RESIGN),
+    mRestart(parent, IDM_RESTART),
+    mUndo(parent, IDM_UNDO),
+    mRedo(parent, IDM_REDO),
+    mAutopause(parent, IDM_AUTOPAUSE)
  {}
 
 // misc methods

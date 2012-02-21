@@ -34,13 +34,17 @@ the "Play" submenu or the "View" submenu.
 class SubMenu {
 public:
 	// lifecycle
-    SubMenu(Win::HMENU parent, unsigned position);
+    SubMenu(SubMenu const &parent, unsigned position);
 	// no default constructor
+
+	// operators
+	operator Win::HMENU(void) const;
 
 	// misc public methods
     void Enable(bool);
 
 private:
+	Win::HMENU mHandle;
     Win::HMENU mParent;
     unsigned   mPosition;
 };

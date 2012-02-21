@@ -27,9 +27,15 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 
 // lifecycle
 
-SubMenu::SubMenu(HMENU parent, unsigned position) {
-    mParent = parent;
+SubMenu::SubMenu(SubMenu const &parent, unsigned position) {
+    mParent = HMENU(parent);
     mPosition = position;
+}
+
+// operators
+
+SubMenu::operator HMENU(void) const {
+	return mParent;
 }
 
 // misc methods

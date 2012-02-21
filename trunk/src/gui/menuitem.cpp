@@ -22,12 +22,13 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "gui/menuitem.hpp"
+#include "gui/submenu.hpp"
 #include "gui/win_types.hpp"
 
 // lifecycle
 
-MenuItem::MenuItem(HMENU handle, IdType itemId):
-    mHandle(handle),
+MenuItem::MenuItem(SubMenu const &parent, IdType itemId):
+    mHandle(HMENU(parent)),
 	mItemId(itemId)
 {}
 

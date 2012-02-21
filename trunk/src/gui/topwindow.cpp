@@ -22,17 +22,15 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "gui/canvas.hpp"
-#include "gui/filemenu.hpp"
 #include "gui/handbox.hpp"
 #include "gui/hintbox.hpp"
+#include "gui/menubar.hpp"
 #include "gui/parmbox1.hpp"
 #include "gui/parmbox2.hpp"
 #include "gui/parmbox3.hpp"
-#include "gui/playmenu.hpp"
 #include "gui/resource.hpp"
 #include "gui/tilebox.hpp"
 #include "gui/topwindow.hpp"
-#include "gui/viewmenu.hpp"
 #include "gui/win_types.hpp"
 #include "gui/windowclass.hpp"
 #include "gui/yesno.hpp"
@@ -159,6 +157,8 @@ void TopWindow::Initialize(CREATESTRUCT const *pCreateStruct) {
 
 	Window::Initialize(pCreateStruct);
 
+	MenuBar bar(pCreateStruct);
+#if 0
     HMENU menu_bar = pCreateStruct->hMenu;
 
 	mpFileMenu = new FileMenu(menu_bar, 0);
@@ -169,7 +169,7 @@ void TopWindow::Initialize(CREATESTRUCT const *pCreateStruct) {
 
 	mpViewMenu = new ViewMenu(menu_bar, 2);
 	ASSERT(mpViewMenu != NULL);
-
+#endif
 	SetTimer(TIMEOUT_MSEC, ID_CLOCK_TIMER);
 	UpdateMenus();
 }

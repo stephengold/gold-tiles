@@ -367,7 +367,6 @@ bool Tile::IsValid(void) const {
 
 String attribute_to_string(AIndexType ind, AValueType value) {
     ASSERT(ind < Tile::AttributeCnt());
-    ASSERT(value <= Tile::ValueMax(ind));
     char ch;
 
     switch (ind) {
@@ -416,9 +415,5 @@ AValueType char_to_attribute(AIndexType ind, char ch) {
             break;
     }
 
-    if (result > Tile::ValueMax(ind)) {
-        result = 0;
-    }
-    
     return result;
 }

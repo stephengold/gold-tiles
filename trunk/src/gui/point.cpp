@@ -23,6 +23,7 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "point.hpp"
 #include "project.hpp" // ASSERT
+#include "win_types.hpp"
 
 // lifecycle
 
@@ -62,11 +63,11 @@ Point::operator POINTS(void) const {
 
 	ASSERT(mX <= SHRT_MAX);
 	ASSERT(mX >= SHRT_MIN);
-    result.x = (SHORT)mX;
+    result.x = SHORT(mX);
 
 	ASSERT(mY <= SHRT_MAX);
 	ASSERT(mY >= SHRT_MIN);
-    result.y = (SHORT)mY;
+    result.y = SHORT(mY);
     
     return result;
 }

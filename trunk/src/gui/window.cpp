@@ -22,6 +22,7 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "gui/window.hpp"
+#include "gui/win_types.hpp"
 
 // static data
 
@@ -41,14 +42,14 @@ HDC Window::Initialize(CREATESTRUCT const *pCreateStruct) {
    	ASSERT(pCreateStruct != NULL);
 	mModule = pCreateStruct->hInstance;
 
-    HDC private_dc = ::GetDC(mHandle);
+    HDC private_dc = Win::GetDC(mHandle);
     ASSERT(private_dc != NULL);
     // It's a private DC because CS_OWNDC is hard-coded into the
     // WindowClass constructor.
 
 	// record size of client area
 	SIZE client_area_size;
-	BOOL success = ::GetWindowExtEx(private_dc, &client_area_size);
+	BOOL success = Win::GetWindowExtEx(private_dc, &client_area_size);
     ASSERT(success != 0);
     SetClientArea(client_area_size.cx, client_area_size.cy);
 
@@ -73,7 +74,7 @@ Window::operator Rect(void) const {
 
 void Window::CaptureMouse(void) {
 	HWND this_window = Handle();
-    ::SetCapture(this_window);
+    Win::SetCapture(this_window);
 
 	ASSERT(IsMouseCaptured());
 }
@@ -82,16 +83,16 @@ void Window::CaptureMouse(void) {
 // If it has no parent, center it on the desktop.
 void Window::Center(void) {
 	HWND this_window = Handle();
-    HWND owner = ::GetParent(this_window);
+    HWND owner = Win::GetParent(this_window);
     if (owner == NULL) {
-        owner = ::GetDesktopWindow();
+        owner = Win::GetDesktopWindow();
 	}
 
 	RECT bounds;
-	::GetWindowRect(owner, &bounds);
+	Win::GetWindowRect(owner, &bounds);
 	Rect owner_bounds(bounds);
 
-    ::GetWindowRect(this_window, &bounds);
+    Win::GetWindowRect(this_window, &bounds);
     Rect window_bounds(bounds);
 
 	PCntType pad_left = (owner_bounds.Width() - window_bounds.Width())/2;
@@ -99,7 +100,7 @@ void Window::Center(void) {
 
     LogicalXType x = owner_bounds.LeftX() + pad_left;
     LogicalYType y = owner_bounds.TopY() + pad_top;
-    ::SetWindowPos(this_window, HWND_TOP, x, y, 0, 0, SWP_NOSIZE); 
+    Win::SetWindowPos(this_window, HWND_TOP, x, y, 0, 0, SWP_NOSIZE); 
 }
 
 PCntType Window::ClientAreaHeight(void) const {
@@ -116,7 +117,7 @@ PCntType Window::ClientAreaWidth(void) const {
 
 void Window::Close(void) {
 	int ignored = 0;
-    ::SendMessage(mHandle, WM_CLOSE, WPARAM(ignored), LPARAM(ignored));
+    Win::SendMessage(mHandle, WM_CLOSE, WPARAM(ignored), LPARAM(ignored));
 }
 
 HINSTANCE Window::CopyModule(Window const &rOther) {
@@ -130,19 +131,19 @@ void Window::ForceRepaint(void) {
 	ASSERT(mHandle != 0);
     RECT *entire_client_area = NULL;
     BOOL erase = TRUE;
-    BOOL success = ::InvalidateRect(mHandle, entire_client_area, erase);
+    BOOL success = Win::InvalidateRect(mHandle, entire_client_area, erase);
     ASSERT(success != 0);
 }
 
 HACCEL Window::GetAcceleratorTable(char const *resourceName) {
-	HACCEL result = ::LoadAccelerators(mModule, resourceName);
+	HACCEL result = Win::LoadAccelerators(mModule, resourceName);
 	ASSERT(result != NULL);
 
 	return result;
 }
 
 HMENU Window::GetMenu(char const *resourceName) {
-	HMENU result = ::LoadMenu(mModule, resourceName);
+	HMENU result = Win::LoadMenu(mModule, resourceName);
 	ASSERT(result != NULL);
 
 	return result;
@@ -154,13 +155,13 @@ HWND Window::Handle(void) const {
 	return result;
 }
 
-LRESULT Window::HandleMessage(UINT message, WPARAM wParameter, LPARAM lParameter) {
+LRESULT Window::HandleMessage(MessageType message, WPARAM wParameter, LPARAM lParameter) {
 	ASSERT(mHandle != 0);
 	LRESULT result = 0;
 
     switch (message) {
 	    case WM_CLOSE: {
-			BOOL success = ::DestroyWindow(mHandle);
+			BOOL success = Win::DestroyWindow(mHandle);
 			ASSERT(success);
 			break;
 		}
@@ -183,7 +184,7 @@ LRESULT Window::HandleMessage(UINT message, WPARAM wParameter, LPARAM lParameter
 		}
 
 		default:  // invoke default message handler
-			result = ::DefWindowProc(Handle(), message, wParameter, lParameter);
+			result = Win::DefWindowProc(Handle(), message, wParameter, lParameter);
 			break;
     }
 
@@ -209,7 +210,7 @@ LRESULT Window::HandleMessage(UINT message, WPARAM wParameter, LPARAM lParameter
 
 void Window::SelfDestruct(void) {
 	int applicationExitCode = 0;
-    ::PostQuitMessage(applicationExitCode);
+    Win::PostQuitMessage(applicationExitCode);
 }
 
 void Window::SetClientArea(PCntType width, PCntType height) {
@@ -236,7 +237,7 @@ void Window::SetIcons(char const *iconResourceName) {
 
 	HINSTANCE module_instance = mModule;
     HWND window_handle = mHandle;
-	UINT message = WM_SETICON;
+	MessageType message = WM_SETICON;
 	UINT image_type = IMAGE_ICON;
 	UINT option = LR_DEFAULTCOLOR;
 	PCntType desired_width;
@@ -245,45 +246,45 @@ void Window::SetIcons(char const *iconResourceName) {
 
 	// small icon for title bar
 	which_icon = ICON_SMALL;
-	desired_width = ::GetSystemMetrics(SM_CXSMICON);
-    desired_height = ::GetSystemMetrics(SM_CYSMICON);
-	HICON smallIconHandle = (HICON)::LoadImage(module_instance, iconResourceName, image_type,
+	desired_width = Win::GetSystemMetrics(SM_CXSMICON);
+    desired_height = Win::GetSystemMetrics(SM_CYSMICON);
+	HICON smallIconHandle = (HICON)Win::LoadImage(module_instance, iconResourceName, image_type,
 		desired_width, desired_width, option);
-    ::SendMessage(window_handle, message, which_icon, LPARAM(smallIconHandle));
+    Win::SendMessage(window_handle, message, which_icon, LPARAM(smallIconHandle));
 
 	// large icon for ALT+TAB dialog box
 	which_icon = ICON_BIG;
-	desired_width = ::GetSystemMetrics(SM_CXICON);
-    desired_height = ::GetSystemMetrics(SM_CYICON);
-	HICON largeIconHandle = (HICON)::LoadImage(module_instance, iconResourceName, image_type,
+	desired_width = Win::GetSystemMetrics(SM_CXICON);
+    desired_height = Win::GetSystemMetrics(SM_CYICON);
+	HICON largeIconHandle = (HICON)Win::LoadImage(module_instance, iconResourceName, image_type,
 		desired_width, desired_width, option);
-    ::SendMessage(window_handle, message, which_icon, LPARAM(largeIconHandle));
+    Win::SendMessage(window_handle, message, which_icon, LPARAM(largeIconHandle));
 }
 
 void Window::SetTimer(unsigned interval_msecs, unsigned event_id) {
 	TIMERPROC callback = NULL;
-	int success = ::SetTimer(mHandle, event_id, interval_msecs, callback);
+	int success = Win::SetTimer(mHandle, event_id, interval_msecs, callback);
     ASSERT(success != 0);
 }
 
 void Window::Show(int how) {
 	ASSERT(mHandle != 0);
 
-    ::ShowWindow(mHandle, how);
-    BOOL success = ::UpdateWindow(mHandle);
+    Win::ShowWindow(mHandle, how);
+    BOOL success = Win::UpdateWindow(mHandle);
     ASSERT(success != 0);
 }
 
 void Window::UpdateMenuBar(void) {
 	// redraw all menus
-	BOOL success = ::DrawMenuBar(mHandle);
+	BOOL success = Win::DrawMenuBar(mHandle);
 	ASSERT(success);
 }
 
 // inquiry methods
 
 bool Window::IsMouseCaptured(void) const {
-	HWND captor = ::GetCapture();
+	HWND captor = Win::GetCapture();
     bool result = (captor == mHandle);
 	
 	return result;

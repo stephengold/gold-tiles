@@ -23,11 +23,13 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "gui/hintbox.hpp"
 #include "gui/resource.hpp"
+#include "gui/win_types.hpp"
+
 
 // message handler (callback) for this dialog
 static INT_PTR CALLBACK message_handler(
 	HWND windowHandle,
-	UINT message,
+	MessageType message,
 	WPARAM wParameter, 
 	LPARAM lParameter)
 {
@@ -59,7 +61,7 @@ HintBox::operator HintType(void) const {
 
 // misc methods
 
-INT_PTR HintBox::HandleMessage(UINT message, WPARAM wParam, LPARAM lParam) {
+INT_PTR HintBox::HandleMessage(MessageType message, WPARAM wParam, LPARAM lParam) {
 	INT_PTR result = FALSE;
 
     switch (message) {

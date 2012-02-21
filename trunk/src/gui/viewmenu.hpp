@@ -35,7 +35,7 @@ A ViewMenu object represents the "view" SubMenu in the menu bar.
 class ViewMenu: public SubMenu {
 public:
 	// lifecycle
-    ViewMenu(HMENU menu, unsigned position);
+    ViewMenu(Win::HMENU menu, unsigned position);
 	// no default constructor
 	//ViewMenu(ViewMenu const &);  compiler-generated destructor is OK
 
@@ -48,7 +48,7 @@ public:
 	void ShowHints(bool);
 	void ShowScores(bool);
 	void ShowTiles(bool);
-    void TileSize(UINT);
+    void TileSize(IdType);
 
 private:
     MenuItem mSmallTiles, mMediumTiles, mLargeTiles;

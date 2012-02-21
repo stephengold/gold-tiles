@@ -21,18 +21,21 @@ You should have received a copy of the GNU General Public License
 along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <Windows.h>  // CommCtrl.h
-#include <WindowsX.h> // Edit_Enable
-#include <CommCtrl.h> // TBM_GETPOS
-
 #include "gui/dialog.hpp"
+#include "gui/win_types.hpp"
 #include "gui/resource.hpp"  // IDC_BACK
 #include "string.hpp"
+
+namespace Win {
+#include <WindowsX.h> // Edit_Enable
+#include <CommCtrl.h> // TBM_GETPOS
+};
+
 
 // message handler (callback) for generic dialog
 static INT_PTR CALLBACK message_handler(
 	HWND windowHandle,
-	UINT message,
+	MessageType message,
 	WPARAM wParameter, 
 	LPARAM lParameter)
 {
@@ -64,7 +67,7 @@ INT_PTR Dialog::Run(Window *pParent) {
 	// create a modal dialog box
 	HINSTANCE module = CopyModule(*pParent);
 	HWND parentHandle = pParent->Handle();
-	INT_PTR result = ::DialogBox(module, mTemplateName, parentHandle, mpMessageHandler);
+	INT_PTR result = Win::DialogBox(module, mTemplateName, parentHandle, mpMessageHandler);
 
 	ASSERT(result > 0);
 	return result;
@@ -74,24 +77,24 @@ INT_PTR Dialog::Run(Window *pParent) {
 
 void Dialog::Close(INT_PTR result) {
 	HWND window = Handle();
-    ::EndDialog(window, result);
+    Win::EndDialog(window, result);
 }
 
 void Dialog::EnableButton(IdType buttonId, bool enable) {
     HWND button_handle = GetControlHandle(buttonId);
 	BOOL enable_flag = enable ? TRUE : FALSE;
-	::Button_Enable(button_handle, enable_flag);
+	Win::Button_Enable(button_handle, enable_flag);
 }
 
 void Dialog::EnableEditBox(IdType boxId, bool enable) {
     HWND box_handle = GetControlHandle(boxId);
-	::Edit_Enable(box_handle, enable);
+	Win::Edit_Enable(box_handle, enable);
 }
 
 // get the window handle for a particular control
 HWND Dialog::GetControlHandle(IdType controlId) const {
 	HWND window_handle = Handle();
-    HWND result = ::GetDlgItem(window_handle, controlId);
+    HWND result = Win::GetDlgItem(window_handle, controlId);
     ASSERT(result != NULL);
 
 	return result;
@@ -100,7 +103,7 @@ HWND Dialog::GetControlHandle(IdType controlId) const {
 // fetch the numeric value of a slider control
 Dialog::ValueType Dialog::GetSliderValue(IdType sliderId) {
     HWND slider_handle = GetControlHandle(sliderId);
-    ValueType result = ::SendMessage(slider_handle, TBM_GETPOS, (WPARAM)0, (LPARAM)0);
+    ValueType result = Win::SendMessage(slider_handle, TBM_GETPOS, WPARAM(0), LPARAM(0));
     
     return result;
 }
@@ -110,7 +113,7 @@ String Dialog::GetTextString(IdType controlId) {
 	HWND window_handle = Handle();
 	char buffer[256];
 	int buffer_size = 256;
-    UINT success = ::GetDlgItemText(window_handle, controlId, buffer, buffer_size);
+    UINT success = Win::GetDlgItemText(window_handle, controlId, buffer, buffer_size);
 	ASSERT(success > 0);
 
     String result = String(buffer);
@@ -124,7 +127,7 @@ Dialog::ValueType Dialog::GetTextValue(IdType controlId) {
 
     BOOL success;
     BOOL sign = FALSE;
-    ValueType result = ::GetDlgItemInt(window_handle, controlId, &success, sign);
+    ValueType result = Win::GetDlgItemInt(window_handle, controlId, &success, sign);
     if (!success) {
 		result = VALUE_INVALID;
 	}
@@ -172,7 +175,7 @@ void Dialog::SetButton(IdType buttonId, bool value) {
 
 	WPARAM wparam = value ? BST_CHECKED : BST_UNCHECKED;
 	LPARAM unused = 0;
-    ::SendMessage(button_handle, BM_SETCHECK, wparam, unused);
+    Win::SendMessage(button_handle, BM_SETCHECK, wparam, unused);
 }
 
 void Dialog::SetSliderRange(IdType sliderId, ValueType minValue, ValueType maxValue) {
@@ -182,10 +185,10 @@ void Dialog::SetSliderRange(IdType sliderId, ValueType minValue, ValueType maxVa
     HWND slider_handle = GetControlHandle(sliderId);
     
     WPARAM redraw = WPARAM(FALSE);
-    ::SendMessage(slider_handle, TBM_SETRANGEMIN, redraw, LPARAM(minValue));
+    Win::SendMessage(slider_handle, TBM_SETRANGEMIN, redraw, LPARAM(minValue));
 
     redraw = WPARAM(TRUE);
-    ::SendMessage(slider_handle, TBM_SETRANGEMAX, redraw, LPARAM(maxValue));
+    Win::SendMessage(slider_handle, TBM_SETRANGEMAX, redraw, LPARAM(maxValue));
 }
 
 Dialog::ValueType Dialog::SetSliderValue(IdType id, ValueType value) {
@@ -193,7 +196,7 @@ Dialog::ValueType Dialog::SetSliderValue(IdType id, ValueType value) {
     
     // set slider value
     WPARAM redraw = (WPARAM)TRUE;
-    ::SendMessage(slider_handle, TBM_SETPOS, redraw, (LPARAM)value);
+    Win::SendMessage(slider_handle, TBM_SETPOS, redraw, (LPARAM)value);
     
     // read it back
     ValueType result = GetSliderValue(id);
@@ -209,7 +212,7 @@ void Dialog::SetTextString(IdType controlId, String const &rString) {
     char *copy_text = new char[length + 1];
     ::strcpy_s(copy_text, length + 1, rString.c_str());
 
-    UINT success = ::SetDlgItemText(window_handle, controlId, copy_text);
+    UINT success = Win::SetDlgItemText(window_handle, controlId, copy_text);
 	ASSERT(success != 0);
 
 	delete[] copy_text;
@@ -220,7 +223,7 @@ void Dialog::SetTextValue(IdType id, ValueType value) {
 	HWND window_handle = Handle();
 
     BOOL sign = FALSE;
-    BOOL success = ::SetDlgItemInt(window_handle, id, value, sign);
+    BOOL success = Win::SetDlgItemInt(window_handle, id, value, sign);
     ASSERT(success);
 
     ASSERT(GetTextValue(id) == value);

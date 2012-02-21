@@ -23,18 +23,19 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "gui/resource.hpp"
 #include "gui/yesno.hpp"
+#include "gui/win_types.hpp"
 
 // message handler (callback) for this dialog
 static INT_PTR CALLBACK yesNoMessageHandler(
 	HWND windowHandle,
-	UINT message,
+	MessageType message,
 	WPARAM wParameter, 
 	LPARAM lParameter)
 {
 	ASSERT(windowHandle != NULL);
     YesNo *p_box = (YesNo *)Window::Lookup(windowHandle);
     ASSERT(p_box->Handle() == windowHandle);
-	INT_PTR result = p_box->HandleMessage(message, wParameter, lParameter);
+	int result = p_box->HandleMessage(message, wParameter, lParameter);
 
 	return result;
 }
@@ -49,8 +50,8 @@ YesNo::YesNo(char const *templateName):
 
 // misc methods
 
-INT_PTR YesNo::HandleMessage(UINT message, WPARAM wParam, LPARAM lParam) {
-	INT_PTR result = FALSE;
+int YesNo::HandleMessage(MessageType message, Win::WPARAM wParam, Win::LPARAM lParam) {
+	int result = 0;
 
     switch (message) {
         case WM_INITDIALOG: {

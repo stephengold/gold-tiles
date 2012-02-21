@@ -39,7 +39,7 @@ Gold Tile Game.
 class Canvas: public Graphics {
 public:
 	// lifecycle
-    Canvas(HDC, HWND, bool releaseMe, PCntType width, PCntType height);
+    Canvas(Win::HDC, Win::HWND, bool releaseMe, PCntType width, PCntType height);
     // no default constructor
 	// no copy constructor
     // ~Canvas(void);  compiler-generated destructor is OK

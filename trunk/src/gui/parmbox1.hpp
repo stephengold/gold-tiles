@@ -46,7 +46,7 @@ public:
 	operator GameStyleType(void) const;
 
 	// misc public methods
-	INT_PTR  HandleMessage(UINT message, WPARAM, LPARAM);
+	Win::INT_PTR  HandleMessage(MessageType, Win::WPARAM, Win::LPARAM);
 	unsigned PlayerSeconds(void) const;
 
 	// constants

@@ -34,7 +34,7 @@ A FileMenu object represents the "File" SubMenu in the menu bar.
 class FileMenu: public SubMenu {
 public:
 	// lifecycle
-    FileMenu(HMENU menu, unsigned position);
+    FileMenu(Win::HMENU menu, unsigned position);
 	// no default constructor
 	//FileMenu(FileMenu const &);  compiler-generated destructor is OK
 

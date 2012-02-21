@@ -25,6 +25,7 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 #include "gui/canvas.hpp"
 #include "gui/poly.hpp"
 #include "gui/rect.hpp"
+#include "gui/win_types.hpp"
 #include "string.hpp"
 
 // static data

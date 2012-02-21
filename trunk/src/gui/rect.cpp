@@ -22,7 +22,11 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "fractionpair.hpp"
+#include "gui/win.hpp"
+#include "gui/win_types.hpp"
 #include "rect.hpp"
+
+// lifecycle
 
 Rect::Rect(RECT const &rStruct) {
     mTop = rStruct.top;

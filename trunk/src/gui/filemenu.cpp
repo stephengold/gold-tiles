@@ -21,8 +21,9 @@ You should have received a copy of the GNU General Public License
 along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "gui/resource.hpp"
 #include "gui/filemenu.hpp"
+#include "gui/resource.hpp"
+#include "gui/win_types.hpp"
 
 // lifecycle
 
@@ -52,4 +53,3 @@ void FileMenu::EnableItems(bool isGame) {
     mPrint.Enable(false);
     mExit.Enable(true);
 }
-

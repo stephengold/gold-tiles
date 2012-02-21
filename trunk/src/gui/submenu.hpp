@@ -29,20 +29,20 @@ A SubMenu object represents a submenu of the menu bar, such as
 the "Play" submenu or the "View" submenu.
 */
 
-#include <Windows.h>  // HMENU
+#include "gui/win.hpp"
 
 class SubMenu {
 public:
 	// lifecycle
-    SubMenu(HMENU parent, unsigned position);
+    SubMenu(Win::HMENU parent, unsigned position);
 	// no default constructor
 
 	// misc public methods
     void Enable(bool);
 
 private:
-    HMENU mParent;
-    unsigned  mPosition;
+    Win::HMENU mParent;
+    unsigned   mPosition;
 };
 
 #endif

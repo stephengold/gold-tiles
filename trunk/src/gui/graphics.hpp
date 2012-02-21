@@ -38,7 +38,7 @@ contexts:  mDraw for drawing and mDevice for the physical device.
 class Graphics {
 public:
     // lifecycle
-    Graphics(HDC, HWND, bool releaseMe, bool doubleBufferingOption, 
+    Graphics(Win::HDC, Win::HWND, bool releaseMe, bool doubleBufferingOption, 
               PCntType width, PCntType height);
 	// no default constructor
 	// no copy constructor
@@ -67,12 +67,12 @@ public:
     void        UseColors(ColorType brushBk, ColorType penText);
 
 private:
-	HGDIOBJ   mBitmapSave, mBrushSave, mPenSave;
-    ColorType mBrushBkColor, mPenTextColor;
-    HDC       mDevice, mDraw;
-    Rect      mRect;
-    bool      mReleaseMe;
-    HWND      mWindow;
+	Win::HGDIOBJ mBitmapSave, mBrushSave, mPenSave;
+    ColorType    mBrushBkColor, mPenTextColor;
+    Win::HDC     mDevice, mDraw;
+    Rect         mRect;
+    bool         mReleaseMe;
+    Win::HWND    mWindow;
 };
 
 #endif

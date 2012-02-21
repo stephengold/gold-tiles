@@ -23,12 +23,12 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "gui/tilebox.hpp"
 #include "gui/resource.hpp"
-
+#include "gui/win_types.hpp"
 
 // message handler (callback) for this dialog
 static INT_PTR CALLBACK message_handler(
 	HWND windowHandle,
-	UINT message,
+	MessageType message,
 	WPARAM wParameter, 
 	LPARAM lParameter)
 {
@@ -55,8 +55,8 @@ TileBox::TileBox(char const *templateName, ACountType attributeCnt, AValueType *
 
 // misc methods
 
-TileBox::IdType TileBox::EditboxId(IdType sliderId) const {
-    IdType result = IDC_STATIC;
+IdType TileBox::EditboxId(IdType sliderId) const {
+    IdType result = 0;
 
     switch (sliderId) {
         case IDC_SLIDER1:
@@ -81,7 +81,7 @@ TileBox::IdType TileBox::EditboxId(IdType sliderId) const {
     return result;
 }
 
-INT_PTR TileBox::HandleMessage(UINT message, WPARAM wParam, LPARAM lParam) {
+INT_PTR TileBox::HandleMessage(MessageType message, WPARAM wParam, LPARAM lParam) {
 	INT_PTR result = FALSE;
 
     switch (message) {
@@ -169,8 +169,9 @@ void TileBox::InitControl(
     SetTextValue(editbox_id, slider_value);
 }
 
-TileBox::IdType TileBox::MaxId(IdType sliderId) const {
-    IdType result = IDC_STATIC;
+IdType TileBox::MaxId(IdType sliderId) const {
+    IdType result = 0;
+
     switch (sliderId) {
         case IDC_SLIDER1:
             result = IDC_SMAX1;
@@ -194,8 +195,9 @@ TileBox::IdType TileBox::MaxId(IdType sliderId) const {
     return result;
 }
 
-TileBox::IdType TileBox::MinId(IdType sliderId) const {
-    IdType result = IDC_STATIC;
+IdType TileBox::MinId(IdType sliderId) const {
+    IdType result = 0;
+
     switch (sliderId) {
         case IDC_SLIDER1:
             result = IDC_SMIN1;
@@ -223,8 +225,9 @@ TileBox::ValueType *TileBox::NumValues(void) {
     return mpNumValues;
 }
 
-TileBox::IdType TileBox::SliderId(IdType editboxId) const {
-    IdType result = IDC_STATIC;
+IdType TileBox::SliderId(IdType editboxId) const {
+    IdType result = 0;
+
     switch (editboxId) {
         case IDC_EDIT1:
             result = IDC_SLIDER1;
@@ -247,8 +250,9 @@ TileBox::IdType TileBox::SliderId(IdType editboxId) const {
     return result;
 }
 
-TileBox::IdType TileBox::SliderId(HWND handle) const {
-    IdType result = IDC_STATIC;
+IdType TileBox::SliderId(HWND handle) const {
+    IdType result = 0;
+
 	if (handle == GetControlHandle(IDC_SLIDER1)) {
 		result = IDC_SLIDER1;
 	} else if (handle == GetControlHandle(IDC_SLIDER2)) {

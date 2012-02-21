@@ -21,6 +21,8 @@ You should have received a copy of the GNU General Public License
 along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include "gui/win.hpp"
+#include "gui/win_types.hpp"
 #include "gui/windowclass.hpp"
 
 // lifecycle
@@ -35,7 +37,7 @@ WindowClass::WindowClass(
     cbSize = sizeof(WNDCLASSEX);
 	hbrBackground = 0; // using double buffering, so no background brush
     HINSTANCE nullInstance = NULL;
-	hCursor = ::LoadCursor(nullInstance, IDC_ARROW);
+	hCursor = Win::LoadCursor(nullInstance, IDC_ARROW);
 	hIcon = 0;
 	hIconSm = 0;
 	hInstance = applicationInstance;
@@ -64,6 +66,6 @@ char const *WindowClass::Name(void) const {
 }
 
 void WindowClass::RegisterClass(void) {
-    ATOM classAtom = ::RegisterClassEx(this);
+    ATOM classAtom = Win::RegisterClassEx(this);
 	ASSERT(classAtom != 0);
 };

@@ -23,11 +23,13 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "gui/handbox.hpp"
 #include "gui/resource.hpp"
+#include "gui/win_types.hpp"
+
 
 // message handler (callback) for this dialog
 static INT_PTR CALLBACK message_handler(
 	HWND windowHandle,
-	UINT message,
+	MessageType message,
 	WPARAM wParameter, 
 	LPARAM lParameter)
 {
@@ -61,9 +63,16 @@ HandBox::HandBox(
 }
 
 
+// operators
+
+HandBox::operator IpAddressType(void) const {
+	return mIpAddress;
+}
+
+
 // misc methods
 
-INT_PTR HandBox::HandleMessage(UINT message, WPARAM wParam, LPARAM lParam) {
+INT_PTR HandBox::HandleMessage(MessageType message, WPARAM wParam, LPARAM lParam) {
 	INT_PTR result = FALSE;
 
     switch (message) {
@@ -146,10 +155,6 @@ INT_PTR HandBox::HandleMessage(UINT message, WPARAM wParam, LPARAM lParam) {
 	}
 
     return result;
-}
-
-LPARAM HandBox::IpAddress(void) const {
-	return mIpAddress;
 }
 
 String HandBox::PlayerName(void) const {

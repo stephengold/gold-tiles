@@ -34,6 +34,7 @@ The TopWindow class is an extension of the Window class.
 #include "gui/color.hpp"
 #include "gui/parmbox1.hpp"
 #include "gui/rect.hpp"
+#include "gui/win_types.hpp"
 #include "gui/window.hpp"
 #include "partial.hpp"
 
@@ -41,7 +42,7 @@ The TopWindow class is an extension of the Window class.
 class TopWindow: public Window {
 public:
 	// lifecycle
-	TopWindow(HINSTANCE, Game *pGame);
+	TopWindow(Win::HINSTANCE, Game *pGame);
 	// no default constructor
     // no copy constructor
     ~TopWindow(void);
@@ -50,8 +51,8 @@ public:
     TopWindow &operator=(TopWindow const &) { FAIL(); };
 
 	// misc public methods
-	LRESULT HandleMessage(UINT message, WPARAM, LPARAM);
-	int     MessageDispatchLoop(void);
+	Win::LRESULT HandleMessage(MessageType, Win::WPARAM, Win::LPARAM);
+	int          MessageDispatchLoop(void);
 
 private:
     typedef std::map<TileIdType,Rect>    TileMapType;
@@ -61,7 +62,6 @@ private:
 
 	static WindowClass *mspClass;
 
-	HINSTANCE     mApplication;	
 	bool          mAutopauseFlag;
 	bool          mAutocenterFlag;
 	ACountType    mColorAttributeCnt;
@@ -92,7 +92,7 @@ private:
     ViewMenu *   mpViewMenu;
 
 	// lifecycle
-    void Initialize(CREATESTRUCT const *);
+    void Initialize(Win::CREATESTRUCT const *);
 
 	// misc private methods
     PCntType     CellHeight(void) const;

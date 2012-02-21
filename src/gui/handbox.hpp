@@ -34,33 +34,34 @@ The HandBox class is an extension of the Dialog class.
 #include "gui/dialog.hpp"
 #include "string.hpp"
 
+typedef Win::LPARAM IpAddressType;
 class HandBox: public Dialog {
 public:
     // lifecycle
 	HandBox(unsigned handIndex, bool more, String const &player, 
-		    bool autop, bool rem, LPARAM ip); 
+		    bool autop, bool rem, IpAddressType); 
 	// no default constructor
 	// no copy constructor
 	// ~HandBox(void);  compiler-generated destructor is OK
 
 	// public operators
     HandBox &operator=(HandBox const &) { FAIL(); };
+	operator IpAddressType(void) const;
 
 	// misc public methods
-	INT_PTR HandleMessage(UINT message, WPARAM, LPARAM);
-	LPARAM  IpAddress(void) const;
-	String  PlayerName(void) const;
+	int    HandleMessage(MessageType, Win::WPARAM, Win::LPARAM);
+	String PlayerName(void) const;
 
 	// public inquiry methods
 	bool IsAutomatic(void) const;
 	bool IsRemote(void) const;
 
 private:
-	bool     mAreMoreHands;
-	unsigned mHandIndex;
-	LPARAM   mIpAddress;
-    bool     mIsAutomatic, mIsRemote;
-	String   mPlayerName;
+	bool          mAreMoreHands;
+	unsigned      mHandIndex;
+	IpAddressType mIpAddress;
+    bool          mIsAutomatic, mIsRemote;
+	String        mPlayerName;
 };
 
 #endif

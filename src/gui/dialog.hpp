@@ -32,16 +32,17 @@ The Dialog class is implemented as an extension of the Window class.
 It meant to be futher extended by adding controls.  
 */
 
-#include "window.hpp"
+#include "gui/window.hpp"
+
+typedef Win::UINT IdType;
 
 class Dialog: public Window {
 public:
-    typedef int  IdType;    // id of a control
     typedef long ValueType; // value of a control
 
 	// lifecycle
 	Dialog(char const *templateName);
-	Dialog(char const *templateName, DLGPROC);
+	Dialog(char const *templateName, Win::DLGPROC);
 	// no default constructor
     Dialog(Dialog const &) { FAIL(); };
     // ~Dialog(void);  compiler-generated destructor is OK
@@ -51,7 +52,7 @@ public:
     Dialog &operator=(Dialog const &) { FAIL(); };
 	
 	// misc public methods
-	int HandleMessage(UINT message, WPARAM, LPARAM);
+	int HandleMessage(MessageType, Win::WPARAM, Win::LPARAM);
 
 	// constants
 	static const int RESULT_OK = 1;
@@ -62,10 +63,10 @@ public:
 
 protected:
 	// misc protected methods
-    void      Close(INT_PTR);
+    void      Close(Win::INT_PTR);
 	void      EnableButton(IdType, bool);
 	void      EnableEditBox(IdType, bool);
-	HWND      GetControlHandle(IdType) const;
+	Win::HWND GetControlHandle(IdType) const;
     ValueType GetSliderValue(IdType);
 	String    GetTextString(IdType);
     ValueType GetTextValue(IdType);
@@ -76,7 +77,7 @@ protected:
     void      SetTextValue(IdType, ValueType);
 
 private:
-	DLGPROC     mpMessageHandler;
+	Win::DLGPROC mpMessageHandler;
 	char const * mTemplateName;
 };
 

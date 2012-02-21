@@ -34,8 +34,8 @@ The YesNo class is an extension of the Dialog class.
 
 class YesNo: public Dialog {
 public:
-	static const INT_PTR RESULT_YES = 3;
-	static const INT_PTR RESULT_NO = 4;
+	static const int RESULT_YES = 3;
+	static const int RESULT_NO = 4;
 
     // lifecycle
 	YesNo(char const *templateName); 
@@ -47,7 +47,7 @@ public:
     YesNo &operator=(YesNo const &) { FAIL(); };
 
 	// misc public methods
-	INT_PTR HandleMessage(UINT message, WPARAM, LPARAM);
+	int HandleMessage(MessageType, Win::WPARAM, Win::LPARAM);
 };
 
 #endif

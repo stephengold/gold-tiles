@@ -24,7 +24,6 @@ You should have received a copy of the GNU General Public License
 along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "board.hpp"
 #include "hands.hpp"
 #include "move.hpp"
 #include "partial.hpp"

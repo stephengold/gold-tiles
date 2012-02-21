@@ -20,12 +20,10 @@ for more details.
 You should have received a copy of the GNU General Public License
 along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
-
-#include "gui/color.hpp"
+#include <vector>
 #include "gui/graphics.hpp"
 #include "gui/poly.hpp"
-#include "gui/rect.hpp"
-#include "string.hpp"
+#include "gui/win_types.hpp"
 
 // lifecycle
 
@@ -46,59 +44,59 @@ Graphics::Graphics(
         mDraw = device;
 
     } else { // double buffering
-        mDraw = ::CreateCompatibleDC(mDevice);
+        mDraw = Win::CreateCompatibleDC(mDevice);
         ASSERT(mDraw != NULL);
         ASSERT(mDraw != mDevice);
 
-        HGDIOBJ bitmap = ::CreateCompatibleBitmap(mDevice, width, height);
+        HGDIOBJ bitmap = Win::CreateCompatibleBitmap(mDevice, width, height);
         ASSERT(bitmap != NULL);
-        mBitmapSave = ::SelectObject(mDraw, bitmap);
+        mBitmapSave = Win::SelectObject(mDraw, bitmap);
         ASSERT(mBitmapSave != NULL);
     }
 
     // brush color for filling shapes
     mBrushBkColor = COLOR_WHITE;
-    HBRUSH brush = ::CreateSolidBrush(mBrushBkColor);
+    HBRUSH brush = Win::CreateSolidBrush(mBrushBkColor);
     ASSERT(brush != NULL);
-    mBrushSave = ::SelectObject(mDraw, brush);
+    mBrushSave = Win::SelectObject(mDraw, brush);
     ASSERT(mBrushSave != NULL);
     
     // background color for text and broken lines
     // (same as brush color)
-    ColorType success = (ColorType)::SetBkColor(mDraw, mBrushBkColor);
+    ColorType success = (ColorType)Win::SetBkColor(mDraw, mBrushBkColor);
     ASSERT(success != CLR_INVALID);
 
     // foreground color for text and broken lines
     // (same as pen color)
-    success = (ColorType)::SetTextColor(mDraw, mPenTextColor);
+    success = (ColorType)Win::SetTextColor(mDraw, mPenTextColor);
     ASSERT(success != CLR_INVALID);
 
     // pen color for outlining shapes
     int penStyle = PS_SOLID;
     int penWidth = 0; // means single pixel
     mPenTextColor = COLOR_BLACK;
-    HPEN pen = ::CreatePen(penStyle, penWidth, mPenTextColor);
+    HPEN pen = Win::CreatePen(penStyle, penWidth, mPenTextColor);
     ASSERT(pen != NULL);
-    mPenSave = ::SelectObject(mDraw, pen);
+    mPenSave = Win::SelectObject(mDraw, pen);
     ASSERT(mPenSave != NULL);
 }
 
 Graphics::~Graphics(void) {
-    HGDIOBJ brush = ::SelectObject(mDraw, mBrushSave);
+    HGDIOBJ brush = Win::SelectObject(mDraw, mBrushSave);
     ASSERT(brush != NULL);
-    BOOL success = ::DeleteObject(brush);
+    BOOL success = Win::DeleteObject(brush);
     ASSERT(success != 0);
 
-    HGDIOBJ pen = ::SelectObject(mDraw, mPenSave);
+    HGDIOBJ pen = Win::SelectObject(mDraw, mPenSave);
     ASSERT(pen != NULL);
-    success = ::DeleteObject(pen);
+    success = Win::DeleteObject(pen);
     ASSERT(success != 0);
 
     if (mDraw != mDevice) {
-        ::DeleteDC(mDraw);
+        Win::DeleteDC(mDraw);
     }
     if (mReleaseMe) {
-        int success = ::ReleaseDC(mWindow, mDevice);
+        int success = Win::ReleaseDC(mWindow, mDevice);
         ASSERT(success != 0);
     }
 }
@@ -114,13 +112,13 @@ void Graphics::Close(void) {
         LogicalXType source_x = 0;
         LogicalYType source_y = 0;
         DWORD options = SRCCOPY;
-        BOOL success = ::BitBlt(mDevice, dest_x, dest_y, width, height, 
+        BOOL success = Win::BitBlt(mDevice, dest_x, dest_y, width, height, 
                                 mDraw, source_x, source_y, options);
         ASSERT(success != 0);
          
-        HGDIOBJ bitmap = ::SelectObject(mDraw, mBitmapSave);
+        HGDIOBJ bitmap = Win::SelectObject(mDraw, mBitmapSave);
         ASSERT(bitmap != NULL);
-        success = ::DeleteObject(bitmap);
+        success = Win::DeleteObject(bitmap);
         ASSERT(success != 0);
     }
 }
@@ -160,10 +158,10 @@ void Graphics::DrawLine(
     LogicalXType x2,
     LogicalYType y2)
 {
-    BOOL success = ::MoveToEx(mDraw, x1, y1, NULL);
+    BOOL success = Win::MoveToEx(mDraw, x1, y1, NULL);
 	ASSERT(success);
 
-	success = ::LineTo(mDraw, x2, y2);
+	success = Win::LineTo(mDraw, x2, y2);
 	ASSERT(success);
 }
 
@@ -173,7 +171,7 @@ void Graphics::DrawPolygon(Poly const &rPolygon, Rect const &rBounds, bool inver
     ASSERT(points != NULL);
     rPolygon.GetPoints(points, pointCnt, rBounds, invertFlag);
 
-    BOOL success = ::Polygon(mDraw, points, pointCnt);
+    BOOL success = Win::Polygon(mDraw, points, pointCnt);
     ASSERT(success);
 } 
 
@@ -182,7 +180,7 @@ Rect Graphics::DrawRectangle(Rect const &rRect) {
 	LogicalYType top = rRect.TopY();
 	LogicalXType right = rRect.RightX();
 	LogicalYType bottom = rRect.BottomY();
-	BOOL success = ::Rectangle(mDraw, left, top, right, bottom);
+	BOOL success = Win::Rectangle(mDraw, left, top, right, bottom);
 	ASSERT(success != 0);
 	
 	return rRect;
@@ -196,7 +194,7 @@ Rect Graphics::DrawRectangle(
 {
 	LogicalXType right = left + width;
 	LogicalYType bottom = top + height;
-	BOOL success = ::Rectangle(mDraw, left, top, right, bottom);
+	BOOL success = Win::Rectangle(mDraw, left, top, right, bottom);
 	ASSERT(success != 0);
 	
 	Rect result(top, left, width, height);
@@ -217,7 +215,7 @@ void Graphics::DrawRoundedSquare(
     LogicalXType right_x = left_x + edge;
     LogicalYType top_y = rCenter.Y() - edge/2;
     LogicalYType bottom_y = top_y + edge;
-    BOOL success = ::RoundRect(mDraw, left_x, top_y, right_x, bottom_y,
+    BOOL success = Win::RoundRect(mDraw, left_x, top_y, right_x, bottom_y,
                              ellipse_width, ellipse_height);
     ASSERT(success != 0);
 }
@@ -238,7 +236,7 @@ void Graphics::DrawText(Rect const &rRect, char const *text, char const *altText
 	UINT format = DT_CENTER | DT_EXTERNALLEADING | DT_NOPREFIX 
                 | DT_SINGLELINE | DT_VCENTER;
     RECT bounds = (RECT)rRect;
-    BOOL success = ::DrawText(mDraw, str, str_length, &bounds, format);
+    BOOL success = Win::DrawText(mDraw, str, str_length, &bounds, format);
     ASSERT(success != 0);
 }
 
@@ -307,7 +305,7 @@ PCntType Graphics::TextHeight(void) const {
 PCntType Graphics::TextWidth(char const *text) const {
     int length = ::strlen(text);
     SIZE extent;
-    BOOL success = ::GetTextExtentPoint32(mDraw, text, length, &extent);
+    BOOL success = Win::GetTextExtentPoint32(mDraw, text, length, &extent);
 	ASSERT(success != 0);
     PCntType result = extent.cx;
     
@@ -316,32 +314,34 @@ PCntType Graphics::TextWidth(char const *text) const {
 
 void Graphics::UseColors(ColorType brushBkColor, ColorType penTextColor) {
     if (brushBkColor != mBrushBkColor) {
-        HBRUSH brush = ::CreateSolidBrush(brushBkColor);
+        HBRUSH brush = Win::CreateSolidBrush(brushBkColor);
         ASSERT(brush != NULL);
-        HGDIOBJ old = ::SelectObject(mDraw, brush);
+        HGDIOBJ old = Win::SelectObject(mDraw, brush);
         ASSERT(old != NULL);
-        BOOL success = ::DeleteObject(old);
+        BOOL success = Win::DeleteObject(old);
         ASSERT(success != 0);
 
-        ColorType oldColor = (ColorType)::SetBkColor(mDraw, brushBkColor);
+        ColorType oldColor = (ColorType)Win::SetBkColor(mDraw, brushBkColor);
         ASSERT(oldColor != CLR_INVALID);
 
         mBrushBkColor = brushBkColor;
     }
        
     if (penTextColor != mPenTextColor) {
-        ColorType oldColor = (ColorType)::SetTextColor(mDraw, penTextColor);
+        ColorType oldColor = (ColorType)Win::SetTextColor(mDraw, penTextColor);
         ASSERT(oldColor != CLR_INVALID);
 
         int penStyle = PS_SOLID;
         int penWidth = 0; // means a pen one pixel wide
-        HPEN pen = ::CreatePen(penStyle, penWidth, penTextColor);
+        HPEN pen = Win::CreatePen(penStyle, penWidth, penTextColor);
         ASSERT(pen != NULL);
-        HGDIOBJ old = ::SelectObject(mDraw, pen);
+        HGDIOBJ old = Win::SelectObject(mDraw, pen);
         ASSERT(old != NULL);
-        BOOL success = ::DeleteObject(old);
+        BOOL success = Win::DeleteObject(old);
         ASSERT(success != 0);
         
         mPenTextColor = penTextColor;
     }
 }
+
+

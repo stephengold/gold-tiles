@@ -22,10 +22,11 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "gui/menuitem.hpp"
+#include "gui/win_types.hpp"
 
 // lifecycle
 
-MenuItem::MenuItem(HMENU handle, UINT itemId):
+MenuItem::MenuItem(HMENU handle, IdType itemId):
     mHandle(handle),
 	mItemId(itemId)
 {}
@@ -33,17 +34,21 @@ MenuItem::MenuItem(HMENU handle, UINT itemId):
 // misc menus
 
 void MenuItem::Check(bool checkedFlag) {
+	UINT flags = MF_BYCOMMAND;
 	if (checkedFlag) {
-	    ::CheckMenuItem(mHandle, mItemId, MF_CHECKED | MF_BYCOMMAND);
+	    flags |= MF_CHECKED;
 	} else {
-	    ::CheckMenuItem(mHandle, mItemId, MF_UNCHECKED | MF_BYCOMMAND);
+	    flags |= MF_UNCHECKED;
 	}
+	Win::CheckMenuItem(mHandle, mItemId, flags);
 }
 
 void MenuItem::Enable(bool enabledFlag) {
+	UINT flags = MF_BYCOMMAND;
 	if (enabledFlag) {
-    	::EnableMenuItem(mHandle, mItemId, MF_ENABLED | MF_BYCOMMAND);
+    	flags |= MF_ENABLED;
 	} else {
-    	::EnableMenuItem(mHandle, mItemId, MF_GRAYED | MF_BYCOMMAND);
+    	flags |= MF_GRAYED;
 	}
+   	Win::EnableMenuItem(mHandle, mItemId, flags);
 }

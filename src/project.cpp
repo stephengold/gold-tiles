@@ -27,7 +27,7 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 
 void assertion_failed(const char *file, unsigned line) {
     std::cout << "Assertion failed at line " << line << " in " << file << std::endl;
-    pause();
+    ::pause();
     ::exit(EXIT_FAILURE);
 }
 

@@ -31,10 +31,10 @@ fit inside any rectangle.
 The Poly class is implemented as a list of FractionPair objects.
 */
 
-#include <vector>
-#include <Windows.h>    // POINT
 #include "fractionpair.hpp"
+#include "gui/win.hpp"
 #include "project.hpp"  // Rect
+#include <vector>
 
 class Poly: public std::vector<FractionPair> {
 public:
@@ -43,7 +43,7 @@ public:
 	// misc public methods
     void     Add(double x, double y);
 	unsigned Count(void) const;
-    void     GetPoints(POINT points[], unsigned numPoints, 
+    void     GetPoints(Win::POINT points[], unsigned numPoints, 
                         Rect const &rBounds, bool invert) const;    
 };
 

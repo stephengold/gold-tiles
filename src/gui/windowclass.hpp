@@ -27,16 +27,16 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 /*
 A WindowClass object represents a Microsoft Windows "window class".
 
-The WindowClass class extends the WNDCLASSEX structure.
+The WindowClass class extends the Win::WNDCLASSEX structure.
 */
 
-#include <Windows.h>   // WNDCLASSEX
+#include "gui/win.hpp"
 #include "project.hpp" // FAIL
 
-class WindowClass: public WNDCLASSEX {
+class WindowClass: public Win::WNDCLASSEX {
 public:
 	// lifecycle
-    WindowClass(HINSTANCE, WNDPROC, char const *);
+    WindowClass(Win::HINSTANCE, Win::WNDPROC, char const *);
 	// no default constructor
 	// no copy constructor
     // ~WindowClass(void);  compiler-generated destructor is fine
@@ -45,9 +45,9 @@ public:
     WindowClass &operator=(WindowClass const &) { FAIL(); };
 
 	// misc public methods
-    HINSTANCE   Module(void) const;
-	char const *Name(void) const;
-    void        RegisterClass(void);
+    Win::HINSTANCE Module(void) const;
+	char const *   Name(void) const;
+    void           RegisterClass(void);
 };
 
 #endif

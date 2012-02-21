@@ -36,7 +36,7 @@ A PlayMenu object represents the "play" submenu in the menu bar.
 class PlayMenu: public SubMenu {
 public:
 	// lifecycle
-    PlayMenu(HMENU menu, unsigned position);
+    PlayMenu(Win::HMENU menu, unsigned position);
 	// no default constructor
 	// ~PlayMenu(void);  compiler-generated destructor is fine
 

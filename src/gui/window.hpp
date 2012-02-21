@@ -34,22 +34,24 @@ It provides a static map for translating handles to Window objects.
 #include <map>
 #include "rect.hpp"    // PCntType
 
+typedef Win::UINT MessageType;
+
 class Window {
 public:
 	// lifecycle
 	Window(void);
     Window(Window const &) { FAIL(); };
     // ~WindowClass(void);  compiler-generated destructor is OK
-    HDC Initialize(CREATESTRUCT const *);
+    Win::HDC Initialize(Win::CREATESTRUCT const *);
 
 	// public operators
     Window &operator=(Window const &) { FAIL(); };
 
 	// misc public methods
-	HWND            Handle(void) const;
-	LRESULT         HandleMessage(UINT message, WPARAM, LPARAM); 
-    static Window * Lookup(HWND);
-	void            SetHandle(HWND);
+	Win::HWND       Handle(void) const;
+	Win::LRESULT    HandleMessage(MessageType, Win::WPARAM, Win::LPARAM); 
+    static Window * Lookup(Win::HWND);
+	void            SetHandle(Win::HWND);
 	void            Show(int showHow);
 
 	// public inquiry methods
@@ -59,23 +61,23 @@ protected:
 	static Window *mspNewlyCreatedWindow;
 
 	// protected operators
-    operator Rect(void) const;
+    operator       Rect(void) const;
 
 	// protected misc methods
-	void      CaptureMouse(void);
-	void      Center(void);
-	PCntType  ClientAreaHeight(void) const;
-	PCntType  ClientAreaWidth(void) const;
-	void      Close(void);
-	HINSTANCE CopyModule(Window const &);
-	void      ForceRepaint(void);
-	HACCEL    GetAcceleratorTable(char const *resourceName);
-	HMENU     GetMenu(char const *resourceName);
-	void      SelfDestruct(void);
-	void      SetClientArea(PCntType width, PCntType height);
-	void      SetIcons(char const *resourceName);
-	void      SetTimer(unsigned msecs, unsigned id);
-	void      UpdateMenuBar(void);
+	void           CaptureMouse(void);
+	void           Center(void);
+	PCntType       ClientAreaHeight(void) const;
+	PCntType       ClientAreaWidth(void) const;
+	void           Close(void);
+	Win::HINSTANCE CopyModule(Window const &);
+	void           ForceRepaint(void);
+	Win::HACCEL    GetAcceleratorTable(char const *resourceName);
+	Win::HMENU     GetMenu(char const *resourceName);
+	void           SelfDestruct(void);
+	void           SetClientArea(PCntType width, PCntType height);
+	void           SetIcons(char const *resourceName);
+	void           SetTimer(unsigned msecs, unsigned id);
+	void           UpdateMenuBar(void);
 
 private:
     typedef unsigned long                 Key;
@@ -87,9 +89,9 @@ private:
 
 	static Map msMap;
 	
-    PCntType  mClientAreaWidth, mClientAreaHeight;
-    HWND      mHandle;
-    HINSTANCE mModule; // the module which owns this window  TODO static?
+    PCntType       mClientAreaWidth, mClientAreaHeight;
+    Win::HWND      mHandle;
+    Win::HINSTANCE mModule; // the module which owns this window  TODO static?
 };
 
 #endif

@@ -33,6 +33,7 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 #include "gui/tilebox.hpp"
 #include "gui/topwindow.hpp"
 #include "gui/viewmenu.hpp"
+#include "gui/win_types.hpp"
 #include "gui/windowclass.hpp"
 #include "gui/yesno.hpp"
 #include "hand.hpp"
@@ -52,7 +53,7 @@ static const ColorType GlyphColors[9] = {
 // message handler (callback) for top window
 static LRESULT CALLBACK message_handler(
 	HWND windowHandle,
-	UINT message,
+	MessageType message,
 	WPARAM wParam,
 	LPARAM lParam)
 {
@@ -62,7 +63,7 @@ static LRESULT CALLBACK message_handler(
 	LRESULT result;
 	if (window == NULL) { // unknown window
 		// invoke default message handler
-		result = ::DefWindowProc(windowHandle, message, wParam, lParam);
+		result = Win::DefWindowProc(windowHandle, message, wParam, lParam);
 	} else {
      	ASSERT(window->Handle() == windowHandle);
         result = window->HandleMessage(message, wParam, lParam);
@@ -95,7 +96,6 @@ TopWindow::TopWindow(HINSTANCE applicationInstance, Game *pGame):
     ASSERT(mspNewlyCreatedWindow == NULL);
 	mspNewlyCreatedWindow = this;
 
-	mApplication = applicationInstance;
     mColorAttributeCnt = 1;
     mDragBoardFlag = false;
 	mpFileMenu = NULL;
@@ -121,9 +121,9 @@ TopWindow::TopWindow(HINSTANCE applicationInstance, Game *pGame):
 		mpGame->StartClock();
 	}
 
-	HWND desktop_handle = ::GetDesktopWindow();
+	HWND desktop_handle = Win::GetDesktopWindow();
 	RECT rect;
-	::GetWindowRect(desktop_handle, &rect);
+	Win::GetWindowRect(desktop_handle, &rect);
 	Rect desktop_bounds(rect);
 
 	// create Microsoft Windows window
@@ -135,7 +135,7 @@ TopWindow::TopWindow(HINSTANCE applicationInstance, Game *pGame):
 	HWND parent = NULL;
 	HMENU menu = NULL;
 	LPVOID parameters = NULL;
-    HWND handle = ::CreateWindow(className, Name(), windowStyle, x, y, 
+    HWND handle = Win::CreateWindow(className, Name(), windowStyle, x, y, 
                              width, height, parent, menu, applicationInstance, 
                              parameters);
     ASSERT(Handle() == handle);
@@ -1138,7 +1138,7 @@ int TopWindow::MessageDispatchLoop(void) {
         MSG message;
 	    HWND any_window = NULL;
 		UINT no_filtering = 0;
-        BOOL success = ::GetMessage(&message, any_window, no_filtering, no_filtering);
+        BOOL success = Win::GetMessage(&message, any_window, no_filtering, no_filtering);
         if (success == 0) {   // retrieved a WM_QUIT message
 			exitCode = message.wParam;
 			break;
@@ -1147,10 +1147,10 @@ int TopWindow::MessageDispatchLoop(void) {
 			break;
 		}
 
-		int translated = ::TranslateAccelerator(Handle(), table, &message);
+		int translated = Win::TranslateAccelerator(Handle(), table, &message);
 		if (!translated) {
-            ::TranslateMessage(&message); 
-            ::DispatchMessage(&message); 
+            Win::TranslateMessage(&message); 
+            Win::DispatchMessage(&message); 
         } 
     }
 
@@ -1262,7 +1262,7 @@ STEP4:
 	hand_cnt = parmbox3.HandCnt();
    	if (hand_cnt > player_names.Count()) {
 		// allocate storage for more IP addresses
-        LPARAM *new_ip_addresses = new LPARAM[hand_cnt];
+        IpAddressType *new_ip_addresses = new IpAddressType[hand_cnt];
 
 		// copy old addresses
 		for (unsigned i = 0; i < player_names.Count(); i++) {
@@ -1302,7 +1302,7 @@ STEP4:
 		    *i_name = box.PlayerName();
 		    auto_hands.AddRemove(i, box.IsAutomatic());
 		    remote_hands.AddRemove(i, box.IsRemote());
-		    ip_addresses[i] = box.IpAddress();
+		    ip_addresses[i] = IpAddressType(box);
 
 			i++;
 			i_name++;
@@ -1507,7 +1507,7 @@ void TopWindow::ReleaseActiveTile(Point const &rMouse) {
 void TopWindow::Repaint(void) {
     HWND this_window = Handle();
     PAINTSTRUCT paint_struct;    
-    HDC context = ::BeginPaint(this_window, &paint_struct);
+    HDC context = Win::BeginPaint(this_window, &paint_struct);
     ASSERT(context != NULL);
     
     bool release_me = false;
@@ -1530,7 +1530,7 @@ void TopWindow::Repaint(void) {
     }
 
     canvas.Close();
-    ::EndPaint(this_window, &paint_struct);
+    Win::EndPaint(this_window, &paint_struct);
 
 	// restart the timer
 	SetTimer(TIMEOUT_MSEC, ID_CLOCK_TIMER);
@@ -1616,7 +1616,7 @@ void TopWindow::StopDragging(void) {
 
 	mDragBoardFlag = false;
 	mPartial.Deactivate();
-	::ReleaseCapture();
+	Win::ReleaseCapture();
 
     ASSERT(mPartial.GetActive() == Tile::ID_NONE);
 	ASSERT(!IsDragging());

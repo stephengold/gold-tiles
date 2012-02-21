@@ -23,6 +23,7 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "gui/resource.hpp"
 #include "gui/viewmenu.hpp"
+#include "gui/win_types.hpp"
 
 // lifecycle
 
@@ -76,7 +77,7 @@ void ViewMenu::ShowScores(bool shown) {
 void ViewMenu::ShowTiles(bool shown) {
 	mShowTiles.Check(shown);
 }
-void ViewMenu::TileSize(UINT position) {
+void ViewMenu::TileSize(IdType position) {
 	UncheckAllSizes();
 	switch (position) {
  	    case IDM_SMALL_TILES:

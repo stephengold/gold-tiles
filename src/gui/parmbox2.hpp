@@ -47,7 +47,7 @@ public:
 	operator GridType(void) const;
 
 	// misc public methods
-	INT_PTR   HandleMessage(UINT message, WPARAM, LPARAM);
+	int       HandleMessage(MessageType, Win::WPARAM, Win::LPARAM);
 	IndexType Height(void) const;
 	IndexType Width(void) const;
 

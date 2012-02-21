@@ -23,6 +23,7 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "gui/playmenu.hpp"
 #include "gui/resource.hpp"
+#include "gui/win_types.hpp"
 
 // lifecycle
 

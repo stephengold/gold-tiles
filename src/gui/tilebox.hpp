@@ -47,7 +47,7 @@ public:
     TileBox &operator=(TileBox const &) { FAIL(); };
 
 	// misc public methods
-	INT_PTR    HandleMessage(UINT message, WPARAM, LPARAM);
+	int        HandleMessage(MessageType, Win::WPARAM, Win::LPARAM);
 	ValueType *NumValues(void);
 
 private:
@@ -61,7 +61,7 @@ private:
     IdType MaxId(IdType slider) const;
     IdType MinId(IdType slider) const;
     IdType SliderId(IdType editbox) const;
-	IdType SliderId(HWND) const;
+	IdType SliderId(Win::HWND) const;
 	void   UpdateValue(IdType slider, ValueType);
 };
 

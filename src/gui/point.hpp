@@ -31,7 +31,7 @@ of a window.
 The Point class is encapsulates a logical X coordinate and a logical Y coordinate. 
 */
 
-#include <Windows.h>  // POINT
+#include "gui/win.hpp"
 
 typedef long LogicalXType, LogicalYType;
 
@@ -39,8 +39,8 @@ class Point {
 public:
 	// lifecycle
     Point(LogicalXType, LogicalYType);
-    Point(POINT const &);
-    Point(POINTS const &);
+    Point(Win::POINT const &);
+    Point(Win::POINTS const &);
 	// no default constructor
     //Point(Point const &);  compiler-generated copy constructor is OK
     //~Point(void);
@@ -48,8 +48,8 @@ public:
 	// operators
 	//Point &operator=(Point const &);  compiler-generated assignment operator is OK
 	bool operator==(Point const &) const;
-    operator POINT(void) const;
-    operator POINTS(void) const;
+    operator Win::POINT(void) const;
+    operator Win::POINTS(void) const;
 
 	// misc public methods
     void         Offset(long dx, long dy);   // add offsets

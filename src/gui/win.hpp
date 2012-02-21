@@ -1,5 +1,8 @@
-// File:    submenu.cpp
-// Purpose: SubMenu class
+#ifndef WIN_HPP_INCLUDED
+#define WIN_HPP_INCLUDED
+
+// File:    win.hpp
+// Purpose: Win namespace
 // Author:  Stephen Gold sgold@sonic.net
 // (c) Copyright 2012 Stephen Gold
 // Distributed under the terms of the GNU General Public License
@@ -21,27 +24,10 @@ You should have received a copy of the GNU General Public License
 along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "gui/submenu.hpp"
-#include "gui/win_types.hpp"
+namespace Win {
+#define _M_CEE_SAFE
+#include <Windows.h>
+#undef _M_CEE_SAFE
+};
 
-
-// lifecycle
-
-SubMenu::SubMenu(HMENU parent, unsigned position) {
-    mParent = parent;
-    mPosition = position;
-}
-
-// misc methods
-
-void SubMenu::Enable(bool enabledFlag) {
-	UINT position = mPosition;
-	UINT flags = MF_BYPOSITION;
-
-	if (enabledFlag) {
-  	    flags |= MF_ENABLED;
-	} else {
-		flags |= MF_GRAYED;
-	}
-	Win::EnableMenuItem(mParent, position, flags);
-}
+#endif

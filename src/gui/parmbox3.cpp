@@ -23,19 +23,19 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "gui/parmbox3.hpp"
 #include "gui/resource.hpp"
-
+#include "gui/win_types.hpp"
 
 // message handler (callback) for this dialog
-static INT_PTR CALLBACK message_handler3(
+static int CALLBACK message_handler3(
 	HWND windowHandle,
-	UINT message,
+	MessageType message,
 	WPARAM wParameter, 
 	LPARAM lParameter)
 {
 	ASSERT(windowHandle != NULL);
     ParmBox3 *p_box = (ParmBox3 *)Window::Lookup(windowHandle);
     ASSERT(p_box->Handle() == windowHandle);
-	INT_PTR result = p_box->HandleMessage(message, wParameter, lParameter);
+	int result = p_box->HandleMessage(message, wParameter, lParameter);
 
 	return result;
 }
@@ -64,8 +64,9 @@ unsigned ParmBox3::ClonesPerTile(void) const {
     return mClonesPerTile;
 }
 
-ParmBox3::IdType ParmBox3::EditboxId(IdType sliderId) const {
-    IdType result = IDC_STATIC;
+IdType ParmBox3::EditboxId(IdType sliderId) const {
+    IdType result = 0;
+
     switch (sliderId) {
         case IDC_SLIDER1:
             result = IDC_EDIT1;
@@ -84,9 +85,9 @@ ParmBox3::IdType ParmBox3::EditboxId(IdType sliderId) const {
     }
     
     return result;
-}
+};
 
-INT_PTR ParmBox3::HandleMessage(UINT message, WPARAM wParam, LPARAM lParam) {
+INT_PTR ParmBox3::HandleMessage(MessageType message, WPARAM wParam, LPARAM lParam) {
 	INT_PTR result = FALSE;
 
     switch (message) {
@@ -171,8 +172,8 @@ void ParmBox3::InitControl(
     SetTextValue(editbox_id, slider_value);
 }
 
-ParmBox3::IdType ParmBox3::MaxId(IdType sliderId) const {
-    IdType result = IDC_STATIC;
+IdType ParmBox3::MaxId(IdType sliderId) const {
+    IdType result = 0;
 
     switch (sliderId) {
         case IDC_SLIDER1:
@@ -194,8 +195,8 @@ ParmBox3::IdType ParmBox3::MaxId(IdType sliderId) const {
     return result;
 }
 
-ParmBox3::IdType ParmBox3::MinId(IdType sliderId) const {
-    IdType result = IDC_STATIC;
+IdType ParmBox3::MinId(IdType sliderId) const {
+    IdType result = 0;
 
     switch (sliderId) {
         case IDC_SLIDER1:
@@ -222,8 +223,8 @@ unsigned ParmBox3::HandCnt(void) const {
     return mHandCnt;
 }
 
-ParmBox3::IdType ParmBox3::SliderId(IdType editboxId) const {
-    IdType result = IDC_STATIC;
+IdType ParmBox3::SliderId(IdType editboxId) const {
+    IdType result = 0;
 
     switch (editboxId) {
         case IDC_EDIT1:
@@ -245,8 +246,8 @@ ParmBox3::IdType ParmBox3::SliderId(IdType editboxId) const {
     return result;
 }
 
-ParmBox3::IdType ParmBox3::SliderId(HWND handle) const {
-    IdType result = IDC_STATIC;
+IdType ParmBox3::SliderId(HWND handle) const {
+    IdType result = 0;
 
 	if (handle == GetControlHandle(IDC_SLIDER1)) {
 		result = IDC_SLIDER1;

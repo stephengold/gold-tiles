@@ -36,7 +36,7 @@ typedef unsigned long PCntType; // pixel count
 class Rect {
 public:
 	// lifecycle
-    Rect(RECT const &);
+    Rect(Win::RECT const &);
     Rect(Point const &ulc, Point const &lrc);
     Rect(Point const &ulc, PCntType width, PCntType height);
     Rect(LogicalYType, LogicalXType, PCntType width, PCntType height);
@@ -46,7 +46,7 @@ public:
 
 	// operators
 	//Rect &operator=(Rect const &);  compiler-generated assignment method is OK
-    operator RECT(void) const;
+    operator Win::RECT(void) const;
 
 	// misc public methods
 	float        AspectRatio(void) const;

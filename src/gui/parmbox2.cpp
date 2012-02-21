@@ -23,13 +23,13 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "gui/parmbox2.hpp"
 #include "gui/resource.hpp"
-
+#include "gui/win_types.hpp"
 
 // message handler (callback) for this dialog box
 
 static INT_PTR CALLBACK message_handler(
 	HWND windowHandle,
-	UINT message,
+	MessageType message,
 	WPARAM wParameter, 
 	LPARAM lParameter)
 {
@@ -77,7 +77,7 @@ IndexType ParmBox2::GetTextIndex(IdType controlId) {
     return result;
 }
 
-INT_PTR ParmBox2::HandleMessage(UINT message, WPARAM wParam, LPARAM lParam) {
+INT_PTR ParmBox2::HandleMessage(MessageType message, WPARAM wParam, LPARAM lParam) {
 	INT_PTR result = FALSE;
 
     switch (message) {

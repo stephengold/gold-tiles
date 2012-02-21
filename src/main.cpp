@@ -24,11 +24,11 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 #include <iostream>
 #include <time.h>
 #include "game.hpp"
-#include "string.hpp"
 #include "strings.hpp"
 
 #ifdef _GUI
 #include "gui/topwindow.hpp"
+#include "gui/win_types.hpp"
 
 TopWindow *gTopWindow = NULL;
 
@@ -36,14 +36,14 @@ TopWindow *gTopWindow = NULL;
 int CALLBACK WinMain(
 	HINSTANCE applicationInstance, 
 	HINSTANCE previousInstance, // always NULL and ignored
-	LPSTR commandLine, // TODO
+	char *commandLine, // TODO
 	int showHow) 
 {
 #endif  // defined(_GUI)
 
 #ifdef _CONSOLE
 // console main entry point
-int main(int argc, char *argv[]) {
+int main(int argCnt, char *argValues[]) {
 #endif // defined(_CONSOLE)
 
 	// seed the random number generator

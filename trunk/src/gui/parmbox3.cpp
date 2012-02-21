@@ -65,7 +65,7 @@ unsigned ParmBox3::ClonesPerTile(void) const {
 }
 
 ParmBox3::IdType ParmBox3::EditboxId(IdType sliderId) const {
-    IdType result;
+    IdType result = IDC_STATIC;
     switch (sliderId) {
         case IDC_SLIDER1:
             result = IDC_EDIT1;
@@ -80,7 +80,7 @@ ParmBox3::IdType ParmBox3::EditboxId(IdType sliderId) const {
             result = IDC_EDIT4;
             break;
         default:
-            ASSERT(false);
+            FAIL();
     }
     
     return result;
@@ -156,7 +156,6 @@ void ParmBox3::InitControl(
     ASSERT(value <= maxValue);
     ASSERT(value >= minValue);
 	
-    WPARAM redraw = WPARAM(FALSE);
 	SetSliderRange(sliderId, minValue, maxValue);
 
 	ValueType slider_value = SetSliderValue(sliderId, value);
@@ -173,7 +172,8 @@ void ParmBox3::InitControl(
 }
 
 ParmBox3::IdType ParmBox3::MaxId(IdType sliderId) const {
-    IdType result;
+    IdType result = IDC_STATIC;
+
     switch (sliderId) {
         case IDC_SLIDER1:
             result = IDC_SMAX1;
@@ -188,14 +188,15 @@ ParmBox3::IdType ParmBox3::MaxId(IdType sliderId) const {
             result = IDC_SMAX4;
             break;
         default:
-            ASSERT(false);
+            FAIL();
     }
     
     return result;
 }
 
 ParmBox3::IdType ParmBox3::MinId(IdType sliderId) const {
-    IdType result;
+    IdType result = IDC_STATIC;
+
     switch (sliderId) {
         case IDC_SLIDER1:
             result = IDC_SMIN1;
@@ -210,7 +211,7 @@ ParmBox3::IdType ParmBox3::MinId(IdType sliderId) const {
             result = IDC_SMIN4;
             break;
         default:
-            ASSERT(false);
+            FAIL();
     }
     
     return result;
@@ -222,7 +223,8 @@ unsigned ParmBox3::HandCnt(void) const {
 }
 
 ParmBox3::IdType ParmBox3::SliderId(IdType editboxId) const {
-    IdType result;
+    IdType result = IDC_STATIC;
+
     switch (editboxId) {
         case IDC_EDIT1:
             result = IDC_SLIDER1;
@@ -237,13 +239,15 @@ ParmBox3::IdType ParmBox3::SliderId(IdType editboxId) const {
             result = IDC_SLIDER4;
             break;
         default:
-            ASSERT(false);
+            FAIL();
     }
+
     return result;
 }
 
 ParmBox3::IdType ParmBox3::SliderId(HWND handle) const {
-    IdType result = 0;
+    IdType result = IDC_STATIC;
+
 	if (handle == GetControlHandle(IDC_SLIDER1)) {
 		result = IDC_SLIDER1;
 	} else if (handle == GetControlHandle(IDC_SLIDER2)) {
@@ -252,6 +256,8 @@ ParmBox3::IdType ParmBox3::SliderId(HWND handle) const {
 		result = IDC_SLIDER3;
 	} else if (handle == GetControlHandle(IDC_SLIDER4)) {
 		result = IDC_SLIDER4;
+	} else {
+		FAIL();
 	}
 
 	return result;
@@ -272,6 +278,6 @@ void ParmBox3::UpdateValue(IdType sliderId, ValueType value) {
             mClonesPerTile = value;
             break;
         default:
-            ASSERT(false);
+            FAIL();
     }
 }

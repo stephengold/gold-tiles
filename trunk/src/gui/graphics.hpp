@@ -32,10 +32,6 @@ The Graphics class is implemented by encapsulating a pair of GDI device
 contexts:  mDraw for drawing and mDevice for the physical device.
 */
 
-#include "project.hpp"
-
-#ifdef _WINDOWS
-#include <windows.h>
 #include "color.hpp"
 #include "rect.hpp"
 
@@ -49,7 +45,7 @@ public:
 	~Graphics(void);
 
 	// operators
-    Graphics &operator=(Graphics const &) { ASSERT(false); };
+    Graphics &operator=(Graphics const &) { FAIL(); };
 
 	// misc public methods
     void        Close(void);
@@ -79,5 +75,4 @@ private:
     HWND      mWindow;
 };
 
-#endif
 #endif

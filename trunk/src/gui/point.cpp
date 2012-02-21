@@ -21,12 +21,8 @@ You should have received a copy of the GNU General Public License
 along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "project.hpp"
-
-#ifdef _WINDOWS
-#include <climits>
-#include <windows.h>
 #include "point.hpp"
+#include "project.hpp" // ASSERT
 
 // lifecycle
 
@@ -93,5 +89,3 @@ LogicalYType Point::Y(void) const {
     
     return result;
 }
-
-#endif

@@ -25,21 +25,30 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "board.hpp"
+#include "hands.hpp"
 #include "move.hpp"
 #include "partial.hpp"
-#include "hands.hpp"
+
+enum GameStyleType {
+	GAME_STYLE_DEBUG = 0,    // allows peeking, undo, all hints; clock is optional
+	GAME_STYLE_PRACTICE = 1, // no peeking; allows undo, all hints; clock is optional
+	GAME_STYLE_FRIENDLY = 2, // no peeking, no undo; allows all hints; clock is optional
+	GAME_STYLE_CHALLENGE = 3 // no peeking, no undo, no hints; time limits
+};
 
 class Game {
 public:
 	// lifecycle
-    Game(Strings handNames, ACountType attributeCnt, AValueType maxAttributeValues[], 
-		 unsigned tileRedundancy = 3, unsigned handSize = 6, unsigned secondsPerHand = 0);
+    Game(Strings handNames,
+		 unsigned tileRedundancy = TILE_REDUNDANCY_DEFAULT, 
+		 unsigned handSize = HAND_SIZE_DEFAULT, 
+		 unsigned secondsPerHand = TIME_UNLIMITED);
 	// no default constructor
 	// no copy constructor
     // ~Game(void);  compiler-generated destructor is OK
 
 	// operators
-	Game &operator=(Game const &) { ASSERT(false); };
+	Game &operator=(Game const &) { FAIL(); };
     operator Board(void) const;
 	operator Hand(void) const;
 
@@ -69,6 +78,8 @@ public:
 	bool     IsStockEmpty(void) const;
 
 	// constants
+    static const unsigned HAND_SIZE_DEFAULT = 6;
+    static const unsigned TILE_REDUNDANCY_DEFAULT = 1;
 	static const unsigned TIME_UNLIMITED = 0;
 
 private:

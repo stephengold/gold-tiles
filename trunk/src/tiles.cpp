@@ -29,7 +29,7 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 
 // operators
 bool Tiles::operator==(Tiles const &rOther) const {
-	ASSERT(false);  // not implemented yet
+	FAIL();  // not implemented yet
 	return false;
 }
 

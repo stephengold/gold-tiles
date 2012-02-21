@@ -21,10 +21,9 @@ You should have received a copy of the GNU General Public License
 along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <iostream>
+#include <iostream>    // cin
 #include "cell.hpp"
-#include "project.hpp"
-#include "string.hpp"
+#include "project.hpp" // ASSERT
 
 // static data
 
@@ -54,7 +53,6 @@ Cell::Cell(Cell const &rBase, DirectionType direction, IndexType count) {
 	ASSERT(rBase.IsValid());
 	ASSERT(count == 1 || count == -1);
 
-	IndexType old_count = count;
 	DirectionType old_direction = direction;
 	IndexType old_group = rBase.Group(old_direction);
 	IndexType old_ortho = rBase.Ortho(old_direction);
@@ -230,7 +228,8 @@ bool Cell::GetUserChoice(String const &alt) {
 }
 
 IndexType Cell::Group(DirectionType direction) const {
-	IndexType result;
+	IndexType result = 0;
+
 	if (Grid() != GRID_TRIANGLE) {
         IndexType row_offset, column_offset;
         NextCellOffsets(direction, row_offset, column_offset);
@@ -297,7 +296,7 @@ IndexType Cell::Group(DirectionType direction) const {
 	    }
 
 		default:
-			ASSERT(false);
+			FAIL();
 	}
 
     return result;        
@@ -349,7 +348,7 @@ void Cell::Next(DirectionType direction, IndexType count) {
             columnOffset = -1;
             break;
         default:
-            ASSERT(false);
+            FAIL();
             break;
     }
 }
@@ -357,7 +356,8 @@ void Cell::Next(DirectionType direction, IndexType count) {
 IndexType Cell::Ortho(DirectionType direction) const {
     DirectionType ortho = ::ortho_direction(direction);
 
-	IndexType result;
+	IndexType result = 0;
+
 	if (Grid() != GRID_TRIANGLE) {
         IndexType row_offset, column_offset;
         NextCellOffsets(ortho, row_offset, column_offset);
@@ -389,7 +389,7 @@ IndexType Cell::Ortho(DirectionType direction) const {
 			break;
 		}
 		default:
-			ASSERT(false);
+			FAIL();
 	} 
 
     return result;        
@@ -409,7 +409,7 @@ IndexType Cell::Row(void) const {
 		case GRID_8WAY:
 			break;
 		default:
-			ASSERT(false);
+			FAIL();
 	}
     msGrid = grid;
 }
@@ -468,7 +468,7 @@ bool Cell::HasNeighbor(DirectionType direction) const {
 			break;
 
 		default:
-			ASSERT(false);
+			FAIL();
 	}
 
 	// check for edges
@@ -522,7 +522,7 @@ bool Cell::IsValid(void) const {
 			// all coordinates are valid cells
 			break;
 		default:
-			ASSERT(false);
+			FAIL();
 	}
 
 	if (row < -msHeight/2 || row >= msHeight/2) {
@@ -558,14 +558,14 @@ bool is_scoring_direction(DirectionType direction) {
              result = true;
              break;
          default:
-             ASSERT(false);
+             FAIL();
      }
      
      return result;
 }
 
 DirectionType opposite_direction(DirectionType direction) {
-    DirectionType result;
+    DirectionType result = DIRECTION_UNKNOWN;
     
     switch(direction) {
         case DIRECTION_NORTH:
@@ -593,7 +593,7 @@ DirectionType opposite_direction(DirectionType direction) {
             result = DIRECTION_NORTHWEST;
             break;
 		default:
-			ASSERT(false);
+			FAIL();
     }
     
     // always return a "positive" direction
@@ -601,7 +601,7 @@ DirectionType opposite_direction(DirectionType direction) {
 }
 
 DirectionType ortho_direction(DirectionType direction) {
-    DirectionType result;
+    DirectionType result = DIRECTION_UNKNOWN;
     
     switch(direction) {
         case DIRECTION_NORTH:
@@ -621,7 +621,7 @@ DirectionType ortho_direction(DirectionType direction) {
             result = DIRECTION_NORTHEAST;
             break;
 		default:
-			ASSERT(false);
+			FAIL();
     }
     
     // always return a "positive" direction

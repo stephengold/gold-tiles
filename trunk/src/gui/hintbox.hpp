@@ -30,8 +30,8 @@ A HintBox object represents a dialog box for setting hint parameters.
 The HintBox class is an extension of the Dialog class.
 */
 
+#include "game.hpp"
 #include "gui/dialog.hpp"
-#include "gui/topwindow.hpp"
 #include "partial.hpp"
 
 class HintBox: public Dialog {
@@ -43,7 +43,7 @@ public:
 	// ~HintBox(void);  compiler-generated destructor is OK
 
 	// public operators
-    HintBox &operator=(HintBox const &) { ASSERT(false); };
+    HintBox &operator=(HintBox const &) { FAIL(); };
 	operator HintType(void) const;
 
 	// misc public methods

@@ -21,14 +21,12 @@ You should have received a copy of the GNU General Public License
 along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "project.hpp"
+#include <Windows.h>  // CommCtrl.h
+#include <WindowsX.h> // Edit_Enable
+#include <CommCtrl.h> // TBM_GETPOS
 
-#ifdef _WINDOWS
-#include <windows.h>
-#include <windowsx.h>
-#include <commctrl.h>
 #include "gui/dialog.hpp"
-#include "gui/resource.hpp"
+#include "gui/resource.hpp"  // IDC_BACK
 #include "string.hpp"
 
 // message handler (callback) for generic dialog
@@ -113,6 +111,7 @@ String Dialog::GetTextString(IdType controlId) {
 	char buffer[256];
 	int buffer_size = 256;
     UINT success = ::GetDlgItemText(window_handle, controlId, buffer, buffer_size);
+	ASSERT(success > 0);
 
     String result = String(buffer);
 
@@ -135,7 +134,6 @@ Dialog::ValueType Dialog::GetTextValue(IdType controlId) {
 
 INT_PTR Dialog::HandleMessage(UINT message, WPARAM wParam, LPARAM lParam) {
 	INT_PTR result = FALSE;
-	HWND window = Handle();
 
     switch (message) {
         case WM_INITDIALOG:
@@ -227,5 +225,3 @@ void Dialog::SetTextValue(IdType id, ValueType value) {
 
     ASSERT(GetTextValue(id) == value);
 }
-
-#endif

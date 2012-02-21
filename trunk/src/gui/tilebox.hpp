@@ -44,7 +44,7 @@ public:
 	// ~TileBox(void);  compiler-generated destructor is OK
 
 	// public operators
-    TileBox &operator=(TileBox const &) { ASSERT(false); };
+    TileBox &operator=(TileBox const &) { FAIL(); };
 
 	// misc public methods
 	INT_PTR    HandleMessage(UINT message, WPARAM, LPARAM);

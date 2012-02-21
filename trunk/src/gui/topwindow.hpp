@@ -30,23 +30,13 @@ A TopWindow object represents the primary window for the game.
 The TopWindow class is an extension of the Window class.
 */
 
-#include "project.hpp"
-
-enum GameStyleType {
-	GAME_STYLE_DEBUG = 0,    // allows peeking, undo, all hints; clock is optional
-	GAME_STYLE_PRACTICE = 1, // no peeking; allows undo, all hints; clock is optional
-	GAME_STYLE_FRIENDLY = 2, // no peeking, no undo; allows all hints; clock is optional
-	GAME_STYLE_CHALLENGE = 3 // no peeking, no undo, no hints; time limits
-};
-
-#ifdef _WINDOWS
 #include <map>
-#include <windows.h>
 #include "gui/color.hpp"
 #include "gui/parmbox1.hpp"
 #include "gui/rect.hpp"
 #include "gui/window.hpp"
 #include "partial.hpp"
+
 
 class TopWindow: public Window {
 public:
@@ -57,7 +47,7 @@ public:
     ~TopWindow(void);
 
 	// operator
-    TopWindow &operator=(TopWindow const &) { ASSERT(false); };
+    TopWindow &operator=(TopWindow const &) { FAIL(); };
 
 	// misc public methods
 	LRESULT HandleMessage(UINT message, WPARAM, LPARAM);
@@ -92,7 +82,6 @@ private:
 	unsigned      mRunLength;
 	bool          mShowClocksFlag, mShowGridFlag;
 	bool          mShowScoresFlag, mShowTilesFlag;
-	bool          mSquareGrid;      // false = hex grid
 	Point         mStartCell; // logical coordinates of center of start cell
 	Rect          mSwapRect;
 	Cell          mTargetCell;
@@ -150,19 +139,18 @@ private:
 
 	// private inquiry methods
 	bool IsDragging(void) const;
+	bool IsGameOver(void) const;
+	bool IsGamePaused(void) const;
     bool IsInBounds(Cell const &) const;
 	bool IsInCellArea(Point const &, Cell const &) const;
 	bool IsInHandArea(Point const &) const;
 	bool IsInSwapArea(Point const &) const;
 	bool IsInTile(Point const &) const;
-	bool IsPaused(void) const;
 
 	//constants
 	static const unsigned HAND_CNT_DEFAULT = 2;
-    static const unsigned HAND_SIZE_DEFAULT = 6;
     static const unsigned ID_CLOCK_TIMER = 1;
 	static const unsigned TIMEOUT_MSEC = 1000;
 };
 
-#endif
 #endif

@@ -22,8 +22,7 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "cells.hpp"
-#include "project.hpp"
-#include "string.hpp"
+#include "project.hpp" // ASSERT
 
 // constructors, assignment, and destructor
 

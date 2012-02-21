@@ -31,7 +31,6 @@ such as the number of tiles per hand.
 The ParmBox3 class is an extension of the Dialog class.
 */
 
-#include "cell.hpp"
 #include "gui/dialog.hpp"
 #include "tile.hpp"
 
@@ -45,7 +44,7 @@ public:
 	// ~ParmBox3(void);  compiler-generated destructor is OK
 
 	// public operators
-    ParmBox3 &operator=(ParmBox3 const &) { ASSERT(false); };
+    ParmBox3 &operator=(ParmBox3 const &) { FAIL(); };
 
 	// misc public methods
 	ACountType AttributeCnt(void) const;
@@ -53,9 +52,6 @@ public:
 	unsigned   HandCnt(void) const;
 	INT_PTR    HandleMessage(UINT message, WPARAM, LPARAM);
 	unsigned   HandSize(void) const;
-
-	// constants
-	static const ValueType CLONES_PER_TILE_DEFAULT = 2; 
 
 private:
     ValueType mAttributeCnt, mClonesPerTile, mHandSize, mHandCnt;

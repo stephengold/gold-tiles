@@ -27,11 +27,7 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 #include "string.hpp"
 #include "strings.hpp"
 
-#ifdef _WINDOWS
-// Microsoft Windows(tm) GUI interface
-
-#include <windows.h>
-#include "gui/resource.hpp"
+#ifdef _GUI
 #include "gui/topwindow.hpp"
 
 TopWindow *gTopWindow = NULL;
@@ -40,20 +36,25 @@ TopWindow *gTopWindow = NULL;
 int CALLBACK WinMain(
 	HINSTANCE applicationInstance, 
 	HINSTANCE previousInstance, // always NULL and ignored
-	LPSTR commandLine,
+	LPSTR commandLine, // TODO
 	int showHow) 
 {
-#endif
+#endif  // defined(_GUI)
 
 #ifdef _CONSOLE
 // console main entry point
 int main(int argc, char *argv[]) {
-#endif
+#endif // defined(_CONSOLE)
 
 	// seed the random number generator
 	unsigned seed = (unsigned)::time(NULL);
     ::srand(seed);
 
+	ACountType attribute_cnt = 2;
+	AValueType max_attribute[] = { 3, 3 };
+	Tile::SetStatic(attribute_cnt, max_attribute);
+
+#ifdef _CONSOLE
 	// legal notice
 	std::cout
 		<< "Gold Tile Game (c) Copyright 2012 Stephen Gold" << std::endl
@@ -67,26 +68,24 @@ int main(int argc, char *argv[]) {
 	hand_names.Append("Stephen"); // oldest first
 	hand_names.Append("Paul");
 	hand_names.Append("Gale");
-	ACountType attribute_cnt = 2;
-	AValueType max_attribute[] = { 5, 5 };
 
     // Instantiate the game.
-	Game game(hand_names, attribute_cnt, max_attribute);
+	Game game(hand_names);
 
-#ifdef _CONSOLE
 	game.PlayGame();
     ::pause();
 	int exitCode = EXIT_SUCCESS;
-#endif
+#endif // defined(_CONSOLE)
 
-#ifdef _WINDOWS
+#ifdef _GUI
+
 	// Instantiate top window and display it.
-	gTopWindow = new TopWindow(applicationInstance, NULL); // &game);
+	gTopWindow = new TopWindow(applicationInstance, NULL);
 	gTopWindow->Show(showHow);
 
     // Retrieve and dispatch messages for this application. 
 	int exitCode = gTopWindow->MessageDispatchLoop();
-#endif
+#endif // defined(GUI)
 
 	return exitCode;
 }

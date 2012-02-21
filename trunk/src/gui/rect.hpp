@@ -28,13 +28,10 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 A Rect object represents a rectangular region in the client area of a window.
 */
 
-#include "project.hpp"
-
-#ifdef _WINDOWS
-#include <windows.h>
 #include "gui/point.hpp"
+#include "project.hpp"    // FractionPair
 
-typedef unsigned long PCntType;
+typedef unsigned long PCntType; // pixel count
 
 class Rect {
 public:
@@ -79,4 +76,4 @@ private:
 };
 
 #endif
-#endif
+

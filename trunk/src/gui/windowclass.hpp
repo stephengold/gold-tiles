@@ -30,10 +30,8 @@ A WindowClass object represents a Microsoft Windows "window class".
 The WindowClass class extends the WNDCLASSEX structure.
 */
 
-#include "project.hpp"
-
-#ifdef _WINDOWS
-#include <windows.h>
+#include <Windows.h>   // WNDCLASSEX
+#include "project.hpp" // FAIL
 
 class WindowClass: public WNDCLASSEX {
 public:
@@ -44,7 +42,7 @@ public:
     // ~WindowClass(void);  compiler-generated destructor is fine
 
 	// operators
-    WindowClass &operator=(WindowClass const &) { ASSERT(false); };
+    WindowClass &operator=(WindowClass const &) { FAIL(); };
 
 	// misc public methods
     HINSTANCE   Module(void) const;
@@ -52,5 +50,4 @@ public:
     void        RegisterClass(void);
 };
 
-#endif
 #endif

@@ -199,7 +199,7 @@ void ParmBox2::SetGrid(IdType buttonId) {
 			mGrid = GRID_8WAY;
 			break;
 		default:
-			ASSERT(false);
+			FAIL();
 	}
 }
 
@@ -283,7 +283,7 @@ void ParmBox2::SetTopology(IdType buttonId) {
 			break;
 
 		default:
-			ASSERT(false);
+			FAIL();
 	}
 
 	// set mWrapFlag
@@ -305,7 +305,7 @@ void ParmBox2::SetTopology(IdType buttonId) {
 			break;
 
 		default:
-			ASSERT(false);
+			FAIL();
 	}
 }
 

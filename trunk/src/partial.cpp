@@ -21,14 +21,8 @@ You should have received a copy of the GNU General Public License
 along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "project.hpp"
-#include "cell.hpp"
-#include "cells.hpp"
 #include "game.hpp"
-#include "move.hpp"
 #include "partial.hpp"
-#include "tile.hpp"
-#include "tiles.hpp"
 
 
 // lifecycle
@@ -350,7 +344,7 @@ void Partial::SetHintStrength(HintType strength) {
 		case HINT_USABLE_SELECTED:
 		    break;
 		default:
-			ASSERT(false);
+			FAIL();
 	}
 
 	if (mHintStrength != strength) {
@@ -450,6 +444,30 @@ bool Partial::IsValidNextStep(
 		// legal as a partial move.
 	    result = true;
 	}
+
+	return result;
+}
+
+bool Partial::IsVisible(Cell const &rCell) {
+	int fringe = 1;
+	if (Cell::Grid() == GRID_HEX) {
+		fringe = 2;
+	}
+
+    IndexType top_row = fringe + mBoard.NorthMax();
+    IndexType bottom_row = -fringe - mBoard.SouthMax();
+    IndexType right_column = fringe + mBoard.EastMax();
+    IndexType left_column = -fringe - mBoard.WestMax();
+    ASSERT(bottom_row <= top_row);
+    ASSERT(left_column <= right_column);
+
+	IndexType row = rCell.Row();
+	IndexType column = rCell.Column();
+
+	bool result = (row >= bottom_row) 
+		       && (row <= top_row)
+			   && (column >= left_column)
+			   && (column <= right_column);
 
 	return result;
 }

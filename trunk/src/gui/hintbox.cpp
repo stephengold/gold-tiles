@@ -130,7 +130,7 @@ void HintBox::SetHintStrength(IdType buttonId) {
 			mStrength = HINT_USABLE_SELECTED;
 			break;
 		default:
-			ASSERT(false);
+			FAIL();
 	}
 }
 

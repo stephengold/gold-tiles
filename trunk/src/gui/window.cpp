@@ -21,15 +21,7 @@ You should have received a copy of the GNU General Public License
 along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "project.hpp"
-
-#ifdef _WINDOWS
-#include <map>
-#include <windows.h>
-#include "gui/resource.hpp"
 #include "gui/window.hpp"
-#include "gui/windowclass.hpp"
-#include "rect.hpp"
 
 // static data
 
@@ -296,5 +288,3 @@ bool Window::IsMouseCaptured(void) const {
 	
 	return result;
 }
-
-#endif

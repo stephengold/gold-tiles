@@ -31,10 +31,7 @@ of a window.
 The Point class is encapsulates a logical X coordinate and a logical Y coordinate. 
 */
 
-#include "project.hpp"
-
-#ifdef _WINDOWS
-#include <windows.h>
+#include <Windows.h>  // POINT
 
 typedef long LogicalXType, LogicalYType;
 
@@ -64,5 +61,4 @@ private:
 	LogicalYType mY;
 };
 
-#endif
 #endif

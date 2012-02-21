@@ -26,7 +26,7 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 
 // lifecycle
 
-ViewMenu::ViewMenu(HMENU menu, UINT position):
+ViewMenu::ViewMenu(HMENU menu, unsigned position):
 	SubMenu(menu, position),
     mSmallTiles(menu, IDM_SMALL_TILES),
     mMediumTiles(menu, IDM_MEDIUM_TILES),
@@ -49,17 +49,17 @@ void ViewMenu::Autocenter(bool shown) {
 	mAutocenter.Check(shown);
 }
 
-void ViewMenu::EnableItems(GameStyleType gameStyle) {
+void ViewMenu::EnableItems(GameStyleType gameStyle, bool isOver, bool isPaused, bool isPass) {
     mSmallTiles.Enable(true);
     mMediumTiles.Enable(true);
     mLargeTiles.Enable(true);
     mRecenter.Enable(true);
     mAttributes.Enable(false); // TODO
-    mHints.Enable(true);
+    mHints.Enable(!isOver);
     mShowClocks.Enable(true);
     mShowGrid.Enable(true);
     mShowScores.Enable(true);
-    mShowTiles.Enable(gameStyle == GAME_STYLE_DEBUG);
+    mShowTiles.Enable(isOver || gameStyle == GAME_STYLE_DEBUG);
     mAnimation.Enable(false); // TODO
     mAutocenter.Enable(true);
 }

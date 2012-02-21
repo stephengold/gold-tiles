@@ -26,7 +26,7 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 
 // lifecycle
 
-FileMenu::FileMenu(HMENU menu, UINT position):
+FileMenu::FileMenu(HMENU menu, unsigned position):
 	SubMenu(menu, position),
     mNew(menu, IDM_NEW),
     mOpen(menu, IDM_OPEN),

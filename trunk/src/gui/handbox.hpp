@@ -44,7 +44,7 @@ public:
 	// ~HandBox(void);  compiler-generated destructor is OK
 
 	// public operators
-    HandBox &operator=(HandBox const &) { ASSERT(false); };
+    HandBox &operator=(HandBox const &) { FAIL(); };
 
 	// misc public methods
 	INT_PTR HandleMessage(UINT message, WPARAM, LPARAM);

@@ -26,18 +26,15 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 
 /*
 A SubMenu object represents a submenu of the menu bar, such as
-the "play" submenu or the "view" submenu.
+the "Play" submenu or the "View" submenu.
 */
 
-#include "project.hpp"
-
-#ifdef _WINDOWS
-#include <windows.h>
+#include <Windows.h>  // HMENU
 
 class SubMenu {
 public:
 	// lifecycle
-    SubMenu(HMENU parent, UINT position);
+    SubMenu(HMENU parent, unsigned position);
 	// no default constructor
 
 	// misc public methods
@@ -45,8 +42,7 @@ public:
 
 private:
     HMENU mParent;
-    UINT  mPosition;
+    unsigned  mPosition;
 };
 
-#endif
 #endif

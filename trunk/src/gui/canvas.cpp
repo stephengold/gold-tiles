@@ -21,9 +21,6 @@ You should have received a copy of the GNU General Public License
 along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "project.hpp"
-
-#ifdef _WINDOWS
 #include "cell.hpp"
 #include "gui/canvas.hpp"
 #include "gui/poly.hpp"
@@ -32,7 +29,7 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 
 // static data
 
-std::vector<Poly> Canvas::msShapes;
+std::vector<Poly> Canvas::msShapes; // shapes for glyphs
 
 // lifecycle
 
@@ -74,7 +71,7 @@ void Canvas::DrawBlankTile(
 			DrawGridShape(rCenter, width, height, oddFlag);
 			break;
 		default:
-			ASSERT(false);
+			FAIL();
 	}
 }
 
@@ -122,7 +119,7 @@ void Canvas::DrawGridShape(
 			DrawEquilateral(rectangle, oddFlag);
 			break;
 		default:
-			ASSERT(false);
+			FAIL();
 	}
 }
 
@@ -203,7 +200,7 @@ Rect Canvas::DrawTile(
 			interior = InteriorGridShape(rCenter, width, height, oddFlag);
 			break;
 		default:
-			ASSERT(false);
+			FAIL();
 	}
 
     PCntType glyph_width = interior.Width();
@@ -400,10 +397,8 @@ Rect Canvas::DrawTile(
 			interior = InteriorEquilateral(rectangle, oddFlag);
 			break;
 		default:
-			ASSERT(false);
+			FAIL();
 	}
 
 	return interior;
 }
-
-#endif

@@ -27,7 +27,7 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 
 // static data
 
-ACountType  Tile:: msAttributeCnt = 0;
+ACountType  Tile:: msAttributeCnt = 0; // set using SetStatic()
 TileIdType  Tile:: msNextId = ID_FIRST;
 AValueType *Tile::mspValueMax = NULL;
 
@@ -35,7 +35,7 @@ AValueType *Tile::mspValueMax = NULL;
 // lifecycle
 
 Tile::Tile(void) {
-    ASSERT(msAttributeCnt >= 2);
+    ASSERT(msAttributeCnt >= ATTRIBUTE_CNT_MIN);
 
     mpArray = new AValueType[msAttributeCnt];
 
@@ -177,7 +177,7 @@ AIndexType Tile::CommonAttribute(Tile const &rOther) const {
 	ASSERT(rOther.IsValid());
     ASSERT(CountMatchingAttributes(rOther) == 1);
     
-    AIndexType result;
+    AIndexType result = msAttributeCnt;
     for (AIndexType i_attr = 0; i_attr < msAttributeCnt; i_attr++) {
         if (mpArray[i_attr] == rOther.mpArray[i_attr]) {
             result = i_attr;
@@ -185,6 +185,7 @@ AIndexType Tile::CommonAttribute(Tile const &rOther) const {
         }
     }
 
+	ASSERT(result < msAttributeCnt);
     return result;
 }
 
@@ -266,7 +267,7 @@ void Tile::SetAttribute(AIndexType ind, AValueType value) {
 }
 
 /* static */ void Tile::SetStatic(ACountType aCnt, AValueType const pValueMax[]) {
-    ASSERT(aCnt >= 2);
+    ASSERT(aCnt >= ATTRIBUTE_CNT_MIN);
 #ifdef _GUI
     ASSERT(aCnt <= 5);
 #endif
@@ -371,19 +372,19 @@ String attribute_to_string(AIndexType ind, AValueType value) {
 
     switch (ind) {
         case 0:
-            ch = 'A' + value;
+            ch = char('A' + value);
             break;
         case 1:
-            ch = 'R' + value;
+            ch = char('R' + value);
             break;
         case 2:
-            ch = 'a' + value;
+            ch = char('a' + value);
             break;
         case 3:
-            ch = 'r' + value;
+            ch = char('r' + value);
             break;
         default:
-            ch = '1' + value;
+            ch = char('1' + value);
             break;
     }
 

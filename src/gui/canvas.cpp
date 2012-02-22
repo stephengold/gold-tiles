@@ -21,6 +21,7 @@ You should have received a copy of the GNU General Public License
 along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <math.h>
 #include "cell.hpp"
 #include "gui/canvas.hpp"
 #include "gui/poly.hpp"

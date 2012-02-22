@@ -31,6 +31,7 @@ using Win::ATOM;
 using Win::BOOL;
 using Win::CREATESTRUCT;
 using Win::DLGPROC;
+using Win::DWORD;
 using Win::DWORD_PTR;
 using Win::HACCEL;
 using Win::HBRUSH;

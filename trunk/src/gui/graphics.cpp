@@ -20,6 +20,8 @@ for more details.
 You should have received a copy of the GNU General Public License
 along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
+
+#include <math.h>
 #include <vector>
 #include "gui/graphics.hpp"
 #include "gui/poly.hpp"
@@ -264,7 +266,7 @@ Rect Graphics::InteriorEquilateral(Rect const &rBounds, bool pointDownFlag) {
 }
 
 Rect Graphics::InteriorHexagon(Rect const &rBounds) {
-	double sqrt_3 = sqrt(3.0);
+	double sqrt_3 = ::sqrt(3.0);
 	double den = 4 + 4*sqrt_3;
     FractionPair pair_ulc(2/den, (6 + 2*sqrt_3)/den);
     Point ulc = rBounds.Interpolate(pair_ulc);

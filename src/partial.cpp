@@ -35,17 +35,18 @@ Partial::Partial(Game const *pGame, HintType strength) {
 // Partial(Partial const &);  compiler-generated copy constructor is OK
 // ~Partial(void);  compiler-generated destructor is OK
 
+// method invoked at the start of a turn
 void Partial::Reset(void) {
     mActiveId = Tile::ID_NONE;
     mHintedCellsValid = false;
     mPlayedTileCnt = 0;
 	mSwapIds.MakeEmpty();
-	if (mpGame == NULL) {
-	    mBoard.MakeEmpty();
-		mTiles.MakeEmpty();
-	} else {
+	if (HaveGame()) {
         mBoard = Board(*mpGame);
         mTiles = mpGame->ActiveTiles();
+    } else {
+	    mBoard.MakeEmpty();
+		mTiles.MakeEmpty();
 	}
 }
 
@@ -134,7 +135,7 @@ unsigned Partial::CountSwap(void) const {
     unsigned result = mSwapIds.Count();
     
     ASSERT(result <= CountTiles());
-    ASSERT(mpGame == NULL || result <= mpGame->CountStock());
+    ASSERT(!HaveGame() || result <= mpGame->CountStock());
 
     return result; 
 }
@@ -162,6 +163,15 @@ Cell Partial::FirstHinted(void) {
 	Cell result = *i_cell;
 
 	return result;
+}
+
+GameStyleType Partial::GameStyle(void) const {
+    GameStyleType result = GAME_STYLE_NONE;
+    if (HaveGame()) {
+        result = mpGame->Style();
+    }
+    
+    return result;
 }
 
 TileIdType Partial::GetActive(void) const {
@@ -285,7 +295,7 @@ void Partial::SetHintedCells(void) {
         for (IndexType column = left_column; column <= right_column; column++) {
 			if (Cell::IsValid(row, column)) {
                 Cell cell(row, column);
-                if (mpGame != NULL && mpGame->HasEmptyCell(cell)) {
+                if (HaveGame() && mpGame->HasEmptyCell(cell)) {
                     mHintedCells.Add(cell);
                 }
 			}
@@ -371,6 +381,12 @@ bool Partial::Contains(TileIdType id) const {
      return result;
 }
 
+bool Partial::HaveGame(void) const {
+     bool result = (mpGame != NULL);
+     
+     return result;
+}
+
 bool Partial::IsActive(TileIdType id) const {
     bool result = (mActiveId == id);
     
@@ -382,6 +398,24 @@ bool Partial::IsEmpty(Cell const &rCell) const {
     bool result = (p_tile == NULL);
 
     return result;
+}
+
+bool Partial::IsGameOver(void) const {
+     bool result = false;
+     if (HaveGame()) {
+         result = mpGame->IsOver();
+     }
+     
+     return result;
+}
+
+bool Partial::IsGamePaused(void) const {
+	bool result = false;
+	if (HaveGame() && !IsGameOver()) {
+		result = mpGame->IsPaused();
+	}
+
+	return result;
 }
 
 bool Partial::IsHinted(Cell const &rCell) {
@@ -433,7 +467,7 @@ bool Partial::IsValidNextStep(
 	Tile const &rTile) const
 {
 	// Check whether a hypothetical next step would be legal.
-	ASSERT(mpGame != NULL);
+	ASSERT(HaveGame());
 
 	Move move = rBase;
 	move.Add(rTile, rCell);

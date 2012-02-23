@@ -38,7 +38,7 @@ typedef Win::UINT IdType;
 class MenuItem {
 public:
 	// lifecycle
-    MenuItem(SubMenu const &parent, IdType);
+    MenuItem(Menu const &, IdType);
 	// no default constructor
 	// ~MenuItem(void);  compiler-generated destructor is OK
 
@@ -47,8 +47,8 @@ public:
     void Enable(bool);
 
 private:
-    Win::HMENU mHandle;
-    IdType     mItemId;
+    IdType       mItemId;
+    Menu const &mrMenu;
 };
 
 #endif

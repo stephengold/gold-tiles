@@ -25,24 +25,54 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 /*
-A MenuBar object represents the menu bar of a window.
+A MenuBar object represents the menu bar of the top window.
 */
 
 #include "gui/filemenu.hpp"
+#include "gui/menu.hpp"
 #include "gui/playmenu.hpp"
+#include "gui/submenu.hpp"
 #include "gui/viewmenu.hpp"
 
-class MenuBar: public SubMenu {
+class MenuBar : public Menu {
 public:
 	// lifecycle
-    MenuBar(Win::CREATESTRUCT const *);
+    MenuBar(Win::CREATESTRUCT const &, Partial const &);
 	// no default constructor
 
+    // misc public methods
+    void GameOver(void);
+    void NewGame(void);
+    void SetTileSize(IdType);
+    void ToggleAutocenter(void);
+    void ToggleAutopause(void);
+    void ToggleClocks(void);
+    void ToggleGrid(void);
+    void TogglePeeking(void);
+    void ToggleScores(void);
+    void Update(void);
+
+    // public inquiry methods
+    bool AreClocksVisible(void) const;    
+    bool AreScoresVisible(void) const;
+    bool IsAutocenter(void) const;
+    bool IsAutopause(void) const;    
+    bool IsGridVisible(void) const;
+    bool IsPeeking(void) const;
+
 private:
-	FileMenu mFile;
-	PlayMenu mPlay;
-	ViewMenu mView;
-	SubMenu  mHelp;
+	bool            mAutocenterFlag;
+	bool            mAutopauseFlag;
+	FileMenu        mFileMenu;
+	SubMenu         mHelpMenu;
+	Partial const &mrPartial;
+	PlayMenu        mPlayMenu;
+	bool            mShowClocksFlag;
+    bool            mShowGridFlag;
+	bool            mShowScoresFlag;
+    bool            mShowTilesFlag;
+	IdType          mTileSizeItem;
+	ViewMenu        mViewMenu;
 };
 
 #endif

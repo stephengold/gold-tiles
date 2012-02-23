@@ -96,26 +96,16 @@ TopWindow::TopWindow(HINSTANCE applicationInstance, Game *pGame):
 
     mColorAttributeCnt = 1;
     mDragBoardFlag = false;
-	mpFileMenu = NULL;
 	mpGame = pGame;
-	mGameStyle = GAME_STYLE_PRACTICE;
 	mInitialNewGame = (pGame == NULL);
     mIsStartCentered = false;
+    mpMenuBar = NULL;
 	mMouseUpCnt = 0;
     mPadPixels = 6;
-    mpPlayMenu = NULL;
-	mShowGridFlag = false;
-	mShowScoresFlag = true;
-	mShowTilesFlag = false;
 	mTargetCellFlag = false;
-    mpViewMenu = NULL;
-
-    mAutocenterFlag = (mGameStyle == GAME_STYLE_CHALLENGE);
-    mAutopauseFlag = (mGameStyle == GAME_STYLE_CHALLENGE);
-	mShowClocksFlag = (mGameStyle == GAME_STYLE_CHALLENGE);
 
     SetTileWidth(IDM_LARGE_TILES);
-	if (mpGame != NULL && !mAutopauseFlag) {
+	if (mpGame != NULL && mpGame->Style() != GAME_STYLE_CHALLENGE) {
 		mpGame->StartClock();
 	}
 
@@ -142,36 +132,23 @@ TopWindow::TopWindow(HINSTANCE applicationInstance, Game *pGame):
 }
 
 TopWindow::~TopWindow(void) {
-	delete mpFileMenu;
-	delete mpPlayMenu;
-	delete mpViewMenu;
+    delete mpMenuBar;
 }
 
 void TopWindow::Initialize(CREATESTRUCT const *pCreateStruct) {
     // Object initialization which occurs after the Microsoft Windows window
     // has been created and has received WM_CREATE.
 
-	ASSERT(mpFileMenu == NULL);
-	ASSERT(mpPlayMenu == NULL);
-	ASSERT(mpViewMenu == NULL);
+	ASSERT(mpMenuBar == NULL);
+	ASSERT(pCreateStruct != NULL);
 
 	Window::Initialize(pCreateStruct);
 
-	MenuBar bar(pCreateStruct);
-#if 0
-    HMENU menu_bar = pCreateStruct->hMenu;
+	mpMenuBar = new MenuBar(*pCreateStruct, mPartial);
+	ASSERT(mpMenuBar != NULL);
 
-	mpFileMenu = new FileMenu(menu_bar, 0);
-	ASSERT(mpFileMenu != NULL);
-
-	mpPlayMenu = new PlayMenu(menu_bar, 1);
-	ASSERT(mpPlayMenu != NULL);
-
-	mpViewMenu = new ViewMenu(menu_bar, 2);
-	ASSERT(mpViewMenu != NULL);
-#endif
 	SetTimer(TIMEOUT_MSEC, ID_CLOCK_TIMER);
-	UpdateMenus();
+	mpMenuBar->Update();
 }
 
 
@@ -179,7 +156,7 @@ void TopWindow::Initialize(CREATESTRUCT const *pCreateStruct) {
 
 PCntType TopWindow::CellHeight(void) const {
     PCntType result = TileHeight();
-    if (mShowGridFlag) {
+    if (mpMenuBar->IsGridVisible()) {
         result += 2; // add room for two grid lines
     }
 
@@ -188,7 +165,7 @@ PCntType TopWindow::CellHeight(void) const {
 
 PCntType TopWindow::CellWidth(void) const {
     PCntType result = mTileWidth;
-    if (mShowGridFlag) {
+    if (mpMenuBar->IsGridVisible()) {
         result += 2; // add room for two grid lines
     }
 
@@ -412,7 +389,7 @@ void TopWindow::DrawCell(Canvas &rCanvas, Cell const &rCell, unsigned swapCnt) {
 		}
     }
 	ColorType grid_color = cell_color;
-    if (mShowGridFlag) {
+    if (mpMenuBar->IsGridVisible()) {
 		grid_color = feature_color;
 	}
 
@@ -460,7 +437,7 @@ Rect TopWindow::DrawHandHeader(
     unsigned width = (cell_width > w) ? cell_width : w;
 
     String scoreText;
-    if (mShowScoresFlag) {
+    if (mpMenuBar->AreScoresVisible()) {
         unsigned score = rHand.Score();
         scoreText = plural(score, "point");
         w = rCanvas.TextWidth(scoreText);
@@ -470,7 +447,7 @@ Rect TopWindow::DrawHandHeader(
     }
     
     String clock_text;
-    if (mShowClocksFlag) {
+    if (mpMenuBar->AreClocksVisible()) {
         clock_text = ClockText(rHand);
         w = rCanvas.TextWidth(clock_text);
         if (w > width) {
@@ -490,11 +467,11 @@ Rect TopWindow::DrawHandHeader(
     unsigned text_height = rCanvas.TextHeight();
 
     unsigned score_height = 0;
-    if (mShowScoresFlag) {
+    if (mpMenuBar->AreScoresVisible()) {
         score_height = text_height;
     }
     unsigned clock_height = 0;
-    if (mShowClocksFlag) {
+    if (mpMenuBar->AreClocksVisible()) {
         clock_height = text_height;
     }
     unsigned height = text_height + score_height + clock_height + 2*mPadPixels;
@@ -509,13 +486,13 @@ Rect TopWindow::DrawHandHeader(
     rCanvas.DrawText(bounds, name_text);
     y += text_height;
     
-    if (mShowScoresFlag) {
+    if (mpMenuBar->AreScoresVisible()) {
         Rect score_box(y, left_x, width, score_height);
         rCanvas.DrawText(score_box, scoreText);
         y += score_height;
     }
 
-    if (mShowClocksFlag) {
+    if (mpMenuBar->AreClocksVisible()) {
         Rect clock_box(y, left_x, width, text_height);
         rCanvas.DrawText(clock_box, clock_text);
     }
@@ -635,7 +612,7 @@ void TopWindow::DrawInactiveHands(Canvas &rCanvas) {
         for (unsigned i = 0; i < hand_tiles.Count(); i++) {
             Tile tile = hand_tiles[i];
             Point point(tile_x, tile_y);
-            if (mShowTilesFlag) {
+            if (mpMenuBar->IsPeeking()) {
                 DrawTile(rCanvas, point, tile, false);
             } else {
                 DrawBlankTile(rCanvas, point, false);
@@ -785,7 +762,7 @@ PCntType TopWindow::GridUnitX(void) const {
 			FAIL();
 	}
 
-    if (mShowGridFlag) {
+    if (mpMenuBar->IsGridVisible()) {
         result -= 1; // shring by the width of one grid line
     }
 
@@ -808,7 +785,7 @@ PCntType TopWindow::GridUnitY(void) const {
 			FAIL();
 	}
 
-    if (mShowGridFlag) {
+    if (mpMenuBar->IsGridVisible()) {
         result -= 1; // height of grid line
     }
 
@@ -910,7 +887,7 @@ void TopWindow::HandleMenuCommand(int command) {
 	    case IDM_TAKE_BACK:
 			mPartial.Reset();
             ForceRepaint();
-			UpdateMenus();
+			mpMenuBar->Update();
 		    break;
 	    case IDM_PAUSE:
 			TogglePause();
@@ -930,8 +907,8 @@ void TopWindow::HandleMenuCommand(int command) {
 			break;
 
 		case IDM_AUTOPAUSE:
-            mAutopauseFlag = !mAutopauseFlag;
-	        UpdateMenus();
+            mpMenuBar->ToggleAutopause();
+	        mpMenuBar->Update();
             break;
 
 	    // View menu options
@@ -939,8 +916,8 @@ void TopWindow::HandleMenuCommand(int command) {
         case IDM_MEDIUM_TILES:
         case IDM_LARGE_TILES:
             SetTileWidth(command);
+	        mpMenuBar->Update();
 	        ForceRepaint();
-	        UpdateMenus();
             break;
         case IDM_RECENTER:
             mIsStartCentered = false;
@@ -950,18 +927,18 @@ void TopWindow::HandleMenuCommand(int command) {
 		    FAIL(); // TODO
 			break;
 	    case IDM_SHOW_CLOCKS:
-            mShowClocksFlag = !mShowClocksFlag;
-	        ForceRepaint();
-			UpdateMenus();
+            mpMenuBar->ToggleClocks();
+			mpMenuBar->Update();
             break;
         case IDM_SHOW_GRID:
-            mShowGridFlag = !mShowGridFlag;
+            mpMenuBar->ToggleGrid();
+			mpMenuBar->Update();
 	        ForceRepaint();
-			UpdateMenus();
             break;
         case IDM_HINTS: {
 			HintType hint_strength = HintType(mPartial);
-			HintBox box(hint_strength, mGameStyle);
+			GameStyleType game_style = mPartial.GameStyle();
+			HintBox box(hint_strength, game_style);
 			box.Run(this);
 			hint_strength = HintType(box);
 			mPartial.SetHintStrength(hint_strength);
@@ -969,22 +946,22 @@ void TopWindow::HandleMenuCommand(int command) {
 			break;
 		}
         case IDM_SHOW_SCORES:
-            mShowScoresFlag = !mShowScoresFlag;
+			mpMenuBar->ToggleScores();
+			mpMenuBar->Update();
 	        ForceRepaint();
-			UpdateMenus();
             break;
         case IDM_SHOW_TILES:
 			ASSERT(IsGameOver() || mGameStyle == GAME_STYLE_DEBUG);
-            mShowTilesFlag = !mShowTilesFlag;
+            mpMenuBar->TogglePeeking();
+			mpMenuBar->Update();
 	        ForceRepaint();
-			UpdateMenus();
             break;
 		case IDM_ANIMATION:
 		    FAIL(); // TODO
 			break;
 		case IDM_AUTOCENTER:
-            mAutocenterFlag = !mAutocenterFlag;
-	        UpdateMenus();
+            mpMenuBar->ToggleAutocenter();
+	        mpMenuBar->Update();
 			break;
 
         // Help menu options
@@ -1053,7 +1030,7 @@ LRESULT TopWindow::HandleMessage(UINT message, WPARAM wParam, LPARAM lParam) {
 				    POINTS points = MAKEPOINTS(lParam);
 				    Point mouse(points);
                     HandleButtonUp(mouse);
-					UpdateMenus();
+					mpMenuBar->Update();
 				} else {
 					StopDragging();
 				}
@@ -1095,7 +1072,7 @@ LRESULT TopWindow::HandleMessage(UINT message, WPARAM wParam, LPARAM lParam) {
 		case WM_TIMER: { // timeout
 			int timer_id = int(wParam);
 			if (timer_id == ID_CLOCK_TIMER) {
-			    if (mShowClocksFlag && !IsGamePaused() && !IsGameOver()) {
+			    if (mpMenuBar->AreClocksVisible() && !IsGamePaused() && !IsGameOver()) {
 					// don't update menus because that would cause flicker
 			        ForceRepaint();  // for active player's clock
 			    } else {
@@ -1166,7 +1143,8 @@ void TopWindow::OfferNewGame(void) {
 	if (mpGame != NULL) {
 		seconds_per_hand = mpGame->SecondsPerHand();
 	}
-	ParmBox1 parmbox1(mGameStyle, seconds_per_hand);
+	GameStyleType game_style = mPartial.GameStyle();
+	ParmBox1 parmbox1(game_style, seconds_per_hand);
 
 	bool wrap_flag;
 	IndexType height, width;
@@ -1319,12 +1297,11 @@ STEP4:
 	width = parmbox2.Width();
 	Cell::SetTopology(wrap_flag, height, width);
 
-	mGameStyle = GameStyleType(parmbox1);
-
+	game_style = GameStyleType(parmbox1);
 	tile_redundancy = 1 + parmbox3.ClonesPerTile();
 	hand_size = parmbox3.HandSize();
 	seconds_per_hand = parmbox1.PlayerSeconds();
-	Game *p_new_game = new Game(player_names, tile_redundancy, hand_size, seconds_per_hand);
+	Game *p_new_game = new Game(player_names, game_style, tile_redundancy, hand_size, seconds_per_hand);
 	ASSERT(p_new_game != NULL);
 
 	delete[] ip_addresses;
@@ -1353,17 +1330,15 @@ void TopWindow::Play(bool passFlag) {
         mpGame->FinishTurn(move);
 		mpGame->StopClock();
         if (mpGame->IsOver()) {
-            mShowClocksFlag = true;
-            mShowScoresFlag = true;
-            mShowTilesFlag = true;
+            mpMenuBar->GameOver();                  
             mpGame->GoingOutBonus();
         } else {
 			mTargetCellFlag = false;
             mpGame->ActivateNextHand();
-            if (!mAutopauseFlag) {
+            if (!mpMenuBar->IsAutopause()) {
 				mpGame->StartClock();
 			}
-            if (mAutocenterFlag) {
+            if (mpMenuBar->IsAutocenter()) {
                 // center the start cell
                 mIsStartCentered = false;
                 Resize(ClientAreaWidth(), ClientAreaHeight());
@@ -1380,7 +1355,7 @@ void TopWindow::Play(bool passFlag) {
 		}
 
 	}
-	UpdateMenus();
+	mpMenuBar->Update();
 	ForceRepaint();
 }
 
@@ -1554,26 +1529,21 @@ void TopWindow::SetGame(Game *pGame) {
 	// TODO: free old Game object?
 	mpGame = pGame;
 
-	if (mGameStyle == GAME_STYLE_CHALLENGE) {
+    if (pGame != NULL && pGame->Style() == GAME_STYLE_CHALLENGE) {
 	    mPartial = Partial(mpGame, HINT_CHALLENGE_DEFAULT);
-        mAutocenterFlag = true;
-        mAutopauseFlag = true;
-	    mShowClocksFlag = true;
 	} else {
 	    mPartial = Partial(mpGame, HINT_DEFAULT);
-        mAutocenterFlag = false;
-        mAutopauseFlag = false;
-	    mShowClocksFlag = false;
 	}
-
+	
+    mpMenuBar->NewGame();
     SetTileWidth(IDM_LARGE_TILES);
 
-	if (mpGame != NULL && !mAutopauseFlag) {
+	if (mpGame != NULL && !mpMenuBar->IsAutopause()) {
 		mpGame->StartClock();
 	}
 
 	ForceRepaint();
-    UpdateMenus();
+    mpMenuBar->Update();
 }
 
 void TopWindow::SetTileWidth(int command) {
@@ -1608,7 +1578,7 @@ void TopWindow::SetTileWidth(int command) {
 		FAIL();
 	}
 	
-	mTileSizeCmd = command;
+	mpMenuBar->SetTileSize(command);
 }
 
 void TopWindow::StopDragging(void) {
@@ -1651,36 +1621,7 @@ void TopWindow::TogglePause(void) {
 		}
 	}
     ForceRepaint();
-    UpdateMenus();
-}
-
-void TopWindow::UpdateMenus(void) {
-	bool is_game = (mpGame != NULL);
-	bool is_over = IsGameOver();
-	bool is_paused = IsGamePaused();
-    bool is_pass = mPartial.IsPass();
-
-	// "File" menu
-	mpFileMenu->EnableItems(is_game);
-	mpFileMenu->Enable(true);
-
-	// "Play" menu
-    mpPlayMenu->Autopause(mAutopauseFlag);
-    mpPlayMenu->Pause(is_paused);
-	mpPlayMenu->EnableItems(mGameStyle, is_over, is_paused, is_pass);
-	mpPlayMenu->Enable(mpGame != NULL);
-
-	// "View" menu
-    mpViewMenu->TileSize(mTileSizeCmd);
-    mpViewMenu->ShowClocks(mShowClocksFlag);
-    mpViewMenu->ShowGrid(mShowGridFlag);
-    mpViewMenu->ShowScores(mShowScoresFlag);
-    mpViewMenu->ShowTiles(mShowTilesFlag);
-    mpViewMenu->Autocenter(mAutocenterFlag);
-	mpViewMenu->EnableItems(mGameStyle, is_over, is_paused, is_pass);
-	mpViewMenu->Enable(!is_paused);
-	
-	UpdateMenuBar();
+    mpMenuBar->Update();
 }
 
 

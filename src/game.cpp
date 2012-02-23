@@ -30,17 +30,20 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 
 Game::Game(
     Strings handNames,
+    GameStyleType style,
     unsigned tileRedundancy,
     unsigned handSize,
 	unsigned secondsPerHand)
 {
 	ASSERT(tileRedundancy >= 1);
 	ASSERT(handSize >= 1);
+	ASSERT(style != GAME_STYLE_NONE);
 
     // copy game parameters
 	mRedundancy = tileRedundancy;
 	mHandSize = handSize;
 	mSecondsPerHand = secondsPerHand;
+	mStyle = style;
 
     // generate all possible tiles
     unsigned attribute_index = 0;
@@ -302,6 +305,11 @@ void Game::StartClock(void) {
 void Game::StopClock(void) {
 	miActiveHand->StopClock();
 }
+
+GameStyleType Game::Style(void) const {
+    return mStyle;
+}
+
 
 // inquiry methods
 

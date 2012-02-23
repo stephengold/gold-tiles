@@ -27,20 +27,20 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 
 // lifecycle
 
-ViewMenu::ViewMenu(SubMenu const &menu, unsigned position):
-	SubMenu(menu, position),
-    mSmallTiles(menu, IDM_SMALL_TILES),
-    mMediumTiles(menu, IDM_MEDIUM_TILES),
-    mLargeTiles(menu, IDM_LARGE_TILES),
-    mRecenter(menu, IDM_RECENTER),
-    mAttributes(menu, IDM_ATTRIBUTES),
-    mHints(menu, IDM_HINTS),
-    mShowClocks(menu, IDM_SHOW_CLOCKS),
-    mShowGrid(menu, IDM_SHOW_GRID),
-    mShowScores(menu, IDM_SHOW_SCORES),
-    mShowTiles(menu, IDM_SHOW_TILES),
-    mAnimation(menu, IDM_ANIMATION),
-    mAutocenter(menu, IDM_AUTOCENTER)
+ViewMenu::ViewMenu(Menu const &rRootMenu, unsigned position):
+	SubMenu(rRootMenu, position),
+    mSmallTiles(rRootMenu, IDM_SMALL_TILES),
+    mMediumTiles(rRootMenu, IDM_MEDIUM_TILES),
+    mLargeTiles(rRootMenu, IDM_LARGE_TILES),
+    mRecenter(rRootMenu, IDM_RECENTER),
+    mAttributes(rRootMenu, IDM_ATTRIBUTES),
+    mHints(rRootMenu, IDM_HINTS),
+    mShowClocks(rRootMenu, IDM_SHOW_CLOCKS),
+    mShowGrid(rRootMenu, IDM_SHOW_GRID),
+    mShowScores(rRootMenu, IDM_SHOW_SCORES),
+    mShowTiles(rRootMenu, IDM_SHOW_TILES),
+    mAnimation(rRootMenu, IDM_ANIMATION),
+    mAutocenter(rRootMenu, IDM_AUTOCENTER)
 {}
 
 // misc methods
@@ -77,9 +77,10 @@ void ViewMenu::ShowScores(bool shown) {
 void ViewMenu::ShowTiles(bool shown) {
 	mShowTiles.Check(shown);
 }
-void ViewMenu::TileSize(IdType position) {
+void ViewMenu::TileSize(IdType itemId) {
 	UncheckAllSizes();
-	switch (position) {
+	
+	switch (itemId) {
  	    case IDM_SMALL_TILES:
 	        mSmallTiles.Check(true);
 			break;

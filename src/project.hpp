@@ -41,11 +41,12 @@ class Hand;
 class Hands;
 class Indices;
 class Move;
+class Partial;
 class String;
 class Strings;
 class Tile;
-class Tiles;
 class TileCell;
+class Tiles;
 
 #ifdef _GUI
 class Canvas;
@@ -54,6 +55,8 @@ class FileMenu;
 class Graphics;
 class HandBox;
 class HintBox;
+class Menu;
+class MenuBar;
 class MenuItem;
 class ParmBox1;
 class ParmBox2;

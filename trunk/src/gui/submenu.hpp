@@ -25,16 +25,17 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 /*
-A SubMenu object represents a submenu of the menu bar, such as
+A SubMenu object represents a submenu such as
 the "Play" submenu or the "View" submenu.
 */
 
+#include "project.hpp"
 #include "gui/win.hpp"
 
 class SubMenu {
 public:
 	// lifecycle
-    SubMenu(SubMenu const &parent, unsigned position);
+    SubMenu(Menu const &, unsigned position);
 	// no default constructor
 
 	// operators
@@ -44,9 +45,8 @@ public:
     void Enable(bool);
 
 private:
-	Win::HMENU mHandle;
-    Win::HMENU mParent;
-    unsigned   mPosition;
+    Menu const &mrMenu;
+    unsigned     mPosition;
 };
 
 #endif

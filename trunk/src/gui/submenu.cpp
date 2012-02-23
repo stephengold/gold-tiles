@@ -21,21 +21,17 @@ You should have received a copy of the GNU General Public License
 along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include "gui/menu.hpp"
 #include "gui/submenu.hpp"
 #include "gui/win_types.hpp"
 
 
 // lifecycle
 
-SubMenu::SubMenu(SubMenu const &parent, unsigned position) {
-    mParent = HMENU(parent);
+SubMenu::SubMenu(Menu const &rMenu, unsigned position):
+    mrMenu(rMenu)
+{
     mPosition = position;
-}
-
-// operators
-
-SubMenu::operator HMENU(void) const {
-	return mParent;
 }
 
 // misc methods
@@ -49,5 +45,5 @@ void SubMenu::Enable(bool enabledFlag) {
 	} else {
 		flags |= MF_GRAYED;
 	}
-	Win::EnableMenuItem(mParent, position, flags);
+	Win::EnableMenuItem(HMENU(mrMenu), position, flags);
 }

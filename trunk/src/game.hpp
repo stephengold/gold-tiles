@@ -24,23 +24,25 @@ You should have received a copy of the GNU General Public License
 along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include "board.hpp"
 #include "hands.hpp"
 #include "move.hpp"
-#include "partial.hpp"
 
 enum GameStyleType {
-	GAME_STYLE_DEBUG = 0,    // allows peeking, undo, all hints; clock is optional
-	GAME_STYLE_PRACTICE = 1, // no peeking; allows undo, all hints; clock is optional
-	GAME_STYLE_FRIENDLY = 2, // no peeking, no undo; allows all hints; clock is optional
-	GAME_STYLE_CHALLENGE = 3 // no peeking, no undo, no hints; time limits
+    GAME_STYLE_NONE,
+	GAME_STYLE_DEBUG,    // allows peeking, undo, all hints; clock is optional
+	GAME_STYLE_PRACTICE, // no peeking; allows undo, all hints; clock is optional
+	GAME_STYLE_FRIENDLY, // no peeking, no undo; allows all hints; clock is optional
+	GAME_STYLE_CHALLENGE // no peeking, no undo, no hints; time limits
 };
 
 class Game {
 public:
 	// lifecycle
     Game(Strings handNames,
+         GameStyleType, 
 		 unsigned tileRedundancy = TILE_REDUNDANCY_DEFAULT, 
-		 unsigned handSize = HAND_SIZE_DEFAULT, 
+		 unsigned handSize = HAND_SIZE_DEFAULT,
 		 unsigned secondsPerHand = TIME_UNLIMITED);
 	// no default constructor
 	// no copy constructor
@@ -52,19 +54,20 @@ public:
 	operator Hand(void) const;
 
 	// misc public methods
-    void     ActivateNextHand(void);
-    Tiles    ActiveTiles(void) const;
-    unsigned CountStock(void) const;
-    void     FinishTurn(Move const &);
-    void     GoingOutBonus(void);
-	unsigned HandSize(void) const;
-    Hands    InactiveHands(void) const;
-    void     PlayGame(void);
-	unsigned Redundancy(void) const;
-	int      Seconds(Hand &) const;
-	unsigned SecondsPerHand(void) const;
-	void     StartClock(void);
-	void     StopClock(void);
+    void          ActivateNextHand(void);
+    Tiles         ActiveTiles(void) const;
+    unsigned      CountStock(void) const;
+    void          FinishTurn(Move const &);
+    void          GoingOutBonus(void);
+	unsigned      HandSize(void) const;
+    Hands         InactiveHands(void) const;
+    void          PlayGame(void);
+	unsigned      Redundancy(void) const;
+	int           Seconds(Hand &) const;
+	unsigned      SecondsPerHand(void) const;
+	void          StartClock(void);
+	void          StopClock(void);
+    GameStyleType Style(void) const;
 
 	// public inquiry methods
 	bool     HasEmptyCell(Cell const &) const;
@@ -85,12 +88,13 @@ private:
     Hands::IteratorType miActiveHand;    // whose turn it is
     unsigned             mBestRunLength; // zero after the first turn
     Board                mBoard;         // extensible playing surface
-	String               mFilename;      // name of associated file for load/save
+	String               mFilespec;      // associated file for load/save
     Hands                mHands;         // all hands being played
 	unsigned             mHandSize;      // max tiles per hand
 	unsigned             mRedundancy;    // number of instances of each possible tile
 	unsigned             mSecondsPerHand; // 0 indicates count up instead of down
     Tiles                mStockBag;      // stock bag from which tiles are drawn
+	GameStyleType        mStyle;
 	bool                 mUnsavedChanges;
 
 	// misc private methods

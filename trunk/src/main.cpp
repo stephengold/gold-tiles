@@ -33,7 +33,7 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 TopWindow *gTopWindow = NULL;
 
 // Windows main entry point
-int CALLBACK WinMain(
+int CALLBACK Win::WinMain(
 	HINSTANCE applicationInstance, 
 	HINSTANCE previousInstance, // always NULL and ignored
 	char *commandLine, // TODO
@@ -70,7 +70,7 @@ int main(int argCnt, char *argValues[]) {
 	hand_names.Append("Gale");
 
     // Instantiate the game.
-	Game game(hand_names);
+	Game game(hand_names, GAME_STYLE_PRACTICE);
 
 	game.PlayGame();
     ::pause();

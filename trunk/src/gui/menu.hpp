@@ -1,8 +1,8 @@
-#ifndef PLAYERS_HPP_INCLUDED
-#define PLAYERS_HPP_INCLUDED
+#ifndef MENU_HPP_INCLUDED
+#define MENU_HPP_INCLUDED
 
-// File:    hands.hpp
-// Purpose: Hands class
+// File:    menu.hpp
+// Purpose: Menu class
 // Author:  Stephen Gold sgold@sonic.net
 // (c) Copyright 2012 Stephen Gold
 // Distributed under the terms of the GNU General Public License
@@ -25,21 +25,22 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 /*
-A Hands object represents a group of zero or more hands.
+A Menu object represents a top-level menu such as the menu bar of a window.
 */
 
-#include <vector>
-#include "hand.hpp"
+#include "gui/win.hpp"
 
-class Hands: public std::vector<Hand> {
+class Menu {
 public:
-    typedef std::vector<Hand>::const_iterator ConstIteratorType;
-    typedef std::vector<Hand>::iterator       IteratorType;
+	// lifecycle
+    Menu(Win::HMENU);
+	// no default constructor
 
-	// misc methods
-    unsigned Count(void) const;
-    void     Next(ConstIteratorType &) const;
-    void     Next(IteratorType &);
+    // operators
+    operator Win::HMENU(void) const;
+
+private:
+    Win::HMENU mHandle;
 };
 
 #endif

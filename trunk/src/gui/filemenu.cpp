@@ -27,17 +27,17 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 
 // lifecycle
 
-FileMenu::FileMenu(SubMenu const &parent, unsigned position):
-	SubMenu(parent, position),
-    mNew(parent, IDM_NEW),
-    mOpen(parent, IDM_OPEN),
-    mReopen(parent, IDM_REOPEN),
-    mRevert(parent, IDM_REVERT),
-    mSave(parent, IDM_SAVE),
-    mSaveAs(parent, IDM_SAVE_AS),
-    mClose(parent, IDM_CLOSE),
-    mPrint(parent, IDM_PRINT),
-    mExit(parent, IDM_EXIT)
+FileMenu::FileMenu(Menu const &rRootMenu, unsigned position):
+	SubMenu(rRootMenu, position),
+    mNew(rRootMenu, IDM_NEW),
+    mOpen(rRootMenu, IDM_OPEN),
+    mReopen(rRootMenu, IDM_REOPEN),
+    mRevert(rRootMenu, IDM_REVERT),
+    mSave(rRootMenu, IDM_SAVE),
+    mSaveAs(rRootMenu, IDM_SAVE_AS),
+    mClose(rRootMenu, IDM_CLOSE),
+    mPrint(rRootMenu, IDM_PRINT),
+    mExit(rRootMenu, IDM_EXIT)
 {}
 
 // misc methods

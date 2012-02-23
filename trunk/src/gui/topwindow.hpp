@@ -62,34 +62,26 @@ private:
 
 	static WindowClass *mspClass;
 
-	bool          mAutopauseFlag;
-	bool          mAutocenterFlag;
 	ACountType    mColorAttributeCnt;
 	bool          mDragBoardFlag;
 	PCntType      mDragBoardPixelCnt;
 	long          mDragTileDeltaX, mDragTileDeltaY;
-    FileMenu *   mpFileMenu;
 	Game *       mpGame;
-	GameStyleType mGameStyle;
 	Rect          mHandRect;
 	bool          mInitialNewGame;
 	bool          mIsStartCentered;
+	MenuBar *    mpMenuBar;
 	Point         mMouseLast; // coordinates of last mouse down
 	unsigned      mMouseUpCnt;
 	PCntType      mPadPixels;
 	Partial       mPartial;
-    PlayMenu *   mpPlayMenu;
 	unsigned      mRunLength;
-	bool          mShowClocksFlag, mShowGridFlag;
-	bool          mShowScoresFlag, mShowTilesFlag;
 	Point         mStartCell; // logical coordinates of center of start cell
 	Rect          mSwapRect;
 	Cell          mTargetCell;
 	bool          mTargetCellFlag;
 	TileMapType   mTileMap;
-	int           mTileSizeCmd;
 	PCntType      mTileWidth;
-    ViewMenu *   mpViewMenu;
 
 	// lifecycle
     void Initialize(Win::CREATESTRUCT const *);
@@ -135,7 +127,6 @@ private:
 	void         StopDragging(void);
 	PCntType     TileHeight(void) const;
 	void         TogglePause(void);
-	void         UpdateMenus(void);
 
 	// private inquiry methods
 	bool IsDragging(void) const;

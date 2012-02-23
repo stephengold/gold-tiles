@@ -37,6 +37,7 @@ The Partial class is ...
 
 #include "board.hpp"
 #include "cells.hpp"
+#include "game.hpp"
 #include "indices.hpp"
 #include "tiles.hpp"
 
@@ -65,31 +66,35 @@ public:
 	operator HintType(void) const;
 
 	// misc public methods
-	void       Activate(TileIdType);  // TODO Mobilize()
-	void       BoardToHand(void);             // move the active tile
-	unsigned   CountHand(void) const;
-	unsigned   CountHinted(void);
-	unsigned   CountPlayed(void) const;
-	unsigned   CountSwap(void) const;
-	unsigned   CountTiles(void) const;
-	void       Deactivate(void);
-	Cell       FirstHinted(void);
-	TileIdType GetActive(void) const;
-	TileIdType GetCell(Cell const &) const;
-	Move       GetMove(bool includeActive) const;
-	Tile       GetTileById(TileIdType) const;
-	Tile       GetTileByIndex(unsigned) const;
-	void       HandToCell(Cell const &);       // move the active tile
-	void       HandToSwap(void);               // move the active tile
-	Cell       LocateTile(void) const;
-	Cell       LocateTile(TileIdType) const;
-	void       SetHintStrength(HintType);
-	void       SwapToHand(void);               // move the actilve tile
+	void          Activate(TileIdType);  // TODO Mobilize()
+	void          BoardToHand(void);             // move the active tile
+	unsigned      CountHand(void) const;
+	unsigned      CountHinted(void);
+	unsigned      CountPlayed(void) const;
+	unsigned      CountSwap(void) const;
+	unsigned      CountTiles(void) const;
+	void          Deactivate(void);
+	Cell          FirstHinted(void);
+	GameStyleType GameStyle(void) const;
+	TileIdType    GetActive(void) const;
+	TileIdType    GetCell(Cell const &) const;
+	Move          GetMove(bool includeActive) const;
+	Tile          GetTileById(TileIdType) const;
+	Tile          GetTileByIndex(unsigned) const;
+	void          HandToCell(Cell const &);       // move the active tile
+	void          HandToSwap(void);               // move the active tile
+	Cell          LocateTile(void) const;
+	Cell          LocateTile(TileIdType) const;
+	void          SetHintStrength(HintType);
+	void          SwapToHand(void);               // move the active tile
 	
 	// inquiry methods
 	bool Contains(TileIdType) const;
+    bool HaveGame(void) const;
 	bool IsActive(TileIdType) const;
 	bool IsEmpty(Cell const &) const;
+    bool IsGameOver(void) const;
+    bool IsGamePaused(void) const;
 	bool IsHinted(Cell const &);
 	bool IsInHand(TileIdType) const;
 	bool IsInSwap(TileIdType) const;
@@ -98,15 +103,15 @@ public:
 	bool IsVisible(Cell const &);
 
 private:
-	TileIdType  mActiveId;        // tile actively being dragged (or else TILE_INVALID)
-    Board       mBoard;
+	TileIdType   mActiveId;        // tile actively being dragged (or else TILE_INVALID)
+    Board        mBoard;
 	Game const *mpGame;
-	Cells       mHintedCells;     // cached choice of cells
-	bool        mHintedCellsValid;
-	HintType    mHintStrength;
-	unsigned    mPlayedTileCnt;   // number of tiles played to the board
-	Indices     mSwapIds;         // indices of all tiles in the swap area
-	Tiles       mTiles;           // the set of all available tiles
+	Cells        mHintedCells;     // cached choice of cells
+	bool         mHintedCellsValid;
+	HintType     mHintStrength;
+	unsigned     mPlayedTileCnt;   // number of tiles played to the board
+	Indices      mSwapIds;         // indices of all tiles in the swap area
+	Tiles        mTiles;           // the set of all available tiles
 
 	// misc private methods
 	void AddValidNextUses(Move const &, Tile const &, Cells const &);

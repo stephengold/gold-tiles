@@ -31,12 +31,13 @@ A PlayMenu object represents the "play" submenu in the menu bar.
 #include "game.hpp"
 #include "gui/menuitem.hpp"
 #include "gui/submenu.hpp"
+#include "gui/win.hpp"
 
 
 class PlayMenu: public SubMenu {
 public:
 	// lifecycle
-    PlayMenu(SubMenu const &, unsigned position);
+    PlayMenu(Menu const &, unsigned position);
 	// no default constructor
 	// ~PlayMenu(void);  compiler-generated destructor is fine
 

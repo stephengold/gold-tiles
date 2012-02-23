@@ -21,16 +21,19 @@ You should have received a copy of the GNU General Public License
 along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include "gui/menu.hpp"
 #include "gui/menuitem.hpp"
 #include "gui/submenu.hpp"
 #include "gui/win_types.hpp"
 
 // lifecycle
 
-MenuItem::MenuItem(SubMenu const &parent, IdType itemId):
-    mHandle(HMENU(parent)),
-	mItemId(itemId)
-{}
+MenuItem::MenuItem(Menu const &rMenu, IdType itemId)
+:
+    mrMenu(rMenu)
+{
+    mItemId = itemId;
+}
 
 // misc menus
 
@@ -41,7 +44,7 @@ void MenuItem::Check(bool checkedFlag) {
 	} else {
 	    flags |= MF_UNCHECKED;
 	}
-	Win::CheckMenuItem(mHandle, mItemId, flags);
+	Win::CheckMenuItem(HMENU(mrMenu), mItemId, flags);
 }
 
 void MenuItem::Enable(bool enabledFlag) {
@@ -51,5 +54,5 @@ void MenuItem::Enable(bool enabledFlag) {
 	} else {
     	flags |= MF_GRAYED;
 	}
-   	Win::EnableMenuItem(mHandle, mItemId, flags);
+   	Win::EnableMenuItem(HMENU(mrMenu), mItemId, flags);
 }

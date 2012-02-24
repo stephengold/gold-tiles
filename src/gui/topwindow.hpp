@@ -112,7 +112,7 @@ private:
     PCntType     GridUnitY(void) const;
     void         HandleButtonDown(Point const &);
 	void         HandleButtonUp(Point const &);
-    void         HandleMenuCommand(int);
+    void         HandleMenuCommand(IdType);
 	void         HandleMouseMove(Point const &);
 	char const * Name(void) const;
 	void		 OfferNewGame(void);
@@ -127,6 +127,7 @@ private:
 	void         StopDragging(void);
 	PCntType     TileHeight(void) const;
 	void         TogglePause(void);
+	void         UpdateMenuBar(void);
 
 	// private inquiry methods
 	bool IsDragging(void) const;

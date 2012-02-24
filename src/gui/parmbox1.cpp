@@ -49,6 +49,9 @@ ParmBox1::ParmBox1(GameStyleType gameStyle, unsigned secondsPerHand):
     Dialog("PARMBOX1", &message_handler)
 {
 	mGameStyle = gameStyle;
+	if (mGameStyle == GAME_STYLE_NONE) {
+		mGameStyle = GAME_STYLE_PRACTICE;
+	}
 
 	if (secondsPerHand == Game::TIME_UNLIMITED) {
 		mPlayerMinutes = PLAYER_MINUTES_DEFAULT;
@@ -84,7 +87,7 @@ INT_PTR ParmBox1::HandleMessage(MessageType message, WPARAM wParam, LPARAM lPara
 
     switch (message) {
         case WM_INITDIALOG: {
-		    Dialog::HandleMessage(message, wParam, lParam);
+		    Dialog::HandleMessage(message, wParam);
 
 			SetStyle();
 
@@ -147,7 +150,7 @@ INT_PTR ParmBox1::HandleMessage(MessageType message, WPARAM wParam, LPARAM lPara
     }
 
 	if (result == FALSE) {
-		result = Dialog::HandleMessage(message, wParam, lParam);
+		result = Dialog::HandleMessage(message, wParam);
 	}
 
     return result;

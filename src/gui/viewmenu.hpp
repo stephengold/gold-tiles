@@ -39,10 +39,13 @@ public:
 	// no default constructor
 	//ViewMenu(ViewMenu const &);  compiler-generated destructor is OK
 
+	// public operators
+	ViewMenu &operator=(ViewMenu const &) { FAIL(); }
+
 	// misc public methods
     void Animation(bool);
     void Autocenter(bool);
-	void EnableItems(GameStyleType, bool over, bool paused, bool pass);
+	void EnableItems(GameStyleType, bool over);
 	void ShowClocks(bool);
 	void ShowGrid(bool);
 	void ShowHints(bool);
@@ -59,5 +62,4 @@ private:
 	// misc private methods
 	void UncheckAllSizes(void);
 };
-
 #endif

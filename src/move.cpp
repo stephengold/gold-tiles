@@ -103,7 +103,7 @@ unsigned Move::Count(void) const {
 void Move::GetUserChoice(Tiles const &rAvailableTiles) {
     MakeEmpty();
 
-    while (true) {
+    for (;;) {
 		Strings alts;
 		if (IsPass()) {
 			alts.Append("pass");

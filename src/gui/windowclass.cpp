@@ -43,7 +43,7 @@ WindowClass::WindowClass(
 	hInstance = applicationInstance;
 	lpfnWndProc = messageHandler;  // callback
 
-	// The menu and the window class will share the same name.
+	// The menu bar and the window class will share the same name.
 	lpszClassName = name;
 	lpszMenuName = name;
 

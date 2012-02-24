@@ -194,7 +194,7 @@ IndexType Cell::Column(void) const {
 bool Cell::GetUserChoice(String const &alt) {
     String input;
 
-    while (true) {
+    for (;;) {
         std::cout << "Enter a row number";
 		if (alt != "") {
 			std::cout << " or '" << alt << "'";
@@ -210,7 +210,7 @@ bool Cell::GetUserChoice(String const &alt) {
         }
         std::cout << "'" << input << "' is invalid." << std::endl;
     }
-    while (true) {
+    for (;;) {
         std::cout << "Enter a column number: ";
         std::cin >> input;
         mColumn = input;

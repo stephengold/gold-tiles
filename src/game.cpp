@@ -40,10 +40,10 @@ Game::Game(
 	ASSERT(style != GAME_STYLE_NONE);
 
     // copy game parameters
+	mStyle = style;
 	mRedundancy = tileRedundancy;
 	mHandSize = handSize;
 	mSecondsPerHand = secondsPerHand;
-	mStyle = style;
 
     // generate all possible tiles
     unsigned attribute_index = 0;
@@ -187,7 +187,7 @@ void Game::FirstTurn(void) {
     D(std::cout << "Game::FirstTurn(" << miActiveHand->Name() << ")" << std::endl);
 
     Move move;
-    while (true) {
+    for (;;) {
     	std::cout << miActiveHand->Name() << " plays first and must place " 
 			<< plural(mBestRunLength, "tile") << " on the (empty) board." << std::endl;
 		move = miActiveHand->ChooseMove();
@@ -236,7 +236,7 @@ void Game::NextTurn(void) {
      D(std::cout << "Game::NextTurn()" << std::endl);
 
 	 Move move;
-     while (true) {
+     for (;;) {
  	     DisplayScores();
     	 unsigned stock = CountStock();
          std::cout << std::endl

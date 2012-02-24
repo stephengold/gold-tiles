@@ -39,12 +39,13 @@ static INT_PTR CALLBACK message_handler(
 	WPARAM wParameter, 
 	LPARAM lParameter)
 {
+	lParameter; // unused parameter
 	ASSERT(windowHandle != NULL);
     Dialog *p_dialog = (Dialog *)Window::Lookup(windowHandle);
 
 	INT_PTR result;
     ASSERT(p_dialog->Handle() == windowHandle);
-    result = p_dialog->HandleMessage(message, wParameter, lParameter);
+    result = p_dialog->HandleMessage(message, wParameter);
 
 	return result;
 }
@@ -135,7 +136,7 @@ Dialog::ValueType Dialog::GetTextValue(IdType controlId) {
     return result;
 }
 
-INT_PTR Dialog::HandleMessage(UINT message, WPARAM wParam, LPARAM lParam) {
+INT_PTR Dialog::HandleMessage(UINT message, WPARAM wParam) {
 	INT_PTR result = FALSE;
 
     switch (message) {

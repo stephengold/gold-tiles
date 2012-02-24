@@ -42,6 +42,9 @@ public:
 	// no default constructor
 	// ~MenuItem(void);  compiler-generated destructor is OK
 
+	// misc operators
+	MenuItem &operator=(MenuItem const &) { FAIL(); };
+
 	// misc public methods
     void Check(bool);
     void Enable(bool);
@@ -50,5 +53,4 @@ private:
     IdType       mItemId;
     Menu const &mrMenu;
 };
-
 #endif

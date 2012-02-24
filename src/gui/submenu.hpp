@@ -37,8 +37,10 @@ public:
 	// lifecycle
     SubMenu(Menu const &, unsigned position);
 	// no default constructor
+	// ~SubMenu(void);  compiler-generated destructor is OK
 
-	// operators
+	// public operators
+	SubMenu &operator=(SubMenu const &) { FAIL(); };
 	operator Win::HMENU(void) const;
 
 	// misc public methods

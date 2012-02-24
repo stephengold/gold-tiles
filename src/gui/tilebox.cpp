@@ -86,7 +86,7 @@ INT_PTR TileBox::HandleMessage(MessageType message, WPARAM wParam, LPARAM lParam
 
     switch (message) {
         case WM_INITDIALOG: {
-		    Dialog::HandleMessage(message, wParam, lParam);
+		    Dialog::HandleMessage(message, wParam);
 		    
 			InitControl(IDC_SLIDER1, mpNumValues[0], 4, 9);
 		    InitControl(IDC_SLIDER2, mpNumValues[1], 4, 9);
@@ -139,7 +139,7 @@ INT_PTR TileBox::HandleMessage(MessageType message, WPARAM wParam, LPARAM lParam
     }
 
 	if (result == FALSE) {
-		result = Dialog::HandleMessage(message, wParam, lParam);
+		result = Dialog::HandleMessage(message, wParam);
 	}
 
     return result;

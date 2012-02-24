@@ -104,7 +104,6 @@ TopWindow::TopWindow(HINSTANCE applicationInstance, Game *pGame):
     mPadPixels = 6;
 	mTargetCellFlag = false;
 
-    SetTileWidth(IDM_LARGE_TILES);
 	if (mpGame != NULL && mpGame->Style() != GAME_STYLE_CHALLENGE) {
 		mpGame->StartClock();
 	}
@@ -147,8 +146,10 @@ void TopWindow::Initialize(CREATESTRUCT const *pCreateStruct) {
 	mpMenuBar = new MenuBar(*pCreateStruct, mPartial);
 	ASSERT(mpMenuBar != NULL);
 
+    SetTileWidth(IDM_LARGE_TILES);
+
 	SetTimer(TIMEOUT_MSEC, ID_CLOCK_TIMER);
-	mpMenuBar->Update();
+	UpdateMenuBar();
 }
 
 
@@ -842,10 +843,7 @@ void TopWindow::HandleButtonUp(Point const &rMouse) {
     }
 }
 
-void TopWindow::HandleMenuCommand(int command) {
-	ASSERT(mpPlayMenu != NULL);
-	ASSERT(mpViewMenu != NULL);
-
+void TopWindow::HandleMenuCommand(IdType command) {
     switch (command) {
     // File menu options
         case IDM_NEW: {
@@ -886,8 +884,6 @@ void TopWindow::HandleMenuCommand(int command) {
 
 	    case IDM_TAKE_BACK:
 			mPartial.Reset();
-            ForceRepaint();
-			mpMenuBar->Update();
 		    break;
 	    case IDM_PAUSE:
 			TogglePause();
@@ -906,9 +902,13 @@ void TopWindow::HandleMenuCommand(int command) {
 		    FAIL(); // TODO
 			break;
 
+		case IDM_AUTOCENTER:
 		case IDM_AUTOPAUSE:
-            mpMenuBar->ToggleAutopause();
-	        mpMenuBar->Update();
+        case IDM_PEEK:
+	    case IDM_SHOW_CLOCKS:
+	    case IDM_SHOW_GRID:
+        case IDM_SHOW_SCORES:
+            mpMenuBar->HandleMenuCommand(command);
             break;
 
 	    // View menu options
@@ -916,8 +916,6 @@ void TopWindow::HandleMenuCommand(int command) {
         case IDM_MEDIUM_TILES:
         case IDM_LARGE_TILES:
             SetTileWidth(command);
-	        mpMenuBar->Update();
-	        ForceRepaint();
             break;
         case IDM_RECENTER:
             mIsStartCentered = false;
@@ -926,42 +924,21 @@ void TopWindow::HandleMenuCommand(int command) {
 		case IDM_ATTRIBUTES:
 		    FAIL(); // TODO
 			break;
-	    case IDM_SHOW_CLOCKS:
-            mpMenuBar->ToggleClocks();
-			mpMenuBar->Update();
-            break;
-        case IDM_SHOW_GRID:
-            mpMenuBar->ToggleGrid();
-			mpMenuBar->Update();
-	        ForceRepaint();
-            break;
         case IDM_HINTS: {
 			HintType hint_strength = HintType(mPartial);
 			GameStyleType game_style = mPartial.GameStyle();
 			HintBox box(hint_strength, game_style);
-			box.Run(this);
-			hint_strength = HintType(box);
-			mPartial.SetHintStrength(hint_strength);
-			ForceRepaint();
+			int result = box.Run(this);
+			if (result == Dialog::RESULT_OK) {
+			    hint_strength = HintType(box);
+			    mPartial.SetHintStrength(hint_strength);
+			} else {
+        	    ASSERT(result == Dialog::RESULT_CANCEL);
+			}
 			break;
 		}
-        case IDM_SHOW_SCORES:
-			mpMenuBar->ToggleScores();
-			mpMenuBar->Update();
-	        ForceRepaint();
-            break;
-        case IDM_SHOW_TILES:
-			ASSERT(IsGameOver() || mGameStyle == GAME_STYLE_DEBUG);
-            mpMenuBar->TogglePeeking();
-			mpMenuBar->Update();
-	        ForceRepaint();
-            break;
 		case IDM_ANIMATION:
 		    FAIL(); // TODO
-			break;
-		case IDM_AUTOCENTER:
-            mpMenuBar->ToggleAutocenter();
-	        mpMenuBar->Update();
 			break;
 
         // Help menu options
@@ -984,6 +961,9 @@ void TopWindow::HandleMenuCommand(int command) {
 		default:
 			FAIL();
     }
+
+	UpdateMenuBar();
+	ForceRepaint();
 }
 
 LRESULT TopWindow::HandleMessage(UINT message, WPARAM wParam, LPARAM lParam) {
@@ -1030,7 +1010,7 @@ LRESULT TopWindow::HandleMessage(UINT message, WPARAM wParam, LPARAM lParam) {
 				    POINTS points = MAKEPOINTS(lParam);
 				    Point mouse(points);
                     HandleButtonUp(mouse);
-					mpMenuBar->Update();
+					UpdateMenuBar();
 				} else {
 					StopDragging();
 				}
@@ -1111,7 +1091,7 @@ int TopWindow::MessageDispatchLoop(void) {
 
 	HACCEL table = GetAcceleratorTable("HOTKEYS");
 
-	while (true) {
+	for (;;) {
         MSG message;
 	    HWND any_window = NULL;
 		UINT no_filtering = 0;
@@ -1355,8 +1335,6 @@ void TopWindow::Play(bool passFlag) {
 		}
 
 	}
-	mpMenuBar->Update();
-	ForceRepaint();
 }
 
 void TopWindow::Recenter(PCntType oldHeight, PCntType oldWidth) {
@@ -1511,8 +1489,8 @@ void TopWindow::Repaint(void) {
 	SetTimer(TIMEOUT_MSEC, ID_CLOCK_TIMER);
 
 	if (mInitialNewGame) {
-		mInitialNewGame = false;
 		ASSERT(mpGame == NULL);
+		mInitialNewGame = false;
 		OfferNewGame();
 	}
 }
@@ -1542,11 +1520,12 @@ void TopWindow::SetGame(Game *pGame) {
 		mpGame->StartClock();
 	}
 
+    UpdateMenuBar();
 	ForceRepaint();
-    mpMenuBar->Update();
 }
 
 void TopWindow::SetTileWidth(int command) {
+	ASSERT(mpMenuBar != NULL);
 	PCntType small_width = 0;
 
 	switch(Cell::Grid()) {
@@ -1620,10 +1599,12 @@ void TopWindow::TogglePause(void) {
 			mpGame->StopClock();
 		}
 	}
-    ForceRepaint();
-    mpMenuBar->Update();
 }
 
+void TopWindow::UpdateMenuBar(void) {
+	mpMenuBar->Update();
+    Window::UpdateMenuBar();
+}
 
 // inquiry methods
 

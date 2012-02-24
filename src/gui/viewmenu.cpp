@@ -38,7 +38,7 @@ ViewMenu::ViewMenu(Menu const &rRootMenu, unsigned position):
     mShowClocks(rRootMenu, IDM_SHOW_CLOCKS),
     mShowGrid(rRootMenu, IDM_SHOW_GRID),
     mShowScores(rRootMenu, IDM_SHOW_SCORES),
-    mShowTiles(rRootMenu, IDM_SHOW_TILES),
+    mShowTiles(rRootMenu, IDM_PEEK),
     mAnimation(rRootMenu, IDM_ANIMATION),
     mAutocenter(rRootMenu, IDM_AUTOCENTER)
 {}
@@ -50,7 +50,7 @@ void ViewMenu::Autocenter(bool shown) {
 	mAutocenter.Check(shown);
 }
 
-void ViewMenu::EnableItems(GameStyleType gameStyle, bool isOver, bool isPaused, bool isPass) {
+void ViewMenu::EnableItems(GameStyleType gameStyle, bool isOver) {
     mSmallTiles.Enable(true);
     mMediumTiles.Enable(true);
     mLargeTiles.Enable(true);

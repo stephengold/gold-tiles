@@ -52,7 +52,7 @@ public:
     Dialog &operator=(Dialog const &) { FAIL(); };
 	
 	// misc public methods
-	int HandleMessage(MessageType, Win::WPARAM, Win::LPARAM);
+	int HandleMessage(MessageType, Win::WPARAM);
 
 	// constants
 	static const int RESULT_OK = 1;

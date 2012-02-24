@@ -47,7 +47,7 @@ public:
     YesNo &operator=(YesNo const &) { FAIL(); };
 
 	// misc public methods
-	int HandleMessage(MessageType, Win::WPARAM, Win::LPARAM);
+	int HandleMessage(MessageType, Win::WPARAM);
 };
 
 #endif

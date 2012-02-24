@@ -22,8 +22,8 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "gui/dialog.hpp"
-#include "gui/win_types.hpp"
 #include "gui/resource.hpp"  // IDC_BACK
+#include "gui/win_types.hpp"
 #include "string.hpp"
 
 namespace Win {

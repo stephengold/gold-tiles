@@ -30,10 +30,8 @@ A MenuItem object represents a single item in a SubMenu.
 The MenuItem class is implemented by encapsulating a handle and an item id.
 */
 
-#include "gui/win.hpp"
-#include "project.hpp"
-
-typedef Win::UINT IdType;
+#include "gui/win.hpp" // IdType
+#include "project.hpp" // FAIL()
 
 class MenuItem {
 public:

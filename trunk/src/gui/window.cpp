@@ -220,45 +220,53 @@ void Window::SetClientArea(PCntType width, PCntType height) {
     mClientAreaHeight = height;
 }
 
+void Window::SetCursor(LPSTR resource) {
+	HINSTANCE instance = NULL;
+	PCntType desired_width = 0;
+    PCntType desired_height = 0;
+	UINT options = (LR_DEFAULTCOLOR | LR_DEFAULTSIZE | LR_SHARED);
+	HCURSOR handle = (HCURSOR)Win::LoadImage(instance, resource, IMAGE_CURSOR,
+		desired_width, desired_height, options);
+	ASSERT(handle != NULL);
+    
+	Win::SetCursor(handle);
+}
+
 void Window::SetHandle(HWND handle) {
 	mHandle = handle;
 
 	Key key = Key(handle);
-	Window *value = this;
-	Pair new_mapping(key, value); 
+	Pair new_mapping(key, this); 
 	InsertResultType ins_result = msMap.insert(new_mapping);
 	bool success = ins_result.second;
 	ASSERT(success);
 }
 
 // set large and small icons for a window
-void Window::SetIcons(char const *iconResourceName) {
+void Window::SetIcons(char const *resourceName) {
 	ASSERT(mHandle != 0);
 
-	HINSTANCE module_instance = mModule;
-    HWND window_handle = mHandle;
-	MessageType message = WM_SETICON;
-	UINT image_type = IMAGE_ICON;
-	UINT option = LR_DEFAULTCOLOR;
 	PCntType desired_width;
     PCntType desired_height;
-	WPARAM which_icon;
+	UINT options = LR_DEFAULTCOLOR;
 
 	// small icon for title bar
-	which_icon = ICON_SMALL;
 	desired_width = Win::GetSystemMetrics(SM_CXSMICON);
     desired_height = Win::GetSystemMetrics(SM_CYSMICON);
-	HICON smallIconHandle = (HICON)Win::LoadImage(module_instance, iconResourceName, image_type,
-		desired_width, desired_width, option);
-    Win::SendMessage(window_handle, message, which_icon, LPARAM(smallIconHandle));
+	HICON small_icon = (HICON)Win::LoadImage(mModule, resourceName, IMAGE_ICON,
+		desired_width, desired_height, options);
+	ASSERT(small_icon != NULL);
+
+    Win::SendMessage(mHandle, WM_SETICON, WPARAM(ICON_SMALL), LPARAM(small_icon));
 
 	// large icon for ALT+TAB dialog box
-	which_icon = ICON_BIG;
 	desired_width = Win::GetSystemMetrics(SM_CXICON);
     desired_height = Win::GetSystemMetrics(SM_CYICON);
-	HICON largeIconHandle = (HICON)Win::LoadImage(module_instance, iconResourceName, image_type,
-		desired_width, desired_width, option);
-    Win::SendMessage(window_handle, message, which_icon, LPARAM(largeIconHandle));
+	HICON large_icon = (HICON)Win::LoadImage(mModule, resourceName, IMAGE_ICON,
+		desired_width, desired_height, options);
+	ASSERT(large_icon != NULL);
+
+    Win::SendMessage(mHandle, WM_SETICON, WPARAM(ICON_BIG), LPARAM(large_icon));
 }
 
 void Window::SetTimer(unsigned interval_msecs, unsigned event_id) {

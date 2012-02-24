@@ -29,8 +29,7 @@ A SubMenu object represents a submenu such as
 the "Play" submenu or the "View" submenu.
 */
 
-#include "project.hpp"
-#include "gui/win.hpp"
+#include "project.hpp"  // FAIL()
 
 class SubMenu {
 public:

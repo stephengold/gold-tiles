@@ -35,6 +35,7 @@ using Win::DWORD;
 using Win::DWORD_PTR;
 using Win::HACCEL;
 using Win::HBRUSH;
+using Win::HCURSOR;
 using Win::HDC;
 using Win::HGDIOBJ;
 using Win::HICON;

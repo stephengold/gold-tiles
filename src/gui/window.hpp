@@ -32,7 +32,7 @@ It provides a static map for translating handles to Window objects.
 */
 
 #include <map>
-#include "rect.hpp"    // PCntType
+#include "gui/rect.hpp"    // PCntType
 
 typedef Win::UINT MessageType;
 
@@ -75,6 +75,7 @@ protected:
 	Win::HMENU     GetMenu(char const *resourceName);
 	void           SelfDestruct(void);
 	void           SetClientArea(PCntType width, PCntType height);
+	void           SetCursor(Win::LPSTR);
 	void           SetIcons(char const *resourceName);
 	void           SetTimer(unsigned msecs, unsigned id);
 	void           UpdateMenuBar(void);

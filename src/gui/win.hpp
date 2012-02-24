@@ -30,6 +30,8 @@ namespace Win {
 #undef _M_CEE_SAFE
 };
 
+typedef Win::UINT IdType;  // resource ID
+
 #endif
 
 

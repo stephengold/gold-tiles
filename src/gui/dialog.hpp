@@ -34,8 +34,6 @@ It meant to be futher extended by adding controls.
 
 #include "gui/window.hpp"
 
-typedef Win::UINT IdType;
-
 class Dialog: public Window {
 public:
     typedef long ValueType; // value of a control

@@ -114,15 +114,15 @@ TopWindow::TopWindow(HINSTANCE applicationInstance, Game *pGame):
 	Rect desktop_bounds(rect);
 
 	// create Microsoft Windows window
-	DWORD windowStyle = WS_OVERLAPPEDWINDOW;
-	int height = int(0.8*double(desktop_bounds.Height()));
-	int width = int(0.8*double(desktop_bounds.Width()));
-	int x = width/8;
-	int y = height/8;
+	DWORD window_style = WS_OVERLAPPEDWINDOW;
+	PCntType height = PCntType(0.8*double(desktop_bounds.Height()));
+	PCntType width = PCntType(0.8*double(desktop_bounds.Width()));
+	LogicalXType x = width/8;
+	LogicalYType y = height/8;
 	HWND parent = NULL;
 	HMENU menu = NULL;
 	LPVOID parameters = NULL;
-    HWND handle = Win::CreateWindow(className, Name(), windowStyle, x, y, 
+    HWND handle = Win::CreateWindow(className, Name(), window_style, x, y, 
                              width, height, parent, menu, applicationInstance, 
                              parameters);
     ASSERT(Handle() == handle);
@@ -812,6 +812,7 @@ void TopWindow::HandleButtonDown(Point const &rMouse) {
     } else if (!IsInHandArea(rMouse) && !IsInSwapArea(rMouse)) {
         // Capture mouse to drag the board
     	CaptureMouse();
+       	SetCursor(IDC_HAND);
         mDragBoardFlag = true;
 		mDragBoardPixelCnt = 0;
     }
@@ -1565,6 +1566,7 @@ void TopWindow::StopDragging(void) {
 
 	mDragBoardFlag = false;
 	mPartial.Deactivate();
+   	SetCursor(IDC_ARROW);
 	Win::ReleaseCapture();
 
     ASSERT(mPartial.GetActive() == Tile::ID_NONE);

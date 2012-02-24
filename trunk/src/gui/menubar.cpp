@@ -28,14 +28,13 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 
 // lifecycle
 
-MenuBar::MenuBar(CREATESTRUCT const &rCreateStruct, Partial const &rPartial)
-:
+MenuBar::MenuBar(CREATESTRUCT const &rCreateStruct, Partial const &rPartial):
     mrPartial(rPartial),
-    Menu(rCreateStruct.hMenu),
-    mFileMenu(*this, 0),
-    mPlayMenu(*this, 1),
-    mViewMenu(*this, 2),
-    mHelpMenu(*this, 3)
+    mMenu(rCreateStruct.hMenu),
+    mFileMenu(mMenu, 0),
+    mPlayMenu(mMenu, 1),
+    mViewMenu(mMenu, 2),
+    mHelpMenu(mMenu, 3)
 {
     GameStyleType game_style = mrPartial.GameStyle();
     mAutocenterFlag = (game_style == GAME_STYLE_CHALLENGE);
@@ -43,7 +42,7 @@ MenuBar::MenuBar(CREATESTRUCT const &rCreateStruct, Partial const &rPartial)
 	mShowClocksFlag = (game_style == GAME_STYLE_CHALLENGE);
    	mShowGridFlag = false;
 	mShowScoresFlag = true;
-	mShowTilesFlag = false;
+	mPeekFlag = false;
     mTileSizeItem = IDM_LARGE_TILES;
 }
 
@@ -53,9 +52,35 @@ MenuBar::MenuBar(CREATESTRUCT const &rCreateStruct, Partial const &rPartial)
 // misc methods
 
 void MenuBar::GameOver(void) {
+    mPeekFlag = true;
     mShowClocksFlag = true;
     mShowScoresFlag = true;
-    mShowTilesFlag = true;
+}
+
+void MenuBar::HandleMenuCommand(IdType command) {
+	switch (command) {
+		case IDM_AUTOPAUSE:
+            mAutopauseFlag = !mAutopauseFlag;
+            break;
+		case IDM_AUTOCENTER:
+            mAutocenterFlag = !mAutocenterFlag;
+			break;
+        case IDM_SHOW_CLOCKS:
+            mShowClocksFlag = !mShowClocksFlag;
+            break;
+        case IDM_SHOW_GRID:
+            mShowGridFlag = !mShowGridFlag;
+            break;
+        case IDM_SHOW_SCORES:
+			mShowScoresFlag = !mShowScoresFlag;
+            break;
+        case IDM_PEEK:
+			ASSERT(mrPartial.IsGameOver() || mrPartial.GameStyle() == GAME_STYLE_DEBUG);
+            mPeekFlag = !mPeekFlag;
+            break;
+		default:
+			FAIL();
+	}
 }
 
 void MenuBar::NewGame(void) {
@@ -73,32 +98,9 @@ void MenuBar::NewGame(void) {
 }
 
 void MenuBar::SetTileSize(IdType menuItem) {
-    mTileSizeItem = menuItem;
+	mTileSizeItem = menuItem;
 }
 
-void MenuBar::ToggleAutocenter(void) {
-    mAutocenterFlag = !mAutocenterFlag;
-}
-
-void MenuBar::ToggleAutopause(void) {
-    mAutopauseFlag = !mAutopauseFlag;
-}
-
-void MenuBar::ToggleClocks(void) {
-    mShowClocksFlag = !mShowClocksFlag;
-}
-
-void MenuBar::ToggleGrid(void) {
-    mShowGridFlag = !mShowGridFlag;
-}
-
-void MenuBar::TogglePeeking(void) {
-    mShowTilesFlag = !mShowTilesFlag;
-}
-
-void MenuBar::ToggleScores(void) {
-    mShowScoresFlag = !mShowScoresFlag;
-}
 
 void MenuBar::Update(void) {
 	bool have_game = mrPartial.HaveGame();
@@ -116,17 +118,17 @@ void MenuBar::Update(void) {
     mPlayMenu.Pause(is_paused);
     
 	mPlayMenu.EnableItems(game_style, is_over, is_paused, is_pass);
-	mPlayMenu.Enable(have_game);
+	mPlayMenu.Enable(have_game && !is_over);
 
 	// "View" menu
     mViewMenu.TileSize(mTileSizeItem);
     mViewMenu.ShowClocks(mShowClocksFlag);
     mViewMenu.ShowGrid(mShowGridFlag);
     mViewMenu.ShowScores(mShowScoresFlag);
-    mViewMenu.ShowTiles(mShowTilesFlag);
+    mViewMenu.ShowTiles(mPeekFlag);
     mViewMenu.Autocenter(mAutocenterFlag);
     
-	mViewMenu.EnableItems(game_style, is_over, is_paused, is_pass);
+	mViewMenu.EnableItems(game_style, is_over);
 	mViewMenu.Enable(!is_paused);
 	
 	mHelpMenu.Enable(true);
@@ -155,7 +157,5 @@ bool MenuBar::IsGridVisible(void) const {
 }
 
 bool MenuBar::IsPeeking(void) const {
-    return mShowTilesFlag;
+    return mPeekFlag;
 }
-
-

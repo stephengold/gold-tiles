@@ -39,6 +39,8 @@ int CALLBACK Win::WinMain(
 	char *commandLine, // TODO
 	int showHow) 
 {
+	previousInstance;
+	commandLine;
 #endif  // defined(_GUI)
 
 #ifdef _CONSOLE

@@ -28,8 +28,7 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 
 // lifecycle
 
-MenuItem::MenuItem(Menu const &rMenu, IdType itemId)
-:
+MenuItem::MenuItem(Menu const &rMenu, IdType itemId):
     mrMenu(rMenu)
 {
     mItemId = itemId;

@@ -217,7 +217,7 @@ void Tile::Display(void) const {
 String Tile::GetUserChoice(Tiles const &availableTiles, Strings const &alts) {
 	String result;
 
-    while (true) {
+    for (;;) {
         std::cout << "Enter a tile name";
     	Strings::ConstIteratorType alt;
 		for (alt = alts.Begin(); alt != alts.End(); alt++) {

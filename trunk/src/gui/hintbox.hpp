@@ -47,7 +47,7 @@ public:
 	operator HintType(void) const;
 
 	// misc public methods
-	int HandleMessage(MessageType, Win::WPARAM, Win::LPARAM);
+	int HandleMessage(MessageType, Win::WPARAM);
 
 private:
 	HintType      mStrength;

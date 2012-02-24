@@ -33,13 +33,15 @@ A PlayMenu object represents the "play" submenu in the menu bar.
 #include "gui/submenu.hpp"
 #include "gui/win.hpp"
 
-
 class PlayMenu: public SubMenu {
 public:
 	// lifecycle
     PlayMenu(Menu const &, unsigned position);
 	// no default constructor
 	// ~PlayMenu(void);  compiler-generated destructor is fine
+
+	// public operators
+	PlayMenu &operator=(PlayMenu const &) { FAIL(); }
 
 	// misc public methods
 	void Autopause(bool);
@@ -50,6 +52,5 @@ public:
     MenuItem mPlay, mTakeBack, mHint, mPause, mPass, mResign;
     MenuItem mRestart, mUndo, mRedo, mAutopause;
 };
-
 #endif
 

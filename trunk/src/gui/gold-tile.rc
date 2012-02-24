@@ -80,7 +80,7 @@ TOPWINDOW MENU
         MENUITEM "Show &Clocks", IDM_SHOW_CLOCKS
         MENUITEM "Show &Grid", IDM_SHOW_GRID
         MENUITEM "Show Sc&ores", IDM_SHOW_SCORES
-        MENUITEM "Show &Tiles", IDM_SHOW_TILES
+        MENUITEM "&Peek", IDM_PEEK
         MENUITEM "A&nimation", IDM_ANIMATION
         MENUITEM "A&utoCenter", IDM_AUTOCENTER
     }

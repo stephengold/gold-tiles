@@ -34,22 +34,20 @@ A MenuBar object represents the menu bar of the top window.
 #include "gui/submenu.hpp"
 #include "gui/viewmenu.hpp"
 
-class MenuBar : public Menu {
+class MenuBar {
 public:
 	// lifecycle
     MenuBar(Win::CREATESTRUCT const &, Partial const &);
 	// no default constructor
+	
+	// public operators
+	MenuBar &operator=(MenuBar const &) { FAIL(); }
 
     // misc public methods
     void GameOver(void);
+    void HandleMenuCommand(IdType);
     void NewGame(void);
     void SetTileSize(IdType);
-    void ToggleAutocenter(void);
-    void ToggleAutopause(void);
-    void ToggleClocks(void);
-    void ToggleGrid(void);
-    void TogglePeeking(void);
-    void ToggleScores(void);
     void Update(void);
 
     // public inquiry methods
@@ -61,18 +59,18 @@ public:
     bool IsPeeking(void) const;
 
 private:
-	bool            mAutocenterFlag;
-	bool            mAutopauseFlag;
-	FileMenu        mFileMenu;
-	SubMenu         mHelpMenu;
-	Partial const &mrPartial;
-	PlayMenu        mPlayMenu;
-	bool            mShowClocksFlag;
-    bool            mShowGridFlag;
-	bool            mShowScoresFlag;
-    bool            mShowTilesFlag;
-	IdType          mTileSizeItem;
-	ViewMenu        mViewMenu;
+	bool             mAutocenterFlag;
+	bool             mAutopauseFlag;
+	FileMenu         mFileMenu;
+	SubMenu          mHelpMenu;
+	Menu             mMenu;
+	Partial const & mrPartial;
+    bool             mPeekFlag;
+	PlayMenu         mPlayMenu;
+	bool             mShowClocksFlag;
+    bool             mShowGridFlag;
+	bool             mShowScoresFlag;
+	IdType           mTileSizeItem;
+	ViewMenu         mViewMenu;
 };
-
 #endif

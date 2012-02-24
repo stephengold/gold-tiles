@@ -32,10 +32,11 @@ static INT_PTR CALLBACK yesNoMessageHandler(
 	WPARAM wParameter, 
 	LPARAM lParameter)
 {
+	lParameter;  // unused parameter
 	ASSERT(windowHandle != NULL);
     YesNo *p_box = (YesNo *)Window::Lookup(windowHandle);
     ASSERT(p_box->Handle() == windowHandle);
-	int result = p_box->HandleMessage(message, wParameter, lParameter);
+	int result = p_box->HandleMessage(message, wParameter);
 
 	return result;
 }
@@ -50,12 +51,12 @@ YesNo::YesNo(char const *templateName):
 
 // misc methods
 
-int YesNo::HandleMessage(MessageType message, Win::WPARAM wParam, Win::LPARAM lParam) {
+int YesNo::HandleMessage(MessageType message, WPARAM wParam) {
 	int result = 0;
 
     switch (message) {
         case WM_INITDIALOG: {
-		    Dialog::HandleMessage(message, wParam, lParam);
+		    Dialog::HandleMessage(message, wParam);
             result = TRUE;
 			break;
         }
@@ -78,7 +79,7 @@ int YesNo::HandleMessage(MessageType message, Win::WPARAM wParam, Win::LPARAM lP
     }
 
 	if (result == FALSE) {
-		result = Dialog::HandleMessage(message, wParam, lParam);
+		result = Dialog::HandleMessage(message, wParam);
 	}
 
     return result;

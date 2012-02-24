@@ -86,7 +86,7 @@
 #define IDM_SHOW_CLOCKS                         6206
 #define IDM_SHOW_GRID                           6207
 #define IDM_SHOW_SCORES                         6208
-#define IDM_SHOW_TILES                          6209
+#define IDM_PEEK                                6209
 #define IDM_ANIMATION                           6210
 #define IDM_AUTOCENTER                          6211
 #define IDM_RULES                               6900

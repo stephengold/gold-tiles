@@ -41,6 +41,9 @@ public:
 	// no default constructor
 	//FileMenu(FileMenu const &);  compiler-generated destructor is OK
 
+	// public operators
+	FileMenu &operator=(FileMenu const &) { FAIL(); }
+
 	// misc public methods
 	void EnableItems(bool isGame);
 

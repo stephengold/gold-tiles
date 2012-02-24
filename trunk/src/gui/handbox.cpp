@@ -33,10 +33,11 @@ static INT_PTR CALLBACK message_handler(
 	WPARAM wParameter, 
 	LPARAM lParameter)
 {
+	lParameter;  // unused parameter
 	ASSERT(windowHandle != NULL);
     HandBox *p_box = (HandBox *)Window::Lookup(windowHandle);
     ASSERT(p_box->Handle() == windowHandle);
-	INT_PTR result = p_box->HandleMessage(message, wParameter, lParameter);
+	INT_PTR result = p_box->HandleMessage(message, wParameter);
 
 	return result;
 }
@@ -72,12 +73,12 @@ HandBox::operator IpAddressType(void) const {
 
 // misc methods
 
-INT_PTR HandBox::HandleMessage(MessageType message, WPARAM wParam, LPARAM lParam) {
+INT_PTR HandBox::HandleMessage(MessageType message, WPARAM wParam) {
 	INT_PTR result = FALSE;
 
     switch (message) {
         case WM_INITDIALOG: {
-		    Dialog::HandleMessage(message, wParam, lParam);
+		    Dialog::HandleMessage(message, wParam);
 
 			String message = "Who will play the ";
 			if (mAreMoreHands) {
@@ -151,7 +152,7 @@ INT_PTR HandBox::HandleMessage(MessageType message, WPARAM wParam, LPARAM lParam
     }
 
 	if (result == FALSE) {
-		result = Dialog::HandleMessage(message, wParam, lParam);
+		result = Dialog::HandleMessage(message, wParam);
 	}
 
     return result;

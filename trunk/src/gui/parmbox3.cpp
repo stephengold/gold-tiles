@@ -92,7 +92,7 @@ INT_PTR ParmBox3::HandleMessage(MessageType message, WPARAM wParam, LPARAM lPara
 
     switch (message) {
         case WM_INITDIALOG: {
-		    Dialog::HandleMessage(message, wParam, lParam);
+		    Dialog::HandleMessage(message, wParam);
 		    
 			InitControl(IDC_SLIDER1, mHandCnt, 1, 10);
 		    InitControl(IDC_SLIDER2, mHandSize, 1, 12);
@@ -138,7 +138,7 @@ INT_PTR ParmBox3::HandleMessage(MessageType message, WPARAM wParam, LPARAM lPara
     }
 
 	if (result == FALSE) {
-		result = Dialog::HandleMessage(message, wParam, lParam);
+		result = Dialog::HandleMessage(message, wParam);
 	}
 
     return result;

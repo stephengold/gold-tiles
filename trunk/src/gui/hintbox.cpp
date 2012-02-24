@@ -33,10 +33,11 @@ static INT_PTR CALLBACK message_handler(
 	WPARAM wParameter, 
 	LPARAM lParameter)
 {
+	lParameter;  // unused parameter
 	ASSERT(windowHandle != NULL);
     HintBox *p_box = (HintBox *)Window::Lookup(windowHandle);
     ASSERT(p_box->Handle() == windowHandle);
-	INT_PTR result = p_box->HandleMessage(message, wParameter, lParameter);
+	INT_PTR result = p_box->HandleMessage(message, wParameter);
 
 	return result;
 }
@@ -61,12 +62,12 @@ HintBox::operator HintType(void) const {
 
 // misc methods
 
-INT_PTR HintBox::HandleMessage(MessageType message, WPARAM wParam, LPARAM lParam) {
+INT_PTR HintBox::HandleMessage(MessageType message, WPARAM wParam) {
 	INT_PTR result = FALSE;
 
     switch (message) {
         case WM_INITDIALOG: {
-		    Dialog::HandleMessage(message, wParam, lParam);
+		    Dialog::HandleMessage(message, wParam);
 
 			if (mGameStyle == GAME_STYLE_CHALLENGE) {
 	            // disable the stronger hints
@@ -100,7 +101,7 @@ INT_PTR HintBox::HandleMessage(MessageType message, WPARAM wParam, LPARAM lParam
     }
 
 	if (result == FALSE) {
-		result = Dialog::HandleMessage(message, wParam, lParam);
+		result = Dialog::HandleMessage(message, wParam);
 	}
 
     return result;

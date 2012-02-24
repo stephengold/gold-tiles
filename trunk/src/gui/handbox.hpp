@@ -49,7 +49,7 @@ public:
 	operator IpAddressType(void) const;
 
 	// misc public methods
-	int    HandleMessage(MessageType, Win::WPARAM, Win::LPARAM);
+	int    HandleMessage(MessageType, Win::WPARAM);
 	String PlayerName(void) const;
 
 	// public inquiry methods

@@ -145,7 +145,7 @@ Tile Tiles::FindTile(TileIdType id) const {
 void Tiles::GetUserChoice(Tiles const &rAvailableTiles) {
     MakeEmpty();
 
-    while (true) {
+    for (;;) {
 		Strings alts;
 		if (IsEmpty()) {
 			alts.Append("none");

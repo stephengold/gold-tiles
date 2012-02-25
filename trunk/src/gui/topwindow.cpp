@@ -836,7 +836,7 @@ void TopWindow::HandleButtonDown(Point const &rMouse) {
     } else if (!IsInHandArea(rMouse) && !IsInSwapArea(rMouse)) {
         // Capture mouse to drag the board
     	CaptureMouse();
-       	SetCursor(IDC_HAND);
+       	SetCursorDrag();
         mDragBoardFlag = true;
 		mDragBoardPixelCnt = 0;
     }
@@ -968,8 +968,7 @@ void TopWindow::HandleMenuCommand(IdType command) {
 
         // Help menu options
         case IDM_RULES: {
-	   	    Dialog rules("RULES");
-			rules.Run(this);
+	   	    InfoBox("RULES");
             break;
 		}
         case IDM_ABOUT: {
@@ -1006,7 +1005,7 @@ LRESULT TopWindow::HandleMessage(UINT message, WPARAM wParam, LPARAM lParam) {
 	    }
 
         case WM_COMMAND: { // menu command
-	        int command = LOWORD(wParam);
+	        IdType command = LOWORD(wParam);
             HandleMenuCommand(command);
             break;
   	    }
@@ -1110,6 +1109,73 @@ void TopWindow::HandleMouseMove(Point const &rMouse) {
         mDragTileDeltaX += drag_x;
         mDragTileDeltaY += drag_y;
     }
+}
+
+void TopWindow::InfoBox(char const *message) {
+	String title = "Information";
+
+	// expand shortcuts
+	if (::str_eq(message, "COLUMNCOMPAT")) {
+		message = "Tiles in a column (with no intervening empty cells) must all be mutually compatible.";
+		title = "Column Compatibility Rule";
+	} else if (::str_eq(message, "DIAGCOMPAT")) {
+		message = "Tiles on a diagonal (with no intervening empty cells) must all be mutually compatible.";
+		title = "Diagonal Compatibility Rule";
+	} else if (::str_eq(message, "EMPTY")) {
+		message = "That cell has already been used.";
+		title = "Empty Cell Rule";
+	} else if (::str_eq(message, "FIRST")) {
+		message = "On the first turn, you must play as many tiles as possible.  Keep looking!";
+		title = "First Turn Rule";
+	} else if (::str_eq(message, "GAP")) {
+		message = "You can't leave any empty cells between the tiles you play.";
+		title = "Gap Rule";
+	} else if (::str_eq(message, "NEIGHBOR")) {
+		message = "Each cell you use must be a neighbor of a used cell.";
+		title = "Neighbor Rule";
+	} else if (::str_eq(message, "ROWCOLUMN")) {
+		String dirs;
+		switch (Cell::Grid()) {
+		case GRID_TRIANGLE:
+			dirs = "row or diagonal";
+			break;
+		case GRID_4WAY:
+			dirs = "row or column";
+			break;
+		case GRID_HEX:
+			dirs = "column or diagonal";
+			break;
+		case GRID_8WAY:
+		    dirs = "row, column, or diagonal";
+			break;
+		default:
+			FAIL();
+		}
+		dirs = String("The cells you use must all lie in a single ") + dirs + String(".");
+		message = dirs;
+		title = "Row/Column Rule";
+	} else if (::str_eq(message, "ROWCOMPAT")) {
+		message = "Tiles in a row (with no intervening empty cells) must all be mutually compatible.";
+		title = "Row Compatibility Rule";
+	} else if (::str_eq(message, "RULES")) {
+		message = "The rules of Gold Tile are available online at http://code.google.com/p/gold-tiles/wiki/Playing";
+		title = "Rules";
+	} else if (::str_eq(message, "START")) {
+		message = "Your first tile must use the start cell. To change this tile, you must take back ALL your tiles.";
+		title = "Start Rule";
+	} else if (::str_eq(message, "STARTSIMPLE")) {
+		message = "Your first tile must use the start cell.";
+		title = "Start Rule";
+	} else if (::str_eq(message, "STOCK")) {
+		message = "You can't swap more tiles than the number remaining in the stock bag.";
+		title = "Stock Rule";
+	} else if (::str_eq(message, "SWAP")) {
+		message = "You can play tiles or swap them, but you can't do both in the same turn.";
+		title = "Swap Rule";
+	}
+
+	title += " - Gold Tile";
+	Window::InfoBox(message, title);
 }
 
 int TopWindow::MessageDispatchLoop(void) {
@@ -1411,8 +1477,7 @@ void TopWindow::Play(bool passFlag) {
         mPartial.Reset();
                
     } else if (!is_legal) { // explain the issue
-        Dialog box(reason);
-		box.Run(this);		
+        InfoBox(reason);
 		if (::str_eq(reason, "FIRST")) {
 			mPartial.Reset();
 		}
@@ -1484,8 +1549,7 @@ void TopWindow::ReleaseActiveTile(Point const &rMouse) {
 
 	if (to_board && (!to_cell.IsValid() || mPartial.GetCell(to_cell) != 0)) {
 		// cell conflict - can't construct a move in the usual way
-	    Dialog empty("EMPTY");
-		empty.Run(this);
+	    InfoBox("EMPTY");
     	StopDragging();
 		return;
 	}
@@ -1528,8 +1592,7 @@ void TopWindow::ReleaseActiveTile(Point const &rMouse) {
 		if (::str_eq(reason, "START") && !from_board) {
 			reason = "STARTSIMPLE";
 	    }
-	    Dialog box(reason);
-		box.Run(this);
+	    InfoBox(reason);
 	}
 
     if (mTargetCellFlag && !mPartial.IsEmpty(mTargetCell)) {
@@ -1659,7 +1722,7 @@ void TopWindow::StopDragging(void) {
 
 	mDragBoardFlag = false;
 	mPartial.Deactivate();
-   	SetCursor(IDC_ARROW);
+   	SetCursorSelect();
 	Win::ReleaseCapture();
 
     ASSERT(mPartial.GetActive() == Tile::ID_NONE);

@@ -44,6 +44,7 @@ using Win::HMENU;
 using Win::HPEN;
 using Win::HWND;
 using Win::INT_PTR;
+using Win::LPCTSTR;
 using Win::LPARAM;
 using Win::LPSTR;
 using Win::LPVOID;

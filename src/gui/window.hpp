@@ -61,7 +61,7 @@ protected:
 	// protected operators
     operator       Rect(void) const;
 
-	// protected misc methods
+	// misc protected methods
 	void           CaptureMouse(void);
 	void           Center(void);
 	PCntType       ClientAreaHeight(void) const;
@@ -71,10 +71,13 @@ protected:
 	void           ForceRepaint(void);
 	Win::HACCEL    GetAcceleratorTable(char const *resourceName);
 	Win::HMENU     GetMenu(char const *resourceName);
+	void           InfoBox(char const *message, char const *title);
 	bool           IsMouseCaptured(void) const;
 	void           SelfDestruct(void);
 	void           SetClientArea(PCntType width, PCntType height);
-	void           SetCursor(Win::LPSTR);
+	void           SetCursorBusy(void);
+	void           SetCursorDrag(void);
+	void           SetCursorSelect(void);
 	void           SetHandle(Win::HWND);
 	void           SetIcons(char const *resourceName);
 	void           SetTimer(unsigned msecs, unsigned id);
@@ -93,6 +96,9 @@ private:
     PCntType       mClientAreaWidth, mClientAreaHeight;
     Win::HWND      mHandle;
     Win::HINSTANCE mModule; // the module/instance which owns this window  TODO static?
+
+	// misc private methods
+	void SetCursor(Win::LPSTR);
 };
 
 #endif

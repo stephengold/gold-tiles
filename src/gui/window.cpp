@@ -191,6 +191,13 @@ LRESULT Window::HandleMessage(MessageType message, WPARAM wParameter, LPARAM lPa
     return result;
 }
 
+// display a simple dialog box with a message and an OK button
+void Window::InfoBox(char const *message, char const *title) {
+	UINT options = MB_OK | MB_ICONINFORMATION | MB_DEFBUTTON1 | MB_APPLMODAL;
+    int success = Win::MessageBox(Handle(), message, title, options);
+	ASSERT(success != 0);
+}
+
 /* static */ Window *Window::Lookup(HWND handle) {
     Key key = Key(handle);
     ConstIteratorType i_window = msMap.find(key);
@@ -230,6 +237,16 @@ void Window::SetCursor(LPSTR resource) {
 	ASSERT(handle != NULL);
     
 	Win::SetCursor(handle);
+}
+
+void Window::SetCursorBusy(void) {
+	SetCursor(IDC_WAIT);
+}
+void Window::SetCursorDrag(void) {
+	SetCursor(IDC_HAND);
+}
+void Window::SetCursorSelect(void) {
+	SetCursor(IDC_ARROW);
 }
 
 void Window::SetHandle(HWND handle) {

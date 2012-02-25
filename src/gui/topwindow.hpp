@@ -114,6 +114,7 @@ private:
 	void         HandleButtonUp(Point const &);
     void         HandleMenuCommand(IdType);
 	void         HandleMouseMove(Point const &);
+	void         InfoBox(char const *message);
 	char const * Name(void) const;
 	void		 OfferNewGame(void);
 	void		 OfferSaveGame(void);

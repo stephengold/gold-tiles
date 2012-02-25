@@ -114,61 +114,6 @@ FONT 10, "Microsoft Sans Serif", 700, 0, 0
 
 
 
-COLUMNCOMPAT DIALOG 0, 0, 115, 64
-STYLE DS_3DLOOK | DS_CENTER | DS_MODALFRAME | DS_SHELLFONT | WS_CAPTION | WS_VISIBLE | WS_POPUP | WS_SYSMENU
-CAPTION "Column Compatibility Rule - Gold Tile"
-FONT 10, "Microsoft Sans Serif"
-{
-    DEFPUSHBUTTON   "OK", IDOK, 32, 39, 50, 14
-    CTEXT           "Tiles in a column (with no intervening empty cells) must all be mutually compatible.", IDC_STATIC, 10, 6, 96, 27, SS_CENTER
-}
-
-
-
-DIAGCOMPAT DIALOG 0, 0, 115, 64
-STYLE DS_3DLOOK | DS_CENTER | DS_MODALFRAME | DS_SHELLFONT | WS_CAPTION | WS_VISIBLE | WS_POPUP | WS_SYSMENU
-CAPTION "Diagonal Compatibility Rule - Gold Tile"
-FONT 10, "Microsoft Sans Serif"
-{
-    DEFPUSHBUTTON   "OK", IDOK, 32, 39, 50, 14
-    CTEXT           "Tiles on a diagonal (with no intervening empty cells) must all be mutually compatible.", IDC_STATIC, 10, 6, 96, 27, SS_CENTER
-}
-
-
-
-EMPTY DIALOG 0, 0, 82, 54
-STYLE DS_3DLOOK | DS_CENTER | DS_MODALFRAME | DS_SHELLFONT | WS_CAPTION | WS_VISIBLE | WS_POPUP | WS_SYSMENU
-CAPTION "Empty Cell Rule - Gold Tile"
-FONT 10, "Microsoft Sans Serif"
-{
-    DEFPUSHBUTTON   "OK", IDOK, 14, 29, 50, 14
-    CTEXT           "You can only use empty cells.", IDC_STATIC, 9, 7, 65, 20, SS_CENTER
-}
-
-
-
-FIRST DIALOG 0, 0, 116, 55
-STYLE DS_3DLOOK | DS_CENTER | DS_MODALFRAME | DS_SHELLFONT | WS_CAPTION | WS_VISIBLE | WS_POPUP | WS_SYSMENU
-CAPTION "First Turn Rule - Gold Tile"
-FONT 10, "Microsoft Sans Serif"
-{
-    DEFPUSHBUTTON   "OK", IDOK, 36, 35, 50, 14
-    CTEXT           "On the first turn, you must play as many tiles as possible.  Keep looking!", IDC_STATIC, 12, 6, 94, 27, SS_CENTER
-}
-
-
-
-GAP DIALOG 0, 0, 112, 52
-STYLE DS_3DLOOK | DS_CENTER | DS_MODALFRAME | DS_SHELLFONT | WS_CAPTION | WS_VISIBLE | WS_POPUP | WS_SYSMENU
-CAPTION "Gap Rule - Gold Tile"
-FONT 10, "Microsoft Sans Serif"
-{
-    DEFPUSHBUTTON   "OK", IDOK, 28, 29, 50, 14
-    CTEXT           "You must not leave any empty cells between the tiles you play.", IDC_STATIC, 8, 7, 95, 19, SS_CENTER
-}
-
-
-
 HANDBOX DIALOG 0, 0, 204, 107
 STYLE DS_3DLOOK | DS_CENTER | DS_MODALFRAME | DS_SHELLFONT | WS_CAPTION | WS_VISIBLE | WS_POPUP | WS_SYSMENU
 CAPTION "Hand Information - Gold Tile"
@@ -203,17 +148,6 @@ FONT 10, "Microsoft Sans Serif"
     AUTORADIOBUTTON "cells usable by the available tiles", IDC_RADIO_USABLE_ANY, 7, 48, 114, 8
     AUTORADIOBUTTON "cells usable by the selected tile", IDC_RADIO_USABLE_SELECTED, 7, 59, 110, 8
     LTEXT           "What cells would you like highlighted?", IDC_STATIC, 6, 4, 153, 8, SS_LEFT
-}
-
-
-
-NEIGHBOR DIALOG 0, 0, 100, 54
-STYLE DS_3DLOOK | DS_CENTER | DS_MODALFRAME | DS_SHELLFONT | WS_CAPTION | WS_VISIBLE | WS_POPUP | WS_SYSMENU
-CAPTION "Neighbor Rule - Gold Tile"
-FONT 10, "Microsoft Sans Serif"
-{
-    DEFPUSHBUTTON   "OK", IDOK, 24, 30, 50, 14
-    CTEXT           "Each cell you use must be a neighbor of a used cell.", IDC_STATIC, 10, 6, 79, 20, SS_CENTER
 }
 
 
@@ -300,83 +234,6 @@ FONT 10, "Microsoft Sans Serif"
     CTEXT           "X", IDC_SMAX4, 167, 117, 8, 8, SS_CENTER
     PUSHBUTTON      "Cancel", IDCANCEL, 6, 132, 26, 14
     PUSHBUTTON      "< Back", IDC_BACK, 45, 132, 26, 14
-}
-
-
-
-ROWCOLUMN DIALOG 0, 0, 122, 52
-STYLE DS_3DLOOK | DS_CENTER | DS_MODALFRAME | DS_SHELLFONT | WS_CAPTION | WS_VISIBLE | WS_POPUP | WS_SYSMENU
-CAPTION "Row/Column Rule - Gold Tile"
-FONT 10, "Microsoft Sans Serif"
-{
-    DEFPUSHBUTTON   "OK", IDOK, 37, 32, 50, 14
-    CTEXT           "The cells you use must all lie in a single row, column, or diagonal.", IDC_STATIC, 11, 8, 101, 18, SS_CENTER
-}
-
-
-
-ROWCOMPAT DIALOG 0, 0, 116, 56
-STYLE DS_3DLOOK | DS_CENTER | DS_MODALFRAME | DS_SHELLFONT | WS_CAPTION | WS_VISIBLE | WS_POPUP | WS_SYSMENU
-CAPTION "Row Compatibility Rule - Gold Tile"
-FONT 10, "Microsoft Sans Serif"
-{
-    DEFPUSHBUTTON   "OK", IDOK, 31, 35, 50, 14
-    CTEXT           "Tiles in a row (with no intervening empty cells) must all be mutually compatible.", IDC_STATIC, 14, 4, 88, 27, SS_CENTER
-}
-
-
-
-RULES DIALOG 0, 0, 160, 54
-STYLE DS_MODALFRAME | DS_SETFONT | WS_CAPTION | WS_VISIBLE | WS_POPUP
-CAPTION "Rules - Gold Tile"
-FONT 10, "Microsoft Sans Serif"
-{
-    DEFPUSHBUTTON   "OK", IDOK, 55, 32, 50, 14
-    CTEXT           "The rules of Gold Tile are available online at http://code.google.com/p/gold-tiles/wiki/Playing", IDC_STATIC, 10, 6, 150, 20, SS_CENTER
-}
-
-
-
-START DIALOG 0, 0, 138, 60
-STYLE DS_3DLOOK | DS_CENTER | DS_MODALFRAME | DS_SHELLFONT | WS_CAPTION | WS_VISIBLE | WS_POPUP | WS_SYSMENU
-CAPTION "Start Rule - Gold Tile"
-FONT 10, "Microsoft Sans Serif"
-{
-    DEFPUSHBUTTON   "OK", IDOK, 43, 36, 50, 14
-    CTEXT           "Your first tile must use the start cell. To change this tile, you must take back ALL your tiles.", IDC_STATIC, 10, 6, 114, 30, SS_CENTER
-}
-
-
-
-STARTSIMPLE DIALOG 0, 0, 138, 43
-STYLE DS_3DLOOK | DS_CENTER | DS_MODALFRAME | DS_SHELLFONT | WS_CAPTION | WS_VISIBLE | WS_POPUP | WS_SYSMENU
-CAPTION "Start Rule - Gold Tile"
-FONT 10, "Microsoft Sans Serif"
-{
-    DEFPUSHBUTTON   "OK", IDOK, 43, 21, 50, 14
-    CTEXT           "Your first tile must use the start cell.", IDC_STATIC, 10, 6, 114, 12, SS_CENTER
-}
-
-
-
-STOCK DIALOG 0, 0, 129, 47
-STYLE DS_3DLOOK | DS_CENTER | DS_MODALFRAME | DS_SHELLFONT | WS_CAPTION | WS_VISIBLE | WS_POPUP | WS_SYSMENU
-CAPTION "Stock Rule - Gold Tile"
-FONT 10, "Microsoft Sans Serif"
-{
-    DEFPUSHBUTTON   "OK", IDOK, 41, 28, 50, 14
-    CTEXT           "You can't swap more tiles than the number remaining in the stock bag.", IDC_STATIC, 5, 6, 119, 18, SS_CENTER
-}
-
-
-
-SWAP DIALOG 0, 0, 129, 46
-STYLE DS_3DLOOK | DS_CENTER | DS_MODALFRAME | DS_SHELLFONT | WS_CAPTION | WS_VISIBLE | WS_POPUP | WS_SYSMENU
-CAPTION "Swap Rule - Gold Tile"
-FONT 10, "Microsoft Sans Serif"
-{
-    DEFPUSHBUTTON   "OK", IDOK, 38, 27, 50, 14
-    CTEXT           "You can play tiles or swap them, but you can't do both in the same turn.", IDC_STATIC, 10, 6, 109, 20, SS_CENTER
 }
 
 

@@ -30,11 +30,15 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 
 Game::Game(
     Strings handNames,
+    Strings playerNames,
     GameStyleType style,
     unsigned tileRedundancy,
     unsigned handSize,
 	unsigned secondsPerHand)
 {
+	unsigned hand_count = handNames.Count();
+	unsigned player_count = playerNames.Count();
+	ASSERT(hand_count == player_count);
 	ASSERT(tileRedundancy >= 1);
 	ASSERT(handSize >= 1);
 	ASSERT(style != GAME_STYLE_NONE);
@@ -52,10 +56,13 @@ Game::Game(
     D(std::cout << "Placed " << plural(CountStock(), "tile") << " in the stock bag." << std::endl);
     
     // create hands
-	Strings::ConstIteratorType i_name;
-	for (i_name = handNames.Begin(); i_name != handNames.End(); i_name++) {
+	Strings::ConstIteratorType i_name = handNames.Begin();
+	Strings::ConstIteratorType i_player = playerNames.Begin();
+	for ( ; i_name != handNames.End(); i_name++, i_player++) {
+		ASSERT(i_player != playerNames.End());
 		String name = *i_name;
-	    Hand hand(name, mSecondsPerHand);
+		String player_name = *i_player;
+	    Hand hand(name, player_name, mSecondsPerHand);
 	    mHands.push_back(hand);
     }
 
@@ -96,10 +103,16 @@ Game::operator Hand(void) const {
     return result;
 }
 
+Game::operator Hands(void) const {
+	return mHands;
+}
+
 
 // misc methods
 
 void Game::ActivateNextHand(void) {
+	ASSERT(!miActiveHand->IsRunning());
+
     mHands.Next(miActiveHand);
 	mUnsavedChanges = true;
 }

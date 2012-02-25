@@ -40,6 +40,7 @@ class Game {
 public:
 	// lifecycle
     Game(Strings handNames,
+		 Strings playerNames,
          GameStyleType, 
 		 unsigned tileRedundancy = TILE_REDUNDANCY_DEFAULT, 
 		 unsigned handSize = HAND_SIZE_DEFAULT,
@@ -52,6 +53,7 @@ public:
 	Game &operator=(Game const &) { FAIL(); };
     operator Board(void) const;
 	operator Hand(void) const;
+	operator Hands(void) const;
 
 	// misc public methods
     void          ActivateNextHand(void);
@@ -70,14 +72,14 @@ public:
     GameStyleType Style(void) const;
 
 	// public inquiry methods
-	bool     HasEmptyCell(Cell const &) const;
-	bool     HasUnsavedChanges(void) const;
-    bool     IsLegalMove(Move const &) const;
-    bool     IsLegalMove(Move const &, char const *&rReason) const;
-    bool     IsLegalPartial(Partial const &) const;
-    bool     IsOver(void) const;
-	bool     IsPaused(void) const;
-	bool     IsStockEmpty(void) const;
+	bool HasEmptyCell(Cell const &) const;
+	bool HasUnsavedChanges(void) const;
+    bool IsLegalMove(Move const &) const;
+    bool IsLegalMove(Move const &, char const *&rReason) const;
+    bool IsLegalPartial(Partial const &) const;
+    bool IsOver(void) const;
+	bool IsPaused(void) const;
+	bool IsStockEmpty(void) const;
 
 	// constants
     static const unsigned HAND_SIZE_DEFAULT = 6;

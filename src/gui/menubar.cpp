@@ -22,6 +22,7 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "gui/menubar.hpp"
+#include "gui/player.hpp"
 #include "gui/resource.hpp"
 #include "gui/win_types.hpp"
 #include "partial.hpp"
@@ -83,6 +84,19 @@ void MenuBar::HandleMenuCommand(IdType command) {
 	}
 }
 
+void MenuBar::LoadPlayerOptions(String const &rPlayerName) {
+	Player * p_player = Player::Lookup(rPlayerName);
+	ASSERT(p_player != NULL);
+
+	mAutocenterFlag = p_player->Autocenter();
+	mAutopauseFlag = p_player->Autopause();
+    mPeekFlag = p_player->Peek();
+	mShowClocksFlag = p_player->ShowClocks();
+    mShowGridFlag = p_player->ShowGrid();
+	mShowScoresFlag = p_player->ShowScores();
+	mTileSizeItem = p_player->TileSize();
+}
+
 void MenuBar::NewGame(void) {
     GameStyleType game_style = mrPartial.GameStyle();
     
@@ -97,10 +111,26 @@ void MenuBar::NewGame(void) {
 	}
 }
 
+void MenuBar::SavePlayerOptions(String const &rPlayerName) const {
+	Player *p_player = Player::Lookup(rPlayerName);
+	ASSERT(p_player != NULL);
+
+	p_player->SetAutocenter(mAutocenterFlag);
+	p_player->SetAutopause(mAutopauseFlag);
+    p_player->SetPeek(mPeekFlag);
+	p_player->SetShowClocks(mShowClocksFlag);
+    p_player->SetShowGrid(mShowGridFlag);
+	p_player->SetShowScores(mShowScoresFlag);
+	p_player->SetTileSize(mTileSizeItem);
+}
+
 void MenuBar::SetTileSize(IdType menuItem) {
 	mTileSizeItem = menuItem;
 }
 
+IdType MenuBar::TileSize(void) const {
+	return mTileSizeItem;
+}
 
 void MenuBar::Update(void) {
 	bool have_game = mrPartial.HaveGame();

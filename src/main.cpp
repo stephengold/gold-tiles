@@ -48,12 +48,12 @@ int CALLBACK Win::WinMain(
 int main(int argCnt, char *argValues[]) {
 #endif // defined(_CONSOLE)
 
-	// seed the random number generator
+	// seed the pseudo-random number generator
 	unsigned seed = (unsigned)::time(NULL);
     ::srand(seed);
 
 	ACountType attribute_cnt = 2;
-	AValueType max_attribute[] = { 3, 3 };
+	AValueType max_attribute[] = { Tile::VALUE_CNT_DEFAULT - 1, Tile::VALUE_CNT_DEFAULT - 1 };
 	Tile::SetStatic(attribute_cnt, max_attribute);
 
 #ifdef _CONSOLE
@@ -66,13 +66,14 @@ int main(int argCnt, char *argValues[]) {
         << std::endl;
 
     // game parameters: hard-coded for now
-	Strings hand_names;
-	hand_names.Append("Stephen"); // oldest first
-	hand_names.Append("Paul");
-	hand_names.Append("Gale");
+	Strings player_names;
+	player_names.Append("Stephen"); // oldest first
+	player_names.Append("Paul");
+	player_names.Append("Gale");
+	Strings &hand_names = player_names;
 
     // Instantiate the game.
-	Game game(hand_names, GAME_STYLE_PRACTICE);
+	Game game(hand_names, player_names, GAME_STYLE_PRACTICE);
 
 	game.PlayGame();
     ::pause();
@@ -80,7 +81,6 @@ int main(int argCnt, char *argValues[]) {
 #endif // defined(_CONSOLE)
 
 #ifdef _GUI
-
 	// Instantiate top window and display it.
 	gTopWindow = new TopWindow(applicationInstance, NULL);
 	gTopWindow->Show(showHow);

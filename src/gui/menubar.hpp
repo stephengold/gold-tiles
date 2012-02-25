@@ -44,11 +44,14 @@ public:
 	MenuBar &operator=(MenuBar const &) { FAIL(); }
 
     // misc public methods
-    void GameOver(void);
-    void HandleMenuCommand(IdType);
-    void NewGame(void);
-    void SetTileSize(IdType);
-    void Update(void);
+    void   GameOver(void);
+    void   HandleMenuCommand(IdType);
+	void   LoadPlayerOptions(String const &rPlayerName);
+    void   NewGame(void);
+	void   SavePlayerOptions(String const &rPlayerName) const;
+    void   SetTileSize(IdType);
+	IdType TileSize(void) const;
+    void   Update(void);
 
     // public inquiry methods
     bool AreClocksVisible(void) const;    

@@ -27,8 +27,8 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 /*
 A Window object represents a generic Microsoft Windows window.
 
-The Window class encapsulates an HWND (window handle).
-It provides a static map for translating handles to Window objects. 
+The Window class encapsulates an HWND (window handle) and implements
+a static map for translating handles to Window objects. 
 */
 
 #include <map>
@@ -42,7 +42,6 @@ public:
 	Window(void);
     Window(Window const &) { FAIL(); };
     // ~WindowClass(void);  compiler-generated destructor is OK
-    Win::HDC Initialize(Win::CREATESTRUCT const *);
 
 	// public operators
     Window &operator=(Window const &) { FAIL(); };
@@ -51,14 +50,13 @@ public:
 	Win::HWND       Handle(void) const;
 	Win::LRESULT    HandleMessage(MessageType, Win::WPARAM, Win::LPARAM); 
     static Window * Lookup(Win::HWND);
-	void            SetHandle(Win::HWND);
 	void            Show(int showHow);
-
-	// public inquiry methods
-	bool IsMouseCaptured(void) const;
 
 protected:
 	static Window *mspNewlyCreatedWindow;
+
+	// protected lifecycle
+    void Initialize(Win::CREATESTRUCT const &);
 
 	// protected operators
     operator       Rect(void) const;
@@ -73,9 +71,11 @@ protected:
 	void           ForceRepaint(void);
 	Win::HACCEL    GetAcceleratorTable(char const *resourceName);
 	Win::HMENU     GetMenu(char const *resourceName);
+	bool           IsMouseCaptured(void) const;
 	void           SelfDestruct(void);
 	void           SetClientArea(PCntType width, PCntType height);
 	void           SetCursor(Win::LPSTR);
+	void           SetHandle(Win::HWND);
 	void           SetIcons(char const *resourceName);
 	void           SetTimer(unsigned msecs, unsigned id);
 	void           UpdateMenuBar(void);
@@ -84,15 +84,15 @@ private:
     typedef unsigned long                 Key;
     typedef std::map<Key, Window*>        Map;
     typedef std::pair<Key, Window*>       Pair;
-    typedef Map::iterator                 IteratorType;
 	typedef Map::const_iterator           ConstIteratorType;
+    typedef Map::iterator                 IteratorType;
     typedef std::pair<IteratorType, bool> InsertResultType;
 
 	static Map msMap;
 	
     PCntType       mClientAreaWidth, mClientAreaHeight;
     Win::HWND      mHandle;
-    Win::HINSTANCE mModule; // the module which owns this window  TODO static?
+    Win::HINSTANCE mModule; // the module/instance which owns this window  TODO static?
 };
 
 #endif

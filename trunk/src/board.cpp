@@ -167,7 +167,7 @@ unsigned Board::ScoreMove(Move const &rMove) const {
         if (::is_scoring_direction(direction)) {
             Indices done_ortho;
 
-            Cells::ConstIteratorType i_cell;
+            Cells::ConstIterator i_cell;
             for (i_cell = cells.begin(); i_cell != cells.end(); i_cell++) {
                 IndexType ortho = i_cell->Ortho(direction);
                 if (!done_ortho.Contains(ortho)) {
@@ -189,7 +189,7 @@ bool Board::AreAllCompatible(Cells const &rCells, DirectionType direction) const
     
     Indices done_orthos;
         
-    Cells::ConstIteratorType i_cell;
+    Cells::ConstIterator i_cell;
     for (i_cell = rCells.begin(); i_cell != rCells.end(); i_cell++) {
         IndexType ortho = i_cell->Ortho(direction);
         if (!done_orthos.Contains(ortho)) {
@@ -307,7 +307,7 @@ bool Board::IsConnectedDirection(Cells const &rCells, DirectionType direction) c
      bool result = true;
     
     if (rCells.Count() > 1) {
-        Cells::ConstIteratorType i_cell = rCells.begin();
+        Cells::ConstIterator i_cell = rCells.begin();
         Cell first_cell = *i_cell;
         Cell last_cell = *i_cell;
         for (i_cell++ ; i_cell != rCells.end(); i_cell++) {

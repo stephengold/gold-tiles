@@ -49,6 +49,7 @@ class TileCell;
 class Tiles;
 
 #ifdef _GUI
+// forward declarations of GUI classes
 class Canvas;
 class Dialog;
 class FileMenu;

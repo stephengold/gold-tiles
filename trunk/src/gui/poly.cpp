@@ -50,7 +50,7 @@ void Poly::GetPoints(
 {
     ASSERT(numPoints <= Count());
     
-    ConstIteratorType it = begin();
+    ConstIterator it = begin();
     for (unsigned i = 0; i < numPoints; i++) {
         ASSERT(it < end());
         FractionPair pair = *it;

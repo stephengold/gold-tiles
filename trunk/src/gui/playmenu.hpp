@@ -28,29 +28,32 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 A PlayMenu object represents the "play" submenu in the menu bar.
 */
 
-#include "game.hpp"
-#include "gui/menuitem.hpp"
-#include "gui/submenu.hpp"
-#include "gui/win.hpp"
+#include "game.hpp"          // USES GameStyleType
+#include "gui/menuitem.hpp"  // HASA MenuItem
+#include "gui/submenu.hpp"   // ISA SubMenu
 
 class PlayMenu: public SubMenu {
 public:
-	// lifecycle
+	// public lifecycle
     PlayMenu(Menu const &, unsigned position);
 	// no default constructor
 	// ~PlayMenu(void);  compiler-generated destructor is fine
-
-	// public operators
-	PlayMenu &operator=(PlayMenu const &) { FAIL(); }
 
 	// misc public methods
 	void Autopause(bool);
 	void EnableItems(GameStyleType, bool over, bool paused, bool pass, bool swapAll);
 	void Pause(bool);
 
-public:
+private:
+	// private data
     MenuItem mPlay, mTakeBack, mHint, mPause, mSwapAll, mPass, mResign;
     MenuItem mRestart, mUndo, mRedo, mAutopause;
+
+	// private lifecycle
+	PlayMenu(PlayMenu const &); // not copyable
+
+	// private operators
+	PlayMenu &operator=(PlayMenu const &); // not assignable
 };
 #endif
 

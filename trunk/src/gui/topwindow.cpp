@@ -144,7 +144,7 @@ void TopWindow::Initialize(CREATESTRUCT const &rCreateStruct) {
     SetTileWidth(IDM_LARGE_TILES);
 	if (mpGame != NULL) {
 	    Hands hands = Hands(*mpGame);
-		Hands::ConstIteratorType i_hand;
+		Hands::ConstIterator i_hand;
 		for (i_hand = hands.begin(); i_hand != hands.end(); i_hand++) {
 			String player_name = i_hand->PlayerName();
 			mpMenuBar->SavePlayerOptions(player_name);
@@ -593,7 +593,7 @@ void TopWindow::DrawInactiveHands(Canvas &rCanvas) {
     ColorType edge_color = COLOR_LIGHT_GRAY;
 
     Hands other_hands = mpGame->InactiveHands();
-    Hands::IteratorType i_hand;
+    Hands::Iterator i_hand;
     LogicalXType right_x = ClientAreaWidth() - mPadPixels;
     LogicalYType top_y = mPadPixels;
     for (i_hand = other_hands.begin(); i_hand < other_hands.end(); i_hand++) {
@@ -1245,7 +1245,7 @@ void TopWindow::OfferNewGame(void) {
 	if (mpGame != NULL) {
 	    Hands hands = Hands(*mpGame);
 		ip_addresses = new IpAddressType[hand_cnt];
-		Hands::ConstIteratorType i_hand;
+		Hands::ConstIterator i_hand;
 		unsigned i = 0;
 		for (i_hand = hands.begin(); i_hand != hands.end(); i_hand++) {
 			ASSERT(i < hand_cnt);
@@ -1367,7 +1367,7 @@ STEP4:
 	}
 	ASSERT(player_names.Count() >= hand_cnt);
     
-	Strings::IteratorType i_name = player_names.Begin();
+	Strings::Iterator i_name = player_names.Begin();
 	for (unsigned i = 0; i < hand_cnt; ) {
 		ASSERT(i_name != player_names.End());
 		bool more_flag = (i < hand_cnt - 1);
@@ -1671,7 +1671,7 @@ void TopWindow::SetGame(Game *pGame) {
 
 	if (pGame != NULL) {
 	    Hands hands = Hands(*pGame);
-		Hands::ConstIteratorType i_hand;
+		Hands::ConstIterator i_hand;
 		for (i_hand = hands.begin(); i_hand != hands.end(); i_hand++) {
 			String player_name = i_hand->PlayerName();
 			mpMenuBar->SavePlayerOptions(player_name);

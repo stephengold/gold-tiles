@@ -24,17 +24,17 @@ You should have received a copy of the GNU General Public License
 along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <map>
-#include "tile.hpp"
+#include <map>       // HASA std::map
+#include "tile.hpp"  // HASA Tile
 
 class Tiles {
 public:
-    // lifecycle
+    // public lifecycle
     // Tiles(void); compiler-generated default constructor is OK
-    // Tiles(BaseBoard const &);  compiler-generated copy constructor is OK
+    // Tiles(Tiles const &);  compiler-generated copy constructor is OK
     // ~Tiles(void);  compiler-generated destructor is OK
 
-	// operators
+	// public operators
     // Tiles &operator=(Tiles const &);  compiler-generated assignment method is OK
 	bool operator==(Tiles const &) const;
 	Tile operator[](unsigned) const;
@@ -66,8 +66,8 @@ public:
     bool     IsValid(void) const;
 
 private:
-	typedef std::map<TileIdType,Tile>::const_iterator ConstIteratorType;
-	typedef std::map<TileIdType,Tile>::iterator       IteratorType;
+	typedef std::map<TileIdType,Tile>::const_iterator ConstIterator;
+	typedef std::map<TileIdType,Tile>::iterator       Iterator;
 
 	std::map<TileIdType,Tile> mMap;
 };

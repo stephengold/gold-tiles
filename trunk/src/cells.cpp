@@ -73,7 +73,7 @@ bool Cells::AreAllInSameOrtho(DirectionType direction) const {
     bool result = true;
     
     if (Count() > 1) {
-        ConstIteratorType i_cell = begin();
+        ConstIterator i_cell = begin();
         IndexType ortho = i_cell->Ortho(direction);
         for (i_cell++; i_cell != end(); i_cell++) {
             if (i_cell->Ortho(direction) != ortho) {
@@ -87,7 +87,7 @@ bool Cells::AreAllInSameOrtho(DirectionType direction) const {
 }
 
 bool Cells::Contains(Cell const &rCell) const {
-	ConstIteratorType i_cell = find(rCell);
+	ConstIterator i_cell = find(rCell);
     bool result = (i_cell != end());
     
     return result;

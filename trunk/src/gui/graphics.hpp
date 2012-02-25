@@ -32,20 +32,16 @@ The Graphics class is implemented by encapsulating a pair of GDI device
 contexts:  mDraw for drawing and mDevice for the physical device.
 */
 
-#include "color.hpp"
-#include "rect.hpp"
+#include "gui/color.hpp"  // HASA ColorType
+#include "gui/rect.hpp"   // HASA Rect
 
 class Graphics {
 public:
-    // lifecycle
+    // public lifecycle
     Graphics(Win::HDC, Win::HWND, bool releaseMe, bool doubleBufferingOption, 
               PCntType width, PCntType height);
 	// no default constructor
-	// no copy constructor
-	~Graphics(void);
-
-	// operators
-    Graphics &operator=(Graphics const &) { FAIL(); };
+	virtual ~Graphics(void);
 
 	// misc public methods
     void        Close(void);
@@ -67,12 +63,19 @@ public:
     void        UseColors(ColorType brushBk, ColorType penText);
 
 private:
+	// private data
 	Win::HGDIOBJ mBitmapSave, mBrushSave, mPenSave;
     ColorType    mBrushBkColor, mPenTextColor;
     Win::HDC     mDevice, mDraw;
     Rect         mRect;
     bool         mReleaseMe;
     Win::HWND    mWindow;
+
+	// private lifecycle
+	Graphics(Graphics const &);  // not copyable
+
+	// private operators
+    Graphics &operator=(Graphics const &);  // not assignable
 };
 
 #endif

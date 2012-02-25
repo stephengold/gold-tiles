@@ -30,24 +30,27 @@ A YesNo object represents a dialog box for answering a yes/no question.
 The YesNo class is an extension of the Dialog class.
 */
 
-#include "gui/dialog.hpp"
+#include "gui/dialog.hpp"  // ISA Dialog
 
 class YesNo: public Dialog {
 public:
 	static const int RESULT_YES = 3;
 	static const int RESULT_NO = 4;
 
-    // lifecycle
+    // public lifecycle
 	YesNo(char const *templateName); 
 	// no default constructor
-	// no copy constructor
 	// ~YesNo(void);  compiler-generated destructor is OK
-
-	// public operators
-    YesNo &operator=(YesNo const &) { FAIL(); };
 
 	// misc public methods
 	int HandleMessage(MessageType, Win::WPARAM);
+
+private:
+	// private lifecycle
+	YesNo(YesNo const &);  // not copyable
+
+	// private operators
+    YesNo &operator=(YesNo const &);  // not assignable
 };
 
 #endif

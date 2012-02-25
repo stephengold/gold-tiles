@@ -28,7 +28,7 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 A String object represents a text string (sequence of characters).
 */
 
-#include <string>
+#include <string>  //  ISA std::string
 
 #ifndef __STDC_WANT_SECURE_LIB__
 // for envs that don't provide strcpy_s()
@@ -37,7 +37,7 @@ A String object represents a text string (sequence of characters).
 
 class String: public std::string {
 public:
-	// lifecycle
+	// public lifecycle
     String(void);
 	String(char);
 	String(unsigned, char);
@@ -50,8 +50,8 @@ public:
 	// String(String const &);  compiler-generated copy constructor is OK
     // ~String(void);  compiler-generated destructor is OK
 
-	// operators
-    // String &operator=(String const &)};  compiler-generated assignment method is OK
+	// public operators
+    // String &operator=(String const &);  compiler-generated assignment method is OK
 	operator char const*(void) const;
 	operator int(void) const; // atoi
 

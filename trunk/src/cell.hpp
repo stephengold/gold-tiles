@@ -35,8 +35,8 @@ The Cell class encapsulates a pair of indices:  one index
 for the row (or northing) and another for the column (or easting).
 */
 
-#include "indices.hpp"
-#include "string.hpp"
+#include "indices.hpp"  // HASA IndexType
+#include "string.hpp"   // USES String
 
 enum DirectionType {
     // positive directions
@@ -61,19 +61,20 @@ enum GridType {
 
 class Cell {
 public:
+	// public constants
 	static const IndexType HEIGHT_MAX = 0x40000000L;
 	static const IndexType HEIGHT_MIN = 4;
 	static const IndexType WIDTH_MAX  = 0x40000000L;
 	static const IndexType WIDTH_MIN = 4;
 
-	// lifecycle
+	// public lifecycle
     Cell(void);
     Cell(IndexType row, IndexType column);
 	Cell(Cell const &, DirectionType, IndexType count = 1);
     // Cell(Cell const &);  compiler-generated copy constructor is OK
     // ~Cell(void);  compiler-generated destructor is OK
 
-	// operators
+	// public operators
 	bool operator!=(Cell const &) const;
 	bool operator<(Cell const &) const;
 	// Cell &operator=(Cell const &);  compiler-generated assignment method is OK
@@ -100,12 +101,12 @@ public:
 	static bool IsValid(IndexType row, IndexType column);
 
 private:
+	// private data
 	static GridType  msGrid;
 	static IndexType msHeight;   // must be even and <= HEIGHT_MAX
 	static IndexType msWidth;    // must be even and <= WIDTH_MAX
 	static bool      msWrapFlag; // coordinates wrap around
-
-	IndexType mColumn, mRow;
+	IndexType         mColumn, mRow;
 
     // misc private methods
 	static void NextCellOffsets(DirectionType, IndexType &rowOffset, 

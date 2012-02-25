@@ -56,8 +56,8 @@ Game::Game(
     D(std::cout << "Placed " << plural(CountStock(), "tile") << " in the stock bag." << std::endl);
     
     // create hands
-	Strings::ConstIteratorType i_name = handNames.Begin();
-	Strings::ConstIteratorType i_player = playerNames.Begin();
+	Strings::ConstIterator i_name = handNames.Begin();
+	Strings::ConstIterator i_player = playerNames.Begin();
 	for ( ; i_name != handNames.End(); i_name++, i_player++) {
 		ASSERT(i_player != playerNames.End());
 		String name = *i_name;
@@ -67,7 +67,7 @@ Game::Game(
     }
 
     // deal tiles to each hand from the stock bag
-    Hands::IteratorType i_hand;
+    Hands::Iterator i_hand;
     for (i_hand = mHands.begin(); i_hand < mHands.end(); i_hand++) {
         i_hand->DrawTiles(mHandSize, mStockBag);
     }
@@ -152,7 +152,7 @@ unsigned Game::CountStock(void) const {
 }
 
 void Game::DisplayScores(void) const {
-    Hands::ConstIteratorType i_hand;
+    Hands::ConstIterator i_hand;
 
     for (i_hand = mHands.begin(); i_hand < mHands.end(); i_hand++) {
 	    i_hand->DisplayScore();
@@ -213,7 +213,7 @@ void Game::FirstTurn(void) {
 }
 
 void Game::GoingOutBonus(void) {
-    Hands::ConstIteratorType i_hand = miActiveHand;
+    Hands::ConstIterator i_hand = miActiveHand;
 	mHands.Next(i_hand);
     
     while (i_hand != miActiveHand) {
@@ -234,7 +234,7 @@ unsigned Game::HandSize(void) const {
 Hands Game::InactiveHands(void) const {
     Hands result;
 
-    Hands::ConstIteratorType i_hand = miActiveHand;
+    Hands::ConstIterator i_hand = miActiveHand;
 	mHands.Next(i_hand);
     
     while (i_hand != miActiveHand) {
@@ -374,7 +374,7 @@ bool Game::IsOver(void) const {
     // and one hand has gone out.
 
 	if (IsStockEmpty()) {
-        Hands::ConstIteratorType hand;
+        Hands::ConstIterator hand;
         for (hand = mHands.begin(); hand < mHands.end(); hand++) {
 	        if (hand->IsEmpty()) {
 		        result = true;

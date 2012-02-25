@@ -21,9 +21,9 @@ You should have received a copy of the GNU General Public License
 along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "gui/win.hpp"
 #include "gui/win_types.hpp"
 #include "gui/windowclass.hpp"
+#include "project.hpp"  // ASSERT
 
 // lifecycle
 
@@ -54,15 +54,11 @@ WindowClass::WindowClass(
 // misc methods
 
 HINSTANCE WindowClass::Module(void) const {
-    HINSTANCE result = hInstance;
-    
-	return result;
+    return hInstance;
 }
 
 char const *WindowClass::Name(void) const {
-    char const *result = lpszClassName;
-    
-	return result;
+    return lpszClassName;
 }
 
 void WindowClass::RegisterClass(void) {

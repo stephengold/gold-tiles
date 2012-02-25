@@ -31,20 +31,15 @@ for each attribute.
 The TileBox class is an extension of the Dialog class.
 */
 
-#include "cell.hpp"
-#include "gui/dialog.hpp"
-#include "tile.hpp"
+#include "gui/dialog.hpp"   // ISA Dialog
+#include "tile.hpp"         // USES ACountType
 
 class TileBox: public Dialog {
 public:
-    // lifecycle
+    // public lifecycle
 	TileBox(char const *templateName, ACountType attributeCnt, AValueType pValueMax[5]);
 	// no default constructor
-	// no copy constructor
 	// ~TileBox(void);  compiler-generated destructor is OK
-
-	// public operators
-    TileBox &operator=(TileBox const &) { FAIL(); };
 
 	// misc public methods
 	int        HandleMessage(MessageType, Win::WPARAM, Win::LPARAM);
@@ -53,6 +48,12 @@ public:
 private:
 	ACountType mAttributeCnt;
     ValueType mpNumValues[5];
+
+	// private lifecycle
+    TileBox(TileBox const &);  // not copyable
+
+	// private operators
+    TileBox &operator=(TileBox const &); // not assignable
 
 	// misc private methods
     IdType EditboxId(IdType slider) const;

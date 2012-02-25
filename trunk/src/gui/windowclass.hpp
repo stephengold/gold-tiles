@@ -30,24 +30,26 @@ A WindowClass object represents a Microsoft Windows "window class".
 The WindowClass class extends the Win::WNDCLASSEX structure.
 */
 
-#include "gui/win.hpp"
-#include "project.hpp" // FAIL
+#include "gui/win.hpp"  // ISA Win::WNDCLASSEX
 
 class WindowClass: public Win::WNDCLASSEX {
 public:
-	// lifecycle
-    WindowClass(Win::HINSTANCE, Win::WNDPROC, char const *);
+	// public lifecycle
+    WindowClass(Win::HINSTANCE, Win::WNDPROC, char const *name);
 	// no default constructor
-	// no copy constructor
     // ~WindowClass(void);  compiler-generated destructor is fine
-
-	// operators
-    WindowClass &operator=(WindowClass const &) { FAIL(); };
 
 	// misc public methods
     Win::HINSTANCE Module(void) const;
 	char const *   Name(void) const;
     void           RegisterClass(void);
+
+private:
+	// private lifecycle
+	WindowClass(WindowClass const &); // not copyable
+
+	// private operators
+    WindowClass &operator=(WindowClass const &); // not assignable
 };
 
 #endif

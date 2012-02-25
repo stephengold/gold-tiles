@@ -25,22 +25,18 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 /*
-A SubMenu object represents a submenu such as
+A SubMenu object represents a submenu of a menu bar, such as
 the "Play" submenu or the "View" submenu.
 */
 
-#include "project.hpp"  // FAIL()
+#include "project.hpp"  // HASA Menu&
 
 class SubMenu {
 public:
-	// lifecycle
+	// public lifecycle
     SubMenu(Menu const &, unsigned position);
 	// no default constructor
 	// ~SubMenu(void);  compiler-generated destructor is OK
-
-	// public operators
-	SubMenu &operator=(SubMenu const &) { FAIL(); };
-	operator Win::HMENU(void) const;
 
 	// misc public methods
     void Enable(bool);
@@ -48,6 +44,12 @@ public:
 private:
     Menu const &mrMenu;
     unsigned     mPosition;
+
+	// private lifecycle
+	SubMenu(SubMenu const &);  // not copyable
+
+	// public operators
+	SubMenu &operator=(SubMenu const &);  // not assignable
 };
 
 #endif

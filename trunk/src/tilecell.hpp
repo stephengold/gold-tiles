@@ -29,8 +29,8 @@ A TileCell object describes a playing piece (Tile) and also the location
 where it is to be played.
 */
 
-#include "cell.hpp"
-#include "tile.hpp"
+#include "cell.hpp"  // HASA Cell
+#include "tile.hpp"  // HASA Tile
 
 class TileCell {
 public:

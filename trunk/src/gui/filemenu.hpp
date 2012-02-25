@@ -29,27 +29,30 @@ A FileMenu object represents the "File" SubMenu in the menu bar.
 */
 
 #include "game.hpp"
-#include "gui/menuitem.hpp"
-#include "gui/submenu.hpp"
-#include "gui/win.hpp"
+#include "gui/menuitem.hpp" // HASA MenuItem
+#include "gui/submenu.hpp"  // ISA SubMenu
 
 
 class FileMenu: public SubMenu {
 public:
-	// lifecycle
+	// public lifecycle
     FileMenu(Menu const &, unsigned position);
 	// no default constructor
 	//FileMenu(FileMenu const &);  compiler-generated destructor is OK
 
-	// public operators
-	FileMenu &operator=(FileMenu const &) { FAIL(); }
-
 	// misc public methods
-	void EnableItems(bool isGame);
+	void EnableItems(bool haveGame);
 
 private:
+	// private data
     MenuItem mNew, mOpen, mReopen, mRevert;
 	MenuItem mSave, mSaveAs, mClose, mPrint, mExit;
+
+	// private lifecycle
+	FileMenu(FileMenu const &);   // not copyable
+
+	// private operators
+	FileMenu &operator=(FileMenu const &);  // not assignable
 };
 
 #endif

@@ -21,8 +21,9 @@ You should have received a copy of the GNU General Public License
 along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include "gui/player.hpp"
 #include "gui/resource.hpp"
-#include "player.hpp"
+#include "project.hpp"    // ASSERT
 
 Player::Map Player::msMap;
 
@@ -46,7 +47,7 @@ Player::Player(String const &rName):
 // misc methods
 
 /* static */ Player *Player::Lookup(String const &rName) {
-    ConstIteratorType i_player = msMap.find(rName);
+    ConstIterator i_player = msMap.find(rName);
 
 	Player *result = NULL;
     if (i_player != msMap.end()) {
@@ -56,7 +57,7 @@ Player::Player(String const &rName):
 	    ASSERT(result != NULL);
 
 		Pair new_mapping(rName, result); 
-	    InsertResultType ins_result = msMap.insert(new_mapping);
+	    InsertResult ins_result = msMap.insert(new_mapping);
 	    bool success = ins_result.second;
 	    ASSERT(success);
 	}

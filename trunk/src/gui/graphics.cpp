@@ -83,7 +83,7 @@ Graphics::Graphics(
     ASSERT(mPenSave != NULL);
 }
 
-Graphics::~Graphics(void) {
+/* virtual */ Graphics::~Graphics(void) {
     HGDIOBJ brush = Win::SelectObject(mDraw, mBrushSave);
     ASSERT(brush != NULL);
     BOOL success = Win::DeleteObject(brush);

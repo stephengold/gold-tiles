@@ -30,52 +30,55 @@ which grows automatically in four directions.  The grid is
 composed of cells on which Tile objects may be played.
 Cells may be referenced by means of Cell objects.
  
-The Basboard class implements minimal functionality.
+The Basboard class implements minimal functionality using two maps:
+one to map cells to tiles and a reverse map to get cells from tile IDs.
 The Board class extends BaseBoard to add functionality.
 */
 
-#include <map>
-#include "cell.hpp"
-#include "tile.hpp"
+#include <map>       // HASA std::map
+#include "cell.hpp"  // HASA Cell
+#include "tile.hpp"  // HASA Tile
 
 class BaseBoard {
 public:
-	// lifecycle
+	// public lifecycle
     BaseBoard(void);
     // BaseBoard(BaseBoard const &);  compiler-generated copy constructor is OK
     // ~BaseBoard(void);  compiler-generated destructor is OK
 
-	// operators
+	// public operators
     // BaseBoard &operator=(BaseBoard const &);  compiler-generated assignment operator is OK
 	operator String(void) const;
 
 	// misc public methods
-	unsigned    Count(void) const;
-	int	        EastMax(void) const;
-    Tile const *GetCell(Cell const &) const;
-    bool        LocateTileId(TileIdType, Cell &) const;
-	void        MakeEmpty(void);
-    void        MakeEmpty(Cell const &);
-    int	        NorthMax(void) const;
-	void        PlayOnCell(Cell const &, Tile const &);
-    int	        SouthMax(void) const;
-    int	        WestMax(void) const;
+	unsigned     Count(void) const;
+	IndexType    EastMax(void) const;
+    Tile const * GetCell(Cell const &) const;
+    bool         LocateTileId(TileIdType, Cell &) const;
+	void         MakeEmpty(void);
+    void         MakeEmpty(Cell const &);
+    IndexType    NorthMax(void) const;
+	void         PlayOnCell(Cell const &, Tile const &);
+    IndexType    SouthMax(void) const;
+    IndexType	 WestMax(void) const;
 
 private:
-    typedef std::map<Cell,Tile>::const_iterator	      ConstIteratorType;
-    typedef std::map<Cell,Tile>::iterator		      IteratorType;
-    typedef std::map<TileIdType,Cell>::const_iterator ConstTileIteratorType;
-    typedef std::map<TileIdType,Cell>::iterator		  TileIteratorType;
+	// private types
+	typedef std::map<Cell,Tile>       CellMap;
+    typedef CellMap::const_iterator	  CellConstIterator;
+    typedef CellMap::iterator		  CellIterator;
+	typedef std::map<TileIdType,Cell> TileMap;
+	typedef TileMap::const_iterator   TileConstIterator;
+    typedef TileMap::iterator		  TileIterator;
 
-	int mNorthMax, mSouthMax, mEastMax, mWestMax; // extent of the played area
-
-    std::map<Cell,Tile>       mCells;
-    std::map<TileIdType,Cell> mTiles;
+	// private data
+    CellMap   mCells;
+	IndexType mNorthMax, mSouthMax, mEastMax, mWestMax; // extent of the played area
+    TileMap   mTiles;
 
 	// misc private methods
-    ConstIteratorType Find(IndexType northing, IndexType easting) const;
-    IteratorType	  Find(IndexType northing, IndexType easting);
+    CellConstIterator Find(IndexType northing, IndexType easting) const;
+    CellIterator	  Find(IndexType northing, IndexType easting);
 };
 
 #endif
-

@@ -35,11 +35,10 @@ At any instant, only one tile may be active (in motion).
 The Partial class is ...
 */
 
-#include "board.hpp"
-#include "cells.hpp"
-#include "game.hpp"
-#include "indices.hpp"
-#include "tiles.hpp"
+#include "board.hpp"   // HASA Board
+#include "cells.hpp"   // HASA Cells
+#include "indices.hpp" // HASA Indices
+#include "tiles.hpp"   // HASA Tiles
 
 enum HintType {
 	HINT_NONE,
@@ -53,7 +52,7 @@ enum HintType {
 
 class Partial {
 public:
-	// lifecycle
+	// public lifecycle
 	Partial(Game const *, HintType strength = HINT_DEFAULT);
 	// no default constructor
     //Partial(Partial const &);  compiler-generated copy constructor is OK

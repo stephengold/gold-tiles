@@ -32,15 +32,17 @@ The Indices class is implemented by applying the standard "set" container
 template to an IndexType.
 */
 
-#include <set>
+#include <set>  // ISA std::set
 
 typedef long IndexType;
 
 class Indices: public std::set<IndexType> {
 public:
-	typedef std::set<IndexType>::const_iterator ConstIteratorType;
-	typedef std::set<IndexType>::iterator IteratorType;
+	// public types
+	typedef std::set<IndexType>::const_iterator ConstIterator;
+	typedef std::set<IndexType>::iterator       Iterator;
 
+	// public constants
 	static const IndexType INDEX_MAX = LONG_MAX;
 	static const IndexType INDEX_MIN = LONG_MIN;
 

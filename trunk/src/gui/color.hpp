@@ -28,7 +28,7 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 The ColorType enum names and defines all colors used in the game.
 */
 
-#include "win.hpp"
+#include "gui/win.hpp"
 
 using Win::BYTE;
 using Win::COLORREF;

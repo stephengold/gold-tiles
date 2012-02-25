@@ -61,13 +61,13 @@ BaseBoard::operator String(void) const {
         result += String(5 - row_tag.Length(), ' ');
         result += row_tag;
 	    for (int column = -(int)mWestMax; column <= (int)mEastMax; column++) {
-            ConstIteratorType it = Find(row, column);
-			if (it == mCells.end()) {
+            CellConstIterator i_cell = Find(row, column);
+			if (i_cell == mCells.end()) {
 				result += " .";
                 result += Tile::StringEmpty();
                 result += ".";
 			} else {
-                Tile tile = it->second;
+                Tile tile = i_cell->second;
 				result += " [";
                 result += String(tile);
                 result += "]";
@@ -90,22 +90,20 @@ unsigned BaseBoard::Count(void) const {
 }
 
 // get the eastern limit of the board
-int BaseBoard::EastMax(void) const {
-    int result = mEastMax;
-
-	return result;
+IndexType BaseBoard::EastMax(void) const {
+    return mEastMax;
 }
 
 // get iterators to specific cells
-BaseBoard::ConstIteratorType BaseBoard::Find(IndexType northing, IndexType easting) const {
+BaseBoard::CellConstIterator BaseBoard::Find(IndexType northing, IndexType easting) const {
     Cell ref(northing, easting);
-    ConstIteratorType result = mCells.find(ref);
+    CellConstIterator result = mCells.find(ref);
 
     return result;
 }
-BaseBoard::IteratorType BaseBoard::Find(IndexType northing, IndexType easting) {
+BaseBoard::CellIterator BaseBoard::Find(IndexType northing, IndexType easting) {
     Cell ref(northing, easting);
-    IteratorType result = mCells.find(ref);
+    CellIterator result = mCells.find(ref);
 
     return result;
 }
@@ -114,9 +112,9 @@ BaseBoard::IteratorType BaseBoard::Find(IndexType northing, IndexType easting) {
 Tile const *BaseBoard::GetCell(Cell const &rSquare) const {
     Tile const *p_result = NULL;
 
-    ConstIteratorType it = mCells.find(rSquare);
-    if (it != mCells.end()) {
-        p_result = &(it->second);
+    CellConstIterator i_cell = mCells.find(rSquare);
+    if (i_cell != mCells.end()) {
+        p_result = &(i_cell->second);
     }
 
     return p_result;
@@ -124,7 +122,7 @@ Tile const *BaseBoard::GetCell(Cell const &rSquare) const {
 
 // locate the Cell which contains a specific Tile
 bool BaseBoard::LocateTileId(TileIdType id, Cell &rCell) const {
-    ConstTileIteratorType i_tile = mTiles.find(id);
+    TileConstIterator i_tile = mTiles.find(id);
     bool result = (i_tile != mTiles.end());
     if (result) {
         rCell = i_tile->second;
@@ -144,25 +142,23 @@ void BaseBoard::MakeEmpty(void) {
 
 // make a specific cell empty
 void BaseBoard::MakeEmpty(Cell const &rCell) {
-    int row = rCell.Row();
-    int column = rCell.Column();
+    IndexType row = rCell.Row();
+    IndexType column = rCell.Column();
     
-    IteratorType i_cell = Find(row, column);
+    CellIterator i_cell = Find(row, column);
     Tile tile = i_cell->second;
     TileIdType id = tile.Id();
     ASSERT(i_cell != mCells.end());
     mCells.erase(i_cell);
     
-    TileIteratorType i_tile = mTiles.find(id);
+    TileIterator i_tile = mTiles.find(id);
     ASSERT(i_tile != mTiles.end());
     mTiles.erase(i_tile);
 }
 
 // get the northern limit of the board
-int BaseBoard::NorthMax(void) const {
-    int result = mNorthMax;
-
-	return result;
+IndexType BaseBoard::NorthMax(void) const {
+    return mNorthMax;
 }
 
 // play a Tile on a specific cell
@@ -171,19 +167,19 @@ void BaseBoard::PlayOnCell(Cell const &rCell, Tile const &rTile) {
     TileIdType id = rTile.Id();
     ASSERT(mTiles.find(id) == mTiles.end());
 
-    int n = rCell.Row();
-    if (n > (int)mNorthMax) {
+    IndexType n = rCell.Row();
+    if (n > mNorthMax) {
         mNorthMax = n;
     }
-    if (n < -(int)mSouthMax) {
+    if (n < -mSouthMax) {
         mSouthMax = -n;
     }
 
-    int e = rCell.Column();
-    if (e > (int)mEastMax) {
+    IndexType e = rCell.Column();
+    if (e > mEastMax) {
         mEastMax = e;
     }
-    if (e < -(int)mWestMax) {
+    if (e < -mWestMax) {
         mWestMax = -e;
     }
 
@@ -195,15 +191,11 @@ void BaseBoard::PlayOnCell(Cell const &rCell, Tile const &rTile) {
 }
 
 // get the southern limit of the board
-int BaseBoard::SouthMax(void) const {
-    int result = mSouthMax;
-
-	return result;
+IndexType BaseBoard::SouthMax(void) const {
+	return mSouthMax;
 }
 
 // get the western limit of the board
-int BaseBoard::WestMax(void) const {
-    int result = mWestMax;
-
-	return result;
+IndexType BaseBoard::WestMax(void) const {
+	return mWestMax;
 }

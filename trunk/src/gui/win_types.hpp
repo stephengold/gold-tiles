@@ -27,6 +27,8 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 // This header file is meant to be #included only in .cpp files, not in
 // other header files.
 
+#include "gui/win.hpp"
+
 using Win::ATOM;
 using Win::BOOL;
 using Win::CREATESTRUCT;

@@ -200,7 +200,7 @@ void Window::InfoBox(char const *message, char const *title) {
 
 /* static */ Window *Window::Lookup(HWND handle) {
     Key key = Key(handle);
-    ConstIteratorType i_window = msMap.find(key);
+    ConstIterator i_window = msMap.find(key);
 
 	Window *result = NULL;
     if (i_window != msMap.end()) {
@@ -254,7 +254,7 @@ void Window::SetHandle(HWND handle) {
 
 	Key key = Key(handle);
 	Pair new_mapping(key, this); 
-	InsertResultType ins_result = msMap.insert(new_mapping);
+	InsertResult ins_result = msMap.insert(new_mapping);
 	bool success = ins_result.second;
 	ASSERT(success);
 }

@@ -28,21 +28,17 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 A MenuBar object represents the menu bar of the top window.
 */
 
-#include "gui/filemenu.hpp"
-#include "gui/menu.hpp"
-#include "gui/playmenu.hpp"
-#include "gui/submenu.hpp"
-#include "gui/viewmenu.hpp"
+#include "gui/filemenu.hpp"  // HASA FileMenu
+#include "gui/menu.hpp"      // HASA Menu
+#include "gui/playmenu.hpp"  // HASA PlayMenu
+#include "gui/viewmenu.hpp"  // HASA ViewMenu
 
 class MenuBar {
 public:
-	// lifecycle
+	// public lifecycle
     MenuBar(Win::CREATESTRUCT const &, Partial const &);
 	// no default constructor
 	
-	// public operators
-	MenuBar &operator=(MenuBar const &) { FAIL(); }
-
     // misc public methods
     void   GameOver(void);
     void   HandleMenuCommand(IdType);
@@ -62,6 +58,7 @@ public:
     bool IsPeeking(void) const;
 
 private:
+	// private data
 	bool             mAutocenterFlag;
 	bool             mAutopauseFlag;
 	FileMenu         mFileMenu;
@@ -75,5 +72,11 @@ private:
 	bool             mShowScoresFlag;
 	IdType           mTileSizeItem;
 	ViewMenu         mViewMenu;
+
+	// public lifecycle
+	MenuBar(MenuBar const &);  // not copyable
+
+	// public operators
+	MenuBar &operator=(MenuBar const &);  // not assignable
 };
 #endif

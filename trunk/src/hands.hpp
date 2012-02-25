@@ -25,21 +25,22 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 /*
-A Hands object represents a group of zero or more hands.
+A Hands object represents a group of zero or more hands of tiles.
 */
 
-#include <vector>
-#include "hand.hpp"
+#include <vector>    // ISA std::vector
+#include "hand.hpp"  // HASA Hand
 
 class Hands: public std::vector<Hand> {
 public:
-    typedef std::vector<Hand>::const_iterator ConstIteratorType;
-    typedef std::vector<Hand>::iterator       IteratorType;
+	// public types
+    typedef std::vector<Hand>::const_iterator ConstIterator;
+    typedef std::vector<Hand>::iterator       Iterator;
 
-	// misc methods
+	// misc public methods
     unsigned Count(void) const;
-    void     Next(ConstIteratorType &) const;
-    void     Next(IteratorType &);
+    void     Next(ConstIterator &) const;
+    void     Next(Iterator &);
 };
 
 #endif

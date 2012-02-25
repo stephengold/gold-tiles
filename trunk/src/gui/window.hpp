@@ -31,20 +31,16 @@ The Window class encapsulates an HWND (window handle) and implements
 a static map for translating handles to Window objects. 
 */
 
-#include <map>
-#include "gui/rect.hpp"    // PCntType
+#include <map>            // HASA std::map
+#include "gui/rect.hpp"   // HASA PCntType
 
 typedef Win::UINT MessageType;
 
 class Window {
 public:
-	// lifecycle
+	// public lifecycle
 	Window(void);
-    Window(Window const &) { FAIL(); };
     // ~WindowClass(void);  compiler-generated destructor is OK
-
-	// public operators
-    Window &operator=(Window const &) { FAIL(); };
 
 	// misc public methods
 	Win::HWND       Handle(void) const;
@@ -84,18 +80,24 @@ protected:
 	void           UpdateMenuBar(void);
 
 private:
-    typedef unsigned long                 Key;
-    typedef std::map<Key, Window*>        Map;
-    typedef std::pair<Key, Window*>       Pair;
-	typedef Map::const_iterator           ConstIteratorType;
-    typedef Map::iterator                 IteratorType;
-    typedef std::pair<IteratorType, bool> InsertResultType;
+    typedef unsigned long             Key;
+    typedef std::map<Key, Window*>    Map;
+    typedef std::pair<Key, Window*>   Pair;
+	typedef Map::const_iterator       ConstIterator;
+    typedef Map::iterator             Iterator;
+    typedef std::pair<Iterator, bool> InsertResult;
 
 	static Map msMap;
 	
     PCntType       mClientAreaWidth, mClientAreaHeight;
     Win::HWND      mHandle;
     Win::HINSTANCE mModule; // the module/instance which owns this window  TODO static?
+
+	// private lifecycle
+    Window(Window const &); // not copyable
+
+	// private operators
+    Window &operator=(Window const &); // not assignable
 
 	// misc private methods
 	void SetCursor(Win::LPSTR);

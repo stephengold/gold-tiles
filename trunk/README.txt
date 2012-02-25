@@ -19,15 +19,18 @@ online at http://code.google.com/p/gold-tiles
 ACKNOWLEGMENTS
 
 With gratitude I acknowledge those whose inspiration and support
-helped me create this software:
+helped me create this application:
  + Susan McKinley Ross for creating Qwirkle(TM) and MindWare
    for publishing it (http://www.mindware.com/p/Qwirkle/32016)
  + my sweetie Gale for her encouragement and understanding
- + Noah Picard for his help with the user interface design
- + Skyler Burwell for help with testing
+ + Noah Picard for his advice on the user interface design
+ + Skyler Burwell for testing Release 0.6
  + the creators of the ResEdit free resource editor (www.resedit.net)
  + Microsoft Corporation for creating and distributing Microsoft
-   Visual C++ 2010 Express.
+   Visual C++ 2010 Express
+ + Todd Hoff for publishing his C++ Coding Standard 
+   (http://www.possibility.com/Cpp/CppCodingStandard.html) which
+   greatly influenced the coding style of this project
  + Colin Laplace and Bloodshed Software for creating and distributing
    the Dev-C++ integrated development environment 
    (http://www.bloodshed.net/devcpp.html)

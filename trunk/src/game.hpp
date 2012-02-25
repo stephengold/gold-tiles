@@ -24,9 +24,8 @@ You should have received a copy of the GNU General Public License
 along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "board.hpp"
-#include "hands.hpp"
-#include "move.hpp"
+#include "board.hpp"  // HASA Board
+#include "hands.hpp"  // HASA Hands
 
 enum GameStyleType {
     GAME_STYLE_NONE,
@@ -38,7 +37,12 @@ enum GameStyleType {
 
 class Game {
 public:
-	// lifecycle
+	// public constants
+    static const unsigned HAND_SIZE_DEFAULT = 6;
+    static const unsigned TILE_REDUNDANCY_DEFAULT = 1;
+	static const unsigned TIME_UNLIMITED = 0;
+
+	// public lifecycle
     Game(Strings handNames,
 		 Strings playerNames,
          GameStyleType, 
@@ -46,11 +50,9 @@ public:
 		 unsigned handSize = HAND_SIZE_DEFAULT,
 		 unsigned secondsPerHand = TIME_UNLIMITED);
 	// no default constructor
-	// no copy constructor
     // ~Game(void);  compiler-generated destructor is OK
 
-	// operators
-	Game &operator=(Game const &) { FAIL(); };
+	// public operators
     operator Board(void) const;
 	operator Hand(void) const;
 	operator Hands(void) const;
@@ -81,23 +83,25 @@ public:
 	bool IsPaused(void) const;
 	bool IsStockEmpty(void) const;
 
-	// constants
-    static const unsigned HAND_SIZE_DEFAULT = 6;
-    static const unsigned TILE_REDUNDANCY_DEFAULT = 1;
-	static const unsigned TIME_UNLIMITED = 0;
-
 private:
-    Hands::IteratorType miActiveHand;    // whose turn it is
-    unsigned             mBestRunLength; // zero after the first turn
-    Board                mBoard;         // extensible playing surface
-	String               mFilespec;      // associated file for load/save
-    Hands                mHands;         // all hands being played
-	unsigned             mHandSize;      // max tiles per hand
-	unsigned             mRedundancy;    // number of instances of each possible tile
-	unsigned             mSecondsPerHand; // 0 indicates count up instead of down
-    Tiles                mStockBag;      // stock bag from which tiles are drawn
-	GameStyleType        mStyle;
-	bool                 mUnsavedChanges;
+	// private data
+    Hands::Iterator miActiveHand;    // whose turn it is
+    unsigned         mBestRunLength; // zero after the first turn
+    Board            mBoard;         // extensible playing surface
+	String           mFilespec;      // associated file for load/save
+    Hands            mHands;         // all hands being played
+	unsigned         mHandSize;      // max tiles per hand
+	unsigned         mRedundancy;    // number of instances of each possible tile
+	unsigned         mSecondsPerHand; // 0 indicates count up instead of down
+    Tiles            mStockBag;      // stock bag from which tiles are drawn
+	GameStyleType    mStyle;
+	bool             mUnsavedChanges;
+
+	// private lifecycle
+	Game(Game const &);  // not copyable
+
+	// private operators
+	Game &operator=(Game const &);  // not assignable
 
 	// misc private methods
     void     AddTiles(AIndexType, Tile &);

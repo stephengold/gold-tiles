@@ -42,14 +42,14 @@ void Strings::Append(String const &rString) {
     mList.push_back(rString);
 }
 
-Strings::ConstIteratorType Strings::Begin(void) const {
-    ConstIteratorType result = mList.begin();
+Strings::ConstIterator Strings::Begin(void) const {
+    ConstIterator result = mList.begin();
 
 	return result;
 }
 
-Strings::IteratorType Strings::Begin(void) {
-    IteratorType result = mList.begin();
+Strings::Iterator Strings::Begin(void) {
+    Iterator result = mList.begin();
 
 	return result;
 }
@@ -62,7 +62,7 @@ unsigned Strings::Count(void) const {
 
 unsigned Strings::Count(String const &rString) const {
 	unsigned result = 0;
-	ConstIteratorType i_string;
+	ConstIterator i_string;
 
 	for (i_string = Begin(); i_string != End(); i_string++) {
 		if (*i_string == rString) {
@@ -73,14 +73,14 @@ unsigned Strings::Count(String const &rString) const {
 	return result;
 }
 
-Strings::ConstIteratorType Strings::End(void) const {
-    ConstIteratorType result = mList.end();
+Strings::ConstIterator Strings::End(void) const {
+    ConstIterator result = mList.end();
 
 	return result;
 }
 
-Strings::IteratorType Strings::End(void) {
-    IteratorType result = mList.end();
+Strings::Iterator Strings::End(void) {
+    Iterator result = mList.end();
 
 	return result;
 }
@@ -113,8 +113,8 @@ String Strings::InventUnique(
 	return result;
 }
 
-Strings::ConstIteratorType Strings::Find(String const &rString) const {
-    ConstIteratorType i_string;
+Strings::ConstIterator Strings::Find(String const &rString) const {
+    ConstIterator i_string;
 	for (i_string = Begin(); i_string != End(); i_string++) {
 		if (*i_string == rString) {
 			break;
@@ -133,7 +133,7 @@ void Strings::Unappend(void) {
 Strings Strings::Unique(void) const {
 	Strings result;
 
-	ConstIteratorType i_string;
+	ConstIterator i_string;
 	for (i_string = Begin(); i_string != End(); i_string++) {
 		if (!result.Contains(*i_string)) {
 			result.Append(*i_string);

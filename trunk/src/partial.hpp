@@ -86,9 +86,11 @@ public:
 	Cell          LocateTile(void) const;
 	Cell          LocateTile(TileIdType) const;
 	void          SetHintStrength(HintType);
+	void          SwapAll(void);
 	void          SwapToHand(void);               // move the active tile
 	
 	// inquiry methods
+	bool CanSwapAll(void) const;
 	bool Contains(TileIdType) const;
     bool HaveGame(void) const;
 	bool IsActive(TileIdType) const;
@@ -103,7 +105,7 @@ public:
 	bool IsVisible(Cell const &);
 
 private:
-	TileIdType   mActiveId;        // tile actively being dragged (or else TILE_INVALID)
+	TileIdType   mActiveId;        // tile actively being dragged (or else Tile::ID_NONE)
     Board        mBoard;
 	Game const *mpGame;
 	Cells        mHintedCells;     // cached choice of cells

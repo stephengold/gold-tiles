@@ -45,11 +45,11 @@ public:
 
 	// misc public methods
 	void Autopause(bool);
-	void EnableItems(GameStyleType, bool over, bool paused, bool pass);
+	void EnableItems(GameStyleType, bool over, bool paused, bool pass, bool swapAll);
 	void Pause(bool);
 
 public:
-    MenuItem mPlay, mTakeBack, mHint, mPause, mPass, mResign;
+    MenuItem mPlay, mTakeBack, mHint, mPause, mSwapAll, mPass, mResign;
     MenuItem mRestart, mUndo, mRedo, mAutopause;
 };
 #endif

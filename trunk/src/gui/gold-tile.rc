@@ -58,6 +58,7 @@ TOPWINDOW MENU
         MENUITEM "Take &back\tEsc", IDM_TAKE_BACK
         MENUITEM "&Hint\tH", IDM_HINT
         MENUITEM "Pause", IDM_PAUSE
+        MENUITEM "S&wap All", IDM_SWAP_ALL
         MENUITEM "Pa&ss", IDM_PASS
         MENUITEM "&Resign", IDM_RESIGN
         MENUITEM SEPARATOR

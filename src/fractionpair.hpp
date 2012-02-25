@@ -45,6 +45,7 @@ public:
     float Y(void) const;
 
 private:
+	// private data
     float mX, mY;
 };
 

@@ -42,7 +42,7 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 Move::operator Cells(void) const {
     Cells result;
     
-    ConstIteratorType i_tile_cell;
+    ConstIterator i_tile_cell;
     for (i_tile_cell = begin(); i_tile_cell != end(); i_tile_cell++) {
 		if (!i_tile_cell->IsSwap()) {
             Cell cell = Cell(*i_tile_cell);
@@ -72,7 +72,7 @@ Move::operator String(void) const {
 Move::operator Tiles(void) const {
     Tiles result;
     
-    ConstIteratorType i_tile_cell;
+    ConstIterator i_tile_cell;
     for (i_tile_cell = begin(); i_tile_cell != end(); i_tile_cell++) {
         TileCell tc = *i_tile_cell;
         Tile tile = tc.operator Tile();
@@ -132,7 +132,7 @@ void Move::MakeEmpty(void) {
 bool Move::InvolvesSwap(void) const {
     bool result = false;
 
-	ConstIteratorType i_tile;
+	ConstIterator i_tile;
 	for (i_tile = begin(); i_tile != end(); i_tile++) {
 		if (i_tile->IsSwap()) {
 			result = true;
@@ -152,7 +152,7 @@ bool Move::IsPass(void) const {
 bool Move::IsPureSwap(void) const {
 	bool result = true;
 
-    ConstIteratorType i_tile;
+    ConstIterator i_tile;
     for (i_tile = begin(); i_tile != end(); i_tile++) {
         if (!i_tile->IsSwap()) {
         	result = false;
@@ -168,7 +168,7 @@ bool Move::RepeatsTile(void) const {
     
     if (Count() > 1) {
         Tiles tiles_seen;
-        ConstIteratorType i_tile;
+        ConstIterator i_tile;
         
         for (i_tile = begin(); i_tile != end(); i_tile++) {
             Tile tile = i_tile->operator Tile();
@@ -189,7 +189,7 @@ bool Move::RepeatsCell(void) const {
     
     if (Count() > 1) {
         Cells cells_seen;
-        ConstIteratorType i_tile;
+        ConstIterator i_tile;
         
         for (i_tile = begin(); i_tile != end(); i_tile++) {
     		if (!i_tile->IsSwap()) {

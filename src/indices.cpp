@@ -59,7 +59,7 @@ void Indices::MakeEmpty(void) {
 void Indices::Remove(IndexType index) {
 	ASSERT(Contains(index));
 
-	IteratorType i_index = find(index);
+	Iterator i_index = find(index);
     ASSERT(i_index != end());
 	ASSERT(*i_index == index);
 

@@ -30,15 +30,16 @@ A Cells object represents zero or more cells in a 2-D grid.
 The Cells class is implemented using the std::set container template.
 */
 
-#include <set>
-#include "cell.hpp"
+#include <set>       // ISA std::set
+#include "cell.hpp"  // HASA Cell
 
 class Cells: public std::set<Cell> {
 public:
-	typedef std::set<Cell>::const_iterator ConstIteratorType;
-	typedef std::set<Cell>::iterator IteratorType;
+	// public types
+	typedef std::set<Cell>::const_iterator ConstIterator;
+	typedef std::set<Cell>::iterator       Iterator;
 
-	// operators
+	// public operators
     operator String(void) const;
 
 	// misc public methods

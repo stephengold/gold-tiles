@@ -28,22 +28,24 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 A ParmBox2 object represents a dialog box for setting board parameters
 such as the number of rows and columns.
 
-The ParmBox2 class is an extension of the Dialog class.
+The ParmBox2 class extends the Dialog class.
 */
 
-#include "cell.hpp"
-#include "gui/dialog.hpp"
+#include "cell.hpp"        // HASA GridType
+#include "gui/dialog.hpp"  // ISA Dialog
 
 class ParmBox2: public Dialog {
 public:
+	// public constants
+	static const IndexType HEIGHT_DEFAULT = 32;
+	static const IndexType WIDTH_DEFAULT = 32;
+
     // lifecycle
 	ParmBox2(bool wrapFlag, IndexType height, IndexType width, GridType);
 	// no default constructor
-	// no copy constructor
 	// ~ParmBox2(void);  compiler-generated destructor is OK
 
 	// public operators
-    ParmBox2 &operator=(ParmBox2 const &) { FAIL(); };
 	operator GridType(void) const;
 
 	// misc public methods
@@ -54,15 +56,18 @@ public:
 	// public inquiry methods
 	bool      DoesWrap(void) const;
 
-	// constants
-	static const IndexType HEIGHT_DEFAULT = 32;
-	static const IndexType WIDTH_DEFAULT = 32;
-
 private:
+	// private data
 	GridType     mGrid;
 	IndexType    mHeight;
-	bool         mWrapFlag;
 	IndexType    mWidth;
+	bool         mWrapFlag;
+
+	// private lifecycle
+    ParmBox2(ParmBox2 const &);  // not copyable
+
+	// private operators
+    ParmBox2 &operator=(ParmBox2 const &);  // not assignable
 
 	// misc private methods
 	ValueType GetTextIndex(IdType);

@@ -32,8 +32,8 @@ of attributes.  Distinct tiles with identical attributes
 ("clones") are possible; a unique id is used to distinguish clones.
 */
 
-#include "indices.hpp"
-#include "project.hpp"  // Tiles
+#include "indices.hpp"  // USES IndexType
+#include "project.hpp"  // USES Tiles
 
 // tile identifier type
 typedef IndexType TileIdType;
@@ -52,13 +52,13 @@ public:
 	static const TileIdType ID_FIRST = 2;
 	static const TileIdType ID_LAST = LONG_MAX;
 
-	// lifecycle
+	// public lifecycle
 	Tile(void);
 	Tile(String const &);
 	Tile(Tile const &);
 	~Tile(void);
 
-    // operators
+    // public operators
 	bool   operator<(Tile const &) const;
 	Tile & operator=(Tile const &);
 	bool   operator==(Tile const &) const;

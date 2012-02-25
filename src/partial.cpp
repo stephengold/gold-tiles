@@ -82,7 +82,7 @@ void Partial::AddValidNextUses(
     Tile const &rTile, 
     Cells const &rBasis)
 {
-    Cells::ConstIteratorType i_cell;
+    Cells::ConstIterator i_cell;
     for (i_cell = rBasis.begin(); i_cell != rBasis.end(); i_cell++) {
         Cell cell = *i_cell;
         if (!mHintedCells.Contains(cell) 
@@ -159,7 +159,7 @@ Cell Partial::FirstHinted(void) {
     }
     ASSERT(mHintedCellsValid);
 	ASSERT(!mHintedCells.IsEmpty());
-    Cells::ConstIteratorType i_cell = mHintedCells.begin();
+    Cells::ConstIterator i_cell = mHintedCells.begin();
 	Cell result = *i_cell;
 
 	return result;
@@ -309,7 +309,7 @@ void Partial::SetHintedCells(void) {
     // unhint any cells not connected to the Start
 	Cells base = mHintedCells;
 	mHintedCells.MakeEmpty();
-    Cells::IteratorType i_cell;
+    Cells::Iterator i_cell;
     for (i_cell = base.begin(); i_cell != base.end(); i_cell++) {
         Cell cell = *i_cell;
         if (mBoard.ConnectsToStart(cell)) {

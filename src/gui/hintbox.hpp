@@ -30,28 +30,33 @@ A HintBox object represents a dialog box for setting hint parameters.
 The HintBox class is an extension of the Dialog class.
 */
 
-#include "game.hpp"
-#include "gui/dialog.hpp"
-#include "partial.hpp"
+#include "game.hpp"         // HASA GameStyleType
+#include "gui/dialog.hpp"   // ISA Dialog
+#include "partial.hpp"      // HASA HintType
 
 class HintBox: public Dialog {
 public:
     // lifecycle
 	HintBox(HintType, GameStyleType);
 	// no default constructor
-	// no copy constructor
 	// ~HintBox(void);  compiler-generated destructor is OK
 
 	// public operators
-    HintBox &operator=(HintBox const &) { FAIL(); };
 	operator HintType(void) const;
 
 	// misc public methods
 	int HandleMessage(MessageType, Win::WPARAM);
 
 private:
-	HintType      mStrength;
+	// private data
 	GameStyleType mGameStyle;
+	HintType      mStrength;
+
+	// private lifecycle
+    HintBox (HintBox const &); // not copyable
+
+	// private operators
+    HintBox &operator=(HintBox const &); // not assignable
 
 	// misc private methods
 	void SetHintStrength(void);

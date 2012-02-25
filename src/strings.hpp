@@ -30,28 +30,29 @@ A Strings object represents an ordered collection of unique text strings.
 The Strings class encapsulates a list of String objects.
 */
 
-#include <list>
-#include "string.hpp"
+#include <list>        // HASA std::list
+#include "string.hpp"  // HASA String
 
 class Strings {
 public:
-    typedef std::list<String>::const_iterator ConstIteratorType;
-    typedef std::list<String>::iterator       IteratorType;
+	// public types
+    typedef std::list<String>::const_iterator ConstIterator;
+    typedef std::list<String>::iterator       Iterator;
 
 	// misc public methods
-	void              Append(String const &);
-	ConstIteratorType Begin(void) const;
-	IteratorType      Begin(void);
-	unsigned          Count(void) const;
-	unsigned          Count(String const &) const;
-	ConstIteratorType End(void) const;
-	IteratorType      End(void);
-	ConstIteratorType Find(String const &) const;
-	String            InventUnique(String const &prefix) const;
-	String            InventUnique(String const &prefix, String const &infix, 
+	void          Append(String const &);
+	ConstIterator Begin(void) const;
+	Iterator      Begin(void);
+	unsigned      Count(void) const;
+	unsigned      Count(String const &) const;
+	ConstIterator End(void) const;
+	Iterator      End(void);
+	ConstIterator Find(String const &) const;
+	String        InventUnique(String const &prefix) const;
+	String        InventUnique(String const &prefix, String const &infix, 
 		                           String const &suffix) const;
-	Strings           Unique(void) const;
-	void              Unappend(void);
+	Strings       Unique(void) const;
+	void          Unappend(void);
 
 	// public inquiry methods
 	bool Contains(String const &) const;

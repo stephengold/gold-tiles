@@ -219,7 +219,7 @@ String Tile::GetUserChoice(Tiles const &availableTiles, Strings const &alts) {
 
     for (;;) {
         std::cout << "Enter a tile name";
-    	Strings::ConstIteratorType alt;
+    	Strings::ConstIterator alt;
 		for (alt = alts.Begin(); alt != alts.End(); alt++) {
 			std::cout << " or '" << *alt << "'";
 		}

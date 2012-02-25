@@ -31,21 +31,16 @@ The Player class implements a static map for translating names to
 user-interface settings.
 */
 
-#include <map>
-#include "gui/win.hpp"
-#include "project.hpp"
-#include "string.hpp"
+#include <map>          // HASA std::map
+#include "gui/win.hpp"  // IdType
+#include "string.hpp"   // HASA String
 
 class Player {
 public:
-	// lifecycle
+	// public lifecycle
 	// Player(void); no default constructor
 	Player(String const &);
-	Player(Player const &) { FAIL(); }
     // ~Player(void);  compiler-generated destructor is OK
-
-	// operators
-	Player &operator=(Player const &) { FAIL(); }
 
 	// misc public methods
     static Player *Lookup(String const &);
@@ -67,11 +62,11 @@ public:
 	bool ShowScores(void) const;
 
 private:
-    typedef std::map<String, Player*>     Map;
-    typedef std::pair<String, Player*>    Pair;
-	typedef Map::const_iterator           ConstIteratorType;
-    typedef Map::iterator                 IteratorType;
-    typedef std::pair<IteratorType, bool> InsertResultType;
+    typedef std::map<String, Player*>  Map;
+    typedef std::pair<String, Player*> Pair;
+	typedef Map::const_iterator        ConstIterator;
+    typedef Map::iterator              Iterator;
+    typedef std::pair<Iterator, bool>  InsertResult;
 
     static Map msMap;
 
@@ -84,7 +79,11 @@ private:
 	bool   mShowScores;
 	IdType mTileSize;
 
-	// misc methods
+	// private lifecycle
+	Player(Player const &);  // not copyable
+
+	// private operators
+	Player &operator=(Player const &);  // not assignable
 };
 
 // global utility functions

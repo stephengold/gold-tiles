@@ -30,18 +30,15 @@ A MenuItem object represents a single item in a SubMenu.
 The MenuItem class is implemented by encapsulating a handle and an item id.
 */
 
-#include "gui/win.hpp" // IdType
-#include "project.hpp" // FAIL()
+#include "gui/win.hpp"  // HASA IdType
+#include "project.hpp"  // HASA Menu&
 
 class MenuItem {
 public:
-	// lifecycle
+	// public lifecycle
     MenuItem(Menu const &, IdType);
 	// no default constructor
 	// ~MenuItem(void);  compiler-generated destructor is OK
-
-	// misc operators
-	MenuItem &operator=(MenuItem const &) { FAIL(); };
 
 	// misc public methods
     void Check(bool);
@@ -50,5 +47,12 @@ public:
 private:
     IdType       mItemId;
     Menu const &mrMenu;
+
+	// private lifecycle
+	MenuItem(MenuItem const &);   // not copyable
+
+	// private operators
+	MenuItem &operator=(MenuItem const &);   // not assignable
+
 };
 #endif

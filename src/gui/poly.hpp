@@ -31,14 +31,15 @@ fit inside any rectangle.
 The Poly class is implemented as a list of FractionPair objects.
 */
 
-#include "fractionpair.hpp"
-#include "gui/win.hpp"
-#include "project.hpp"  // Rect
-#include <vector>
+#include <vector>            // ISA std::vector
+#include "fractionpair.hpp"  // HASA FractionPair
+#include "gui/win.hpp"       // Win::POINT
+#include "project.hpp"       // Rect
 
 class Poly: public std::vector<FractionPair> {
 public:
-	typedef std::vector<FractionPair>::const_iterator ConstIteratorType;
+	typedef std::vector<FractionPair>::const_iterator ConstIterator;
+	typedef std::vector<FractionPair>::iterator       Iterator;
 
 	// misc public methods
     void     Add(double x, double y);

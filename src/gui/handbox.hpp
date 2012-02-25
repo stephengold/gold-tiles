@@ -31,21 +31,20 @@ such as the type of player.
 The HandBox class is an extension of the Dialog class.
 */
 
-#include "gui/dialog.hpp"
-#include "string.hpp"
+#include "gui/dialog.hpp"   // ISA Dialog
+#include "string.hpp"       // HASA String
 
 typedef Win::LPARAM IpAddressType;
+
 class HandBox: public Dialog {
 public:
-    // lifecycle
+    // public lifecycle
 	HandBox(unsigned handIndex, bool more, String const &player, 
 		    bool autop, bool rem, IpAddressType); 
 	// no default constructor
-	// no copy constructor
 	// ~HandBox(void);  compiler-generated destructor is OK
 
 	// public operators
-    HandBox &operator=(HandBox const &) { FAIL(); };
 	operator IpAddressType(void) const;
 
 	// misc public methods
@@ -57,11 +56,18 @@ public:
 	bool IsRemote(void) const;
 
 private:
+	// private data
 	bool          mAreMoreHands;
 	unsigned      mHandIndex;
 	IpAddressType mIpAddress;
     bool          mIsAutomatic, mIsRemote;
 	String        mPlayerName;
+
+	// private operators
+    HandBox(HandBox const &);  // not copyable
+
+	// private operators
+    HandBox &operator=(HandBox const &);  // not assignable
 };
 
 #endif

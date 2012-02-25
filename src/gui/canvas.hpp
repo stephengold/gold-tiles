@@ -32,21 +32,17 @@ Gold Tile Game.
 
 */
 
-#include <vector>
-#include "gui/graphics.hpp"
-#include "tile.hpp"
+#include <vector>            // HASA std::vector
+#include "gui/graphics.hpp"  // ISA Graphics
+#include "tile.hpp"          // USES ACountType
 
 class Canvas: public Graphics {
 public:
-	// lifecycle
+	// public lifecycle
     Canvas(Win::HDC, Win::HWND, bool releaseMe, PCntType width, PCntType height);
     // no default constructor
-	// no copy constructor
     // ~Canvas(void);  compiler-generated destructor is OK
         
-	// operators
-    Canvas &operator=(Canvas const &) { FAIL(); };
-
 	// misc public methods
     void        DrawBlankTile(Point const &, PCntType width, PCntType height, 
 		             ColorType, bool odd);
@@ -60,18 +56,24 @@ public:
 		             PCntType height, bool oddFlag);
 
 private:
+	// private constants
+	static const unsigned TILE_POINTEDNESS = 3;
+
+	// private data
     static std::vector<Poly> msShapes; // TODO more options
     
-    static void InitShapes(void);            
-    
-	// misc private methods
-    void DrawGlyph(Rect const &rBounds, AIndexType, AValueType, 
-                   ColorType background, ColorType glyph);
-	void DrawGridShape(Point const &rCenter, PCntType width, 
-		               PCntType height, bool oddFlag);
+	// private lifecycle
+    Canvas(Canvas const &);  // not copyable
 
-	// constants
-	static const unsigned TILE_POINTEDNESS = 3;
+	// private operators
+    Canvas &operator=(Canvas const &);  // not assignable
+
+	// misc private methods
+    void        DrawGlyph(Rect const &rBounds, AIndexType, AValueType, 
+                   ColorType background, ColorType glyph);
+	void        DrawGridShape(Point const &rCenter, PCntType width, 
+		               PCntType height, bool oddFlag);
+    static void InitShapes(void);            
 };
 
 #endif

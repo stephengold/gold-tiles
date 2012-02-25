@@ -35,8 +35,8 @@ The Board class extends the BaseBoard class.  The implementation of
 BaseBoard is hidden from these extensions.
 */
 
-#include "baseboard.hpp"
-#include "move.hpp"
+#include "baseboard.hpp"   // ISA BaseBoard
+#include "move.hpp"        // USES Move
 
 class Board: public BaseBoard {
 public:
@@ -57,13 +57,13 @@ public:
 
 private:
 	// misc private methods
-	long    	GetLimits(Cell const &, DirectionType, Cell &rFirst, Cell &rLast) const;
-	Tile const *GetPtr(IndexType northing, IndexType easting) const;
-	Tile		GetTile(IndexType northing, IndexType easting) const;
-	Tile        GetTile(Cell const &) const;
-	Tiles		GetTiles(Cells const &) const;
-    void		PlayTile(TileCell const &);
-    unsigned	ScoreDirection(Cell const &, DirectionType) const;
+	long    	 GetLimits(Cell const &, DirectionType, Cell &rFirst, Cell &rLast) const;
+	Tile const * GetPtr(IndexType northing, IndexType easting) const;
+	Tile		 GetTile(IndexType northing, IndexType easting) const;
+	Tile         GetTile(Cell const &) const;
+	Tiles		 GetTiles(Cells const &) const;
+    void		 PlayTile(TileCell const &);
+    unsigned	 ScoreDirection(Cell const &, DirectionType) const;
 
 	// private inquiry methods
     bool AreAllCompatible(Cells const &, DirectionType) const;

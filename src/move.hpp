@@ -29,15 +29,15 @@ A Move object represents a group of zero or more tiles and the
 location(s) where they will be played.
 */
 
-#include <set>
-#include "tilecell.hpp"
+#include <set>           // ISA std::set
+#include "tilecell.hpp"  // HASA TileCell
 
 class Move: public std::set<TileCell> {
 public:
-    typedef std::set<TileCell>::const_iterator ConstIteratorType;
- 	typedef std::set<TileCell>::iterator       IteratorType;
+    typedef std::set<TileCell>::const_iterator ConstIterator;
+ 	typedef std::set<TileCell>::iterator       Iterator;
 
-	// operators
+	// public operators
     operator Cells(void) const;
     operator String(void) const;
     operator Tiles(void) const;

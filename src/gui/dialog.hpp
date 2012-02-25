@@ -32,32 +32,28 @@ The Dialog class is implemented as an extension of the Window class.
 It meant to be futher extended by adding controls.  
 */
 
-#include "gui/window.hpp"
+#include "gui/window.hpp"  // ISA Window
 
 class Dialog: public Window {
 public:
+	// public types
     typedef long ValueType; // value of a control
 
-	// lifecycle
+	// public constants
+	static const int       RESULT_OK = 1;
+	static const int       RESULT_CANCEL = 2;
+    static const int       RESULT_BACK = 5;
+	static const ValueType VALUE_INVALID = LONG_MAX;
+
+	// public lifecycle
 	Dialog(char const *templateName);
 	Dialog(char const *templateName, Win::DLGPROC);
 	// no default constructor
-    Dialog(Dialog const &) { FAIL(); };
     // ~Dialog(void);  compiler-generated destructor is OK
 	int Run(Window *pParent);
 
-	// operators
-    Dialog &operator=(Dialog const &) { FAIL(); };
-	
 	// misc public methods
 	int HandleMessage(MessageType, Win::WPARAM);
-
-	// constants
-	static const int RESULT_OK = 1;
-	static const int RESULT_CANCEL = 2;
-    static const int RESULT_BACK = 5;
-
-	static const ValueType VALUE_INVALID = LONG_MAX;
 
 protected:
 	// misc protected methods
@@ -75,6 +71,13 @@ protected:
     void      SetTextValue(IdType, ValueType);
 
 private:
+	// private lifecycle
+    Dialog(Dialog const &);  // not copyable
+
+	// private operators
+    Dialog &operator=(Dialog const &);  // not assignable
+	
+	// private data
 	Win::DLGPROC mpMessageHandler;
 	char const * mTemplateName;
 };

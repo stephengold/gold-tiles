@@ -34,26 +34,36 @@ The Sample class extends/encapsulates the SampleBase class.
 
 class Sample: public BaseSample {
 public:
-	// lifecycle
+	// public types
+
+	// public constants
+
+	// public lifecycle
 	// Sample(void);  compiler-generated default constructor is OK
     // Sample(Sample const &);  compiler-generated copy constructor is OK
     // ~Sample(void);  compiler-generated destructor is OK
 
-	// operators
+	// public operators
     // Sample &operator=(Sample const &);  compiler-generated assignment operator is OK
 
-	// misc methods
+	// misc public methods
 
-	// inquiry methods
+	// public inquiry methods
 
 private:
-	// lifecycle
+	// private types
 
-	// operators
+	// private constants
 
-	// misc methods
+	// private data
 
-	// inquiry methods
+	// private lifecycle
+
+	// private operators
+
+	// misc private methods
+
+	// private inquiry methods
 
 };
 

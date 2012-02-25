@@ -31,8 +31,8 @@ such as the number of tiles per hand.
 The ParmBox3 class is an extension of the Dialog class.
 */
 
-#include "gui/dialog.hpp"
-#include "tile.hpp"
+#include "gui/dialog.hpp"   // ISA Dialog
+#include "tile.hpp"         // ACountType
 
 class ParmBox3: public Dialog {
 public:
@@ -40,11 +40,7 @@ public:
 	ParmBox3(unsigned attributeCnt, unsigned clonesPerTile, 
 		     unsigned handSize, unsigned handCnt);
 	// no default constructor
-	// no copy constructor
 	// ~ParmBox3(void);  compiler-generated destructor is OK
-
-	// public operators
-    ParmBox3 &operator=(ParmBox3 const &) { FAIL(); };
 
 	// misc public methods
 	ACountType AttributeCnt(void) const;
@@ -55,6 +51,12 @@ public:
 
 private:
     ValueType mAttributeCnt, mClonesPerTile, mHandSize, mHandCnt;
+
+	// private lifecycle
+    ParmBox3(ParmBox3 const &);  // not copyable
+
+	// private operators
+    ParmBox3 &operator=(ParmBox3 const &);  // not assignable
 
 	// misc private methods
     IdType EditboxId(IdType slider) const;

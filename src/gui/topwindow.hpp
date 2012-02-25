@@ -25,66 +25,66 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 /*
-A TopWindow object represents the primary window for the game.
+A TopWindow object represents the main window for the game.
 
 The TopWindow class is an extension of the Window class.
 */
 
-#include <map>
 #include "gui/color.hpp"
-#include "gui/parmbox1.hpp"
-#include "gui/rect.hpp"
-#include "gui/win_types.hpp"
-#include "gui/window.hpp"
-#include "partial.hpp"
-
+#include "gui/window.hpp"  // ISA Window
+#include "partial.hpp"     // HASA Partial
 
 class TopWindow: public Window {
 public:
-	// lifecycle
+	// public lifecycle
 	TopWindow(Win::HINSTANCE, Game *pGame);
 	// no default constructor
-    // no copy constructor
     ~TopWindow(void);
-
-	// operator
-    TopWindow &operator=(TopWindow const &) { FAIL(); };
 
 	// misc public methods
 	Win::LRESULT HandleMessage(MessageType, Win::WPARAM, Win::LPARAM);
 	int          MessageDispatchLoop(void);
 
 private:
+	// private types
     typedef std::map<TileIdType,Rect>    TileMapType;
     typedef std::pair<TileIdType,Rect>   TilePairType;
     typedef TileMapType::iterator        TileIterType;
     typedef std::pair<TileIterType,bool> TileInsResultType;
 
-	static WindowClass *mspClass;
+	// private constants
+	static const unsigned HAND_CNT_DEFAULT = 2;
+    static const unsigned ID_CLOCK_TIMER = 1;
+	static const unsigned TIMEOUT_MSEC = 1000;
 
-	ACountType    mColorAttributeCnt;
-	bool          mDragBoardFlag;
-	PCntType      mDragBoardPixelCnt;
-	long          mDragTileDeltaX, mDragTileDeltaY;
-	Game *       mpGame;
-	Rect          mHandRect;
-	bool          mInitialNewGame;
-	bool          mIsStartCentered;
-	MenuBar *    mpMenuBar;
-	Point         mMouseLast; // coordinates of last mouse down
-	unsigned      mMouseUpCnt;
-	PCntType      mPadPixels;
-	Partial       mPartial;
-	unsigned      mRunLength;
-	Point         mStartCell; // logical coordinates of center of start cell
-	Rect          mSwapRect;
-	Cell          mTargetCell;
-	bool          mTargetCellFlag;
-	TileMapType   mTileMap;
-	PCntType      mTileWidth;
+	// private data
+	static WindowClass * mspClass;
+	ACountType             mColorAttributeCnt;
+	bool                   mDragBoardFlag;
+	PCntType               mDragBoardPixelCnt;
+	long                   mDragTileDeltaX, mDragTileDeltaY;
+	Game *                 mpGame;
+	Rect                   mHandRect;
+	bool                   mInitialNewGame;
+	bool                   mIsStartCentered;
+	MenuBar *             mpMenuBar;
+	Point                  mMouseLast; // coordinates of last mouse down
+	unsigned               mMouseUpCnt;
+	PCntType               mPadPixels;
+	Partial                mPartial;  // the move in progress
+	Point                  mStartCell; // logical coordinates of center of start cell
+	Rect                   mSwapRect;
+	Cell                   mTargetCell;
+	bool                   mTargetCellFlag;
+	TileMapType            mTileMap;
+	PCntType               mTileWidth;
 
-	// lifecycle
+	// private lifecycle
+    TopWindow(TopWindow const &); // not copyable
     void Initialize(Win::CREATESTRUCT const &);
+
+	// private operator
+    TopWindow &operator=(TopWindow const &); // not assignable
 
 	// misc private methods
     PCntType     CellHeight(void) const;
@@ -140,10 +140,6 @@ private:
 	bool IsInSwapArea(Point const &) const;
 	bool IsInTile(Point const &) const;
 
-	//constants
-	static const unsigned HAND_CNT_DEFAULT = 2;
-    static const unsigned ID_CLOCK_TIMER = 1;
-	static const unsigned TIMEOUT_MSEC = 1000;
 };
 
 #endif

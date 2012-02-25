@@ -24,8 +24,8 @@ You should have received a copy of the GNU General Public License
 along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "string.hpp"
-#include "tiles.hpp"
+#include "string.hpp"  // HASA String
+#include "tiles.hpp"   // HASA Tiles
 
 class Hand {
 public:

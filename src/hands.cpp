@@ -30,14 +30,14 @@ unsigned Hands::Count(void) const {
 	return result;
 }
 
-void Hands::Next(ConstIteratorType &riCurrentHand) const {
+void Hands::Next(ConstIterator &riCurrentHand) const {
 	riCurrentHand++;
     if (riCurrentHand >= end()) {
         riCurrentHand = begin();
     }
 }
 
-void Hands::Next(IteratorType &riCurrentHand) {
+void Hands::Next(Iterator &riCurrentHand) {
 	riCurrentHand++;
     if (riCurrentHand >= end()) {
         riCurrentHand = begin();

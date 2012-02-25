@@ -28,14 +28,14 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 A Rect object represents a rectangular region in the client area of a window.
 */
 
-#include "gui/point.hpp"
-#include "project.hpp"    // FractionPair
+#include "gui/point.hpp"  // USES Point
+#include "project.hpp"    // USES FractionPair
 
 typedef unsigned long PCntType; // pixel count
 
 class Rect {
 public:
-	// lifecycle
+	// public lifecycle
     Rect(Win::RECT const &);
     Rect(Point const &ulc, Point const &lrc);
     Rect(Point const &ulc, PCntType width, PCntType height);
@@ -44,7 +44,7 @@ public:
     //Rect(Rect const &);  compiler-generated copy constructor is OK
     //~Rect(void);
 
-	// operators
+	// public operators
 	//Rect &operator=(Rect const &);  compiler-generated assignment method is OK
     operator Win::RECT(void) const;
 

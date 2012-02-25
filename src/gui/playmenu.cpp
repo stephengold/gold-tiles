@@ -33,6 +33,7 @@ PlayMenu::PlayMenu(Menu const &rRootMenu, unsigned position):
     mTakeBack(rRootMenu, IDM_TAKE_BACK),
     mHint(rRootMenu, IDM_HINT),
     mPause(rRootMenu, IDM_PAUSE),
+    mSwapAll(rRootMenu, IDM_SWAP_ALL),
     mPass(rRootMenu, IDM_PASS),
     mResign(rRootMenu, IDM_RESIGN),
     mRestart(rRootMenu, IDM_RESTART),
@@ -51,11 +52,18 @@ void PlayMenu::Pause(bool paused) {
 	mPause.Check(paused);
 }
 
-void PlayMenu::EnableItems(GameStyleType gameStyle, bool isOver, bool isPaused, bool isPass) {
+void PlayMenu::EnableItems(
+	GameStyleType gameStyle,
+	bool isOver,
+	bool isPaused,
+	bool isPass,
+	bool canSwapAll)
+{
     mPlay.Enable(!isOver && !isPaused && !isPass);
     mTakeBack.Enable(!isOver && !isPaused && !isPass);
     mHint.Enable(false);    // TODO
     mPause.Enable(!isOver);
+	mSwapAll.Enable(!isOver && !isPaused && isPass && canSwapAll);
     mPass.Enable(!isOver && !isPaused && isPass);
     mResign.Enable(false);  // TODO
     mRestart.Enable(false); // TODO

@@ -900,24 +900,27 @@ void TopWindow::HandleMenuCommand(IdType command) {
             break;
 
 	    // Play menu options
-	    case IDM_PLAY_PLAY: 
-			if (!IsGameOver() && !IsGamePaused()) {
-                bool passFlag = false;
-			    Play(passFlag);
+	    case IDM_PASS:
+	    case IDM_PLAY_PLAY: {
+			    ASSERT(!IsGameOver());
+				ASSERT(!IsGamePaused());
+                bool pass_flag = (command == IDM_PASS);
+			    Play(pass_flag);
 			}
 		    break;
 
 	    case IDM_TAKE_BACK:
 			mPartial.Reset();
 		    break;
+
 	    case IDM_PAUSE:
 			TogglePause();
 		    break;
-	    case IDM_PASS: {
-            bool passFlag = true;
-            Play(passFlag);
-            break;
-        }
+
+		case IDM_SWAP_ALL:
+			mPartial.SwapAll();
+			break;
+
 		case IDM_RESIGN:
 			break;
 
@@ -1111,7 +1114,8 @@ void TopWindow::HandleMouseMove(Point const &rMouse) {
     }
 }
 
-void TopWindow::InfoBox(char const *message) {
+void TopWindow::InfoBox(char const *messageText) {
+	String message = messageText;
 	String title = "Information";
 
 	// expand shortcuts
@@ -1151,8 +1155,7 @@ void TopWindow::InfoBox(char const *message) {
 		default:
 			FAIL();
 		}
-		dirs = String("The cells you use must all lie in a single ") + dirs + String(".");
-		message = dirs;
+		message = String("The cells you use must all lie in a single ") + dirs + String(".");
 		title = "Row/Column Rule";
 	} else if (::str_eq(message, "ROWCOMPAT")) {
 		message = "Tiles in a row (with no intervening empty cells) must all be mutually compatible.";
@@ -1228,13 +1231,6 @@ void TopWindow::OfferNewGame(void) {
 	unsigned tile_redundancy = Game::TILE_REDUNDANCY_DEFAULT;
 	unsigned hand_cnt = HAND_CNT_DEFAULT;
 	unsigned hand_size = Game::HAND_SIZE_DEFAULT;
-	if (mpGame != NULL) {
-		tile_redundancy = mpGame->Redundancy();
-	    hand_cnt = Hands(*mpGame).Count();
-	    hand_size = mpGame->HandSize();
-	}
-	unsigned clones_per_tile = attribute_cnt;
-	ParmBox3 parmbox3(attribute_cnt, clones_per_tile, hand_size, hand_cnt);
 
 	unsigned max_attribute_cnt = Tile::AttributeCnt();
 	AValueType *max_attribute_values = new AValueType[max_attribute_cnt];
@@ -1278,6 +1274,16 @@ STEP2:
 	ASSERT(result == Dialog::RESULT_OK);
 
 STEP3:
+	if (game_style == GAME_STYLE_PRACTICE) {
+		hand_cnt = 1;
+	}
+	if (mpGame != NULL) {
+		tile_redundancy = mpGame->Redundancy();
+	    hand_cnt = Hands(*mpGame).Count();
+	    hand_size = mpGame->HandSize();
+	}
+	unsigned clones_per_tile = tile_redundancy - 1;
+	ParmBox3 parmbox3(attribute_cnt, clones_per_tile, hand_size, hand_cnt);
 	result = parmbox3.Run(this);
 	if (result == Dialog::RESULT_CANCEL) {
 	    return;
@@ -1341,7 +1347,7 @@ STEP4:
 			new_ip_addresses[i] = 0;  // produces 0.0.0.0
 			String player_name;
 			switch (game_style) {
-			case GAME_STYLE_PRACTICE: 
+			case GAME_STYLE_PRACTICE:
 				player_name = "Player";
 				break;
 			case GAME_STYLE_DEBUG:
@@ -1391,7 +1397,7 @@ STEP4:
 		}
 	}
 
-	// can't cancel the new game now
+	// can't cancel now - go ahead and set up the new game
 	Tile::SetStatic(attribute_cnt, max_attribute_values);
 
 	grid = GridType(parmbox2);
@@ -1584,7 +1590,6 @@ void TopWindow::ReleaseActiveTile(Point const &rMouse) {
      	if (from_board) {
             mPartial.HandToCell(from_cell);
         } else if (from_swap) {
-            ASSERT(!from_swap);
             mPartial.HandToSwap();
         }
 

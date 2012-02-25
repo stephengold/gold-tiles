@@ -35,7 +35,7 @@ Partial::Partial(Game const *pGame, HintType strength) {
 // Partial(Partial const &);  compiler-generated copy constructor is OK
 // ~Partial(void);  compiler-generated destructor is OK
 
-// method invoked at the start of a turn
+// method invoked by takeback and at the start of a turn
 void Partial::Reset(void) {
     mActiveId = Tile::ID_NONE;
     mHintedCellsValid = false;
@@ -363,6 +363,19 @@ void Partial::SetHintStrength(HintType strength) {
     mHintStrength = strength;
 }
 
+void Partial::SwapAll(void) {
+    ASSERT(mActiveId == Tile::ID_NONE);
+    ASSERT(CanSwapAll());
+
+	for (unsigned i = 0; i < CountTiles(); i++) {
+        Tile tile = mTiles[i];
+	    TileIdType id = tile.Id();
+		if (!mSwapIds.Contains(id)) {
+	        mSwapIds.Add(id);
+		}
+	}
+}
+
 void Partial::SwapToHand(void) {
     ASSERT(mActiveId != Tile::ID_NONE);
 	ASSERT(mSwapIds.Contains(mActiveId));
@@ -374,6 +387,12 @@ void Partial::SwapToHand(void) {
 }
 
 // inquiry methods
+
+bool Partial::CanSwapAll(void) const {
+	bool result = (mpGame->CountStock() >= CountTiles());
+
+	return result;
+}
 
 bool Partial::Contains(TileIdType id) const {
      bool result = mTiles.ContainsId(id);     
@@ -388,6 +407,7 @@ bool Partial::HaveGame(void) const {
 }
 
 bool Partial::IsActive(TileIdType id) const {
+    ASSERT(id != Tile::ID_NONE);
     bool result = (mActiveId == id);
     
     return result;

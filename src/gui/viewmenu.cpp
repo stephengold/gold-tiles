@@ -91,9 +91,10 @@ void ViewMenu::TileSize(IdType itemId) {
         	mLargeTiles.Check(true);
 			break;
 		default:
-			assert(false);
+			FAIL();
 	}
 }
+
 void ViewMenu::UncheckAllSizes(void) {
 	mSmallTiles.Check(false);
     mMediumTiles.Check(false);

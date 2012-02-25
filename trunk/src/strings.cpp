@@ -60,6 +60,19 @@ unsigned Strings::Count(void) const {
 	return result;
 }
 
+unsigned Strings::Count(String const &rString) const {
+	unsigned result = 0;
+	ConstIteratorType i_string;
+
+	for (i_string = Begin(); i_string != End(); i_string++) {
+		if (*i_string == rString) {
+			result++;
+		}
+	}
+
+	return result;
+}
+
 Strings::ConstIteratorType Strings::End(void) const {
     ConstIteratorType result = mList.end();
 
@@ -72,11 +85,28 @@ Strings::IteratorType Strings::End(void) {
 	return result;
 }
 
+// create unique name using numeric suffix
 String Strings::InventUnique(String const &rPrefix) const {
 	String result = rPrefix;
 	unsigned i = 2;
 	while (Contains(result)) {
 		result = rPrefix + String(i);
+		i++;
+	}
+
+	return result;
+}
+
+// create unique name using ordinals
+String Strings::InventUnique(
+	String const &rPrefix,
+	String const &rInfix,
+	String const &rSuffix) const
+{
+	String result = rPrefix;
+	unsigned i = 1;
+	while (Contains(result)) {
+		result = rPrefix + rInfix + ::ordinal(i) + rSuffix;
 		i++;
 	}
 
@@ -97,6 +127,20 @@ Strings::ConstIteratorType Strings::Find(String const &rString) const {
 void Strings::Unappend(void) {
 	ASSERT(!IsEmpty());
     mList.pop_back();
+}
+
+// list the unique members in the object
+Strings Strings::Unique(void) const {
+	Strings result;
+
+	ConstIteratorType i_string;
+	for (i_string = Begin(); i_string != End(); i_string++) {
+		if (!result.Contains(*i_string)) {
+			result.Append(*i_string);
+		}
+	}
+
+	return result;
 }
 
 

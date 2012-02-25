@@ -43,10 +43,14 @@ public:
 	ConstIteratorType Begin(void) const;
 	IteratorType      Begin(void);
 	unsigned          Count(void) const;
+	unsigned          Count(String const &) const;
 	ConstIteratorType End(void) const;
 	IteratorType      End(void);
 	ConstIteratorType Find(String const &) const;
 	String            InventUnique(String const &prefix) const;
+	String            InventUnique(String const &prefix, String const &infix, 
+		                           String const &suffix) const;
+	Strings           Unique(void) const;
 	void              Unappend(void);
 
 	// public inquiry methods

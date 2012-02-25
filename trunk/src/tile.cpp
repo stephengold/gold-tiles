@@ -276,8 +276,8 @@ void Tile::SetAttribute(AIndexType ind, AValueType value) {
 	delete[] mspValueMax;
     mspValueMax = new AValueType[aCnt];
     for (AIndexType i_attr = 0; i_attr < aCnt; i_attr++) {
-        ASSERT(pValueMax[i_attr] >= 3);
-        ASSERT(pValueMax[i_attr] <= 8);
+        ASSERT(pValueMax[i_attr] >= VALUE_CNT_MIN - 1);
+        ASSERT(pValueMax[i_attr] <= VALUE_CNT_MAX - 1);
         mspValueMax[i_attr] = pValueMax[i_attr];
     }
 }
@@ -367,6 +367,7 @@ bool Tile::IsValid(void) const {
 
 String attribute_to_string(AIndexType ind, AValueType value) {
     ASSERT(ind < Tile::AttributeCnt());
+	ASSERT(value < Tile::VALUE_CNT_MAX);
     char ch;
 
     switch (ind) {
@@ -414,6 +415,7 @@ AValueType char_to_attribute(AIndexType ind, char ch) {
             result = (AValueType)(ch - '1');
             break;
     }
+	ASSERT(result < Tile::VALUE_CNT_MAX);
 
     return result;
 }

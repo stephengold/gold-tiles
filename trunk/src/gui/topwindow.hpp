@@ -84,7 +84,7 @@ private:
 	PCntType      mTileWidth;
 
 	// lifecycle
-    void Initialize(Win::CREATESTRUCT const *);
+    void Initialize(Win::CREATESTRUCT const &);
 
 	// misc private methods
     PCntType     CellHeight(void) const;
@@ -120,10 +120,10 @@ private:
     void         Play(bool passFlag);
 	void         Recenter(PCntType oldWidth, PCntType oldHeight);
 	void         ReleaseActiveTile(Point const &);
-    void         Resize(PCntType width, PCntType height);
     void         Repaint(void);
+    void         Resize(PCntType width, PCntType height);
 	void         SetGame(Game *);
-	void         SetTileWidth(int command);
+	void         SetTileWidth(IdType command);
 	void         StopDragging(void);
 	PCntType     TileHeight(void) const;
 	void         TogglePause(void);

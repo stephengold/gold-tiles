@@ -42,7 +42,7 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 
 WindowClass *TopWindow::mspClass = NULL;
 
-static const ColorType GlyphColors[9] = {
+static const ColorType GlyphColors[Tile::VALUE_CNT_MAX] = {
 	COLOR_BLACK,      COLOR_RED,       COLOR_DARK_BLUE, 
     COLOR_DARK_GREEN, COLOR_PURPLE,    COLOR_BROWN, 
     COLOR_DARK_GRAY,  COLOR_PINK,      COLOR_LIGHT_BLUE
@@ -104,10 +104,6 @@ TopWindow::TopWindow(HINSTANCE applicationInstance, Game *pGame):
     mPadPixels = 6;
 	mTargetCellFlag = false;
 
-	if (mpGame != NULL && mpGame->Style() != GAME_STYLE_CHALLENGE) {
-		mpGame->StartClock();
-	}
-
 	HWND desktop_handle = Win::GetDesktopWindow();
 	RECT rect;
 	Win::GetWindowRect(desktop_handle, &rect);
@@ -134,19 +130,30 @@ TopWindow::~TopWindow(void) {
     delete mpMenuBar;
 }
 
-void TopWindow::Initialize(CREATESTRUCT const *pCreateStruct) {
-    // Object initialization which occurs after the Microsoft Windows window
-    // has been created and has received WM_CREATE.
+void TopWindow::Initialize(CREATESTRUCT const &rCreateStruct) {
+    // Initialization which takes place after the Microsoft Windows window
+    // has received its WM_CREATE message.
 
 	ASSERT(mpMenuBar == NULL);
-	ASSERT(pCreateStruct != NULL);
 
-	Window::Initialize(pCreateStruct);
+	Window::Initialize(rCreateStruct);
 
-	mpMenuBar = new MenuBar(*pCreateStruct, mPartial);
+	mpMenuBar = new MenuBar(rCreateStruct, mPartial);
 	ASSERT(mpMenuBar != NULL);
 
     SetTileWidth(IDM_LARGE_TILES);
+	if (mpGame != NULL) {
+	    Hands hands = Hands(*mpGame);
+		Hands::ConstIteratorType i_hand;
+		for (i_hand = hands.begin(); i_hand != hands.end(); i_hand++) {
+			String player_name = i_hand->PlayerName();
+			mpMenuBar->SavePlayerOptions(player_name);
+		}
+	}
+
+	if (mpGame != NULL && mpGame->Style() != GAME_STYLE_CHALLENGE) {
+		mpGame->StartClock();
+	}
 
 	SetTimer(TIMEOUT_MSEC, ID_CLOCK_TIMER);
 	UpdateMenuBar();
@@ -432,7 +439,7 @@ Rect TopWindow::DrawHandHeader(
     String name_text = rHand.Name();
     Hand active_hand = Hand(*mpGame);
     if (name_text == active_hand.Name()) {
-        name_text += "'s turn";
+        //name_text += "'s turn";
     }
     unsigned w = rCanvas.TextWidth(name_text);
     unsigned width = (cell_width > w) ? cell_width : w;
@@ -588,41 +595,58 @@ void TopWindow::DrawInactiveHands(Canvas &rCanvas) {
     Hands other_hands = mpGame->InactiveHands();
     Hands::IteratorType i_hand;
     LogicalXType right_x = ClientAreaWidth() - mPadPixels;
+    LogicalYType top_y = mPadPixels;
     for (i_hand = other_hands.begin(); i_hand < other_hands.end(); i_hand++) {
         // draw header
-        int top_y = mPadPixels;
         bool rightFlag = false;
         ColorType header_color = COLOR_BLACK;
         Rect header_rect = DrawHandHeader(rCanvas, top_y, right_x, *i_hand, header_color, rightFlag);
 
         // draw hand area below the header
         top_y = header_rect.BottomY() - 1;
-        int left_x = header_rect.LeftX();
-        int width = header_rect.Width();
+        LogicalXType left_x = header_rect.LeftX();
+        PCntType width = header_rect.Width();
         Tiles hand_tiles = Tiles(*i_hand);
         unsigned tile_count = hand_tiles.Count();
-        unsigned height = tile_count*cell_height + 2*mPadPixels;
         area_color = COLOR_DARK_BLUE;
         rCanvas.UseColors(area_color, edge_color);
+		PCntType height = rCanvas.TextHeight() + 2*mPadPixels;
+		if (mpMenuBar->IsPeeking()) {
+            height = tile_count*cell_height + 2*mPadPixels;
+		}
         Rect hand_rect = rCanvas.DrawRectangle(top_y, left_x, width, height);
 
-        // draw tiles
-        int tile_x = hand_rect.CenterX();
-        int tile_y = hand_rect.TopY() + mPadPixels + cell_height/2;
+		if (mpMenuBar->IsPeeking()) {
+            // draw tiles
+            LogicalXType tile_x = hand_rect.CenterX();
+            LogicalYType tile_y = hand_rect.TopY() + mPadPixels + cell_height/2;
 
-        for (unsigned i = 0; i < hand_tiles.Count(); i++) {
-            Tile tile = hand_tiles[i];
-            Point point(tile_x, tile_y);
-            if (mpMenuBar->IsPeeking()) {
-                DrawTile(rCanvas, point, tile, false);
-            } else {
-                DrawBlankTile(rCanvas, point, false);
-            } 
-            tile_y += cell_height;
-        }
+            for (unsigned i = 0; i < tile_count; i++) {
+                Tile tile = hand_tiles[i];
+                Point point(tile_x, tile_y);
+                if (mpMenuBar->IsPeeking()) {
+                    DrawTile(rCanvas, point, tile, false);
+                } else {
+                    DrawBlankTile(rCanvas, point, false);
+                } 
+                tile_y += cell_height;
+			}
+
+        } else {
+			String text = ::plural(tile_count, "tile");
+			rCanvas.DrawText(hand_rect, text);
+		}
 
 		// pad between hands
-        right_x = header_rect.LeftX() - mPadPixels;
+		if (mpMenuBar->IsPeeking()) {
+		    // right to left
+            right_x = header_rect.LeftX() - mPadPixels;
+            top_y = mPadPixels;
+		} else {
+		    // top to bottom
+            right_x = ClientAreaWidth() - mPadPixels;
+            top_y += height + mPadPixels;
+		}
     }
 }
 
@@ -665,7 +689,7 @@ Rect TopWindow::DrawTile(Canvas &rCanvas, Point point, Tile const &rTile, bool o
 		ASSERT(mColorAttributeCnt == 0);
         colorInd = 0;
 	}
-	ASSERT(colorInd < 9);
+	ASSERT(colorInd < Tile::VALUE_CNT_MAX);
     ColorType glyph_color = GlyphColors[colorInd];
 
     ACountType numberOfGlyphAttributes = Tile::AttributeCnt() - mColorAttributeCnt;
@@ -764,7 +788,7 @@ PCntType TopWindow::GridUnitX(void) const {
 	}
 
     if (mpMenuBar->IsGridVisible()) {
-        result -= 1; // shring by the width of one grid line
+        result -= 1; // shrink by the width of one grid line
     }
 
     return result;
@@ -989,7 +1013,8 @@ LRESULT TopWindow::HandleMessage(UINT message, WPARAM wParam, LPARAM lParam) {
 
         case WM_CREATE: { // initialize window
 		    CREATESTRUCT *p_create_struct = (CREATESTRUCT *)lParam;
-            Initialize(p_create_struct);
+			ASSERT(p_create_struct != NULL);
+            Initialize(*p_create_struct);
             break;
         }
 
@@ -1088,7 +1113,7 @@ void TopWindow::HandleMouseMove(Point const &rMouse) {
 }
 
 int TopWindow::MessageDispatchLoop(void) {
-    int exitCode;
+    int exit_code;
 
 	HACCEL table = GetAcceleratorTable("HOTKEYS");
 
@@ -1098,10 +1123,10 @@ int TopWindow::MessageDispatchLoop(void) {
 		UINT no_filtering = 0;
         BOOL success = Win::GetMessage(&message, any_window, no_filtering, no_filtering);
         if (success == 0) {   // retrieved a WM_QUIT message
-			exitCode = message.wParam;
+			exit_code = message.wParam;
 			break;
 		} else if (success == -1) { // error in GetMessage()
-            exitCode = -1;
+            exit_code = -1;
 			break;
 		}
 
@@ -1112,7 +1137,7 @@ int TopWindow::MessageDispatchLoop(void) {
         } 
     }
 
-	return exitCode;
+	return exit_code;
 }
 
 char const *TopWindow::Name(void) const {
@@ -1139,10 +1164,10 @@ void TopWindow::OfferNewGame(void) {
 	unsigned hand_size = Game::HAND_SIZE_DEFAULT;
 	if (mpGame != NULL) {
 		tile_redundancy = mpGame->Redundancy();
-	    hand_cnt = mpGame->InactiveHands().Count() + 1;
+	    hand_cnt = Hands(*mpGame).Count();
 	    hand_size = mpGame->HandSize();
 	}
-	unsigned clones_per_tile = tile_redundancy - 1;
+	unsigned clones_per_tile = attribute_cnt;
 	ParmBox3 parmbox3(attribute_cnt, clones_per_tile, hand_size, hand_cnt);
 
 	unsigned max_attribute_cnt = Tile::AttributeCnt();
@@ -1154,7 +1179,20 @@ void TopWindow::OfferNewGame(void) {
 	Strings player_names;
     Indices auto_hands;
     Indices remote_hands;
-	LPARAM *ip_addresses = NULL;
+	IpAddressType *ip_addresses = NULL;
+	if (mpGame != NULL) {
+	    Hands hands = Hands(*mpGame);
+		ip_addresses = new IpAddressType[hand_cnt];
+		Hands::ConstIteratorType i_hand;
+		unsigned i = 0;
+		for (i_hand = hands.begin(); i_hand != hands.end(); i_hand++) {
+			ASSERT(i < hand_cnt);
+			String player_name = i_hand->PlayerName();
+			player_names.Append(player_name);
+			ip_addresses[i] = 0;  // produces 0.0.0.0
+			i++;
+		}
+	}
 
 STEP1:
 	int result = parmbox1.Run(this);
@@ -1162,6 +1200,7 @@ STEP1:
 		return;
 	}
 	ASSERT(result == Dialog::RESULT_OK);
+	game_style = GameStyleType(parmbox1);
 
 STEP2:
 	result = parmbox2.Run(this);
@@ -1192,9 +1231,9 @@ STEP3:
 	    }
 		delete[] max_attribute_values;
 
-		// initialize new limits
+		// initialize limits for new attributes
 		for (unsigned i_attr = max_attribute_cnt; i_attr < attribute_cnt; i_attr++) {
-			new_max_attribute_values[i_attr] = 6; // TODO
+			new_max_attribute_values[i_attr] = Tile::VALUE_CNT_DEFAULT - 1;
 		}
 
 		max_attribute_cnt = attribute_cnt;
@@ -1202,21 +1241,23 @@ STEP3:
 	}
 
 STEP4:
-	String template_name = "TILEBOX" + String(max_attribute_cnt);
-	TileBox tilebox((char const *)template_name, max_attribute_cnt, max_attribute_values);
+	String template_name = "TILEBOX" + String(attribute_cnt);
+	TileBox tilebox((char const *)template_name, attribute_cnt, max_attribute_values);
 	result = tilebox.Run(this);
+    TileBox::ValueType *num_values = tilebox.NumValues();
+
+	// copy new limits
+    for (unsigned i_attr = 0; i_attr < max_attribute_cnt; i_attr++) {
+		ASSERT(num_values[i_attr] >= Tile::VALUE_CNT_MIN);
+		ASSERT(num_values[i_attr] <= Tile::VALUE_CNT_MAX);
+	    max_attribute_values[i_attr] = num_values[i_attr] - 1;
+    }
 	if (result == Dialog::RESULT_CANCEL) {
 	    return;
 	} else if (result == Dialog::RESULT_BACK) {
 		goto STEP3;
 	}
 	ASSERT(result == Dialog::RESULT_OK);
-    TileBox::ValueType *num_values = tilebox.NumValues();
-
-	// copy new limits
-    for (unsigned i_attr = 0; i_attr < max_attribute_cnt; i_attr++) {
-	    max_attribute_values[i_attr] = num_values[i_attr] - 1;
-    }
 
 	hand_cnt = parmbox3.HandCnt();
    	if (hand_cnt > player_names.Count()) {
@@ -1232,21 +1273,37 @@ STEP4:
 		// initialize new addresses and names
 		for (unsigned i = player_names.Count(); i < hand_cnt; i++) {
 			new_ip_addresses[i] = 0;  // produces 0.0.0.0
-			String new_name = player_names.InventUnique("Player");
-			player_names.Append(new_name);
+			String player_name;
+			switch (game_style) {
+			case GAME_STYLE_PRACTICE: 
+				player_name = "Player";
+				break;
+			case GAME_STYLE_DEBUG:
+				player_name = "Tester";
+				break;
+			case GAME_STYLE_FRIENDLY:
+			case GAME_STYLE_CHALLENGE:
+				player_name = player_names.InventUnique("Player");
+				break;
+			default:
+				FAIL();
+			}
+			player_names.Append(player_name);
 		}
 
 		ip_addresses = new_ip_addresses;
 	}
-	ASSERT(player_names.Count() == hand_cnt);
+	ASSERT(player_names.Count() >= hand_cnt);
     
 	Strings::IteratorType i_name = player_names.Begin();
 	for (unsigned i = 0; i < hand_cnt; ) {
+		ASSERT(i_name != player_names.End());
 		bool more_flag = (i < hand_cnt - 1);
 		bool auto_flag = auto_hands.Contains(i);
 		bool remote_flag = remote_hands.Contains(i);
-		HandBox box(i + 1, more_flag, *i_name, auto_flag, remote_flag, ip_addresses[i]);
-		result = box.Run(this);
+		IpAddressType ip_address = ip_addresses[i];
+		HandBox handbox(i+1, more_flag, *i_name, auto_flag, remote_flag, ip_address);
+		result = handbox.Run(this);
 		if (result == Dialog::RESULT_CANCEL) {
 			return;
 		} else if (result == Dialog::RESULT_BACK) {
@@ -1258,16 +1315,17 @@ STEP4:
 			}
 		} else {
 		    ASSERT(result == Dialog::RESULT_OK);
-		    *i_name = box.PlayerName();
-		    auto_hands.AddRemove(i, box.IsAutomatic());
-		    remote_hands.AddRemove(i, box.IsRemote());
-		    ip_addresses[i] = IpAddressType(box);
+		    *i_name = handbox.PlayerName();
+		    auto_hands.AddRemove(i, handbox.IsAutomatic());
+		    remote_hands.AddRemove(i, handbox.IsRemote());
+		    ip_addresses[i] = IpAddressType(handbox);
 
 			i++;
 			i_name++;
 		}
 	}
 
+	// can't cancel the new game now
 	Tile::SetStatic(attribute_cnt, max_attribute_values);
 
 	grid = GridType(parmbox2);
@@ -1278,11 +1336,25 @@ STEP4:
 	width = parmbox2.Width();
 	Cell::SetTopology(wrap_flag, height, width);
 
-	game_style = GameStyleType(parmbox1);
+	while (player_names.Count() > hand_cnt) {
+		player_names.Unappend();
+	}
+	Strings hand_names;
+	Strings unique = player_names.Unique();
+	for (i_name = player_names.Begin(); i_name != player_names.End(); i_name++) {
+		String hand_name = *i_name;
+		if (player_names.Count(hand_name) > 1) {
+		    hand_name = unique.InventUnique(*i_name, "'s ", " hand");
+		    unique.Append(hand_name);
+		}
+		hand_names.Append(hand_name);
+	}
+
 	tile_redundancy = 1 + parmbox3.ClonesPerTile();
 	hand_size = parmbox3.HandSize();
 	seconds_per_hand = parmbox1.PlayerSeconds();
-	Game *p_new_game = new Game(player_names, game_style, tile_redundancy, hand_size, seconds_per_hand);
+	Game *p_new_game = new Game(hand_names, player_names, game_style, 
+		                        tile_redundancy, hand_size, seconds_per_hand);
 	ASSERT(p_new_game != NULL);
 
 	delete[] ip_addresses;
@@ -1301,6 +1373,7 @@ void TopWindow::OfferSaveGame(void) {
 
 void TopWindow::Play(bool passFlag) {
 	ASSERT(mpGame != NULL);
+	ASSERT(mpMenuBar != NULL);
 	ASSERT(mPartial.GetActive() == Tile::ID_NONE);
 	ASSERT(!IsGamePaused() && !IsGameOver());
     Move move = mPartial.GetMove(true);
@@ -1314,9 +1387,18 @@ void TopWindow::Play(bool passFlag) {
             mpMenuBar->GameOver();                  
             mpGame->GoingOutBonus();
         } else {
+			String player_name = Hand(*mpGame).PlayerName();
+		    mpMenuBar->SavePlayerOptions(player_name);
+
 			mTargetCellFlag = false;
             mpGame->ActivateNextHand();
-            if (!mpMenuBar->IsAutopause()) {
+
+			player_name = Hand(*mpGame).PlayerName();
+		    mpMenuBar->LoadPlayerOptions(player_name);
+
+			IdType tile_size = mpMenuBar->TileSize();
+			SetTileWidth(tile_size);
+			if (!mpMenuBar->IsAutopause()) {
 				mpGame->StartClock();
 			}
             if (mpMenuBar->IsAutocenter()) {
@@ -1505,6 +1587,8 @@ void TopWindow::Resize(PCntType clientAreaWidth, PCntType clientAreaHeight) {
 }
 
 void TopWindow::SetGame(Game *pGame) {
+	ASSERT(mpMenuBar != NULL);
+
 	// TODO: free old Game object?
 	mpGame = pGame;
 
@@ -1517,6 +1601,15 @@ void TopWindow::SetGame(Game *pGame) {
     mpMenuBar->NewGame();
     SetTileWidth(IDM_LARGE_TILES);
 
+	if (pGame != NULL) {
+	    Hands hands = Hands(*pGame);
+		Hands::ConstIteratorType i_hand;
+		for (i_hand = hands.begin(); i_hand != hands.end(); i_hand++) {
+			String player_name = i_hand->PlayerName();
+			mpMenuBar->SavePlayerOptions(player_name);
+		}
+	}
+
 	if (mpGame != NULL && !mpMenuBar->IsAutopause()) {
 		mpGame->StartClock();
 	}
@@ -1525,7 +1618,7 @@ void TopWindow::SetGame(Game *pGame) {
 	ForceRepaint();
 }
 
-void TopWindow::SetTileWidth(int command) {
+void TopWindow::SetTileWidth(IdType command) {
 	ASSERT(mpMenuBar != NULL);
 	PCntType small_width = 0;
 

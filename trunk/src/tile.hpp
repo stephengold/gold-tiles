@@ -89,6 +89,9 @@ public:
 
 	static const ACountType ATTRIBUTE_CNT_MIN = 2;
 	static const ACountType ATTRIBUTE_CNT_DEFAULT = 2;
+	static const AValueType VALUE_CNT_MIN = 4;
+	static const AValueType VALUE_CNT_DEFAULT = 4;
+	static const AValueType VALUE_CNT_MAX = 9;
 
 private:
 	AValueType *mpArray;

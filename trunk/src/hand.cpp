@@ -29,8 +29,9 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 
 // lifecycle
 
-Hand::Hand(const String &name, unsigned seconds):
-    mName(name)
+Hand::Hand(const String &name, const String &playerName, unsigned seconds):
+    mName(name),
+	mPlayerName(playerName)
 {
 	mRunning = false;
 	mScore = 0;
@@ -91,7 +92,7 @@ unsigned Hand::DrawTiles(unsigned tileCount, Tiles &rBag) {
 	return draw_count;
 }
 
-// find the longest run in the hand's hand
+// find the longest run of compatible tiles in the hand
 Tiles Hand::LongestRun(void) const {
 	Tiles result = mTiles.LongestRun();
             
@@ -100,6 +101,10 @@ Tiles Hand::LongestRun(void) const {
 
 String Hand::Name(void) const {
     return mName;
+}
+
+String Hand::PlayerName(void) const {
+    return mPlayerName;
 }
 
 void Hand::RemoveTile(Tile const &rTile) {

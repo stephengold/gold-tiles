@@ -115,7 +115,7 @@ String Dialog::GetTextString(IdType controlId) {
 	char buffer[256];
 	int buffer_size = 256;
     UINT success = Win::GetDlgItemText(window_handle, controlId, buffer, buffer_size);
-	ASSERT(success > 0);
+	ASSERT(success >= 0);
 
     String result = String(buffer);
 

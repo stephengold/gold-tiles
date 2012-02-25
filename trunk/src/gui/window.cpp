@@ -36,11 +36,12 @@ Window::Window(void) {
 	mModule = 0;
 }
 
-HDC Window::Initialize(CREATESTRUCT const *pCreateStruct) {
+void Window::Initialize(CREATESTRUCT const &rCreateStruct) {
 	ASSERT(mHandle != 0);
 	ASSERT(mModule == 0);
-   	ASSERT(pCreateStruct != NULL);
-	mModule = pCreateStruct->hInstance;
+
+	mModule = rCreateStruct.hInstance;
+	ASSERT(mModule != 0);
 
     HDC private_dc = Win::GetDC(mHandle);
     ASSERT(private_dc != NULL);
@@ -55,8 +56,6 @@ HDC Window::Initialize(CREATESTRUCT const *pCreateStruct) {
 
 	char const *icon_resource_name = "TOPWINDOWICON";
 	SetIcons(icon_resource_name);
-	
-	return private_dc;
 }
 
 
@@ -167,8 +166,9 @@ LRESULT Window::HandleMessage(MessageType message, WPARAM wParameter, LPARAM lPa
 		}
 
         case WM_CREATE: { // initialize window
-			CREATESTRUCT *create_struct = (CREATESTRUCT *)lParameter;
-            Initialize(create_struct);
+			CREATESTRUCT *p_create_struct = (CREATESTRUCT *)lParameter;
+			ASSERT(p_create_struct != NULL);
+            Initialize(*p_create_struct);
             break;
 		}
 
@@ -209,8 +209,8 @@ LRESULT Window::HandleMessage(MessageType message, WPARAM wParameter, LPARAM lPa
 }
 
 void Window::SelfDestruct(void) {
-	int applicationExitCode = 0;
-    Win::PostQuitMessage(applicationExitCode);
+	int application_exit_code = 0;
+    Win::PostQuitMessage(application_exit_code);
 }
 
 void Window::SetClientArea(PCntType width, PCntType height) {

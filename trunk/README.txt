@@ -1,4 +1,4 @@
-README.txt for Release 0.61 of the Gold Tile Game
+README.txt for Release 0.62 of the Gold Tile Game
 programmed by Stephen Gold (sgold@sonic.net)
 
 Gold Tile is a turn-based multi-player game in which tiles 
@@ -25,6 +25,7 @@ helped me create this application:
  + my sweetie Gale for her encouragement and understanding
  + Noah Picard for his advice on the user interface design
  + Skyler Burwell for testing Release 0.6
+ + Julian Gold for testing Release 0.61
  + the creators of the ResEdit free resource editor (www.resedit.net)
  + Microsoft Corporation for creating and distributing Microsoft
    Visual C++ 2010 Express
@@ -45,3 +46,4 @@ RELEASE LOG
   0.5    5 February 2012    initial release
   0.6   20 February 2012    release for early beta testers
   0.61  21 February 2012    remove bad assertion found by Skyler
+  0.62  25 February 2012    remove need for MSVCP100D.dll debug DLL

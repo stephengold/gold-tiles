@@ -78,6 +78,7 @@ protected:
 	void           SetIcons(char const *resourceName);
 	void           SetTimer(unsigned msecs, unsigned id);
 	void           UpdateMenuBar(void);
+	void           WarpCursor(Point const &);
 
 private:
     typedef unsigned long             Key;

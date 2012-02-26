@@ -288,7 +288,7 @@ void Window::SetIcons(char const *resourceName) {
 
 void Window::SetTimer(unsigned interval_msecs, unsigned event_id) {
 	TIMERPROC callback = NULL;
-	int success = Win::SetTimer(mHandle, event_id, interval_msecs, callback);
+	UINT_PTR success = Win::SetTimer(mHandle, event_id, interval_msecs, callback);
     ASSERT(success != 0);
 }
 
@@ -297,13 +297,24 @@ void Window::Show(int how) {
 
     Win::ShowWindow(mHandle, how);
     BOOL success = Win::UpdateWindow(mHandle);
-    ASSERT(success != 0);
+    ASSERT(success);
 }
 
 void Window::UpdateMenuBar(void) {
 	// redraw all menus
 	BOOL success = Win::DrawMenuBar(mHandle);
 	ASSERT(success);
+}
+
+void Window::WarpCursor(Point const &rDestination) {
+    // convert to screen coordinates
+    POINT point = POINT(rDestination);
+    BOOL success = Win::ClientToScreen(mHandle, &point);
+    ASSERT(success);
+    
+    // warp the cursor to new coordinates
+    success = Win::SetCursorPos(point.x, point.y);
+    ASSERT(success);
 }
 
 // inquiry methods

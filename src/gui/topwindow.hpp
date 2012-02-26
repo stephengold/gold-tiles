@@ -47,10 +47,11 @@ public:
 
 private:
 	// private types
-    typedef std::map<TileIdType,Rect>    TileMapType;
-    typedef std::pair<TileIdType,Rect>   TilePairType;
-    typedef TileMapType::iterator        TileIterType;
-    typedef std::pair<TileIterType,bool> TileInsResultType;
+    typedef std::map<TileIdType,Rect>  TileMap;
+    typedef std::pair<TileIdType,Rect> TilePair;
+    typedef TileMap::iterator          TileIter;
+    typedef TileMap::const_iterator    TileConstIter;
+    typedef std::pair<TileIter,bool>   TileInsResult;
 
 	// private constants
 	static const unsigned HAND_CNT_DEFAULT = 2;
@@ -76,7 +77,7 @@ private:
 	Rect                   mSwapRect;
 	Cell                   mTargetCell;
 	bool                   mTargetCellFlag;
-	TileMapType            mTileMap;
+	TileMap                mTileMap;
 	PCntType               mTileWidth;
 
 	// private lifecycle

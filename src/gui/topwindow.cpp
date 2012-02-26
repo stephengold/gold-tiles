@@ -80,12 +80,12 @@ TopWindow::TopWindow(HINSTANCE applicationInstance, Game *pGame):
     mSwapRect(0, 0, 0, 0)
 {
 	ASSERT(Handle() == 0);
+	ASSERT(applicationInstance != NULL);
 
-	char const *className = "TOPWINDOW";
+	LPCTSTR class_name = "TOPWINDOW";
     if (mspClass == NULL) {
-		// constructing first instance:  create a Microsoft Windows window class
-		WNDPROC messageHandler = &message_handler;
-		mspClass = new WindowClass(applicationInstance, messageHandler, className);
+		// for first instance:  create a Microsoft Windows window class
+		mspClass = new WindowClass(applicationInstance, &message_handler, class_name);
 		mspClass->RegisterClass();
 	}
 	ASSERT(mspClass != NULL);
@@ -110,6 +110,7 @@ TopWindow::TopWindow(HINSTANCE applicationInstance, Game *pGame):
 	Rect desktop_bounds(rect);
 
 	// create Microsoft Windows window
+	LPCTSTR name = Name();
 	DWORD window_style = WS_OVERLAPPEDWINDOW;
 	PCntType height = PCntType(0.8*double(desktop_bounds.Height()));
 	PCntType width = PCntType(0.8*double(desktop_bounds.Width()));
@@ -118,7 +119,9 @@ TopWindow::TopWindow(HINSTANCE applicationInstance, Game *pGame):
 	HWND parent = NULL;
 	HMENU menu = NULL;
 	LPVOID parameters = NULL;
-    HWND handle = Win::CreateWindow(className, Name(), window_style, x, y, 
+	ASSERT(class_name != NULL);
+	ASSERT(name != NULL);
+    HWND handle = Win::CreateWindow(class_name, name, window_style, x, y, 
                              width, height, parent, menu, applicationInstance, 
                              parameters);
     ASSERT(Handle() == handle);

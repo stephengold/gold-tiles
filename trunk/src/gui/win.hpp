@@ -24,6 +24,10 @@ You should have received a copy of the GNU General Public License
 along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifndef _WINDOWS
+#error  win.hpp should be included only when the target platform is Microsoft Windows
+#endif
+
 namespace Win {
 #define _M_CEE_SAFE
 #include <Windows.h>

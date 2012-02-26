@@ -389,7 +389,10 @@ void Partial::SwapToHand(void) {
 // inquiry methods
 
 bool Partial::CanSwapAll(void) const {
-	bool result = (mpGame->CountStock() >= CountTiles());
+	bool result = false;
+    if (HaveGame()) {
+        result = (mpGame->CountStock() >= CountTiles());
+    }
 
 	return result;
 }

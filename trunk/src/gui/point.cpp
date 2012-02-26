@@ -21,6 +21,7 @@ You should have received a copy of the GNU General Public License
 along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <climits>      // SHRT_MAX
 #include "point.hpp"
 #include "project.hpp" // ASSERT
 #include "win_types.hpp"

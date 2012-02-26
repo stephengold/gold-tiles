@@ -520,8 +520,8 @@ void TopWindow::DrawHandTile(
     Rect rect = DrawTile(rCanvas, rCenter, rTile, oddFlag);
         
     TileIdType id = rTile.Id();
-    TilePairType pair(id, rect);
-    TileInsResultType ins_result = mTileMap.insert(pair);
+    TilePair pair(id, rect);
+    TileInsResult ins_result = mTileMap.insert(pair);
     bool success = ins_result.second;
     ASSERT(success);
 }
@@ -747,7 +747,7 @@ Cell TopWindow::GetCell(Point const &rPoint) const {
 TileIdType TopWindow::GetTileId(Point const &rPoint) const {
 	TileIdType result = 0;
 
-	TileMapType::const_iterator i_tile;
+	TileConstIter i_tile;
     for (i_tile = mTileMap.begin(); i_tile != mTileMap.end(); i_tile++) {
         TileIdType id = i_tile->first;
         Rect rect = i_tile->second;
@@ -830,6 +830,11 @@ void TopWindow::HandleButtonDown(Point const &rMouse) {
         if (!IsMouseCaptured()) {
             // Capture mouse to drag the tile
             CaptureMouse();
+            TileConstIter i_tile = mTileMap.find(id);
+            Rect rect = i_tile->second;
+            Point point = rect.Center();
+            WarpCursor(point);
+            mMouseLast = point;
             mPartial.Activate(id);
             mDragTileDeltaX = 0;
             mDragTileDeltaY = 0;

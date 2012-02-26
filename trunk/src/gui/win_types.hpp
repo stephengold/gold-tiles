@@ -60,6 +60,7 @@ using Win::SHORT;
 using Win::SIZE;
 using Win::TIMERPROC;
 using Win::UINT;
+using Win::UINT_PTR;
 using Win::ULONG_PTR;
 using Win::WNDCLASSEX;
 using Win::WNDPROC;

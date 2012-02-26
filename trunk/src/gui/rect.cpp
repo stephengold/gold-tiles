@@ -110,6 +110,14 @@ Point Rect::Brc(void) const {
     return result;
 }
 
+Point Rect::Center(void) const {
+    LogicalXType x = LeftX() + Width()/2;
+    LogicalYType y = TopY() + Height()/2;
+    Point result(x, y);
+    
+    return result;
+}
+ 
 // construct the largest Rect with a given aspect ratio
 // that is centered and contained within this Rect
 

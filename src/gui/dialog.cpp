@@ -62,7 +62,8 @@ Dialog::Dialog(char const *templateName, DLGPROC messageHandler) {
 	mpMessageHandler = messageHandler;
 }
 
-INT_PTR Dialog::Run(Window *pParent) {
+int Dialog::Run(Window *pParent) {
+	ASSERT(pParent != NULL);
 	mspNewlyCreatedWindow = this;
 
 	// create a modal dialog box
@@ -71,14 +72,14 @@ INT_PTR Dialog::Run(Window *pParent) {
 	INT_PTR result = Win::DialogBox(module, mTemplateName, parentHandle, mpMessageHandler);
 
 	ASSERT(result > 0);
-	return result;
+	return int(result);
 }
 
 // misc methods
 
-void Dialog::Close(INT_PTR result) {
+void Dialog::Close(int result) {
 	HWND window = Handle();
-    Win::EndDialog(window, result);
+    Win::EndDialog(window, INT_PTR(result));
 }
 
 void Dialog::EnableButton(IdType buttonId, bool enable) {
@@ -89,7 +90,8 @@ void Dialog::EnableButton(IdType buttonId, bool enable) {
 
 void Dialog::EnableEditBox(IdType boxId, bool enable) {
     HWND box_handle = GetControlHandle(boxId);
-	Win::Edit_Enable(box_handle, enable);
+	BOOL enable_flag = enable ? TRUE : FALSE;
+	Win::Edit_Enable(box_handle, enable_flag);
 }
 
 // get the window handle for a particular control

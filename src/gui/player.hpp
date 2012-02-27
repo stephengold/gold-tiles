@@ -31,30 +31,33 @@ The Player class implements a static map for translating names to
 user-interface settings.
 */
 
-#include <map>          // HASA std::map
-#include "gui/win.hpp"  // IdType
-#include "string.hpp"   // HASA String
+#include <map>           // HASA std::map
+#include "gui/win.hpp"   // HASA IdType
+#include "string.hpp"    // HASA String
+#include "gui/point.hpp" // HASA Point
 
 class Player {
 public:
 	// public lifecycle
 	// Player(void); no default constructor
-	Player(String const &);
+	Player(String const &rName);
     // ~Player(void);  compiler-generated destructor is OK
 
+	// public operators
+	operator Point(void) const;    // get logical coordinates of Start cell
+
 	// misc public methods
-    static Player *Lookup(String const &);
-	void           SetAutocenter(bool);
-	void           SetAutopause(bool);
-    void           SetPeek(bool);
-	void           SetShowClocks(bool);
-    void           SetShowGrid(bool);
-	void           SetShowScores(bool);
-	void           SetTileSize(IdType);
-	IdType         TileSize(void) const;
+    static Player & rLookup(String const &);
+	void             SetAutopause(bool);
+    void             SetPeek(bool);
+	void             SetShowClocks(bool);
+    void             SetShowGrid(bool);
+	void             SetShowScores(bool);
+	void             SetStartCellPosition(Point const &);
+	void             SetTileSize(IdType);
+	IdType           TileSize(void) const;
 
 	// public inquiry methods
-	bool Autocenter(void) const;
 	bool Autopause(void) const;
     bool Peek(void) const;
 	bool ShowClocks(void) const;
@@ -62,22 +65,23 @@ public:
 	bool ShowScores(void) const;
 
 private:
+	// private types
     typedef std::map<String, Player*>  Map;
     typedef std::pair<String, Player*> Pair;
 	typedef Map::const_iterator        ConstIterator;
     typedef Map::iterator              Iterator;
     typedef std::pair<Iterator, bool>  InsertResult;
 
+	// private data
+	bool        mAutopause;
     static Map msMap;
-
-	String mName;
-	bool   mAutocenter;
-	bool   mAutopause;
-	bool   mPeek;
-	bool   mShowClocks;
-	bool   mShowGrid;
-	bool   mShowScores;
-	IdType mTileSize;
+	String      mName;
+	bool        mPeek;
+	bool        mShowClocks;
+	bool        mShowGrid;
+	bool        mShowScores;
+	Point       mStartCellPosition;  // logical coordinates of the Start cell
+	IdType      mTileSize;
 
 	// private lifecycle
 	Player(Player const &);  // not copyable
@@ -85,7 +89,4 @@ private:
 	// private operators
 	Player &operator=(Player const &);  // not assignable
 };
-
-// global utility functions
-
 #endif

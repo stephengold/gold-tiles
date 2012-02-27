@@ -28,6 +28,7 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 #include "gui/parmbox1.hpp"
 #include "gui/parmbox2.hpp"
 #include "gui/parmbox3.hpp"
+#include "gui/player.hpp"
 #include "gui/resource.hpp"
 #include "gui/tilebox.hpp"
 #include "gui/topwindow.hpp"
@@ -86,9 +87,9 @@ TopWindow::TopWindow(HINSTANCE applicationInstance, Game *pGame):
     if (mspClass == NULL) {
 		// for first instance:  create a Microsoft Windows window class
 		mspClass = new WindowClass(applicationInstance, &message_handler, class_name);
+	    ASSERT(mspClass != NULL);
 		mspClass->RegisterClass();
 	}
-	ASSERT(mspClass != NULL);
 
 	// Make this TopWindow object accessable to its message handler before WM_CREATE.
     ASSERT(mspNewlyCreatedWindow == NULL);
@@ -149,8 +150,7 @@ void TopWindow::Initialize(CREATESTRUCT const &rCreateStruct) {
 	    Hands hands = Hands(*mpGame);
 		Hands::ConstIterator i_hand;
 		for (i_hand = hands.begin(); i_hand != hands.end(); i_hand++) {
-			String player_name = i_hand->PlayerName();
-			mpMenuBar->SavePlayerOptions(player_name);
+			SavePlayerOptions(*i_hand);
 		}
 	}
 
@@ -655,6 +655,7 @@ void TopWindow::DrawInactiveHands(Canvas &rCanvas) {
 
 void TopWindow::DrawPaused(Canvas &rCanvas) {
 	ASSERT(IsGamePaused());
+	ASSERT(!IsGameOver());
 
     ColorType bg_color = COLOR_BLACK;
     ColorType text_color = COLOR_WHITE;
@@ -822,7 +823,8 @@ PCntType TopWindow::GridUnitY(void) const {
 
 void TopWindow::HandleButtonDown(Point const &rMouse) {
 	ASSERT(mpGame != NULL);
-	ASSERT(IsGameOver() || !IsGamePaused());
+	ASSERT(!IsGamePaused());
+	ASSERT(!IsDragging());
     mMouseLast = rMouse;
 
 	TileIdType id = GetTileId(rMouse);
@@ -938,7 +940,6 @@ void TopWindow::HandleMenuCommand(IdType command) {
 		    FAIL(); // TODO
 			break;
 
-		case IDM_AUTOCENTER:
 		case IDM_AUTOPAUSE:
         case IDM_PEEK:
 	    case IDM_SHOW_CLOCKS:
@@ -1037,6 +1038,8 @@ LRESULT TopWindow::HandleMessage(UINT message, WPARAM wParam, LPARAM lParam) {
 			        Point mouse(points);
                     HandleButtonDown(mouse);
 				}
+			    ForceRepaint();
+			    UpdateMenuBar();
 			}
             break;
 
@@ -1127,66 +1130,20 @@ void TopWindow::InfoBox(char const *messageText) {
 	String title = "Information";
 
 	// expand shortcuts
-	if (::str_eq(message, "COLUMNCOMPAT")) {
-		message = "Tiles in a column (with no intervening empty cells) must all be mutually compatible.";
-		title = "Column Compatibility Rule";
-	} else if (::str_eq(message, "DIAGCOMPAT")) {
-		message = "Tiles on a diagonal (with no intervening empty cells) must all be mutually compatible.";
-		title = "Diagonal Compatibility Rule";
-	} else if (::str_eq(message, "EMPTY")) {
-		message = "That cell has already been used.";
-		title = "Empty Cell Rule";
-	} else if (::str_eq(message, "FIRST")) {
-		message = "On the first turn, you must play as many tiles as possible.  Keep looking!";
-		title = "First Turn Rule";
-	} else if (::str_eq(message, "GAP")) {
-		message = "You can't leave any empty cells between the tiles you play.";
-		title = "Gap Rule";
-	} else if (::str_eq(message, "NEIGHBOR")) {
-		message = "Each cell you use must be a neighbor of a used cell.";
-		title = "Neighbor Rule";
-	} else if (::str_eq(message, "ROWCOLUMN")) {
-		String dirs;
-		switch (Cell::Grid()) {
-		case GRID_TRIANGLE:
-			dirs = "row or diagonal";
-			break;
-		case GRID_4WAY:
-			dirs = "row or column";
-			break;
-		case GRID_HEX:
-			dirs = "column or diagonal";
-			break;
-		case GRID_8WAY:
-		    dirs = "row, column, or diagonal";
-			break;
-		default:
-			FAIL();
-		}
-		message = String("The cells you use must all lie in a single ") + dirs + String(".");
-		title = "Row/Column Rule";
-	} else if (::str_eq(message, "ROWCOMPAT")) {
-		message = "Tiles in a row (with no intervening empty cells) must all be mutually compatible.";
-		title = "Row Compatibility Rule";
-	} else if (::str_eq(message, "RULES")) {
+	if (::str_eq(message, "RULES")) {
 		message = "The rules of Gold Tile are available online at http://code.google.com/p/gold-tiles/wiki/Playing";
 		title = "Rules";
-	} else if (::str_eq(message, "START")) {
-		message = "Your first tile must use the start cell. To change this tile, you must take back ALL your tiles.";
-		title = "Start Rule";
-	} else if (::str_eq(message, "STARTSIMPLE")) {
-		message = "Your first tile must use the start cell.";
-		title = "Start Rule";
-	} else if (::str_eq(message, "STOCK")) {
-		message = "You can't swap more tiles than the number remaining in the stock bag.";
-		title = "Stock Rule";
-	} else if (::str_eq(message, "SWAP")) {
-		message = "You can play tiles or swap them, but you can't do both in the same turn.";
-		title = "Swap Rule";
 	}
 
 	title += " - Gold Tile";
 	Window::InfoBox(message, title);
+}
+
+void TopWindow::LoadPlayerOptions(Hand const &rHand) {
+	String player_name = rHand.PlayerName();
+	Player const &r_player = Player::rLookup(player_name);
+	mpMenuBar->LoadPlayerOptions(r_player);
+	mStartCell = Point(r_player);
 }
 
 int TopWindow::MessageDispatchLoop(void) {
@@ -1222,19 +1179,22 @@ char const *TopWindow::Name(void) const {
 }
 
 void TopWindow::OfferNewGame(void) {
+	// set up first dialog box
+	GameStyleType old_game_style = mPartial.GameStyle();
 	unsigned seconds_per_hand = SECONDS_PER_MINUTE * ParmBox1::PLAYER_MINUTES_DEFAULT;
 	if (mpGame != NULL) {
 		seconds_per_hand = mpGame->SecondsPerHand();
 	}
-	GameStyleType game_style = mPartial.GameStyle();
-	ParmBox1 parmbox1(game_style, seconds_per_hand);
+	ParmBox1 parmbox1(old_game_style, seconds_per_hand);
 
+	// set up second dialog box
 	bool wrap_flag;
 	IndexType height, width;
 	Cell::GetTopology(wrap_flag, height, width);
 	GridType grid = Cell::Grid();
 	ParmBox2 parmbox2(wrap_flag, height, width, grid);
 
+	// begin setting up third dialog box
 	unsigned attribute_cnt = Tile::AttributeCnt();
 	unsigned tile_redundancy = Game::TILE_REDUNDANCY_DEFAULT;
 	unsigned hand_cnt = HAND_CNT_DEFAULT;
@@ -1242,65 +1202,97 @@ void TopWindow::OfferNewGame(void) {
 
 	unsigned max_attribute_cnt = Tile::AttributeCnt();
 	AValueType *max_attribute_values = new AValueType[max_attribute_cnt];
+	ASSERT(max_attribute_values != NULL);
 	for (unsigned i_attr = 0; i_attr < max_attribute_cnt; i_attr++) {
 		max_attribute_values[i_attr] = Tile::ValueMax(i_attr);
 	}
 
+	// begin setting up fifth dialog box
+	unsigned max_hand_cnt = 0;
 	Strings player_names;
     Indices auto_hands;
     Indices remote_hands;
-	IpAddressType *ip_addresses = NULL;
+	std::vector<IpAddressType> ips;
 	if (mpGame != NULL) {
 	    Hands hands = Hands(*mpGame);
-		ip_addresses = new IpAddressType[hand_cnt];
+		max_hand_cnt = hands.Count();
 		Hands::ConstIterator i_hand;
-		unsigned i = 0;
 		for (i_hand = hands.begin(); i_hand != hands.end(); i_hand++) {
-			ASSERT(i < hand_cnt);
-			String player_name = i_hand->PlayerName();
-			player_names.Append(player_name);
-			ip_addresses[i] = 0;  // produces 0.0.0.0
-			i++;
+			String name = i_hand->PlayerName();
+			player_names.Append(name);
+			// TODO add to auto_hands and/or remote_hands
+			ips.push_back(0);  // produces 0.0.0.0
 		}
 	}
 
 STEP1:
+	// first dialog:  prompt for game style and time limit
 	int result = parmbox1.Run(this);
 	if (result == Dialog::RESULT_CANCEL) {
+	    delete[] max_attribute_values;
 		return;
 	}
 	ASSERT(result == Dialog::RESULT_OK);
-	game_style = GameStyleType(parmbox1);
+	GameStyleType game_style = GameStyleType(parmbox1);
+	seconds_per_hand = parmbox1.PlayerSeconds();
+
+	bool new_game_style = (game_style != old_game_style);
+	old_game_style = GAME_STYLE_NONE;
+	if (new_game_style && max_hand_cnt > 0) {
+		max_hand_cnt = 0;
+		player_names.MakeEmpty();
+		auto_hands.MakeEmpty();
+		remote_hands.MakeEmpty();
+		ips.clear();
+	}
 
 STEP2:
+	// second dialog:  prompt for grid type and topology
 	result = parmbox2.Run(this);
 	if (result == Dialog::RESULT_CANCEL) {
+	    delete[] max_attribute_values;
 		return;
 	} else if (result == Dialog::RESULT_BACK) {
 		goto STEP1;
 	}
 	ASSERT(result == Dialog::RESULT_OK);
+	grid = GridType(parmbox2);
+	wrap_flag = parmbox2.DoesWrap();
+	height = parmbox2.Height();
+	width = parmbox2.Width();
+
+	// finish setting up third dialog
+	if (new_game_style) {
+		if (game_style == GAME_STYLE_PRACTICE) {
+		    hand_cnt = 1;
+		}
+		new_game_style = false;
+
+	} else if (mpGame != NULL) {
+		// set based on previous game
+		tile_redundancy = mpGame->Redundancy();
+	    hand_size = mpGame->HandSize();
+	    hand_cnt = Hands(*mpGame).Count();
+	}
 
 STEP3:
-	if (game_style == GAME_STYLE_PRACTICE) {
-		hand_cnt = 1;
-	}
-	if (mpGame != NULL) {
-		tile_redundancy = mpGame->Redundancy();
-	    hand_cnt = Hands(*mpGame).Count();
-	    hand_size = mpGame->HandSize();
-	}
+	// third dialog:  prompt for attribute count, clones, hand size, and number of hands
 	unsigned clones_per_tile = tile_redundancy - 1;
 	ParmBox3 parmbox3(attribute_cnt, clones_per_tile, hand_size, hand_cnt);
 	result = parmbox3.Run(this);
 	if (result == Dialog::RESULT_CANCEL) {
-	    return;
+	    delete[] max_attribute_values;
+		return;
 	} else if (result == Dialog::RESULT_BACK) {
 		goto STEP2;
 	}
 	ASSERT(result == Dialog::RESULT_OK);
-
 	attribute_cnt = parmbox3.AttributeCnt();
+	tile_redundancy = 1 + parmbox3.ClonesPerTile();
+	hand_size = parmbox3.HandSize();
+	hand_cnt = parmbox3.HandCnt();
+
+	// set up fourth dialog
    	if (attribute_cnt > max_attribute_cnt) {
 		// allocate storage for more attribute limits
 	    AValueType *new_max_attribute_values = new AValueType[attribute_cnt];
@@ -1319,10 +1311,38 @@ STEP3:
 		max_attribute_cnt = attribute_cnt;
 		max_attribute_values = new_max_attribute_values;
 	}
-
-STEP4:
 	String template_name = "TILEBOX" + String(attribute_cnt);
 	TileBox tilebox((char const *)template_name, attribute_cnt, max_attribute_values);
+
+	// further work on fifth dialog
+   	if (hand_cnt > max_hand_cnt) {
+		// initialize new addresses and names
+		for (unsigned i = max_hand_cnt; i < hand_cnt; i++) {
+			String name;
+			switch (game_style) {
+			case GAME_STYLE_PRACTICE:
+				name = "Player";
+				break;
+			case GAME_STYLE_DEBUG:
+				name = "Tester";
+				break;
+			case GAME_STYLE_FRIENDLY:
+			case GAME_STYLE_CHALLENGE:
+				name = player_names.InventUnique("Player");
+				break;
+			default:
+				FAIL();
+			}
+			player_names.Append(name);
+			// TODO add to auto_hands and/or remote_hands
+			ips.push_back(0);  // produces 0.0.0.0
+		}
+		max_hand_cnt = hand_cnt;
+	}
+	ASSERT(max_hand_cnt >= hand_cnt);
+
+STEP4:
+	// fourth dialog:  number of values for each attribute
 	result = tilebox.Run(this);
     TileBox::ValueType *num_values = tilebox.NumValues();
 
@@ -1333,59 +1353,45 @@ STEP4:
 	    max_attribute_values[i_attr] = num_values[i_attr] - 1;
     }
 	if (result == Dialog::RESULT_CANCEL) {
-	    return;
+	    delete[] max_attribute_values;
+		return;
 	} else if (result == Dialog::RESULT_BACK) {
 		goto STEP3;
 	}
 	ASSERT(result == Dialog::RESULT_OK);
 
-	hand_cnt = parmbox3.HandCnt();
-   	if (hand_cnt > player_names.Count()) {
-		// allocate storage for more IP addresses
-        IpAddressType *new_ip_addresses = new IpAddressType[hand_cnt];
+	// check sanity of the parameters so far
+	unsigned tiles_needed = hand_cnt*hand_size;
 
-		// copy old addresses
-		for (unsigned i = 0; i < player_names.Count(); i++) {
-			new_ip_addresses[i] = ip_addresses[i];
-		}
-		delete[] ip_addresses;
-
-		// initialize new addresses and names
-		for (unsigned i = player_names.Count(); i < hand_cnt; i++) {
-			new_ip_addresses[i] = 0;  // produces 0.0.0.0
-			String player_name;
-			switch (game_style) {
-			case GAME_STYLE_PRACTICE:
-				player_name = "Player";
-				break;
-			case GAME_STYLE_DEBUG:
-				player_name = "Tester";
-				break;
-			case GAME_STYLE_FRIENDLY:
-			case GAME_STYLE_CHALLENGE:
-				player_name = player_names.InventUnique("Player");
-				break;
-			default:
-				FAIL();
-			}
-			player_names.Append(player_name);
-		}
-
-		ip_addresses = new_ip_addresses;
+	unsigned long tile_cnt = tile_redundancy;
+	for (unsigned i_attr = 0; i_attr < max_attribute_cnt; i_attr++) {
+		tile_cnt *= num_values[i_attr];
 	}
-	ASSERT(player_names.Count() >= hand_cnt);
-    
+
+	if (tile_cnt < tiles_needed) {
+		result = WarnBox("FEWTILES");
+		if (result == IDCANCEL) {
+	        delete[] max_attribute_values;
+		    return;
+	    } else if (result == IDTRYAGAIN) {
+			goto STEP3;
+	    }
+		ASSERT(result == IDCONTINUE);
+	}
+
+	// fifth dialog and onward:  parameters of each hand
 	Strings::Iterator i_name = player_names.Begin();
 	for (unsigned i = 0; i < hand_cnt; ) {
 		ASSERT(i_name != player_names.End());
-		bool more_flag = (i < hand_cnt - 1);
+		bool more_flag = (i+1 < hand_cnt);
 		bool auto_flag = auto_hands.Contains(i);
 		bool remote_flag = remote_hands.Contains(i);
-		IpAddressType ip_address = ip_addresses[i];
+		IpAddressType ip_address = ips[i];
 		HandBox handbox(i+1, more_flag, *i_name, auto_flag, remote_flag, ip_address);
 		result = handbox.Run(this);
 		if (result == Dialog::RESULT_CANCEL) {
-			return;
+	        delete[] max_attribute_values;
+		    return;
 		} else if (result == Dialog::RESULT_BACK) {
 			if (i == 0) {
 				goto STEP4;
@@ -1398,7 +1404,7 @@ STEP4:
 		    *i_name = handbox.PlayerName();
 		    auto_hands.AddRemove(i, handbox.IsAutomatic());
 		    remote_hands.AddRemove(i, handbox.IsRemote());
-		    ip_addresses[i] = IpAddressType(handbox);
+		    ips[i] = IpAddressType(handbox);
 
 			i++;
 			i_name++;
@@ -1406,21 +1412,18 @@ STEP4:
 	}
 
 	// can't cancel now - go ahead and set up the new game
-	Tile::SetStatic(attribute_cnt, max_attribute_values);
-
-	grid = GridType(parmbox2);
 	Cell::SetGrid(grid);
-
-	wrap_flag = parmbox2.DoesWrap();
-	height = parmbox2.Height();
-	width = parmbox2.Width();
 	Cell::SetTopology(wrap_flag, height, width);
+	Tile::SetStatic(attribute_cnt, max_attribute_values);
+	delete[] max_attribute_values;
 
 	while (player_names.Count() > hand_cnt) {
 		player_names.Unappend();
 	}
-	Strings hand_names;
-	Strings unique = player_names.Unique();
+
+    // TODO: this part should be done in Game constructor
+    Strings hand_names;
+    Strings unique = player_names.Unique();
 	for (i_name = player_names.Begin(); i_name != player_names.End(); i_name++) {
 		String hand_name = *i_name;
 		if (player_names.Count(hand_name) > 1) {
@@ -1430,16 +1433,9 @@ STEP4:
 		hand_names.Append(hand_name);
 	}
 
-	tile_redundancy = 1 + parmbox3.ClonesPerTile();
-	hand_size = parmbox3.HandSize();
-	seconds_per_hand = parmbox1.PlayerSeconds();
 	Game *p_new_game = new Game(hand_names, player_names, game_style, 
 		                        tile_redundancy, hand_size, seconds_per_hand);
 	ASSERT(p_new_game != NULL);
-
-	delete[] ip_addresses;
-	delete[] max_attribute_values;
-
 	SetGame(p_new_game);
 }
 
@@ -1455,7 +1451,9 @@ void TopWindow::Play(bool passFlag) {
 	ASSERT(mpGame != NULL);
 	ASSERT(mpMenuBar != NULL);
 	ASSERT(mPartial.GetActive() == Tile::ID_NONE);
-	ASSERT(!IsGamePaused() && !IsGameOver());
+	ASSERT(!IsGameOver());
+	ASSERT(!IsGamePaused());
+
     Move move = mPartial.GetMove(true);
     
 	char const *reason;
@@ -1467,31 +1465,25 @@ void TopWindow::Play(bool passFlag) {
             mpMenuBar->GameOver();                  
             mpGame->GoingOutBonus();
         } else {
-			String player_name = Hand(*mpGame).PlayerName();
-		    mpMenuBar->SavePlayerOptions(player_name);
+			// the game isn't over, so proceed to the next hand
+			Hand hand = Hand(*mpGame);
+		    SavePlayerOptions(hand);
 
-			mTargetCellFlag = false;
             mpGame->ActivateNextHand();
-
-			player_name = Hand(*mpGame).PlayerName();
-		    mpMenuBar->LoadPlayerOptions(player_name);
-
+			hand = Hand(*mpGame);
+		    LoadPlayerOptions(hand);
 			IdType tile_size = mpMenuBar->TileSize();
 			SetTileWidth(tile_size);
 			if (!mpMenuBar->IsAutopause()) {
 				mpGame->StartClock();
 			}
-            if (mpMenuBar->IsAutocenter()) {
-                // center the start cell
-                mIsStartCentered = false;
-                Resize(ClientAreaWidth(), ClientAreaHeight());
-            }
         }
 
         mPartial.Reset();
+		mTargetCellFlag = false;
                
     } else if (!is_legal) { // explain the issue
-        InfoBox(reason);
+        RuleBox(reason);
 		if (::str_eq(reason, "FIRST")) {
 			mPartial.Reset();
 		}
@@ -1563,7 +1555,7 @@ void TopWindow::ReleaseActiveTile(Point const &rMouse) {
 
 	if (to_board && (!to_cell.IsValid() || mPartial.GetCell(to_cell) != 0)) {
 		// cell conflict - can't construct a move in the usual way
-	    InfoBox("EMPTY");
+	    RuleBox("EMPTY");
     	StopDragging();
 		return;
 	}
@@ -1601,11 +1593,14 @@ void TopWindow::ReleaseActiveTile(Point const &rMouse) {
             mPartial.HandToSwap();
         }
 
-		// Tell the use why it was illegal.
+		// Explain to the player why it was illegal.
 		if (::str_eq(reason, "START") && !from_board) {
 			reason = "STARTSIMPLE";
 	    }
-	    InfoBox(reason);
+	    RuleBox(reason);
+
+		// perhaps the problem has to do with the target cell
+		mTargetCellFlag = false;
 	}
 
     if (mTargetCellFlag && !mPartial.IsEmpty(mTargetCell)) {
@@ -1662,6 +1657,80 @@ void TopWindow::Resize(PCntType clientAreaWidth, PCntType clientAreaHeight) {
     ForceRepaint();
 }
 
+void TopWindow::RuleBox(char const *messageText) {
+	String message = messageText;
+	String title = "Information";
+
+	// expand shortcuts
+	if (::str_eq(message, "COLUMNCOMPAT")) {
+		message = "Tiles in a column (with no intervening empty cells) must all be mutually compatible.";
+		title = "Column Compatibility Rule";
+	} else if (::str_eq(message, "DIAGCOMPAT")) {
+		message = "Tiles on a diagonal (with no intervening empty cells) must all be mutually compatible.";
+		title = "Diagonal Compatibility Rule";
+	} else if (::str_eq(message, "EMPTY")) {
+		message = "That cell has already been used.";
+		title = "Empty Cell Rule";
+	} else if (::str_eq(message, "FIRST")) {
+		message = "On the first turn, you must play as many tiles as possible.  Keep looking!";
+		title = "First Turn Rule";
+	} else if (::str_eq(message, "GAP")) {
+		message = "You can't leave any empty cells between the tiles you play.";
+		title = "Gap Rule";
+	} else if (::str_eq(message, "NEIGHBOR")) {
+		message = "Each cell you use must be a neighbor of a used cell.";
+		title = "Neighbor Rule";
+	} else if (::str_eq(message, "ROWCOLUMN")) {
+		String dirs;
+		switch (Cell::Grid()) {
+		case GRID_TRIANGLE:
+			dirs = "row or diagonal";
+			break;
+		case GRID_4WAY:
+			dirs = "row or column";
+			break;
+		case GRID_HEX:
+			dirs = "column or diagonal";
+			break;
+		case GRID_8WAY:
+		    dirs = "row, column, or diagonal";
+			break;
+		default:
+			FAIL();
+		}
+		message = String("The cells you use must all lie in a single ") + dirs + String(".");
+		title = "Row/Column Rule";
+	} else if (::str_eq(message, "ROWCOMPAT")) {
+		message = "Tiles in a row (with no intervening empty cells) must all be mutually compatible.";
+		title = "Row Compatibility Rule";
+	} else if (::str_eq(message, "RULES")) {
+		message = "The rules of Gold Tile are available online at http://code.google.com/p/gold-tiles/wiki/Playing";
+		title = "Rules";
+	} else if (::str_eq(message, "START")) {
+		message = "Your first tile must use the start cell. To change this tile, you must take back ALL your tiles.";
+		title = "Start Rule";
+	} else if (::str_eq(message, "STARTSIMPLE")) {
+		message = "Your first tile must use the start cell.";
+		title = "Start Rule";
+	} else if (::str_eq(message, "STOCK")) {
+		message = "You can't swap more tiles than the number remaining in the stock bag.";
+		title = "Stock Rule";
+	} else if (::str_eq(message, "SWAP")) {
+		message = "You can play tiles or swap them, but you can't do both in the same turn.";
+		title = "Swap Rule";
+	}
+
+	title += " - Gold Tile";
+	ErrorBox(message, title);
+}
+
+void TopWindow::SavePlayerOptions(Hand const &rHand) const {
+	String player_name = rHand.PlayerName();
+	Player &r_player = Player::rLookup(player_name);
+	mpMenuBar->SavePlayerOptions(r_player);
+	r_player.SetStartCellPosition(mStartCell);
+}
+
 void TopWindow::SetGame(Game *pGame) {
 	ASSERT(mpMenuBar != NULL);
 
@@ -1674,15 +1743,14 @@ void TopWindow::SetGame(Game *pGame) {
 	    mPartial = Partial(mpGame, HINT_DEFAULT);
 	}
 	
-    mpMenuBar->NewGame();
     SetTileWidth(IDM_LARGE_TILES);
+    mpMenuBar->NewGame();
 
 	if (pGame != NULL) {
 	    Hands hands = Hands(*pGame);
 		Hands::ConstIterator i_hand;
 		for (i_hand = hands.begin(); i_hand != hands.end(); i_hand++) {
-			String player_name = i_hand->PlayerName();
-			mpMenuBar->SavePlayerOptions(player_name);
+			SavePlayerOptions(*i_hand);
 		}
 	}
 
@@ -1776,6 +1844,23 @@ void TopWindow::UpdateMenuBar(void) {
 	mpMenuBar->Update();
     Window::UpdateMenuBar();
 }
+
+int TopWindow::WarnBox(char const *messageText) {
+	String message = messageText;
+	String title = "Information";
+
+	// expand shortcuts
+	if (::str_eq(message, "FEWTILES")) {
+		message = "You haven't created enough tiles to fill all the hands.";
+		title = "Too Few Tiles";
+	}
+
+	title += " - Gold Tile";
+	int result = Window::WarnBox(message, title);
+
+	return result;
+}
+
 
 // inquiry methods
 

@@ -62,6 +62,7 @@ class MenuItem;
 class ParmBox1;
 class ParmBox2;
 class ParmBox3;
+class Player;
 class PlayMenu;
 class Point;
 class Poly;

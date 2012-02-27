@@ -38,7 +38,6 @@ MenuBar::MenuBar(CREATESTRUCT const &rCreateStruct, Partial const &rPartial):
     mHelpMenu(mMenu, 3)
 {
     GameStyleType game_style = mrPartial.GameStyle();
-    mAutocenterFlag = (game_style == GAME_STYLE_CHALLENGE);
     mAutopauseFlag = (game_style == GAME_STYLE_CHALLENGE);
 	mShowClocksFlag = (game_style == GAME_STYLE_CHALLENGE);
    	mShowGridFlag = false;
@@ -63,9 +62,6 @@ void MenuBar::HandleMenuCommand(IdType command) {
 		case IDM_AUTOPAUSE:
             mAutopauseFlag = !mAutopauseFlag;
             break;
-		case IDM_AUTOCENTER:
-            mAutocenterFlag = !mAutocenterFlag;
-			break;
         case IDM_SHOW_CLOCKS:
             mShowClocksFlag = !mShowClocksFlag;
             break;
@@ -84,44 +80,34 @@ void MenuBar::HandleMenuCommand(IdType command) {
 	}
 }
 
-void MenuBar::LoadPlayerOptions(String const &rPlayerName) {
-	Player * p_player = Player::Lookup(rPlayerName);
-	ASSERT(p_player != NULL);
-
-	mAutocenterFlag = p_player->Autocenter();
-	mAutopauseFlag = p_player->Autopause();
-    mPeekFlag = p_player->Peek();
-	mShowClocksFlag = p_player->ShowClocks();
-    mShowGridFlag = p_player->ShowGrid();
-	mShowScoresFlag = p_player->ShowScores();
-	mTileSizeItem = p_player->TileSize();
+void MenuBar::LoadPlayerOptions(Player const &rPlayer) {
+	mAutopauseFlag = rPlayer.Autopause();
+    mPeekFlag = rPlayer.Peek();
+	mShowClocksFlag = rPlayer.ShowClocks();
+    mShowGridFlag = rPlayer.ShowGrid();
+	mShowScoresFlag = rPlayer.ShowScores();
+	mTileSizeItem = rPlayer.TileSize();
 }
 
 void MenuBar::NewGame(void) {
     GameStyleType game_style = mrPartial.GameStyle();
     
 	if (game_style == GAME_STYLE_CHALLENGE) {
-        mAutocenterFlag = true;
         mAutopauseFlag = true;
 	    mShowClocksFlag = true;
 	} else {
-        mAutocenterFlag = false;
         mAutopauseFlag = false;
 	    mShowClocksFlag = false;
 	}
 }
 
-void MenuBar::SavePlayerOptions(String const &rPlayerName) const {
-	Player *p_player = Player::Lookup(rPlayerName);
-	ASSERT(p_player != NULL);
-
-	p_player->SetAutocenter(mAutocenterFlag);
-	p_player->SetAutopause(mAutopauseFlag);
-    p_player->SetPeek(mPeekFlag);
-	p_player->SetShowClocks(mShowClocksFlag);
-    p_player->SetShowGrid(mShowGridFlag);
-	p_player->SetShowScores(mShowScoresFlag);
-	p_player->SetTileSize(mTileSizeItem);
+void MenuBar::SavePlayerOptions(Player &rPlayer) const {
+	rPlayer.SetAutopause(mAutopauseFlag);
+    rPlayer.SetPeek(mPeekFlag);
+	rPlayer.SetShowClocks(mShowClocksFlag);
+    rPlayer.SetShowGrid(mShowGridFlag);
+	rPlayer.SetShowScores(mShowScoresFlag);
+	rPlayer.SetTileSize(mTileSizeItem);
 }
 
 void MenuBar::SetTileSize(IdType menuItem) {
@@ -157,7 +143,6 @@ void MenuBar::Update(void) {
     mViewMenu.ShowGrid(mShowGridFlag);
     mViewMenu.ShowScores(mShowScoresFlag);
     mViewMenu.ShowTiles(mPeekFlag);
-    mViewMenu.Autocenter(mAutocenterFlag);
     
 	mViewMenu.EnableItems(game_style, is_over);
 	mViewMenu.Enable(!is_paused);
@@ -173,10 +158,6 @@ bool MenuBar::AreClocksVisible(void) const {
     
 bool MenuBar::AreScoresVisible(void) const {
     return mShowScoresFlag;
-}
-
-bool MenuBar::IsAutocenter(void) const {
-    return mAutocenterFlag;
 }
 
 bool MenuBar::IsAutopause(void) const {

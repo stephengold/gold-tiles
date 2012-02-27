@@ -83,7 +83,6 @@ TOPWINDOW MENU
         MENUITEM "Show Sc&ores", IDM_SHOW_SCORES
         MENUITEM "&Peek", IDM_PEEK
         MENUITEM "A&nimation", IDM_ANIMATION
-        MENUITEM "A&utoCenter", IDM_AUTOCENTER
     }
     POPUP "&Help", HELP
     {

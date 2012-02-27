@@ -126,6 +126,13 @@ HINSTANCE Window::CopyModule(Window const &rOther) {
 	return result;
 }
 
+// display a simple dialog box with a pilot error message and an OK button
+void Window::ErrorBox(char const *message, char const *title) {
+	UINT options = MB_OK | MB_ICONERROR | MB_DEFBUTTON1 | MB_APPLMODAL;
+    int success = Win::MessageBox(Handle(), message, title, options);
+	ASSERT(success == IDOK);
+}
+
 void Window::ForceRepaint(void) {
 	ASSERT(mHandle != 0);
     RECT *entire_client_area = NULL;
@@ -191,11 +198,11 @@ LRESULT Window::HandleMessage(MessageType message, WPARAM wParameter, LPARAM lPa
     return result;
 }
 
-// display a simple dialog box with a message and an OK button
+// display a simple dialog box with a informational message and an OK button
 void Window::InfoBox(char const *message, char const *title) {
 	UINT options = MB_OK | MB_ICONINFORMATION | MB_DEFBUTTON1 | MB_APPLMODAL;
     int success = Win::MessageBox(Handle(), message, title, options);
-	ASSERT(success != 0);
+	ASSERT(success == IDOK);
 }
 
 /* static */ Window *Window::Lookup(HWND handle) {
@@ -304,6 +311,15 @@ void Window::UpdateMenuBar(void) {
 	// redraw all menus
 	BOOL success = Win::DrawMenuBar(mHandle);
 	ASSERT(success);
+}
+
+// display a simple dialog box with a warning message and buttons for Cancel, Try Again, and Continue
+int Window::WarnBox(char const *message, char const *title) {
+	UINT options = MB_CANCELTRYCONTINUE | MB_ICONERROR | MB_DEFBUTTON2 | MB_APPLMODAL;
+    int result = Win::MessageBox(Handle(), message, title, options);
+	ASSERT(result == IDCANCEL || result == IDTRYAGAIN || result == IDCONTINUE);
+
+    return result;
 }
 
 void Window::WarpCursor(Point const &rDestination) {

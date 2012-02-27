@@ -89,7 +89,6 @@
 #define IDM_SHOW_SCORES                         6208
 #define IDM_PEEK                                6209
 #define IDM_ANIMATION                           6210
-#define IDM_AUTOCENTER                          6211
 #define IDM_RULES                               6900
 #define IDM_WARRANTY                            6901
 #define IDM_ABOUT                               6902

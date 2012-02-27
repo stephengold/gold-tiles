@@ -51,6 +51,7 @@ public:
 	String        InventUnique(String const &prefix) const;
 	String        InventUnique(String const &prefix, String const &infix, 
 		                           String const &suffix) const;
+	void          MakeEmpty(void);
 	Strings       Unique(void) const;
 	void          Unappend(void);
 

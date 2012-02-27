@@ -371,7 +371,7 @@ bool Game::IsOver(void) const {
     bool result = false;
     
     // The game is over if (and only if) the stock bag is empty 
-    // and one hand has gone out.
+    // and one of the hands has gone out.
 
 	if (IsStockEmpty()) {
         Hands::ConstIterator hand;

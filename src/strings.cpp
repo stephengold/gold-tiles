@@ -124,6 +124,11 @@ Strings::ConstIterator Strings::Find(String const &rString) const {
 	return i_string;
 }
 
+void Strings::MakeEmpty(void) {
+	mList.clear();
+	ASSERT(IsEmpty());
+}
+
 void Strings::Unappend(void) {
 	ASSERT(!IsEmpty());
     mList.pop_back();

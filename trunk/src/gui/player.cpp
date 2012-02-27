@@ -22,17 +22,17 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "gui/player.hpp"
-#include "gui/resource.hpp"
-#include "project.hpp"    // ASSERT
+#include "gui/resource.hpp" // IDM_LARGE_TILES
+#include "project.hpp"      // ASSERT
 
 Player::Map Player::msMap;
 
 // lifecycle
 
 Player::Player(String const &rName):
-    mName(rName)
+    mName(rName),
+	mStartCellPosition(0, 0)
 {
-	mAutocenter = false;
 	mAutopause = false;
 	mPeek = false;
 	mShowClocks = false;
@@ -43,31 +43,32 @@ Player::Player(String const &rName):
 
 // The compiler-generated destructor is OK.
 
+// operators
+
+Player::operator Point(void) const {
+    return mStartCellPosition;
+}
 
 // misc methods
 
-/* static */ Player *Player::Lookup(String const &rName) {
+/* static */ Player &Player::rLookup(String const &rName) {
     ConstIterator i_player = msMap.find(rName);
 
-	Player *result = NULL;
+	Player *p_result = NULL;
     if (i_player != msMap.end()) {
-        result = i_player->second;
+        p_result = i_player->second;
     } else {
-		result = new Player(rName);
-	    ASSERT(result != NULL);
+		p_result = new Player(rName);
+	    ASSERT(p_result != NULL);
 
-		Pair new_mapping(rName, result); 
+		Pair new_mapping(rName, p_result); 
 	    InsertResult ins_result = msMap.insert(new_mapping);
 	    bool success = ins_result.second;
 	    ASSERT(success);
 	}
 
-	ASSERT(result != NULL);
-	return result;
-}
-
-void Player::SetAutocenter(bool value) {
-	mAutocenter = value;
+	ASSERT(p_result != NULL);
+	return *p_result;
 }
 
 void Player::SetAutopause(bool value) {
@@ -90,6 +91,10 @@ void Player::SetShowScores(bool value) {
     mShowScores = value;
 }
 
+void Player::SetStartCellPosition(Point const &rPoint) {
+	mStartCellPosition = rPoint;
+}
+
 void Player::SetTileSize(IdType value) {
 	ASSERT(value == IDM_LARGE_TILES
 		 || value == IDM_MEDIUM_TILES
@@ -104,9 +109,6 @@ IdType Player::TileSize(void) const {
 
 
 // inquiry methods
-bool Player::Autocenter(void) const {
-	return mAutocenter;
-}
 
 bool Player::Autopause(void) const {
     return mAutopause;

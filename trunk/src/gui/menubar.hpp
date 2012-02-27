@@ -42,9 +42,9 @@ public:
     // misc public methods
     void   GameOver(void);
     void   HandleMenuCommand(IdType);
-	void   LoadPlayerOptions(String const &rPlayerName);
+	void   LoadPlayerOptions(Player const &);
     void   NewGame(void);
-	void   SavePlayerOptions(String const &rPlayerName) const;
+	void   SavePlayerOptions(Player &) const;
     void   SetTileSize(IdType);
 	IdType TileSize(void) const;
     void   Update(void);
@@ -52,14 +52,12 @@ public:
     // public inquiry methods
     bool AreClocksVisible(void) const;    
     bool AreScoresVisible(void) const;
-    bool IsAutocenter(void) const;
     bool IsAutopause(void) const;    
     bool IsGridVisible(void) const;
     bool IsPeeking(void) const;
 
 private:
 	// private data
-	bool             mAutocenterFlag;
 	bool             mAutopauseFlag;
 	FileMenu         mFileMenu;
 	SubMenu          mHelpMenu;

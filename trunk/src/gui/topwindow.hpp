@@ -73,7 +73,7 @@ private:
 	unsigned               mMouseUpCnt;
 	PCntType               mPadPixels;
 	Partial                mPartial;  // the move in progress
-	Point                  mStartCell; // logical coordinates of center of start cell
+	Point                  mStartCell;
 	Rect                   mSwapRect;
 	Cell                   mTargetCell;
 	bool                   mTargetCellFlag;
@@ -116,6 +116,7 @@ private:
     void         HandleMenuCommand(IdType);
 	void         HandleMouseMove(Point const &);
 	void         InfoBox(char const *message);
+	void         LoadPlayerOptions(Hand const &);
 	char const * Name(void) const;
 	void		 OfferNewGame(void);
 	void		 OfferSaveGame(void);
@@ -124,12 +125,15 @@ private:
 	void         ReleaseActiveTile(Point const &);
     void         Repaint(void);
     void         Resize(PCntType width, PCntType height);
+	void         RuleBox(char const *message);
+	void         SavePlayerOptions(Hand const &) const;
 	void         SetGame(Game *);
 	void         SetTileWidth(IdType command);
 	void         StopDragging(void);
 	PCntType     TileHeight(void) const;
 	void         TogglePause(void);
 	void         UpdateMenuBar(void);
+	int          WarnBox(char const *message);
 
 	// private inquiry methods
 	bool IsDragging(void) const;

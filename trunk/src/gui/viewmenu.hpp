@@ -41,7 +41,6 @@ public:
 
 	// misc public methods
     void Animation(bool);
-    void Autocenter(bool);
 	void EnableItems(GameStyleType, bool over);
 	void ShowClocks(bool);
 	void ShowGrid(bool);
@@ -54,7 +53,6 @@ private:
     MenuItem mSmallTiles, mMediumTiles, mLargeTiles;
     MenuItem mRecenter, mAnimation, mAttributes, mHints;
     MenuItem mShowClocks, mShowGrid, mShowScores, mShowTiles;
-    MenuItem mAutocenter;
 
 	// private lifecycle
 	ViewMenu (ViewMenu const &); // not copyable

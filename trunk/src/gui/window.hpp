@@ -64,6 +64,7 @@ protected:
 	PCntType       ClientAreaWidth(void) const;
 	void           Close(void);
 	Win::HINSTANCE CopyModule(Window const &);
+	void           ErrorBox(char const *message, char const *title);
 	void           ForceRepaint(void);
 	Win::HACCEL    GetAcceleratorTable(char const *resourceName);
 	Win::HMENU     GetMenu(char const *resourceName);
@@ -78,6 +79,7 @@ protected:
 	void           SetIcons(char const *resourceName);
 	void           SetTimer(unsigned msecs, unsigned id);
 	void           UpdateMenuBar(void);
+	int            WarnBox(char const *message, char const *title);
 	void           WarpCursor(Point const &);
 
 private:

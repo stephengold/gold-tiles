@@ -57,7 +57,7 @@ public:
 
 protected:
 	// misc protected methods
-    void      Close(Win::INT_PTR);
+    void      Close(int);
 	void      EnableButton(IdType, bool);
 	void      EnableEditBox(IdType, bool);
 	Win::HWND GetControlHandle(IdType) const;

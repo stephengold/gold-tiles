@@ -28,12 +28,16 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 // lifecycle
 
 Partial::Partial(Game const *pGame, HintType strength) {
+    Reset(pGame, strength);
+}
+// Partial(Partial const &);  compiler-generated copy constructor is OK
+// ~Partial(void);  compiler-generated destructor is OK
+
+void Partial::Reset(Game const *pGame, HintType strength) {
 	mpGame = pGame;
     mHintStrength = strength;
     Reset();
 }
-// Partial(Partial const &);  compiler-generated copy constructor is OK
-// ~Partial(void);  compiler-generated destructor is OK
 
 // method invoked by takeback and at the start of a turn
 void Partial::Reset(void) {
@@ -178,7 +182,7 @@ TileIdType Partial::GetActive(void) const {
     return mActiveId;
 }
 
-TileIdType Partial::GetCell(Cell const &rCell) const {
+TileIdType Partial::GetCellTile(Cell const &rCell) const {
     TileIdType result = Tile::ID_NONE;
     
     Tile const *p_tile = mBoard.GetCell(rCell);

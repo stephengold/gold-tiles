@@ -37,6 +37,7 @@ The Partial class is ...
 
 #include "board.hpp"   // HASA Board
 #include "cells.hpp"   // HASA Cells
+#include "game.hpp"
 #include "indices.hpp" // HASA Indices
 #include "tiles.hpp"   // HASA Tiles
 
@@ -53,11 +54,12 @@ enum HintType {
 class Partial {
 public:
 	// public lifecycle
-	Partial(Game const *, HintType strength = HINT_DEFAULT);
+	Partial(Game const *, HintType);
 	// no default constructor
     //Partial(Partial const &);  compiler-generated copy constructor is OK
     //~Partial(void);
 	void Reset(void);
+	void Reset(Game const *, HintType);
 
 	// operators
     //Partial &operator=(Partial const &);  compiler-generated assignment operator is OK
@@ -76,7 +78,7 @@ public:
 	Cell          FirstHinted(void);
 	GameStyleType GameStyle(void) const;
 	TileIdType    GetActive(void) const;
-	TileIdType    GetCell(Cell const &) const;
+	TileIdType    GetCellTile(Cell const &) const;
 	Move          GetMove(bool includeActive) const;
 	Tile          GetTileById(TileIdType) const;
 	Tile          GetTileByIndex(unsigned) const;
@@ -103,10 +105,14 @@ public:
 	bool IsPass(void) const;
 	bool IsVisible(Cell const &);
 
+protected:
+	// protected data
+	Game const *mpGame;
+
 private:
+	// private data
 	TileIdType   mActiveId;        // tile actively being dragged (or else Tile::ID_NONE)
     Board        mBoard;
-	Game const *mpGame;
 	Cells        mHintedCells;     // cached choice of cells
 	bool         mHintedCellsValid;
 	HintType     mHintStrength;

@@ -43,6 +43,8 @@ public:
     // ~WindowClass(void);  compiler-generated destructor is OK
 
 	// misc public methods
+	PCntType        ClientAreaHeight(void) const;
+	PCntType        ClientAreaWidth(void) const;
 	Win::HWND       Handle(void) const;
 	Win::LRESULT    HandleMessage(MessageType, Win::WPARAM, Win::LPARAM); 
     static Window * Lookup(Win::HWND);
@@ -60,8 +62,6 @@ protected:
 	// misc protected methods
 	void           CaptureMouse(void);
 	void           Center(void);
-	PCntType       ClientAreaHeight(void) const;
-	PCntType       ClientAreaWidth(void) const;
 	void           Close(void);
 	Win::HINSTANCE CopyModule(Window const &);
 	void           ErrorBox(char const *message, char const *title);

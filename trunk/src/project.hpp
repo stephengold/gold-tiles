@@ -53,6 +53,7 @@ class Tiles;
 class Canvas;
 class Dialog;
 class FileMenu;
+class GameView;
 class Graphics;
 class HandBox;
 class HintBox;

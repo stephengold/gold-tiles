@@ -79,6 +79,10 @@ private:
 	// misc private methods
     CellConstIterator Find(IndexType northing, IndexType easting) const;
     CellIterator	  Find(IndexType northing, IndexType easting);
+    
+    // misc inquiry methods
+    bool IsEmptyColumn(IndexType) const;
+    bool IsEmptyRow(IndexType) const;
 };
 
 #endif

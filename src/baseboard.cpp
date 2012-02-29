@@ -154,6 +154,26 @@ void BaseBoard::MakeEmpty(Cell const &rCell) {
     TileIterator i_tile = mTiles.find(id);
     ASSERT(i_tile != mTiles.end());
     mTiles.erase(i_tile);
+
+    // shrink the limits as needed    
+    while (row != 0 && IsEmptyRow(row)) {
+        if (row == mNorthMax) {
+            mNorthMax --;
+        } else if (row == -mSouthMax) {
+            mSouthMax --;
+        } else {
+            break;
+        }
+    }
+    while (column != 0 && IsEmptyColumn(column)) {
+        if (column == mEastMax) {
+            mEastMax --;
+        } else if (column == -mWestMax) {
+            mWestMax --;
+        } else {
+            break;
+        }
+    }
 }
 
 // get the northern limit of the board
@@ -167,6 +187,7 @@ void BaseBoard::PlayOnCell(Cell const &rCell, Tile const &rTile) {
     TileIdType id = rTile.Id();
     ASSERT(mTiles.find(id) == mTiles.end());
 
+    // expand the limits as needed
     IndexType n = rCell.Row();
     if (n > mNorthMax) {
         mNorthMax = n;
@@ -198,4 +219,35 @@ IndexType BaseBoard::SouthMax(void) const {
 // get the western limit of the board
 IndexType BaseBoard::WestMax(void) const {
 	return mWestMax;
+}
+
+
+// inquiry methods
+
+bool BaseBoard::IsEmptyColumn(IndexType column) const {
+    bool result = true;
+    
+    for (IndexType row = -mWestMax; row <= mEastMax; row++) {
+        CellConstIterator i_cell = Find(row, column);
+        if (i_cell != mCells.end()) {
+            result = false;
+            break;
+        }
+    }
+    
+    return result;
+}
+
+bool BaseBoard::IsEmptyRow(IndexType row) const {
+    bool result = true;
+    
+    for (IndexType column = -mSouthMax; column <= mNorthMax; column++) {
+        CellConstIterator i_cell = Find(row, column);
+        if (i_cell != mCells.end()) {
+            result = false;
+            break;
+        }
+    }
+    
+    return result;
 }

@@ -34,9 +34,6 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 #include "gui/topwindow.hpp"
 #include "gui/win_types.hpp"
 #include "gui/windowclass.hpp"
-#include "gui/yesno.hpp"
-#include "hand.hpp"
-#include "move.hpp"
 #include "strings.hpp"
 
 // static data of the class

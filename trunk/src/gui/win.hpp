@@ -30,6 +30,7 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace Win {
 #define _M_CEE_SAFE
+#define WINVER 0x0500
 #include <Windows.h>
 #undef _M_CEE_SAFE
 };

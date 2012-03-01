@@ -75,6 +75,7 @@ public:
 	unsigned      CountSwap(void) const;
 	unsigned      CountTiles(void) const;
 	void          Deactivate(void);
+	void          FindBestMove(Partial &, unsigned &) const;
 	Cell          FirstHinted(void);
 	GameStyleType GameStyle(void) const;
 	TileIdType    GetActive(void) const;
@@ -86,7 +87,9 @@ public:
 	void          HandToSwap(void);               // move the active tile
 	Cell          LocateTile(void) const;
 	Cell          LocateTile(TileIdType) const;
+	unsigned      Score(void) const;
 	void          SetHintStrength(HintType);
+	void          Suggest(void);
 	void          SwapAll(void);
 	void          SwapToHand(void);               // move the active tile
 	

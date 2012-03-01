@@ -157,6 +157,37 @@ void Partial::Deactivate(void) {
     }
 }
 
+void Partial::FindBestMove(Partial &rBest, unsigned &rBestScore) const {
+    ASSERT(HaveGame());
+    Partial temp = *this;
+    temp.Deactivate();
+    temp.SetHintStrength(HINT_USABLE_SELECTED);
+    unsigned score = temp.Score();
+
+    if (score > rBestScore) {        
+        rBest = temp;
+        rBestScore = score;
+    }
+
+	for (unsigned i = 0; i < CountTiles(); i++) {
+        Tile tile = mTiles[i];
+	    TileIdType id = tile.Id();
+	    if (temp.IsInHand(id)) {
+            temp.Activate(id);
+            temp.SetHintedCells();
+            Cells cells = temp.mHintedCells;
+            Cells::ConstIterator i_cell;
+            for (i_cell = cells.begin(); i_cell != cells.end(); i_cell++) {
+                Cell cell = *i_cell;
+                temp.HandToCell(cell);
+                temp.FindBestMove(rBest, rBestScore);
+                temp.BoardToHand();
+            }
+            temp.Deactivate();
+        }    
+    }
+}
+
 Cell Partial::FirstHinted(void) {
     if (!mHintedCellsValid) {
         SetHintedCells();
@@ -274,6 +305,15 @@ Cell Partial::LocateTile(TileIdType id) const {
     return result;
 }
 
+unsigned Partial::Score(void) const {
+    ASSERT(GetActive() == Tile::ID_NONE);
+    
+    Move move = GetMove(false);
+    unsigned result = mBoard.ScoreMove(move);
+    
+    return result;
+}
+
 void Partial::SetHintedCells(void) {
     ASSERT(!mHintedCellsValid);
     ASSERT(HaveGame());
@@ -371,6 +411,25 @@ void Partial::SetHintStrength(HintType strength) {
         mHintedCellsValid = false;
 	}
     mHintStrength = strength;
+}
+
+void Partial::Suggest(void) {
+    ASSERT(mActiveId == Tile::ID_NONE);
+    ASSERT(HaveGame());
+
+    mPlayedTileCnt = 0;
+	mSwapIds.MakeEmpty();
+    mBoard = Board(*mpGame);
+
+    Partial best = *this;
+    unsigned best_score = 0;
+    FindBestMove(best, best_score);
+    if (best_score == 0 && CanSwapAll()) {
+        SwapAll();
+    } else {
+        best.SetHintStrength(mHintStrength);
+        *this = best;
+    }
 }
 
 void Partial::SwapAll(void) {
@@ -516,15 +575,16 @@ bool Partial::IsValidNextStep(
 }
 
 bool Partial::IsVisible(Cell const &rCell) {
-	int fringe = 1;
+	int row_fringe = 1;
+	int column_fringe = 1;
 	if (Cell::Grid() == GRID_HEX) {
-		fringe = 2;
+		row_fringe = 2;
 	}
 
-    IndexType top_row = fringe + mBoard.NorthMax();
-    IndexType bottom_row = -fringe - mBoard.SouthMax();
-    IndexType right_column = fringe + mBoard.EastMax();
-    IndexType left_column = -fringe - mBoard.WestMax();
+    IndexType top_row = row_fringe + mBoard.NorthMax();
+    IndexType bottom_row = -row_fringe - mBoard.SouthMax();
+    IndexType right_column = column_fringe + mBoard.EastMax();
+    IndexType left_column = -column_fringe - mBoard.WestMax();
     ASSERT(bottom_row <= top_row);
     ASSERT(left_column <= right_column);
 

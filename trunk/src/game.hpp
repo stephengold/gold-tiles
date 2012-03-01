@@ -109,7 +109,6 @@ private:
     void     DisplayScores(void) const;
     void     FirstTurn(void);
     void     NextTurn(void);
-    unsigned ScoreMove(Move const &) const;
 };
 
 #endif

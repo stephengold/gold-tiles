@@ -45,9 +45,11 @@ GameView::GameView(Game const &rGame):
     mSwapRect(0, 0, 0, 0)
 {
     mColorAttributeCnt = 1;
+    mpMenuBar = NULL;
     mPadPixels = 6;
 	mTargetCellFlag = false;
-
+	SetTileWidth(IDM_LARGE_TILES);
+	mpWindow = NULL;
 }
 
 // The compiler-generated destructor is OK.
@@ -187,15 +189,16 @@ void GameView::DrawBlankTile(Canvas &rCanvas, Point const &rCenter, bool oddFlag
 void GameView::DrawBoard(Canvas &rCanvas, unsigned showLayer) {
     Board board = Board(*this);
 
-	int fringe = 1;
+	int row_fringe = 1;
+	int column_fringe = 1;
 	if (Cell::Grid() == GRID_HEX) {
-		fringe = 2;
+		row_fringe = 2;
 	}
 
-    IndexType top_row = fringe + board.NorthMax();
-    IndexType bottom_row = -fringe - board.SouthMax();
-    IndexType right_column = fringe + board.EastMax();
-    IndexType left_column = -fringe - board.WestMax();
+    IndexType top_row = row_fringe + board.NorthMax();
+    IndexType bottom_row = -row_fringe - board.SouthMax();
+    IndexType right_column = column_fringe + board.EastMax();
+    IndexType left_column = -column_fringe - board.WestMax();
     ASSERT(bottom_row <= top_row);
     ASSERT(left_column <= right_column);
 

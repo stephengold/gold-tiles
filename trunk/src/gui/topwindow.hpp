@@ -104,6 +104,7 @@ private:
 	int          WarnBox(char const *message);
 
 	// private inquiry methods
+	bool AreUnsavedChanges(void) const;
 	bool IsGameOver(void) const;
 	bool IsGamePaused(void) const;
 };

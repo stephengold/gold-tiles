@@ -288,12 +288,6 @@ unsigned Game::Redundancy(void) const {
 	return mRedundancy;
 }
 
-unsigned Game::ScoreMove(Move const &rMove) const {
-    unsigned result = mBoard.ScoreMove(rMove);
-
-    return result;
-}
-
 int Game::Seconds(Hand &rHand) const {
 	int result = rHand.Seconds(); 
 	if (mSecondsPerHand > 0) {

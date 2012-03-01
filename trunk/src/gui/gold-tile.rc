@@ -56,7 +56,7 @@ TOPWINDOW MENU
     {
         MENUITEM "&Play\tEnter", IDM_PLAY_PLAY
         MENUITEM "Take &back\tEsc", IDM_TAKE_BACK
-        MENUITEM "&Hint\tH", IDM_HINT
+        MENUITEM "Su&ggest\tG", IDM_SUGGEST
         MENUITEM "Pause", IDM_PAUSE
         MENUITEM "S&wap All", IDM_SWAP_ALL
         MENUITEM "Pa&ss", IDM_PASS
@@ -390,7 +390,7 @@ HOTKEYS ACCELERATORS
     VK_F1,         IDM_RULES, VIRTKEY
     VK_F4,         IDM_EXIT, VIRTKEY, ALT
     67,            IDM_RECENTER, VIRTKEY
-    72,            IDM_HINT, VIRTKEY
+    71,            IDM_SUGGEST, VIRTKEY
     80,            IDM_PRINT, VIRTKEY
     83,            IDM_SAVE, VIRTKEY
     89,            IDM_REDO, VIRTKEY

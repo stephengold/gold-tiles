@@ -64,6 +64,17 @@ Tiles::operator String(void) const {
     return result;
 }
 
+Tiles::operator Indices(void) const {
+    Indices result;
+    
+    ConstIterator i_tile;
+    for (i_tile = mMap.begin(); i_tile != mMap.end(); i_tile++) {
+		TileIdType id = i_tile->first;
+		result.Add(id);
+    }
+    
+    return result;
+}
 
 // misc
 

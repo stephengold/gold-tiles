@@ -38,6 +38,7 @@ public:
     // Tiles &operator=(Tiles const &);  compiler-generated assignment method is OK
 	bool operator==(Tiles const &) const;
 	Tile operator[](unsigned) const;
+	operator Indices(void) const;
 	operator String(void) const;
 
 	// misc public methods

@@ -276,6 +276,7 @@ Cell Partial::LocateTile(TileIdType id) const {
 
 void Partial::SetHintedCells(void) {
     ASSERT(!mHintedCellsValid);
+    ASSERT(HaveGame());
 
 	// start with no cells hinted
     mHintedCells.MakeEmpty();
@@ -285,21 +286,22 @@ void Partial::SetHintedCells(void) {
 	}
 
     // hint all valid empty cells (from start of turn)
-	int fringe = 1;
+	int row_fringe = 1;
+	int column_fringe = 1;
 	if (Cell::Grid() == GRID_HEX) {
-		fringe = 2;
+		row_fringe = 2;
 	}
-    IndexType top_row = fringe + mBoard.NorthMax();
-    IndexType bottom_row = -fringe - mBoard.SouthMax();
-    IndexType right_column = fringe + mBoard.EastMax();
-    IndexType left_column = -fringe - mBoard.WestMax();
+    IndexType top_row = row_fringe + mBoard.NorthMax();
+    IndexType bottom_row = -row_fringe - mBoard.SouthMax();
+    IndexType right_column = column_fringe + mBoard.EastMax();
+    IndexType left_column = -column_fringe - mBoard.WestMax();
     ASSERT(bottom_row <= top_row);
     ASSERT(left_column <= right_column);
     for (IndexType row = top_row; row >= bottom_row; row--) {
         for (IndexType column = left_column; column <= right_column; column++) {
 			if (Cell::IsValid(row, column)) {
                 Cell cell(row, column);
-                if (HaveGame() && mpGame->HasEmptyCell(cell)) {
+                if (mpGame->HasEmptyCell(cell)) {
                     mHintedCells.Add(cell);
                 }
 			}
@@ -310,14 +312,19 @@ void Partial::SetHintedCells(void) {
 		return;
 	}
     
-    // unhint any cells not connected to the Start
+    // unhint any cells that are not the start or the neighbor of a used cell
 	Cells base = mHintedCells;
 	mHintedCells.MakeEmpty();
-    Cells::Iterator i_cell;
-    for (i_cell = base.begin(); i_cell != base.end(); i_cell++) {
-        Cell cell = *i_cell;
-        if (mBoard.ConnectsToStart(cell)) {
-            mHintedCells.insert(cell);
+	if (mBoard.IsEmpty()) {
+        Cell start;
+        mHintedCells.Add(start);
+    } else {
+        Cells::Iterator i_cell;
+        for (i_cell = base.begin(); i_cell != base.end(); i_cell++) {
+            Cell cell = *i_cell;
+            if (mBoard.HasNeighbor(cell)) {
+                mHintedCells.Add(cell);
+            }
         }
     }
 	if (mHintStrength == HINT_CONNECTED) {
@@ -340,7 +347,6 @@ void Partial::SetHintedCells(void) {
         if (mHintStrength == HINT_USABLE_SELECTED && mActiveId != Tile::ID_NONE) {
             include_tile = (mActiveId == id);
         }
-            
 		if (include_tile) {
             AddValidNextUses(move, tile, base);
         }

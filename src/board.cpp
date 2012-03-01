@@ -232,39 +232,6 @@ bool Board::AreAllEmpty(Cells const &rCells) const {
     return result;
 }
 
-bool Board::ConnectsToStart(Cell const &rCell) const {
-	Cells done;
-    bool result = ConnectsToStart(rCell, done);
-
-	return result;
-}
-
-bool Board::ConnectsToStart(Cell const &rCell, Cells &rDoneCells) const { // recursive
-    bool result = true;
-    
-	ASSERT(rCell.IsValid());
-    if (!rCell.IsStart()) {
-        result = false;
-        rDoneCells.insert(rCell);
-
-        for (int i_dir = DIRECTION_FIRST; i_dir <= DIRECTION_LAST; i_dir++) {
-			DirectionType direction = (DirectionType)i_dir;
-			if (rCell.HasNeighbor(direction)) {
-                Cell look(rCell, direction);
-				ASSERT(look.IsValid());
-                if (!HasEmptyCell(look) && 
-				    !rDoneCells.Contains(look) && 
-				    ConnectsToStart(look, rDoneCells))
-			    {
-                    result = true;
-                    break;
-                }
-			}
-        }
-    }
-    return result;
-}
-
 bool Board::Contains(Tile const &rTile) const {
 	Cell cell;
 	TileIdType id = rTile.Id();
@@ -280,13 +247,13 @@ bool Board::ContainsId(TileIdType id) const {
 	return result;
 }
 
-bool Board::DoesAnyConnectToStart(Cells const &rCells) const {
+bool Board::DoesAnyHaveNeighbor(Cells const &rCells) const {
     bool result = false;
     
-    Cells::const_iterator i_cell;
+    Cells::ConstIterator i_cell;
     for (i_cell = rCells.begin(); i_cell != rCells.end(); i_cell++) {
 		Cell cell = *i_cell;
-        if (ConnectsToStart(cell)) {
+        if (HasNeighbor(cell)) {
             result = true;
             break;
         }
@@ -299,6 +266,24 @@ bool Board::HasEmptyCell(Cell const &rCell) const {
     Tile const *p_tile = GetCell(rCell);
     bool result = (p_tile == NULL);
 
+    return result;
+}
+
+bool Board::HasNeighbor(Cell const &rCell) const {
+    bool result = false;
+    
+    for (int i_dir = DIRECTION_FIRST; i_dir <= DIRECTION_LAST; i_dir++) {
+	    DirectionType direction = DirectionType(i_dir);
+		if (rCell.HasNeighbor(direction)) {
+            Cell look(rCell, direction);
+			ASSERT(look.IsValid());
+            if (!HasEmptyCell(look)) {
+                result = true;
+                break;
+            }
+		}
+    }
+    
     return result;
 }
 
@@ -442,17 +427,17 @@ bool Board::IsValidMove(Move const &rMove, char const *&rReason) const {
         }
     }
 
-    // make sure one of the cells will connect to the start
-    if (!DoesAnyConnectToStart(cells)) {
-		if (IsEmpty()) {
+	if (IsEmpty()) {
+        if (!cells.IsAnyStart()) {
             D(std::cout << "Your first tile must be played on the start cell. "
 				<< "To change this tile, you must take back ALL your tiles." << std::endl);
-		    rReason = "START";
-		} else {
-            D(std::cout << "Each cell you use must be a neighbor of a used cell." << std::endl);
-		    rReason = "NEIGHBOR";
-		}
-        return false;
+	        rReason = "START";
+	        return false;
+        }
+    } else if (!DoesAnyHaveNeighbor(cells)) {
+        D(std::cout << "Each cell you use must be a neighbor of a used cell." << std::endl);
+		rReason = "NEIGHBOR";
+        return false;   
     }
 
     // make a copy of the board and place the tiles on it

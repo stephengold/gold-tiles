@@ -49,8 +49,8 @@ public:
 	// public inquiry methods
 	bool Contains(Tile const &) const;
 	bool ContainsId(TileIdType) const;
-	bool ConnectsToStart(Cell const &) const;
     bool HasEmptyCell(Cell const &) const;
+    bool HasNeighbor(Cell const &) const;
 	bool IsEmpty(void) const;
     bool IsValidMove(Move const &) const;
     bool IsValidMove(Move const &, char const *&rReason) const;
@@ -69,8 +69,7 @@ private:
     bool AreAllCompatible(Cells const &, DirectionType) const;
     bool AreAllCompatible(Cells const &) const;
     bool AreAllEmpty(Cells const &) const;
-	bool ConnectsToStart(Cell const &, Cells &) const;
-    bool DoesAnyConnectToStart(Cells const &) const;
+    bool DoesAnyHaveNeighbor(Cells const &) const;
     bool IsDirectionCompatible(Cell const &, DirectionType) const;
     bool IsConnectedDirection(Cells const &, DirectionType) const;
 };

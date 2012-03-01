@@ -50,6 +50,7 @@ public:
 	// public inquiry methods
 	bool AreAllInSameOrtho(DirectionType) const;
     bool Contains(Cell const &) const;
+    bool IsAnyStart(void) const;
 	bool IsEmpty(void) const;
 };
 

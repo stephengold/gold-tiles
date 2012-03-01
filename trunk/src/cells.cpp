@@ -93,6 +93,20 @@ bool Cells::Contains(Cell const &rCell) const {
     return result;
 }
 
+bool Cells::IsAnyStart(void) const {
+    bool result = false;
+    
+    ConstIterator i_cell;
+    for (i_cell = begin(); i_cell != end(); i_cell++) {
+        if (i_cell->IsStart()) {
+            result = true;
+            break;
+        }
+    }
+    
+    return result;
+}
+
 bool Cells::IsEmpty(void) const {
 	bool result = (size() == 0);
 

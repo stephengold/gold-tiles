@@ -69,7 +69,7 @@
 #define IDM_EXIT                                6008
 #define IDM_PLAY_PLAY                           6100
 #define IDM_TAKE_BACK                           6101
-#define IDM_HINT                                6102
+#define IDM_SUGGEST                             6102
 #define IDM_PAUSE                               6103
 #define IDM_SWAP_ALL                            6104
 #define IDM_PASS                                6105

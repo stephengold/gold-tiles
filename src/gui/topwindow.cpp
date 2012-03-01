@@ -261,7 +261,7 @@ void TopWindow::HandleMenuCommand(IdType command) {
 		    break;
 
 		case IDM_CLOSE:
-	        if (mpGame != NULL && mpGame->HasUnsavedChanges()) {
+	        if (AreUnsavedChanges()) {
 				OfferSaveGame();
 			}
 			SetGame(NULL);
@@ -282,20 +282,28 @@ void TopWindow::HandleMenuCommand(IdType command) {
 		    break;
 
 	    case IDM_TAKE_BACK:
+		    ASSERT(!IsGameOver());
+			ASSERT(!IsGamePaused());
 			mGameView.Reset();
 		    break;
 
+        case IDM_SUGGEST:
+		    ASSERT(!IsGameOver());
+			ASSERT(!IsGamePaused());
+            mGameView.Suggest();
+            break;
+             
 	    case IDM_PAUSE:
 			TogglePause();
 		    break;
 
 		case IDM_SWAP_ALL:
+		    ASSERT(!IsGameOver());
+			ASSERT(!IsGamePaused());
 			mGameView.SwapAll();
 			break;
 
 		case IDM_RESIGN:
-			break;
-
 		case IDM_RESTART:
 		case IDM_UNDO:
 		case IDM_REDO:
@@ -505,6 +513,7 @@ void TopWindow::LoadPlayerOptions(Hand const &rHand) {
 	Player const &r_player = Player::rLookup(player_name);
 	mpMenuBar->LoadPlayerOptions(r_player);
 	mGameView.SetStartCellPosition(Point(r_player));
+	mGameView.SetTileWidth(r_player.TileSize());
 }
 
 int TopWindow::MessageDispatchLoop(void) {
@@ -1143,6 +1152,15 @@ int TopWindow::WarnBox(char const *messageText) {
 
 
 // inquiry methods
+
+bool TopWindow::AreUnsavedChanges(void) const {
+     bool result = false;
+     if (mpGame != NULL) {
+         result = mpGame->HasUnsavedChanges();
+     }
+     
+     return result;
+}
 
 bool TopWindow::IsDraggingBoard(void) const {
 	return mDragBoardFlag;

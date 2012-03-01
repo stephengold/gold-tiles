@@ -31,7 +31,7 @@ PlayMenu::PlayMenu(Menu const &rRootMenu, unsigned position):
 	SubMenu(rRootMenu, position),
     mPlay(rRootMenu, IDM_PLAY_PLAY),
     mTakeBack(rRootMenu, IDM_TAKE_BACK),
-    mHint(rRootMenu, IDM_HINT),
+    mSuggest(rRootMenu, IDM_SUGGEST),
     mPause(rRootMenu, IDM_PAUSE),
     mSwapAll(rRootMenu, IDM_SWAP_ALL),
     mPass(rRootMenu, IDM_PASS),
@@ -61,7 +61,7 @@ void PlayMenu::EnableItems(
 {
     mPlay.Enable(!isOver && !isPaused && !isPass);
     mTakeBack.Enable(!isOver && !isPaused && !isPass);
-    mHint.Enable(false);    // TODO
+    mSuggest.Enable(gameStyle != GAME_STYLE_CHALLENGE);
     mPause.Enable(!isOver);
 	mSwapAll.Enable(!isOver && !isPaused && isPass && canSwapAll);
     mPass.Enable(!isOver && !isPaused && isPass);

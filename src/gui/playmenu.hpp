@@ -46,7 +46,7 @@ public:
 
 private:
 	// private data
-    MenuItem mPlay, mTakeBack, mHint, mPause, mSwapAll, mPass, mResign;
+    MenuItem mPlay, mTakeBack, mSuggest, mPause, mSwapAll, mPass, mResign;
     MenuItem mRestart, mUndo, mRedo, mAutopause;
 
 	// private lifecycle

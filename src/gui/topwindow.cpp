@@ -129,7 +129,7 @@ void TopWindow::Initialize(CREATESTRUCT const &rCreateStruct) {
 	ASSERT(mpMenuBar != NULL);
 
 	mGameView.SetWindow(this, mpMenuBar);
-    mGameView.SetTileWidth(IDM_LARGE_TILES);
+    SetTileWidth(IDM_LARGE_TILES);
 	if (mpGame != NULL) {
 	    Hands hands = Hands(*mpGame);
 		Hands::ConstIterator i_hand;
@@ -322,7 +322,7 @@ void TopWindow::HandleMenuCommand(IdType command) {
         case IDM_SMALL_TILES:
         case IDM_MEDIUM_TILES:
         case IDM_LARGE_TILES:
-            mGameView.SetTileWidth(command);
+            SetTileWidth(command);
             break;
         case IDM_RECENTER:
             Resize(ClientAreaWidth(), ClientAreaHeight());

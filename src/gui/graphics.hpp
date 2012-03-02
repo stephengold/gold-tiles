@@ -38,8 +38,7 @@ contexts:  mDraw for drawing and mDevice for the physical device.
 class Graphics {
 public:
     // public lifecycle
-    Graphics(Win::HDC, Win::HWND, bool releaseMe, bool doubleBufferingOption, 
-              PCntType width, PCntType height);
+    Graphics(Win::HDC, Window &, bool releaseMe, bool doubleBufferingOption);
 	// no default constructor
 	virtual ~Graphics(void);
 

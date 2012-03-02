@@ -36,7 +36,7 @@ static INT_PTR CALLBACK message_handler(
 	lParameter;  // unused parameter
 	ASSERT(windowHandle != NULL);
     HintBox *p_box = (HintBox *)Window::Lookup(windowHandle);
-    ASSERT(p_box->Handle() == windowHandle);
+    ASSERT(HWND(*p_box) == windowHandle);
 	INT_PTR result = p_box->HandleMessage(message, wParameter);
 
 	return result;
@@ -105,6 +105,10 @@ INT_PTR HintBox::HandleMessage(MessageType message, WPARAM wParam) {
 	}
 
     return result;
+}
+
+char const *HintBox::Name(void) const {
+	return "Hint Controls - Gold Tile";
 }
 
 void HintBox::SetHintStrength(void) {

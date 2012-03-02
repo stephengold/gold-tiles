@@ -35,7 +35,7 @@ static INT_PTR CALLBACK yesNoMessageHandler(
 	lParameter;  // unused parameter
 	ASSERT(windowHandle != NULL);
     YesNo *p_box = (YesNo *)Window::Lookup(windowHandle);
-    ASSERT(p_box->Handle() == windowHandle);
+    ASSERT(HWND(*p_box) == windowHandle);
 	int result = p_box->HandleMessage(message, wParameter);
 
 	return result;

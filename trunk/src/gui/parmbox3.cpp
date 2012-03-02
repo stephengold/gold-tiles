@@ -34,7 +34,7 @@ static int CALLBACK message_handler3(
 {
 	ASSERT(windowHandle != NULL);
     ParmBox3 *p_box = (ParmBox3 *)Window::Lookup(windowHandle);
-    ASSERT(p_box->Handle() == windowHandle);
+    ASSERT(HWND(*p_box) == windowHandle);
 	int result = p_box->HandleMessage(message, wParameter, lParameter);
 
 	return result;

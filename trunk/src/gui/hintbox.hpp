@@ -59,6 +59,7 @@ private:
     HintBox &operator=(HintBox const &); // not assignable
 
 	// misc private methods
+	char const * Name(void) const;
 	void SetHintStrength(void);
 	void SetHintStrength(IdType buttonId);
 };

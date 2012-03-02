@@ -71,15 +71,18 @@ protected:
     void      SetTextValue(IdType, ValueType);
 
 private:
+	// private data
+	Win::DLGPROC mpMessageHandler;
+	char const *  mTemplateName;
+
 	// private lifecycle
     Dialog(Dialog const &);  // not copyable
 
 	// private operators
     Dialog &operator=(Dialog const &);  // not assignable
-	
-	// private data
-	Win::DLGPROC mpMessageHandler;
-	char const * mTemplateName;
+
+	// private methods
+	char const *Name(void) const;
 };
 
 // globals

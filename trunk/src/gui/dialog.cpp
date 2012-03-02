@@ -44,7 +44,7 @@ static INT_PTR CALLBACK message_handler(
     Dialog *p_dialog = (Dialog *)Window::Lookup(windowHandle);
 
 	INT_PTR result;
-    ASSERT(p_dialog->Handle() == windowHandle);
+    ASSERT(HWND(*p_dialog) == windowHandle);
     result = p_dialog->HandleMessage(message, wParameter);
 
 	return result;
@@ -68,8 +68,8 @@ int Dialog::Run(Window *pParent) {
 
 	// create a modal dialog box
 	HINSTANCE module = CopyModule(*pParent);
-	HWND parentHandle = pParent->Handle();
-	INT_PTR result = Win::DialogBox(module, mTemplateName, parentHandle, mpMessageHandler);
+	HWND parent_handle = HWND(*pParent);
+	INT_PTR result = Win::DialogBox(module, mTemplateName, parent_handle, mpMessageHandler);
 
 	ASSERT(result > 0);
 	return int(result);
@@ -78,7 +78,7 @@ int Dialog::Run(Window *pParent) {
 // misc methods
 
 void Dialog::Close(int result) {
-	HWND window = Handle();
+	HWND window = HWND(*this);
     Win::EndDialog(window, INT_PTR(result));
 }
 
@@ -96,7 +96,7 @@ void Dialog::EnableEditBox(IdType boxId, bool enable) {
 
 // get the window handle for a particular control
 HWND Dialog::GetControlHandle(IdType controlId) const {
-	HWND window_handle = Handle();
+	HWND window_handle = HWND(*this);
     HWND result = Win::GetDlgItem(window_handle, controlId);
     ASSERT(result != NULL);
 
@@ -113,7 +113,7 @@ Dialog::ValueType Dialog::GetSliderValue(IdType sliderId) {
 
 // get the text value of a label or editbox control
 String Dialog::GetTextString(IdType controlId) {
-	HWND window_handle = Handle();
+	HWND window_handle = HWND(*this);
 	char buffer[256];
 	int buffer_size = 256;
     UINT success = Win::GetDlgItemText(window_handle, controlId, buffer, buffer_size);
@@ -126,7 +126,7 @@ String Dialog::GetTextString(IdType controlId) {
 
 // get the numeric value of a label or editbox control
 Dialog::ValueType Dialog::GetTextValue(IdType controlId) {
-	HWND window_handle = Handle();
+	HWND window_handle = HWND(*this);
 
     BOOL success;
     BOOL sign = FALSE;
@@ -173,6 +173,10 @@ INT_PTR Dialog::HandleMessage(UINT message, WPARAM wParam) {
     return result;
 }
 
+char const *Dialog::Name(void) const {
+	return "Dialog Box - Gold Tile";
+}
+
 void Dialog::SetButton(IdType buttonId, bool value) {
 	HWND button_handle = GetControlHandle(buttonId);
 
@@ -209,7 +213,7 @@ Dialog::ValueType Dialog::SetSliderValue(IdType id, ValueType value) {
 
 // set the text value of a label or editbox control
 void Dialog::SetTextString(IdType controlId, String const &rString) {
-	HWND window_handle = Handle();
+	HWND window_handle = HWND(*this);
 
 	unsigned length = rString.Length();
     char *copy_text = new char[length + 1];
@@ -223,7 +227,7 @@ void Dialog::SetTextString(IdType controlId, String const &rString) {
 
 // change the numeric value displayed by an editbox or static label
 void Dialog::SetTextValue(IdType id, ValueType value) {
-	HWND window_handle = Handle();
+	HWND window_handle = HWND(*this);
 
     BOOL sign = FALSE;
     BOOL success = Win::SetDlgItemInt(window_handle, id, value, sign);

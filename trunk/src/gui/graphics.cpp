@@ -26,20 +26,16 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 #include "gui/graphics.hpp"
 #include "gui/poly.hpp"
 #include "gui/win_types.hpp"
+#include "gui/window.hpp"
 
 // lifecycle
 
-Graphics::Graphics(
-    HDC device,
-    HWND window,
-    bool releaseMe,
-    bool bufferFlag,
-    PCntType width,
-    PCntType height):
-    mRect(0, 0, width, height)
+Graphics::Graphics(HDC device, Window &rWindow, bool releaseMe, bool bufferFlag)
+:
+    mRect(Rect(rWindow))
 {
     mDevice = device;
-    mWindow = window;
+    mWindow = HWND(rWindow);
     mReleaseMe = releaseMe;
     
     if (!bufferFlag) {
@@ -50,6 +46,8 @@ Graphics::Graphics(
         ASSERT(mDraw != NULL);
         ASSERT(mDraw != mDevice);
 
+		PCntType width = mRect.Width();
+		PCntType height = mRect.Height();
         HGDIOBJ bitmap = Win::CreateCompatibleBitmap(mDevice, width, height);
         ASSERT(bitmap != NULL);
         mBitmapSave = Win::SelectObject(mDraw, bitmap);

@@ -23,6 +23,7 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "gui/window.hpp"
 #include "gui/win_types.hpp"
+#include "string.hpp"
 
 // static data
 
@@ -34,6 +35,7 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 Window::Window(void) {
 	mHandle = 0;
 	mModule = 0;
+	mPaintDevice = 0;
 }
 
 void Window::Initialize(CREATESTRUCT const &rCreateStruct) {
@@ -61,6 +63,10 @@ void Window::Initialize(CREATESTRUCT const &rCreateStruct) {
 
 // operators
 
+Window::operator HWND(void) const {
+	return mHandle;
+}
+
 Window::operator Rect(void) const {
 	Point origin(0,0);
     Rect result(origin, mClientAreaWidth, mClientAreaHeight);
@@ -71,8 +77,17 @@ Window::operator Rect(void) const {
 
 // misc methods
 
+void Window::BeginPaint(void) {
+	ASSERT(mPaintDevice == NULL);
+	ASSERT(mHandle != NULL);
+
+    mPaintDevice = Win::BeginPaint(mHandle, &mPaintStruct);
+
+    ASSERT(mPaintDevice != NULL);
+}
+
 void Window::CaptureMouse(void) {
-	HWND this_window = Handle();
+	HWND this_window = HWND(*this);
     Win::SetCapture(this_window);
 
 	ASSERT(IsMouseCaptured());
@@ -81,7 +96,7 @@ void Window::CaptureMouse(void) {
 // Center a window on its parent.
 // If it has no parent, center it on the desktop.
 void Window::Center(void) {
-	HWND this_window = Handle();
+	HWND this_window = HWND(*this);
     HWND owner = Win::GetParent(this_window);
     if (owner == NULL) {
         owner = Win::GetDesktopWindow();
@@ -126,10 +141,63 @@ HINSTANCE Window::CopyModule(Window const &rOther) {
 	return result;
 }
 
+void Window::Create(
+	String const &rClassName,
+	Rect const &rRect,
+	Window *pParent,
+	HINSTANCE applicationInstance)
+{
+	// Make this object accessable to its message handler before WM_CREATE.
+    ASSERT(mspNewlyCreatedWindow == NULL);
+	mspNewlyCreatedWindow = this;
+
+	LPCTSTR name = Name();
+	ASSERT(name != NULL);
+
+	LPCTSTR class_name = rClassName.c_str();
+	ASSERT(class_name != NULL);
+
+	DWORD window_style = WS_OVERLAPPEDWINDOW;
+	PCntType height = rRect.Height();
+	PCntType width = rRect.Width();
+	LogicalXType x = rRect.LeftX();
+	LogicalYType y = rRect.TopY();
+
+	HWND parent_handle = NULL;
+	if (pParent != NULL) {
+		parent_handle = HWND(*pParent);
+	}
+
+	HMENU menu_handle = NULL;
+	LPVOID parameters = NULL;
+
+    HWND handle = Win::CreateWindow(class_name, name, window_style, x, y, 
+                             width, height, parent_handle, menu_handle, 
+							 applicationInstance, parameters);
+    ASSERT(handle == mHandle);
+}
+
+/* static */ Rect Window::DesktopBounds(void) {
+	HWND desktop_handle = Win::GetDesktopWindow();
+	RECT rect;
+	Win::GetWindowRect(desktop_handle, &rect);
+	Rect result(rect);
+
+	return result;
+}
+
+void Window::EndPaint(void) {
+	ASSERT(mHandle != NULL);
+	ASSERT(mPaintDevice != NULL);
+
+    Win::EndPaint(mHandle, &mPaintStruct);
+	mPaintDevice = NULL;
+}
+
 // display a simple dialog box with a pilot error message and an OK button
 void Window::ErrorBox(char const *message, char const *title) {
 	UINT options = MB_OK | MB_ICONERROR | MB_DEFBUTTON1 | MB_APPLMODAL;
-    int success = Win::MessageBox(Handle(), message, title, options);
+    int success = Win::MessageBox(HWND(*this), message, title, options);
 	ASSERT(success == IDOK);
 }
 
@@ -155,9 +223,20 @@ HMENU Window::GetMenu(char const *resourceName) {
 	return result;
 }
 
-HWND Window::Handle(void) const {
-	HWND result = mHandle;
-	
+bool Window::GetMessage(MSG &rMessage, int &rExitCode) {
+    HWND any_window = NULL;
+	UINT no_filtering = 0;
+    BOOL success = Win::GetMessage(&rMessage, any_window, no_filtering, no_filtering);
+
+	bool result = false;
+	if (success == 0) {   // retrieved a WM_QUIT message
+		rExitCode = rMessage.wParam;
+		result = true;
+	} else if (success == -1) { // error in GetMessage()
+        rExitCode = -1;
+		result = true;
+	}
+
 	return result;
 }
 
@@ -191,7 +270,7 @@ LRESULT Window::HandleMessage(MessageType message, WPARAM wParameter, LPARAM lPa
 		}
 
 		default:  // invoke default message handler
-			result = Win::DefWindowProc(Handle(), message, wParameter, lParameter);
+			result = Win::DefWindowProc(mHandle, message, wParameter, lParameter);
 			break;
     }
 
@@ -201,7 +280,7 @@ LRESULT Window::HandleMessage(MessageType message, WPARAM wParameter, LPARAM lPa
 // display a simple dialog box with a informational message and an OK button
 void Window::InfoBox(char const *message, char const *title) {
 	UINT options = MB_OK | MB_ICONINFORMATION | MB_DEFBUTTON1 | MB_APPLMODAL;
-    int success = Win::MessageBox(Handle(), message, title, options);
+    int success = Win::MessageBox(mHandle, message, title, options);
 	ASSERT(success == IDOK);
 }
 
@@ -220,6 +299,16 @@ void Window::InfoBox(char const *message, char const *title) {
 	}
 
 	return result;
+}
+
+HDC Window::PaintDevice(void) const {
+	ASSERT(mPaintDevice != NULL);
+
+	return mPaintDevice;
+}
+
+void Window::ReleaseMouse(void) {
+    Win::ReleaseCapture();
 }
 
 void Window::SelfDestruct(void) {
@@ -307,6 +396,14 @@ void Window::Show(int how) {
     ASSERT(success);
 }
 
+void Window::TranslateAndDispatch(MSG &rMessage, HACCEL const &rTable) {
+	int translated = Win::TranslateAccelerator(mHandle, rTable, &rMessage);
+	if (!translated) {
+        Win::TranslateMessage(&rMessage); 
+        Win::DispatchMessage(&rMessage); 
+    } 
+}
+
 void Window::UpdateMenuBar(void) {
 	// redraw all menus
 	BOOL success = Win::DrawMenuBar(mHandle);
@@ -316,7 +413,7 @@ void Window::UpdateMenuBar(void) {
 // display a simple dialog box with a warning message and buttons for Cancel, Try Again, and Continue
 int Window::WarnBox(char const *message, char const *title) {
 	UINT options = MB_CANCELTRYCONTINUE | MB_ICONERROR | MB_DEFBUTTON2 | MB_APPLMODAL;
-    int result = Win::MessageBox(Handle(), message, title, options);
+    int result = Win::MessageBox(mHandle, message, title, options);
 	ASSERT(result == IDCANCEL || result == IDTRYAGAIN || result == IDCONTINUE);
 
     return result;

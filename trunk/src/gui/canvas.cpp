@@ -27,6 +27,7 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 #include "gui/poly.hpp"
 #include "gui/rect.hpp"
 #include "gui/win_types.hpp"
+#include "gui/window.hpp"
 #include "string.hpp"
 
 // static data
@@ -35,14 +36,8 @@ std::vector<Poly> Canvas::msShapes; // shapes for glyphs
 
 // lifecycle
 
-Canvas::Canvas(
-    HDC context,
-    HWND window,
-    bool releaseMe,
-    PCntType width,
-    PCntType height)
-:   
-    Graphics(context, window, releaseMe, true, width, height)
+Canvas::Canvas(Window &rWindow):
+    Graphics(rWindow.PaintDevice(), rWindow, false, true)
 {}
 
 

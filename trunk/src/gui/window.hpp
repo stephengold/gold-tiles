@@ -42,12 +42,16 @@ public:
 	Window(void);
     // ~WindowClass(void);  compiler-generated destructor is OK
 
+	// public operators
+	operator Win::HWND(void) const;
+    operator Rect(void) const;
+
 	// misc public methods
 	PCntType        ClientAreaHeight(void) const;
 	PCntType        ClientAreaWidth(void) const;
-	Win::HWND       Handle(void) const;
 	Win::LRESULT    HandleMessage(MessageType, Win::WPARAM, Win::LPARAM); 
     static Window * Lookup(Win::HWND);
+	Win::HDC        PaintDevice(void) const;
 	void            Show(int showHow);
 
 protected:
@@ -56,20 +60,25 @@ protected:
 	// protected lifecycle
     void Initialize(Win::CREATESTRUCT const &);
 
-	// protected operators
-    operator       Rect(void) const;
-
 	// misc protected methods
+	void           BeginPaint(void);
 	void           CaptureMouse(void);
 	void           Center(void);
 	void           Close(void);
 	Win::HINSTANCE CopyModule(Window const &);
+	void           Create(String const &rClassName, Rect const &, 
+		                  Window *pParent, Win::HINSTANCE);
+	static Rect    DesktopBounds(void);
+	void           EndPaint(void);
 	void           ErrorBox(char const *message, char const *title);
 	void           ForceRepaint(void);
 	Win::HACCEL    GetAcceleratorTable(char const *resourceName);
 	Win::HMENU     GetMenu(char const *resourceName);
+	bool           GetMessage(Win::MSG &, int &rExitCode);
 	void           InfoBox(char const *message, char const *title);
 	bool           IsMouseCaptured(void) const;
+	virtual char const * Name(void) const = 0;
+	void           ReleaseMouse(void);
 	void           SelfDestruct(void);
 	void           SetClientArea(PCntType width, PCntType height);
 	void           SetCursorBusy(void);
@@ -78,6 +87,7 @@ protected:
 	void           SetHandle(Win::HWND);
 	void           SetIcons(char const *resourceName);
 	void           SetTimer(unsigned msecs, unsigned id);
+	void           TranslateAndDispatch(Win::MSG &, Win::HACCEL const &);
 	void           UpdateMenuBar(void);
 	int            WarnBox(char const *message, char const *title);
 	void           WarpCursor(Point const &);
@@ -92,9 +102,11 @@ private:
 
 	static Map msMap;
 	
-    PCntType       mClientAreaWidth, mClientAreaHeight;
-    Win::HWND      mHandle;
-    Win::HINSTANCE mModule; // the module/instance which owns this window  TODO static?
+    PCntType         mClientAreaWidth, mClientAreaHeight;
+    Win::HWND        mHandle;
+    Win::HINSTANCE   mModule; // the module/instance which owns this window  TODO static?
+	Win::HDC         mPaintDevice;
+	Win::PAINTSTRUCT mPaintStruct;
 
 	// private lifecycle
     Window(Window const &); // not copyable

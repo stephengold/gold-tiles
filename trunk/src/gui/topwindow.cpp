@@ -55,7 +55,7 @@ static LRESULT CALLBACK message_handler(
 		// invoke default message handler
 		result = Win::DefWindowProc(windowHandle, message, wParam, lParam);
 	} else {
-     	ASSERT(window->Handle() == windowHandle);
+     	ASSERT(HWND(*window) == windowHandle);
         result = window->HandleMessage(message, wParam, lParam);
 	}
 
@@ -68,7 +68,7 @@ TopWindow::TopWindow(HINSTANCE applicationInstance, Game *pGame):
     mMouseLast(0, 0),
 	mGameView(*pGame)
 {
-	ASSERT(Handle() == 0);
+	ASSERT(HWND(*this) == 0);
 	ASSERT(applicationInstance != NULL);
 
 	LPCTSTR class_name = "TOPWINDOW";
@@ -79,36 +79,22 @@ TopWindow::TopWindow(HINSTANCE applicationInstance, Game *pGame):
 		mspClass->RegisterClass();
 	}
 
-	// Make this TopWindow object accessable to its message handler before WM_CREATE.
-    ASSERT(mspNewlyCreatedWindow == NULL);
-	mspNewlyCreatedWindow = this;
-
     mDragBoardFlag = false;
 	mpGame = pGame;
 	mInitialNewGame = (pGame == NULL);
     mpMenuBar = NULL;
 
-	HWND desktop_handle = Win::GetDesktopWindow();
-	RECT rect;
-	Win::GetWindowRect(desktop_handle, &rect);
-	Rect desktop_bounds(rect);
-
-	// create Microsoft Windows window
-	LPCTSTR name = Name();
-	DWORD window_style = WS_OVERLAPPEDWINDOW;
+	Rect desktop_bounds = DesktopBounds();
 	PCntType height = PCntType(0.8*double(desktop_bounds.Height()));
 	PCntType width = PCntType(0.8*double(desktop_bounds.Width()));
 	LogicalXType x = width/8;
 	LogicalYType y = height/8;
-	HWND parent = NULL;
-	HMENU menu = NULL;
-	LPVOID parameters = NULL;
-	ASSERT(class_name != NULL);
-	ASSERT(name != NULL);
-    HWND handle = Win::CreateWindow(class_name, name, window_style, x, y, 
-                             width, height, parent, menu, applicationInstance, 
-                             parameters);
-    ASSERT(Handle() == handle);
+	Rect rect(y, x, width, height);
+
+	// create Microsoft Windows window
+	String class_string(class_name);
+	Window *p_parent = NULL;
+	Create(class_string, rect, p_parent, applicationInstance);
 
 	// wait for message_handler() to receive a message with this handle
 }
@@ -290,7 +276,9 @@ void TopWindow::HandleMenuCommand(IdType command) {
         case IDM_SUGGEST:
 		    ASSERT(!IsGameOver());
 			ASSERT(!IsGamePaused());
+			SetCursorBusy();
             mGameView.Suggest();
+			SetCursorSelect();
             break;
              
 	    case IDM_PAUSE:
@@ -523,22 +511,11 @@ int TopWindow::MessageDispatchLoop(void) {
 
 	for (;;) {
         MSG message;
-	    HWND any_window = NULL;
-		UINT no_filtering = 0;
-        BOOL success = Win::GetMessage(&message, any_window, no_filtering, no_filtering);
-        if (success == 0) {   // retrieved a WM_QUIT message
-			exit_code = message.wParam;
-			break;
-		} else if (success == -1) { // error in GetMessage()
-            exit_code = -1;
+		bool done = GetMessage(message, exit_code);
+        if (done) {
 			break;
 		}
-
-		int translated = Win::TranslateAccelerator(Handle(), table, &message);
-		if (!translated) {
-            Win::TranslateMessage(&message); 
-            Win::DispatchMessage(&message); 
-        } 
+		TranslateAndDispatch(message, table);
     }
 
 	return exit_code;
@@ -969,18 +946,10 @@ void TopWindow::ReleaseActiveTile(Point const &rMouse) {
 }
 
 void TopWindow::Repaint(void) {
-    HWND this_window = Handle();
-    PAINTSTRUCT paint_struct;    
-    HDC context = Win::BeginPaint(this_window, &paint_struct);
-    ASSERT(context != NULL);
-    
-    bool release_me = false;
-    PCntType width = ClientAreaWidth();
-    PCntType height = ClientAreaHeight();
-    Canvas canvas(context, this_window, release_me, width, height);
-    
+	BeginPaint();
+    Canvas canvas(*this);
 	mGameView.Repaint(canvas);
-    Win::EndPaint(this_window, &paint_struct);
+	EndPaint();
 
 	// restart the timer
 	SetTimer(TIMEOUT_MSEC, ID_CLOCK_TIMER);
@@ -1112,7 +1081,7 @@ void TopWindow::StopDragging(void) {
 
 	mGameView.Deactivate();
    	SetCursorSelect();
-	Win::ReleaseCapture();
+	ReleaseMouse();
 	mDragBoardFlag = false;
 
 	ASSERT(!mGameView.IsDragging());

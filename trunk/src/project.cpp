@@ -22,13 +22,14 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include <iostream>
-#ifdef _WINDOWS
-#include "gui/win_types.hpp"
-#else
-#include <time.h>
-#endif
 #include "project.hpp"
 #include "string.hpp"
+
+#ifdef WIN32
+#include "gui/win_types.hpp"
+#else // !defined(WIN32)
+#include <time.h>
+#endif // !defined(WIN32)
 
 void assertion_failed(const char *file, unsigned line) {
     std::cout << "Assertion failed at line " << line << " in " << file << std::endl;
@@ -50,13 +51,13 @@ bool is_odd(long number) {
 
 long milliseconds(void) {
 	long result;
-#ifdef _WINDOWS
+#ifdef WIN32
 	Win::DWORD ticks = Win::GetTickCount();
     result = long(ticks);
-#else
+#else // !defined(WIN32)
 	time_t seconds = ::time(NULL);
 	result = 1000*long(seconds);
-#endif
+#endif // !defined(WIN32)
 
 	return result;
 }

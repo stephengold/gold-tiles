@@ -182,13 +182,11 @@ void GameView::DrawActiveHand(Canvas &rCanvas) {
     
     // calculate height of swap area (mSwapRect)
     tile_cnt = CountSwap();
-    PCntType bagHeight = rCanvas.TextHeight();
-    height = tile_cnt*cell_height + bagHeight + 3*mPadPixels;
+    height = tile_cnt*cell_height + rCanvas.TextHeight() + 3*mPadPixels;
 	unsigned played_tile_cnt = CountPlayed();
     unsigned stock_cnt = mpGame->CountStock();
-    if (tile_cnt < CountTiles() 
-     && tile_cnt < stock_cnt) {
-        // there's room for more
+    if (tile_cnt < CountTiles() && tile_cnt < stock_cnt) {
+        // there's room for more tiles
         height += cell_height/2;
 	}
 
@@ -217,10 +215,31 @@ void GameView::DrawActiveHand(Canvas &rCanvas) {
     top_y = mHandRect.BottomY() - 1;
     mSwapRect = rCanvas.DrawRectangle(top_y, left_x, width, height);
     
-    String stock_text = plural(stock_cnt, "tile");
-    LogicalYType y = mSwapRect.BottomY() - mPadPixels - bagHeight;
-    Rect bounds(y, left_x, width, bagHeight);
-    rCanvas.DrawText(bounds, stock_text);
+    String swap_text = "swap area";
+    LogicalYType y = mSwapRect.BottomY() - mPadPixels - rCanvas.TextHeight();
+    Rect bounds(y, left_x, width, rCanvas.TextHeight());
+    rCanvas.DrawText(bounds, swap_text);
+
+    // calculate height of stock area
+    height = 2*rCanvas.TextHeight() + 3*mPadPixels;
+
+	// choose colors for stock area
+    area_color = COLOR_DARK_BLUE;
+    rCanvas.UseColors(area_color, edge_color);
+
+	// draw stock area
+    top_y = mSwapRect.BottomY() - 1;
+    Rect stock_rect = rCanvas.DrawRectangle(top_y, left_x, width, height);
+
+    String stock_text1 = plural(stock_cnt, "tile");
+	y = top_y + mPadPixels;
+    Rect bounds1(y, left_x, width, rCanvas.TextHeight());
+    rCanvas.DrawText(bounds1, stock_text1);
+
+    String stock_text2 = "in the stock bag";
+	y = bounds1.BottomY();
+    Rect bounds2(y, left_x, width, rCanvas.TextHeight() + mPadPixels);
+    rCanvas.DrawText(bounds2, stock_text2);
 }
 
 void GameView::DrawBlankTile(Canvas &rCanvas, Point const &rCenter, bool oddFlag) {
@@ -346,11 +365,14 @@ Rect GameView::DrawHandHeader(
 
     String name_text = rHand.Name();
     Hand active_hand = Hand(*mpGame);
-    if (name_text == active_hand.Name()) {
-        //name_text += "'s turn";
-    }
     unsigned w = rCanvas.TextWidth(name_text);
     unsigned width = (cell_width > w) ? cell_width : w;
+    if (name_text == active_hand.Name()) {
+	    w = rCanvas.TextWidth("in the stock bag");
+	    if (w > width) {
+		    width = w;
+	    }
+    }
 
     String scoreText;
     if (mpMenuBar->AreScoresVisible()) {

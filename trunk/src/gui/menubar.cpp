@@ -92,6 +92,9 @@ void MenuBar::LoadPlayerOptions(Player const &rPlayer) {
 void MenuBar::NewGame(void) {
     GameStyleType game_style = mrPartial.GameStyle();
     
+	if (game_style != GAME_STYLE_DEBUG) {
+		mPeekFlag = false;
+	}
 	if (game_style == GAME_STYLE_CHALLENGE) {
         mAutopauseFlag = true;
 	    mShowClocksFlag = true;
@@ -129,7 +132,7 @@ void MenuBar::Update(void) {
 
 	// "File" menu
 	mFileMenu.EnableItems(have_game);
-	mFileMenu.Enable(is_local);
+	mFileMenu.Enable(is_local || is_over || !have_game);
 
 	// "Play" menu
     mPlayMenu.Autopause(mAutopauseFlag);

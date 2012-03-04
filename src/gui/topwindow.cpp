@@ -1030,6 +1030,7 @@ void TopWindow::SetGame(Game *pGame) {
 
 	mGameView.SetGame(mpGame);
 	mpMenuBar->NewGame();
+    SetTileWidth(IDM_LARGE_TILES);
 
 	if (HasGame()) {
 	    Hands hands = Hands(*mpGame);

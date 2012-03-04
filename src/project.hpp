@@ -80,6 +80,7 @@ class YesNo;
 void        assertion_failed(const char *, unsigned);
 bool        is_even(long);
 bool        is_odd(long);
+long        milliseconds(void);
 String      ordinal(unsigned);
 void        pause(void);
 const char *plural(unsigned);

@@ -29,6 +29,9 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 #include "gui/resource.hpp"
 #include "gui/topwindow.hpp"
 
+
+// static data
+
 static const ColorType GlyphColors[Tile::VALUE_CNT_MAX] = {
 	COLOR_BLACK,      COLOR_RED,       COLOR_DARK_BLUE, 
     COLOR_DARK_GREEN, COLOR_PURPLE,    COLOR_BROWN, 
@@ -95,6 +98,42 @@ LogicalYType GameView::CellY(IndexType row) const {
     return result;
 }
 
+String GameView::ClockText(Hand &rHand) const {
+	ASSERT(mpGame != NULL);
+
+	int seconds = mpGame->Seconds(rHand);
+
+	// convert to minutes and seconds
+	bool minus_sign;
+	if (seconds >= 0) {
+		minus_sign = false;
+	} else {
+		minus_sign = true;
+		seconds = -seconds;
+	}
+
+	unsigned minutes, tens_of_seconds;
+	minutes = seconds / SECONDS_PER_MINUTE;
+	seconds -= minutes*SECONDS_PER_MINUTE;
+    tens_of_seconds = seconds / 10;
+	seconds -= tens_of_seconds*10;
+
+	ASSERT(seconds >= 0);
+	ASSERT(seconds <= 9);
+	ASSERT(tens_of_seconds >= 0);
+	ASSERT(tens_of_seconds <= 5);
+	ASSERT(minutes >= 0);
+
+	String result;
+	if (minus_sign) {
+		result += "-";
+	}
+	result += String(minutes) + ":" 
+		   + String(tens_of_seconds) + String(seconds);
+
+	return result;
+}
+
 void GameView::DrawActiveHand(Canvas &rCanvas) {
     // draw header
 	ASSERT(mpGame != NULL);
@@ -124,7 +163,10 @@ void GameView::DrawActiveHand(Canvas &rCanvas) {
 		ASSERT(tile_cnt > 0);
 		--tile_cnt;
 	}
-    if (tile_cnt < CountTiles()) {
+
+	if (!IsLocalPlayer()) {
+	    area_color = COLOR_DARK_BLUE;
+	} else if (tile_cnt < CountTiles()) {
         area_color = COLOR_DARK_GREEN;
     } else { // hand is full
         area_color = COLOR_BROWN;
@@ -138,7 +180,6 @@ void GameView::DrawActiveHand(Canvas &rCanvas) {
     left_x = mHandRect.LeftX();
     width = mHandRect.Width();
     
-
     // calculate height of swap area (mSwapRect)
     tile_cnt = CountSwap();
     PCntType bagHeight = rCanvas.TextHeight();
@@ -160,9 +201,11 @@ void GameView::DrawActiveHand(Canvas &rCanvas) {
 		ASSERT(played_tile_cnt > 0);
 		--played_tile_cnt;
 	}
-    if (played_tile_cnt == 0
-        && tile_cnt < CountTiles()
-        && tile_cnt < stock_cnt)
+	if (!IsLocalPlayer()) {
+	    area_color = COLOR_DARK_BLUE;
+	} else if (played_tile_cnt == 0
+            && tile_cnt < CountTiles()
+            && tile_cnt < stock_cnt)
     {
         area_color = COLOR_DARK_GREEN;
     } else { // can't add more tiles to swap area
@@ -209,7 +252,7 @@ void GameView::DrawBoard(Canvas &rCanvas, unsigned showLayer) {
 		--swap_cnt;
 	}
 
-	if (!mTargetCellFlag && CountHinted() == 1) {
+	if (IsLocalPlayer() && !mTargetCellFlag && CountHinted() == 1) {
 		mTargetCell = FirstHinted();
 		mTargetCellFlag = true;
 	}
@@ -321,7 +364,7 @@ Rect GameView::DrawHandHeader(
     
     String clock_text;
     if (mpMenuBar->AreClocksVisible()) {
-        clock_text = mpWindow->ClockText(rHand);
+        clock_text = ClockText(rHand);
         w = rCanvas.TextWidth(clock_text);
         if (w > width) {
             width = w;
@@ -379,13 +422,20 @@ void GameView::DrawHandTile(
     Tile const &rTile,
 	bool oddFlag)
 {
-    Rect rect = DrawTile(rCanvas, rCenter, rTile, oddFlag);
-        
     TileIdType id = rTile.Id();
-    TilePair pair(id, rect);
-    TileInsResult ins_result = mTileMap.insert(pair);
-    bool success = ins_result.second;
-    ASSERT(success);
+
+	if (!IsLocalPlayer() && !IsOnBoard(id) && !mpMenuBar->IsPeeking()) {
+		// draw the tile's backside
+        DrawBlankTile(rCanvas, rCenter, oddFlag);
+
+    } else {  // draw the tile's face
+        Rect rect = DrawTile(rCanvas, rCenter, rTile, oddFlag);
+        
+        TilePair pair(id, rect);
+        TileInsResult ins_result = mTileMap.insert(pair);
+        bool success = ins_result.second;
+        ASSERT(success);
+   }
 }
 
 void GameView::DrawHandTiles(Canvas &rCanvas) {
@@ -447,7 +497,7 @@ void GameView::DrawHandTiles(Canvas &rCanvas) {
         DrawHandTile(rCanvas, active_base, active_tile, active_odd);
     }
 
-	ASSERT(mTileMap.size() == CountTiles());
+	ASSERT(!IsLocalPlayer() || mTileMap.size() == CountTiles());
 }
 
 void GameView::DrawInactiveHands(Canvas &rCanvas) {
@@ -724,6 +774,7 @@ void GameView::SetGame(Game *pGame) {
 	}
 	
     SetTileWidth(IDM_LARGE_TILES);
+	ResetTargetCell();
 }
 
 void GameView::SetStartCellPosition(Point const &rPoint) {

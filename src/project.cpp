@@ -22,6 +22,11 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include <iostream>
+#ifdef _WINDOWS
+#include "gui/win_types.hpp"
+#else
+#include <time.h>
+#endif
 #include "project.hpp"
 #include "string.hpp"
 
@@ -43,8 +48,17 @@ bool is_odd(long number) {
 	return result;
 }
 
-void pause(void) {
-    ::system("PAUSE");
+long milliseconds(void) {
+	long result;
+#ifdef _WINDOWS
+	Win::DWORD ticks = Win::GetTickCount();
+    result = long(ticks);
+#else
+	time_t seconds = ::time(NULL);
+	result = 1000*long(seconds);
+#endif
+
+	return result;
 }
 
 String ordinal(unsigned n) {
@@ -66,6 +80,10 @@ String ordinal(unsigned n) {
 	}
 
 	return result;
+}
+
+void pause(void) {
+    ::system("PAUSE");
 }
 
 const char *plural(unsigned n) {
@@ -91,4 +109,3 @@ bool str_eq(char const *string1, char const *string2) {
 
 	return result;
 }
-

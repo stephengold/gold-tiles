@@ -24,12 +24,15 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 #include "game.hpp"
 #include "partial.hpp"
 
+void *Partial::mspYieldArgument = NULL;
+void (*Partial::mspYieldFunction)(void *) = NULL;
 
 // lifecycle
 
 Partial::Partial(Game const *pGame, HintType strength) {
     Reset(pGame, strength);
 }
+
 // Partial(Partial const &);  compiler-generated copy constructor is OK
 // ~Partial(void);  compiler-generated destructor is OK
 
@@ -45,7 +48,7 @@ void Partial::Reset(void) {
     mHintedCellsValid = false;
     mPlayedTileCnt = 0;
 	mSwapIds.MakeEmpty();
-	if (HaveGame()) {
+	if (HasGame()) {
         mBoard = Board(*mpGame);
         mTiles = mpGame->ActiveTiles();
     } else {
@@ -53,7 +56,6 @@ void Partial::Reset(void) {
 		mTiles.MakeEmpty();
 	}
 }
-
 
 // operators
 
@@ -139,7 +141,7 @@ unsigned Partial::CountSwap(void) const {
     unsigned result = mSwapIds.Count();
     
     ASSERT(result <= CountTiles());
-    ASSERT(!HaveGame() || result <= mpGame->CountStock());
+    ASSERT(!HasGame() || result <= mpGame->CountStock());
 
     return result; 
 }
@@ -158,8 +160,9 @@ void Partial::Deactivate(void) {
 }
 
 void Partial::FindBestMove(Partial &rBest, unsigned &rBestScore) const {
-    ASSERT(HaveGame());
-    Partial temp = *this;
+    ASSERT(HasGame());
+
+	Partial temp = *this;
     temp.Deactivate();
     temp.SetHintStrength(HINT_USABLE_SELECTED);
     unsigned score = temp.Score();
@@ -173,6 +176,8 @@ void Partial::FindBestMove(Partial &rBest, unsigned &rBestScore) const {
         Tile tile = mTiles[i];
 	    TileIdType id = tile.Id();
 	    if (temp.IsInHand(id)) {
+			Yields();
+
             temp.Activate(id);
             temp.SetHintedCells();
             Cells cells = temp.mHintedCells;
@@ -202,7 +207,7 @@ Cell Partial::FirstHinted(void) {
 
 GameStyleType Partial::GameStyle(void) const {
     GameStyleType result = GAME_STYLE_NONE;
-    if (HaveGame()) {
+    if (HasGame()) {
         result = mpGame->Style();
     }
     
@@ -316,7 +321,7 @@ unsigned Partial::Score(void) const {
 
 void Partial::SetHintedCells(void) {
     ASSERT(!mHintedCellsValid);
-    ASSERT(HaveGame());
+    ASSERT(HasGame());
 
 	// start with no cells hinted
     mHintedCells.MakeEmpty();
@@ -413,9 +418,14 @@ void Partial::SetHintStrength(HintType strength) {
     mHintStrength = strength;
 }
 
+/* static */ void Partial::SetYield(void(*pFunction)(void*), void *pArgument) {
+	mspYieldArgument = pArgument;
+	mspYieldFunction = pFunction;
+}
+
 void Partial::Suggest(void) {
     ASSERT(mActiveId == Tile::ID_NONE);
-    ASSERT(HaveGame());
+    ASSERT(HasGame());
 
     mPlayedTileCnt = 0;
 	mSwapIds.MakeEmpty();
@@ -455,11 +465,17 @@ void Partial::SwapToHand(void) {
 	ASSERT(!mSwapIds.Contains(mActiveId));
 }
 
+/* static */ void Partial::Yields(void) {
+	if (mspYieldFunction != NULL) {
+           (*mspYieldFunction)(mspYieldArgument);
+    }
+}
+
 // inquiry methods
 
 bool Partial::CanSwapAll(void) const {
 	bool result = false;
-    if (HaveGame()) {
+    if (HasGame()) {
         result = (mpGame->CountStock() >= CountTiles());
     }
 
@@ -472,7 +488,7 @@ bool Partial::Contains(TileIdType id) const {
      return result;
 }
 
-bool Partial::HaveGame(void) const {
+bool Partial::HasGame(void) const {
      bool result = (mpGame != NULL);
      
      return result;
@@ -494,7 +510,7 @@ bool Partial::IsEmpty(Cell const &rCell) const {
 
 bool Partial::IsGameOver(void) const {
      bool result = false;
-     if (HaveGame()) {
+     if (HasGame()) {
          result = mpGame->IsOver();
      }
      
@@ -503,7 +519,7 @@ bool Partial::IsGameOver(void) const {
 
 bool Partial::IsGamePaused(void) const {
 	bool result = false;
-	if (HaveGame() && !IsGameOver()) {
+	if (HasGame() && !IsGameOver()) {
 		result = mpGame->IsPaused();
 	}
 
@@ -511,12 +527,15 @@ bool Partial::IsGamePaused(void) const {
 }
 
 bool Partial::IsHinted(Cell const &rCell) {
-    if (!mHintedCellsValid) {
-        SetHintedCells();
-    }
-    ASSERT(mHintedCellsValid);
-    
-	bool result = mHintedCells.Contains(rCell);
+	bool result = false;
+
+	if (IsLocalPlayer()) {
+        if (!mHintedCellsValid) {
+            SetHintedCells();
+        }
+        ASSERT(mHintedCellsValid);
+	    result = mHintedCells.Contains(rCell);
+	}
 	
 	return result;
 }
@@ -541,6 +560,17 @@ bool Partial::IsInSwap(TileIdType id) const {
     return result;
 }
 
+
+bool Partial::IsLocalPlayer(void) const {
+	bool result = false;
+	if (HasGame() && !IsGameOver()) {
+		Hand hand = Hand(*mpGame);
+		result = !hand.IsAutomatic();
+	}
+
+	return result;
+}
+
 bool Partial::IsOnBoard(TileIdType id) const {
     bool result = mBoard.ContainsId(id);
     
@@ -559,7 +589,7 @@ bool Partial::IsValidNextStep(
 	Tile const &rTile) const
 {
 	// Check whether a hypothetical next step would be legal.
-	ASSERT(HaveGame());
+	ASSERT(HasGame());
 
 	Move move = rBase;
 	move.Add(rTile, rCell);

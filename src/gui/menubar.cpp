@@ -119,8 +119,9 @@ IdType MenuBar::TileSize(void) const {
 }
 
 void MenuBar::Update(void) {
-	bool have_game = mrPartial.HaveGame();
+	bool have_game = mrPartial.HasGame();
 	bool is_over = mrPartial.IsGameOver();
+	bool is_local = mrPartial.IsLocalPlayer();
     bool is_pass = mrPartial.IsPass();
 	bool is_paused = mrPartial.IsGamePaused();
 	bool can_swap_all = mrPartial.CanSwapAll();
@@ -128,14 +129,14 @@ void MenuBar::Update(void) {
 
 	// "File" menu
 	mFileMenu.EnableItems(have_game);
-	mFileMenu.Enable(true);
+	mFileMenu.Enable(is_local);
 
 	// "Play" menu
     mPlayMenu.Autopause(mAutopauseFlag);
     mPlayMenu.Pause(is_paused);
     
 	mPlayMenu.EnableItems(game_style, is_over, is_paused, is_pass, can_swap_all);
-	mPlayMenu.Enable(have_game && !is_over);
+	mPlayMenu.Enable(have_game && !is_over && is_local);
 
 	// "View" menu
     mViewMenu.TileSize(mTileSizeItem);
@@ -144,7 +145,7 @@ void MenuBar::Update(void) {
     mViewMenu.ShowScores(mShowScoresFlag);
     mViewMenu.ShowTiles(mPeekFlag);
     
-	mViewMenu.EnableItems(game_style, is_over);
+	mViewMenu.EnableItems(game_style, is_over, is_local);
 	mViewMenu.Enable(!is_paused);
 	
 	mHelpMenu.Enable(true);

@@ -90,12 +90,11 @@ INT_PTR HandBox::HandleMessage(MessageType message, WPARAM wParam) {
 			}
 			SetTextString(IDC_WHO, message);
 			SetTextString(IDC_EDITNAME, mPlayerName);
+			EnableButton(IDC_RADIOLOCAL, true);
+	        EnableButton(IDC_RADIOAUTO, true);
 #if 1
 			// TODO
-			mIsAutomatic = false;
 			mIsRemote = false;
-			EnableButton(IDC_RADIOLOCAL, true);
-	        EnableButton(IDC_RADIOAUTO, false);
 	        EnableButton(IDC_RADIOREMOTE, false);
 #endif
 			SetButton(IDC_RADIOLOCAL, !mIsAutomatic && !mIsRemote);
@@ -126,6 +125,8 @@ INT_PTR HandBox::HandleMessage(MessageType message, WPARAM wParam) {
 					    SetButton(IDC_RADIOREMOTE, false);
                         mIsAutomatic = true;
                         mIsRemote = false;
+						mPlayerName = "Computer";
+			            SetTextString(IDC_EDITNAME, mPlayerName);
 					}
                     break;
 				}
@@ -135,6 +136,10 @@ INT_PTR HandBox::HandleMessage(MessageType message, WPARAM wParam) {
 					    SetButton(IDC_RADIOREMOTE, false);
                         mIsAutomatic = false;
                         mIsRemote = false;
+						if (mPlayerName == "Computer") {
+							mPlayerName = "Player";
+							SetTextString(IDC_EDITNAME, mPlayerName);
+						}
 					}
                     break;
 				}
@@ -168,6 +173,7 @@ String HandBox::PlayerName(void) const {
 bool HandBox::IsAutomatic(void) const {
 	return mIsAutomatic;
 }
+
 bool HandBox::IsRemote(void) const {
 	return mIsRemote;
 }

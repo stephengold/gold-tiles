@@ -51,8 +51,10 @@ public:
 	PCntType        ClientAreaWidth(void) const;
 	Win::LRESULT    HandleMessage(MessageType, Win::WPARAM, Win::LPARAM); 
     static Window * Lookup(Win::HWND);
+    int             MessageDispatchLoop(void);
 	Win::HDC        PaintDevice(void) const;
 	void            Show(int showHow);
+	void            Yields(void);
 
 protected:
 	static Window *mspNewlyCreatedWindow;
@@ -61,6 +63,7 @@ protected:
     void Initialize(Win::CREATESTRUCT const &);
 
 	// misc protected methods
+	void *         AddFiber(void (CALLBACK &routine)(void *));
 	void           BeginPaint(void);
 	void           CaptureMouse(void);
 	void           Center(void);
@@ -72,14 +75,14 @@ protected:
 	void           EndPaint(void);
 	void           ErrorBox(char const *message, char const *title);
 	void           ForceRepaint(void);
-	Win::HACCEL    GetAcceleratorTable(char const *resourceName);
 	Win::HMENU     GetMenu(char const *resourceName);
-	bool           GetMessage(Win::MSG &, int &rExitCode);
 	void           InfoBox(char const *message, char const *title);
 	bool           IsMouseCaptured(void) const;
-	virtual char const * Name(void) const = 0;
+	virtual char const * 
+		           Name(void) const = 0;
 	void           ReleaseMouse(void);
 	void           SelfDestruct(void);
+	void           SetAcceleratorTable(char const *resourceName);
 	void           SetClientArea(PCntType width, PCntType height);
 	void           SetCursorBusy(void);
 	void           SetCursorDrag(void);
@@ -87,8 +90,8 @@ protected:
 	void           SetHandle(Win::HWND);
 	void           SetIcons(char const *resourceName);
 	void           SetTimer(unsigned msecs, unsigned id);
-	void           TranslateAndDispatch(Win::MSG &, Win::HACCEL const &);
 	void           UpdateMenuBar(void);
+	void           UseFibers(void);
 	int            WarnBox(char const *message, char const *title);
 	void           WarpCursor(Point const &);
 
@@ -102,8 +105,10 @@ private:
 
 	static Map msMap;
 	
+	Win::HACCEL      mAcceleratorTable;
     PCntType         mClientAreaWidth, mClientAreaHeight;
     Win::HWND        mHandle;
+	void *           mMainFiber;
     Win::HINSTANCE   mModule; // the module/instance which owns this window  TODO static?
 	Win::HDC         mPaintDevice;
 	Win::PAINTSTRUCT mPaintStruct;
@@ -115,7 +120,12 @@ private:
     Window &operator=(Window const &); // not assignable
 
 	// misc private methods
+	bool GetAMessage(Win::MSG &, int &exitCode);
 	void SetCursor(Win::LPSTR);
+	void TranslateAndDispatch(Win::MSG &);
+
+	// private inquiry methods
+	bool HasAMessage(void) const;
 };
 
 #endif

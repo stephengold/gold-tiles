@@ -41,7 +41,7 @@ public:
 
 	// misc public methods
     void Animation(bool);
-	void EnableItems(GameStyleType, bool over);
+	void EnableItems(GameStyleType, bool over, bool local);
 	void ShowClocks(bool);
 	void ShowGrid(bool);
 	void ShowHints(bool);

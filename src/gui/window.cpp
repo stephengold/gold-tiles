@@ -33,6 +33,7 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 // lifecycle
 
 Window::Window(void) {
+	mAcceleratorTable = 0;
 	mHandle = 0;
 	mModule = 0;
 	mPaintDevice = 0;
@@ -76,6 +77,14 @@ Window::operator Rect(void) const {
 
 
 // misc methods
+
+void * Window::AddFiber(void (__stdcall &rStartRoutine)(void *)) {
+	Win::SIZE_T default_stack_size = 0;
+	void * result = Win::CreateFiber(default_stack_size, &rStartRoutine, LPVOID(this));
+	ASSERT(result != NULL);
+
+	return result;
+}
 
 void Window::BeginPaint(void) {
 	ASSERT(mPaintDevice == NULL);
@@ -209,13 +218,6 @@ void Window::ForceRepaint(void) {
     ASSERT(success != 0);
 }
 
-HACCEL Window::GetAcceleratorTable(char const *resourceName) {
-	HACCEL result = Win::LoadAccelerators(mModule, resourceName);
-	ASSERT(result != NULL);
-
-	return result;
-}
-
 HMENU Window::GetMenu(char const *resourceName) {
 	HMENU result = Win::LoadMenu(mModule, resourceName);
 	ASSERT(result != NULL);
@@ -223,7 +225,7 @@ HMENU Window::GetMenu(char const *resourceName) {
 	return result;
 }
 
-bool Window::GetMessage(MSG &rMessage, int &rExitCode) {
+bool Window::GetAMessage(MSG &rMessage, int &rExitCode) {
     HWND any_window = NULL;
 	UINT no_filtering = 0;
     BOOL success = Win::GetMessage(&rMessage, any_window, no_filtering, no_filtering);
@@ -301,6 +303,21 @@ void Window::InfoBox(char const *message, char const *title) {
 	return result;
 }
 
+int Window::MessageDispatchLoop(void) {
+    int exit_code;
+
+	for (;;) {
+        MSG message;
+		bool done = GetAMessage(message, exit_code);
+        if (done) {
+			break;
+		}
+		TranslateAndDispatch(message);
+    }
+
+	return exit_code;
+}
+
 HDC Window::PaintDevice(void) const {
 	ASSERT(mPaintDevice != NULL);
 
@@ -314,6 +331,11 @@ void Window::ReleaseMouse(void) {
 void Window::SelfDestruct(void) {
 	int application_exit_code = 0;
     Win::PostQuitMessage(application_exit_code);
+}
+
+void Window::SetAcceleratorTable(char const *resourceName) {
+	mAcceleratorTable = Win::LoadAccelerators(mModule, resourceName);
+	ASSERT(mAcceleratorTable != NULL);
 }
 
 void Window::SetClientArea(PCntType width, PCntType height) {
@@ -392,22 +414,29 @@ void Window::Show(int how) {
 	ASSERT(mHandle != 0);
 
     Win::ShowWindow(mHandle, how);
-    BOOL success = Win::UpdateWindow(mHandle);
-    ASSERT(success);
 }
 
-void Window::TranslateAndDispatch(MSG &rMessage, HACCEL const &rTable) {
-	int translated = Win::TranslateAccelerator(mHandle, rTable, &rMessage);
-	if (!translated) {
-        Win::TranslateMessage(&rMessage); 
-        Win::DispatchMessage(&rMessage); 
-    } 
+void Window::TranslateAndDispatch(MSG &rMessage) {
+	if (mAcceleratorTable != 0) {
+	    int translated = Win::TranslateAccelerator(mHandle, mAcceleratorTable, &rMessage);
+	    if (translated != 0) {
+			return;
+		}
+	}
+    Win::TranslateMessage(&rMessage); 
+    Win::DispatchMessage(&rMessage); 
 }
 
 void Window::UpdateMenuBar(void) {
 	// redraw all menus
 	BOOL success = Win::DrawMenuBar(mHandle);
 	ASSERT(success);
+}
+
+void Window::UseFibers(void) {
+	// create the first fiber for this thread
+	mMainFiber = Win::ConvertThreadToFiber(this);
+	ASSERT(mMainFiber != NULL);
 }
 
 // display a simple dialog box with a warning message and buttons for Cancel, Try Again, and Continue
@@ -430,7 +459,26 @@ void Window::WarpCursor(Point const &rDestination) {
     ASSERT(success);
 }
 
+void Window::Yields(void) {
+	// switch to main fiber if there's a message ready to dispatch
+	if (HasAMessage()) {
+	    ASSERT(mMainFiber != NULL);
+	    Win::SwitchToFiber(mMainFiber);
+	}
+}
+
 // inquiry methods
+
+bool Window::HasAMessage(void) const {
+	Win::MSG message;
+    HWND any_window = NULL;
+	UINT no_filtering = 0;
+	UINT options = PM_NOREMOVE;
+	BOOL found = Win::PeekMessage(&message, any_window,  no_filtering, no_filtering, options);
+	bool result = (found != 0);
+
+	return result;
+}
 
 bool Window::IsMouseCaptured(void) const {
 	HWND captor = Win::GetCapture();

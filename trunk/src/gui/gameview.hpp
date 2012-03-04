@@ -122,6 +122,7 @@ private:
     GameView &operator=(GameView const &);  // not assignable
 
 	// misc private methods
+	String ClockText(Hand &) const;
 
 	// private inquiry methods
 	bool IsGridVisible(void) const;

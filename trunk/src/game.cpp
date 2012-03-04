@@ -29,16 +29,13 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 // lifecycle
 
 Game::Game(
-    Strings handNames,
-    Strings playerNames,
+    Strings const &rPlayerNames,
+	Indices const &rAutoFlags,
     GameStyleType style,
     unsigned tileRedundancy,
     unsigned handSize,
 	unsigned secondsPerHand)
 {
-	unsigned hand_count = handNames.Count();
-	unsigned player_count = playerNames.Count();
-	ASSERT(hand_count == player_count);
 	ASSERT(tileRedundancy >= 1);
 	ASSERT(handSize >= 1);
 	ASSERT(style != GAME_STYLE_NONE);
@@ -55,15 +52,22 @@ Game::Game(
     AddTiles(attribute_index, model_tile);
     D(std::cout << "Placed " << plural(CountStock(), "tile") << " in the stock bag." << std::endl);
     
-    // create hands
-	Strings::ConstIterator i_name = handNames.Begin();
-	Strings::ConstIterator i_player = playerNames.Begin();
-	for ( ; i_name != handNames.End(); i_name++, i_player++) {
-		ASSERT(i_player != playerNames.End());
-		String name = *i_name;
+    // construct hands and generate a unique name for each one
+    Strings unique = rPlayerNames.Unique();
+	Strings::ConstIterator i_player;
+	unsigned i = 0;
+	for (i_player = rPlayerNames.Begin(); i_player != rPlayerNames.End(); i_player++) {
 		String player_name = *i_player;
-	    Hand hand(name, player_name, mSecondsPerHand);
+
+		String hand_name = player_name;
+		if (rPlayerNames.Count(player_name) > 1) {
+		    hand_name = unique.InventUnique(player_name, "'s ", " hand");
+		    unique.Append(hand_name);
+		}
+
+		Hand hand(hand_name, player_name, rAutoFlags.Contains(i));
 	    mHands.push_back(hand);
+		i++;
     }
 
     // deal tiles to each hand from the stock bag
@@ -111,7 +115,7 @@ Game::operator Hands(void) const {
 // misc methods
 
 void Game::ActivateNextHand(void) {
-	ASSERT(!miActiveHand->IsRunning());
+	ASSERT(!miActiveHand->IsClockRunning());
 
     mHands.Next(miActiveHand);
 	mUnsavedChanges = true;
@@ -381,7 +385,7 @@ bool Game::IsOver(void) const {
 }
 
 bool Game::IsPaused(void) const {
-	bool result = !miActiveHand->IsRunning() && !IsOver();
+	bool result = !miActiveHand->IsClockRunning() && !IsOver();
 
 	return result;
 }

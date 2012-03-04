@@ -53,7 +53,7 @@ ParmBox2::ParmBox2(
 :
     Dialog("PARMBOX2", &message_handler)
 {
-	mGrid =grid;
+	mGrid = grid;
 	mHeight = height;
 	mWidth = width;
 	mWrapFlag = wrapFlag;
@@ -179,6 +179,11 @@ IndexType ParmBox2::Height(void) const {
 }
 
 void ParmBox2::SetGrid(void) {
+	EnableButton(IDC_TRIANGLE, false);
+	EnableButton(IDC_4WAY, true);
+	EnableButton(IDC_HEX, true);
+	EnableButton(IDC_8WAY, true);
+
 	SetButton(IDC_TRIANGLE, mGrid == GRID_TRIANGLE);
 	SetButton(IDC_4WAY, mGrid == GRID_4WAY);
 	SetButton(IDC_HEX, mGrid == GRID_HEX);

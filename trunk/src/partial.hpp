@@ -89,6 +89,7 @@ public:
 	Cell          LocateTile(TileIdType) const;
 	unsigned      Score(void) const;
 	void          SetHintStrength(HintType);
+	static void   SetYield(void(*fun)(void*), void *arg);
 	void          Suggest(void);
 	void          SwapAll(void);
 	void          SwapToHand(void);               // move the active tile
@@ -96,7 +97,7 @@ public:
 	// inquiry methods
 	bool CanSwapAll(void) const;
 	bool Contains(TileIdType) const;
-    bool HaveGame(void) const;
+    bool HasGame(void) const;
 	bool IsActive(TileIdType) const;
 	bool IsEmpty(Cell const &) const;
     bool IsGameOver(void) const;
@@ -104,6 +105,7 @@ public:
 	bool IsHinted(Cell const &);
 	bool IsInHand(TileIdType) const;
 	bool IsInSwap(TileIdType) const;
+	bool IsLocalPlayer(void) const;
 	bool IsOnBoard(TileIdType) const;
 	bool IsPass(void) const;
 	bool IsVisible(Cell const &);
@@ -114,18 +116,21 @@ protected:
 
 private:
 	// private data
-	TileIdType   mActiveId;        // tile actively being dragged (or else Tile::ID_NONE)
-    Board        mBoard;
-	Cells        mHintedCells;     // cached choice of cells
-	bool         mHintedCellsValid;
-	HintType     mHintStrength;
-	unsigned     mPlayedTileCnt;   // number of tiles played to the board
-	Indices      mSwapIds;         // indices of all tiles in the swap area
-	Tiles        mTiles;           // the set of all available tiles
+	TileIdType      mActiveId;       // tile actively being dragged (or else Tile::ID_NONE)
+    Board           mBoard;
+	Cells           mHintedCells;    // cached choice of cells
+	bool            mHintedCellsValid;
+	HintType        mHintStrength;
+	unsigned        mPlayedTileCnt;  // number of tiles played to the board
+	Indices         mSwapIds;        // indices of all tiles in the swap area
+	Tiles           mTiles;          // the set of all available tiles
+	static void * mspYieldArgument;
+	static void (*mspYieldFunction)(void*);
 
 	// misc private methods
-	void AddValidNextUses(Move const &, Tile const &, Cells const &);
-	void SetHintedCells(void);
+	void        AddValidNextUses(Move const &, Tile const &, Cells const &);
+	void        SetHintedCells(void);
+	static void Yields(void);
 
 	// private inquiry methods
 	bool IsValidNextStep(Move const &, Cell const &, Tile const &) const;

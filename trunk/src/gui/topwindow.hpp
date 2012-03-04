@@ -42,11 +42,10 @@ public:
     ~TopWindow(void);
 
 	// misc public methods
-	String       ClockText(Hand &) const;
 	long         DragTileDeltaX(void) const;
 	long         DragTileDeltaY(void) const;
 	Win::LRESULT HandleMessage(MessageType, Win::WPARAM, Win::LPARAM);
-	int          MessageDispatchLoop(void);
+	void         Think(void);
 
 	// public inquiry methods
 	bool IsDraggingBoard(void) const;
@@ -55,20 +54,23 @@ private:
 	// private constants
 	static const unsigned HAND_CNT_DEFAULT = 2;
     static const unsigned ID_CLOCK_TIMER = 1;
-	static const unsigned TIMEOUT_MSEC = 1000;
+	static const unsigned TIMEOUT_MSEC = 500;
 
 	// private data
-	static WindowClass * mspClass;
-	bool                   mDragBoardFlag;
-	PCntType               mDragBoardPixelCnt;
-	long                   mDragTileDeltaX, mDragTileDeltaY;
-	Game *                mpGame;
-	GameView               mGameView;  // view of the move in progress
-	bool                   mInitialNewGame;
-	bool                   mIsStartCentered;
-	MenuBar *             mpMenuBar;
-	Point                  mMouseLast; // coordinates of last mouse down
-	unsigned               mMouseUpCnt;
+	static WindowClass * 
+		     mspClass;
+	bool       mDragBoardFlag;
+	PCntType   mDragBoardPixelCnt;
+	long       mDragTileDeltaX, mDragTileDeltaY;
+	Game *    mpGame;
+	GameView   mGameView;  // view of the move in progress
+	bool       mInitialNewGame;
+	bool       mIsStartCentered;
+	MenuBar * mpMenuBar;
+	Point      mMouseLast; // coordinates of last mouse down
+	unsigned   mMouseUpCnt;
+	bool       mThinking;
+	void *     mThinkFiber;
 
 	// private lifecycle
     TopWindow(TopWindow const &); // not copyable
@@ -105,6 +107,7 @@ private:
 
 	// private inquiry methods
 	bool AreUnsavedChanges(void) const;
+	bool HasGame(void) const;
 	bool IsGameOver(void) const;
 	bool IsGamePaused(void) const;
 };

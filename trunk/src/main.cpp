@@ -22,7 +22,6 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include <iostream>
-#include <time.h>
 #include "game.hpp"
 #include "strings.hpp"
 
@@ -49,7 +48,7 @@ int main(int argCnt, char *argValues[]) {
 #endif // defined(_CONSOLE)
 
 	// seed the pseudo-random number generator
-	unsigned seed = (unsigned)::time(NULL);
+	unsigned seed = ::milliseconds();
     ::srand(seed);
 
 	ACountType attribute_cnt = 2;
@@ -70,10 +69,11 @@ int main(int argCnt, char *argValues[]) {
 	player_names.Append("Stephen"); // oldest first
 	player_names.Append("Paul");
 	player_names.Append("Gale");
-	Strings &hand_names = player_names;
+
+	Indices auto_flags;
 
     // Instantiate the game.
-	Game game(hand_names, player_names, GAME_STYLE_PRACTICE);
+	Game game(player_names, auto_flags, GAME_STYLE_PRACTICE);
 
 	game.PlayGame();
     ::pause();

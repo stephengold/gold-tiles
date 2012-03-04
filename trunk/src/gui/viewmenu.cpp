@@ -44,13 +44,13 @@ ViewMenu::ViewMenu(Menu const &rRootMenu, unsigned position):
 
 // misc methods
 
-void ViewMenu::EnableItems(GameStyleType gameStyle, bool isOver) {
+void ViewMenu::EnableItems(GameStyleType gameStyle, bool isOver, bool isLocalPlayer) {
     mSmallTiles.Enable(true);
     mMediumTiles.Enable(true);
     mLargeTiles.Enable(true);
     mRecenter.Enable(true);
     mAttributes.Enable(false); // TODO
-    mHints.Enable(!isOver);
+    mHints.Enable(!isOver && isLocalPlayer);
     mShowClocks.Enable(true);
     mShowGrid.Enable(true);
     mShowScores.Enable(true);

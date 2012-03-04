@@ -43,8 +43,8 @@ public:
 	static const unsigned TIME_UNLIMITED = 0;
 
 	// public lifecycle
-    Game(Strings handNames,
-		 Strings playerNames,
+    Game(Strings const &playerNames,
+		 Indices const &autoFlags,
          GameStyleType, 
 		 unsigned tileRedundancy = TILE_REDUNDANCY_DEFAULT, 
 		 unsigned handSize = HAND_SIZE_DEFAULT,

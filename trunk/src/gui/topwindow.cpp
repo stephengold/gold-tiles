@@ -40,6 +40,8 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 
 WindowClass *TopWindow::mspClass = NULL;
 
+// static callback functions
+
 // message handler (callback) for top window
 static LRESULT CALLBACK message_handler(
 	HWND windowHandle,
@@ -60,6 +62,18 @@ static LRESULT CALLBACK message_handler(
 	}
 
 	return result;
+}
+
+static void CALLBACK think(void *pArgument) {
+	TopWindow *window = (TopWindow *)pArgument;
+
+    window->Think();
+}
+
+static void yield(void *pArgument) {
+	TopWindow *window = (TopWindow *)pArgument;
+
+	window->Yields();
 }
 
 // lifecycle
@@ -83,6 +97,12 @@ TopWindow::TopWindow(HINSTANCE applicationInstance, Game *pGame):
 	mpGame = pGame;
 	mInitialNewGame = (pGame == NULL);
     mpMenuBar = NULL;
+	
+	UseFibers();
+	mThinking = false;
+	mThinkFiber = AddFiber(think);
+
+	SetAcceleratorTable("HOTKEYS");
 
 	Rect desktop_bounds = DesktopBounds();
 	PCntType height = PCntType(0.8*double(desktop_bounds.Height()));
@@ -116,15 +136,17 @@ void TopWindow::Initialize(CREATESTRUCT const &rCreateStruct) {
 
 	mGameView.SetWindow(this, mpMenuBar);
     SetTileWidth(IDM_LARGE_TILES);
-	if (mpGame != NULL) {
+	if (HasGame()) {
 	    Hands hands = Hands(*mpGame);
 		Hands::ConstIterator i_hand;
 		for (i_hand = hands.begin(); i_hand != hands.end(); i_hand++) {
-			SavePlayerOptions(*i_hand);
+			if (!i_hand->IsAutomatic()) {
+			    SavePlayerOptions(*i_hand);
+			}
 		}
 	}
 
-	if (mpGame != NULL && mpGame->Style() != GAME_STYLE_CHALLENGE) {
+	if (HasGame() && mpGame->Style() != GAME_STYLE_CHALLENGE) {
 		mpGame->StartClock();
 	}
 
@@ -135,42 +157,6 @@ void TopWindow::Initialize(CREATESTRUCT const &rCreateStruct) {
 
 // misc methods
 
-String TopWindow::ClockText(Hand &rHand) const {
-	ASSERT(mpGame != NULL);
-
-	int seconds = mpGame->Seconds(rHand);
-
-	// convert to minutes and seconds
-	bool minus_sign;
-	if (seconds >= 0) {
-		minus_sign = false;
-	} else {
-		minus_sign = true;
-		seconds = -seconds;
-	}
-
-	unsigned minutes, tens_of_seconds;
-	minutes = seconds / SECONDS_PER_MINUTE;
-	seconds -= minutes*SECONDS_PER_MINUTE;
-    tens_of_seconds = seconds / 10;
-	seconds -= tens_of_seconds*10;
-
-	ASSERT(seconds >= 0);
-	ASSERT(seconds <= 9);
-	ASSERT(tens_of_seconds >= 0);
-	ASSERT(tens_of_seconds <= 5);
-	ASSERT(minutes >= 0);
-
-	String result;
-	if (minus_sign) {
-		result += "-";
-	}
-	result += String(minutes) + ":" 
-		   + String(tens_of_seconds) + String(seconds);
-
-	return result;
-}
-
 long TopWindow::DragTileDeltaX(void) const {
 	return mDragTileDeltaX;
 }
@@ -180,7 +166,7 @@ long TopWindow::DragTileDeltaY(void) const {
 }
 
 void TopWindow::HandleButtonDown(Point const &rMouse) {
-	ASSERT(mpGame != NULL);
+	ASSERT(HasGame());
 	ASSERT(!IsGamePaused());
 	ASSERT(!mGameView.IsDragging());
     mMouseLast = rMouse;
@@ -209,11 +195,12 @@ void TopWindow::HandleButtonDown(Point const &rMouse) {
 }
 
 void TopWindow::HandleButtonUp(Point const &rMouse) {
-	ASSERT(mpGame != NULL);
+	ASSERT(HasGame());
+
 	HandleMouseMove(rMouse);
 
 	if (mDragBoardFlag) {
-		if (mDragBoardPixelCnt < 5 && !mpGame->IsOver()) {
+		if (mDragBoardPixelCnt < 5 && !mpGame->IsOver() && mGameView.IsLocalPlayer()) {
 		    // Drags shorter than five pixels 
 			// are treated as normal mouse-clicks 
 			// which change or deactivate the target cell.
@@ -230,7 +217,7 @@ void TopWindow::HandleMenuCommand(IdType command) {
     switch (command) {
     // File menu options
         case IDM_NEW: {
-	        if (mpGame != NULL && mpGame->HasUnsavedChanges()) {
+	        if (HasGame() && mpGame->HasUnsavedChanges()) {
 				OfferSaveGame();
 			}
 			OfferNewGame();
@@ -276,6 +263,7 @@ void TopWindow::HandleMenuCommand(IdType command) {
         case IDM_SUGGEST:
 		    ASSERT(!IsGameOver());
 			ASSERT(!IsGamePaused());
+         	Partial::SetYield(NULL, NULL);
 			SetCursorBusy();
             mGameView.Suggest();
 			SetCursorSelect();
@@ -359,14 +347,14 @@ void TopWindow::HandleMenuCommand(IdType command) {
 	ForceRepaint();
 }
 
-LRESULT TopWindow::HandleMessage(UINT message, WPARAM wParam, LPARAM lParam) {
+LRESULT TopWindow::HandleMessage(MessageType message, WPARAM wParam, LPARAM lParam) {
 	LRESULT result = 0;
     switch (message) {
 	    case WM_CLOSE: {
-		    if (mpGame != NULL && mpGame->HasUnsavedChanges()) {
+		    if (HasGame() && mpGame->HasUnsavedChanges()) {
 				OfferSaveGame();
 			}
-			if (mpGame != NULL) {
+			if (HasGame()) {
 			    SetGame(NULL);
 			}
 		    result = Window::HandleMessage(message, wParam, lParam);
@@ -387,7 +375,7 @@ LRESULT TopWindow::HandleMessage(UINT message, WPARAM wParam, LPARAM lParam) {
         }
 
         case WM_LBUTTONDOWN: // begin left-click
-			if (mpGame != NULL) {
+			if (HasGame()) {
 			    if (IsGamePaused()) {
 				    TogglePause();
                 } else if (!mGameView.IsDragging()) {
@@ -445,12 +433,12 @@ LRESULT TopWindow::HandleMessage(UINT message, WPARAM wParam, LPARAM lParam) {
             break;
         }
 
-		case WM_TIMER: { // timeout
+		case WM_TIMER: { // timer popped
 			int timer_id = int(wParam);
 			if (timer_id == ID_CLOCK_TIMER) {
 			    if (mpMenuBar->AreClocksVisible() && !IsGamePaused() && !IsGameOver()) {
 					// don't update menus because that would cause flicker
-			        ForceRepaint();  // for active player's clock
+			        ForceRepaint();  // to update active player's clock display
 			    } else {
 					SetTimer(TIMEOUT_MSEC, timer_id);
 				}
@@ -463,7 +451,19 @@ LRESULT TopWindow::HandleMessage(UINT message, WPARAM wParam, LPARAM lParam) {
 		    break;
     }
 
-    return result;
+	if (HasGame()) {
+		Hand active_hand = Hand(*mpGame);
+	    if (active_hand.IsAutomatic() && !mThinking) {
+    	    Partial::SetYield(&yield, (void *)this);
+		    mThinking = true;
+	    }
+	}
+	if (mThinking) {
+	    ASSERT(mThinkFiber != NULL);
+	    Win::SwitchToFiber(mThinkFiber);
+	}
+
+	return result;
 }
 
 void TopWindow::HandleMouseMove(Point const &rMouse) {
@@ -501,24 +501,8 @@ void TopWindow::LoadPlayerOptions(Hand const &rHand) {
 	Player const &r_player = Player::rLookup(player_name);
 	mpMenuBar->LoadPlayerOptions(r_player);
 	mGameView.SetStartCellPosition(Point(r_player));
-	mGameView.SetTileWidth(r_player.TileSize());
-}
-
-int TopWindow::MessageDispatchLoop(void) {
-    int exit_code;
-
-	HACCEL table = GetAcceleratorTable("HOTKEYS");
-
-	for (;;) {
-        MSG message;
-		bool done = GetMessage(message, exit_code);
-        if (done) {
-			break;
-		}
-		TranslateAndDispatch(message, table);
-    }
-
-	return exit_code;
+	IdType tile_size = r_player.TileSize();
+	SetTileWidth(tile_size);
 }
 
 char const *TopWindow::Name(void) const {
@@ -529,7 +513,7 @@ void TopWindow::OfferNewGame(void) {
 	// set up first dialog box
 	GameStyleType old_game_style = mGameView.GameStyle();
 	unsigned seconds_per_hand = SECONDS_PER_MINUTE * ParmBox1::PLAYER_MINUTES_DEFAULT;
-	if (mpGame != NULL) {
+	if (HasGame()) {
 		seconds_per_hand = mpGame->SecondsPerHand();
 	}
 	ParmBox1 parmbox1(old_game_style, seconds_per_hand);
@@ -560,15 +544,20 @@ void TopWindow::OfferNewGame(void) {
     Indices auto_hands;
     Indices remote_hands;
 	std::vector<IpAddressType> ips;
-	if (mpGame != NULL) {
+	if (HasGame()) {
 	    Hands hands = Hands(*mpGame);
 		max_hand_cnt = hands.Count();
+		unsigned i = 0;
 		Hands::ConstIterator i_hand;
 		for (i_hand = hands.begin(); i_hand != hands.end(); i_hand++) {
 			String name = i_hand->PlayerName();
 			player_names.Append(name);
-			// TODO add to auto_hands and/or remote_hands
+			if (i_hand->IsAutomatic()) {
+				auto_hands.Add(i);
+			}
+			// TODO add to remote_hands
 			ips.push_back(0);  // produces 0.0.0.0
+			i++;
 		}
 	}
 
@@ -615,7 +604,7 @@ STEP2:
 		}
 		new_game_style = false;
 
-	} else if (mpGame != NULL) {
+	} else if (HasGame()) {
 		// set based on previous game
 		tile_redundancy = mpGame->Redundancy();
 	    hand_size = mpGame->HandSize();
@@ -768,19 +757,7 @@ STEP4:
 		player_names.Unappend();
 	}
 
-    // TODO: this part should be done in Game constructor
-    Strings hand_names;
-    Strings unique = player_names.Unique();
-	for (i_name = player_names.Begin(); i_name != player_names.End(); i_name++) {
-		String hand_name = *i_name;
-		if (player_names.Count(hand_name) > 1) {
-		    hand_name = unique.InventUnique(*i_name, "'s ", " hand");
-		    unique.Append(hand_name);
-		}
-		hand_names.Append(hand_name);
-	}
-
-	Game *p_new_game = new Game(hand_names, player_names, game_style, 
+	Game *p_new_game = new Game(player_names, auto_hands, game_style, 
 		                        tile_redundancy, hand_size, seconds_per_hand);
 	ASSERT(p_new_game != NULL);
 	SetGame(p_new_game);
@@ -795,7 +772,7 @@ void TopWindow::OfferSaveGame(void) {
 }
 
 void TopWindow::Play(bool passFlag) {
-	ASSERT(mpGame != NULL);
+	ASSERT(HasGame());
 	ASSERT(mpMenuBar != NULL);
 	ASSERT(mGameView.GetActive() == Tile::ID_NONE);
 	ASSERT(!IsGameOver());
@@ -814,21 +791,22 @@ void TopWindow::Play(bool passFlag) {
         } else {
 			// the game isn't over, so proceed to the next hand
 			Hand hand = Hand(*mpGame);
-		    SavePlayerOptions(hand);
+			if (!hand.IsAutomatic()) {
+		        SavePlayerOptions(hand);
+			}
 
             mpGame->ActivateNextHand();
 			hand = Hand(*mpGame);
-		    LoadPlayerOptions(hand);
-			IdType tile_size = mpMenuBar->TileSize();
-			SetTileWidth(tile_size);
-			if (!mpMenuBar->IsAutopause()) {
+			if (!hand.IsAutomatic()) {
+                LoadPlayerOptions(hand);
+			}
+			if (hand.IsAutomatic() || !mpMenuBar->IsAutopause()) {
 				mpGame->StartClock();
 			}
         }
 
         mGameView.Reset();
-		mGameView.ResetTargetCell();
-               
+
     } else if (!is_legal) { // explain the issue
         RuleBox(reason);
 		if (::str_eq(reason, "FIRST")) {
@@ -839,7 +817,7 @@ void TopWindow::Play(bool passFlag) {
 }
 
 void TopWindow::ReleaseActiveTile(Point const &rMouse) {
-	ASSERT(mpGame != NULL);
+	ASSERT(HasGame());
 
     TileIdType id = mGameView.GetActive(); 
      
@@ -955,7 +933,7 @@ void TopWindow::Repaint(void) {
 	SetTimer(TIMEOUT_MSEC, ID_CLOCK_TIMER);
 
 	if (mInitialNewGame) {
-		ASSERT(mpGame == NULL);
+		ASSERT(!HasGame());
 		mInitialNewGame = false;
 		OfferNewGame();
 	}
@@ -1050,23 +1028,24 @@ void TopWindow::SetGame(Game *pGame) {
 	// TODO: free old Game object?
 	mpGame = pGame;
 
-	mGameView.SetGame(pGame);
+	mGameView.SetGame(mpGame);
 	mpMenuBar->NewGame();
 
-	if (pGame != NULL) {
-	    Hands hands = Hands(*pGame);
+	if (HasGame()) {
+	    Hands hands = Hands(*mpGame);
 		Hands::ConstIterator i_hand;
 		for (i_hand = hands.begin(); i_hand != hands.end(); i_hand++) {
 			SavePlayerOptions(*i_hand);
 		}
+
+	    Hand hand = Hand(*mpGame);
+	    if (hand.IsAutomatic() || !mpMenuBar->IsAutopause()) {
+		    mpGame->StartClock();
+	    }
 	}
 
-	if (mpGame != NULL && !mpMenuBar->IsAutopause()) {
-		mpGame->StartClock();
-	}
-
-    UpdateMenuBar();
 	ForceRepaint();
+    UpdateMenuBar();
 }
 
 void TopWindow::SetTileWidth(IdType command) {
@@ -1088,8 +1067,34 @@ void TopWindow::StopDragging(void) {
 	ASSERT(!IsMouseCaptured());
 }
 
+void TopWindow::Think(void) {
+	for (;;) {
+		while (!mThinking) {
+			Yields();
+		}
+
+		ASSERT(mThinking);
+	    mGameView.Suggest();
+		ForceRepaint();
+
+		// pause 800 milliseconds to faciliate human comprehension
+		long start = ::milliseconds();
+		while (::milliseconds() <= start + 800) {
+		    Yields();
+		}
+
+		if (HasGame() && !IsGameOver()) {
+	        Play(false);
+    		ForceRepaint();
+			UpdateMenuBar();
+		}
+
+	    mThinking = false;
+	}
+}
+
 void TopWindow::TogglePause(void) {
-	if (mpGame != NULL && !IsGameOver()) {
+	if (HasGame() && !IsGameOver()) {
 		if (IsGamePaused()) {
 		    mpGame->StartClock();
 		} else {
@@ -1124,11 +1129,17 @@ int TopWindow::WarnBox(char const *messageText) {
 
 bool TopWindow::AreUnsavedChanges(void) const {
      bool result = false;
-     if (mpGame != NULL) {
+     if (HasGame()) {
          result = mpGame->HasUnsavedChanges();
      }
      
      return result;
+}
+
+bool TopWindow::HasGame(void) const {
+	bool result = (mpGame != NULL);
+
+	return result;
 }
 
 bool TopWindow::IsDraggingBoard(void) const {
@@ -1137,7 +1148,7 @@ bool TopWindow::IsDraggingBoard(void) const {
 
 bool TopWindow::IsGameOver(void) const {
 	bool result = false;
-	if (mpGame != NULL) {
+	if (HasGame()) {
 		result = mpGame->IsOver();
 	}
 
@@ -1146,7 +1157,7 @@ bool TopWindow::IsGameOver(void) const {
 
 bool TopWindow::IsGamePaused(void) const {
 	bool result = false;
-	if (mpGame != NULL && !mpGame->IsOver()) {
+	if (HasGame() && !mpGame->IsOver()) {
 		result = mpGame->IsPaused();
 	}
 

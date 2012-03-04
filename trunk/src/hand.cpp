@@ -22,20 +22,20 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include <iostream>
-#include <time.h>
 #include "hand.hpp"
 #include "move.hpp"
 
 
 // lifecycle
 
-Hand::Hand(const String &name, const String &playerName, unsigned seconds):
+Hand::Hand(const String &name, const String &playerName, bool autoFlag):
     mName(name),
 	mPlayerName(playerName)
 {
-	mRunning = false;
+	mAutomatic = autoFlag;
+	mClockRunning = false;
+	mMilliseconds = 0;
 	mScore = 0;
-	mSeconds = seconds;
 }
 
 // The compiler-generated copy constructor is fine.
@@ -67,16 +67,16 @@ Move Hand::ChooseMove(void) const {
 	return result;
 }
 
-void Hand::DisplayTiles(void) const {
-	std::cout << Name() << " is holding: " << String(mTiles) << "." << std::endl;
-}
-
 void Hand::DisplayName(void) const {
     std::cout << Name();
 }
 
 void Hand::DisplayScore(void) const {
     std::cout << Name() << " has " << plural(mScore, "point") << "." << std::endl;
+}
+
+void Hand::DisplayTiles(void) const {
+	std::cout << Name() << " is holding: " << String(mTiles) << "." << std::endl;
 }
 
 unsigned Hand::DrawTiles(unsigned tileCount, Tiles &rBag) {
@@ -96,6 +96,18 @@ unsigned Hand::DrawTiles(unsigned tileCount, Tiles &rBag) {
 Tiles Hand::LongestRun(void) const {
 	Tiles result = mTiles.LongestRun();
             
+	return result;
+}
+
+long Hand::Milliseconds(void) const {
+	long result = mMilliseconds;
+
+    if (mClockRunning) {
+	    long now = ::milliseconds();
+		ASSERT(now >= mStartTime);
+        result += unsigned(now - mStartTime);
+	}
+
 	return result;
 }
 
@@ -120,33 +132,32 @@ unsigned Hand::Score(void) const {
 }
 
 unsigned Hand::Seconds(void) const {
-	unsigned result = mSeconds;
-
-    if (mRunning) {
-	    time_t now = ::time(NULL);
-		ASSERT(now >= mStartTime);
-        result += unsigned(now - mStartTime);
-	}
-
+	long msecs = Milliseconds();
+    unsigned result = msecs/1000;
 	return result;
 }
 
 void Hand::StartClock(void) {
-	ASSERT(!mRunning);
-	mStartTime = ::time(NULL);
-	mRunning = true;
+	ASSERT(!mClockRunning);
+	mStartTime = ::milliseconds();
+	mClockRunning = true;
 }
 
 unsigned Hand::StopClock(void) {
-	ASSERT(mRunning);
-	mSeconds = Seconds();
-	mRunning = false;
+	ASSERT(mClockRunning);
+	mMilliseconds = Milliseconds();
+	mClockRunning = false;
+	unsigned result = mMilliseconds/1000;
 
-	return mSeconds;
+	return result;
 }
 
 
 // inquiry methods
+
+bool Hand::IsAutomatic(void) const {
+    return mAutomatic;
+}
 
 bool Hand::IsEmpty(void) const {
      bool result = mTiles.IsEmpty();
@@ -154,6 +165,13 @@ bool Hand::IsEmpty(void) const {
      return result;
 }
 
-bool Hand::IsRunning(void) const {
-	return mRunning;
+bool Hand::IsClockRunning(void) const {
+	return mClockRunning;
 }
+
+bool Hand::IsLocalPlayer(void) const {
+    bool result = !mAutomatic;
+
+	return result;
+}
+

@@ -21,17 +21,30 @@ You should have received a copy of the GNU General Public License
 along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include "tile.hpp"
+
+#ifdef _CONSOLE
 #include <iostream>
 #include "game.hpp"
 #include "strings.hpp"
+#endif // defined(_CONSOLE)
+
+#ifdef _QT
+#include <QtGui/QApplication>
+#endif // defined(_QT)
+
+#ifdef _WINDOWS
+#include "gui/win_types.hpp"
+#endif // defined(_WINDOWS)
 
 #ifdef _GUI
 #include "gui/topwindow.hpp"
-#include "gui/win_types.hpp"
-
 TopWindow *gTopWindow = NULL;
+#endif // defined(_GUI)
 
-// Windows main entry point
+#ifdef _WINDOWS
+
+// Microsoft Windows native application main entry point
 int CALLBACK Win::WinMain(
 	HINSTANCE applicationInstance, 
 	HINSTANCE previousInstance, // always NULL and ignored
@@ -40,12 +53,15 @@ int CALLBACK Win::WinMain(
 {
 	previousInstance;
 	commandLine;
-#endif  // defined(_GUI)
 
-#ifdef _CONSOLE
-// console main entry point
+#else // !defined(_WINDOWS)
+
+// standard C++ main entry point
 int main(int argCnt, char *argValues[]) {
-#endif // defined(_CONSOLE)
+
+#endif // defined(_WINDOWS)
+
+	int exit_code = EXIT_SUCCESS;
 
 	// seed the pseudo-random number generator
 	unsigned seed = ::milliseconds();
@@ -56,39 +72,75 @@ int main(int argCnt, char *argValues[]) {
 	Tile::SetStatic(attribute_cnt, max_attribute);
 
 #ifdef _CONSOLE
+	argCnt;
+	argValues;
+
 	// legal notice
 	std::cout
 		<< "Gold Tile Game (c) Copyright 2012 Stephen Gold" << std::endl
         << "This program comes with ABSOLUTELY NO WARRANTY." << std::endl
-        << "This is free software, and you are welcome to redistribute it" << std::endl
-        << "under certain conditions; see LICENSE.txt for details." << std::endl
+        << "This is free software, and you are welcome to redistribute" << std::endl
+        << "it under certain conditions; see LICENSE.txt for details." << std::endl
         << std::endl;
 
-    // game parameters: hard-coded for now
-	Strings player_names;
-	player_names.Append("Stephen"); // oldest first
-	player_names.Append("Paul");
-	player_names.Append("Gale");
+	unsigned hand_cnt = 0;
+	while (hand_cnt == 0) {
+	    std::cout << "How many hands? ";
+	    std::cin >> hand_cnt;
+	}
 
+	Strings player_names;
 	Indices auto_flags;
 
+	for (unsigned i_hand = 0; i_hand < hand_cnt; i_hand++) {
+	    std::cout << "Name of player for the " << ::ordinal(i_hand + 1)
+			      << " hand? (or else 'computer') ";
+	    String name;
+	    std::cin >> name;
+	    player_names.Append(name);
+	    if (name == "computer") {
+			auto_flags.Add(i_hand);
+	    }
+	}
+
+	unsigned hand_size = 0;
+	while (hand_size == 0) {
+	    std::cout << "How many tiles per hand? ";
+	    std::cin >> hand_size;
+	}
+	std::cout << std::endl;
+	
+	// Clone tiles until there are enough to fill each hand at least three times.
+	unsigned tiles_needed = 3 * hand_size * hand_cnt;
+	long combo_cnt = Tile::CombinationCnt();
+	unsigned clones_per_tile = unsigned(tiles_needed / combo_cnt);
+
     // Instantiate the game.
-	Game game(player_names, auto_flags, GAME_STYLE_PRACTICE);
+	Game game(player_names, auto_flags, GAME_STYLE_PRACTICE, clones_per_tile + 1, hand_size);
 
 	game.PlayGame();
+	std::cout << "The game is over." << std::endl;
     ::pause();
-	int exitCode = EXIT_SUCCESS;
 #endif // defined(_CONSOLE)
 
-#ifdef _GUI
+#ifdef _QT
+	// Instantiate top window and display it.
+	QApplication a(argCnt, argValues);
+    gTopWindow = new TopWindow;
+    gTopWindow->show();
+    
+    exit_code = a.exec();
+#endif // defined(_QT)
+
+#ifdef _WINDOWS
 	// Instantiate top window and display it.
 	gTopWindow = new TopWindow(applicationInstance, NULL);
 	gTopWindow->Show(showHow);
 
     // Retrieve and dispatch messages for this application. 
-	int exitCode = gTopWindow->MessageDispatchLoop();
-#endif // defined(GUI)
+	exit_code = gTopWindow->MessageDispatchLoop();
+#endif // defined(_WINDOWS)
 
-	return exitCode;
+	return exit_code;
 }
 

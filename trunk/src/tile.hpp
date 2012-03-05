@@ -39,8 +39,8 @@ of attributes.  Distinct tiles with identical attributes
 typedef IndexType TileIdType;
 
 // attribute types and utilities
-typedef unsigned ACountType, AIndexType;
-typedef unsigned AValueType;
+typedef unsigned short ACountType, AIndexType;
+typedef unsigned short AValueType;
 
 String     attribute_to_string(AIndexType, AValueType);
 AValueType char_to_attribute(AIndexType, char ch);
@@ -68,6 +68,7 @@ public:
 	AValueType        Attribute(AIndexType) const;
     static ACountType AttributeCnt(void);
 	Tile              Clone(void) const;
+	static long       CombinationCnt(void);
 	AIndexType        CommonAttribute(Tile const &) const;
 	ACountType        CountMatchingAttributes(Tile const &) const;
 	void              Display(void) const;
@@ -105,4 +106,4 @@ private:
 	static TileIdType NextId(void);
 };
 
-#endif
+#endif // !defined(TILE_HPP_INCLUDED)

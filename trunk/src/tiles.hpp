@@ -73,4 +73,4 @@ private:
 	std::map<TileIdType,Tile> mMap;
 };
 
-#endif
+#endif // !defined(TILES_HPP_INCLUDED)

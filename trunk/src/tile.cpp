@@ -27,7 +27,7 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 
 // static data
 
-ACountType  Tile:: msAttributeCnt = 0; // set using SetStatic()
+ACountType  Tile:: msAttributeCnt = 0; // configure using SetStatic()
 TileIdType  Tile:: msNextId = ID_FIRST;
 AValueType *Tile::mspValueMax = NULL;
 
@@ -172,6 +172,16 @@ Tile Tile::Clone(void) const {
     return result;
 }
 
+/* static */ long Tile::CombinationCnt(void) {
+	long result = 1L;
+    for (AIndexType i_attr = 0; i_attr < msAttributeCnt; i_attr++) {
+		AValueType possible_values = 1 + mspValueMax[i_attr];
+		result *= possible_values;
+	}
+
+	return result;
+}
+
 AIndexType Tile::CommonAttribute(Tile const &rOther) const {
 	ASSERT(IsValid());
 	ASSERT(rOther.IsValid());
@@ -193,7 +203,7 @@ ACountType Tile::CountMatchingAttributes(Tile const &rOther) const {
 	ASSERT(IsValid());
 	ASSERT(rOther.IsValid());
 
-	unsigned result = 0;
+	ACountType result = 0;
     for (AIndexType i_attr = 0; i_attr < msAttributeCnt; i_attr++) {
         if (HasAttribute(i_attr, rOther.mpArray[i_attr])) {
              ++result;

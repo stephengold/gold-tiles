@@ -210,7 +210,7 @@ Rect Canvas::DrawTile(
         ASSERT(numGlyphs == 1);
     }
    
-    for (unsigned ind = 0; ind < numGlyphs; ind++) {
+    for (AIndexType ind = 0; ind < numGlyphs; ind++) {
         LogicalXType glyph_left = interior.LeftX();
         LogicalYType glyph_top = interior.TopY();
         if (numGlyphs == 2) {

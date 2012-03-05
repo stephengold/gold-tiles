@@ -58,4 +58,4 @@ public:
 	bool IsEmpty(IndexType) const;
 };
 
-#endif
+#endif // !defined(INDICES_HPP_INCLUDED)

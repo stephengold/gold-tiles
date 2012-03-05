@@ -22,6 +22,24 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "gui/canvas.hpp"
+#include "gui/topwindow.hpp"
+
+#ifdef _QT
+#include "ui_topwindow.h"
+
+TopWindow::TopWindow(QWidget *parent):
+    QMainWindow(parent),
+    ui(new Ui::TopWindow)
+{
+    ui->setupUi(this);
+}
+
+TopWindow::~TopWindow(void) {
+    delete ui;
+}
+#endif
+
+#ifdef  _WINDOWS
 #include "gui/handbox.hpp"
 #include "gui/hintbox.hpp"
 #include "gui/menubar.hpp"
@@ -31,7 +49,6 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 #include "gui/player.hpp"
 #include "gui/resource.hpp"
 #include "gui/tilebox.hpp"
-#include "gui/topwindow.hpp"
 #include "gui/win_types.hpp"
 #include "gui/windowclass.hpp"
 #include "strings.hpp"
@@ -1203,3 +1220,4 @@ bool TopWindow::IsGamePaused(void) const {
 
 	return result;
 }
+#endif // !defined(_WINDOWS)

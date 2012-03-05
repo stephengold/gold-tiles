@@ -141,7 +141,7 @@ unsigned Hand::Score(void) const {
 
 unsigned Hand::Seconds(void) const {
 	long msecs = Milliseconds();
-    unsigned result = unsigned(msecs/1000);
+    unsigned result = unsigned(msecs/MSECS_PER_SECOND);
 	return result;
 }
 
@@ -157,7 +157,7 @@ unsigned Hand::StopClock(void) {
 	mClockRunning = false;
 
 	// return the number of elapsed seconds
-	unsigned result = unsigned(mMilliseconds/1000);
+	unsigned result = unsigned(mMilliseconds/MSECS_PER_SECOND);
 
 	return result;
 }

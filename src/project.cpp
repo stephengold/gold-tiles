@@ -56,7 +56,7 @@ long milliseconds(void) {
     result = long(ticks);
 #else // !defined(WIN32)
 	time_t seconds = ::time(NULL);
-	result = 1000*long(seconds);
+	result = MSECS_PER_SECOND*long(seconds);
 #endif // !defined(WIN32)
 
 	return result;

@@ -27,9 +27,35 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 /*
 A TopWindow object represents the main window for the game.
 
-The TopWindow class is an extension of the Window class.
+In the native version, the TopWindow class extends the Window class.
+In the Qt version, the TopWindow class extends the QMainWindow class.
 */
 
+#include "project.hpp"
+
+#ifdef _QT
+#include <QMainWindow>
+
+namespace Ui {
+    class TopWindow;
+}
+
+class TopWindow: public QMainWindow {
+    Q_OBJECT
+
+public:
+    // public lifecycle
+    explicit TopWindow(QWidget *parent = 0);
+    ~TopWindow(void);
+
+private:
+    // private data
+    Ui::TopWindow *ui;
+};
+#endif
+
+
+#ifdef _WINDOWS
 #include "gui/color.hpp"
 #include "gui/window.hpp"   // ISA Window
 #include "gui/gameview.hpp" // HASA GameView
@@ -112,5 +138,6 @@ private:
 	bool IsGameOver(void) const;
 	bool IsGamePaused(void) const;
 };
-
 #endif
+
+#endif // !defined(TOPWINDOW_HPP_INCLUDED)

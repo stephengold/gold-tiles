@@ -67,4 +67,4 @@ using Win::WNDPROC;
 using Win::WORD;
 using Win::WPARAM;
 
-#endif
+#endif // !defined(WIN_TYPES_HPP_INCLUDED)

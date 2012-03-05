@@ -47,10 +47,10 @@ Game::Game(
 	mSecondsPerHand = secondsPerHand;
 
     // generate all possible tiles
-    unsigned attribute_index = 0;
+    AIndexType attribute_index = 0;
     Tile model_tile;
     AddTiles(attribute_index, model_tile);
-    D(std::cout << "Placed " << plural(CountStock(), "tile") << " in the stock bag." << std::endl);
+    std::cout << "Placed " << plural(CountStock(), "tile") << " in the stock bag." << std::endl;
     
     // construct hands and generate a unique name for each one
     Strings unique = rPlayerNames.Unique();
@@ -132,9 +132,9 @@ Tiles Game::ActiveTiles(void) const {
 
 // create tiles and add them to the stock bag
 void Game::AddTiles(  // recursive
-    unsigned attributeIndex,
-    Tile &modelTile) {
-
+    AIndexType attributeIndex,
+    Tile &modelTile)
+{
     ACountType na = Tile::AttributeCnt();
 	if (attributeIndex < na) {
 		AValueType max = Tile::ValueMax(attributeIndex);
@@ -358,7 +358,7 @@ bool Game::IsLegalMove(Move const &rMove, char const *&rReason) const {
         std::cout << "Not a valid move."
 			<< std::endl;
 	    result = false;
-	} else if (mBestRunLength > 0 
+	} else if (mBestRunLength > 0 && !rMove.IsResign()
 		&& (rMove.Count() != mBestRunLength || rMove.InvolvesSwap())) {
         std::cout << "On the first turn, you must play as many tiles as possible.  Keep looking!"
 			<< std::endl;

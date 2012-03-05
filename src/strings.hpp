@@ -63,4 +63,4 @@ private:
 	std::list<String> mList;
 };
 
-#endif
+#endif // !defined(STRINGS_HPP_INCLUDED)

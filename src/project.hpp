@@ -8,25 +8,31 @@
 // Distributed under the terms of the GNU General Public License
 
 // project-wide macros
-#ifdef _WINDOWS
+
+#ifdef QT_GUI_LIB
+#define _QT
+#endif // defined(QT_GUI_LIB)
+
+#if defined(_WINDOWS) || defined(_QT)
 #define _GUI
 #else // !defined(_WINDOWS)
 #define _CONSOLE
 #endif // !defined(_WINDOWS)
 
-// debugging macros
+// debugging macros: D(), ASSERT(), and FAIL()
+
 #ifdef _DEBUG
-#ifdef _WINDOWS
-#include <assert.h>
-#define ASSERT assert
-#else // !defined(_WINDOWS)
-#define ASSERT(expression) ((expression) ? (void)0 : ::assertion_failed(__FILE__, __LINE__))
-#endif // !defined(_WINDOWS)
 #define D(debug_only_code) (debug_only_code)
 #else  // !defined(_DEBUG)
-#define ASSERT(expression) ((void)0)
 #define D(debug_only_code) ((void)0)
 #endif // !defined(_DEBUG)
+
+#ifdef _GUI
+#include <assert.h>
+#define ASSERT(expression) D(assert(expression))
+#else // !defined(_GUI)
+#define ASSERT(expression) D((expression) ? (void)0 : ::assertion_failed(__FILE__, __LINE__))
+#endif // !defined(_GUI)
 
 #define FAIL() ASSERT(false)
 
@@ -77,20 +83,24 @@ class YesNo;
 #endif  // defined(_GUI)
 
 // project-wide utility functions
+
 void        assertion_failed(const char *, unsigned);
 bool        is_even(long);
 bool        is_odd(long);
-long        milliseconds(void);
+long        milliseconds(void);  // read clock
 String      ordinal(unsigned);
 void        pause(void);
 const char *plural(unsigned);
 String      plural(unsigned, const char *);
-bool        str_eq(char const *, char const *);
+bool        str_eq(char const *, char const *);  // compare text strings
 
 // project-wide constants
+
 #ifndef M_PI
 const double   M_PI = 3.14159265358979323846;
 #endif // !defined(M_PI)
+
+const unsigned MSECS_PER_SECOND = 1000;
 const double   SQRT_3 = 1.732050807568877;
 const unsigned SECONDS_PER_MINUTE = 60;
 

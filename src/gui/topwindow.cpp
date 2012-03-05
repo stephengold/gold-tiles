@@ -531,15 +531,15 @@ void TopWindow::OfferNewGame(void) {
 	ParmBox2 parmbox2(wrap_flag, height, width, grid);
 
 	// begin setting up third dialog box
-	unsigned attribute_cnt = Tile::AttributeCnt();
+	ACountType attribute_cnt = Tile::AttributeCnt();
 	unsigned tile_redundancy = Game::TILE_REDUNDANCY_DEFAULT;
 	unsigned hand_cnt = HAND_CNT_DEFAULT;
 	unsigned hand_size = Game::HAND_SIZE_DEFAULT;
 
-	unsigned max_attribute_cnt = Tile::AttributeCnt();
+	ACountType max_attribute_cnt = Tile::AttributeCnt();
 	AValueType *max_attribute_values = new AValueType[max_attribute_cnt];
 	ASSERT(max_attribute_values != NULL);
-	for (unsigned i_attr = 0; i_attr < max_attribute_cnt; i_attr++) {
+	for (AIndexType i_attr = 0; i_attr < max_attribute_cnt; i_attr++) {
 		max_attribute_values[i_attr] = Tile::ValueMax(i_attr);
 	}
 
@@ -688,10 +688,10 @@ STEP4:
     TileBox::ValueType *num_values = tilebox.NumValues();
 
 	// copy new limits
-    for (unsigned i_attr = 0; i_attr < max_attribute_cnt; i_attr++) {
+    for (AIndexType i_attr = 0; i_attr < max_attribute_cnt; i_attr++) {
 		ASSERT(num_values[i_attr] >= Tile::VALUE_CNT_MIN);
 		ASSERT(num_values[i_attr] <= Tile::VALUE_CNT_MAX);
-	    max_attribute_values[i_attr] = num_values[i_attr] - 1;
+	    max_attribute_values[i_attr] = AValueType(num_values[i_attr] - 1);
     }
 	if (result == Dialog::RESULT_CANCEL) {
 	    delete[] max_attribute_values;

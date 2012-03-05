@@ -111,4 +111,4 @@ private:
     void NextTurn(void);
 };
 
-#endif
+#endif // !defined(GAME_HPP_INCLUDED)

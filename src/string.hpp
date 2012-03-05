@@ -63,4 +63,4 @@ public:
 	bool IsEmpty(void) const;
 };
 
-#endif
+#endif // !defined(STRING_HPP_INCLUDED)

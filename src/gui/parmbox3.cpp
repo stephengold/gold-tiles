@@ -56,8 +56,10 @@ ParmBox3::ParmBox3(unsigned attributeCnt, unsigned clonesPerTile,
 
 // misc methods
 
-unsigned ParmBox3::AttributeCnt(void) const {
-    return mAttributeCnt;
+ACountType ParmBox3::AttributeCnt(void) const {
+    ACountType result = ACountType(mAttributeCnt);
+
+    return result;
 }
 
 unsigned ParmBox3::ClonesPerTile(void) const {

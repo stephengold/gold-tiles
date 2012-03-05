@@ -104,11 +104,11 @@ private:
 	Game &operator=(Game const &);  // not assignable
 
 	// misc private methods
-    void     AddTiles(AIndexType, Tile &);
-    Cell     ChooseCell(void) const;
-    void     DisplayScores(void) const;
-    void     FirstTurn(void);
-    void     NextTurn(void);
+    void AddTiles(AIndexType, Tile &);
+    Cell ChooseCell(void) const;
+    void DisplayScores(void) const;
+    void FirstTurn(void);
+    void NextTurn(void);
 };
 
 #endif

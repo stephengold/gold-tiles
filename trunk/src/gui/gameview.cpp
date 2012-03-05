@@ -150,16 +150,19 @@ void GameView::DrawActiveHand(Canvas &rCanvas) {
     // calculate height of hand area (mHandRect)
     unsigned tile_cnt = CountHand();
     PCntType cell_height = CellHeight();
-    PCntType height = tile_cnt*cell_height + 2*mPadPixels;
-    if (tile_cnt < CountTiles()) {
-        // show that there's room for more
-        height += cell_height/2;
+	PCntType height = rCanvas.TextHeight() + 2*mPadPixels;
+	if (!active_hand.HasResigned() && !active_hand.HasGoneOut()) {
+        height = tile_cnt*cell_height + 2*mPadPixels;
+        if (tile_cnt < CountTiles()) {
+            // show that there's room for more
+            height += cell_height/2;
+	    }
 	}
 
 	// choose colors for hand area (mHandRect)
 	TileIdType active_tile = GetActive();
 	if (IsInHand(active_tile)) {
-        // The active tile came from this hand.
+        // The active tile started from this hand.
 		ASSERT(tile_cnt > 0);
 		--tile_cnt;
 	}
@@ -175,50 +178,63 @@ void GameView::DrawActiveHand(Canvas &rCanvas) {
     rCanvas.UseColors(area_color, edge_color);
 
     // draw hand area (mHandRect)
-    top_y = header_rect.BottomY() - 1;
+	top_y = header_rect.BottomY() - 1;
     mHandRect = rCanvas.DrawRectangle(top_y, left_x, width, height);
     left_x = mHandRect.LeftX();
     width = mHandRect.Width();
-    
-    // calculate height of swap area (mSwapRect)
-    tile_cnt = CountSwap();
-    height = tile_cnt*cell_height + rCanvas.TextHeight() + 3*mPadPixels;
-	unsigned played_tile_cnt = CountPlayed();
+
+    if (active_hand.HasResigned()) {
+		String text = "resigned";
+		rCanvas.DrawText(mHandRect, text);
+	} else if (active_hand.HasGoneOut()) {
+		String text = "went out";
+		rCanvas.DrawText(mHandRect, text);
+	}
+
     unsigned stock_cnt = mpGame->CountStock();
-    if (tile_cnt < CountTiles() && tile_cnt < stock_cnt) {
-        // there's room for more tiles
-        height += cell_height/2;
-	}
-
-    // choose color for swap area (mSwapRect)
-	if (IsInSwap(active_tile)) {
-		ASSERT(tile_cnt > 0);
-		--tile_cnt;
-	}
-	if (IsOnBoard(active_tile)) {
-		ASSERT(played_tile_cnt > 0);
-		--played_tile_cnt;
-	}
-	if (!IsLocalPlayer()) {
-	    area_color = COLOR_DARK_BLUE;
-	} else if (played_tile_cnt == 0
-            && tile_cnt < CountTiles()
-            && tile_cnt < stock_cnt)
-    {
-        area_color = COLOR_DARK_GREEN;
-    } else { // can't add more tiles to swap area
-        area_color = COLOR_BROWN;
-    }
-    rCanvas.UseColors(area_color, edge_color);
-
-    // draw swap area (mSwapRect)
     top_y = mHandRect.BottomY() - 1;
-    mSwapRect = rCanvas.DrawRectangle(top_y, left_x, width, height);
+
+	if (active_hand.HasGoneOut() || active_hand.HasResigned()) {
+        mSwapRect = Rect(top_y, left_x, width, 0);
+	} else {
+        // calculate height of swap area (mSwapRect)
+        tile_cnt = CountSwap();
+        height = tile_cnt*cell_height + rCanvas.TextHeight() + 3*mPadPixels;
+	    unsigned played_tile_cnt = CountPlayed();
+        if (tile_cnt < CountTiles() && tile_cnt < stock_cnt) {
+            // there's room for more tiles
+            height += cell_height/2;
+	    }
+
+        // choose color for swap area (mSwapRect)
+	    if (IsInSwap(active_tile)) {
+		    ASSERT(tile_cnt > 0);
+		    --tile_cnt;
+	    }
+	    if (IsOnBoard(active_tile)) {
+		    ASSERT(played_tile_cnt > 0);
+		    --played_tile_cnt;
+	    }
+	    if (!IsLocalPlayer()) {
+	        area_color = COLOR_DARK_BLUE;
+	    } else if (played_tile_cnt == 0
+                && tile_cnt < CountTiles()
+                && tile_cnt < stock_cnt)
+        {
+            area_color = COLOR_DARK_GREEN;
+        } else { // can't add more tiles to swap area
+            area_color = COLOR_BROWN;
+        }
+        rCanvas.UseColors(area_color, edge_color);
+
+        // draw swap area (mSwapRect)
+        mSwapRect = rCanvas.DrawRectangle(top_y, left_x, width, height);
     
-    String swap_text = "swap area";
-    LogicalYType y = mSwapRect.BottomY() - mPadPixels - rCanvas.TextHeight();
-    Rect bounds(y, left_x, width, rCanvas.TextHeight());
-    rCanvas.DrawText(bounds, swap_text);
+        String swap_text = "swap area";
+        LogicalYType y = mSwapRect.BottomY() - mPadPixels - rCanvas.TextHeight();
+        Rect bounds(y, left_x, width, rCanvas.TextHeight());
+        rCanvas.DrawText(bounds, swap_text);
+	}
 
     // calculate height of stock area
     height = 2*rCanvas.TextHeight() + 3*mPadPixels;
@@ -232,7 +248,7 @@ void GameView::DrawActiveHand(Canvas &rCanvas) {
     Rect stock_rect = rCanvas.DrawRectangle(top_y, left_x, width, height);
 
     String stock_text1 = plural(stock_cnt, "tile");
-	y = top_y + mPadPixels;
+	LogicalYType y = top_y + mPadPixels;
     Rect bounds1(y, left_x, width, rCanvas.TextHeight());
     rCanvas.DrawText(bounds1, stock_text1);
 
@@ -548,12 +564,21 @@ void GameView::DrawInactiveHands(Canvas &rCanvas) {
         area_color = COLOR_DARK_BLUE;
         rCanvas.UseColors(area_color, edge_color);
 		PCntType height = rCanvas.TextHeight() + 2*mPadPixels;
-		if (mpMenuBar->IsPeeking()) {
+		if (!i_hand->HasResigned() && !i_hand->HasGoneOut() && mpMenuBar->IsPeeking()) {
             height = tile_count*cell_height + 2*mPadPixels;
 		}
         Rect hand_rect = rCanvas.DrawRectangle(top_y, left_x, width, height);
 
-		if (mpMenuBar->IsPeeking()) {
+		if (i_hand->HasResigned()) {
+			String text = "resigned";
+			rCanvas.DrawText(hand_rect, text);
+		} else if (i_hand->HasGoneOut()) {
+			String text = "went out";
+			rCanvas.DrawText(hand_rect, text);
+		} else if (!mpMenuBar->IsPeeking()) {
+			String text = ::plural(tile_count, "tile");
+			rCanvas.DrawText(hand_rect, text);
+		} else {
             // draw tiles
             LogicalXType tile_x = hand_rect.CenterX();
             LogicalYType tile_y = hand_rect.TopY() + mPadPixels + cell_height/2;
@@ -569,9 +594,6 @@ void GameView::DrawInactiveHands(Canvas &rCanvas) {
                 tile_y += cell_height;
 			}
 
-        } else {
-			String text = ::plural(tile_count, "tile");
-			rCanvas.DrawText(hand_rect, text);
 		}
 
 		// pad between hands

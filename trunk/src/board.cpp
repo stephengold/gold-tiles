@@ -115,8 +115,8 @@ bool Board::LocateTile(Tile const &rTile, Cell &rCell) const {
 }
 
 void Board::PlayMove(Move const &rMove) {
-    Move::const_iterator i_place;
-    for (i_place = rMove.begin(); i_place != rMove.end(); i_place++) {
+    Move::ConstIterator i_place;
+    for (i_place = rMove.Begin(); i_place != rMove.End(); i_place++) {
         PlayTile(*i_place);
     }
 }
@@ -363,6 +363,12 @@ bool Board::IsValidMove(Move const &rMove) const {
 }
 
 bool Board::IsValidMove(Move const &rMove, char const *&rReason) const {
+    // resignation is always legal
+	if (rMove.IsResign()) {
+        D(std::cout << "The move is a resignation." << std::endl);
+        return true;
+    }
+
     // a pass (no tiles played or swapped) is always legal
     if (rMove.IsPass()) {
         D(std::cout << "The move is a pass." << std::endl);

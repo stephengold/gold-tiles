@@ -117,8 +117,10 @@ Game::operator Hands(void) const {
 void Game::ActivateNextHand(void) {
 	ASSERT(!miActiveHand->IsClockRunning());
 
-    mHands.Next(miActiveHand);
+    mHands.NextWorking(miActiveHand);
 	mUnsavedChanges = true;
+
+	ASSERT(!miActiveHand->IsClockRunning());
 }
 
 // get the tiles in the active hand
@@ -166,42 +168,46 @@ void Game::DisplayScores(void) const {
 void Game::FinishTurn(Move const &move) {
     ASSERT(mBoard.IsValidMove(move));
 
-    // remove played/swapped tiles from the hand
-    Tiles tiles = Tiles(move);
-    miActiveHand->RemoveTiles(tiles);
-
-    // attempt to draw replacement tiles from the stock bag
-    unsigned count = tiles.Count();
-	if (count > 0) {
-        unsigned actual = miActiveHand->DrawTiles(count, mStockBag);
-		ASSERT(actual == count || !move.InvolvesSwap());
-	}
-
-	if (move.InvolvesSwap()) {
-		// return swapped tiles to the stock bag
-		mStockBag.AddTiles(tiles);
-		std::cout << miActiveHand->Name() << " put " << plural(count, "tile")
-			<< " back into the stock bag." << std::endl;
+	if (move.IsResign()) {
+		miActiveHand->Resign(mStockBag);
 
 	} else {
-	    // place played tiles on the board
-        mBoard.PlayMove(move);
+        // remove played/swapped tiles from the hand
+        Tiles tiles = Tiles(move);
+        miActiveHand->RemoveTiles(tiles);
+
+        // attempt to draw replacement tiles from the stock bag
+        unsigned count = tiles.Count();
+	    if (count > 0) {
+            unsigned actual = miActiveHand->DrawTiles(count, mStockBag);
+		    ASSERT(actual == count || !move.InvolvesSwap());
+	    }
+
+	    if (move.InvolvesSwap()) {
+		    // return swapped tiles to the stock bag
+		    mStockBag.AddTiles(tiles);
+		    std::cout << miActiveHand->Name() << " put " << plural(count, "tile")
+			    << " back into the stock bag." << std::endl;
+
+	    } else {
+	        // place played tiles on the board
+            mBoard.PlayMove(move);
     
-        // update the hand's score    
-  	    unsigned points = mBoard.ScoreMove(move);
-	    miActiveHand->AddScore(points);
+            // update the hand's score    
+  	        unsigned points = mBoard.ScoreMove(move);
+	        miActiveHand->AddScore(points);
+		}
 	}
 	
 	//  If it was the first turn, it no longer is.
     mBestRunLength = 0;
 
-	// There are now unsaved changes.
+	// There are unsaved changes now.
 	mUnsavedChanges = true;
 }
 
 void Game::FirstTurn(void) {
     std::cout << std::endl;
-    D(std::cout << "Game::FirstTurn(" << miActiveHand->Name() << ")" << std::endl);
 
     Move move;
     for (;;) {
@@ -217,6 +223,7 @@ void Game::FirstTurn(void) {
 }
 
 void Game::GoingOutBonus(void) {
+	// the active hand scores a point for each tile in every other hand
     Hands::ConstIterator i_hand = miActiveHand;
 	mHands.Next(i_hand);
     
@@ -236,6 +243,7 @@ unsigned Game::HandSize(void) const {
 }
 
 Hands Game::InactiveHands(void) const {
+	// return a list of inactive hands (including those which have resigned)
     Hands result;
 
     Hands::ConstIterator i_hand = miActiveHand;
@@ -293,6 +301,7 @@ unsigned Game::Redundancy(void) const {
 }
 
 int Game::Seconds(Hand &rHand) const {
+	// read the clock of a particular hand
 	int result = rHand.Seconds(); 
 	if (mSecondsPerHand > 0) {
 		result = mSecondsPerHand - result;
@@ -368,20 +377,17 @@ bool Game::IsLegalMove(Move const &rMove, char const *&rReason) const {
 bool Game::IsOver(void) const {
     bool result = false;
     
-    // The game is over if (and only if) the stock bag is empty 
-    // and one of the hands has gone out.
+    // The game is over if and only if: 
+	//    (1) the stock bag is empty and one of the hands has gone out 
+	// or (2) all hands have resigned.
 
-	if (IsStockEmpty()) {
-        Hands::ConstIterator hand;
-        for (hand = mHands.begin(); hand < mHands.end(); hand++) {
-	        if (hand->IsEmpty()) {
-		        result = true;
-		        break;
-	        }
-        }
-   }
+	if (IsStockEmpty() && mHands.HasAnyGoneOut()) {
+        result = true;
+    } else if (mHands.HaveAllResigned()) {
+		result = true;
+	}
 
-   return result;
+    return result;
 }
 
 bool Game::IsPaused(void) const {

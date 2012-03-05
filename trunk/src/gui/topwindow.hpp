@@ -95,6 +95,7 @@ private:
     void         Play(bool passFlag);
 	void         ReleaseActiveTile(Point const &);
 	void         Repaint(void);
+	void         ResignHand(void);
     void         Resize(PCntType width, PCntType height);
 	void         RuleBox(char const *message);
 	void         SavePlayerOptions(Hand const &) const;

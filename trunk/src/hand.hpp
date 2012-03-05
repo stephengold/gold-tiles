@@ -29,13 +29,13 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 
 class Hand {
 public:
-	// lifecycle
+	// public lifecycle
     Hand(String const &name, String const &playerName, bool autom);
 	// no default constructor
     // Hand(Hand const &); The compiler-generated copy constructor is fine.
     //~Hand(void); The compiler-generated destructor is fine.
 
-	// operators
+	// public operators
     // Hand &operator=(Hand const &); The compiler-generated assignment method is fine.
 	operator Tiles(void) const;
 
@@ -46,35 +46,41 @@ public:
 	void     DisplayName(void) const;
 	void     DisplayScore(void) const;
 	void     DisplayTiles(void) const;
-	unsigned DrawTiles(unsigned, Tiles &);
+	unsigned DrawTiles(unsigned, Tiles &bag);
 	Tiles    LongestRun(void) const;
 	String   Name(void) const;
 	String   PlayerName(void) const;
 	void     RemoveTile(Tile const &);
 	void     RemoveTiles(Tiles const &);
+	void     Resign(Tiles &bag);
 	unsigned Score(void) const;
 	unsigned Seconds(void) const;
 	void     StartClock(void);
 	unsigned StopClock(void);
 
 	// public inquiry methods
+	bool HasGoneOut(void) const;
+	bool HasResigned(void) const;
 	bool IsAutomatic(void) const;
 	bool IsClockRunning(void) const;
-	bool IsEmpty(void) const;
 	bool IsLocalPlayer(void) const;
 
 private:
 	// private data
-	bool     mAutomatic;
-	bool     mClockRunning;
-	long     mMilliseconds;
-	String   mName;    // the "name" of this hand
-	String   mPlayerName; 
-	unsigned mScore;
-	time_t   mStartTime;
-	Tiles    mTiles;
+	bool      mAutomatic;
+	bool      mClockRunning;
+	long      mMilliseconds;
+	String    mName;    // the "name" of this hand
+	String    mPlayerName;
+	bool      mResigned;
+	unsigned  mScore;
+	long      mStartTime;
+	Tiles     mTiles;
 
 	// private misc methods
 	long Milliseconds(void) const;
+
+	// private inquiry methods
+	bool IsEmpty(void) const;
 };
 #endif

@@ -414,22 +414,20 @@ void Partial::SetHintStrength(HintType strength) {
 
 	if (mHintStrength != strength) {
         mHintedCellsValid = false;
+        mHintStrength = strength;
 	}
-    mHintStrength = strength;
 }
 
 /* static */ void Partial::SetYield(void(*pFunction)(void*), void *pArgument) {
+	// set up a callback to be invoked periodically during long-running operations --
+	// currently used only in FindBestMove(), by way of Yields()
 	mspYieldArgument = pArgument;
 	mspYieldFunction = pFunction;
 }
 
 void Partial::Suggest(void) {
-    ASSERT(mActiveId == Tile::ID_NONE);
     ASSERT(HasGame());
-
-    mPlayedTileCnt = 0;
-	mSwapIds.MakeEmpty();
-    mBoard = Board(*mpGame);
+	Reset();
 
     Partial best = *this;
     unsigned best_score = 0;
@@ -439,6 +437,7 @@ void Partial::Suggest(void) {
     } else {
         best.SetHintStrength(mHintStrength);
         *this = best;
+        mHintedCellsValid = false;
     }
 }
 
@@ -453,6 +452,8 @@ void Partial::SwapAll(void) {
 	        mSwapIds.Add(id);
 		}
 	}
+
+	mHintedCellsValid = false;
 }
 
 void Partial::SwapToHand(void) {

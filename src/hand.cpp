@@ -34,7 +34,8 @@ Hand::Hand(const String &name, const String &playerName, bool autoFlag):
 {
 	mAutomatic = autoFlag;
 	mClockRunning = false;
-	mMilliseconds = 0;
+	mMilliseconds = 0L;
+	mResigned = false;
 	mScore = 0;
 }
 
@@ -55,7 +56,7 @@ Hand::operator Tiles(void) const {
 
 void Hand::AddScore(unsigned points) {
 	unsigned new_score = mScore + points;
-	ASSERT(new_score >= mScore); // check for wrap
+	ASSERT(new_score >= mScore); // check for wraparound
 	mScore = new_score;
 }
 
@@ -80,14 +81,10 @@ void Hand::DisplayTiles(void) const {
 }
 
 unsigned Hand::DrawTiles(unsigned tileCount, Tiles &rBag) {
-	D(std::cout << plural(rBag.Count(), "tile") << " in the stock bag." << std::endl);
-	D(std::cout << Name() << " wants to draw " << plural(tileCount, "tile") << "." << std::endl);
-
     unsigned draw_count = mTiles.DrawTiles(tileCount, rBag);
 
 	std::cout << Name() << " drew " << plural(draw_count, "tile") 
 		 << " from the stock bag." << std::endl;
-	D(std::cout << plural(rBag.Count(), "tile") << " remain." << std::endl);
 
 	return draw_count;
 }
@@ -99,12 +96,13 @@ Tiles Hand::LongestRun(void) const {
 	return result;
 }
 
+// read the hand's elapsed time clock, in milliseconds
 long Hand::Milliseconds(void) const {
 	long result = mMilliseconds;
 
     if (mClockRunning) {
 	    long now = ::milliseconds();
-		ASSERT(now >= mStartTime);
+		ASSERT(now >= mStartTime);  // check for wraparound
         result += unsigned(now - mStartTime);
 	}
 
@@ -127,13 +125,23 @@ void Hand::RemoveTiles(Tiles const &rTiles) {
 	mTiles.RemoveTiles(rTiles);
 }
 
+void Hand::Resign(Tiles &rBag) {
+	ASSERT(!HasResigned());
+
+	rBag.AddTiles(mTiles);
+	mTiles.MakeEmpty();
+	mResigned = true;
+
+	ASSERT(HasResigned());
+}
+
 unsigned Hand::Score(void) const {
     return mScore;
 }
 
 unsigned Hand::Seconds(void) const {
 	long msecs = Milliseconds();
-    unsigned result = msecs/1000;
+    unsigned result = unsigned(msecs/1000);
 	return result;
 }
 
@@ -147,13 +155,25 @@ unsigned Hand::StopClock(void) {
 	ASSERT(mClockRunning);
 	mMilliseconds = Milliseconds();
 	mClockRunning = false;
-	unsigned result = mMilliseconds/1000;
+
+	// return the number of elapsed seconds
+	unsigned result = unsigned(mMilliseconds/1000);
 
 	return result;
 }
 
 
 // inquiry methods
+
+bool Hand::HasGoneOut(void) const {
+    bool result = IsEmpty() && !HasResigned();
+	
+	return result;
+}
+
+bool Hand::HasResigned(void) const {
+    return mResigned;
+}
 
 bool Hand::IsAutomatic(void) const {
     return mAutomatic;

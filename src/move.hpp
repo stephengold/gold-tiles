@@ -32,10 +32,14 @@ location(s) where they will be played.
 #include <set>           // ISA std::set
 #include "tilecell.hpp"  // HASA TileCell
 
-class Move: public std::set<TileCell> {
+class Move {
 public:
+	// public types
     typedef std::set<TileCell>::const_iterator ConstIterator;
- 	typedef std::set<TileCell>::iterator       Iterator;
+
+	// lifecycle
+	Move(void);
+	// ~Move(void);  compiler-generated destructor is OK
 
 	// public operators
     operator Cells(void) const;
@@ -45,16 +49,31 @@ public:
 	// misc public methods
     void     Add(Tile const &);
     void     Add(Tile const &, Cell const &);
+	ConstIterator
+		     Begin(void) const;
     unsigned Count(void) const;
+	ConstIterator
+		     End(void) const;
     void     GetUserChoice(Tiles const &);
-	void     MakeEmpty(void);
+	void     MakeResign(void);
  
 	// public inquiry methods
 	bool InvolvesSwap(void) const;
 	bool IsPass(void) const;
 	bool IsPureSwap(void) const;
+	bool IsResign(void) const;
     bool RepeatsCell(void) const;
     bool RepeatsTile(void) const;
-};
 
+private:
+	// private types
+    typedef std::set<TileCell> Set;
+
+	// private data
+	bool mResignFlag;
+	Set  mSet;
+
+	// misc private methods
+	void MakePass(void);
+};
 #endif

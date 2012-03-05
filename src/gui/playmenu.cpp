@@ -65,7 +65,7 @@ void PlayMenu::EnableItems(
     mPause.Enable(!isOver);
 	mSwapAll.Enable(!isOver && !isPaused && isPass && canSwapAll);
     mPass.Enable(!isOver && !isPaused && isPass);
-    mResign.Enable(false);  // TODO
+    mResign.Enable(!isOver && !isPaused);
     mRestart.Enable(false); // TODO
     mUndo.Enable(false);    // TODO
     mRedo.Enable(false);    // TODO

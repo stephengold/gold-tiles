@@ -140,7 +140,7 @@ void TopWindow::Initialize(CREATESTRUCT const &rCreateStruct) {
 	    Hands hands = Hands(*mpGame);
 		Hands::ConstIterator i_hand;
 		for (i_hand = hands.begin(); i_hand != hands.end(); i_hand++) {
-			if (!i_hand->IsAutomatic()) {
+			if (i_hand->IsLocalPlayer()) {
 			    SavePlayerOptions(*i_hand);
 			}
 		}
@@ -280,6 +280,11 @@ void TopWindow::HandleMenuCommand(IdType command) {
 			break;
 
 		case IDM_RESIGN:
+		    ASSERT(!IsGameOver());
+			ASSERT(!IsGamePaused());
+			ResignHand();
+			break;
+
 		case IDM_RESTART:
 		case IDM_UNDO:
 		case IDM_REDO:
@@ -791,16 +796,16 @@ void TopWindow::Play(bool passFlag) {
         } else {
 			// the game isn't over, so proceed to the next hand
 			Hand hand = Hand(*mpGame);
-			if (!hand.IsAutomatic()) {
+			if (hand.IsLocalPlayer()) {
 		        SavePlayerOptions(hand);
 			}
 
             mpGame->ActivateNextHand();
 			hand = Hand(*mpGame);
-			if (!hand.IsAutomatic()) {
+			if (hand.IsLocalPlayer()) {
                 LoadPlayerOptions(hand);
 			}
-			if (hand.IsAutomatic() || !mpMenuBar->IsAutopause()) {
+			if (!hand.IsLocalPlayer() || !mpMenuBar->IsAutopause()) {
 				mpGame->StartClock();
 			}
         }
@@ -812,7 +817,6 @@ void TopWindow::Play(bool passFlag) {
 		if (::str_eq(reason, "FIRST")) {
 			mGameView.Reset();
 		}
-
 	}
 }
 
@@ -939,6 +943,41 @@ void TopWindow::Repaint(void) {
 	}
 }
 
+void TopWindow::ResignHand(void) {
+	ASSERT(HasGame());
+	ASSERT(mpMenuBar != NULL);
+	ASSERT(!IsGameOver());
+	ASSERT(!IsGamePaused());
+
+	mGameView.Reset();
+
+	Move move;
+	move.MakeResign();
+    mpGame->FinishTurn(move);
+	mpGame->StopClock();
+
+    if (mpGame->IsOver()) {
+        mpMenuBar->GameOver();
+	} else {
+		// the game isn't over, so proceed to the next hand
+		Hand hand = Hand(*mpGame);
+		if (hand.IsLocalPlayer()) {
+	        SavePlayerOptions(hand);
+		}
+
+		mpGame->ActivateNextHand();
+		hand = Hand(*mpGame);
+		if (hand.IsLocalPlayer()) {
+            LoadPlayerOptions(hand);
+		}
+		if (!hand.IsLocalPlayer() || !mpMenuBar->IsAutopause()) {
+			mpGame->StartClock();
+		}
+    }
+
+    mGameView.Reset();
+}
+
 void TopWindow::Resize(PCntType clientAreaWidth, PCntType clientAreaHeight) {
     PCntType old_height = ClientAreaHeight();
     PCntType old_width = ClientAreaWidth();
@@ -1040,7 +1079,7 @@ void TopWindow::SetGame(Game *pGame) {
 		}
 
 	    Hand hand = Hand(*mpGame);
-	    if (hand.IsAutomatic() || !mpMenuBar->IsAutopause()) {
+	    if (!hand.IsLocalPlayer() || !mpMenuBar->IsAutopause()) {
 		    mpGame->StartClock();
 	    }
 	}

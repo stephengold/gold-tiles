@@ -41,6 +41,11 @@ public:
     unsigned Count(void) const;
     void     Next(ConstIterator &) const;
     void     Next(Iterator &);
+	void     NextWorking(Iterator &);
+
+	// public inquiry method
+	bool HasAnyGoneOut(void) const;
+	bool HaveAllResigned(void) const;
 };
 
 #endif

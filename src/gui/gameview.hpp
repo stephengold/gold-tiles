@@ -29,7 +29,7 @@ A GameView object represents a view of the game in progress in the client
 area of a window.
 
 The GameView class extends the Partial class with drawing methods.
-Drawing is performed using a temporary Canvas owned by the caller.
+Drawing is performed on a temporary Canvas owned by the caller.
 */
 
 #include "partial.hpp"  // ISA Partial
@@ -100,20 +100,18 @@ private:
     typedef TileMap::const_iterator    TileConstIter;
     typedef std::pair<TileIter,bool>   TileInsResult;
 
-	// private constants
-
 	// private data
-	ACountType             mColorAttributeCnt;
-	Rect                   mHandRect;
-	MenuBar *             mpMenuBar;
-	PCntType               mPadPixels;
-	Point                  mStartCell;
-	Rect                   mSwapRect;
-	Cell                   mTargetCell;
-	bool                   mTargetCellFlag;
-	TileMap                mTileMap;
-	PCntType               mTileWidth;
-	TopWindow *           mpWindow;
+	ACountType   mColorAttributeCnt;
+	Rect         mHandRect;
+	MenuBar *   mpMenuBar;
+	PCntType     mPadPixels;
+	Point        mStartCell;
+	Rect         mSwapRect;
+	Cell         mTargetCell;
+	bool         mTargetCellFlag;
+	TileMap      mTileMap;
+	PCntType     mTileWidth;
+	TopWindow * mpWindow;
 
 	// private lifecycle
 	GameView(GameView const &);  // not copyable
@@ -128,7 +126,4 @@ private:
 	bool IsGridVisible(void) const;
 
 };
-
-// global utility functions
-
 #endif

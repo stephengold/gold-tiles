@@ -24,16 +24,21 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 #include <iostream>
 #include "cells.hpp"
 #include "move.hpp"
-#include "string.hpp"
 #include "strings.hpp"
-#include "tile.hpp"
 #include "tiles.hpp"
+
 
 // lifecycle
 
-// The compiler.generated default constructor is fine.
+Move::Move(void):
+    mSet()
+{
+	mResignFlag = false;
+}
+
 // The compiler-generated copy constructor is fine.
 // The compiler-generated destructor is fine.
+
 
 // operators
 
@@ -43,7 +48,7 @@ Move::operator Cells(void) const {
     Cells result;
     
     ConstIterator i_tile_cell;
-    for (i_tile_cell = begin(); i_tile_cell != end(); i_tile_cell++) {
+    for (i_tile_cell = Begin(); i_tile_cell != End(); i_tile_cell++) {
 		if (!i_tile_cell->IsSwap()) {
             Cell cell = Cell(*i_tile_cell);
             result.insert(cell);
@@ -57,12 +62,17 @@ Move::operator String(void) const {
 	String result;
 
     result += "{";
-    const_iterator ts;
-    for (ts = begin(); ts != end(); ts++) {
-        if (ts != begin()) {
-            result += ", ";
-        } 
-        result += (String)*ts;
+	if (mResignFlag) {
+		ASSERT(Count() == 0);
+		result += "RESIGN";
+	} else {
+        ConstIterator i_tile_cell;
+        for (i_tile_cell = Begin(); i_tile_cell != End(); i_tile_cell++) {
+            if (i_tile_cell != Begin()) {
+                result += ", ";
+            } 
+            result += String(*i_tile_cell);
+		}
     }       
     result += "}";
 
@@ -73,39 +83,55 @@ Move::operator Tiles(void) const {
     Tiles result;
     
     ConstIterator i_tile_cell;
-    for (i_tile_cell = begin(); i_tile_cell != end(); i_tile_cell++) {
+    for (i_tile_cell = Begin(); i_tile_cell != End(); i_tile_cell++) {
         TileCell tc = *i_tile_cell;
-        Tile tile = tc.operator Tile();
+        Tile tile = tc.operator Tile();  // TODO
         result.Add(tile);
     }
 
     return result;
 }
 
-// misc
+
+// misc methods
 
 void Move::Add(Tile const &rTile) {
+	// add a tile swap
     TileCell tile_cell(rTile);
-    insert(tile_cell);
+    mSet.insert(tile_cell);
 }
 
 void Move::Add(Tile const &rTile, Cell const &rCell) {
+	// add a tile played to the board
     TileCell tile_cell(rTile, rCell);
-    insert(tile_cell);
+    mSet.insert(tile_cell);
+}
+
+Move::ConstIterator Move::Begin(void) const {
+	ConstIterator result = mSet.begin();
+
+	return result;
 }
 
 unsigned Move::Count(void) const {
-    unsigned result = size();
+    unsigned result = mSet.size();
+
+	return result;
+}
+
+Move::ConstIterator Move::End(void) const {
+	ConstIterator result = mSet.end();
 
 	return result;
 }
 
 void Move::GetUserChoice(Tiles const &rAvailableTiles) {
-    MakeEmpty();
+    MakePass();
 
     for (;;) {
 		Strings alts;
 		if (IsPass()) {
+			alts.Append("resign");
 			alts.Append("pass");
 		} else {
 			alts.Append("move");
@@ -114,27 +140,36 @@ void Move::GetUserChoice(Tiles const &rAvailableTiles) {
 		TileCell tile_cell;
 		String input = tile_cell.GetUserChoice(rAvailableTiles, alts);
 		D(std::cout << "input=\'" << input << "'" << std::endl);
-        if (input == "pass" || input == "move") {
+        if (input == "resign") {
+			MakeResign();
+            break;
+        } else if (input == "pass" || input == "move") {
             break;
         }
 
-        insert(tile_cell);
+        mSet.insert(tile_cell);
     }
 }
 
-
-void Move::MakeEmpty(void) {
-	clear();
+void Move::MakePass(void) {
+	mSet.clear();
+	mResignFlag = false;
 }
 
-// inquiries
+void Move::MakeResign(void) {
+	mSet.clear();
+	mResignFlag = true;
+}
+
+
+// inquiry methods
 
 bool Move::InvolvesSwap(void) const {
     bool result = false;
 
-	ConstIterator i_tile;
-	for (i_tile = begin(); i_tile != end(); i_tile++) {
-		if (i_tile->IsSwap()) {
+	ConstIterator i_tile_cell;
+	for (i_tile_cell = Begin(); i_tile_cell != End(); i_tile_cell++) {
+		if (i_tile_cell->IsSwap()) {
 			result = true;
 			break;
 		}
@@ -144,39 +179,49 @@ bool Move::InvolvesSwap(void) const {
 }
 
 bool Move::IsPass(void) const {
-	bool result = (Count() == 0);
+	bool result = (Count() == 0) && !mResignFlag;
 
 	return result;
 }
 
 bool Move::IsPureSwap(void) const {
-	bool result = true;
+	bool result = !mResignFlag;
 
-    ConstIterator i_tile;
-    for (i_tile = begin(); i_tile != end(); i_tile++) {
-        if (!i_tile->IsSwap()) {
-        	result = false;
-			break;
+	if (result) {
+		// every tile in the move must also get swapped
+        ConstIterator i_tile_cell;
+        for (i_tile_cell = Begin(); i_tile_cell != End(); i_tile_cell++) {
+            if (!i_tile_cell->IsSwap()) {
+        	    result = false;
+			    break;
+		    }
 		}
 	}
 
 	return result;
 }
 
+bool Move::IsResign(void) const {
+	ASSERT(Count() == 0 || !mResignFlag);
+
+	return mResignFlag;
+}
+
 bool Move::RepeatsTile(void) const {
     bool result = false;
     
     if (Count() > 1) {
-        Tiles tiles_seen;
-        ConstIterator i_tile;
+        Indices tiles_seen;
+        ConstIterator i_tile_cell;
         
-        for (i_tile = begin(); i_tile != end(); i_tile++) {
-            Tile tile = i_tile->operator Tile();
-            if (tiles_seen.Contains(tile)) {
+        for (i_tile_cell = Begin(); i_tile_cell != End(); i_tile_cell++) {
+            Tile tile = i_tile_cell->operator Tile();   // TODO
+			TileIdType id = tile.Id();
+            if (tiles_seen.Contains(id)) {
                 result = true;
                 break;
             } else {
-                tiles_seen.Add(tile);
+                tiles_seen.Add(id);
             }
         }
     }
@@ -189,11 +234,11 @@ bool Move::RepeatsCell(void) const {
     
     if (Count() > 1) {
         Cells cells_seen;
-        ConstIterator i_tile;
+        ConstIterator i_tile_cell;
         
-        for (i_tile = begin(); i_tile != end(); i_tile++) {
-    		if (!i_tile->IsSwap()) {
-                Cell cell = Cell(*i_tile);
+        for (i_tile_cell = Begin(); i_tile_cell != End(); i_tile_cell++) {
+    		if (!i_tile_cell->IsSwap()) {
+                Cell cell = Cell(*i_tile_cell);
                 if (cells_seen.Contains(cell)) {
                     result = true;
                     break;

@@ -23,23 +23,68 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "hands.hpp"
 
+
 // misc methods
+
 unsigned Hands::Count(void) const {
     unsigned result = size();
 
 	return result;
 }
 
-void Hands::Next(ConstIterator &riCurrentHand) const {
-	riCurrentHand++;
-    if (riCurrentHand >= end()) {
-        riCurrentHand = begin();
+void Hands::Next(ConstIterator &riCurrent) const {
+	// advance iterator to next hand
+	riCurrent++;
+    if (riCurrent >= end()) {
+        riCurrent = begin();
     }
 }
 
-void Hands::Next(Iterator &riCurrentHand) {
-	riCurrentHand++;
-    if (riCurrentHand >= end()) {
-        riCurrentHand = begin();
+void Hands::Next(Iterator &riCurrent) {
+	// advance iterator to next hand
+	riCurrent++;
+    if (riCurrent >= end()) {
+        riCurrent = begin();
     }
+}
+
+void Hands::NextWorking(Iterator &riCurrent) {
+	// advance iterator to next hand which has not resigned
+	Iterator start = riCurrent;
+	Next(riCurrent);
+
+	while (riCurrent->HasResigned() && riCurrent != start) {
+		Next(riCurrent);
+	}
+}
+
+
+// inquiry methods
+
+bool Hands::HasAnyGoneOut(void) const {
+   bool result = false;
+
+   ConstIterator i_hand;
+   for (i_hand = begin(); i_hand != end(); i_hand++) {
+	   if (i_hand->HasGoneOut()) {
+		   result = true;
+		   break;
+	   }
+   }
+
+   return result;
+}
+
+bool Hands::HaveAllResigned(void) const {
+	bool result = true;
+
+	ConstIterator i_hand;
+    for (i_hand = begin(); i_hand != end(); i_hand++) {
+	    if (!i_hand->HasResigned()) {
+		    result = false;
+		    break;
+	    }
+    }
+
+	return result;
 }

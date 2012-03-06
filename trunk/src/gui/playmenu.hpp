@@ -25,7 +25,9 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 /*
-A PlayMenu object represents the "play" submenu in the menu bar.
+A PlayMenu object represents the "Play" submenu in the menu bar.
+
+The PlayMenu class extends the SubMenu class.
 */
 
 #include "game.hpp"          // USES GameStyleType
@@ -33,27 +35,33 @@ A PlayMenu object represents the "play" submenu in the menu bar.
 #include "gui/submenu.hpp"   // ISA SubMenu
 
 class PlayMenu: public SubMenu {
-public:
-	// public lifecycle
-    PlayMenu(Menu const &, unsigned position);
-	// no default constructor
-	// ~PlayMenu(void);  compiler-generated destructor is fine
+    Q_OBJECT
 
-	// misc public methods
-	void Autopause(bool);
-	void EnableItems(GameStyleType, bool over, bool paused, bool pass, bool swapAll);
-	void Pause(bool);
+public:
+    // public lifecycle
+#ifdef _QT
+    PlayMenu(void);
+#elif defined(_WINDOWS)
+    PlayMenu(Menu const &, unsigned position);
+    // no default constructor
+#endif // defined(_WINDOWS)
+    // ~PlayMenu(void);  compiler-generated destructor is fine
+
+    // misc public methods
+    void Autopause(bool);
+    void EnableItems(GameStyleType, bool over, bool paused, bool pass, bool swapAll);
+    void Pause(bool);
 
 private:
-	// private data
+    // private data
     MenuItem mPlay, mTakeBack, mSuggest, mPause, mSwapAll, mPass, mResign;
     MenuItem mRestart, mUndo, mRedo, mAutopause;
 
-	// private lifecycle
-	PlayMenu(PlayMenu const &); // not copyable
+    // private lifecycle
+    PlayMenu(PlayMenu const &); // not copyable
 
-	// private operators
-	PlayMenu &operator=(PlayMenu const &); // not assignable
+    // private operators
+    PlayMenu &operator=(PlayMenu const &); // not assignable
 };
-#endif
 
+#endif // !defined(PLAYMENU_HPP_INCLUDED)

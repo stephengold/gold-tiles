@@ -27,32 +27,59 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 /*
 A MenuItem object represents a single item in a SubMenu.
 
-The MenuItem class is implemented by encapsulating a handle and an item id.
+In the Qt version, the MenuItem class encapsulates a pointer to a QAction.
+In the native version, the MenuItem class encapsulates a handle and a resource id.
 */
 
-#include "gui/win.hpp"  // HASA IdType
-#include "project.hpp"  // HASA Menu&
+#include "project.hpp"
 
+#ifdef _QT
+# include <QAction>
+#elif defined(_WINDOWS)
+# include "gui/win.hpp"  // HASA IdType
+# include "project.hpp"  // HASA Menu&
+#endif // defined(_WINDOWS)
+
+#ifdef _QT
+class MenuItem: public QObject {
+    Q_OBJECT
+#elif defined(_WINDOWS)
 class MenuItem {
+#endif // defined(_WINDOWS)
 public:
-	// public lifecycle
+    // public lifecycle
+#ifdef _QT
+    MenuItem(QObject *pParent, QString const &label);
+#elif defined(_WINDOWS)
     MenuItem(Menu const &, IdType);
-	// no default constructor
-	// ~MenuItem(void);  compiler-generated destructor is OK
+#endif // defined(_WINDOWS)
+    // no default constructor
+    // ~MenuItem(void);  compiler-generated destructor is OK
 
-	// misc public methods
-    void Check(bool);
-    void Enable(bool);
+    // misc public methods
+#ifdef _QT
+    QAction *pAction(void);
+#endif // defined(_QT)
+    void      Check(bool);
+    void      Enable(bool);
+#ifdef _QT
+    void      SetShortcut(QString const &);
+#endif // defined(_QT)
 
 private:
+    // private data
+#ifdef _QT
+    QAction *mpAction;
+#elif defined(_WINDOWS)
     IdType       mItemId;
     Menu const &mrMenu;
+#endif // defined(_WINDOWS)
 
-	// private lifecycle
-	MenuItem(MenuItem const &);   // not copyable
+    // private lifecycle
+    MenuItem(MenuItem const &);   // not copyable
 
-	// private operators
-	MenuItem &operator=(MenuItem const &);   // not assignable
-
+    // private operators
+    MenuItem &operator=(MenuItem const &);   // not assignable
 };
-#endif
+
+#endif // !defined(MENUITEM_HPP_INCLUDED)

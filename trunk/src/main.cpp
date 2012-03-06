@@ -59,7 +59,7 @@ int CALLBACK Win::WinMain(
 // standard C++ main entry point
 int main(int argCnt, char *argValues[]) {
 
-#endif // defined(_WINDOWS)
+#endif // !defined(_WINDOWS)
 
 	int exit_code = EXIT_SUCCESS;
 
@@ -125,11 +125,12 @@ int main(int argCnt, char *argValues[]) {
 
 #ifdef _QT
 	// Instantiate top window and display it.
-	QApplication a(argCnt, argValues);
-    gTopWindow = new TopWindow;
+    QApplication application(argCnt, argValues);
+
+    gTopWindow = new TopWindow(NULL);
     gTopWindow->show();
     
-    exit_code = a.exec();
+    exit_code = application.exec();
 #endif // defined(_QT)
 
 #ifdef _WINDOWS

@@ -21,12 +21,24 @@ You should have received a copy of the GNU General Public License
 along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "gui/menu.hpp"
 #include "gui/menuitem.hpp"
-#include "gui/submenu.hpp"
-#include "gui/win_types.hpp"
+#ifdef _WINDOWS
+# include "gui/menu.hpp"
+# include "gui/submenu.hpp"
+# include "gui/win_types.hpp"
+#endif // defined(_WINDOWS)
+
 
 // lifecycle
+
+#ifdef _QT
+
+MenuItem::MenuItem(QObject *pParent, QString const &label) {
+    mpAction = new QAction(label, pParent);
+    ASSERT(mpAction != NULL);
+}
+
+#elif defined(_WINDOWS)
 
 MenuItem::MenuItem(Menu const &rMenu, IdType itemId):
     mrMenu(rMenu)
@@ -34,24 +46,53 @@ MenuItem::MenuItem(Menu const &rMenu, IdType itemId):
     mItemId = itemId;
 }
 
-// misc menus
+#endif // defined(_WINDOWS)
+
+// The compiler-generated destructor is OK.
+
+
+// misc methods
+
+#ifdef _QT
+
+QAction *MenuItem::pAction(void) {
+    return mpAction;
+}
+
+#endif // defined(_QT)
 
 void MenuItem::Check(bool checkedFlag) {
-	UINT flags = MF_BYCOMMAND;
-	if (checkedFlag) {
-	    flags |= MF_CHECKED;
-	} else {
-	    flags |= MF_UNCHECKED;
-	}
-	Win::CheckMenuItem(HMENU(mrMenu), mItemId, flags);
+#ifdef _QT
+    mpAction->setChecked(checkedFlag);
+#elif defined(_WINDOWS)
+    UINT flags = MF_BYCOMMAND;
+    if (checkedFlag) {
+        flags |= MF_CHECKED;
+    } else {
+        flags |= MF_UNCHECKED;
+    }
+    Win::CheckMenuItem(HMENU(mrMenu), mItemId, flags);
+#endif // defined(_WINDOWS)
 }
 
 void MenuItem::Enable(bool enabledFlag) {
-	UINT flags = MF_BYCOMMAND;
-	if (enabledFlag) {
-    	flags |= MF_ENABLED;
-	} else {
-    	flags |= MF_GRAYED;
-	}
-   	Win::EnableMenuItem(HMENU(mrMenu), mItemId, flags);
+#ifdef _QT
+    mpAction->setEnabled(enabledFlag);
+#elif defined(_WINDOWS)
+    UINT flags = MF_BYCOMMAND;
+    if (enabledFlag) {
+        flags |= MF_ENABLED;
+    } else {
+        flags |= MF_GRAYED;
+    }
+    Win::EnableMenuItem(HMENU(mrMenu), mItemId, flags);
+#endif // defined(_WINDOWS)
 }
+
+#ifdef _QT
+
+void MenuItem::SetShortcut(QString const &sequence) {
+    mpAction->setShortcut(sequence);
+}
+
+#endif // defined(_QT)

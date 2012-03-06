@@ -21,6 +21,7 @@ You should have received a copy of the GNU General Public License
 along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifdef _WINDOWS
 #include "game.hpp"
 #include "gui/parmbox1.hpp"
 #include "gui/resource.hpp"
@@ -192,3 +193,4 @@ void ParmBox1::SetStyle(IdType buttonId) {
 	}
 	EnableEditBox(IDC_EDITMINUTES, mGameStyle == GAME_STYLE_CHALLENGE);
 }
+#endif // defined(_WINDOWS)

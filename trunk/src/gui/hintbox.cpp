@@ -21,6 +21,7 @@ You should have received a copy of the GNU General Public License
 along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifdef _WINDOWS
 #include "gui/hintbox.hpp"
 #include "gui/resource.hpp"
 #include "gui/win_types.hpp"
@@ -140,4 +141,4 @@ void HintBox::SetHintStrength(IdType buttonId) {
 			FAIL();
 	}
 }
-
+#endif // defined(_WINDOWS)

@@ -21,6 +21,7 @@ You should have received a copy of the GNU General Public License
 along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifdef _WINDOWS
 #include <math.h>
 #include "cell.hpp"
 #include "gui/canvas.hpp"
@@ -384,7 +385,7 @@ Rect Canvas::DrawTile(
             interior = rectangle;
 			break;
 	    case GRID_HEX:
-			ASSERT(!oddFlag);
+            ASSERT(!oddFlag);
             ASSERT(height < width);
 			interior = InteriorHexagon(rectangle);
 			break;
@@ -398,3 +399,4 @@ Rect Canvas::DrawTile(
 
 	return interior;
 }
+#endif // defined(_WINDOWS)

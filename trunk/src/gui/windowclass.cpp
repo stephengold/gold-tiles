@@ -21,6 +21,7 @@ You should have received a copy of the GNU General Public License
 along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifdef _WINDOWS
 #include "gui/win_types.hpp"
 #include "gui/windowclass.hpp"
 #include "project.hpp"  // ASSERT
@@ -65,3 +66,5 @@ void WindowClass::RegisterClass(void) {
     ATOM classAtom = Win::RegisterClassEx(this);
 	ASSERT(classAtom != 0);
 };
+
+#endif // defined(_WINDOWS)

@@ -21,6 +21,7 @@ You should have received a copy of the GNU General Public License
 along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifdef _WINDOWS
 #include "gui/handbox.hpp"
 #include "gui/resource.hpp"
 #include "gui/win_types.hpp"
@@ -177,3 +178,4 @@ bool HandBox::IsAutomatic(void) const {
 bool HandBox::IsRemote(void) const {
 	return mIsRemote;
 }
+#endif // defined(_WINDOWS)

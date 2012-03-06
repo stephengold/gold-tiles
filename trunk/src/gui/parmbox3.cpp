@@ -21,6 +21,7 @@ You should have received a copy of the GNU General Public License
 along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifdef _WINDOWS
 #include "gui/parmbox3.hpp"
 #include "gui/resource.hpp"
 #include "gui/win_types.hpp"
@@ -284,3 +285,4 @@ void ParmBox3::UpdateValue(IdType sliderId, ValueType value) {
             FAIL();
     }
 }
+#endif // defined(_WINDOWS)

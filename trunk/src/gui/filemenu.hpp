@@ -25,34 +25,40 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 /*
-A FileMenu object represents the "File" SubMenu in the menu bar.
+A FileMenu object represents the "File" submenu in the menu bar.
+
+The FileMenu class extends the SubMenu class.
 */
 
-#include "game.hpp"
 #include "gui/menuitem.hpp" // HASA MenuItem
 #include "gui/submenu.hpp"  // ISA SubMenu
 
-
 class FileMenu: public SubMenu {
-public:
-	// public lifecycle
-    FileMenu(Menu const &, unsigned position);
-	// no default constructor
-	//FileMenu(FileMenu const &);  compiler-generated destructor is OK
+    Q_OBJECT
 
-	// misc public methods
-	void EnableItems(bool haveGame);
+public:
+    // public lifecycle
+#ifdef _QT
+    FileMenu(void);
+#elif defined(_WINDOWS)
+    FileMenu(Menu const &, unsigned position);
+    // no default constructor
+#endif // defined(_WINDOWS)
+    //~FileMenu();  compiler-generated destructor is OK
+
+    // misc public methods
+    void EnableItems(bool haveGame);
 
 private:
-	// private data
+    // private data
     MenuItem mNew, mOpen, mReopen, mRevert;
-	MenuItem mSave, mSaveAs, mClose, mPrint, mExit;
+    MenuItem mSave, mSaveAs, mClose, mPrint, mExit;
 
-	// private lifecycle
-	FileMenu(FileMenu const &);   // not copyable
+    // private lifecycle
+    FileMenu(FileMenu const &);   // not copyable
 
-	// private operators
-	FileMenu &operator=(FileMenu const &);  // not assignable
+    // private operators
+    FileMenu &operator=(FileMenu const &);  // not assignable
 };
 
-#endif
+#endif // !defined(FILEMENU_HPP_INCLUDED)

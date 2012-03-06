@@ -26,55 +26,77 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 
 /*
 A MenuBar object represents the menu bar of the top window.
+
+In the Qt version, the MenuBar class extends the QMenuBar class.
+In the native version, the MenuBar class encapsulates a Menu object.
+
 */
 
 #include "gui/filemenu.hpp"  // HASA FileMenu
 #include "gui/menu.hpp"      // HASA Menu
 #include "gui/playmenu.hpp"  // HASA PlayMenu
 #include "gui/viewmenu.hpp"  // HASA ViewMenu
+#ifdef _QT
+# include <QMenuBar.h>
+#endif // defined(_QT)
 
+
+#ifdef _QT
+class MenuBar: public QMenuBar {
+    Q_OBJECT
+#elif defined(_WINDOWS)
 class MenuBar {
+#endif // defined(_WINDOWS)
+
 public:
-	// public lifecycle
+    // public lifecycle
+#ifdef _QT
+    MenuBar(Partial const &rPartial);
+#elif defined(_WINDOWS)
     MenuBar(Win::CREATESTRUCT const &, Partial const &);
-	// no default constructor
-	
+#endif // defined(_WINDOWS)
+    // no default constructor
+    //~MenuBar(void);
+
     // misc public methods
     void   GameOver(void);
     void   HandleMenuCommand(IdType);
-	void   LoadPlayerOptions(Player const &);
+    void   LoadPlayerOptions(Player const &);
     void   NewGame(void);
-	void   SavePlayerOptions(Player &) const;
+    void   SavePlayerOptions(Player &) const;
     void   SetTileSize(IdType);
-	IdType TileSize(void) const;
+    IdType TileSize(void) const;
     void   Update(void);
 
     // public inquiry methods
-    bool AreClocksVisible(void) const;    
+    bool AreClocksVisible(void) const;
     bool AreScoresVisible(void) const;
-    bool IsAutopause(void) const;    
+    bool IsAutopause(void) const;
     bool IsGridVisible(void) const;
     bool IsPeeking(void) const;
 
 private:
-	// private data
-	bool             mAutopauseFlag;
-	FileMenu         mFileMenu;
-	SubMenu          mHelpMenu;
-	Menu             mMenu;
-	Partial const & mrPartial;
+    // private data
+    bool             mAutopauseFlag;
+    FileMenu         mFileMenu;
+    SubMenu          mHelpMenu;
+#ifdef _WINDOWS
+    Menu             mMenu;
+#endif // defined(_WINDOWS)
+    Partial const & mrPartial;
     bool             mPeekFlag;
-	PlayMenu         mPlayMenu;
-	bool             mShowClocksFlag;
+    PlayMenu         mPlayMenu;
+    bool             mShowClocksFlag;
     bool             mShowGridFlag;
-	bool             mShowScoresFlag;
-	IdType           mTileSizeItem;
-	ViewMenu         mViewMenu;
+    bool             mShowScoresFlag;
+    IdType           mTileSizeItem;
+    ViewMenu         mViewMenu;
 
-	// public lifecycle
+    // private lifecycle
 	MenuBar(MenuBar const &);  // not copyable
 
-	// public operators
+    // private operators
 	MenuBar &operator=(MenuBar const &);  // not assignable
 };
-#endif
+
+#endif // !defined(MENUBAR_HPP_INCLUDED)

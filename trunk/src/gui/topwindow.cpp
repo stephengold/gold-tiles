@@ -22,27 +22,29 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "gui/canvas.hpp"
+#include "gui/menubar.hpp"
 #include "gui/topwindow.hpp"
 
 #ifdef _QT
 #include "ui_topwindow.h"
 
-TopWindow::TopWindow(QWidget *parent):
-    QMainWindow(parent),
-    ui(new Ui::TopWindow)
+TopWindow::TopWindow(Game *pGame):
+    QMainWindow(NULL),  // the top window has no parent
+    mMouseLast(0, 0),
+    mGameView(*pGame)
 {
-    ui->setupUi(this);
-}
+    mpUi = new Ui::TopWindow;
+    mpUi->setupUi(this);
 
-TopWindow::~TopWindow(void) {
-    delete ui;
+    mpGame = pGame;
+    mpMenuBar = new MenuBar(mGameView);
+    setMenuBar(mpMenuBar);
 }
 #endif
 
 #ifdef  _WINDOWS
 #include "gui/handbox.hpp"
 #include "gui/hintbox.hpp"
-#include "gui/menubar.hpp"
 #include "gui/parmbox1.hpp"
 #include "gui/parmbox2.hpp"
 #include "gui/parmbox3.hpp"

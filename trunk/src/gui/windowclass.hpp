@@ -30,6 +30,7 @@ A WindowClass object represents a Microsoft Windows "window class".
 The WindowClass class extends the Win::WNDCLASSEX structure.
 */
 
+#ifdef _WINDOWS
 #include "gui/win.hpp"  // ISA Win::WNDCLASSEX
 
 class WindowClass: public Win::WNDCLASSEX {
@@ -51,5 +52,5 @@ private:
 	// private operators
     WindowClass &operator=(WindowClass const &); // not assignable
 };
-
-#endif
+#endif // defined(_WINDOWS)
+#endif // !defined(WINDOWCLASS_HPP_INCLUDED)

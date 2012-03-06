@@ -21,6 +21,7 @@ You should have received a copy of the GNU General Public License
 along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifdef _WINDOWS
 #include "gui/parmbox2.hpp"
 #include "gui/resource.hpp"
 #include "gui/win_types.hpp"
@@ -339,3 +340,4 @@ IndexType ParmBox2::Width(void) const {
 bool ParmBox2::DoesWrap(void) const {
 	return mWrapFlag;
 }
+#endif // defined(_WINDOWS)

@@ -21,6 +21,7 @@ You should have received a copy of the GNU General Public License
 along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifdef _WINDOWS
 #include "gui/resource.hpp"
 #include "gui/yesno.hpp"
 #include "gui/win_types.hpp"
@@ -85,3 +86,4 @@ int YesNo::HandleMessage(MessageType message, WPARAM wParam) {
     return result;
 }
 
+#endif // defined(_WINDOWS)

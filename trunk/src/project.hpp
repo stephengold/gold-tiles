@@ -10,14 +10,18 @@
 // project-wide macros
 
 #ifdef QT_GUI_LIB
-#define _QT
+# define _QT
 #endif // defined(QT_GUI_LIB)
 
 #if defined(_WINDOWS) || defined(_QT)
-#define _GUI
-#else // !defined(_WINDOWS)
-#define _CONSOLE
-#endif // !defined(_WINDOWS)
+# define _GUI
+#else // !defined(_WINDOWS) && !defined(_QT)
+# define _CONSOLE
+#endif // !defined(_WINDOWS) && !defined(_QT)
+
+#ifndef _QT
+# define Q_OBJECT
+#endif // !defined(_QT)
 
 // debugging macros: D(), ASSERT(), and FAIL()
 

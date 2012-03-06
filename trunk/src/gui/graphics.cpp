@@ -21,6 +21,7 @@ You should have received a copy of the GNU General Public License
 along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifdef _WINDOWS
 #include <math.h>
 #include <vector>
 #include "gui/graphics.hpp"
@@ -344,4 +345,4 @@ void Graphics::UseColors(ColorType brushBkColor, ColorType penTextColor) {
     }
 }
 
-
+#endif // defined(_WINDOWS)

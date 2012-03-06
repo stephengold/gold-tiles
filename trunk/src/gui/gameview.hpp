@@ -32,6 +32,8 @@ The GameView class extends the Partial class with drawing methods.
 Drawing is performed on a temporary Canvas owned by the caller.
 */
 
+#include "gui/color.hpp"
+#include "gui/rect.hpp"
 #include "partial.hpp"  // ISA Partial
 
 class GameView: public Partial {

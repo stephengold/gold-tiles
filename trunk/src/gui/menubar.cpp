@@ -21,13 +21,33 @@ You should have received a copy of the GNU General Public License
 along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include "partial.hpp"      // order-dependent #include
 #include "gui/menubar.hpp"
 #include "gui/player.hpp"
-#include "gui/resource.hpp"
-#include "gui/win_types.hpp"
-#include "partial.hpp"
+#ifdef _WINDOWS
+# include "gui/resource.hpp"
+# include "gui/win_types.hpp"
+#endif // defined(_WINDOWS)
+
 
 // lifecycle
+
+#ifdef _QT
+
+MenuBar::MenuBar(Partial const &rPartial):
+    mrPartial(rPartial),
+    mHelpMenu(tr("&Help"))
+{
+    addMenu(mFileMenu.Qt());
+    addMenu(mPlayMenu.Qt());
+    addMenu(mViewMenu.Qt());
+
+    MenuItem rules(mHelpMenu.Qt(), tr("&Rules"));
+    mHelpMenu.Add(rules);
+    addMenu(mHelpMenu.Qt());
+}
+
+#elif defined(_WINDOWS)
 
 MenuBar::MenuBar(CREATESTRUCT const &rCreateStruct, Partial const &rPartial):
     mrPartial(rPartial),
@@ -46,7 +66,8 @@ MenuBar::MenuBar(CREATESTRUCT const &rCreateStruct, Partial const &rPartial):
     mTileSizeItem = IDM_LARGE_TILES;
 }
 
-// The compiler-generated copy constructor is OK.
+#endif // defined(_WINDOWS)
+
 // The compiler-generated destructor is OK.
 
 // misc methods
@@ -57,6 +78,7 @@ void MenuBar::GameOver(void) {
     mShowScoresFlag = true;
 }
 
+#ifdef _WINDOWS
 void MenuBar::HandleMenuCommand(IdType command) {
 	switch (command) {
 		case IDM_AUTOPAUSE:
@@ -79,6 +101,7 @@ void MenuBar::HandleMenuCommand(IdType command) {
 			FAIL();
 	}
 }
+#endif // defined(_WINDOWS)
 
 void MenuBar::LoadPlayerOptions(Player const &rPlayer) {
 	mAutopauseFlag = rPlayer.Autopause();
@@ -142,7 +165,9 @@ void MenuBar::Update(void) {
 	mPlayMenu.Enable(have_game && !is_over && is_local);
 
 	// "View" menu
+#ifdef _WINDOWS
     mViewMenu.TileSize(mTileSizeItem);
+#endif // defined(_WINDOWS)
     mViewMenu.ShowClocks(mShowClocksFlag);
     mViewMenu.ShowGrid(mShowGridFlag);
     mViewMenu.ShowScores(mShowScoresFlag);

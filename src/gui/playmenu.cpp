@@ -22,10 +22,51 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "gui/playmenu.hpp"
-#include "gui/resource.hpp"
-#include "gui/win_types.hpp"
+#ifdef _WINDOWS
+# include "gui/resource.hpp"
+# include "gui/win_types.hpp"
+#endif // defined(_WINDOWS)
 
 // lifecycle
+
+#ifdef _QT
+
+PlayMenu::PlayMenu(void):
+    SubMenu(tr("&Play")),
+    mPlay(Qt(), "&Play\tEnter"),
+    mTakeBack(Qt(), "Take &back\tEsc"),
+    mSuggest(Qt(), "Su&ggest\tG"),
+    mPause(Qt(), "Pause"),
+    mSwapAll(Qt(), "S&wap All"),
+    mPass(Qt(), "Pa&ss"),
+    mResign(Qt(), "&Resign"),
+    mRestart(Qt(), "R&estart"),
+    mUndo(Qt(), "&Undo\tZ"),
+    mRedo(Qt(), "Re&do\tY"),
+    mAutopause(Qt(), "&AutoPause")
+{
+    mPlay.SetShortcut(tr("Enter"));
+    mTakeBack.SetShortcut(tr("Enter"));
+    mSuggest.SetShortcut(tr("G"));
+    mUndo.SetShortcut(tr("Z"));
+    mRedo.SetShortcut(tr("Y"));
+
+    Add(mPlay);
+    Add(mTakeBack);
+    Add(mSuggest);
+    Add(mPause);
+    Add(mSwapAll);
+    Add(mPass);
+    Add(mResign);
+    AddSeparator();
+    Add(mRestart);
+    Add(mUndo);
+    Add(mRedo);
+    AddSeparator();
+    Add(mAutopause);
+}
+
+#elif defined(_WINDOWS)
 
 PlayMenu::PlayMenu(Menu const &rRootMenu, unsigned position):	
 	SubMenu(rRootMenu, position),
@@ -41,6 +82,11 @@ PlayMenu::PlayMenu(Menu const &rRootMenu, unsigned position):
     mRedo(rRootMenu, IDM_REDO),
     mAutopause(rRootMenu, IDM_AUTOPAUSE)
  {}
+
+#endif // defined(_WINDOWS)
+
+// The compiler-generated destructor is OK.
+
 
 // misc methods
 

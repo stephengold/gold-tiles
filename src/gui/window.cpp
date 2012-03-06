@@ -21,6 +21,7 @@ You should have received a copy of the GNU General Public License
 along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifdef _WINDOWS
 #include "gui/window.hpp"
 #include "gui/win_types.hpp"
 #include "string.hpp"
@@ -486,3 +487,5 @@ bool Window::IsMouseCaptured(void) const {
 	
 	return result;
 }
+
+#endif // defined(_WINDOWS)

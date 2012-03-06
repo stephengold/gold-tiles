@@ -31,56 +31,54 @@ In the native version, the TopWindow class extends the Window class.
 In the Qt version, the TopWindow class extends the QMainWindow class.
 */
 
-#include "project.hpp"
+#include "gui/gameview.hpp" // HASA GameView
+#ifdef _QT
+# include <QMainWindow>
+# include "gui/rect.hpp"
+#elif defined(_WINDOWS)
+# include "gui/color.hpp"
+# include "gui/window.hpp"   // ISA Window
+#endif // defined(_WINDOWS)
 
 #ifdef _QT
-#include <QMainWindow>
-
 namespace Ui {
     class TopWindow;
 }
+#endif // defined(_QT)
 
+#ifdef _QT
 class TopWindow: public QMainWindow {
     Q_OBJECT
+#elif defined(_WINDOWS)
+class TopWindow: public Window {
+#endif // defined(_QT)
 
 public:
     // public lifecycle
-    explicit TopWindow(QWidget *parent = 0);
+#ifdef _QT
+    TopWindow(Game *pGame = NULL);
+#elif defined(_WINDOWS)
+    TopWindow(Win::HINSTANCE, Game *pGame = NULL);
+#endif // defined(_QT)
+    // no default constructor
     ~TopWindow(void);
 
-private:
-    // private data
-    Ui::TopWindow *ui;
-};
-#endif
-
-
+    // misc public methods
+    long         DragTileDeltaX(void) const;
+    long         DragTileDeltaY(void) const;
 #ifdef _WINDOWS
-#include "gui/color.hpp"
-#include "gui/window.hpp"   // ISA Window
-#include "gui/gameview.hpp" // HASA GameView
+    Win::LRESULT HandleMessage(MessageType, Win::WPARAM, Win::LPARAM);
+#endif // defined(_WINDOWS)
+    void         Think(void);
 
-class TopWindow: public Window {
-public:
-	// public lifecycle
-	TopWindow(Win::HINSTANCE, Game *pGame);
-	// no default constructor
-    ~TopWindow(void);
-
-	// misc public methods
-	long         DragTileDeltaX(void) const;
-	long         DragTileDeltaY(void) const;
-	Win::LRESULT HandleMessage(MessageType, Win::WPARAM, Win::LPARAM);
-	void         Think(void);
-
-	// public inquiry methods
-	bool IsDraggingBoard(void) const;
+    // public inquiry methods
+    bool IsDraggingBoard(void) const;
 
 private:
-	// private constants
-	static const unsigned HAND_CNT_DEFAULT = 2;
+    // private constants
+    static const unsigned HAND_CNT_DEFAULT = 2;
     static const unsigned ID_CLOCK_TIMER = 1;
-	static const unsigned TIMEOUT_MSEC = 500;
+    static const unsigned TIMEOUT_MSEC = 500;
 
 	// private data
 	static WindowClass * 
@@ -97,6 +95,9 @@ private:
 	unsigned   mMouseUpCnt;
 	bool       mThinking;
 	void *     mThinkFiber;
+#ifdef _QT
+    Ui::TopWindow * mpUi;
+#endif // defined(_QT)
 
 	// private lifecycle
     TopWindow(TopWindow const &); // not copyable
@@ -138,6 +139,5 @@ private:
 	bool IsGameOver(void) const;
 	bool IsGamePaused(void) const;
 };
-#endif
 
 #endif // !defined(TOPWINDOW_HPP_INCLUDED)

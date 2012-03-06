@@ -40,17 +40,17 @@ TOPWINDOW MENU
 {
     POPUP "&File"
     {
-        MENUITEM "&New", IDM_NEW
-        MENUITEM "&Open...", IDM_OPEN
+        MENUITEM "&New\tCtrl+N", IDM_NEW
+        MENUITEM "&Open...\tCtrl+O", IDM_OPEN
         MENUITEM "Open &Recent...", IDM_REOPEN
         MENUITEM "Re&vert", IDM_REVERT
         MENUITEM SEPARATOR
-        MENUITEM "&Save\tS", IDM_SAVE
+        MENUITEM "&Save\tCtrl+S", IDM_SAVE
         MENUITEM "Save &As...", IDM_SAVE_AS
         MENUITEM SEPARATOR
-        MENUITEM "&Close", IDM_CLOSE
-        MENUITEM "&Print...\tP", IDM_PRINT
-        MENUITEM "E&xit\tAlt+F4", IDM_EXIT
+        MENUITEM "&Close\tCtrl+W", IDM_CLOSE
+        MENUITEM "&Print...\tCtrl+P", IDM_PRINT
+        MENUITEM "&Exit\tAlt+F4", IDM_EXIT
     }
     POPUP "&Play"
     {
@@ -391,8 +391,11 @@ HOTKEYS ACCELERATORS
     VK_F4,         IDM_EXIT, VIRTKEY, ALT
     67,            IDM_RECENTER, VIRTKEY
     71,            IDM_SUGGEST, VIRTKEY
-    80,            IDM_PRINT, VIRTKEY
-    83,            IDM_SAVE, VIRTKEY
+    78,            IDM_NEW, VIRTKEY, CONTROL
+    79,            IDM_OPEN, VIRTKEY, CONTROL
+    80,            IDM_PRINT, VIRTKEY, CONTROL
+    83,            IDM_SAVE, VIRTKEY, CONTROL
+    87,            IDM_CLOSE, VIRTKEY, CONTROL
     89,            IDM_REDO, VIRTKEY
     90,            IDM_UNDO, VIRTKEY
 }

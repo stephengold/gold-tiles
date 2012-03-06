@@ -31,25 +31,48 @@ the "Play" submenu or the "View" submenu.
 
 #include "project.hpp"  // HASA Menu&
 
+#ifdef _QT
+# include <QMenu>
+class SubMenu: public QObject {
+    Q_OBJECT
+#elif defined(_WINDOWS)
 class SubMenu {
-public:
-	// public lifecycle
-    SubMenu(Menu const &, unsigned position);
-	// no default constructor
-	// ~SubMenu(void);  compiler-generated destructor is OK
+#endif // defined(_WINDOWS)
 
-	// misc public methods
-    void Enable(bool);
+public:
+    // public lifecycle
+#ifdef _QT
+    SubMenu(QString const &label);
+#elif defined(_WINDOWS)
+    SubMenu(Menu const &, unsigned position);
+#endif // defined(_WINDOWS)
+    // no default constructor
+    // ~SubMenu(void);  compiler-generated destructor is OK
+
+    // misc public methods
+#ifdef _QT
+    void   Add(MenuItem &);
+    void   AddSeparator(void);
+#endif // !defined(_QT)
+    void   Enable(bool);
+#ifdef _QT
+    QMenu *Qt(void);
+#endif // !defined(_QT)
 
 private:
+    // private data
+#ifdef _QT
+    QMenu *mpQMenu;
+#elif defined(_WINDOWS)
     Menu const &mrMenu;
     unsigned     mPosition;
+#endif
 
-	// private lifecycle
-	SubMenu(SubMenu const &);  // not copyable
+    // private lifecycle
+    SubMenu(SubMenu const &);  // not copyable
 
-	// public operators
-	SubMenu &operator=(SubMenu const &);  // not assignable
+    //private operators
+    SubMenu &operator=(SubMenu const &);  // not assignable
 };
 
-#endif
+#endif // !defined(SUBMENU_HPP_INCLUDED)

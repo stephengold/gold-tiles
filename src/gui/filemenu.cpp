@@ -22,13 +22,51 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "gui/filemenu.hpp"
-#include "gui/resource.hpp"
-#include "gui/win_types.hpp"
+#ifdef _WINDOWS
+# include "gui/resource.hpp"
+# include "gui/win_types.hpp"
+#endif // defined(_WINDOWS)
+
 
 // lifecycle
 
+#ifdef _QT
+FileMenu::FileMenu(void):
+    SubMenu(tr("&File")),
+    mNew(Qt(), tr("&New\tCtrl+N")),
+    mOpen(Qt(), tr("&Open...\tCtrl+O")),
+    mReopen(Qt(), tr("Open &Recent...")),
+    mRevert(Qt(), tr("Re&vert")),
+    mSave(Qt(), tr("&Save\tCtrl+S")),
+    mSaveAs(Qt(), tr("Save &As...")),
+    mClose(Qt(), tr("&Close\tCtrl+W")),
+    mPrint(Qt(), tr("&Print...\tCtrl+P")),
+    mExit(Qt(), tr("&Exit"))
+{
+    mNew.SetShortcut(tr("Ctrl+N"));
+    mOpen.SetShortcut(tr("Ctrl+O"));
+    mSave.SetShortcut(tr("Ctrl+S"));
+    mClose.SetShortcut(tr("Ctrl+W"));
+    mPrint.SetShortcut(tr("Ctrl+P"));
+    mExit.SetShortcut(tr("Alt+F4"));
+
+    Add(mNew);
+    Add(mOpen);
+    Add(mReopen);
+    Add(mRevert);
+    AddSeparator();
+    Add(mSave);
+    Add(mSaveAs);
+    AddSeparator();
+    Add(mClose);
+    Add(mPrint);
+    Add(mExit);
+}
+
+#elif defined(_WINDOWS)
+
 FileMenu::FileMenu(Menu const &rRootMenu, unsigned position):
-	SubMenu(rRootMenu, position),
+    SubMenu(rRootMenu, position),
     mNew(rRootMenu, IDM_NEW),
     mOpen(rRootMenu, IDM_OPEN),
     mReopen(rRootMenu, IDM_REOPEN),
@@ -39,6 +77,11 @@ FileMenu::FileMenu(Menu const &rRootMenu, unsigned position):
     mPrint(rRootMenu, IDM_PRINT),
     mExit(rRootMenu, IDM_EXIT)
 {}
+
+#endif // defined(_WINDOWS)
+
+// The compiler-generated destructor is OK.
+
 
 // misc methods
 

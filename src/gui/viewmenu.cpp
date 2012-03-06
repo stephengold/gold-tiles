@@ -23,9 +23,48 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "gui/resource.hpp"
 #include "gui/viewmenu.hpp"
-#include "gui/win_types.hpp"
+#ifdef _WINDOWS
+# include "gui/win_types.hpp"
+#endif // defined(_WINDOWS)
+
 
 // lifecycle
+
+#ifdef _QT
+
+ViewMenu::ViewMenu(void):
+    SubMenu(tr("&View")),
+    mSmallTiles(Qt(), "&Small Tiles"),
+    mMediumTiles(Qt(), "&Medium Tiles"),
+    mLargeTiles(Qt(), "&Large Tiles"),
+    mRecenter(Qt(), "&Re-center\tC"),
+    mAttributes(Qt(), "Tile &Attributes..."),
+    mHints(Qt(), "&Hints..."),
+    mShowClocks(Qt(), "Show &Clocks"),
+    mShowGrid(Qt(), "Show &Grid"),
+    mShowScores(Qt(), "Show Sc&ores"),
+    mShowTiles(Qt(), "&Peek"),
+    mAnimation(Qt(), "A&nimation")
+{
+    QKeySequence c(tr("C"));
+    mRecenter.SetShortcut(c);
+
+    Add(mSmallTiles);
+    Add(mMediumTiles);
+    Add(mLargeTiles);
+    AddSeparator();
+    Add(mRecenter);
+    Add(mAttributes);
+    Add(mHints);
+    AddSeparator();
+    Add(mShowClocks);
+    Add(mShowGrid);
+    Add(mShowScores);
+    Add(mShowTiles);
+    Add(mAnimation);
+}
+
+#elif defined(_WINDOWS)
 
 ViewMenu::ViewMenu(Menu const &rRootMenu, unsigned position):
 	SubMenu(rRootMenu, position),
@@ -41,6 +80,11 @@ ViewMenu::ViewMenu(Menu const &rRootMenu, unsigned position):
     mShowTiles(rRootMenu, IDM_PEEK),
     mAnimation(rRootMenu, IDM_ANIMATION)
 {}
+
+#endif // defined(_WINDOWS)
+
+// The compiler-generated destructor is OK.
+
 
 // misc methods
 
@@ -70,6 +114,9 @@ void ViewMenu::ShowScores(bool shown) {
 void ViewMenu::ShowTiles(bool shown) {
 	mShowTiles.Check(shown);
 }
+
+#ifdef _WINDOWS
+
 void ViewMenu::TileSize(IdType itemId) {
 	UncheckAllSizes();
 	
@@ -87,9 +134,11 @@ void ViewMenu::TileSize(IdType itemId) {
 			FAIL();
 	}
 }
+#endif // defined(_WINDOWS)
 
 void ViewMenu::UncheckAllSizes(void) {
 	mSmallTiles.Check(false);
     mMediumTiles.Check(false);
     mLargeTiles.Check(false);
 }
+

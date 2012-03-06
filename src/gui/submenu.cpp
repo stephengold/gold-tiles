@@ -21,12 +21,26 @@ You should have received a copy of the GNU General Public License
 along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "gui/menu.hpp"
 #include "gui/submenu.hpp"
-#include "gui/win_types.hpp"
+#ifdef _QT
+# include <Qt>
+# include "gui/menuitem.hpp"
+#elif defined(_WINDOWS)
+# include "gui/menu.hpp"
+# include "gui/win_types.hpp"
+#endif // defined(_WINDOWS)
 
 
 // lifecycle
+
+#ifdef _QT
+
+SubMenu::SubMenu(QString const &label) {
+    mpQMenu = new QMenu(label);
+    ASSERT(mpQMenu != NULL);
+}
+
+#elif defined(_WINDOWS)
 
 SubMenu::SubMenu(Menu const &rMenu, unsigned position):
     mrMenu(rMenu)
@@ -34,16 +48,46 @@ SubMenu::SubMenu(Menu const &rMenu, unsigned position):
     mPosition = position;
 }
 
+#endif // defined(_WINDOWS)
+
+// The compiler-generated destructor is OK.
+
+
 // misc methods
 
-void SubMenu::Enable(bool enabledFlag) {
-	UINT position = mPosition;
-	UINT flags = MF_BYPOSITION;
+#ifdef _QT
 
-	if (enabledFlag) {
-  	    flags |= MF_ENABLED;
-	} else {
-		flags |= MF_GRAYED;
-	}
-	Win::EnableMenuItem(HMENU(mrMenu), position, flags);
+void SubMenu::Add(MenuItem &rItem) {
+    QAction *p_action = rItem.pAction();
+    mpQMenu->addAction(p_action);
 }
+
+void SubMenu::AddSeparator(void) {
+    mpQMenu->addSeparator();
+}
+
+#endif // defined(_QT)
+
+void SubMenu::Enable(bool enabledFlag) {
+#ifdef _QT
+    mpQMenu->setEnabled(enabledFlag);
+#elif defined(_WINDOWS)
+    UINT position = mPosition;
+    UINT flags = MF_BYPOSITION;
+
+    if (enabledFlag) {
+        flags |= MF_ENABLED;
+    } else {
+        flags |= MF_GRAYED;
+    }
+    Win::EnableMenuItem(HMENU(mrMenu), position, flags);
+#endif // defined(_WINDOWS)
+}
+
+#ifdef _QT
+
+QMenu *SubMenu::Qt(void) {
+    return mpQMenu;
+}
+
+#endif // defined(_QT)

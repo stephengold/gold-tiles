@@ -44,6 +44,8 @@ public:
 	TileIdType GetId(Cell const &) const;
     bool       LocateTile(Tile const &, Cell &) const;
     void	   PlayMove(Move const &);
+    static char const *
+               ReasonText(char const *reason);
     unsigned   ScoreMove(Move const &) const;
 
 	// public inquiry methods

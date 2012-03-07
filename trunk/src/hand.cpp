@@ -61,6 +61,8 @@ void Hand::AddScore(unsigned points) {
 }
 
 Move Hand::ChooseMove(void) const {
+    ASSERT(IsLocalPlayer());
+    
     DisplayTiles();
 	Move result;
     result.GetUserChoice(mTiles);

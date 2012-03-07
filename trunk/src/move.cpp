@@ -139,7 +139,6 @@ void Move::GetUserChoice(Tiles const &rAvailableTiles) {
 
 		TileCell tile_cell;
 		String input = tile_cell.GetUserChoice(rAvailableTiles, alts);
-		D(std::cout << "input=\'" << input << "'" << std::endl);
         if (input == "resign") {
 			MakeResign();
             break;

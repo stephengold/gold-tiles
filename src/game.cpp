@@ -24,6 +24,7 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 #include <iostream>
 #include "board.hpp"
 #include "game.hpp"
+#include "partial.hpp"
 #include "strings.hpp"
 
 
@@ -236,12 +237,19 @@ void Game::FirstTurn(void) {
 
     Move move;
     StartClock();
-    for (;;) {
-    	std::cout << miActiveHand->Name() << " plays first and must place " 
-			<< plural(mBestRunLength, "tile") << " on the (empty) board." << std::endl;
-		move = miActiveHand->ChooseMove();
-    	if (IsLegalMove(move)) {
-            break;
+    if (miActiveHand->IsAutomatic()) {
+        Partial partial(this, HINT_NONE);
+        partial.Suggest();
+        move = partial.GetMove(false);
+    } else {
+        for (;;) {
+    	    std::cout << miActiveHand->Name() << " plays first and must place " 
+			    << plural(mBestRunLength, "tile") << " on the (empty) board." 
+                << std::endl;
+		    move = miActiveHand->ChooseMove();
+    	    if (IsLegalMove(move)) {
+                break;
+            }
         }
 	}
 
@@ -292,20 +300,25 @@ void Game::NextTurn(void) {
 
     Move move;
 	StartClock();
-    for (;;) {
- 	    DisplayScores();
-        unsigned stock = CountStock();
-        std::cout << std::endl
-			 << miActiveHand->Name() << "'s turn, " 
-			 << plural(stock, "tile") << " remaining in the stock bag" << std::endl
-	         << std::endl << (String)mBoard << std::endl;
-
-		move = miActiveHand->ChooseMove();
-		if (IsLegalMove(move)) {
-            break;
+    if (miActiveHand->IsAutomatic()) {
+        Partial partial(this, HINT_NONE);
+        partial.Suggest();
+        move = partial.GetMove(false);
+    } else {
+        for (;;) {
+ 	        DisplayScores();
+            unsigned stock = CountStock();
+            std::cout << std::endl
+			   << miActiveHand->Name() << "'s turn, " 
+			   << plural(stock, "tile") << " remaining in the stock bag"
+               << std::endl << std::endl << String(mBoard) << std::endl;
+		    move = miActiveHand->ChooseMove();
+		    if (IsLegalMove(move)) {
+                break;
+            }
         }
 	}
-
+    ASSERT(IsLegalMove(move));
     ASSERT(IsPaused());
     FinishTurn(move);
     ASSERT(!IsClockRunning());

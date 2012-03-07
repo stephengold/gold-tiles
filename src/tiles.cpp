@@ -175,8 +175,6 @@ void Tiles::GetUserChoice(Tiles const &rAvailableTiles) {
 
 Tiles Tiles::LongestRun(void) const {
 	Tiles unique = UniqueTiles();
-	D(std::cout << plural(unique.Count(), "unique tile") << ":" << std::endl
-        << " " << String(unique) << "." << std::endl);
 
 	Tiles result;
 	String raString;
@@ -200,9 +198,6 @@ Tiles Tiles::LongestRun(void) const {
         }
     }
     
-    D(std::cout << "Found a run of " << result.Count() << " " 
-		<< raString << plural(result.Count()) << "." << std::endl);
-
 	return result;
 }
 

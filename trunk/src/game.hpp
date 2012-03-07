@@ -26,6 +26,7 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "board.hpp"  // HASA Board
 #include "hands.hpp"  // HASA Hands
+#include "turns.hpp"  // HASA Turns
 
 enum GameStyleType {
     GAME_STYLE_NONE,
@@ -76,6 +77,7 @@ public:
 	// public inquiry methods
 	bool HasEmptyCell(Cell const &) const;
 	bool HasUnsavedChanges(void) const;
+	bool IsClockRunning(void) const;
     bool IsLegalMove(Move const &) const;
     bool IsLegalMove(Move const &, char const *&rReason) const;
     bool IsLegalPartial(Partial const &) const;
@@ -91,10 +93,12 @@ private:
 	String           mFilespec;      // associated file for load/save
     Hands            mHands;         // all hands being played
 	unsigned         mHandSize;      // max tiles per hand
+	Turns            mHistory;       // history of turns for undo/redo
+	Turns::Iterator miRedo;          // current place in the history
 	unsigned         mRedundancy;    // number of instances of each possible tile
 	unsigned         mSecondsPerHand; // 0 indicates count up instead of down
     Tiles            mStockBag;      // stock bag from which tiles are drawn
-	GameStyleType    mStyle;
+	GameStyleType    mStyle;         // constant for duration of game
 	bool             mUnsavedChanges;
 
 	// private lifecycle
@@ -105,6 +109,7 @@ private:
 
 	// misc private methods
     void AddTiles(AIndexType, Tile &);
+    void AddTurn(Turn const &);
     Cell ChooseCell(void) const;
     void DisplayScores(void) const;
     void FirstTurn(void);

@@ -54,3 +54,5 @@ private:
 };
 #endif // defined(_WINDOWS)
 #endif // !defined(WINDOWCLASS_HPP_INCLUDED)
+
+

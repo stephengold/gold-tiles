@@ -26,6 +26,7 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 #include "game.hpp"
 #include "strings.hpp"
 
+
 // lifecycle
 
 Game::Game(
@@ -91,7 +92,9 @@ Game::Game(
 	    }
     }
 
+    miRedo = mHistory.end();
 	mUnsavedChanges = false; // pretend this game is saved, for convenience
+	ASSERT(IsPaused());
 }
 
 
@@ -115,12 +118,13 @@ Game::operator Hands(void) const {
 // misc methods
 
 void Game::ActivateNextHand(void) {
-	ASSERT(!miActiveHand->IsClockRunning());
+	ASSERT(!IsClockRunning());
 
+    // skip over hands which have resigned
     mHands.NextWorking(miActiveHand);
 	mUnsavedChanges = true;
 
-	ASSERT(!miActiveHand->IsClockRunning());
+	ASSERT(!IsClockRunning());
 }
 
 // get the tiles in the active hand
@@ -151,6 +155,14 @@ void Game::AddTiles(  // recursive
 	}
 }
 
+void Game::AddTurn(Turn const &rTurn) {
+     while (miRedo != mHistory.end()) {
+         mHistory.pop_back();
+     }
+     mHistory.push_back(rTurn);
+     miRedo = mHistory.end();
+}
+
 unsigned Game::CountStock(void) const {
     unsigned result = mStockBag.Count();
     
@@ -167,6 +179,13 @@ void Game::DisplayScores(void) const {
 
 void Game::FinishTurn(Move const &move) {
     ASSERT(mBoard.IsValidMove(move));
+    ASSERT(IsClockRunning());
+    
+    StopClock();
+    
+    String hand_name = miActiveHand->Name();
+    long milliseconds = miActiveHand->Milliseconds();
+    Turn turn(move, hand_name, milliseconds, mBestRunLength);
 
 	if (move.IsResign()) {
 		miActiveHand->Resign(mStockBag);
@@ -179,8 +198,9 @@ void Game::FinishTurn(Move const &move) {
         // attempt to draw replacement tiles from the stock bag
         unsigned count = tiles.Count();
 	    if (count > 0) {
-            unsigned actual = miActiveHand->DrawTiles(count, mStockBag);
-		    ASSERT(actual == count || !move.InvolvesSwap());
+            Tiles draw = miActiveHand->DrawTiles(count, mStockBag);
+            ASSERT(draw.Count() == count || !move.InvolvesSwap());
+		    turn.SetDraw(draw);
 	    }
 
 	    if (move.InvolvesSwap()) {
@@ -196,20 +216,26 @@ void Game::FinishTurn(Move const &move) {
             // update the hand's score    
   	        unsigned points = mBoard.ScoreMove(move);
 	        miActiveHand->AddScore(points);
+	        turn.SetPoints(points);
 		}
 	}
+	
+	AddTurn(turn);
 	
 	//  If it was the first turn, it no longer is.
     mBestRunLength = 0;
 
 	// There are unsaved changes now.
 	mUnsavedChanges = true;
+    ASSERT(!IsClockRunning());
 }
 
 void Game::FirstTurn(void) {
+    ASSERT(IsPaused());
     std::cout << std::endl;
 
     Move move;
+    StartClock();
     for (;;) {
     	std::cout << miActiveHand->Name() << " plays first and must place " 
 			<< plural(mBestRunLength, "tile") << " on the (empty) board." << std::endl;
@@ -219,10 +245,14 @@ void Game::FirstTurn(void) {
         }
 	}
 
+    ASSERT(IsClockRunning());
     FinishTurn(move);
+    ASSERT(!IsClockRunning());
 }
 
 void Game::GoingOutBonus(void) {
+    ASSERT(IsOver());
+    
 	// the active hand scores a point for each tile in every other hand
     Hands::ConstIterator i_hand = miActiveHand;
 	mHands.Next(i_hand);
@@ -258,36 +288,35 @@ Hands Game::InactiveHands(void) const {
 }
 
 void Game::NextTurn(void) {
-     D(std::cout << "Game::NextTurn()" << std::endl);
+    ASSERT(IsPaused());
 
-	 Move move;
-     for (;;) {
- 	     DisplayScores();
-    	 unsigned stock = CountStock();
-         std::cout << std::endl
+    Move move;
+	StartClock();
+    for (;;) {
+ 	    DisplayScores();
+        unsigned stock = CountStock();
+        std::cout << std::endl
 			 << miActiveHand->Name() << "'s turn, " 
 			 << plural(stock, "tile") << " remaining in the stock bag" << std::endl
 	         << std::endl << (String)mBoard << std::endl;
 
-		 move = miActiveHand->ChooseMove();
-		 if (IsLegalMove(move)) {
-             break;
-         }
-	 }
+		move = miActiveHand->ChooseMove();
+		if (IsLegalMove(move)) {
+            break;
+        }
+	}
 
-     FinishTurn(move);
+    ASSERT(IsPaused());
+    FinishTurn(move);
+    ASSERT(!IsClockRunning());
 }
 
 void Game::PlayGame(void) {
-	StartClock();
     FirstTurn();
-	StopClock();
 
     while (!IsOver()) {
         ActivateNextHand();
-		StartClock();
 	    NextTurn();
-		StopClock();
     }
 
     // display final scores
@@ -343,6 +372,12 @@ bool Game::HasUnsavedChanges(void) const {
 	return mUnsavedChanges;
 }
 
+bool Game::IsClockRunning(void) const {
+    bool result = miActiveHand->IsClockRunning();
+     
+    return result;
+}
+
 bool Game::IsLegalMove(Move const &rMove) const {
     char const *reason;
 	bool result = IsLegalMove(rMove, reason);
@@ -391,7 +426,7 @@ bool Game::IsOver(void) const {
 }
 
 bool Game::IsPaused(void) const {
-	bool result = !miActiveHand->IsClockRunning() && !IsOver();
+	bool result = !IsClockRunning() && !IsOver();
 
 	return result;
 }

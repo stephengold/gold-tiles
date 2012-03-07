@@ -47,7 +47,7 @@ public:
     bool     CopyIds(Tiles const &);
 	unsigned Count(void) const;
     Tile     DrawRandomTile(void);
-	unsigned DrawTiles(unsigned, Tiles &rBag);
+	void     DrawTiles(unsigned, Tiles &rBag);
 	Tile     FindTile(TileIdType) const;
     void     GetUserChoice(Tiles const &);
 	Tiles    LongestRun(void) const;

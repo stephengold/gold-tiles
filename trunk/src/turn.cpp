@@ -1,8 +1,5 @@
-#ifndef HANDS_HPP_INCLUDED
-#define HANDS_HPP_INCLUDED
-
-// File:    hands.hpp
-// Purpose: Hands class
+// File:    turn.cpp
+// Purpose: Turn class
 // Author:  Stephen Gold sgold@sonic.net
 // (c) Copyright 2012 Stephen Gold
 // Distributed under the terms of the GNU General Public License
@@ -24,29 +21,38 @@ You should have received a copy of the GNU General Public License
 along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-/*
-A Hands object represents a circular sequence of zero or more 
-hands of tiles.
-*/
+#include "turn.hpp"
 
-#include <vector>    // ISA std::vector
-#include "hand.hpp"  // HASA Hand
 
-class Hands: public std::vector<Hand> {
-public:
-	// public types
-    typedef std::vector<Hand>::const_iterator ConstIterator;
-    typedef std::vector<Hand>::iterator       Iterator;
+// lifecycle
 
-	// misc public methods
-    unsigned Count(void) const;
-    void     Next(ConstIterator &) const;
-    void     Next(Iterator &);
-	void     NextWorking(Iterator &);
+Turn::Turn(Move const &rMove, String const &rHandName, long msecs, unsigned bestRun) {
+	mBestRun = bestRun;
+	mHandName = rHandName;
+	mMilliseconds = msecs;
+	mMove = rMove;
+	mPoints = 0;
+}
 
-	// public inquiry method
-	bool HasAnyGoneOut(void) const;
-	bool HaveAllResigned(void) const;
-};
+// The compiler-generated copy constructor is OK.
+// The compiler-generated destructor is OK.
 
-#endif // !defined(HANDS_HPP_INCLUDED)
+
+// operators
+
+// The compiler-generated assignment operator is OK.
+
+Turn::operator Move(void) const {
+	return mMove;
+}
+
+
+// misc methods
+
+void Turn::SetDraw(Tiles const &rDraw) {
+     mDraw = rDraw;
+}
+
+void Turn::SetPoints(unsigned points) {
+     mPoints = points;
+}

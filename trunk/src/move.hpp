@@ -26,10 +26,14 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 
 /*
 A Move object represents a group of zero or more tiles and the
-location(s) where they will be played.
+location(s) where they will be played, or alternatively it indicates
+that a player will resign from the game.
+
+The Move class encapsulates a set of TileCell objects and a
+resignation flag.
 */
 
-#include <set>           // ISA std::set
+#include <set>           // HASA std::set
 #include "tilecell.hpp"  // HASA TileCell
 
 class Move {
@@ -76,4 +80,4 @@ private:
 	// misc private methods
 	void MakePass(void);
 };
-#endif
+#endif // !defined(MOVE_HPP_INCLUDED)

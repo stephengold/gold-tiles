@@ -24,7 +24,8 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 #include "string.hpp"
 #include "tilecell.hpp"
 
-// constructors, assignment, destructor, and casts
+
+// lifecycle
 
 TileCell::TileCell(void) {
 	mSwapFlag = true;
@@ -43,49 +44,10 @@ TileCell::TileCell(Tile const &rTile, Cell const &rCell):
 }
 
 // The compiler-generated copy constructor is OK.
-// The compiler-generated assignment method is OK.
 // The compiler-generated destructor is OK.
 
-TileCell::operator Cell(void) const {
-	ASSERT(!mSwapFlag);
-    Cell result = mCell;
 
-	return result;
-}
-
-TileCell::operator String(void) const {
-	String result = String(mTile);
-	if (mSwapFlag) {
-		result += "@swap";
-	} else {
-		result += "@";
-		result += String(mCell);
-	}
-
-	return result;
-}
-
-TileCell::operator Tile(void) const {
-    Tile result = mTile;
-
-	return result;
-}
-
-// methods
-
-String TileCell::GetUserChoice(Tiles const &rAvailableTiles, Strings const &rAlts) {
-    String result = mTile.GetUserChoice(rAvailableTiles, rAlts);
-	if (result == String(mTile)) {
-        mSwapFlag = mCell.GetUserChoice("swap");
-	}
-	return result;
-}
-
-bool TileCell::IsSwap(void) const {
-	bool result = mSwapFlag;
-
-	return result;
-}
+// operators
 
 bool TileCell::operator<(TileCell const &rOther) const {
      bool result;
@@ -106,3 +68,47 @@ bool TileCell::operator<(TileCell const &rOther) const {
      
      return result;
 }
+
+// The compiler-generated assignment method is OK.
+
+TileCell::operator Cell(void) const {
+	ASSERT(!mSwapFlag);
+
+    return mCell;
+}
+
+TileCell::operator String(void) const {
+	String result = String(mTile);
+	if (mSwapFlag) {
+		result += "@swap";
+	} else {
+		result += "@";
+		result += String(mCell);
+	}
+
+	return result;
+}
+
+TileCell::operator Tile(void) const {
+    return mTile;
+}
+
+
+// misc methods
+
+String TileCell::GetUserChoice(Tiles const &rAvailableTiles, Strings const &rAlts) {
+    String result = mTile.GetUserChoice(rAvailableTiles, rAlts);
+	if (result == String(mTile)) {
+        mSwapFlag = mCell.GetUserChoice("swap");
+	}
+	
+	return result;
+}
+
+
+// inquiry methods
+
+bool TileCell::IsSwap(void) const {
+	return mSwapFlag;
+}
+

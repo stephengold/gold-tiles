@@ -46,8 +46,9 @@ public:
 	void     DisplayName(void) const;
 	void     DisplayScore(void) const;
 	void     DisplayTiles(void) const;
-	unsigned DrawTiles(unsigned, Tiles &bag);
+	Tiles    DrawTiles(unsigned, Tiles &bag);
 	Tiles    LongestRun(void) const;
+	long     Milliseconds(void) const;
 	String   Name(void) const;
 	String   PlayerName(void) const;
 	void     RemoveTile(Tile const &);
@@ -76,9 +77,6 @@ private:
 	unsigned  mScore;
 	long      mStartTime;
 	Tiles     mTiles;
-
-	// private misc methods
-	long Milliseconds(void) const;
 
 	// private inquiry methods
 	bool IsEmpty(void) const;

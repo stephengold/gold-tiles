@@ -808,7 +808,6 @@ void TopWindow::Play(bool passFlag) {
 	bool is_legal = mpGame->IsLegalMove(move, reason);
     if (move.IsPass() == passFlag && is_legal) {
         mpGame->FinishTurn(move);
-		mpGame->StopClock();
         if (mpGame->IsOver()) {
             mpMenuBar->GameOver();                  
             mpGame->GoingOutBonus();
@@ -973,7 +972,6 @@ void TopWindow::ResignHand(void) {
 	Move move;
 	move.MakeResign();
     mpGame->FinishTurn(move);
-	mpGame->StopClock();
 
     if (mpGame->IsOver()) {
         mpMenuBar->GameOver();

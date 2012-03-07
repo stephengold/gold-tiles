@@ -98,7 +98,6 @@ void Tiles::AddTiles(Tiles const &tiles) {
 	}
 }
 
-
 unsigned Tiles::Count(void) const {
 	unsigned result = mMap.size();
 
@@ -126,19 +125,14 @@ Tile Tiles::DrawRandomTile(void) {
     return result;
 }
 
-unsigned Tiles::DrawTiles(unsigned tileCnt, Tiles &bag) {
-	unsigned draw_cnt;
-
-    for (draw_cnt = 0; draw_cnt < tileCnt; ++draw_cnt) {
+void Tiles::DrawTiles(unsigned tileCnt, Tiles &bag) {
+    for (unsigned draw_cnt = 0; draw_cnt < tileCnt; ++draw_cnt) {
         if (bag.IsEmpty()) {
             break;
         }
         Tile tile = bag.DrawRandomTile();
-        D(std::cout << "Drew " << String(tile) << "." << std::endl);
 		Add(tile);
 	}
-
-	return draw_cnt;
 }
 
 Tile Tiles::FindTile(TileIdType id) const {

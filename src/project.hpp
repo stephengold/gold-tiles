@@ -57,6 +57,8 @@ class Strings;
 class Tile;
 class TileCell;
 class Tiles;
+class Turn;
+class Turns;
 
 #ifdef _GUI
 // forward declarations of GUI classes

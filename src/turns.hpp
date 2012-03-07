@@ -1,8 +1,8 @@
-#ifndef HANDS_HPP_INCLUDED
-#define HANDS_HPP_INCLUDED
+#ifndef TURNS_HPP_INCLUDED
+#define TURNS_HPP_INCLUDED
 
-// File:    hands.hpp
-// Purpose: Hands class
+// File:    turns.hpp
+// Purpose: Turns class
 // Author:  Stephen Gold sgold@sonic.net
 // (c) Copyright 2012 Stephen Gold
 // Distributed under the terms of the GNU General Public License
@@ -25,28 +25,19 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 /*
-A Hands object represents a circular sequence of zero or more 
-hands of tiles.
+A Turns object represents a linear sequence of zero or more turns of the game.
 */
 
-#include <vector>    // ISA std::vector
-#include "hand.hpp"  // HASA Hand
+#include <list>      // ISA std::list
+#include "turn.hpp"  // HASA Turn
 
-class Hands: public std::vector<Hand> {
+class Turns: public std::list<Turn> {
 public:
 	// public types
-    typedef std::vector<Hand>::const_iterator ConstIterator;
-    typedef std::vector<Hand>::iterator       Iterator;
+    typedef std::list<Turn>::iterator Iterator;
 
 	// misc public methods
     unsigned Count(void) const;
-    void     Next(ConstIterator &) const;
-    void     Next(Iterator &);
-	void     NextWorking(Iterator &);
-
-	// public inquiry method
-	bool HasAnyGoneOut(void) const;
-	bool HaveAllResigned(void) const;
 };
 
-#endif // !defined(HANDS_HPP_INCLUDED)
+#endif // !defined(TURNS_HPP_INCLUDED)

@@ -80,13 +80,14 @@ void Hand::DisplayTiles(void) const {
 	std::cout << Name() << " is holding: " << String(mTiles) << "." << std::endl;
 }
 
-unsigned Hand::DrawTiles(unsigned tileCount, Tiles &rBag) {
-    unsigned draw_count = mTiles.DrawTiles(tileCount, rBag);
-
-	std::cout << Name() << " drew " << plural(draw_count, "tile") 
+Tiles Hand::DrawTiles(unsigned tileCount, Tiles &rBag) {
+    Tiles result;
+    result.DrawTiles(tileCount, rBag);
+	std::cout << Name() << " drew " << plural(result.Count(), "tile") 
 		 << " from the stock bag." << std::endl;
+    mTiles.AddTiles(result);
 
-	return draw_count;
+	return result;
 }
 
 // find the longest run of compatible tiles in the hand

@@ -43,6 +43,7 @@ public:
 
 	// lifecycle
 	Move(void);
+	Move(Tiles const &);
 	// ~Move(void);  compiler-generated destructor is OK
 
 	// public operators

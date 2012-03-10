@@ -45,10 +45,6 @@ BaseBoard::BaseBoard(void) {
 
 // convert the entire board to a string
 BaseBoard::operator String(void) const {
-    D(std::cout << "maxN=" << mNorthMax << " maxS=" << mSouthMax 
-		   << " maxE=" << mEastMax << " maxW=" << mWestMax
-           << " in Board::operator String()" << std::endl);
-
     String result(5, ' ');
     for (int column = -(int)mWestMax; column <= (int)mEastMax; column++) {
        String column_tag(column);

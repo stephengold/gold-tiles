@@ -1003,68 +1003,10 @@ void TopWindow::Resize(PCntType clientAreaWidth, PCntType clientAreaHeight) {
     ForceRepaint();
 }
 
-void TopWindow::RuleBox(char const *messageText) {
-	String message = messageText;
-	String title = "Information";
-
-	// expand shortcuts
-	if (::str_eq(message, "COLUMNCOMPAT")) {
-		message = "Tiles in a column (with no intervening empty cells) must all be mutually compatible.";
-		title = "Column Compatibility Rule";
-	} else if (::str_eq(message, "DIAGCOMPAT")) {
-		message = "Tiles on a diagonal (with no intervening empty cells) must all be mutually compatible.";
-		title = "Diagonal Compatibility Rule";
-	} else if (::str_eq(message, "EMPTY")) {
-		message = "That cell has already been used.";
-		title = "Empty Cell Rule";
-	} else if (::str_eq(message, "FIRST")) {
-		message = "On the first turn, you must play as many tiles as possible.  Keep looking!";
-		title = "First Turn Rule";
-	} else if (::str_eq(message, "GAP")) {
-		message = "You can't leave any empty cells between the tiles you play.";
-		title = "Gap Rule";
-	} else if (::str_eq(message, "NEIGHBOR")) {
-		message = "Each cell you use must be a neighbor of a used cell.";
-		title = "Neighbor Rule";
-	} else if (::str_eq(message, "ROWCOLUMN")) {
-		String dirs;
-		switch (Cell::Grid()) {
-		case GRID_TRIANGLE:
-			dirs = "row or diagonal";
-			break;
-		case GRID_4WAY:
-			dirs = "row or column";
-			break;
-		case GRID_HEX:
-			dirs = "column or diagonal";
-			break;
-		case GRID_8WAY:
-		    dirs = "row, column, or diagonal";
-			break;
-		default:
-			FAIL();
-		}
-		message = String("The cells you use must all lie in a single ") + dirs + String(".");
-		title = "Row/Column Rule";
-	} else if (::str_eq(message, "ROWCOMPAT")) {
-		message = "Tiles in a row (with no intervening empty cells) must all be mutually compatible.";
-		title = "Row Compatibility Rule";
-	} else if (::str_eq(message, "RULES")) {
-		message = "The rules of Gold Tile are available online at http://code.google.com/p/gold-tiles/wiki/Playing";
-		title = "Rules";
-	} else if (::str_eq(message, "START")) {
-		message = "Your first tile must use the start cell. To change this tile, you must take back ALL your tiles.";
-		title = "Start Rule";
-	} else if (::str_eq(message, "STARTSIMPLE")) {
-		message = "Your first tile must use the start cell.";
-		title = "Start Rule";
-	} else if (::str_eq(message, "STOCK")) {
-		message = "You can't swap more tiles than the number remaining in the stock bag.";
-		title = "Stock Rule";
-	} else if (::str_eq(message, "SWAP")) {
-		message = "You can play tiles or swap them, but you can't do both in the same turn.";
-		title = "Swap Rule";
-	}
+void TopWindow::RuleBox(char const *reason) {
+	// expand reason shortcuts
+	String title;
+	String message = Board::ReasonMessage(reason, title);
 
 	title += " - Gold Tile";
 	ErrorBox(message, title);

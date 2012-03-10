@@ -154,6 +154,78 @@ unsigned Board::ScoreDirection(
     return result;
 }
 
+/* static */ String Board::ReasonMessage(char const *reason, String &rTitle) {
+	String message = reason;
+	rTitle = "Information";
+
+	// expand shortcuts
+	if (::str_eq(message, "COLUMNCOMPAT")) {
+		message = "Tiles in a column (with no intervening empty cells) must all be mutually compatible.";
+		rTitle = "Column Compatibility Rule";
+	} else if (::str_eq(message, "DIAGCOMPAT")) {
+		message = "Tiles on a diagonal (with no intervening empty cells) must all be mutually compatible.";
+		rTitle = "Diagonal Compatibility Rule";
+	} else if (::str_eq(message, "EMPTY")) {
+		message = "That cell has already been used.";
+		rTitle = "Empty Cell Rule";
+	} else if (::str_eq(message, "FIRST")) {
+		message = "On the first turn, you must play as many tiles as possible.  Keep looking!";
+		rTitle = "First Turn Rule";
+	} else if (::str_eq(message, "GAP")) {
+		message = "You can't leave any empty cells between the tiles you play.";
+		rTitle = "Gap Rule";
+	} else if (::str_eq(message, "NEIGHBOR")) {
+		message = "Each cell you use must be a neighbor of a used cell.";
+		rTitle = "Neighbor Rule";
+	} else if (::str_eq(message, "REPEATCELL")) {
+		message = "You can't use the same cell twice.";
+		rTitle = "Repeated Cell Rule";
+	} else if (::str_eq(message, "REPEATTILE")) {
+		message = "You can't use the same tile twice.";
+		rTitle = "Repeated Tile Rule";
+	} else if (::str_eq(message, "ROWCOLUMN")) {
+		String dirs;
+		switch (Cell::Grid()) {
+		case GRID_TRIANGLE:
+			dirs = "row or diagonal";
+			break;
+		case GRID_4WAY:
+			dirs = "row or column";
+			break;
+		case GRID_HEX:
+			dirs = "column or diagonal";
+			break;
+		case GRID_8WAY:
+		    dirs = "row, column, or diagonal";
+			break;
+		default:
+			FAIL();
+		}
+		message = String("The cells you use must all lie in a single ") + dirs + String(".");
+		rTitle = "Row/Column Rule";
+	} else if (::str_eq(message, "ROWCOMPAT")) {
+		message = "Tiles in a row (with no intervening empty cells) must all be mutually compatible.";
+		rTitle = "Row Compatibility Rule";
+	} else if (::str_eq(message, "RULES")) {
+		message = "The rules of Gold Tile are available online at http://code.google.com/p/gold-tiles/wiki/Playing";
+		rTitle = "Rules";
+	} else if (::str_eq(message, "START")) {
+		message = "Your first tile must use the start cell. To change this tile, you must take back ALL your tiles.";
+		rTitle = "Start Rule";
+	} else if (::str_eq(message, "STARTSIMPLE")) {
+		message = "Your first tile must use the start cell.";
+		rTitle = "Start Rule";
+	} else if (::str_eq(message, "STOCK")) {
+		message = "You can't swap more tiles than the number remaining in the stock bag.";
+		rTitle = "Stock Rule";
+	} else if (::str_eq(message, "SWAP")) {
+		message = "You can play tiles or swap them, but you can't do both in the same turn.";
+		rTitle = "Swap Rule";
+	}
+
+    return message;
+}
+
 unsigned Board::ScoreMove(Move const &rMove) const {
     unsigned result = 0;
     
@@ -363,40 +435,33 @@ bool Board::IsValidMove(Move const &rMove) const {
 }
 
 bool Board::IsValidMove(Move const &rMove, char const *&rReason) const {
-    // resignation is always legal
+    // resignation is always legal and valid
 	if (rMove.IsResign()) {
-        D(std::cout << "The move is a resignation." << std::endl);
         return true;
     }
 
-    // a pass (no tiles played or swapped) is always legal
+    // a pass (no tiles played or swapped) is always valid
     if (rMove.IsPass()) {
-        D(std::cout << "The move is a pass." << std::endl);
         return true;
     }
 
     // check for repeated tiles
     if (rMove.RepeatsTile()) {
-        D(std::cout << "You can't use the same tile twice." << std::endl);
 		rReason = "REPEATTILE";
         return false;
     }
 
 	if (rMove.InvolvesSwap()) {
 		if (!rMove.IsPureSwap()) {
-            D(std::cout << "You can play tiles or swap them, "
-				<< "but you can't do both in the same turn." << std::endl);
    		    rReason = "SWAP";
             return false;
 		}
-        
-		D(std::cout << "The move is a valid swap." << std::endl);
+        // a valid swap
         return true;
 	}
 
 	// check for repeated cells
     if (rMove.RepeatsCell()) {
-        D(std::cout << "You can't use the same cell twice." << std::endl);
 		rReason = "REPEATCELL";
         return false;
     }
@@ -406,7 +471,6 @@ bool Board::IsValidMove(Move const &rMove, char const *&rReason) const {
 
     // make sure all those cells are empty
     if (!AreAllEmpty(cells)) {
-        D(std::cout << "You can only use empty cells." << std::endl);
 		rReason = "EMPTY";
         return false;
     }
@@ -426,8 +490,6 @@ bool Board::IsValidMove(Move const &rMove, char const *&rReason) const {
 			}
         }
         if (direction_of_play == DIRECTION_UNKNOWN) {
-            D(std::cout << "The cells you use must all lie in a single row, " 
-                        << "column, or diagonal." << std::endl);
 		    rReason = "ROWCOLUMN";
             return false;
         }
@@ -435,13 +497,10 @@ bool Board::IsValidMove(Move const &rMove, char const *&rReason) const {
 
 	if (IsEmpty()) {
         if (!cells.IsAnyStart()) {
-            D(std::cout << "Your first tile must be played on the start cell. "
-				<< "To change this tile, you must take back ALL your tiles." << std::endl);
 	        rReason = "START";
 	        return false;
         }
     } else if (!DoesAnyHaveNeighbor(cells)) {
-        D(std::cout << "Each cell you use must be a neighbor of a used cell." << std::endl);
 		rReason = "NEIGHBOR";
         return false;   
     }
@@ -453,8 +512,6 @@ bool Board::IsValidMove(Move const &rMove, char const *&rReason) const {
     if (cells.Count() > 1) {
         // make sure there are no empty squares between played tiles
         if (!after.IsConnectedDirection(cells, direction_of_play)) {
-            D(std::cout << "You must not leave any empty cells between the tiles you play." 
-				<< std::endl);
      		rReason = "GAP";
             return false;
         }
@@ -470,24 +527,15 @@ bool Board::IsValidMove(Move const &rMove, char const *&rReason) const {
             if (!after.AreAllCompatible(cells, direction)) {
                 switch (direction) {
                     case DIRECTION_NORTH:
-                        D(std::cout << "Tiles in a column (with no intervening "
-                                    << "empty cells) must all be mutually "
-                                    << "compatible." << std::endl);
 		                rReason = "COLUMNCOMPAT";
                         return false;
 
                     case DIRECTION_EAST:
-                        D(std::cout << "Tiles in a row (with no intervening "
-                                    << "empty cells) must all be mutually "
-                                    << "compatible." << std::endl);
 		                rReason = "ROWCOMPAT";
                         return false;
 
                     case DIRECTION_NORTHEAST:
                     case DIRECTION_SOUTHEAST:
-                        D(std::cout << "Tiles on a diagonal (with no intervening "
-                                    << "empty cells) must all be mutually "
-                                    << "compatible." << std::endl);
 		                rReason = "DIAGCOMPAT";
                         return false;
 
@@ -498,6 +546,5 @@ bool Board::IsValidMove(Move const &rMove, char const *&rReason) const {
         }
     }
 
-    D(std::cout << "The move is a valid play." << std::endl);
     return true;
 }

@@ -36,6 +36,16 @@ Move::Move(void):
 	mResignFlag = false;
 }
 
+Move::Move(Tiles const &rTiles) {
+	mResignFlag = false;
+	Cell cell;
+	for (unsigned i = 0; i < rTiles.Count(); i++) {
+		Tile tile = rTiles[i];
+		Add(tile, cell);
+		cell = Cell(cell, DIRECTION_NORTH);
+	}
+}
+
 // The compiler-generated copy constructor is fine.
 // The compiler-generated destructor is fine.
 

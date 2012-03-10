@@ -128,7 +128,7 @@ void Game::ActivateNextHand(void) {
 	ASSERT(!IsClockRunning());
 }
 
-// get the tiles in the active hand
+// get copies of the tiles in the active hand
 Tiles Game::ActiveTiles(void) const {
     Tiles result = Tiles(*miActiveHand);
     
@@ -150,8 +150,8 @@ void Game::AddTiles(  // recursive
 	} else {
         ASSERT(attributeIndex == na);
 		for (unsigned ci = 0; ci < mRedundancy; ci++) {
-            Tile clo = modelTile.Clone();
-			mStockBag.Add(clo);
+            Tile clone = modelTile.Clone();
+			mStockBag.Add(clone);
 		}
 	}
 }
@@ -173,6 +173,7 @@ unsigned Game::CountStock(void) const {
 void Game::DisplayScores(void) const {
     Hands::ConstIterator i_hand;
 
+	std::cout << std::endl;
     for (i_hand = mHands.begin(); i_hand < mHands.end(); i_hand++) {
 	    i_hand->DisplayScore();
     }
@@ -237,23 +238,29 @@ void Game::FirstTurn(void) {
 
     Move move;
     StartClock();
-    if (miActiveHand->IsAutomatic()) {
-        Partial partial(this, HINT_NONE);
-        partial.Suggest();
-        move = partial.GetMove(false);
-    } else {
-        for (;;) {
-    	    std::cout << miActiveHand->Name() << " plays first and must place " 
-			    << plural(mBestRunLength, "tile") << " on the (empty) board." 
-                << std::endl;
+    for (;;) {
+  	    std::cout << miActiveHand->Name() << " plays first and must place " 
+			<< plural(mBestRunLength, "tile") << " on the (empty) board." 
+            << std::endl;
+        if (miActiveHand->IsAutomatic()) {
+			Tiles run = miActiveHand->LongestRun();
+            move = Move(run);
+		    std::cout << miActiveHand->Name() << " played " << String(move) << std::endl;
+			break;
+        } else {
 		    move = miActiveHand->ChooseMove();
-    	    if (IsLegalMove(move)) {
+			char const *reason;
+    	    if (IsLegalMove(move, reason)) {
                 break;
             }
+			String title;
+			String message = Board::ReasonMessage(reason, title);
+			std::cout << message << std::endl << std::endl;
         }
 	}
+    ASSERT(IsLegalMove(move));
 
-    ASSERT(IsClockRunning());
+    ASSERT(!IsPaused());
     FinishTurn(move);
     ASSERT(!IsClockRunning());
 }
@@ -300,26 +307,33 @@ void Game::NextTurn(void) {
 
     Move move;
 	StartClock();
-    if (miActiveHand->IsAutomatic()) {
-        Partial partial(this, HINT_NONE);
-        partial.Suggest();
-        move = partial.GetMove(false);
-    } else {
-        for (;;) {
- 	        DisplayScores();
-            unsigned stock = CountStock();
-            std::cout << std::endl
-			   << miActiveHand->Name() << "'s turn, " 
-			   << plural(stock, "tile") << " remaining in the stock bag"
-               << std::endl << std::endl << String(mBoard) << std::endl;
+    for (;;) {
+ 	    DisplayScores();
+        unsigned stock = CountStock();
+        std::cout << std::endl
+		    << miActiveHand->Name() << "'s turn, " 
+		    << plural(stock, "tile") << " remaining in the stock bag"
+            << std::endl << std::endl << String(mBoard) << std::endl;
+        if (miActiveHand->IsAutomatic()) {
+            Partial partial(this, HINT_NONE);
+            partial.Suggest();
+            move = partial.GetMove(false);
+		    std::cout << miActiveHand->Name() << " played " << String(move) << std::endl;
+			break;
+        } else {
 		    move = miActiveHand->ChooseMove();
-		    if (IsLegalMove(move)) {
+			char const *reason;
+    	    if (IsLegalMove(move, reason)) {
                 break;
             }
+			String title;
+			String message = Board::ReasonMessage(reason, title);
+			std::cout << message << std::endl << std::endl;
         }
 	}
     ASSERT(IsLegalMove(move));
-    ASSERT(IsPaused());
+
+    ASSERT(!IsPaused());
     FinishTurn(move);
     ASSERT(!IsClockRunning());
 }
@@ -403,18 +417,12 @@ bool Game::IsLegalMove(Move const &rMove, char const *&rReason) const {
     bool result = true;
     
 	if (!mBoard.IsValidMove(rMove, rReason)) {
-        std::cout << "Not a valid move."
-			<< std::endl;
 	    result = false;
 	} else if (mBestRunLength > 0 && !rMove.IsResign()
 		&& (rMove.Count() != mBestRunLength || rMove.InvolvesSwap())) {
-        std::cout << "On the first turn, you must play as many tiles as possible.  Keep looking!"
-			<< std::endl;
 	    rReason = "FIRST";
         result = false;
     } else if (rMove.IsPureSwap() && rMove.Count() > stock) {
-        std::cout << "You can't swap more tiles than the number remaining in the stock bag." 
-			<< std::endl;
 	    rReason = "STOCK";
         result = false;
     }

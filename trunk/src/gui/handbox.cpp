@@ -62,6 +62,7 @@ HandBox::HandBox(
 	mIsRemote = isRemote;
 	mIpAddress = ipAddress;
 	mPlayerName = playerName;
+	mPlayerName.Capitalize();
 }
 
 
@@ -114,13 +115,16 @@ INT_PTR HandBox::HandleMessage(MessageType message, WPARAM wParam) {
             IdType id = LOWORD(wParam);
 			int notification_code = HIWORD(wParam);
             switch (id) {
-                case IDC_EDITNAME: {
-                    mPlayerName = GetTextString(id);
-					bool good_name = !mPlayerName.IsEmpty();
-	                EnableButton(IDOK, good_name);
-                    break;
-                }
-				case IDC_RADIOAUTO: {
+                case IDC_EDITNAME:
+					if (notification_code == EN_CHANGE) {
+                        mPlayerName = GetTextString(id);
+					    mPlayerName.Capitalize();
+					    bool good_name = !mPlayerName.IsEmpty();
+	                    EnableButton(IDOK, good_name);
+					}
+ 					break;
+
+				case IDC_RADIOAUTO: 
 					if (notification_code == BN_CLICKED) {
 					    SetButton(IDC_RADIOLOCAL, false);
 					    SetButton(IDC_RADIOREMOTE, false);
@@ -130,8 +134,8 @@ INT_PTR HandBox::HandleMessage(MessageType message, WPARAM wParam) {
 			            SetTextString(IDC_EDITNAME, mPlayerName);
 					}
                     break;
-				}
-				case IDC_RADIOLOCAL: {
+
+				case IDC_RADIOLOCAL:
 					if (notification_code == BN_CLICKED) {
 					    SetButton(IDC_RADIOAUTO, false);
 					    SetButton(IDC_RADIOREMOTE, false);
@@ -143,15 +147,15 @@ INT_PTR HandBox::HandleMessage(MessageType message, WPARAM wParam) {
 						}
 					}
                     break;
-				}
-				case IDC_RADIOREMOTE: {
+				
+				case IDC_RADIOREMOTE:
 					if (notification_code == BN_CLICKED) {
 					    SetButton(IDC_RADIOAUTO, false);
 					    SetButton(IDC_RADIOLOCAL, false);
                         mIsRemote = true;
 					}
                     break;
-				}
+				
             }
             break;
         }

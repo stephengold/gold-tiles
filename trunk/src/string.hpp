@@ -56,6 +56,7 @@ public:
 	operator int(void) const; // atoi
 
 	// misc public methods
+	void Capitalize(void);
 	unsigned Length(void) const;
 
 	// public inquiry methods

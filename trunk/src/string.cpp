@@ -21,6 +21,7 @@ You should have received a copy of the GNU General Public License
 along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <locale>
 #include <sstream>
 #include "string.hpp"
 
@@ -66,27 +67,52 @@ String::String(unsigned long integer):
 
 // operators
 
-String::operator const char *(void) const {
-	const char *result = c_str();
+String::operator char const *(void) const {
+	char const *result = c_str();
 
 	return result;
 }
 
 String::operator int(void) const {
-	unsigned n = Length();
+    char const *text = c_str();
+    int result = ::atoi(text);
 
-    char *buf = new char[n + 1];
-    for (unsigned i = 0; i < n; i++) {
-        buf[i] = (*this)[i];
-    }
-    buf[n] = '\0';
-
-    int result = ::atoi(buf);
-    delete[] buf;
-    return result;
+	return result;
 }
 
 // misc methods
+
+// capitalize the first letter of each word
+// trim leading and trailing non-graphic characters
+// convert adjacent non-graphic characters a single space
+void String::Capitalize(void) {
+	bool after_graphic = false;
+	String result;
+	char const space = ' ';
+
+	for (unsigned i_char = 0; i_char < Length(); i_char++) {
+        char ch = at(i_char);
+		bool is_graphic = (::isgraph(ch) != 0);
+
+		if (!is_graphic) {
+			ch = space;
+		} else if (!after_graphic) { // first letter of a word
+		    ch = char(::toupper(ch));
+		}
+
+		if (is_graphic || after_graphic) {
+			result += ch;
+		}
+
+		after_graphic = is_graphic;
+	}
+
+	*this = result;
+	unsigned len = Length();
+	if (len > 0 && at(len - 1) == space) {  // trailing non-graphic character
+		erase(len - 1, 1);  // trim it
+	}
+}
 
 unsigned String::Length(void) const {
 	unsigned result = size();

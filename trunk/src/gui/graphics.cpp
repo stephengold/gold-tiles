@@ -298,7 +298,7 @@ Rect Graphics::InteriorRoundedSquare(
 }
 
 PCntType Graphics::TextHeight(void) const {
-    PCntType result = 16;
+    PCntType result = 20;
     
     return result;
 }

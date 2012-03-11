@@ -33,7 +33,7 @@ Drawing is performed on a temporary Canvas owned by the caller.
 */
 
 #include "gui/color.hpp"
-#include "gui/rect.hpp"
+#include "gui/rect.hpp" // HASA Rect
 #include "partial.hpp"  // ISA Partial
 
 class GameView: public Partial {

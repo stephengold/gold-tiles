@@ -75,7 +75,7 @@ int main(int argCnt, char *argValues[]) {
 	argCnt;
 	argValues;
 
-	// legal notice
+	// display legal notice
 	std::cout
 		<< "Gold Tile Game (c) Copyright 2012 Stephen Gold" << std::endl
         << "This program comes with ABSOLUTELY NO WARRANTY." << std::endl
@@ -87,18 +87,25 @@ int main(int argCnt, char *argValues[]) {
 	while (hand_cnt == 0) {
 	    std::cout << "How many hands? ";
 	    std::cin >> hand_cnt;
+        char buffer[256];
+        std::cin.getline(buffer, 256);
 	}
 
 	Strings player_names;
 	Indices auto_flags;
 
 	for (unsigned i_hand = 0; i_hand < hand_cnt; i_hand++) {
-	    std::cout << "Name of player for the " << ::ordinal(i_hand + 1)
-			      << " hand? (or else 'computer') ";
 	    String name;
-	    std::cin >> name;
+		while (name.IsEmpty()) {
+	        std::cout << "Name of player for the " << ::ordinal(i_hand + 1)
+			      << " hand? (or else 'computer') ";
+            char buffer[256];
+            std::cin.getline(buffer, 256);
+			name = buffer;
+		    name.Capitalize();
+		}
 	    player_names.Append(name);
-	    if (name == "computer") {
+	    if (name == "Computer") {
 			auto_flags.Add(i_hand);
 	    }
 	}

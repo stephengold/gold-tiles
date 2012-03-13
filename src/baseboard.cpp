@@ -23,7 +23,7 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <iostream>
 #include "baseboard.hpp"
-#include "string.hpp"
+#include "tiles.hpp"
 
 // lifecycle
 
@@ -33,6 +33,16 @@ BaseBoard::BaseBoard(void) {
     mSouthMax = 0;
     mEastMax = 0;
     mWestMax = 0;
+}
+
+// reset the board
+void BaseBoard::MakeEmpty(void) {
+	mNorthMax = 0;
+	mSouthMax = 0;
+	mEastMax = 0;
+	mWestMax = 0;
+    mCells.clear();
+    mTiles.clear();
 }
 
 // The compiler-generated copy constructor is OK.
@@ -75,6 +85,18 @@ BaseBoard::operator String(void) const {
 	return result;
 }
 
+// get a list of all tiles played
+BaseBoard::operator Tiles(void) const {
+	Tiles result;
+
+    CellConstIterator i_cell;
+	for (i_cell = mCells.begin(); i_cell != mCells.end(); i_cell++) {
+		Tile tile = i_cell->second;
+		result.Add(tile);
+	}
+
+	return result;
+}
 
 // misc methods
 
@@ -124,16 +146,6 @@ bool BaseBoard::LocateTileId(TileIdType id, Cell &rCell) const {
         rCell = i_tile->second;
     }
     return result;
-}
-
-// reset the board
-void BaseBoard::MakeEmpty(void) {
-	mNorthMax = 0;
-	mSouthMax = 0;
-	mEastMax = 0;
-	mWestMax = 0;
-    mCells.clear();
-    mTiles.clear();
 }
 
 // make a specific cell empty

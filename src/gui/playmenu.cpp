@@ -105,16 +105,19 @@ void PlayMenu::EnableItems(
 	bool isPass,
 	bool canSwapAll)
 {
+	bool is_challenge = (gameStyle == GAME_STYLE_CHALLENGE);
+	bool is_friendly = (gameStyle == GAME_STYLE_FRIENDLY);
+
     mPlay.Enable(!isOver && !isPaused && !isPass);
     mTakeBack.Enable(!isOver && !isPaused && !isPass);
-    mSuggest.Enable(gameStyle != GAME_STYLE_CHALLENGE);
+    mSuggest.Enable(!isOver && !isPaused && !is_challenge);
     mPause.Enable(!isOver);
 	mSwapAll.Enable(!isOver && !isPaused && isPass && canSwapAll);
     mPass.Enable(!isOver && !isPaused && isPass);
     mResign.Enable(!isOver && !isPaused);
-    mRestart.Enable(false); // TODO
+    mRestart.Enable(!isPaused && !is_challenge && !is_friendly);
     mUndo.Enable(false);    // TODO
-    mRedo.Enable(false);    // TODO
-    mAutopause.Enable(gameStyle != GAME_STYLE_CHALLENGE && !isOver && !isPaused);
+    mRedo.Enable(!isOver && !isPaused && !is_challenge && !is_friendly);
+    mAutopause.Enable(!isOver && !isPaused && !is_challenge);
 }
 

@@ -23,7 +23,7 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <iostream>
 #include "hand.hpp"
-#include "move.hpp"
+#include "turn.hpp"
 
 
 // lifecycle
@@ -34,9 +34,16 @@ Hand::Hand(const String &name, const String &playerName, bool autoFlag):
 {
 	mAutomatic = autoFlag;
 	mClockRunning = false;
+	Restart();
+}
+
+void Hand::Restart(void) {
+	ASSERT(!IsClockRunning());
+
 	mMilliseconds = 0L;
 	mResigned = false;
 	mScore = 0;
+	mTiles.MakeEmpty();
 }
 
 // The compiler-generated copy constructor is fine.
@@ -118,6 +125,27 @@ String Hand::Name(void) const {
 
 String Hand::PlayerName(void) const {
     return mPlayerName;
+}
+
+void Hand::Redo(Turn const &rTurn) {
+	ASSERT(rTurn.HandName() == mName);
+	ASSERT(!IsClockRunning());
+
+	mMilliseconds += rTurn.Milliseconds();
+	unsigned points = rTurn.Points();
+	AddScore(points);
+	Move move = Move(rTurn);
+	mResigned = move.IsResign();
+	if (mResigned) {
+		mTiles.MakeEmpty();
+	} else {
+        Tiles move_tiles = Tiles(move);
+	    mTiles.RemoveTiles(move_tiles);
+	    Tiles draw_tiles = rTurn.Draw();
+	    mTiles.AddTiles(draw_tiles);
+	}
+
+	ASSERT(!IsClockRunning());
 }
 
 void Hand::RemoveTile(Tile const &rTile) {

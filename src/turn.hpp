@@ -38,6 +38,7 @@ about the play.
 class Turn {
 public:
 	// lifecycle
+	Turn(Tiles const &, String const &handName);
 	Turn(Move const &, String const &handName, long msecs, unsigned bestRun);
 	// no default constructor
 	// Turn(Turn const &);  compiler-generated copy constructor is OK
@@ -49,8 +50,14 @@ public:
     operator String(void) const;
     
     // misc methods
-    void SetDraw(Tiles const &);
-    void SetPoints(unsigned);
+	unsigned BestRun(void) const;
+	Tiles    Draw(void) const;
+	String   HandName(void) const;
+	unsigned Milliseconds(void) const;
+	unsigned Points(void) const;
+	void     SetBestRun(unsigned);
+    void     SetDraw(Tiles const &);
+    void     SetPoints(unsigned);
 
 private:
 	// private data

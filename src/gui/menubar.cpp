@@ -45,6 +45,9 @@ MenuBar::MenuBar(Partial const &rPartial):
     MenuItem rules(mHelpMenu.Qt(), tr("&Rules"));
     mHelpMenu.Add(rules);
     addMenu(mHelpMenu.Qt());
+
+    GameStyleType game_style = mrPartial.GameStyle();
+	Initialize(game_style);
 }
 
 #elif defined(_WINDOWS)
@@ -58,15 +61,22 @@ MenuBar::MenuBar(CREATESTRUCT const &rCreateStruct, Partial const &rPartial):
     mHelpMenu(mMenu, 3)
 {
     GameStyleType game_style = mrPartial.GameStyle();
-    mAutopauseFlag = (game_style == GAME_STYLE_CHALLENGE);
-	mShowClocksFlag = (game_style == GAME_STYLE_CHALLENGE);
-   	mShowGridFlag = false;
-	mShowScoresFlag = true;
-	mPeekFlag = false;
-    mTileSizeItem = IDM_LARGE_TILES;
+	Initialize(game_style);
 }
 
 #endif // defined(_WINDOWS)
+
+void MenuBar::Initialize(GameStyleType game_style) {
+	bool is_challenge = (game_style == GAME_STYLE_CHALLENGE);
+	bool is_debug = (game_style == GAME_STYLE_DEBUG);
+
+	mAutopauseFlag = is_challenge;
+	mShowClocksFlag = is_challenge || is_debug;
+   	mShowGridFlag = is_debug;
+	mShowScoresFlag = is_debug;
+	mPeekFlag = is_debug;
+    mTileSizeItem = IDM_LARGE_TILES;
+}
 
 // The compiler-generated destructor is OK.
 
@@ -112,18 +122,15 @@ void MenuBar::LoadPlayerOptions(Player const &rPlayer) {
 	mTileSizeItem = rPlayer.TileSize();
 }
 
-void MenuBar::NewGame(void) {
-    GameStyleType game_style = mrPartial.GameStyle();
+void MenuBar::NewGame(GameStyleType oldStyle) {
+    GameStyleType new_style = mrPartial.GameStyle();
     
-	if (game_style != GAME_STYLE_DEBUG) {
-		mPeekFlag = false;
+	if (oldStyle != new_style) {
+		Initialize(new_style);
 	}
-	if (game_style == GAME_STYLE_CHALLENGE) {
-        mAutopauseFlag = true;
-	    mShowClocksFlag = true;
-	} else {
-        mAutopauseFlag = false;
-	    mShowClocksFlag = false;
+
+	if (new_style != GAME_STYLE_DEBUG) {
+		mPeekFlag = false;
 	}
 }
 

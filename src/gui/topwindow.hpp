@@ -120,10 +120,12 @@ private:
 	void		 OfferNewGame(void);
 	void		 OfferSaveGame(void);
     void         Play(bool passFlag);
+	void         RedoTurn(void);
 	void         ReleaseActiveTile(Point const &);
 	void         Repaint(void);
 	void         ResignHand(void);
     void         Resize(PCntType width, PCntType height);
+	void         RestartGame(void);
 	void         RuleBox(char const *message);
 	void         SavePlayerOptions(Hand const &) const;
 	void         SetGame(Game *pGame);

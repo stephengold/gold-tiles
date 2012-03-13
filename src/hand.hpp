@@ -31,6 +31,7 @@ class Hand {
 public:
 	// public lifecycle
     Hand(String const &name, String const &playerName, bool autom);
+	void Restart(void);
 	// no default constructor
     // Hand(Hand const &); The compiler-generated copy constructor is fine.
     //~Hand(void); The compiler-generated destructor is fine.
@@ -51,6 +52,7 @@ public:
 	long     Milliseconds(void) const;
 	String   Name(void) const;
 	String   PlayerName(void) const;
+	void     Redo(Turn const &);
 	void     RemoveTile(Tile const &);
 	void     RemoveTiles(Tiles const &);
 	void     Resign(Tiles &bag);

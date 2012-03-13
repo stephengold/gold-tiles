@@ -40,9 +40,14 @@ public:
 
 	// misc public methods
     unsigned Count(void) const;
+	ConstIterator 
+		     Find(String const &) const;
+	Iterator Find(String const &);
     void     Next(ConstIterator &) const;
     void     Next(Iterator &);
 	void     NextWorking(Iterator &);
+    void     Previous(ConstIterator &) const;
+    void     Previous(Iterator &);
 
 	// public inquiry method
 	bool HasAnyGoneOut(void) const;

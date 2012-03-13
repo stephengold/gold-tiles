@@ -43,19 +43,20 @@ class BaseBoard {
 public:
 	// public lifecycle
     BaseBoard(void);
+	void         MakeEmpty(void);
     // BaseBoard(BaseBoard const &);  compiler-generated copy constructor is OK
     // ~BaseBoard(void);  compiler-generated destructor is OK
 
 	// public operators
     // BaseBoard &operator=(BaseBoard const &);  compiler-generated assignment operator is OK
 	operator String(void) const;
+	operator Tiles(void) const;
 
 	// misc public methods
 	unsigned     Count(void) const;
 	IndexType    EastMax(void) const;
     Tile const * GetCell(Cell const &) const;
     bool         LocateTileId(TileIdType, Cell &) const;
-	void         MakeEmpty(void);
     void         MakeEmpty(Cell const &);
     IndexType    NorthMax(void) const;
 	void         PlayOnCell(Cell const &, Tile const &);

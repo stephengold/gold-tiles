@@ -38,20 +38,22 @@ Game::Game(
     unsigned handSize,
 	unsigned secondsPerHand)
 {
+	ASSERT(!rPlayerNames.IsEmpty());
+	ASSERT(style != GAME_STYLE_NONE);
 	ASSERT(tileRedundancy >= 1);
 	ASSERT(handSize >= 1);
-	ASSERT(style != GAME_STYLE_NONE);
 
-    // copy game parameters
+    // save parameters
 	mStyle = style;
 	mRedundancy = tileRedundancy;
 	mHandSize = handSize;
 	mSecondsPerHand = secondsPerHand;
 
-    // generate all possible tiles
-    AIndexType attribute_index = 0;
-    Tile model_tile;
-    AddTiles(attribute_index, model_tile);
+	// add tiles to the stock bag
+	for (unsigned i = 0; i < mRedundancy; i++) {
+        // generate all possible tiles
+		mStockBag.Restock();
+	}
     std::cout << "Placed " << plural(CountStock(), "tile") << " in the stock bag." << std::endl;
     
     // construct hands and generate a unique name for each one
@@ -75,27 +77,27 @@ Game::Game(
     // deal tiles to each hand from the stock bag
     Hands::Iterator i_hand;
     for (i_hand = mHands.begin(); i_hand < mHands.end(); i_hand++) {
-        i_hand->DrawTiles(mHandSize, mStockBag);
+        Tiles tiles = i_hand->DrawTiles(mHandSize, mStockBag);
+
+		// record the deal in mHistory
+		String name = i_hand->Name();
+		Turn turn(tiles, name);
+		mHistory.push_back(turn);
     }
     std::cout << std::endl;
 
-    // the hand with the longest "run" gets the first turn
-    mBestRunLength = 0;
-    for (i_hand = mHands.begin(); i_hand < mHands.end(); i_hand++) {
-        Tiles run = i_hand->LongestRun();
-	    unsigned run_length = run.Count();
-        std::cout << i_hand->Name() << " has a run of " << plural(run_length, "tile") 
-			      << "." << std::endl;
+    // the hand with the best "run" gets the first turn
+	FindBestRun();
 
-	    if (run_length > mBestRunLength) {
-	   	    mBestRunLength = run_length;
-		    miActiveHand = i_hand;
-	    }
-    }
-
+	// set iterator to end of history
     miRedo = mHistory.end();
-	mUnsavedChanges = false; // pretend this game is saved, for convenience
+
+	// pretend this game has been saved, for convenience
+	mUnsavedChanges = false;
+
 	ASSERT(IsPaused());
+	ASSERT(CanUndo());
+	ASSERT(!CanRedo());
 }
 
 
@@ -135,27 +137,6 @@ Tiles Game::ActiveTiles(void) const {
     return result;
 }
 
-// create tiles and add them to the stock bag
-void Game::AddTiles(  // recursive
-    AIndexType attributeIndex,
-    Tile &modelTile)
-{
-    ACountType na = Tile::AttributeCnt();
-	if (attributeIndex < na) {
-		AValueType max = Tile::ValueMax(attributeIndex);
-		for (AValueType attr = 0; attr <= max; attr++) {
-        	modelTile.SetAttribute(attributeIndex, attr);
-	        AddTiles(attributeIndex + 1, modelTile);
-         }
-	} else {
-        ASSERT(attributeIndex == na);
-		for (unsigned ci = 0; ci < mRedundancy; ci++) {
-            Tile clone = modelTile.Clone();
-			mStockBag.Add(clone);
-		}
-	}
-}
-
 void Game::AddTurn(Turn const &rTurn) {
      while (miRedo != mHistory.end()) {
          mHistory.pop_back();
@@ -176,6 +157,23 @@ void Game::DisplayScores(void) const {
 	std::cout << std::endl;
     for (i_hand = mHands.begin(); i_hand < mHands.end(); i_hand++) {
 	    i_hand->DisplayScore();
+    }
+}
+
+void Game::FindBestRun(void) {
+    Hands::Iterator i_hand;
+    mBestRunLength = 0;
+    for (i_hand = mHands.begin(); i_hand < mHands.end(); i_hand++) {
+		String hand_name = i_hand->Name();
+        Tiles run = i_hand->LongestRun();
+	    unsigned run_length = run.Count();
+        std::cout << hand_name << " has a run of " << plural(run_length, "tile") 
+			      << "." << std::endl;
+
+	    if (run_length > mBestRunLength) {
+	   	    mBestRunLength = run_length;
+		    miActiveHand = i_hand;
+	    }
     }
 }
 
@@ -227,7 +225,7 @@ void Game::FinishTurn(Move const &move) {
 	//  If it was the first turn, it no longer is.
     mBestRunLength = 0;
 
-	// There are unsaved changes now.
+	// There are now unsaved changes.
 	mUnsavedChanges = true;
     ASSERT(!IsClockRunning());
 }
@@ -350,10 +348,86 @@ void Game::PlayGame(void) {
     DisplayScores();
 }
 
+void Game::Redo(void) {
+	ASSERT(!IsClockRunning());
+	ASSERT(CanRedo());
+
+	Turn turn = *miRedo;
+	miRedo++;
+
+	Move move = Move(turn);
+	ASSERT(miActiveHand->Name() == turn.HandName());
+	
+	if (move.IsResign()) {
+		miActiveHand->Resign(mStockBag);
+
+	} else {
+        // remove played/swapped tiles from the hand
+        Tiles tiles = Tiles(move);
+        miActiveHand->RemoveTiles(tiles);
+
+        // draw replacement tiles from the stock bag
+        Tiles draw = turn.Draw();
+		unsigned count = draw.Count();
+		miActiveHand->DrawTiles(count, draw);
+
+	    if (move.InvolvesSwap()) {
+		    // return swapped tiles to the stock bag
+		    mStockBag.AddTiles(tiles);
+
+	    } else {
+	        // place played tiles on the board
+            mBoard.PlayMove(move);
+    
+            // update the hand's score
+			unsigned points = turn.Points();
+			ASSERT(points == mBoard.ScoreMove(move));
+	        miActiveHand->AddScore(points);
+		}
+	}
+	// TODO:  add microseconds, set runlength
+}
+
 unsigned Game::Redundancy(void) const {
 	ASSERT(mRedundancy > 0);
 
 	return mRedundancy;
+}
+
+void Game::Restart(void) {
+	ASSERT(!IsClockRunning());
+
+	// return all tiles to the stock bag
+	Tiles played_tiles = Tiles(mBoard);
+	mStockBag.AddTiles(played_tiles);
+	mBoard.MakeEmpty();
+	Hands::Iterator i_hand;
+	for (i_hand = mHands.begin(); i_hand != mHands.end(); i_hand++) {
+		Tiles hand_tiles = Tiles(*i_hand);
+		mStockBag.AddTiles(hand_tiles);
+		i_hand->Restart();
+	}
+
+	// redo the initial draws
+	miRedo = mHistory.begin();
+	for (unsigned i_hand = 0; i_hand < mHands.Count(); i_hand++) {
+		Move move = Move(*miRedo);
+		ASSERT(move.IsPass());
+		String hand_name = miRedo->HandName();
+		miActiveHand = mHands.Find(hand_name);
+		miActiveHand->Redo(*miRedo);
+		Tiles draw_tiles = miRedo->Draw();
+		mStockBag.RemoveTiles(draw_tiles);
+		miRedo++;
+	}
+
+    // the hand with the best "run" gets the first turn
+	FindBestRun();
+
+	// pretend the game has been saved, for convenience
+	mUnsavedChanges = false;
+
+	ASSERT(!IsOver());
 }
 
 int Game::Seconds(Hand &rHand) const {
@@ -386,8 +460,26 @@ GameStyleType Game::Style(void) const {
     return mStyle;
 }
 
+void Game::Undo(void) {
+	ASSERT(CanUndo());
+	miRedo--;
+	Turn turn = *miRedo;
+}
+
 
 // inquiry methods
+
+bool Game::CanRedo(void) const {
+	bool result = (miRedo != mHistory.end());
+
+	return result;
+}
+
+bool Game::CanUndo(void) const {
+	bool result = (miRedo != mHistory.begin());
+
+	return result;
+}
 
 bool Game::HasEmptyCell(Cell const &rCell) const {
     bool result = mBoard.HasEmptyCell(rCell);

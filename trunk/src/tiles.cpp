@@ -90,6 +90,22 @@ void Tiles::Add(Tile const &tile) {
 	ASSERT(Contains(tile));
 }
 
+// generate tiles for the stock bag (recursive)
+void Tiles::AddAllTiles(AIndexType attributeIndex, Tile &rModelTile) {
+    ACountType na = Tile::AttributeCnt();
+	if (attributeIndex < na) {
+		AValueType max = Tile::ValueMax(attributeIndex);
+		for (AValueType attr = 0; attr <= max; attr++) {
+        	rModelTile.SetAttribute(attributeIndex, attr);
+	        AddAllTiles(attributeIndex + 1, rModelTile);
+         }
+	} else {
+        ASSERT(attributeIndex == na);
+        Tile clone = rModelTile.Clone();
+		Add(clone);
+	}
+}
+
 void Tiles::AddTiles(Tiles const &tiles) {
     ConstIterator i_tile;
     for (i_tile = tiles.mMap.begin(); i_tile != tiles.mMap.end(); i_tile++) {
@@ -234,6 +250,13 @@ void Tiles::RemoveTiles(Tiles const &rTiles) {
 	for (i_tile = rTiles.mMap.begin(); i_tile != rTiles.mMap.end(); i_tile++) {
         RemoveTileId(i_tile->first);
     }
+}
+
+void Tiles::Restock(void) {
+	AIndexType attribute_index = 0;
+	Tile model_tile;
+
+    AddAllTiles(attribute_index, model_tile);
 }
 
 void Tiles::UnClone(Tile &rClone) const {

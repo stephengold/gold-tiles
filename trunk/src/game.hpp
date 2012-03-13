@@ -67,14 +67,19 @@ public:
 	unsigned      HandSize(void) const;
     Hands         InactiveHands(void) const;
     void          PlayGame(void);
+	void          Redo(void);
+	void          Restart(void);
 	unsigned      Redundancy(void) const;
 	int           Seconds(Hand &) const;
 	unsigned      SecondsPerHand(void) const;
 	void          StartClock(void);
 	void          StopClock(void);
     GameStyleType Style(void) const;
+	void          Undo(void);
 
 	// public inquiry methods
+	bool CanRedo(void) const;
+	bool CanUndo(void) const;
 	bool HasEmptyCell(Cell const &) const;
 	bool HasUnsavedChanges(void) const;
 	bool IsClockRunning(void) const;
@@ -108,10 +113,10 @@ private:
 	Game &operator=(Game const &);  // not assignable
 
 	// misc private methods
-    void AddTiles(AIndexType, Tile &);
     void AddTurn(Turn const &);
     Cell ChooseCell(void) const;
     void DisplayScores(void) const;
+	void FindBestRun(void);
     void FirstTurn(void);
     void NextTurn(void);
 };

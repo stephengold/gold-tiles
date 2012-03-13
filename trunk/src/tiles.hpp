@@ -44,6 +44,7 @@ public:
 	// misc public methods
 	void     Add(Tile const &);
 	void     AddTiles(Tiles const &);
+	void     AddAllTiles(AIndexType, Tile &);
     bool     CopyIds(Tiles const &);
 	unsigned Count(void) const;
     Tile     DrawRandomTile(void);
@@ -55,6 +56,7 @@ public:
 	void     RemoveTile(Tile const &);
 	void     RemoveTileId(TileIdType);
 	void     RemoveTiles(Tiles const &);
+	void     Restock(void);
     void     UnClone(Tile &) const;
     Tiles    UniqueTiles(void) const;
 

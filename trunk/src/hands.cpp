@@ -32,8 +32,22 @@ unsigned Hands::Count(void) const {
 	return result;
 }
 
+Hands::Iterator Hands::Find(String const &rName) {
+	ASSERT(!rName.IsEmpty());
+
+	Iterator i_hand;
+	for (i_hand = begin(); i_hand != end(); i_hand++) {
+		if (i_hand->Name() == rName) {
+			return i_hand;
+		}
+	}
+
+    FAIL(); // not found
+	return i_hand;
+}
+
 void Hands::Next(ConstIterator &riCurrent) const {
-	// advance iterator to next hand
+	// advance const iterator to next hand
 	riCurrent++;
     if (riCurrent >= end()) {
         riCurrent = begin();
@@ -56,6 +70,22 @@ void Hands::NextWorking(Iterator &riCurrent) {
 	while (riCurrent->HasResigned() && riCurrent != start) {
 		Next(riCurrent);
 	}
+}
+
+void Hands::Previous(ConstIterator &riCurrent) const {
+	// advance const iterator to next hand
+    if (riCurrent == begin()) {
+        riCurrent = end();
+    }
+	riCurrent--;
+}
+
+void Hands::Previous(Iterator &riCurrent) {
+	// advance iterator to next hand
+    if (riCurrent == begin()) {
+        riCurrent = end();
+    }
+	riCurrent--;
 }
 
 

@@ -266,6 +266,7 @@ void TopWindow::HandleMenuCommand(IdType command) {
 	    // Play menu options
 	    case IDM_PASS:
 	    case IDM_PLAY_PLAY: {
+			    ASSERT(HasGame());
 			    ASSERT(!IsGameOver());
 				ASSERT(!IsGamePaused());
                 bool pass_flag = (command == IDM_PASS);
@@ -274,12 +275,14 @@ void TopWindow::HandleMenuCommand(IdType command) {
 		    break;
 
 	    case IDM_TAKE_BACK:
+			ASSERT(HasGame());
 		    ASSERT(!IsGameOver());
 			ASSERT(!IsGamePaused());
 			mGameView.Reset();
 		    break;
 
         case IDM_SUGGEST:
+			ASSERT(HasGame());
 		    ASSERT(!IsGameOver());
 			ASSERT(!IsGamePaused());
          	Partial::SetYield(NULL, NULL);
@@ -289,25 +292,41 @@ void TopWindow::HandleMenuCommand(IdType command) {
             break;
              
 	    case IDM_PAUSE:
+			ASSERT(HasGame());
 			TogglePause();
 		    break;
 
 		case IDM_SWAP_ALL:
+			ASSERT(HasGame());
 		    ASSERT(!IsGameOver());
 			ASSERT(!IsGamePaused());
 			mGameView.SwapAll();
 			break;
 
 		case IDM_RESIGN:
+			ASSERT(HasGame());
 		    ASSERT(!IsGameOver());
 			ASSERT(!IsGamePaused());
 			ResignHand();
 			break;
 
 		case IDM_RESTART:
+			ASSERT(HasGame());
+			ASSERT(!IsGamePaused());
+            RestartGame();
+			break;
+
 		case IDM_UNDO:
-		case IDM_REDO:
 		    FAIL(); // TODO
+			break;
+
+		case IDM_REDO:
+			ASSERT(HasGame());
+		    ASSERT(!IsGameOver());
+			ASSERT(!IsGamePaused());
+            if (mpGame->CanRedo()) {
+				RedoTurn();
+			}
 			break;
 
 		case IDM_AUTOPAUSE:
@@ -838,6 +857,29 @@ void TopWindow::Play(bool passFlag) {
 	}
 }
 
+void TopWindow::RedoTurn(void) {
+	ASSERT(HasGame());
+	ASSERT(mpMenuBar != NULL);
+	ASSERT(!IsGamePaused());
+
+	mpGame->StopClock();
+	Hand hand = Hand(*mpGame);
+	if (hand.IsLocalPlayer()) {
+	    SavePlayerOptions(hand);
+	}
+
+	mpGame->Redo();
+	mGameView.Reset();
+
+	hand = Hand(*mpGame);
+	if (hand.IsLocalPlayer()) {
+        LoadPlayerOptions(hand);
+    }
+	if (!hand.IsLocalPlayer() || !mpMenuBar->IsAutopause()) {
+		mpGame->StartClock();
+	}
+}
+
 void TopWindow::ReleaseActiveTile(Point const &rMouse) {
 	ASSERT(HasGame());
 
@@ -1003,6 +1045,29 @@ void TopWindow::Resize(PCntType clientAreaWidth, PCntType clientAreaHeight) {
     ForceRepaint();
 }
 
+void TopWindow::RestartGame(void) {
+	ASSERT(HasGame());
+	ASSERT(mpMenuBar != NULL);
+	ASSERT(!IsGamePaused());
+
+	mpGame->StopClock();
+	Hand hand = Hand(*mpGame);
+	if (hand.IsLocalPlayer()) {
+	    SavePlayerOptions(hand);
+	}
+
+	mpGame->Restart();
+	mGameView.Reset();
+
+	hand = Hand(*mpGame);
+	if (hand.IsLocalPlayer()) {
+        LoadPlayerOptions(hand);
+    }
+	if (!hand.IsLocalPlayer() || !mpMenuBar->IsAutopause()) {
+		mpGame->StartClock();
+	}
+}
+
 void TopWindow::RuleBox(char const *reason) {
 	// expand reason shortcuts
 	String title;
@@ -1023,11 +1088,16 @@ void TopWindow::SavePlayerOptions(Hand const &rHand) const {
 void TopWindow::SetGame(Game *pGame) {
 	ASSERT(mpMenuBar != NULL);
 
-	// TODO: free old Game object?
+	GameStyleType old_style = GAME_STYLE_NONE;
+	if (HasGame()) {
+    	// TODO: free old Game object?
+		old_style = mpGame->Style();
+	}
+
 	mpGame = pGame;
 
 	mGameView.SetGame(mpGame);
-	mpMenuBar->NewGame();
+	mpMenuBar->NewGame(old_style);
     SetTileWidth(IDM_LARGE_TILES);
 
 	if (HasGame()) {

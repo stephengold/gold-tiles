@@ -62,7 +62,7 @@ public:
     void   GameOver(void);
     void   HandleMenuCommand(IdType);
     void   LoadPlayerOptions(Player const &);
-    void   NewGame(void);
+    void   NewGame(GameStyleType old);
     void   SavePlayerOptions(Player &) const;
     void   SetTileSize(IdType);
     IdType TileSize(void) const;
@@ -97,6 +97,7 @@ private:
 
     // private operators
 	MenuBar &operator=(MenuBar const &);  // not assignable
+	void Initialize(GameStyleType);
 };
 
 #endif // !defined(MENUBAR_HPP_INCLUDED)

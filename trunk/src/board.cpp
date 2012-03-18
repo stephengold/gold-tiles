@@ -253,6 +253,15 @@ unsigned Board::ScoreMove(Move const &rMove) const {
     return result;
 }
 
+void Board::UnplayMove(Move const &rMove) {
+    Move::ConstIterator i_place;
+    for (i_place = rMove.Begin(); i_place != rMove.End(); i_place++) {
+		ASSERT(!i_place->IsSwap());
+		Cell cell = Cell(*i_place);
+        MakeEmpty(cell);
+    }
+}
+
 
 // inquiry methods
 
@@ -435,11 +444,6 @@ bool Board::IsValidMove(Move const &rMove) const {
 }
 
 bool Board::IsValidMove(Move const &rMove, char const *&rReason) const {
-    // resignation is always legal and valid
-	if (rMove.IsResign()) {
-        return true;
-    }
-
     // a pass (no tiles played or swapped) is always valid
     if (rMove.IsPass()) {
         return true;
@@ -452,7 +456,10 @@ bool Board::IsValidMove(Move const &rMove, char const *&rReason) const {
     }
 
 	if (rMove.InvolvesSwap()) {
-		if (!rMove.IsPureSwap()) {
+		if (rMove.IsResign()) {
+            // a valid resignation
+            return true;
+		} else if (!rMove.IsPureSwap()) {
    		    rReason = "SWAP";
             return false;
 		}

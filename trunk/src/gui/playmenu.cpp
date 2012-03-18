@@ -103,21 +103,24 @@ void PlayMenu::EnableItems(
 	bool isOver,
 	bool isPaused,
 	bool isPass,
-	bool canSwapAll)
+	bool canSwapAll,
+	bool canUndo,
+	bool canRedo,
+	bool isLocal)
 {
 	bool is_challenge = (gameStyle == GAME_STYLE_CHALLENGE);
 	bool is_friendly = (gameStyle == GAME_STYLE_FRIENDLY);
 
-    mPlay.Enable(!isOver && !isPaused && !isPass);
-    mTakeBack.Enable(!isOver && !isPaused && !isPass);
-    mSuggest.Enable(!isOver && !isPaused && !is_challenge);
+    mPlay.Enable(isLocal && !isOver && !isPaused && !isPass);
+    mTakeBack.Enable(isLocal && !isOver && !isPaused && !isPass);
+    mSuggest.Enable(isLocal && !isOver && !isPaused && !is_challenge);
     mPause.Enable(!isOver);
-	mSwapAll.Enable(!isOver && !isPaused && isPass && canSwapAll);
-    mPass.Enable(!isOver && !isPaused && isPass);
-    mResign.Enable(!isOver && !isPaused);
+	mSwapAll.Enable(isLocal && !isOver && !isPaused && isPass && canSwapAll);
+    mPass.Enable(isLocal && !isOver && !isPaused && isPass);
+    mResign.Enable(isLocal && !isOver && !isPaused);
     mRestart.Enable(!isPaused && !is_challenge && !is_friendly);
-    mUndo.Enable(false);    // TODO
-    mRedo.Enable(!isOver && !isPaused && !is_challenge && !is_friendly);
-    mAutopause.Enable(!isOver && !isPaused && !is_challenge);
+    mUndo.Enable(canUndo && !isPaused && !is_challenge && !is_friendly);
+    mRedo.Enable(canRedo && !isPaused && !is_challenge && !is_friendly);
+    mAutopause.Enable(isLocal && !isOver && !isPaused && !is_challenge);
 }
 

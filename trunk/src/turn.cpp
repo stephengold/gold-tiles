@@ -26,25 +26,21 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 
 // lifecycle
 
-Turn::Turn(Tiles const &rTiles, String const &rHandName)
-:
+Turn::Turn(Tiles const &rTiles, String const &rHandName):
     mDraw(rTiles),
 	mHandName(rHandName)
 {
 	// one of the initial draws
 	mBestRun = 0;
-	mMilliseconds = 0;
 	mPoints = 0;
 }
 
-Turn::Turn(Move const &rMove, String const &rHandName, long msecs, unsigned bestRun)
-:
+Turn::Turn(Move const &rMove, String const &rHandName, unsigned bestRun):
     mHandName(rHandName),
 	mMove(rMove)
 {
 	// an ordinary turn
 	mBestRun = bestRun;
-	mMilliseconds = msecs;
 	mPoints = 0;
 }
 
@@ -73,10 +69,6 @@ Tiles Turn::Draw(void) const {
 
 String Turn::HandName(void) const {
 	return mHandName;
-}
-
-unsigned Turn::Milliseconds(void) const {
-	return mMilliseconds;
 }
 
 unsigned Turn::Points(void) const {

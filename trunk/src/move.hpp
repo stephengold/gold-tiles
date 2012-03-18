@@ -60,7 +60,7 @@ public:
 	ConstIterator
 		     End(void) const;
     void     GetUserChoice(Tiles const &);
-	void     MakeResign(void);
+	void     MakeResign(Tiles const &);
  
 	// public inquiry methods
 	bool InvolvesSwap(void) const;

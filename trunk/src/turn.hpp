@@ -39,13 +39,14 @@ class Turn {
 public:
 	// lifecycle
 	Turn(Tiles const &, String const &handName);
-	Turn(Move const &, String const &handName, long msecs, unsigned bestRun);
+	Turn(Move const &, String const &handName, unsigned bestRun);
 	// no default constructor
 	// Turn(Turn const &);  compiler-generated copy constructor is OK
 	// ~Turn(void);  compiler-generated destructor is OK
 
 	// public operators
 	// Turn const &operator=(Turn const &);  compiler-generated assignment operator is OK
+	bool operator==(Turn const &) const;
     operator Move(void) const;
     operator String(void) const;
     
@@ -53,7 +54,6 @@ public:
 	unsigned BestRun(void) const;
 	Tiles    Draw(void) const;
 	String   HandName(void) const;
-	unsigned Milliseconds(void) const;
 	unsigned Points(void) const;
 	void     SetBestRun(unsigned);
     void     SetDraw(Tiles const &);
@@ -61,11 +61,10 @@ public:
 
 private:
 	// private data
-	unsigned mBestRun;    // set for first play, otherwise zero
-	Tiles    mDraw;       // move first, then draw
+	unsigned mBestRun;      // set for first turn, otherwise zero
+	Tiles    mDraw;         // move first, then draw
 	String   mHandName;
-	unsigned mMilliseconds;
-	Move     mMove;       // move first, then draw
-	unsigned mPoints;
+	Move     mMove;         // move first, then draw
+	unsigned mPoints;       // from start of turn
 };
 #endif // !defined(TURN_HPP_INCLUDED)

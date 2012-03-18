@@ -158,6 +158,8 @@ void MenuBar::Update(void) {
     bool is_pass = mrPartial.IsPass();
 	bool is_paused = mrPartial.IsGamePaused();
 	bool can_swap_all = mrPartial.CanSwapAll();
+	bool can_undo = mrPartial.CanUndo();
+	bool can_redo = mrPartial.CanRedo();
     GameStyleType game_style = mrPartial.GameStyle();
 
 	// "File" menu
@@ -168,8 +170,9 @@ void MenuBar::Update(void) {
     mPlayMenu.Autopause(mAutopauseFlag);
     mPlayMenu.Pause(is_paused);
     
-	mPlayMenu.EnableItems(game_style, is_over, is_paused, is_pass, can_swap_all);
-	mPlayMenu.Enable(have_game && !is_over && is_local);
+	mPlayMenu.EnableItems(game_style, is_over, is_paused, is_pass, 
+		  can_swap_all, can_undo, can_redo, is_local);
+	mPlayMenu.Enable(have_game && (is_local || is_over || can_redo));
 
 	// "View" menu
 #ifdef _WINDOWS

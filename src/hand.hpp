@@ -42,6 +42,7 @@ public:
 
 	// misc public methods
 	void     AddScore(unsigned);
+	void     AddTiles(Tiles const &);
 	Move     ChooseMove(void) const;
 	void     Display(void) const;
 	void     DisplayName(void) const;
@@ -52,7 +53,6 @@ public:
 	long     Milliseconds(void) const;
 	String   Name(void) const;
 	String   PlayerName(void) const;
-	void     Redo(Turn const &);
 	void     RemoveTile(Tile const &);
 	void     RemoveTiles(Tiles const &);
 	void     Resign(Tiles &bag);
@@ -60,6 +60,8 @@ public:
 	unsigned Seconds(void) const;
 	void     StartClock(void);
 	unsigned StopClock(void);
+	void     SubtractScore(unsigned);
+	void     Unresign(Tiles &bag, Tiles const &hand);
 
 	// public inquiry methods
 	bool HasGoneOut(void) const;
@@ -72,8 +74,8 @@ private:
 	// private data
 	bool      mAutomatic;
 	bool      mClockRunning;
-	long      mMilliseconds;
-	String    mName;    // the "name" of this hand
+	long      mMilliseconds;   // total time charged to the hand
+	String    mName;           // the "name" of the hand
 	String    mPlayerName;
 	bool      mResigned;
 	unsigned  mScore;

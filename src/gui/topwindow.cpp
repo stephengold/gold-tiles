@@ -317,16 +317,18 @@ void TopWindow::HandleMenuCommand(IdType command) {
 			break;
 
 		case IDM_UNDO:
-		    FAIL(); // TODO
+			ASSERT(HasGame());
+			ASSERT(!IsGamePaused());
+			ASSERT(mpGame->CanUndo());
+			UndoTurn();
 			break;
 
 		case IDM_REDO:
 			ASSERT(HasGame());
 		    ASSERT(!IsGameOver());
 			ASSERT(!IsGamePaused());
-            if (mpGame->CanRedo()) {
-				RedoTurn();
-			}
+            ASSERT(mpGame->CanRedo());
+			RedoTurn();
 			break;
 
 		case IDM_AUTOPAUSE:
@@ -480,7 +482,7 @@ LRESULT TopWindow::HandleMessage(MessageType message, WPARAM wParam, LPARAM lPar
 			int timer_id = int(wParam);
 			if (timer_id == ID_CLOCK_TIMER) {
 			    if (mpMenuBar->AreClocksVisible() && !IsGamePaused() && !IsGameOver()) {
-					// don't update menus because that would cause flicker
+					// don't update menus because they would flicker
 			        ForceRepaint();  // to update active player's clock display
 			    } else {
 					SetTimer(TIMEOUT_MSEC, timer_id);
@@ -496,7 +498,7 @@ LRESULT TopWindow::HandleMessage(MessageType message, WPARAM wParam, LPARAM lPar
 
 	if (HasGame()) {
 		Hand active_hand = Hand(*mpGame);
-	    if (active_hand.IsAutomatic() && !mThinking) {
+	    if (active_hand.IsAutomatic() && !mpGame->CanRedo() && !mThinking) {
     	    Partial::SetYield(&yield, (void *)this);
 		    mThinking = true;
 	    }
@@ -868,7 +870,7 @@ void TopWindow::RedoTurn(void) {
 	    SavePlayerOptions(hand);
 	}
 
-	mpGame->Redo();
+    mpGame->Redo();
 	mGameView.Reset();
 
 	hand = Hand(*mpGame);
@@ -1012,7 +1014,7 @@ void TopWindow::ResignHand(void) {
 	mGameView.Reset();
 
 	Move move;
-	move.MakeResign();
+	move.MakeResign(Tiles(mGameView));
     mpGame->FinishTurn(move);
 
     if (mpGame->IsOver()) {
@@ -1169,6 +1171,32 @@ void TopWindow::TogglePause(void) {
 		} else {
 			mpGame->StopClock();
 		}
+	}
+}
+
+void TopWindow::UndoTurn(void) {
+	ASSERT(HasGame());
+	ASSERT(mpMenuBar != NULL);
+	ASSERT(!IsGamePaused());
+	ASSERT(mpGame->CanUndo());
+
+	if (!IsGameOver()) {
+	    mpGame->StopClock();
+	}
+	Hand hand = Hand(*mpGame);
+	if (hand.IsLocalPlayer()) {
+	    SavePlayerOptions(hand);
+	}
+
+    mpGame->Undo();
+	mGameView.Reset();
+
+	hand = Hand(*mpGame);
+	if (hand.IsLocalPlayer()) {
+        LoadPlayerOptions(hand);
+    }
+	if (!hand.IsLocalPlayer() || !mpMenuBar->IsAutopause()) {
+		mpGame->StartClock();
 	}
 }
 

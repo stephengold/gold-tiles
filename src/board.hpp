@@ -47,6 +47,7 @@ public:
     static String 
 		       ReasonMessage(char const *reason, String &title);
     unsigned   ScoreMove(Move const &) const;
+    void	   UnplayMove(Move const &);
 
 	// public inquiry methods
 	bool Contains(Tile const &) const;

@@ -96,7 +96,7 @@ Game::Game(
 	mUnsavedChanges = false;
 
 	ASSERT(IsPaused());
-	ASSERT(CanUndo());
+	ASSERT(!CanUndo());
 	ASSERT(!CanRedo());
 }
 
@@ -138,11 +138,13 @@ Tiles Game::ActiveTiles(void) const {
 }
 
 void Game::AddTurn(Turn const &rTurn) {
-     while (miRedo != mHistory.end()) {
-         mHistory.pop_back();
-     }
-     mHistory.push_back(rTurn);
-     miRedo = mHistory.end();
+    while (miRedo != mHistory.end()) {
+        miRedo = mHistory.erase(miRedo);
+    }
+    mHistory.push_back(rTurn);
+    miRedo = mHistory.end();
+
+	mUnsavedChanges = true;
 }
 
 unsigned Game::CountStock(void) const {
@@ -158,6 +160,15 @@ void Game::DisplayScores(void) const {
     for (i_hand = mHands.begin(); i_hand < mHands.end(); i_hand++) {
 	    i_hand->DisplayScore();
     }
+}
+
+void Game::DisplayStatus(void) const {
+    DisplayScores();
+    unsigned stock = CountStock();
+    std::cout << std::endl
+        << miActiveHand->Name() << "'s turn, " 
+		<< plural(stock, "tile") << " remaining in the stock bag"
+        << std::endl << std::endl << String(mBoard) << std::endl;
 }
 
 void Game::FindBestRun(void) {
@@ -177,33 +188,32 @@ void Game::FindBestRun(void) {
     }
 }
 
-void Game::FinishTurn(Move const &move) {
-    ASSERT(mBoard.IsValidMove(move));
+void Game::FinishTurn(Move const &rMove) {
+    ASSERT(mBoard.IsValidMove(rMove));
     ASSERT(IsClockRunning());
     
     StopClock();
     
     String hand_name = miActiveHand->Name();
-    long milliseconds = miActiveHand->Milliseconds();
-    Turn turn(move, hand_name, milliseconds, mBestRunLength);
+    Turn turn(rMove, hand_name, mBestRunLength);
 
-	if (move.IsResign()) {
+	if (rMove.IsResign()) {
 		miActiveHand->Resign(mStockBag);
 
 	} else {
         // remove played/swapped tiles from the hand
-        Tiles tiles = Tiles(move);
+        Tiles tiles = Tiles(rMove);
         miActiveHand->RemoveTiles(tiles);
 
         // attempt to draw replacement tiles from the stock bag
         unsigned count = tiles.Count();
 	    if (count > 0) {
             Tiles draw = miActiveHand->DrawTiles(count, mStockBag);
-            ASSERT(draw.Count() == count || !move.InvolvesSwap());
+            ASSERT(draw.Count() == count || !rMove.InvolvesSwap());
 		    turn.SetDraw(draw);
 	    }
 
-	    if (move.InvolvesSwap()) {
+	    if (rMove.InvolvesSwap()) {
 		    // return swapped tiles to the stock bag
 		    mStockBag.AddTiles(tiles);
 		    std::cout << miActiveHand->Name() << " put " << plural(count, "tile")
@@ -211,10 +221,10 @@ void Game::FinishTurn(Move const &move) {
 
 	    } else {
 	        // place played tiles on the board
-            mBoard.PlayMove(move);
+            mBoard.PlayMove(rMove);
     
             // update the hand's score    
-  	        unsigned points = mBoard.ScoreMove(move);
+  	        unsigned points = mBoard.ScoreMove(rMove);
 	        miActiveHand->AddScore(points);
 	        turn.SetPoints(points);
 		}
@@ -303,22 +313,20 @@ Hands Game::InactiveHands(void) const {
 void Game::NextTurn(void) {
     ASSERT(IsPaused());
 
-    Move move;
 	StartClock();
-    for (;;) {
- 	    DisplayScores();
-        unsigned stock = CountStock();
-        std::cout << std::endl
-		    << miActiveHand->Name() << "'s turn, " 
-		    << plural(stock, "tile") << " remaining in the stock bag"
-            << std::endl << std::endl << String(mBoard) << std::endl;
-        if (miActiveHand->IsAutomatic()) {
-            Partial partial(this, HINT_NONE);
-            partial.Suggest();
-            move = partial.GetMove(false);
-		    std::cout << miActiveHand->Name() << " played " << String(move) << std::endl;
-			break;
-        } else {
+    DisplayStatus();
+
+    Move move;
+    if (miActiveHand->IsAutomatic()) {
+		ASSERT(!CanRedo());
+        Partial partial(this, HINT_NONE);
+        partial.Suggest();
+        move = partial.GetMove(false);
+		std::cout << miActiveHand->Name() << " played " << String(move) << std::endl;
+
+	} else {
+		ASSERT(miActiveHand->IsLocalPlayer());
+	    for (;;) {
 		    move = miActiveHand->ChooseMove();
 			char const *reason;
     	    if (IsLegalMove(move, reason)) {
@@ -327,6 +335,7 @@ void Game::NextTurn(void) {
 			String title;
 			String message = Board::ReasonMessage(reason, title);
 			std::cout << message << std::endl << std::endl;
+			DisplayStatus();
         }
 	}
     ASSERT(IsLegalMove(move));
@@ -355,9 +364,9 @@ void Game::Redo(void) {
 	Turn turn = *miRedo;
 	miRedo++;
 
-	Move move = Move(turn);
 	ASSERT(miActiveHand->Name() == turn.HandName());
-	
+
+	Move move = Move(turn);	
 	if (move.IsResign()) {
 		miActiveHand->Resign(mStockBag);
 
@@ -368,8 +377,8 @@ void Game::Redo(void) {
 
         // draw replacement tiles from the stock bag
         Tiles draw = turn.Draw();
-		unsigned count = draw.Count();
-		miActiveHand->DrawTiles(count, draw);
+		miActiveHand->AddTiles(draw);
+		mStockBag.RemoveTiles(draw);
 
 	    if (move.InvolvesSwap()) {
 		    // return swapped tiles to the stock bag
@@ -385,7 +394,13 @@ void Game::Redo(void) {
 	        miActiveHand->AddScore(points);
 		}
 	}
-	// TODO:  add microseconds, set runlength
+
+	//  If it was the first turn, it no longer is.
+    mBestRunLength = 0;
+
+	ActivateNextHand();
+
+	ASSERT(!IsClockRunning());
 }
 
 unsigned Game::Redundancy(void) const {
@@ -397,10 +412,12 @@ unsigned Game::Redundancy(void) const {
 void Game::Restart(void) {
 	ASSERT(!IsClockRunning());
 
-	// return all tiles to the stock bag
+	// return all played tiles to the stock bag
 	Tiles played_tiles = Tiles(mBoard);
 	mStockBag.AddTiles(played_tiles);
 	mBoard.MakeEmpty();
+
+	// return all hand tiles to the stock bag
 	Hands::Iterator i_hand;
 	for (i_hand = mHands.begin(); i_hand != mHands.end(); i_hand++) {
 		Tiles hand_tiles = Tiles(*i_hand);
@@ -411,23 +428,28 @@ void Game::Restart(void) {
 	// redo the initial draws
 	miRedo = mHistory.begin();
 	for (unsigned i_hand = 0; i_hand < mHands.Count(); i_hand++) {
+		ASSERT(miRedo->Points() == 0);
+
 		Move move = Move(*miRedo);
 		ASSERT(move.IsPass());
+
 		String hand_name = miRedo->HandName();
 		miActiveHand = mHands.Find(hand_name);
-		miActiveHand->Redo(*miRedo);
+
 		Tiles draw_tiles = miRedo->Draw();
+		ASSERT(draw_tiles.Count() == mHandSize);
+
+		miActiveHand->AddTiles(draw_tiles);
 		mStockBag.RemoveTiles(draw_tiles);
+
 		miRedo++;
 	}
 
     // the hand with the best "run" gets the first turn
 	FindBestRun();
 
-	// pretend the game has been saved, for convenience
-	mUnsavedChanges = false;
-
-	ASSERT(!IsOver());
+	ASSERT(IsPaused());
+	ASSERT(!CanUndo());
 }
 
 int Game::Seconds(Hand &rHand) const {
@@ -461,9 +483,45 @@ GameStyleType Game::Style(void) const {
 }
 
 void Game::Undo(void) {
+	ASSERT(!IsClockRunning());
 	ASSERT(CanUndo());
+
 	miRedo--;
 	Turn turn = *miRedo;
+
+	String hand_name = turn.HandName();
+	miActiveHand = mHands.Find(hand_name);
+
+	//  Roll back the first-move info.
+    mBestRunLength = turn.BestRun();
+
+	Move move = Move(turn);
+    Tiles tiles = Tiles(move);
+	if (move.IsResign()) {
+		miActiveHand->Unresign(mStockBag, tiles);
+
+	} else {
+        // return drawn tiles to the stock bag
+        Tiles draw = turn.Draw();
+		miActiveHand->RemoveTiles(draw);
+		mStockBag.AddTiles(draw);
+
+		// add played/swapped tiles back into the hand
+        miActiveHand->AddTiles(tiles);
+
+	    if (move.InvolvesSwap()) {
+		    // remove swapped tiles from the stock bag
+		    mStockBag.RemoveTiles(tiles);
+
+	    } else {
+	        // remove played tiles from the board
+            mBoard.UnplayMove(move);
+    
+            // update the hand's score
+			unsigned points = turn.Points();
+	        miActiveHand->SubtractScore(points);
+		}
+	}
 }
 
 
@@ -476,7 +534,8 @@ bool Game::CanRedo(void) const {
 }
 
 bool Game::CanUndo(void) const {
-	bool result = (miRedo != mHistory.begin());
+	unsigned turn = mHistory.Index(miRedo);
+	bool result = (turn > mHands.Count());
 
 	return result;
 }

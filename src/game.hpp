@@ -116,6 +116,7 @@ private:
     void AddTurn(Turn const &);
     Cell ChooseCell(void) const;
     void DisplayScores(void) const;
+    void DisplayStatus(void) const;
 	void FindBestRun(void);
     void FirstTurn(void);
     void NextTurn(void);

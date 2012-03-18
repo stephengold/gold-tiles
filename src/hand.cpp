@@ -43,6 +43,7 @@ void Hand::Restart(void) {
 	mMilliseconds = 0L;
 	mResigned = false;
 	mScore = 0;
+	// mStartTime gets initialized in StartClock()
 	mTiles.MakeEmpty();
 }
 
@@ -65,6 +66,10 @@ void Hand::AddScore(unsigned points) {
 	unsigned new_score = mScore + points;
 	ASSERT(new_score >= mScore); // check for wraparound
 	mScore = new_score;
+}
+
+void Hand::AddTiles(Tiles const &rTiles) {
+    mTiles.AddTiles(rTiles);
 }
 
 Move Hand::ChooseMove(void) const {
@@ -106,14 +111,17 @@ Tiles Hand::LongestRun(void) const {
 	return result;
 }
 
-// read the hand's elapsed time clock, in milliseconds
+// read the hand's elapsed time clock
+// and if the clock is running, update mTurnMilliseconds
 long Hand::Milliseconds(void) const {
 	long result = mMilliseconds;
 
     if (mClockRunning) {
 	    long now = ::milliseconds();
-		ASSERT(now >= mStartTime);  // check for wraparound
-        result += unsigned(now - mStartTime);
+		long turn_msec = now - mStartTime;
+		ASSERT(turn_msec >= 0);
+        result += turn_msec;
+		ASSERT(result >= mMilliseconds);
 	}
 
 	return result;
@@ -125,27 +133,6 @@ String Hand::Name(void) const {
 
 String Hand::PlayerName(void) const {
     return mPlayerName;
-}
-
-void Hand::Redo(Turn const &rTurn) {
-	ASSERT(rTurn.HandName() == mName);
-	ASSERT(!IsClockRunning());
-
-	mMilliseconds += rTurn.Milliseconds();
-	unsigned points = rTurn.Points();
-	AddScore(points);
-	Move move = Move(rTurn);
-	mResigned = move.IsResign();
-	if (mResigned) {
-		mTiles.MakeEmpty();
-	} else {
-        Tiles move_tiles = Tiles(move);
-	    mTiles.RemoveTiles(move_tiles);
-	    Tiles draw_tiles = rTurn.Draw();
-	    mTiles.AddTiles(draw_tiles);
-	}
-
-	ASSERT(!IsClockRunning());
 }
 
 void Hand::RemoveTile(Tile const &rTile) {
@@ -173,17 +160,20 @@ unsigned Hand::Score(void) const {
 unsigned Hand::Seconds(void) const {
 	long msecs = Milliseconds();
     unsigned result = unsigned(msecs/MSECS_PER_SECOND);
+
 	return result;
 }
 
 void Hand::StartClock(void) {
 	ASSERT(!mClockRunning);
+
 	mStartTime = ::milliseconds();
 	mClockRunning = true;
 }
 
 unsigned Hand::StopClock(void) {
-	ASSERT(mClockRunning);
+	ASSERT(IsClockRunning());
+
 	mMilliseconds = Milliseconds();
 	mClockRunning = false;
 
@@ -191,6 +181,22 @@ unsigned Hand::StopClock(void) {
 	unsigned result = unsigned(mMilliseconds/MSECS_PER_SECOND);
 
 	return result;
+}
+
+void Hand::SubtractScore(unsigned points) {
+	unsigned new_score = mScore - points;
+	ASSERT(new_score <= mScore); // check for wraparound
+	mScore = new_score;
+}
+
+void Hand::Unresign(Tiles &rBag, Tiles const &rHand) {
+	ASSERT(HasResigned());
+
+	rBag.RemoveTiles(rHand);
+	mTiles = rHand;
+	mResigned = false;
+
+	ASSERT(!HasResigned());
 }
 
 

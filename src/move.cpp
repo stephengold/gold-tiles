@@ -73,17 +73,16 @@ Move::operator String(void) const {
 
     result += "{";
 	if (mResignFlag) {
-		ASSERT(Count() == 0);
-		result += "RESIGN";
-	} else {
-        ConstIterator i_tile_cell;
-        for (i_tile_cell = Begin(); i_tile_cell != End(); i_tile_cell++) {
-            if (i_tile_cell != Begin()) {
-                result += ", ";
-            } 
-            result += String(*i_tile_cell);
-		}
-    }       
+		result += "RESIGN ";
+	}
+
+    ConstIterator i_tile_cell;
+    for (i_tile_cell = Begin(); i_tile_cell != End(); i_tile_cell++) {
+        if (i_tile_cell != Begin()) {
+            result += ", ";
+        } 
+        result += String(*i_tile_cell);
+	}
     result += "}";
 
     return result;
@@ -150,7 +149,7 @@ void Move::GetUserChoice(Tiles const &rAvailableTiles) {
 		TileCell tile_cell;
 		String input = tile_cell.GetUserChoice(rAvailableTiles, alts);
         if (input == "resign") {
-			MakeResign();
+			MakeResign(rAvailableTiles);
             break;
         } else if (input == "pass" || input == "move") {
             break;
@@ -165,8 +164,13 @@ void Move::MakePass(void) {
 	mResignFlag = false;
 }
 
-void Move::MakeResign(void) {
+void Move::MakeResign(Tiles const &rTiles) {
 	mSet.clear();
+	for (unsigned i_tile = 0; i_tile < rTiles.Count(); i_tile++) {
+		Tile tile = rTiles[i_tile];
+	    Add(tile);
+	}
+
 	mResignFlag = true;
 }
 
@@ -211,8 +215,6 @@ bool Move::IsPureSwap(void) const {
 }
 
 bool Move::IsResign(void) const {
-	ASSERT(Count() == 0 || !mResignFlag);
-
 	return mResignFlag;
 }
 

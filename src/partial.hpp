@@ -65,6 +65,7 @@ public:
     //Partial &operator=(Partial const &);  compiler-generated assignment operator is OK
 	operator Board(void) const;
 	operator HintType(void) const;
+	operator Tiles(void) const;
 
 	// misc public methods
 	void          Activate(TileIdType);  // TODO Mobilize()
@@ -95,7 +96,9 @@ public:
 	void          SwapToHand(void);               // move the active tile
 	
 	// inquiry methods
+	bool CanRedo(void) const;
 	bool CanSwapAll(void) const;
+	bool CanUndo(void) const;
 	bool Contains(TileIdType) const;
     bool HasGame(void) const;
 	bool IsActive(TileIdType) const;

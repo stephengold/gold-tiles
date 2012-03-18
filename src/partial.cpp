@@ -69,6 +69,10 @@ Partial::operator HintType(void) const {
 	return mHintStrength;
 }
 
+Partial::operator Tiles(void) const {
+	return mTiles;
+}
+
 
 // misc methods
 
@@ -474,11 +478,29 @@ void Partial::SwapToHand(void) {
 
 // inquiry methods
 
+bool Partial::CanRedo(void) const {
+    bool result = false;
+	if (HasGame()) {
+		result = mpGame->CanRedo();
+	}
+
+	return result;
+}
+
 bool Partial::CanSwapAll(void) const {
 	bool result = false;
     if (HasGame()) {
         result = (mpGame->CountStock() >= CountTiles());
     }
+
+	return result;
+}
+
+bool Partial::CanUndo(void) const {
+    bool result = false;
+	if (HasGame()) {
+		result = mpGame->CanUndo();
+	}
 
 	return result;
 }

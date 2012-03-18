@@ -425,7 +425,10 @@ AValueType char_to_attribute(AIndexType ind, char ch) {
             result = (AValueType)(ch - '1');
             break;
     }
-	ASSERT(result < Tile::VALUE_CNT_MAX);
+
+	if (result >= Tile::VALUE_CNT_MAX) {
+		result = 0;
+	}
 
     return result;
 }

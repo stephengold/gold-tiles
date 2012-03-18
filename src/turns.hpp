@@ -34,10 +34,12 @@ A Turns object represents a linear sequence of zero or more turns of the game.
 class Turns: public std::list<Turn> {
 public:
 	// public types
+    typedef std::list<Turn>::const_iterator ConstIterator;
     typedef std::list<Turn>::iterator Iterator;
 
 	// misc public methods
     unsigned Count(void) const;
+	unsigned Index(Iterator const &) const;
 };
 
 #endif // !defined(TURNS_HPP_INCLUDED)

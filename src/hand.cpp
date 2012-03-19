@@ -97,8 +97,13 @@ void Hand::DisplayTiles(void) const {
 Tiles Hand::DrawTiles(unsigned tileCount, Tiles &rBag) {
     Tiles result;
     result.DrawTiles(tileCount, rBag);
-	std::cout << Name() << " drew " << plural(result.Count(), "tile") 
-		 << " from the stock bag." << std::endl;
+
+	unsigned count = result.Count();
+	if (count > 0) {
+	    std::cout << Name() << " drew " << plural(count, "tile") 
+		     << " from the stock bag." << std::endl;
+	}
+
     mTiles.AddTiles(result);
 
 	return result;

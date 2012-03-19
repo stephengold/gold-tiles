@@ -147,6 +147,10 @@ void Game::AddTurn(Turn const &rTurn) {
 	mUnsavedChanges = true;
 }
 
+String Game::BestRunReport(void) const {
+	return mBestRunReport;
+}
+
 unsigned Game::CountStock(void) const {
     unsigned result = mStockBag.Count();
     
@@ -174,18 +178,29 @@ void Game::DisplayStatus(void) const {
 void Game::FindBestRun(void) {
     Hands::Iterator i_hand;
     mBestRunLength = 0;
+	mBestRunReport = "";
     for (i_hand = mHands.begin(); i_hand < mHands.end(); i_hand++) {
-		String hand_name = i_hand->Name();
         Tiles run = i_hand->LongestRun();
 	    unsigned run_length = run.Count();
-        std::cout << hand_name << " has a run of " << plural(run_length, "tile") 
-			      << "." << std::endl;
+        mBestRunReport += i_hand->Name();
+		mBestRunReport += " has a run of ";
+		mBestRunReport += plural(run_length, "tile");
+		mBestRunReport += ".\n";
 
 	    if (run_length > mBestRunLength) {
 	   	    mBestRunLength = run_length;
 		    miActiveHand = i_hand;
 	    }
     }
+	mBestRunReport += "\n";
+
+	mFirstTurnMessage = miActiveHand->Name();
+	mFirstTurnMessage += " plays first and must place "; 
+	mFirstTurnMessage += plural(mBestRunLength, "tile");
+	mFirstTurnMessage += " on the (empty) board.\n";
+
+	mBestRunReport += mFirstTurnMessage;
+	std::cout << mBestRunReport;
 }
 
 void Game::FinishTurn(Move const &rMove) {
@@ -246,16 +261,12 @@ void Game::FirstTurn(void) {
 
     Move move;
     StartClock();
-    for (;;) {
-  	    std::cout << miActiveHand->Name() << " plays first and must place " 
-			<< plural(mBestRunLength, "tile") << " on the (empty) board." 
-            << std::endl;
-        if (miActiveHand->IsAutomatic()) {
-			Tiles run = miActiveHand->LongestRun();
-            move = Move(run);
-		    std::cout << miActiveHand->Name() << " played " << String(move) << std::endl;
-			break;
-        } else {
+    if (miActiveHand->IsAutomatic()) {
+	    Tiles run = miActiveHand->LongestRun();
+        move = Move(run);
+		std::cout << miActiveHand->Name() << " played " << String(move) << std::endl;
+	} else {
+        for (;;) {
 		    move = miActiveHand->ChooseMove();
 			char const *reason;
     	    if (IsLegalMove(move, reason)) {
@@ -264,6 +275,7 @@ void Game::FirstTurn(void) {
 			String title;
 			String message = Board::ReasonMessage(reason, title);
 			std::cout << message << std::endl << std::endl;
+			std::cout << mFirstTurnMessage;
         }
 	}
     ASSERT(IsLegalMove(move));
@@ -279,14 +291,40 @@ void Game::GoingOutBonus(void) {
 	// the active hand scores a point for each tile in every other hand
     Hands::ConstIterator i_hand = miActiveHand;
 	mHands.Next(i_hand);
+	mGoingOutReport = miActiveHand->Name();
+	mGoingOutReport += " went out with ";
+	mGoingOutReport += plural(miActiveHand->Score(), "point");
+	mGoingOutReport += ".\n\n";
     
     while (i_hand != miActiveHand) {
         Tiles hand = Tiles(*i_hand);
-        unsigned pointsInHand = hand.Count(); // TODO
-        miActiveHand->AddScore(pointsInHand);
+        unsigned tiles_in_hand = hand.Count(); // TODO
+		unsigned points_in_hand = tiles_in_hand;
+        miActiveHand->AddScore(points_in_hand);
+
+		mGoingOutReport += "Add ";
+		mGoingOutReport += plural(points_in_hand, "point");
+		mGoingOutReport += " for the tile";
+		mGoingOutReport += plural(tiles_in_hand);
+		mGoingOutReport += " held by ";
+		mGoingOutReport += i_hand->Name();
+		mGoingOutReport += ".\n";
+
 		mHands.Next(i_hand);
     }
+
+	mGoingOutReport += "\n";
+	mGoingOutReport += miActiveHand->Name();
+	mGoingOutReport += " ended up with ";
+	mGoingOutReport += plural(miActiveHand->Score(), "point");
+	mGoingOutReport += ".\n";
+
+	std::cout << mGoingOutReport;
 	mUnsavedChanges = true;
+}
+
+String Game::GoingOutReport(void) const {
+    return mGoingOutReport;
 }
 
 unsigned Game::HandSize(void) const {
@@ -352,6 +390,8 @@ void Game::PlayGame(void) {
         ActivateNextHand();
 	    NextTurn();
     }
+
+	GoingOutBonus();
 
     // display final scores
     DisplayScores();

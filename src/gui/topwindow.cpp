@@ -805,6 +805,10 @@ STEP4:
 	Game *p_new_game = new Game(player_names, auto_hands, game_style, 
 		                        tile_redundancy, hand_size, seconds_per_hand);
 	ASSERT(p_new_game != NULL);
+
+	String report = p_new_game->BestRunReport();
+	Window::InfoBox(report, "Opening Bids - Gold Tile");
+
 	SetGame(p_new_game);
 }
 
@@ -831,7 +835,10 @@ void TopWindow::Play(bool passFlag) {
         mpGame->FinishTurn(move);
         if (mpGame->IsOver()) {
             mpMenuBar->GameOver();                  
-            mpGame->GoingOutBonus();
+            mpGame->GoingOutBonus();	
+			String report = mpGame->GoingOutReport();
+	        Window::InfoBox(report, "Going Out - Gold Tile");
+
         } else {
 			// the game isn't over, so proceed to the next hand
 			Hand hand = Hand(*mpGame);

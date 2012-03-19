@@ -61,9 +61,11 @@ public:
 	// misc public methods
     void          ActivateNextHand(void);
     Tiles         ActiveTiles(void) const;
+	String        BestRunReport(void) const;
     unsigned      CountStock(void) const;
     void          FinishTurn(Move const &);
     void          GoingOutBonus(void);
+	String        GoingOutReport(void) const;
 	unsigned      HandSize(void) const;
     Hands         InactiveHands(void) const;
     void          PlayGame(void);
@@ -94,8 +96,11 @@ private:
 	// private data
     Hands::Iterator miActiveHand;    // whose turn it is
     unsigned         mBestRunLength; // zero after the first turn
+	String           mBestRunReport;
     Board            mBoard;         // extensible playing surface
 	String           mFilespec;      // associated file for load/save
+	String           mFirstTurnMessage;
+	String           mGoingOutReport;
     Hands            mHands;         // all hands being played
 	unsigned         mHandSize;      // max tiles per hand
 	Turns            mHistory;       // history of turns for undo/redo

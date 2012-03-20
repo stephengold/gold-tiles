@@ -142,13 +142,23 @@ unsigned Board::ScoreDirection(
         Tile first_tile = GetTile(first_cell);
         Tile last_tile = GetTile(last_cell);
         AIndexType attr = first_tile.CommonAttribute(last_tile);
-        unsigned max_length = 1 + Tile::ValueMax(attr);
+        unsigned max_length = Tile::ValueCnt(attr);
         if (length == max_length) {
             result = 2*length;
         } else {
             ASSERT(length < max_length);
             result = length;
         }
+
+		// double the score for every bonus tile in this row/column/diagonal
+        Cell i_cell(first_cell);
+		for (unsigned i = 0; i < length; i++) {
+            Tile tile = GetTile(i_cell);
+			if (tile.HasBonus()) {
+				result *= 2;
+			}
+            i_cell.Next(direction, +1);
+		}
     }
 
     return result;

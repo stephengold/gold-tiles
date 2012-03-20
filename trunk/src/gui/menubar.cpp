@@ -164,7 +164,7 @@ void MenuBar::Update(void) {
 
 	// "File" menu
 	mFileMenu.EnableItems(have_game);
-	mFileMenu.Enable(is_local || is_over || !have_game);
+	mFileMenu.Enable(is_local || is_over || can_redo || !have_game);
 
 	// "Play" menu
     mPlayMenu.Autopause(mAutopauseFlag);

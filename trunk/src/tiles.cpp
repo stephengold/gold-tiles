@@ -28,10 +28,6 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 
 
 // operators
-bool Tiles::operator==(Tiles const &rOther) const {
-	FAIL();  // not implemented yet
-	return false;
-}
 
 Tile Tiles::operator[](unsigned r) const {
     ASSERT(r < mMap.size());

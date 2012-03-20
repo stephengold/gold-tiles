@@ -80,6 +80,7 @@ String::operator int(void) const {
 	return result;
 }
 
+
 // misc methods
 
 // capitalize the first letter of each word
@@ -119,6 +120,16 @@ unsigned String::Length(void) const {
 
 	return result;
 }
+
+// enclose the string in single quotes
+String String::Quote(void) const {
+	String result;
+
+	result = "'" + *this + "'";
+
+	return result;
+}
+
 
 // inquiry methods
 

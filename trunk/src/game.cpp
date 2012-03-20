@@ -287,28 +287,32 @@ void Game::FirstTurn(void) {
 
 void Game::GoingOutBonus(void) {
     ASSERT(IsOver());
-    
-	// the active hand scores a point for each tile in every other hand
-    Hands::ConstIterator i_hand = miActiveHand;
-	mHands.Next(i_hand);
+
+	// start writing the report
 	mGoingOutReport = miActiveHand->Name();
 	mGoingOutReport += " went out with ";
 	mGoingOutReport += plural(miActiveHand->Score(), "point");
 	mGoingOutReport += ".\n\n";
     
+	// the active hand scores a point for each tile in every other hand
+    Hands::ConstIterator i_hand = miActiveHand;
+	mHands.Next(i_hand);
     while (i_hand != miActiveHand) {
         Tiles hand = Tiles(*i_hand);
-        unsigned tiles_in_hand = hand.Count(); // TODO
-		unsigned points_in_hand = tiles_in_hand;
-        miActiveHand->AddScore(points_in_hand);
+        unsigned tiles_in_hand = hand.Count();
+		unsigned points_in_hand = tiles_in_hand;  // TODO
 
-		mGoingOutReport += "Add ";
-		mGoingOutReport += plural(points_in_hand, "point");
-		mGoingOutReport += " for the tile";
-		mGoingOutReport += plural(tiles_in_hand);
-		mGoingOutReport += " held by ";
-		mGoingOutReport += i_hand->Name();
-		mGoingOutReport += ".\n";
+		if (points_in_hand > 0) {
+            miActiveHand->AddScore(points_in_hand);
+
+		    mGoingOutReport += "Add ";
+		    mGoingOutReport += plural(points_in_hand, "point");
+		    mGoingOutReport += " for the tile";
+		    mGoingOutReport += plural(tiles_in_hand);
+		    mGoingOutReport += " held by ";
+		    mGoingOutReport += i_hand->Name();
+		    mGoingOutReport += ".\n";
+		}
 
 		mHands.Next(i_hand);
     }

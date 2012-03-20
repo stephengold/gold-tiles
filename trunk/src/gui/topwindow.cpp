@@ -575,6 +575,7 @@ void TopWindow::OfferNewGame(void) {
 	unsigned tile_redundancy = Game::TILE_REDUNDANCY_DEFAULT;
 	unsigned hand_cnt = HAND_CNT_DEFAULT;
 	unsigned hand_size = Game::HAND_SIZE_DEFAULT;
+	unsigned bonus_pct = unsigned(0.5 + 100.0*Tile::BonusFraction());
 
 	ACountType max_attribute_cnt = Tile::AttributeCnt();
 	AValueType *max_attribute_values = new AValueType[max_attribute_cnt];
@@ -659,7 +660,7 @@ STEP2:
 STEP3:
 	// third dialog:  prompt for attribute count, clones, hand size, and number of hands
 	unsigned clones_per_tile = tile_redundancy - 1;
-	ParmBox3 parmbox3(attribute_cnt, clones_per_tile, hand_size, hand_cnt);
+	ParmBox3 parmbox3(attribute_cnt, clones_per_tile, hand_size, hand_cnt, bonus_pct);
 	result = parmbox3.Run(this);
 	if (result == Dialog::RESULT_CANCEL) {
 	    delete[] max_attribute_values;
@@ -672,6 +673,7 @@ STEP3:
 	tile_redundancy = 1 + parmbox3.ClonesPerTile();
 	hand_size = parmbox3.HandSize();
 	hand_cnt = parmbox3.HandCnt();
+	bonus_pct = parmbox3.BonusTilePercentage();
 
 	// set up fourth dialog
    	if (attribute_cnt > max_attribute_cnt) {
@@ -795,7 +797,8 @@ STEP4:
 	// can't cancel now - go ahead and set up the new game
 	Cell::SetGrid(grid);
 	Cell::SetTopology(wrap_flag, height, width);
-	Tile::SetStatic(attribute_cnt, max_attribute_values);
+	double bonus_fraction = double(bonus_pct)/100.0;
+	Tile::SetStatic(attribute_cnt, max_attribute_values, bonus_fraction);
 	delete[] max_attribute_values;
 
 	while (player_names.Count() > hand_cnt) {
@@ -884,7 +887,7 @@ void TopWindow::RedoTurn(void) {
 	if (hand.IsLocalPlayer()) {
         LoadPlayerOptions(hand);
     }
-	if (!hand.IsLocalPlayer() || !mpMenuBar->IsAutopause()) {
+	if (!IsGameOver() && (!hand.IsLocalPlayer() || !mpMenuBar->IsAutopause())) {
 		mpGame->StartClock();
 	}
 }
@@ -1059,7 +1062,9 @@ void TopWindow::RestartGame(void) {
 	ASSERT(mpMenuBar != NULL);
 	ASSERT(!IsGamePaused());
 
-	mpGame->StopClock();
+	if (!IsGameOver()) {
+	    mpGame->StopClock();
+	}
 	Hand hand = Hand(*mpGame);
 	if (hand.IsLocalPlayer()) {
 	    SavePlayerOptions(hand);

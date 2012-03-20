@@ -45,10 +45,11 @@ static int CALLBACK message_handler3(
 // lifecycle
 
 ParmBox3::ParmBox3(unsigned attributeCnt, unsigned clonesPerTile, 
-		     unsigned handSize, unsigned handCnt):
+		     unsigned handSize, unsigned handCnt, unsigned bonusTilePercentage):
     Dialog("PARMBOX3", &message_handler3)
 {
-    mAttributeCnt = attributeCnt;		    
+    mAttributeCnt = attributeCnt;
+	mBonusTilePercentage = bonusTilePercentage;
     mClonesPerTile = clonesPerTile;
     mHandCnt = handCnt;
     mHandSize = handSize;            
@@ -61,6 +62,10 @@ ACountType ParmBox3::AttributeCnt(void) const {
     ACountType result = ACountType(mAttributeCnt);
 
     return result;
+}
+
+unsigned ParmBox3::BonusTilePercentage(void) const {
+    return mBonusTilePercentage;
 }
 
 unsigned ParmBox3::ClonesPerTile(void) const {
@@ -83,6 +88,9 @@ IdType ParmBox3::EditboxId(IdType sliderId) const {
         case IDC_SLIDER4:
             result = IDC_EDIT4;
             break;
+        case IDC_SLIDER5:
+            result = IDC_EDIT5;
+            break;
         default:
             FAIL();
     }
@@ -100,7 +108,8 @@ INT_PTR ParmBox3::HandleMessage(MessageType message, WPARAM wParam, LPARAM lPara
 			InitControl(IDC_SLIDER1, mHandCnt, 1, 10);
 		    InitControl(IDC_SLIDER2, mHandSize, 1, 12);
 		    InitControl(IDC_SLIDER3, mAttributeCnt, 2, 5);
-		    InitControl(IDC_SLIDER4, mClonesPerTile, 0, 5);
+		    InitControl(IDC_SLIDER4, mClonesPerTile, 0, 8);
+		    InitControl(IDC_SLIDER5, mBonusTilePercentage, 0, 25);
 
             result = TRUE;
 			break;
@@ -112,7 +121,8 @@ INT_PTR ParmBox3::HandleMessage(MessageType message, WPARAM wParam, LPARAM lPara
                 case IDC_EDIT1:
                 case IDC_EDIT2:
                 case IDC_EDIT3:
-                case IDC_EDIT4: {
+                case IDC_EDIT4:
+                case IDC_EDIT5: {
                     ValueType value = GetTextValue(id);
 					if (value != VALUE_INVALID) {
                         IdType slider_id = SliderId(id);
@@ -130,7 +140,7 @@ INT_PTR ParmBox3::HandleMessage(MessageType message, WPARAM wParam, LPARAM lPara
 
 		case WM_VSCROLL:
         case WM_HSCROLL: {
-            IdType slider_id = SliderId((HWND)lParam);
+            IdType slider_id = SliderId(HWND(lParam));
 			ASSERT(slider_id != 0);
             ValueType value = GetSliderValue(slider_id);
             IdType editbox_id = EditboxId(slider_id);
@@ -191,6 +201,9 @@ IdType ParmBox3::MaxId(IdType sliderId) const {
         case IDC_SLIDER4:
             result = IDC_SMAX4;
             break;
+        case IDC_SLIDER5:
+            result = IDC_SMAX5;
+            break;
         default:
             FAIL();
     }
@@ -213,6 +226,9 @@ IdType ParmBox3::MinId(IdType sliderId) const {
             break;
         case IDC_SLIDER4:
             result = IDC_SMIN4;
+            break;
+        case IDC_SLIDER5:
+            result = IDC_SMIN5;
             break;
         default:
             FAIL();
@@ -242,6 +258,9 @@ IdType ParmBox3::SliderId(IdType editboxId) const {
         case IDC_EDIT4:
             result = IDC_SLIDER4;
             break;
+        case IDC_EDIT5:
+            result = IDC_SLIDER5;
+            break;
         default:
             FAIL();
     }
@@ -260,6 +279,8 @@ IdType ParmBox3::SliderId(HWND handle) const {
 		result = IDC_SLIDER3;
 	} else if (handle == GetControlHandle(IDC_SLIDER4)) {
 		result = IDC_SLIDER4;
+	} else if (handle == GetControlHandle(IDC_SLIDER5)) {
+		result = IDC_SLIDER5;
 	} else {
 		FAIL();
 	}
@@ -280,6 +301,9 @@ void ParmBox3::UpdateValue(IdType sliderId, ValueType value) {
             break;
         case IDC_SLIDER4:
             mClonesPerTile = value;
+            break;
+        case IDC_SLIDER5:
+            mBonusTilePercentage = value;
             break;
         default:
             FAIL();

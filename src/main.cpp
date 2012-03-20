@@ -69,7 +69,8 @@ int main(int argCnt, char *argValues[]) {
 
 	ACountType attribute_cnt = 2;
 	AValueType max_attribute[] = { Tile::VALUE_CNT_DEFAULT - 1, Tile::VALUE_CNT_DEFAULT - 1 };
-	Tile::SetStatic(attribute_cnt, max_attribute);
+	double bonus_fraction = 0.0;
+	Tile::SetStatic(attribute_cnt, max_attribute, bonus_fraction);
 
 #ifdef _CONSOLE
 	argCnt;
@@ -117,7 +118,7 @@ int main(int argCnt, char *argValues[]) {
 	}
 	std::cout << std::endl;
 	
-	// Clone tiles until there are enough to fill each hand at least three times.
+	// Clone tiles so that there are enough to fill each hand at least three times.
 	unsigned tiles_needed = 3 * hand_size * hand_cnt;
 	long combo_cnt = Tile::CombinationCnt();
 	unsigned clones_per_tile = unsigned(tiles_needed / combo_cnt);
@@ -127,6 +128,9 @@ int main(int argCnt, char *argValues[]) {
 
 	game.PlayGame();
 	std::cout << "The game is over." << std::endl;
+
+	// A pause is needed when running in a console window, which will
+	// be destroyed soon after this function returns. 
     ::pause();
 #endif // defined(_CONSOLE)
 

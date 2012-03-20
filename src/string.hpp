@@ -37,6 +37,10 @@ A String object represents a text string (sequence of characters).
 
 class String: public std::string {
 public:
+	// public types
+	typedef const_iterator ConstIterator;
+	typedef iterator Iterator;
+
 	// public lifecycle
     String(void);
 	String(char);
@@ -56,8 +60,9 @@ public:
 	operator int(void) const; // atoi
 
 	// misc public methods
-	void Capitalize(void);
+	void     Capitalize(void);
 	unsigned Length(void) const;
+	String   Quote(void) const;
 
 	// public inquiry methods
 	bool IsBlank(void) const;

@@ -38,19 +38,24 @@ class ParmBox3: public Dialog {
 public:
     // lifecycle
 	ParmBox3(unsigned attributeCnt, unsigned clonesPerTile, 
-		     unsigned handSize, unsigned handCnt);
+		     unsigned handSize, unsigned handCnt, unsigned bonusPercent);
 	// no default constructor
 	// ~ParmBox3(void);  compiler-generated destructor is OK
 
 	// misc public methods
 	ACountType AttributeCnt(void) const;
+	unsigned   BonusTilePercentage(void) const;
 	unsigned   ClonesPerTile(void) const;
 	unsigned   HandCnt(void) const;
 	int        HandleMessage(MessageType, Win::WPARAM, Win::LPARAM);
 	unsigned   HandSize(void) const;
 
 private:
-    ValueType mAttributeCnt, mClonesPerTile, mHandSize, mHandCnt;
+    ValueType mAttributeCnt;
+	ValueType mClonesPerTile;
+	ValueType mHandSize;
+	ValueType mHandCnt;
+	ValueType mBonusTilePercentage;
 
 	// private lifecycle
     ParmBox3(ParmBox3 const &);  // not copyable

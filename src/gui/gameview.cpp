@@ -636,8 +636,14 @@ Rect GameView::DrawTile(Canvas &rCanvas, Point point, Tile const &rTile, bool od
     TileIdType id = rTile.Id();
 
     ColorType tile_color = COLOR_LIGHT_GRAY;
+	if (rTile.HasBonus()) {
+		tile_color = COLOR_DULL_GOLD;
+	}
     if (Contains(id)) {
         tile_color = COLOR_WHITE;
+	    if (rTile.HasBonus()) {
+		    tile_color = COLOR_GOLD;
+	    }
     }
     if (IsActive(id)) {
        point.Offset(mpWindow->DragTileDeltaX(), mpWindow->DragTileDeltaY());

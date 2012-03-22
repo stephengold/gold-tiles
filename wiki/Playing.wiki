@@ -3,34 +3,37 @@ This wiki page explains the gold-tiles game to players.
 == The rules ==
 
 Gold-tiles is a turn-based tile game for one or more players.
+You can play solitaire, or play against the computer, or
+play with other people on the same computer.
 
 === Tiles and their attributes ===
 
-The playing pieces are two-sided square *tiles* with colored 
-*markings* on the side known as the *face*.  Tile markings 
+The playing pieces are two-sided square (or hexagonal) *tiles* with colored *markings* on the side known as the *face*.  Tile markings 
 denote the *values* of the tile's *attributes*.
 
-All tiles in a given game have similar attributes, though
-not the same values for those attributes.  Typically there 
-are two attributes, one denoted by a geometric shape and 
-the other denoted by the color of that shape.  However, 
+In any particular game, all tiles have the same number of attributes.
+The number of attributes and the number of a values for
+each attribute are decided at the start of each game.
+Tiles typically have two attributes, one denoted by a geometric 
+shape and the other denoted by the color of that shape.  However, 
 there can be up to five attributes, with all or some values 
-denoted by letters and numbers.
+denoted by letters or numbers.
 
-Each attribute takes at least four values.  For instance,
-in a five-color game the color attribute might take the 
-values _black_, _red_, _blue_, _green_, and _purple_.
+Each attribute takes at least four values but not more than ten.
+For instance, in a five-color game the color attribute might 
+take the values _black_, _red_, _blue_, _green_, and _purple_.
 In a four-shape game, the shape attribute might take the 
 values _circle_, _square_, _triangle_, and _star_.
 
-The tiles in a given game include at least one with every 
-possible combination of attribute values.  Games may also
+The tiles used in a particular game include at least one with every 
+possible combination of attribute values.  Games may also 
 include *clones*--tiles with identical markings (which 
-therefore match in every attribute).
+therefore match in every attribute).  The number of clones
+per combination is decided at the start of each game.
 
 Two tiles are *compatible* if exactly one of their attributes 
 matches (has the same value).  If none of their attributes 
-match, then the tiles are not compatible, nor are they 
+match, then the tiles are not compatible.  Nor are they 
 compatible if two or more of their attributes match.
 (Consequently, clones are never compatible.)
 
@@ -42,7 +45,7 @@ their markings are otherwise identical.  And so on.
  
 === Locations for tiles ===
 
-Each player has a *hand* which contains all tiles belonging 
+Each player has one or more *hands* which contain tiles belonging 
 to that player.
 
 The players share a board and a stock bag.  A player can 
@@ -63,8 +66,8 @@ tiles in other players' hands.
 ==== Board ====
 
 The *board* is a two-dimensional grid of *cells*.
-The cells are typically arranged in a square grid, 
-with each cell *adjacent* to four neighboring cells.
+The cells are typically arranged in a square or hexagonal grid, 
+with each cell *adjacent* to four or six or eight neighboring cells.
 
 The board has an *origin* (starting cell), where the first
 tile must be placed.  The board has no edges or other 

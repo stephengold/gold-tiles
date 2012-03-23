@@ -323,7 +323,19 @@ void Game::GoingOutBonus(void) {
 	mGoingOutReport += miActiveHand->Name();
 	mGoingOutReport += " ended up with ";
 	mGoingOutReport += plural(miActiveHand->Score(), "point");
-	mGoingOutReport += ".\n";
+	mGoingOutReport += ".\n\n";
+
+	Strings const winning_hands = WinningHands();
+	if (winning_hands.Count() == 1) {
+		String const winner = winning_hands.First();
+    	mGoingOutReport += winner;
+	    mGoingOutReport += " won the game.\n";
+	} else {
+		ASSERT(!winning_hands.IsEmpty());
+		String const winners(winning_hands, " and ");
+    	mGoingOutReport += winners;
+	    mGoingOutReport += " tied for first place.\n";
+	}
 
 	std::cout << mGoingOutReport;
 	mUnsavedChanges = true;
@@ -566,6 +578,29 @@ void Game::Undo(void) {
 	        miActiveHand->SubtractScore(points);
 		}
 	}
+}
+
+Strings Game::WinningHands(void) const {
+	unsigned const winning_score = WinningScore();
+
+	Strings result;
+
+	Hands::ConstIterator i_hand;
+	for (i_hand = mHands.begin(); i_hand != mHands.end(); i_hand++) {
+		unsigned const score = i_hand->Score();
+		if (score == winning_score) {
+			String const name = i_hand->Name();
+			result.Append(name);
+		}
+	}
+
+	return result;
+}
+
+unsigned Game::WinningScore(void) const {
+	unsigned const result = mHands.MaxScore();
+
+	return result;
 }
 
 

@@ -120,13 +120,15 @@ private:
 	Game &operator=(Game const &);  // not assignable
 
 	// misc private methods
-    void AddTurn(Turn const &);
-    Cell ChooseCell(void) const;
-    void DisplayScores(void) const;
-    void DisplayStatus(void) const;
-	void FindBestRun(void);
-    void FirstTurn(void);
-    void NextTurn(void);
+    void     AddTurn(Turn const &);
+    Cell     ChooseCell(void) const;
+    void     DisplayScores(void) const;
+    void     DisplayStatus(void) const;
+	void     FindBestRun(void);
+    void     FirstTurn(void);
+    void     NextTurn(void);
+	Strings  WinningHands(void) const;
+	unsigned WinningScore(void) const;
 };
 
 #endif // !defined(GAME_HPP_INCLUDED)

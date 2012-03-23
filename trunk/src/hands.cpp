@@ -46,6 +46,22 @@ Hands::Iterator Hands::Find(String const &rName) {
 	return i_hand;
 }
 
+unsigned Hands::MaxScore(void) const {
+	ASSERT(Count() > 0);
+
+	unsigned result = 0;
+
+	ConstIterator i_hand;
+	for (i_hand = begin(); i_hand != end(); i_hand++) {
+		unsigned const score = i_hand->Score();
+		if (score > result) {
+			result = score;
+		}
+	}
+
+	return result;
+}
+
 void Hands::Next(ConstIterator &riCurrent) const {
 	// advance const iterator to next hand
 	riCurrent++;

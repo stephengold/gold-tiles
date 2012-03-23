@@ -43,6 +43,7 @@ public:
 	ConstIterator 
 		     Find(String const &) const;
 	Iterator Find(String const &);
+	unsigned MaxScore(void) const;
     void     Next(ConstIterator &) const;
     void     Next(Iterator &);
 	void     NextWorking(Iterator &);
@@ -53,5 +54,4 @@ public:
 	bool HasAnyGoneOut(void) const;
 	bool HaveAllResigned(void) const;
 };
-
 #endif // !defined(HANDS_HPP_INCLUDED)

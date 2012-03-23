@@ -626,11 +626,18 @@ bool Game::IsLegalMove(Move const &rMove, char const *&rReason) const {
     
 	if (!mBoard.IsValidMove(rMove, rReason)) {
 	    result = false;
-	} else if (mBestRunLength > 0 && !rMove.IsResign()
-		&& (rMove.Count() != mBestRunLength || rMove.InvolvesSwap())) {
+
+	} else if (mBestRunLength > 0
+		    && !rMove.IsResign()
+		    && rMove.CountTilesPlayed() != mBestRunLength)
+	{
+		// first turn but didn't resign or play the longest run
+		ASSERT(rMove.CountTilesPlayed() < mBestRunLength);
 	    rReason = "FIRST";
         result = false;
+
     } else if (rMove.IsPureSwap() && rMove.Count() > stock) {
+		// swap but not enough tiles in stock
 	    rReason = "STOCK";
         result = false;
     }

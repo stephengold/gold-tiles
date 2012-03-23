@@ -30,7 +30,8 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 class Tiles {
 public:
     // public lifecycle
-    // Tiles(void); compiler-generated default constructor is OK
+    Tiles(void);
+	Tiles(Tile const &);
     // Tiles(Tiles const &);  compiler-generated copy constructor is OK
     // ~Tiles(void);  compiler-generated destructor is OK
 

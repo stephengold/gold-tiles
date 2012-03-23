@@ -26,6 +26,17 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 #include "strings.hpp"
 #include "tiles.hpp"
 
+// lifecycle
+
+// default constructor
+Tiles::Tiles(void)
+{}
+
+// construct a container for a single Tile
+Tiles::Tiles(Tile const &rTile) {
+    Add(rTile);
+}
+
 
 // operators
 
@@ -72,7 +83,8 @@ Tiles::operator Indices(void) const {
     return result;
 }
 
-// misc
+
+// misc methods
 
 void Tiles::Add(Tile const &tile) {
 	ASSERT(!Contains(tile));
@@ -200,18 +212,18 @@ Tiles Tiles::LongestRun(void) const {
     for (i_tile = unique.mMap.begin(); i_tile != unique.mMap.end(); i_tile++) {
         Tile const start_tile = i_tile->second;
 
-	    // for each choice of common attribute
+	    // for each attribute of that tile
         for (AIndexType ind = 0; ind < Tile::AttributeCnt(); ind++) {
             AValueType const value = start_tile.Attribute(ind);
 
-			Tiles run;
+			Tiles run(start_tile);
 
 			// for each successor tile
             ConstIterator i_tile2 = i_tile;
             for (i_tile2++; i_tile2 != unique.mMap.end(); i_tile2++) {
 				Tile const tile2 = i_tile2->second;
 
-				// if it shares the attribute and is compatible
+				// if successor shares the attribute and is compatible
                 if (tile2.HasAttribute(ind, value) && tile2.IsCompatibleWith(&start_tile)) {
 					// add it to the run
                     run.Add(tile2);

@@ -51,7 +51,7 @@ public:
 	void     AddRemove(IndexType, bool);
     unsigned Count(void) const;
 	void     MakeEmpty(void);
-	void     Remove(long);
+	void     Remove(IndexType);
 
 	// public inquiry methods
     bool Contains(IndexType) const;

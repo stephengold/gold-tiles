@@ -43,19 +43,19 @@ void Strings::Append(String const &rString) {
 }
 
 Strings::ConstIterator Strings::Begin(void) const {
-    ConstIterator result = mList.begin();
+    ConstIterator const result = mList.begin();
 
 	return result;
 }
 
 Strings::Iterator Strings::Begin(void) {
-    Iterator result = mList.begin();
+    Iterator const result = mList.begin();
 
 	return result;
 }
 
 unsigned Strings::Count(void) const {
-	unsigned result = mList.size();
+	unsigned const result = mList.size();
 
 	return result;
 }
@@ -63,7 +63,6 @@ unsigned Strings::Count(void) const {
 unsigned Strings::Count(String const &rString) const {
 	unsigned result = 0;
 	ConstIterator i_string;
-
 	for (i_string = Begin(); i_string != End(); i_string++) {
 		if (*i_string == rString) {
 			result++;
@@ -74,13 +73,13 @@ unsigned Strings::Count(String const &rString) const {
 }
 
 Strings::ConstIterator Strings::End(void) const {
-    ConstIterator result = mList.end();
+    ConstIterator const result = mList.end();
 
 	return result;
 }
 
 Strings::Iterator Strings::End(void) {
-    Iterator result = mList.end();
+    Iterator const result = mList.end();
 
 	return result;
 }
@@ -88,6 +87,7 @@ Strings::Iterator Strings::End(void) {
 // create unique name using numeric suffix
 String Strings::InventUnique(String const &rPrefix) const {
 	String result = rPrefix;
+
 	unsigned i = 2;
 	while (Contains(result)) {
 		result = rPrefix + String(i);
@@ -152,13 +152,13 @@ Strings Strings::Unique(void) const {
 // inquiry methods
 
 bool Strings::Contains(String const &rString) const {
-	bool result = (Find(rString) != End());
+	bool const result = (Find(rString) != End());
 
 	return result;
 }
 
 bool Strings::IsEmpty(void) const {
-	bool result = (mList.size() == 0);
+	bool const result = (mList.size() == 0);
 
 	return result;
 }

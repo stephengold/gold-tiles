@@ -38,6 +38,7 @@ public:
 
 	// public operators
     // Hand &operator=(Hand const &); The compiler-generated assignment method is fine.
+	bool operator==(Hand const &) const;
 	operator Tiles(void) const;
 
 	// misc public methods
@@ -50,7 +51,8 @@ public:
 	void     DisplayTiles(void) const;
 	Tiles    DrawTiles(unsigned, Tiles &bag);
 	Tiles    LongestRun(void) const;
-	long     Milliseconds(void) const;
+	MsecIntervalType
+		     Milliseconds(void) const;
 	String   Name(void) const;
 	String   PlayerName(void) const;
 	void     RemoveTile(Tile const &);
@@ -74,12 +76,14 @@ private:
 	// private data
 	bool      mAutomatic;
 	bool      mClockRunning;
-	long      mMilliseconds;   // total time charged to the hand
+	MsecIntervalType
+		      mMilliseconds;   // total time charged to the hand
 	String    mName;           // the "name" of the hand
 	String    mPlayerName;
 	bool      mResigned;
 	unsigned  mScore;
-	long      mStartTime;
+	MsecIntervalType
+		      mStartTime;
 	Tiles     mTiles;
 
 	// private inquiry methods

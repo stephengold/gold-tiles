@@ -34,9 +34,9 @@ static int CALLBACK message_handler3(
 	LPARAM lParameter)
 {
 	ASSERT(windowHandle != NULL);
-    ParmBox3 *p_box = (ParmBox3 *)Window::Lookup(windowHandle);
+    ParmBox3 * const p_box = (ParmBox3 *)Window::Lookup(windowHandle);
     ASSERT(HWND(*p_box) == windowHandle);
-	int result = p_box->HandleMessage(message, wParameter, lParameter);
+	int const result = p_box->HandleMessage(message, wParameter, lParameter);
 
 	return result;
 }
@@ -59,7 +59,7 @@ ParmBox3::ParmBox3(unsigned attributeCnt, unsigned clonesPerTile,
 // misc methods
 
 ACountType ParmBox3::AttributeCnt(void) const {
-    ACountType result = ACountType(mAttributeCnt);
+    ACountType const result = ACountType(mAttributeCnt);
 
     return result;
 }
@@ -116,17 +116,17 @@ INT_PTR ParmBox3::HandleMessage(MessageType message, WPARAM wParam, LPARAM lPara
         }
 
         case WM_COMMAND: {
-            IdType id = LOWORD(wParam);
+            IdType const id = LOWORD(wParam);
             switch (id) {
                 case IDC_EDIT1:
                 case IDC_EDIT2:
                 case IDC_EDIT3:
                 case IDC_EDIT4:
                 case IDC_EDIT5: {
-                    ValueType value = GetTextValue(id);
+                    ValueType const value = GetTextValue(id);
 					if (value != VALUE_INVALID) {
-                        IdType slider_id = SliderId(id);
-                        ValueType slider_value = SetSliderValue(slider_id, value);
+                        IdType const slider_id = SliderId(id);
+                        ValueType const slider_value = SetSliderValue(slider_id, value);
 					    if (slider_value != value) {
                             SetTextValue(id, slider_value);
 					    }
@@ -140,10 +140,10 @@ INT_PTR ParmBox3::HandleMessage(MessageType message, WPARAM wParam, LPARAM lPara
 
 		case WM_VSCROLL:
         case WM_HSCROLL: {
-            IdType slider_id = SliderId(HWND(lParam));
+            IdType const slider_id = SliderId(HWND(lParam));
 			ASSERT(slider_id != 0);
-            ValueType value = GetSliderValue(slider_id);
-            IdType editbox_id = EditboxId(slider_id);
+            ValueType const value = GetSliderValue(slider_id);
+            IdType const editbox_id = EditboxId(slider_id);
             SetTextValue(editbox_id, value);
 			UpdateValue(slider_id, value);
 			break;
@@ -172,16 +172,16 @@ void ParmBox3::InitControl(
 	
 	SetSliderRange(sliderId, minValue, maxValue);
 
-	ValueType slider_value = SetSliderValue(sliderId, value);
+	ValueType const slider_value = SetSliderValue(sliderId, value);
 	ASSERT(slider_value == value);
 
-	IdType min_id = MinId(sliderId);
+	IdType const min_id = MinId(sliderId);
 	SetTextValue(min_id, minValue);
 
-	IdType max_id = MaxId(sliderId);
+	IdType const max_id = MaxId(sliderId);
 	SetTextValue(max_id, maxValue);
 
-	IdType editbox_id = EditboxId(sliderId);
+	IdType const editbox_id = EditboxId(sliderId);
     SetTextValue(editbox_id, slider_value);
 }
 

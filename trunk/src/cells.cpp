@@ -32,15 +32,14 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 // The compiler-generated destructor is fine.
 
 Cells::operator String(void) const {
-    String result;
+    String result("{");
 
-    result += "{";
-    const_iterator gr;
+	ConstIterator gr;
     for (gr = begin(); gr != end(); gr++) {
         if (gr != begin()) {
             result += ", ";
         }
-        result += (String)*gr;
+        result += String(*gr);
     }
     result += "}";
 
@@ -56,7 +55,7 @@ void Cells::Add(Cell const &cell) {
 }
 
 unsigned Cells::Count(void) const {
-	unsigned result = size();
+	unsigned const result = size();
 
 	return result;
 }
@@ -74,7 +73,7 @@ bool Cells::AreAllInSameOrtho(DirectionType direction) const {
     
     if (Count() > 1) {
         ConstIterator i_cell = begin();
-        IndexType ortho = i_cell->Ortho(direction);
+        IndexType const ortho = i_cell->Ortho(direction);
         for (i_cell++; i_cell != end(); i_cell++) {
             if (i_cell->Ortho(direction) != ortho) {
                 result = false;
@@ -87,8 +86,8 @@ bool Cells::AreAllInSameOrtho(DirectionType direction) const {
 }
 
 bool Cells::Contains(Cell const &rCell) const {
-	ConstIterator i_cell = find(rCell);
-    bool result = (i_cell != end());
+	ConstIterator const i_cell = find(rCell);
+    bool const result = (i_cell != end());
     
     return result;
 }
@@ -108,7 +107,7 @@ bool Cells::IsAnyStart(void) const {
 }
 
 bool Cells::IsEmpty(void) const {
-	bool result = (size() == 0);
+	bool const result = (size() == 0);
 
 	return result;
 }

@@ -53,6 +53,7 @@ public:
 	// public constants
 	static const ACountType ATTRIBUTE_CNT_MIN = 2;
 	static const ACountType ATTRIBUTE_CNT_DEFAULT = 2;
+	static const ACountType ATTRIBUTE_CNT_GUI_MAX = 5;
 	static const AValueType VALUE_CNT_MIN = 4;
 	static const AValueType VALUE_CNT_DEFAULT = 4;
 	static const AValueType VALUE_CNT_MAX = 9;

@@ -34,9 +34,9 @@ static INT_PTR CALLBACK message_handler(
 	LPARAM lParameter)
 {
 	ASSERT(windowHandle != NULL);
-    TileBox *p_box = (TileBox *)Window::Lookup(windowHandle);
+    TileBox * const p_box = (TileBox *)Window::Lookup(windowHandle);
     ASSERT(HWND(*p_box) == windowHandle);
-	INT_PTR result = p_box->HandleMessage(message, wParameter, lParameter);
+	INT_PTR const result = p_box->HandleMessage(message, wParameter, lParameter);
 
 	return result;
 }
@@ -89,23 +89,23 @@ INT_PTR TileBox::HandleMessage(MessageType message, WPARAM wParam, LPARAM lParam
         case WM_INITDIALOG: {
 		    Dialog::HandleMessage(message, wParam);
 		    
-			InitControl(IDC_SLIDER1, mpNumValues[0], 4, 9);
-		    InitControl(IDC_SLIDER2, mpNumValues[1], 4, 9);
+			InitControl(IDC_SLIDER1, mpNumValues[0], Tile::VALUE_CNT_MIN, Tile::VALUE_CNT_MAX);
+		    InitControl(IDC_SLIDER2, mpNumValues[1], Tile::VALUE_CNT_MIN, Tile::VALUE_CNT_MAX);
 			if (mAttributeCnt > 2) {
-		        InitControl(IDC_SLIDER3, mpNumValues[2], 4, 9);
+		        InitControl(IDC_SLIDER3, mpNumValues[2], Tile::VALUE_CNT_MIN, Tile::VALUE_CNT_MAX);
 			}
 			if (mAttributeCnt > 3) {
-		        InitControl(IDC_SLIDER4, mpNumValues[3], 4, 9);
+		        InitControl(IDC_SLIDER4, mpNumValues[3], Tile::VALUE_CNT_MIN, Tile::VALUE_CNT_MAX);
 			}
 			if (mAttributeCnt > 4) {
-		        InitControl(IDC_SLIDER5, mpNumValues[4], 4, 9);
+		        InitControl(IDC_SLIDER5, mpNumValues[4], Tile::VALUE_CNT_MIN, Tile::VALUE_CNT_MAX);
 			}
             result = TRUE;
 			break;
         }
 
         case WM_COMMAND: {
-            IdType id = LOWORD(wParam);
+            IdType const id = LOWORD(wParam);
             switch (id) {
                 case IDC_EDIT1:
                 case IDC_EDIT2:
@@ -114,8 +114,8 @@ INT_PTR TileBox::HandleMessage(MessageType message, WPARAM wParam, LPARAM lParam
                 case IDC_EDIT5: {
                     ValueType value = GetTextValue(id);
 					if (value != VALUE_INVALID) {
-                        IdType slider_id = SliderId(id);
-                        ValueType slider_value = SetSliderValue(slider_id, value);
+                        IdType const slider_id = SliderId(id);
+                        ValueType const slider_value = SetSliderValue(slider_id, value);
 					    if (slider_value != value) {
                             SetTextValue(id, slider_value);
 					    }
@@ -129,10 +129,10 @@ INT_PTR TileBox::HandleMessage(MessageType message, WPARAM wParam, LPARAM lParam
 
 		case WM_VSCROLL:
         case WM_HSCROLL: {
-            IdType slider_id = SliderId((HWND)lParam);
+            IdType const slider_id = SliderId(HWND(lParam));
 			ASSERT(slider_id != 0);
-            ValueType value = GetSliderValue(slider_id);
-            IdType editbox_id = EditboxId(slider_id);
+            ValueType const value = GetSliderValue(slider_id);
+            IdType const editbox_id = EditboxId(slider_id);
             SetTextValue(editbox_id, value);
 			UpdateValue(slider_id, value);
 			break;
@@ -157,16 +157,16 @@ void TileBox::InitControl(
 	
 	SetSliderRange(sliderId, minValue, maxValue);
 
-	ValueType slider_value = SetSliderValue(sliderId, value);
+	ValueType const slider_value = SetSliderValue(sliderId, value);
 	ASSERT(slider_value == value);
 
-	IdType min_id = MinId(sliderId);
+	IdType const min_id = MinId(sliderId);
 	SetTextValue(min_id, minValue);
 
-	IdType max_id = MaxId(sliderId);
+	IdType const max_id = MaxId(sliderId);
 	SetTextValue(max_id, maxValue);
 
-	IdType editbox_id = EditboxId(sliderId);
+	IdType const editbox_id = EditboxId(sliderId);
     SetTextValue(editbox_id, slider_value);
 }
 
@@ -248,6 +248,7 @@ IdType TileBox::SliderId(IdType editboxId) const {
         default:
             FAIL();
     }
+
     return result;
 }
 

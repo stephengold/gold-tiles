@@ -36,9 +36,9 @@ static INT_PTR CALLBACK message_handler(
 {
 	lParameter;  // unused parameter
 	ASSERT(windowHandle != NULL);
-    ParmBox2 *p_box = (ParmBox2 *)Window::Lookup(windowHandle);
+    ParmBox2 * const p_box = (ParmBox2 *)Window::Lookup(windowHandle);
     ASSERT(HWND(*p_box) == windowHandle);
-	INT_PTR result = p_box->HandleMessage(message, wParameter);
+	INT_PTR const result = p_box->HandleMessage(message, wParameter);
 
 	return result;
 }
@@ -69,11 +69,11 @@ ParmBox2::operator GridType(void) const {
 // misc methods
 
 IndexType ParmBox2::GetTextIndex(IdType controlId) {
-	String string = GetTextString(controlId);
+	String const string = GetTextString(controlId);
 
 	IndexType result = Cell::HEIGHT_MAX;
 	if (string != "endless") {
-		result = unsigned(string);
+		result = IndexType(string);
 	}
 
     return result;
@@ -98,11 +98,11 @@ INT_PTR ParmBox2::HandleMessage(MessageType message, WPARAM wParam) {
         }
 
         case WM_COMMAND: {
-            IdType id = LOWORD(wParam);
-			int notification_code = HIWORD(wParam);
+            IdType const id = LOWORD(wParam);
+			int const notification_code = HIWORD(wParam);
             switch (id) {
                 case IDC_EDITHEIGHT: {
-                    ValueType value = GetTextIndex(id);
+                    ValueType const value = GetTextIndex(id);
 					if (value >= Cell::HEIGHT_MIN
 					 && value <= Cell::HEIGHT_MAX) {
 						if (::is_odd(value)) { // make even
@@ -115,7 +115,7 @@ INT_PTR ParmBox2::HandleMessage(MessageType message, WPARAM wParam) {
                     break;
                 }
                 case IDC_EDITWIDTH: {
-                    ValueType value = GetTextIndex(id);
+                    ValueType const value = GetTextIndex(id);
 					if (value >= Cell::WIDTH_MIN
 					 && value <= Cell::WIDTH_MAX) {
 						if (::is_odd(value)) { // make even
@@ -319,7 +319,7 @@ void ParmBox2::SetTopology(IdType buttonId) {
 void ParmBox2::UpdateCellCnt(void) {
 	IndexType cell_cnt = Cell::HEIGHT_MAX;
 	if (mHeight < Cell::HEIGHT_MAX && mWidth < Cell::WIDTH_MAX) {
-        IndexType max = (mHeight < mWidth) ? mWidth : mHeight;
+        IndexType const max = (mHeight < mWidth) ? mWidth : mHeight;
         mHeight = max;
         mWidth = max;
 		if (mGrid == GRID_HEX) { // hex grids have half as many cells
@@ -334,6 +334,7 @@ void ParmBox2::UpdateCellCnt(void) {
 IndexType ParmBox2::Width(void) const {
 	return mWidth;
 }
+
 
 // inquiry methods
 

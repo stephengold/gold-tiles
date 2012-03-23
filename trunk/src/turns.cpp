@@ -37,13 +37,14 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 
 // misc methods
 
+// convert an iterator to an index
 unsigned Turns::Index(Iterator const &rIterator) const {
-	ConstIterator iterator = begin();
-	unsigned result = 0;
 
-	while (iterator != rIterator) {
+	// count the number of iterator values preceding the argument
+	unsigned result = 0;
+	ConstIterator iterator;
+	for (iterator = begin(); iterator != rIterator; iterator++) {
 		ASSERT(iterator != end());
-		iterator++;
 		result++;
 	}
 

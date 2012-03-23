@@ -72,7 +72,7 @@ void SubMenu::Enable(bool enabledFlag) {
 #ifdef _QT
     mpQMenu->setEnabled(enabledFlag);
 #elif defined(_WINDOWS)
-    UINT position = mPosition;
+    UINT const position = mPosition;
     UINT flags = MF_BYPOSITION;
 
     if (enabledFlag) {

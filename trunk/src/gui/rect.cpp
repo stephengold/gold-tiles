@@ -88,33 +88,31 @@ Rect::operator RECT(void) const {
 // misc methods
 
 float Rect::AspectRatio(void) const {
-    float width = float(Width());
+    float const width = float(Width());
     ASSERT(width > 0.5);
 
-    float height = float(Height());
+    float const height = float(Height());
     ASSERT(height > 0.5);
 
-    float result = width/height;
+    float const result = width/height;
     
     return result;
 }
 
 LogicalYType Rect::BottomY(void) const {
-    LogicalYType result = mBottom;
-    
-    return result;
+    return mBottom;
 }
 
 Point Rect::Brc(void) const {
-    Point result(mRight, mBottom);
+    Point const result(mRight, mBottom);
     
     return result;
 }
 
 Point Rect::Center(void) const {
-    LogicalXType x = LeftX() + Width()/2;
-    LogicalYType y = TopY() + Height()/2;
-    Point result(x, y);
+    LogicalXType const x = CenterX();
+    LogicalYType const y = CenterY();
+    Point const result(x, y);
     
     return result;
 }
@@ -138,7 +136,7 @@ Rect Rect::CenterRect(float aspectRatio) const {
         top += (unsigned)(height - width/aspectRatio)/2;
         height = width;
     } 
-    Rect result(top, left, width, height);
+    Rect const result(top, left, width, height);
     
     ASSERT(Contains(result));
     return result;
@@ -159,81 +157,75 @@ Rect Rect::CenterSquare(void) const {
         top += (height - width)/2;
         height = width;
     } 
-    Rect result(top, left, width, height);
+    Rect const result(top, left, width, height);
     
     ASSERT(Contains(result));
     return result;
 }
 
 LogicalXType Rect::CenterX(void) const {
-	LogicalXType result = LeftX() + Width()/2;
+	LogicalXType const result = LeftX() + Width()/2;
 
 	return result;
 }
 
 LogicalYType Rect::CenterY(void) const {
-	LogicalYType result = TopY() + Height()/2;
+	LogicalYType const result = TopY() + Height()/2;
 
 	return result;
 }
 
 PCntType Rect::Height(void) const {
     ASSERT(BottomY() >= TopY());
-    PCntType result = BottomY() - TopY();
+    PCntType const result = BottomY() - TopY();
     
     return result;
 }
 
 Point Rect::Interpolate(FractionPair const &rPair, bool invertFlag) const {
-    double height = double(Height() - 1);
-    double width = double(Width() - 1);
+    double const height = double(Height() - 1);
+    double const width = double(Width() - 1);
 
-    PCntType dx = PCntType(0.5 + rPair.X()*width);
+    PCntType const dx = PCntType(0.5 + rPair.X()*width);
     ASSERT(dx < Width());
-    LogicalXType x = LeftX() + dx;
+    LogicalXType const x = LeftX() + dx;
     
 	double y_fraction = rPair.Y();
 	if (!invertFlag) {
 		y_fraction = 1.0 - y_fraction;
 	}
-    PCntType dy = PCntType(0.5 + y_fraction*height);
+    PCntType const dy = PCntType(0.5 + y_fraction*height);
     ASSERT(dy < Height());
-    LogicalYType y = TopY() + dy;  
+    LogicalYType const y = TopY() + dy;  
 
     ASSERT(Contains(x, y));
         
-    Point result(x, y);
+    Point const result(x, y);
     
     return result;
 }
 
 LogicalXType Rect::LeftX(void) const {
-    LogicalXType result = mLeft;
-    
-    return result;
+    return mLeft;
 }
 
 LogicalXType Rect::RightX(void) const {
-    LogicalXType result = mRight;
-    
-    return result;
+    return mRight;
 }
 
 LogicalYType Rect::TopY(void) const {
-    LogicalYType result = mTop;
-    
-    return result;
+    return mTop;
 }
 
 Point Rect::Ulc(void) const {
-    Point result(mLeft, mTop);
+    Point const result(mLeft, mTop);
     
     return result;
 }
 
 PCntType Rect::Width(void) const {
     ASSERT(RightX() >= LeftX());
-    PCntType result = RightX() - LeftX();
+    PCntType const result = RightX() - LeftX();
     
     return result;
 }
@@ -242,28 +234,28 @@ PCntType Rect::Width(void) const {
 // inquiry methods 
 
 bool Rect::Contains(Point const &rPoint) const {
-    LogicalXType x = rPoint.X();
-    LogicalYType y = rPoint.Y();
-    bool result = Contains(x, y);
+    LogicalXType const x = rPoint.X();
+    LogicalYType const y = rPoint.Y();
+    bool const result = Contains(x, y);
     
     return result; 
 }
 
 bool Rect::Contains(LogicalXType x, LogicalYType y) const {
-    PCntType dx = x - mLeft;
-    PCntType dy = y - mTop;
-    bool result = (dx < Width() && dy < Height());
+    PCntType const dx = x - mLeft;
+    PCntType const dy = y - mTop;
+    bool const result = (dx < Width() && dy < Height());
     
     return result; 
 }
 
 bool Rect::Contains(Rect const &rOther) const {
-    Point ulc = rOther.Ulc();
+    Point const ulc = rOther.Ulc();
     bool result = Contains(ulc);
     
     if (result) {
-        LogicalXType x_max = rOther.RightX() - 1;
-        LogicalYType y_max = rOther.BottomY() - 1;
+        LogicalXType const x_max = rOther.RightX() - 1;
+        LogicalYType const y_max = rOther.BottomY() - 1;
         if (!Contains(x_max, y_max)) {
             result = false;
         }

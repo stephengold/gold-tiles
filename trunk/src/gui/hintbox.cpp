@@ -36,9 +36,9 @@ static INT_PTR CALLBACK message_handler(
 {
 	lParameter;  // unused parameter
 	ASSERT(windowHandle != NULL);
-    HintBox *p_box = (HintBox *)Window::Lookup(windowHandle);
+    HintBox * const p_box = (HintBox *)Window::Lookup(windowHandle);
     ASSERT(HWND(*p_box) == windowHandle);
-	INT_PTR result = p_box->HandleMessage(message, wParameter);
+	INT_PTR const result = p_box->HandleMessage(message, wParameter);
 
 	return result;
 }
@@ -82,8 +82,8 @@ INT_PTR HintBox::HandleMessage(MessageType message, WPARAM wParam) {
         }
 
         case WM_COMMAND: {
-            IdType id = LOWORD(wParam);
-			int notification_code = HIWORD(wParam);
+            IdType const id = LOWORD(wParam);
+			int const notification_code = HIWORD(wParam);
             switch (id) {
 			    case IDC_RADIO_NONE:
 			    case IDC_RADIO_EMPTY:

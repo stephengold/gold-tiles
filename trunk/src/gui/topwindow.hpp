@@ -107,9 +107,11 @@ private:
     TopWindow &operator=(TopWindow const &); // not assignable
 
 	// misc private methods
+	void         ChangeHand(String const &old_player);
     char const * ClassName(void) const;
 	int          CreateNewGame(void);
 	void         DiscardGame(void);
+	int          GameWarnBox(char const *message);
     void         HandleButtonDown(Point const &);
 	void         HandleButtonUp(Point const &);
     void         HandleMenuCommand(IdType);
@@ -134,7 +136,6 @@ private:
 	void         TogglePause(void);
 	void         UndoTurn(void);
 	void         UpdateMenuBar(void);
-	int          WarnBox(char const *message);
 
 	// private inquiry methods
 	bool AreUnsavedChanges(void) const;

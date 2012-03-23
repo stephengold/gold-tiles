@@ -47,9 +47,9 @@ public:
 	String(unsigned, char);
 	String(char const []);
 	String(int); // itoa
-	String(unsigned); // itoa
-	String(long); // itoa
-	String(unsigned long); // itoa
+	String(unsigned); // utoa
+	String(long); // ltoa
+	String(unsigned long); // ultoa
 	String(std::string const &);
 	// String(String const &);  compiler-generated copy constructor is OK
     // ~String(void);  compiler-generated destructor is OK

@@ -33,12 +33,12 @@ void Poly::Add(double x, double y) {
     ASSERT(x <= 1.0);
     ASSERT(y <= 1.0);
 
-    FractionPair pair(x, y);
+    FractionPair const pair(x, y);
     push_back(pair);
 }
 
 unsigned Poly::Count(void) const {
-	unsigned result = size();
+	unsigned const result = size();
 
 	return result;
 }
@@ -54,8 +54,8 @@ void Poly::GetPoints(
     ConstIterator it = begin();
     for (unsigned i = 0; i < numPoints; i++) {
         ASSERT(it < end());
-        FractionPair pair = *it;
-        Point point = rBounds.Interpolate(pair, invertFlag);
+        FractionPair const pair = *it;
+        Point const point = rBounds.Interpolate(pair, invertFlag);
         points[i] = POINT(point);
         it++;
     }

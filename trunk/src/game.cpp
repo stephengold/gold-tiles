@@ -37,17 +37,16 @@ Game::Game(
     unsigned tileRedundancy,
     unsigned handSize,
 	unsigned secondsPerHand)
+:
+	mHandSize(handSize),
+	mRedundancy(tileRedundancy),
+	mSecondsPerHand(secondsPerHand),
+    mStyle(style)
 {
 	ASSERT(!rPlayerNames.IsEmpty());
 	ASSERT(style != GAME_STYLE_NONE);
 	ASSERT(tileRedundancy >= 1);
 	ASSERT(handSize >= 1);
-
-    // save parameters
-	mStyle = style;
-	mRedundancy = tileRedundancy;
-	mHandSize = handSize;
-	mSecondsPerHand = secondsPerHand;
 
 	// add tiles to the stock bag
 	for (unsigned i = 0; i < mRedundancy; i++) {
@@ -69,7 +68,7 @@ Game::Game(
 		    unique.Append(hand_name);
 		}
 
-		Hand hand(hand_name, player_name, rAutoFlags.Contains(i));
+		Hand const hand(hand_name, player_name, rAutoFlags.Contains(i));
 	    mHands.push_back(hand);
 		i++;
     }
@@ -77,10 +76,10 @@ Game::Game(
     // deal tiles to each hand from the stock bag
     Hands::Iterator i_hand;
     for (i_hand = mHands.begin(); i_hand < mHands.end(); i_hand++) {
-        Tiles tiles = i_hand->DrawTiles(mHandSize, mStockBag);
+        Tiles const tiles = i_hand->DrawTiles(mHandSize, mStockBag);
 
 		// record the deal in mHistory
-		String name = i_hand->Name();
+		String const name = i_hand->Name();
 		Turn turn(tiles, name);
 		mHistory.push_back(turn);
     }
@@ -108,7 +107,7 @@ Game::operator Board(void) const {
 }
 
 Game::operator Hand(void) const {
-    Hand result = *miActiveHand;
+    Hand const result = *miActiveHand;
     
     return result;
 }
@@ -132,13 +131,15 @@ void Game::ActivateNextHand(void) {
 
 // get copies of the tiles in the active hand
 Tiles Game::ActiveTiles(void) const {
-    Tiles result = Tiles(*miActiveHand);
+    Tiles const result = Tiles(*miActiveHand);
     
     return result;
 }
 
 void Game::AddTurn(Turn const &rTurn) {
-    while (miRedo != mHistory.end()) {
+    ASSERT(!IsClockRunning());
+
+	while (miRedo != mHistory.end()) {
         miRedo = mHistory.erase(miRedo);
     }
     mHistory.push_back(rTurn);
@@ -152,7 +153,7 @@ String Game::BestRunReport(void) const {
 }
 
 unsigned Game::CountStock(void) const {
-    unsigned result = mStockBag.Count();
+    unsigned const result = mStockBag.Count();
     
     return result;
 }
@@ -168,7 +169,7 @@ void Game::DisplayScores(void) const {
 
 void Game::DisplayStatus(void) const {
     DisplayScores();
-    unsigned stock = CountStock();
+    unsigned const stock = CountStock();
     std::cout << std::endl
         << miActiveHand->Name() << "'s turn, " 
 		<< plural(stock, "tile") << " remaining in the stock bag"
@@ -176,12 +177,13 @@ void Game::DisplayStatus(void) const {
 }
 
 void Game::FindBestRun(void) {
-    Hands::Iterator i_hand;
     mBestRunLength = 0;
 	mBestRunReport = "";
+    Hands::Iterator i_hand;
     for (i_hand = mHands.begin(); i_hand < mHands.end(); i_hand++) {
-        Tiles run = i_hand->LongestRun();
-	    unsigned run_length = run.Count();
+        Tiles const run = i_hand->LongestRun();
+	    unsigned const run_length = run.Count();
+
         mBestRunReport += i_hand->Name();
 		mBestRunReport += " has a run of ";
 		mBestRunReport += plural(run_length, "tile");
@@ -209,7 +211,7 @@ void Game::FinishTurn(Move const &rMove) {
     
     StopClock();
     
-    String hand_name = miActiveHand->Name();
+    String const hand_name = miActiveHand->Name();
     Turn turn(rMove, hand_name, mBestRunLength);
 
 	if (rMove.IsResign()) {
@@ -217,11 +219,11 @@ void Game::FinishTurn(Move const &rMove) {
 
 	} else {
         // remove played/swapped tiles from the hand
-        Tiles tiles = Tiles(rMove);
+        Tiles const tiles = Tiles(rMove);
         miActiveHand->RemoveTiles(tiles);
 
         // attempt to draw replacement tiles from the stock bag
-        unsigned count = tiles.Count();
+        unsigned const count = tiles.Count();
 	    if (count > 0) {
             Tiles draw = miActiveHand->DrawTiles(count, mStockBag);
             ASSERT(draw.Count() == count || !rMove.InvolvesSwap());
@@ -239,7 +241,7 @@ void Game::FinishTurn(Move const &rMove) {
             mBoard.PlayMove(rMove);
     
             // update the hand's score    
-  	        unsigned points = mBoard.ScoreMove(rMove);
+  	        unsigned const points = mBoard.ScoreMove(rMove);
 	        miActiveHand->AddScore(points);
 	        turn.SetPoints(points);
 		}
@@ -262,7 +264,7 @@ void Game::FirstTurn(void) {
     Move move;
     StartClock();
     if (miActiveHand->IsAutomatic()) {
-	    Tiles run = miActiveHand->LongestRun();
+	    Tiles const run = miActiveHand->LongestRun();
         move = Move(run);
 		std::cout << miActiveHand->Name() << " played " << String(move) << std::endl;
 	} else {
@@ -273,7 +275,7 @@ void Game::FirstTurn(void) {
                 break;
             }
 			String title;
-			String message = Board::ReasonMessage(reason, title);
+			String const message = Board::ReasonMessage(reason, title);
 			std::cout << message << std::endl << std::endl;
 			std::cout << mFirstTurnMessage;
         }
@@ -299,8 +301,8 @@ void Game::GoingOutBonus(void) {
 	mHands.Next(i_hand);
     while (i_hand != miActiveHand) {
         Tiles hand = Tiles(*i_hand);
-        unsigned tiles_in_hand = hand.Count();
-		unsigned points_in_hand = tiles_in_hand;  // TODO
+        unsigned const tiles_in_hand = hand.Count();
+		unsigned const points_in_hand = tiles_in_hand;  // TODO
 
 		if (points_in_hand > 0) {
             miActiveHand->AddScore(points_in_hand);
@@ -375,7 +377,7 @@ void Game::NextTurn(void) {
                 break;
             }
 			String title;
-			String message = Board::ReasonMessage(reason, title);
+			String const message = Board::ReasonMessage(reason, title);
 			std::cout << message << std::endl << std::endl;
 			DisplayStatus();
         }
@@ -405,22 +407,22 @@ void Game::Redo(void) {
 	ASSERT(!IsClockRunning());
 	ASSERT(CanRedo());
 
-	Turn turn = *miRedo;
+	Turn const turn = *miRedo;
 	miRedo++;
 
 	ASSERT(miActiveHand->Name() == turn.HandName());
 
-	Move move = Move(turn);	
+	Move const move = Move(turn);	
 	if (move.IsResign()) {
 		miActiveHand->Resign(mStockBag);
 
 	} else {
         // remove played/swapped tiles from the hand
-        Tiles tiles = Tiles(move);
+        Tiles const tiles = Tiles(move);
         miActiveHand->RemoveTiles(tiles);
 
         // draw replacement tiles from the stock bag
-        Tiles draw = turn.Draw();
+        Tiles const draw = turn.Draw();
 		miActiveHand->AddTiles(draw);
 		mStockBag.RemoveTiles(draw);
 
@@ -433,7 +435,7 @@ void Game::Redo(void) {
             mBoard.PlayMove(move);
     
             // update the hand's score
-			unsigned points = turn.Points();
+			unsigned const points = turn.Points();
 			ASSERT(points == mBoard.ScoreMove(move));
 	        miActiveHand->AddScore(points);
 		}
@@ -464,7 +466,7 @@ void Game::Restart(void) {
 	// return all hand tiles to the stock bag
 	Hands::Iterator i_hand;
 	for (i_hand = mHands.begin(); i_hand != mHands.end(); i_hand++) {
-		Tiles hand_tiles = Tiles(*i_hand);
+		Tiles const hand_tiles = Tiles(*i_hand);
 		mStockBag.AddTiles(hand_tiles);
 		i_hand->Restart();
 	}
@@ -474,13 +476,13 @@ void Game::Restart(void) {
 	for (unsigned i_hand = 0; i_hand < mHands.Count(); i_hand++) {
 		ASSERT(miRedo->Points() == 0);
 
-		Move move = Move(*miRedo);
+		Move const move = Move(*miRedo);
 		ASSERT(move.IsPass());
 
-		String hand_name = miRedo->HandName();
+		String const hand_name = miRedo->HandName();
 		miActiveHand = mHands.Find(hand_name);
 
-		Tiles draw_tiles = miRedo->Draw();
+		Tiles const draw_tiles = miRedo->Draw();
 		ASSERT(draw_tiles.Count() == mHandSize);
 
 		miActiveHand->AddTiles(draw_tiles);
@@ -498,12 +500,10 @@ void Game::Restart(void) {
 
 int Game::Seconds(Hand &rHand) const {
 	// read the clock of a particular hand
-	int result = rHand.Seconds(); 
+	int result = rHand.Seconds();
 	if (mSecondsPerHand > 0) {
+		// counting down
 		result = mSecondsPerHand - result;
-		if (result < 0) {
-			// TODO
-		}
 	}
 
 	return result;
@@ -531,22 +531,22 @@ void Game::Undo(void) {
 	ASSERT(CanUndo());
 
 	miRedo--;
-	Turn turn = *miRedo;
+	Turn const turn = *miRedo;
 
-	String hand_name = turn.HandName();
+	String const hand_name = turn.HandName();
 	miActiveHand = mHands.Find(hand_name);
 
 	//  Roll back the first-move info.
     mBestRunLength = turn.BestRun();
 
-	Move move = Move(turn);
-    Tiles tiles = Tiles(move);
+	Move const move = Move(turn);
+    Tiles const tiles = Tiles(move);
 	if (move.IsResign()) {
 		miActiveHand->Unresign(mStockBag, tiles);
 
 	} else {
         // return drawn tiles to the stock bag
-        Tiles draw = turn.Draw();
+        Tiles const draw = turn.Draw();
 		miActiveHand->RemoveTiles(draw);
 		mStockBag.AddTiles(draw);
 
@@ -562,7 +562,7 @@ void Game::Undo(void) {
             mBoard.UnplayMove(move);
     
             // update the hand's score
-			unsigned points = turn.Points();
+			unsigned const points = turn.Points();
 	        miActiveHand->SubtractScore(points);
 		}
 	}
@@ -572,20 +572,20 @@ void Game::Undo(void) {
 // inquiry methods
 
 bool Game::CanRedo(void) const {
-	bool result = (miRedo != mHistory.end());
+	bool const result = (miRedo != mHistory.end());
 
 	return result;
 }
 
 bool Game::CanUndo(void) const {
-	unsigned turn = mHistory.Index(miRedo);
-	bool result = (turn > mHands.Count());
+	unsigned const turn = mHistory.Index(miRedo);
+	bool const result = (turn > mHands.Count());
 
 	return result;
 }
 
 bool Game::HasEmptyCell(Cell const &rCell) const {
-    bool result = mBoard.HasEmptyCell(rCell);
+    bool const result = mBoard.HasEmptyCell(rCell);
     
     return result; 
 }
@@ -595,20 +595,33 @@ bool Game::HasUnsavedChanges(void) const {
 }
 
 bool Game::IsClockRunning(void) const {
-    bool result = miActiveHand->IsClockRunning();
+    bool const result = miActiveHand->IsClockRunning();
      
     return result;
 }
 
+bool Game::IsOutOfTime(void) const {
+    bool result = false;
+
+	if (mSecondsPerHand > 0) {
+		MsecIntervalType const have_msec = MSECS_PER_SECOND * mSecondsPerHand;
+	    MsecIntervalType const used_msec = miActiveHand->Milliseconds();
+
+		result = (used_msec >= have_msec);
+	}
+
+	return result;
+}
+
 bool Game::IsLegalMove(Move const &rMove) const {
     char const *reason;
-	bool result = IsLegalMove(rMove, reason);
+	bool const result = IsLegalMove(rMove, reason);
 
 	return result;
 }
 
 bool Game::IsLegalMove(Move const &rMove, char const *&rReason) const {
-    unsigned stock = CountStock();
+    unsigned const stock = CountStock();
     bool result = true;
     
 	if (!mBoard.IsValidMove(rMove, rReason)) {
@@ -631,6 +644,7 @@ bool Game::IsOver(void) const {
     // The game is over if and only if: 
 	//    (1) the stock bag is empty and one of the hands has gone out 
 	// or (2) all hands have resigned.
+	// or ?? 
 
 	if (IsStockEmpty() && mHands.HasAnyGoneOut()) {
         result = true;
@@ -642,13 +656,13 @@ bool Game::IsOver(void) const {
 }
 
 bool Game::IsPaused(void) const {
-	bool result = !IsClockRunning() && !IsOver();
+	bool const result = !IsClockRunning() && !IsOver();
 
 	return result;
 }
 
 bool Game::IsStockEmpty(void) const {
-	bool result = (CountStock() == 0);
+	bool const result = (CountStock() == 0);
 
 	return result;
 }

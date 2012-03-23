@@ -46,7 +46,7 @@ ViewMenu::ViewMenu(void):
     mShowTiles(Qt(), "&Peek"),
     mAnimation(Qt(), "A&nimation")
 {
-    QKeySequence c(tr("C"));
+    QKeySequence const c(tr("C"));
     mRecenter.SetShortcut(c);
 
     Add(mSmallTiles);
@@ -93,7 +93,7 @@ void ViewMenu::EnableItems(GameStyleType gameStyle, bool isOver, bool isLocalPla
     mMediumTiles.Enable(true);
     mLargeTiles.Enable(true);
     mRecenter.Enable(true);
-    mAttributes.Enable(false); // TODO
+    mAttributes.Enable(true);
     mHints.Enable(!isOver && isLocalPlayer);
     mShowClocks.Enable(true);
     mShowGrid.Enable(true);

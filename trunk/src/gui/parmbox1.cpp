@@ -51,7 +51,12 @@ ParmBox1::ParmBox1(GameStyleType gameStyle, unsigned secondsPerHand):
 {
 	mGameStyle = gameStyle;
 	if (mGameStyle == GAME_STYLE_NONE) {
+		// default style
+#ifdef _DEBUG
+		mGameStyle = GAME_STYLE_DEBUG;
+#else // !defined(_DEBUG)
 		mGameStyle = GAME_STYLE_PRACTICE;
+#endif // !defined(_DEBUG)
 	}
 
 	if (secondsPerHand == Game::TIME_UNLIMITED) {

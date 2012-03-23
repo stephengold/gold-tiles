@@ -78,8 +78,8 @@ void Tiles::Add(Tile const &tile) {
 	ASSERT(!Contains(tile));
 
 	TileIdType const id = tile.Id();
-	std::pair<const TileIdType,Tile> add(id, tile);
-    std::pair<Iterator, bool> ins = mMap.insert(add);
+	std::pair<const TileIdType,Tile> const add(id, tile);
+    std::pair<Iterator, bool> const ins = mMap.insert(add);
     bool const success = ins.second;
     ASSERT(success);
 
@@ -102,6 +102,7 @@ void Tiles::AddAllTiles(AIndexType attributeIndex, Tile &rModelTile) {
 	}
 }
 
+// merge with another Tiles object
 void Tiles::AddTiles(Tiles const &tiles) {
     ConstIterator i_tile;
     for (i_tile = tiles.mMap.begin(); i_tile != tiles.mMap.end(); i_tile++) {
@@ -118,7 +119,8 @@ unsigned Tiles::Count(void) const {
 
 Tile Tiles::DrawRandomTile(void) {
 	ASSERT(!IsEmpty());
-    unsigned const n = Count();
+
+	unsigned const n = Count();
     ASSERT(n > 0);
     unsigned const r = ::rand() % n;
     
@@ -137,12 +139,12 @@ Tile Tiles::DrawRandomTile(void) {
     return result;
 }
 
-void Tiles::DrawTiles(unsigned tileCnt, Tiles &bag) {
+void Tiles::DrawTiles(unsigned tileCnt, Tiles &rBag) {
     for (unsigned draw_cnt = 0; draw_cnt < tileCnt; ++draw_cnt) {
-        if (bag.IsEmpty()) {
+        if (rBag.IsEmpty()) {
             break;
         }
-        Tile const tile = bag.DrawRandomTile();
+        Tile const tile = rBag.DrawRandomTile();
 		Add(tile);
 	}
 }
@@ -185,27 +187,39 @@ void Tiles::GetUserChoice(Tiles const &rAvailableTiles) {
     }
 }
 
+// return the largest subset of mutually compatible tiles
 Tiles Tiles::LongestRun(void) const {
-	Tiles unique = UniqueTiles();
+
+	// clones are never compatible, so consider only the unique tiles
+	Tiles const unique = UniqueTiles();
 
 	Tiles result;
-	String raString;
+
+	// for each choice of starting tile
     ConstIterator i_tile;
     for (i_tile = unique.mMap.begin(); i_tile != unique.mMap.end(); i_tile++) {
-        Tile const tile = i_tile->second;
+        Tile const start_tile = i_tile->second;
+
+	    // for each choice of common attribute
         for (AIndexType ind = 0; ind < Tile::AttributeCnt(); ind++) {
-            AValueType const value = tile.Attribute(ind);
-            Tiles run;
-            ConstIterator i_tile2;
-            for (i_tile2 = i_tile; i_tile2 != unique.mMap.end(); i_tile2++) {
-				Tile tile2 = i_tile2->second;
-                if (tile2.HasAttribute(ind, value)) {
+            AValueType const value = start_tile.Attribute(ind);
+
+			Tiles run;
+
+			// for each successor tile
+            ConstIterator i_tile2 = i_tile;
+            for (i_tile2++; i_tile2 != unique.mMap.end(); i_tile2++) {
+				Tile const tile2 = i_tile2->second;
+
+				// if it shares the attribute and is compatible
+                if (tile2.HasAttribute(ind, value) && tile2.IsCompatibleWith(&start_tile)) {
+					// add it to the run
                     run.Add(tile2);
                 }
             }
             if (run.Count() > result.Count()) {
+				// save new best run
                 result = run;
-                raString = attribute_to_string(ind, value);
             }
         }
     }
@@ -249,6 +263,7 @@ void Tiles::RemoveTiles(Tiles const &rTiles) {
     }
 }
 
+// add one instance of every possible combination of attributes
 void Tiles::Restock(void) {
 	AIndexType const attribute_index = 0;
 	Tile model_tile;
@@ -271,7 +286,7 @@ void Tiles::UnClone(Tile &rClone) const {
 	ASSERT(Contains(rClone));
 }
 
-// return a new set containing only one copy of each clone
+// return a new set containing only one instance of each clone
 Tiles Tiles::UniqueTiles(void) const {
     Tiles result;
     
@@ -287,7 +302,7 @@ Tiles Tiles::UniqueTiles(void) const {
 }
 
 
-// inquiries
+// inquiry methods
 
 bool Tiles::AreAllCompatible(void) const {
     ConstIterator i_tile;

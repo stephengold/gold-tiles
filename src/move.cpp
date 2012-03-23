@@ -127,6 +127,16 @@ unsigned Move::Count(void) const {
 	return result;
 }
 
+unsigned Move::CountTilesPlayed(void) const {
+    unsigned result = 0;
+
+	if (!InvolvesSwap()) {
+		result = Count();
+	}
+
+	return result;
+}
+
 Move::ConstIterator Move::End(void) const {
 	ConstIterator const result = mSet.end();
 

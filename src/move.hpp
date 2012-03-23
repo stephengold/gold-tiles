@@ -57,6 +57,7 @@ public:
 	ConstIterator
 		     Begin(void) const;
     unsigned Count(void) const;
+    unsigned CountTilesPlayed(void) const;
 	ConstIterator
 		     End(void) const;
     void     GetUserChoice(Tiles const &);

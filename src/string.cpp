@@ -23,7 +23,7 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <locale>
 #include <sstream>
-#include "string.hpp"
+#include "strings.hpp"
 
 static std::string itos(int integer) {
    std::ostringstream sout;
@@ -46,6 +46,9 @@ static std::string ultos(unsigned long integer) {
    return sout.str(); 
 }
 
+
+// lifecycle
+
 String::String(void):
     std::string() {}
 String::String(char ch):
@@ -56,6 +59,7 @@ String::String(std::string const &str):
 	std::string(str) {}
 String::String(char const p_ch[]):
 	std::string(p_ch) {}
+
 String::String(int integer):
 	std::string(::itos(integer)) {}
 String::String(unsigned integer):
@@ -64,6 +68,17 @@ String::String(long integer):
 	std::string(::ltos(integer)) {}
 String::String(unsigned long integer):
 	std::string(::ultos(integer)) {}
+
+String::String(Strings const &rList, String const &rSeparator) {
+	Strings::ConstIterator i_string;
+	for (i_string = rList.Begin(); i_string != rList.End(); i_string++) {
+		if (i_string != rList.Begin()) {
+			*this += rSeparator;
+		}
+		*this += *i_string;
+	}
+}
+
 
 // operators
 

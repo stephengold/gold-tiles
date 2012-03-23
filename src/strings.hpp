@@ -48,6 +48,7 @@ public:
 	ConstIterator End(void) const;
 	Iterator      End(void);
 	ConstIterator Find(String const &) const;
+	String        First() const;
 	String        InventUnique(String const &prefix) const;
 	String        InventUnique(String const &prefix, String const &infix, 
 		                           String const &suffix) const;

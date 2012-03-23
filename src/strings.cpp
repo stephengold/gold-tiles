@@ -84,6 +84,15 @@ Strings::Iterator Strings::End(void) {
 	return result;
 }
 
+String Strings::First(void) const {
+	ASSERT(!IsEmpty());
+
+	ConstIterator i = Begin();
+	String const result = *i;
+
+	return result;
+}
+
 // create unique name using numeric suffix
 String Strings::InventUnique(String const &rPrefix) const {
 	String result = rPrefix;
@@ -126,11 +135,13 @@ Strings::ConstIterator Strings::Find(String const &rString) const {
 
 void Strings::MakeEmpty(void) {
 	mList.clear();
+
 	ASSERT(IsEmpty());
 }
 
 void Strings::Unappend(void) {
 	ASSERT(!IsEmpty());
+
     mList.pop_back();
 }
 

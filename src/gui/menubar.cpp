@@ -67,13 +67,13 @@ MenuBar::MenuBar(CREATESTRUCT const &rCreateStruct, Partial const &rPartial):
 #endif // defined(_WINDOWS)
 
 void MenuBar::Initialize(GameStyleType game_style) {
-	bool is_challenge = (game_style == GAME_STYLE_CHALLENGE);
-	bool is_debug = (game_style == GAME_STYLE_DEBUG);
+	bool const is_challenge = (game_style == GAME_STYLE_CHALLENGE);
+	bool const is_debug = (game_style == GAME_STYLE_DEBUG);
 
 	mAutopauseFlag = is_challenge;
 	mShowClocksFlag = is_challenge || is_debug;
    	mShowGridFlag = is_debug;
-	mShowScoresFlag = is_debug;
+	mShowScoresFlag = true;
 	mPeekFlag = is_debug;
     mTileSizeItem = IDM_LARGE_TILES;
 }
@@ -152,15 +152,15 @@ IdType MenuBar::TileSize(void) const {
 }
 
 void MenuBar::Update(void) {
-	bool have_game = mrPartial.HasGame();
-	bool is_over = mrPartial.IsGameOver();
-	bool is_local = mrPartial.IsLocalPlayer();
-    bool is_pass = mrPartial.IsPass();
-	bool is_paused = mrPartial.IsGamePaused();
-	bool can_swap_all = mrPartial.CanSwapAll();
-	bool can_undo = mrPartial.CanUndo();
-	bool can_redo = mrPartial.CanRedo();
-    GameStyleType game_style = mrPartial.GameStyle();
+	bool const have_game = mrPartial.HasGame();
+	bool const is_over = mrPartial.IsGameOver();
+	bool const is_local = mrPartial.IsLocalPlayer();
+    bool const is_pass = mrPartial.IsPass();
+	bool const is_paused = mrPartial.IsGamePaused();
+	bool const can_swap_all = mrPartial.CanSwapAll();
+	bool const can_undo = mrPartial.CanUndo();
+	bool const can_redo = mrPartial.CanRedo();
+    GameStyleType const game_style = mrPartial.GameStyle();
 
 	// "File" menu
 	mFileMenu.EnableItems(have_game);

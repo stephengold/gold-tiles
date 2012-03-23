@@ -36,7 +36,8 @@ void Indices::Add(IndexType index) {
 }
 
 void Indices::AddRemove(IndexType index, bool addFlag) {
-	bool have_index = Contains(index);
+	bool const have_index = Contains(index);
+
 	if (have_index && !addFlag) {
 		Remove(index);
 	} else if (!have_index && addFlag) {
@@ -47,7 +48,7 @@ void Indices::AddRemove(IndexType index, bool addFlag) {
 }
 
 unsigned Indices::Count(void) const {
-	unsigned result = size();
+	unsigned const result = size();
 
 	return result;
 }
@@ -59,7 +60,7 @@ void Indices::MakeEmpty(void) {
 void Indices::Remove(IndexType index) {
 	ASSERT(Contains(index));
 
-	Iterator i_index = find(index);
+	Iterator const i_index = find(index);
     ASSERT(i_index != end());
 	ASSERT(*i_index == index);
 
@@ -71,7 +72,7 @@ void Indices::Remove(IndexType index) {
 
 // inquiry methods
 bool Indices::Contains(IndexType index) const {
-	bool result = (find(index) != end());
+	bool const result = (find(index) != end());
 
 	return result;
 }

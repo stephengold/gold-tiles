@@ -27,7 +27,7 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 // misc methods
 
 unsigned Hands::Count(void) const {
-    unsigned result = size();
+    unsigned const result = size();
 
 	return result;
 }
@@ -64,7 +64,7 @@ void Hands::Next(Iterator &riCurrent) {
 
 void Hands::NextWorking(Iterator &riCurrent) {
 	// advance iterator to next hand which has not resigned
-	Iterator start = riCurrent;
+	Iterator const start = riCurrent;
 	Next(riCurrent);
 
 	while (riCurrent->HasResigned() && riCurrent != start) {

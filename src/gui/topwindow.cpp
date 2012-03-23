@@ -69,7 +69,7 @@ static LRESULT CALLBACK message_handler(
 	LPARAM lParam)
 {
 	ASSERT(windowHandle != NULL);
-    TopWindow *window = (TopWindow *)Window::Lookup(windowHandle);
+    TopWindow * const window = (TopWindow *)Window::Lookup(windowHandle);
 
 	LRESULT result;
 	if (window == NULL) { // unknown window
@@ -84,13 +84,13 @@ static LRESULT CALLBACK message_handler(
 }
 
 static void CALLBACK think(void *pArgument) {
-	TopWindow *window = (TopWindow *)pArgument;
+	TopWindow * const window = (TopWindow *)pArgument;
 
     window->Think();
 }
 
 static void yield(void *pArgument) {
-	TopWindow *window = (TopWindow *)pArgument;
+	TopWindow * const window = (TopWindow *)pArgument;
 
 	window->Yields();
 }
@@ -123,16 +123,16 @@ TopWindow::TopWindow(HINSTANCE applicationInstance, Game *pGame):
 
 	SetAcceleratorTable("HOTKEYS");
 
-	Rect desktop_bounds = DesktopBounds();
-	PCntType height = PCntType(0.8*double(desktop_bounds.Height()));
-	PCntType width = PCntType(0.8*double(desktop_bounds.Width()));
-	LogicalXType x = width/8;
-	LogicalYType y = height/8;
-	Rect rect(y, x, width, height);
+	Rect const desktop_bounds = DesktopBounds();
+	PCntType const height = PCntType(0.8*double(desktop_bounds.Height()));
+	PCntType const width = PCntType(0.8*double(desktop_bounds.Width()));
+	LogicalXType const x = width/8;
+	LogicalYType const y = height/8;
+	Rect const rect(y, x, width, height);
 
 	// create Microsoft Windows window
-	String class_string(class_name);
-	Window *p_parent = NULL;
+	String const class_string(class_name);
+	Window * const p_parent = NULL;
 	Create(class_string, rect, p_parent, applicationInstance);
 
 	// wait for message_handler() to receive a message with this handle
@@ -156,7 +156,7 @@ void TopWindow::Initialize(CREATESTRUCT const &rCreateStruct) {
 	mGameView.SetWindow(this, mpMenuBar);
     SetTileWidth(IDM_LARGE_TILES);
 	if (HasGame()) {
-	    Hands hands = Hands(*mpGame);
+	    Hands const hands = Hands(*mpGame);
 		Hands::ConstIterator i_hand;
 		for (i_hand = hands.begin(); i_hand != hands.end(); i_hand++) {
 			if (i_hand->IsLocalPlayer()) {
@@ -176,12 +176,50 @@ void TopWindow::Initialize(CREATESTRUCT const &rCreateStruct) {
 
 // misc methods
 
+void TopWindow::ChangeHand(String const &rOldPlayerName) {
+	ASSERT(HasGame());
+	ASSERT(IsGamePaused());
+	ASSERT(mpMenuBar != NULL);
+
+	Hand const hand = Hand(*mpGame);
+
+	if (hand.IsLocalPlayer()) {
+        LoadPlayerOptions(hand);
+	}
+
+	if (!IsGameOver()) {
+	    if (!hand.IsLocalPlayer()) {
+			mpGame->StartClock();
+		} else if (rOldPlayerName == hand.PlayerName())	{
+		    mpGame->StartClock();
+		} else if (!mpMenuBar->IsAutopause()) {
+			mpGame->StartClock();
+		}
+	}
+}
+
 long TopWindow::DragTileDeltaX(void) const {
 	return mDragTileDeltaX;
 }
 
 long TopWindow::DragTileDeltaY(void) const {
 	return mDragTileDeltaY;
+}
+
+int TopWindow::GameWarnBox(char const *messageText) {
+	String message(messageText);
+	String title = "Information";
+
+	// expand shortcuts
+	if (::str_eq(message, "FEWTILES")) {
+		message = "You haven't created enough tiles to fill all the hands.";
+		title = "Too Few Tiles";
+	}
+
+	title += " - Gold Tile";
+	int const result = WarnBox(message, title);
+
+	return result;
 }
 
 void TopWindow::HandleButtonDown(Point const &rMouse) {
@@ -195,7 +233,7 @@ void TopWindow::HandleButtonDown(Point const &rMouse) {
         if (!IsMouseCaptured()) {
             // Capture mouse to drag the tile
             CaptureMouse();
-			Point point = mGameView.TileCenter(id);
+			Point const point = mGameView.TileCenter(id);
             WarpCursor(point);
             mMouseLast = point;
             mGameView.Activate(id);
@@ -349,11 +387,11 @@ void TopWindow::HandleMenuCommand(IdType command) {
             Resize(ClientAreaWidth(), ClientAreaHeight());
             break;
 		case IDM_ATTRIBUTES:
-		    FAIL(); // TODO
+		    // TODO
 			break;
         case IDM_HINTS: {
 			HintType hint_strength = HintType(mGameView);
-			GameStyleType game_style = mGameView.GameStyle();
+			GameStyleType const game_style = mGameView.GameStyle();
 			HintBox box(hint_strength, game_style);
 			int result = box.Run(this);
 			if (result == Dialog::RESULT_OK) {
@@ -407,13 +445,13 @@ LRESULT TopWindow::HandleMessage(MessageType message, WPARAM wParam, LPARAM lPar
 	    }
 
         case WM_COMMAND: { // menu command
-	        IdType command = LOWORD(wParam);
+	        IdType const command = LOWORD(wParam);
             HandleMenuCommand(command);
             break;
   	    }
 
         case WM_CREATE: { // initialize window
-		    CREATESTRUCT *p_create_struct = (CREATESTRUCT *)lParam;
+		    CREATESTRUCT * const p_create_struct = (CREATESTRUCT *)lParam;
 			ASSERT(p_create_struct != NULL);
             Initialize(*p_create_struct);
             break;
@@ -436,8 +474,8 @@ LRESULT TopWindow::HandleMessage(MessageType message, WPARAM wParam, LPARAM lPar
         case WM_LBUTTONUP: // complete left-click
 			if (mGameView.IsDragging()) {
                 if (IsMouseCaptured()) {
-				    POINTS points = MAKEPOINTS(lParam);
-				    Point mouse(points);
+				    POINTS const points = MAKEPOINTS(lParam);
+				    Point const mouse(points);
                     HandleButtonUp(mouse);
 					UpdateMenuBar();
 				} else {
@@ -450,8 +488,8 @@ LRESULT TopWindow::HandleMessage(MessageType message, WPARAM wParam, LPARAM lPar
         case WM_MOUSEMOVE: // mouse position update
 			if (mGameView.IsDragging()) {
                 if (IsMouseCaptured()) {
-				    POINTS points = MAKEPOINTS(lParam);
-				    Point mouse(points);
+				    POINTS const points = MAKEPOINTS(lParam);
+				    Point const mouse(points);
 	                HandleMouseMove(mouse);
 				} else {
 					StopDragging();
@@ -461,7 +499,7 @@ LRESULT TopWindow::HandleMessage(MessageType message, WPARAM wParam, LPARAM lPar
             break;
 
 		case WM_MOUSEWHEEL: {
-            int z_delta = GET_WHEEL_DELTA_WPARAM(wParam);
+            int const z_delta = GET_WHEEL_DELTA_WPARAM(wParam);
 			mGameView.StartCellOffset(0, -z_delta/5);
 			ForceRepaint();
 			break;
@@ -472,14 +510,14 @@ LRESULT TopWindow::HandleMessage(MessageType message, WPARAM wParam, LPARAM lPar
             break;
            
         case WM_SIZE: { // resize
-            PCntType clientAreaWidth = LOWORD(lParam);
-            PCntType clientAreaHeight = HIWORD(lParam);
+            PCntType const clientAreaWidth = LOWORD(lParam);
+            PCntType const clientAreaHeight = HIWORD(lParam);
             Resize(clientAreaWidth, clientAreaHeight);
             break;
         }
 
 		case WM_TIMER: { // timer popped
-			int timer_id = int(wParam);
+			int const timer_id = int(wParam);
 			if (timer_id == ID_CLOCK_TIMER) {
 			    if (mpMenuBar->AreClocksVisible() && !IsGamePaused() && !IsGameOver()) {
 					// don't update menus because they would flicker
@@ -497,7 +535,7 @@ LRESULT TopWindow::HandleMessage(MessageType message, WPARAM wParam, LPARAM lPar
     }
 
 	if (HasGame()) {
-		Hand active_hand = Hand(*mpGame);
+		Hand const active_hand = Hand(*mpGame);
 	    if (active_hand.IsAutomatic() && !mpGame->CanRedo() && !mThinking) {
     	    Partial::SetYield(&yield, (void *)this);
 		    mThinking = true;
@@ -512,8 +550,8 @@ LRESULT TopWindow::HandleMessage(MessageType message, WPARAM wParam, LPARAM lPar
 }
 
 void TopWindow::HandleMouseMove(Point const &rMouse) {
-    long drag_x = rMouse.X() - mMouseLast.X();
-    long drag_y = rMouse.Y() - mMouseLast.Y();
+    long const drag_x = rMouse.X() - mMouseLast.X();
+    long const drag_y = rMouse.Y() - mMouseLast.Y();
     mMouseLast = rMouse;
 
     if (mDragBoardFlag) {
@@ -542,11 +580,14 @@ void TopWindow::InfoBox(char const *messageText) {
 }
 
 void TopWindow::LoadPlayerOptions(Hand const &rHand) {
-	String player_name = rHand.PlayerName();
+	String const player_name = rHand.PlayerName();
 	Player const &r_player = Player::rLookup(player_name);
 	mpMenuBar->LoadPlayerOptions(r_player);
-	mGameView.SetStartCellPosition(Point(r_player));
-	IdType tile_size = r_player.TileSize();
+
+	Point const start_cell_position = Point(r_player);
+	mGameView.SetStartCellPosition(start_cell_position);
+
+	IdType const tile_size = r_player.TileSize();
 	SetTileWidth(tile_size);
 }
 
@@ -596,7 +637,7 @@ void TopWindow::OfferNewGame(void) {
 		unsigned i = 0;
 		Hands::ConstIterator i_hand;
 		for (i_hand = hands.begin(); i_hand != hands.end(); i_hand++) {
-			String name = i_hand->PlayerName();
+			String const name = i_hand->PlayerName();
 			player_names.Append(name);
 			if (i_hand->IsAutomatic()) {
 				auto_hands.Add(i);
@@ -744,7 +785,7 @@ STEP4:
 	ASSERT(result == Dialog::RESULT_OK);
 
 	// check sanity of the parameters so far
-	unsigned tiles_needed = hand_cnt*hand_size;
+	unsigned const tiles_needed = hand_cnt*hand_size;
 
 	unsigned long tile_cnt = tile_redundancy;
 	for (unsigned i_attr = 0; i_attr < max_attribute_cnt; i_attr++) {
@@ -752,7 +793,7 @@ STEP4:
 	}
 
 	if (tile_cnt < tiles_needed) {
-		result = WarnBox("FEWTILES");
+		result = GameWarnBox("FEWTILES");
 		if (result == IDCANCEL) {
 	        delete[] max_attribute_values;
 		    return;
@@ -766,10 +807,10 @@ STEP4:
 	Strings::Iterator i_name = player_names.Begin();
 	for (unsigned i = 0; i < hand_cnt; ) {
 		ASSERT(i_name != player_names.End());
-		bool more_flag = (i+1 < hand_cnt);
-		bool auto_flag = auto_hands.Contains(i);
-		bool remote_flag = remote_hands.Contains(i);
-		IpAddressType ip_address = ips[i];
+		bool const more_flag = (i+1 < hand_cnt);
+		bool const auto_flag = auto_hands.Contains(i);
+		bool const remote_flag = remote_hands.Contains(i);
+		IpAddressType const ip_address = ips[i];
 		HandBox handbox(i+1, more_flag, *i_name, auto_flag, remote_flag, ip_address);
 		result = handbox.Run(this);
 		if (result == Dialog::RESULT_CANCEL) {
@@ -797,7 +838,7 @@ STEP4:
 	// can't cancel now - go ahead and set up the new game
 	Cell::SetGrid(grid);
 	Cell::SetTopology(wrap_flag, height, width);
-	double bonus_fraction = double(bonus_pct)/100.0;
+	double const bonus_fraction = double(bonus_pct)/100.0;
 	Tile::SetStatic(attribute_cnt, max_attribute_values, bonus_fraction);
 	delete[] max_attribute_values;
 
@@ -805,11 +846,11 @@ STEP4:
 		player_names.Unappend();
 	}
 
-	Game *p_new_game = new Game(player_names, auto_hands, game_style, 
+	Game *const p_new_game = new Game(player_names, auto_hands, game_style, 
 		                        tile_redundancy, hand_size, seconds_per_hand);
 	ASSERT(p_new_game != NULL);
 
-	String report = p_new_game->BestRunReport();
+	String const report = p_new_game->BestRunReport();
 	Window::InfoBox(report, "Opening Bids - Gold Tile");
 
 	SetGame(p_new_game);
@@ -830,36 +871,39 @@ void TopWindow::Play(bool passFlag) {
 	ASSERT(!IsGameOver());
 	ASSERT(!IsGamePaused());
 
-    Move move = mGameView.GetMove(true);
-    
-	char const *reason;
-	bool is_legal = mpGame->IsLegalMove(move, reason);
-    if (move.IsPass() == passFlag && is_legal) {
-        mpGame->FinishTurn(move);
-        if (mpGame->IsOver()) {
-            mpMenuBar->GameOver();                  
-            mpGame->GoingOutBonus();	
-			String report = mpGame->GoingOutReport();
-	        Window::InfoBox(report, "Going Out - Gold Tile");
+	// check whether the player has run out of time
+    Move move;
+	if (mpGame->IsOutOfTime()) {
+		// force resignation
+		move.MakeResign(mpGame->ActiveTiles()); 
+	} else {
+		move = mGameView.GetMove(true);
+	}
 
-        } else {
+	char const *reason;
+	bool const is_legal = mpGame->IsLegalMove(move, reason);
+    if (is_legal && move.IsPass() == passFlag) {
+        mpGame->FinishTurn(move);
+        mGameView.Reset();
+
+        if (!mpGame->IsOver()) {
 			// the game isn't over, so proceed to the next hand
-			Hand hand = Hand(*mpGame);
-			if (hand.IsLocalPlayer()) {
-		        SavePlayerOptions(hand);
+			Hand const old_hand = Hand(*mpGame);
+			if (old_hand.IsLocalPlayer()) {
+		        SavePlayerOptions(old_hand);
 			}
+			String const old_player_name = old_hand.PlayerName();
 
             mpGame->ActivateNextHand();
-			hand = Hand(*mpGame);
-			if (hand.IsLocalPlayer()) {
-                LoadPlayerOptions(hand);
-			}
-			if (!hand.IsLocalPlayer() || !mpMenuBar->IsAutopause()) {
-				mpGame->StartClock();
-			}
-        }
+			ChangeHand(old_player_name);
 
-        mGameView.Reset();
+        } else {
+			// the game is over, so award bonus
+            mpMenuBar->GameOver();                  
+            mpGame->GoingOutBonus();	
+			String const report = mpGame->GoingOutReport();
+	        Window::InfoBox(report, "Going Out - Gold Tile");
+        }
 
     } else if (!is_legal) { // explain the issue
         RuleBox(reason);
@@ -875,41 +919,35 @@ void TopWindow::RedoTurn(void) {
 	ASSERT(!IsGamePaused());
 
 	mpGame->StopClock();
-	Hand hand = Hand(*mpGame);
-	if (hand.IsLocalPlayer()) {
-	    SavePlayerOptions(hand);
+	Hand const old_hand = Hand(*mpGame);
+	if (old_hand.IsLocalPlayer()) {
+	    SavePlayerOptions(old_hand);
 	}
+	String const old_player_name = old_hand.PlayerName();
 
     mpGame->Redo();
 	mGameView.Reset();
-
-	hand = Hand(*mpGame);
-	if (hand.IsLocalPlayer()) {
-        LoadPlayerOptions(hand);
-    }
-	if (!IsGameOver() && (!hand.IsLocalPlayer() || !mpMenuBar->IsAutopause())) {
-		mpGame->StartClock();
-	}
+	ChangeHand(old_player_name);
 }
 
 void TopWindow::ReleaseActiveTile(Point const &rMouse) {
 	ASSERT(HasGame());
 
-    TileIdType id = mGameView.GetActive(); 
+    TileIdType const id = mGameView.GetActive(); 
      
 	// Determine where the active tile came from.
-    bool from_hand = mGameView.IsInHand(id);
-    bool from_swap = mGameView.IsInSwap(id);
+    bool const from_hand = mGameView.IsInHand(id);
+    bool const from_swap = mGameView.IsInSwap(id);
 	ASSERT(!(from_hand && from_swap)); 
-	bool from_board = !(from_hand || from_swap);
+	bool const from_board = !(from_hand || from_swap);
 	Cell from_cell;
     if (from_board) {
         from_cell = mGameView.LocateTile(id);
     }
 
 	// Determine where the active tile was released to.
-	bool to_hand = mGameView.IsInHandArea(rMouse);
-	bool to_swap = (!to_hand) && mGameView.IsInSwapArea(rMouse); // overlap is possible
+	bool const to_hand = mGameView.IsInHandArea(rMouse);
+	bool const to_swap = (!to_hand) && mGameView.IsInSwapArea(rMouse); // overlap is possible
 	bool to_board = !(to_hand || to_swap);
 	Cell to_cell;
 	if (to_board) {
@@ -965,9 +1003,9 @@ void TopWindow::ReleaseActiveTile(Point const &rMouse) {
     }
 
 	// Check whether the new partial move is legal.
-    Move move_so_far = mGameView.GetMove(true);
+    Move const move_so_far = mGameView.GetMove(true);
     char const *reason;
-	bool legal = mpGame->IsLegalMove(move_so_far, reason);
+	bool const legal = mpGame->IsLegalMove(move_so_far, reason);
 
 	if (!legal && (to_swap || !::str_eq(reason, "FIRST"))) {  
 		// It's illegal, even as a partial move:  reverse it.
@@ -1027,26 +1065,21 @@ void TopWindow::ResignHand(void) {
 	move.MakeResign(Tiles(mGameView));
     mpGame->FinishTurn(move);
 
-    if (mpGame->IsOver()) {
-        mpMenuBar->GameOver();
-	} else {
+    if (!mpGame->IsOver()) {
 		// the game isn't over, so proceed to the next hand
-		Hand hand = Hand(*mpGame);
-		if (hand.IsLocalPlayer()) {
-	        SavePlayerOptions(hand);
+		Hand const old_hand = Hand(*mpGame);
+		if (old_hand.IsLocalPlayer()) {
+	        SavePlayerOptions(old_hand);
 		}
+		String const old_player_name = old_hand.PlayerName();
 
 		mpGame->ActivateNextHand();
-		hand = Hand(*mpGame);
-		if (hand.IsLocalPlayer()) {
-            LoadPlayerOptions(hand);
-		}
-		if (!hand.IsLocalPlayer() || !mpMenuBar->IsAutopause()) {
-			mpGame->StartClock();
-		}
-    }
+		ChangeHand(old_player_name);
 
-    mGameView.Reset();
+	} else {
+		// the game is over
+        mpMenuBar->GameOver();
+    }
 }
 
 void TopWindow::Resize(PCntType clientAreaWidth, PCntType clientAreaHeight) {
@@ -1065,37 +1098,33 @@ void TopWindow::RestartGame(void) {
 	if (!IsGameOver()) {
 	    mpGame->StopClock();
 	}
-	Hand hand = Hand(*mpGame);
-	if (hand.IsLocalPlayer()) {
-	    SavePlayerOptions(hand);
+	Hand const old_hand = Hand(*mpGame);
+	if (old_hand.IsLocalPlayer()) {
+	    SavePlayerOptions(old_hand);
 	}
+	String const old_player_name = old_hand.PlayerName();
 
 	mpGame->Restart();
 	mGameView.Reset();
-
-	hand = Hand(*mpGame);
-	if (hand.IsLocalPlayer()) {
-        LoadPlayerOptions(hand);
-    }
-	if (!hand.IsLocalPlayer() || !mpMenuBar->IsAutopause()) {
-		mpGame->StartClock();
-	}
+	ChangeHand(old_player_name);
 }
 
 void TopWindow::RuleBox(char const *reason) {
 	// expand reason shortcuts
 	String title;
-	String message = Board::ReasonMessage(reason, title);
+	String const message = Board::ReasonMessage(reason, title);
 
 	title += " - Gold Tile";
 	ErrorBox(message, title);
 }
 
 void TopWindow::SavePlayerOptions(Hand const &rHand) const {
-	String player_name = rHand.PlayerName();
+	String const player_name = rHand.PlayerName();
+
 	Player &r_player = Player::rLookup(player_name);
 	mpMenuBar->SavePlayerOptions(r_player);
-	Point start_cell_position = mGameView.StartCellPosition();
+
+	Point const start_cell_position = mGameView.StartCellPosition();
 	r_player.SetStartCellPosition(start_cell_position);
 }
 
@@ -1115,16 +1144,13 @@ void TopWindow::SetGame(Game *pGame) {
     SetTileWidth(IDM_LARGE_TILES);
 
 	if (HasGame()) {
-	    Hands hands = Hands(*mpGame);
+	    Hands const hands = Hands(*mpGame);
 		Hands::ConstIterator i_hand;
 		for (i_hand = hands.begin(); i_hand != hands.end(); i_hand++) {
 			SavePlayerOptions(*i_hand);
 		}
 
-	    Hand hand = Hand(*mpGame);
-	    if (!hand.IsLocalPlayer() || !mpMenuBar->IsAutopause()) {
-		    mpGame->StartClock();
-	    }
+		ChangeHand("");
 	}
 
 	ForceRepaint();
@@ -1150,6 +1176,7 @@ void TopWindow::StopDragging(void) {
 	ASSERT(!IsMouseCaptured());
 }
 
+// code executed by the think fiber
 void TopWindow::Think(void) {
 	for (;;) {
 		while (!mThinking) {
@@ -1161,7 +1188,7 @@ void TopWindow::Think(void) {
 		ForceRepaint();
 
 		// pause 800 milliseconds to faciliate human comprehension
-		long start = ::milliseconds();
+		MsecIntervalType start = ::milliseconds();
 		while (::milliseconds() <= start + 800) {
 		    Yields();
 		}
@@ -1195,42 +1222,20 @@ void TopWindow::UndoTurn(void) {
 	if (!IsGameOver()) {
 	    mpGame->StopClock();
 	}
-	Hand hand = Hand(*mpGame);
-	if (hand.IsLocalPlayer()) {
-	    SavePlayerOptions(hand);
+	Hand const old_hand = Hand(*mpGame);
+	if (old_hand.IsLocalPlayer()) {
+	    SavePlayerOptions(old_hand);
 	}
+	String const old_player_name = old_hand.PlayerName();
 
     mpGame->Undo();
 	mGameView.Reset();
-
-	hand = Hand(*mpGame);
-	if (hand.IsLocalPlayer()) {
-        LoadPlayerOptions(hand);
-    }
-	if (!hand.IsLocalPlayer() || !mpMenuBar->IsAutopause()) {
-		mpGame->StartClock();
-	}
+	ChangeHand(old_player_name);
 }
 
 void TopWindow::UpdateMenuBar(void) {
 	mpMenuBar->Update();
     Window::UpdateMenuBar();
-}
-
-int TopWindow::WarnBox(char const *messageText) {
-	String message = messageText;
-	String title = "Information";
-
-	// expand shortcuts
-	if (::str_eq(message, "FEWTILES")) {
-		message = "You haven't created enough tiles to fill all the hands.";
-		title = "Too Few Tiles";
-	}
-
-	title += " - Gold Tile";
-	int result = Window::WarnBox(message, title);
-
-	return result;
 }
 
 
@@ -1246,7 +1251,7 @@ bool TopWindow::AreUnsavedChanges(void) const {
 }
 
 bool TopWindow::HasGame(void) const {
-	bool result = (mpGame != NULL);
+	bool const result = (mpGame != NULL);
 
 	return result;
 }

@@ -47,7 +47,7 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 
 TileIdType Board::GetId(Cell const &rCell) const {
     TileIdType result = 0;
-    Tile const *p_tile = GetCell(rCell);
+    Tile const *const p_tile = GetCell(rCell);
 	if (p_tile != NULL) {
 		result = p_tile->Id();
 	}
@@ -108,8 +108,8 @@ Tiles Board::GetTiles(Cells const &rCells) const {
 }
 
 bool Board::LocateTile(Tile const &rTile, Cell &rCell) const {
-	TileIdType id = rTile.Id();
-	bool result = BaseBoard::LocateTileId(id, rCell);
+	TileIdType const id = rTile.Id();
+	bool const result = BaseBoard::LocateTileId(id, rCell);
 
 	return result;
 }
@@ -122,8 +122,8 @@ void Board::PlayMove(Move const &rMove) {
 }
 
 void Board::PlayTile(TileCell const &rTileCell) {
-    Cell cell = Cell(rTileCell);
-    Tile tile = rTileCell.operator Tile();
+    Cell const cell = Cell(rTileCell);
+    Tile const tile = rTileCell.operator Tile();
     ASSERT(HasEmptyCell(cell));
     PlayOnCell(cell, tile);
 }
@@ -135,7 +135,7 @@ unsigned Board::ScoreDirection(
     ASSERT(!HasEmptyCell(rCell));
     
     Cell first_cell, last_cell;
-    unsigned length = GetLimits(rCell, direction, first_cell, last_cell);
+    unsigned const length = GetLimits(rCell, direction, first_cell, last_cell);
 
 	unsigned result = 0;
     if (length > 1) {
@@ -153,7 +153,7 @@ unsigned Board::ScoreDirection(
 		// double the score for every bonus tile in this row/column/diagonal
         Cell i_cell(first_cell);
 		for (unsigned i = 0; i < length; i++) {
-            Tile tile = GetTile(i_cell);
+            Tile const tile = GetTile(i_cell);
 			if (tile.HasBonus()) {
 				result *= 2;
 			}
@@ -239,7 +239,7 @@ unsigned Board::ScoreDirection(
 unsigned Board::ScoreMove(Move const &rMove) const {
     unsigned result = 0;
     
-    Cells cells = Cells(rMove);
+    Cells const cells = Cells(rMove);
     
     for (int dir = DIRECTION_FIRST; 
              dir <= DIRECTION_LAST_POSITIVE;
@@ -251,7 +251,7 @@ unsigned Board::ScoreMove(Move const &rMove) const {
 
             Cells::ConstIterator i_cell;
             for (i_cell = cells.begin(); i_cell != cells.end(); i_cell++) {
-                IndexType ortho = i_cell->Ortho(direction);
+                IndexType const ortho = i_cell->Ortho(direction);
                 if (!done_ortho.Contains(ortho)) {
                     result += ScoreDirection(*i_cell, direction);        
                     done_ortho.Add(ortho);
@@ -267,7 +267,7 @@ void Board::UnplayMove(Move const &rMove) {
     Move::ConstIterator i_place;
     for (i_place = rMove.Begin(); i_place != rMove.End(); i_place++) {
 		ASSERT(!i_place->IsSwap());
-		Cell cell = Cell(*i_place);
+		Cell const cell = Cell(*i_place);
         MakeEmpty(cell);
     }
 }
@@ -282,7 +282,7 @@ bool Board::AreAllCompatible(Cells const &rCells, DirectionType direction) const
         
     Cells::ConstIterator i_cell;
     for (i_cell = rCells.begin(); i_cell != rCells.end(); i_cell++) {
-        IndexType ortho = i_cell->Ortho(direction);
+        IndexType const ortho = i_cell->Ortho(direction);
         if (!done_orthos.Contains(ortho)) {
             if (!IsDirectionCompatible(*i_cell, direction)) {
                 result = false;
@@ -300,7 +300,7 @@ bool Board::AreAllCompatible(Cells const &rCells) const {
     bool result = true;
 
     if (rCells.Count() > 1) {
-        Tiles tiles = GetTiles(rCells);
+        Tiles const tiles = GetTiles(rCells);
         if (!tiles.AreAllCompatible()) {
             result = false;
         }
@@ -325,15 +325,15 @@ bool Board::AreAllEmpty(Cells const &rCells) const {
 
 bool Board::Contains(Tile const &rTile) const {
 	Cell cell;
-	TileIdType id = rTile.Id();
-	bool result = LocateTileId(id, cell);
+	TileIdType const id = rTile.Id();
+	bool const result = LocateTileId(id, cell);
 
 	return result;
 }
 
 bool Board::ContainsId(TileIdType id) const {
 	Cell cell;
-	bool result = LocateTileId(id, cell);
+	bool const result = LocateTileId(id, cell);
 
 	return result;
 }
@@ -343,7 +343,7 @@ bool Board::DoesAnyHaveNeighbor(Cells const &rCells) const {
     
     Cells::ConstIterator i_cell;
     for (i_cell = rCells.begin(); i_cell != rCells.end(); i_cell++) {
-		Cell cell = *i_cell;
+		Cell const cell = *i_cell;
         if (HasNeighbor(cell)) {
             result = true;
             break;
@@ -354,8 +354,8 @@ bool Board::DoesAnyHaveNeighbor(Cells const &rCells) const {
 }
 
 bool Board::HasEmptyCell(Cell const &rCell) const {
-    Tile const *p_tile = GetCell(rCell);
-    bool result = (p_tile == NULL);
+    Tile const *const p_tile = GetCell(rCell);
+    bool const result = (p_tile == NULL);
 
     return result;
 }
@@ -366,7 +366,7 @@ bool Board::HasNeighbor(Cell const &rCell) const {
     for (int i_dir = DIRECTION_FIRST; i_dir <= DIRECTION_LAST; i_dir++) {
 	    DirectionType direction = DirectionType(i_dir);
 		if (rCell.HasNeighbor(direction)) {
-            Cell look(rCell, direction);
+            Cell const look(rCell, direction);
 			ASSERT(look.IsValid());
             if (!HasEmptyCell(look)) {
                 result = true;
@@ -387,7 +387,7 @@ bool Board::IsConnectedDirection(Cells const &rCells, DirectionType direction) c
         Cell first_cell = *i_cell;
         Cell last_cell = *i_cell;
         for (i_cell++ ; i_cell != rCells.end(); i_cell++) {
-			Cell cell = *i_cell;
+			Cell const cell = *i_cell;
 			ASSERT(cell != first_cell);
             if (first_cell.Ortho(direction) != cell.Ortho(direction)) {
                 return false;
@@ -427,9 +427,9 @@ bool Board::IsDirectionCompatible(Cell const &rCell, DirectionType direction) co
     bool result = true;
     
     for (Cell cell1 = first_cell; cell1 != last_cell; cell1.Next(direction)) {
-        Tile t1 = GetTile(cell1);
+        Tile const t1 = GetTile(cell1);
         for (Cell cell2(cell1, direction); cell2 != end_cell; cell2.Next(direction)) {
-            Tile t2 = GetTile(cell2);
+            Tile const t2 = GetTile(cell2);
             if (!t1.IsCompatibleWith(&t2)) {
                 result = false;
                 break;
@@ -441,14 +441,15 @@ bool Board::IsDirectionCompatible(Cell const &rCell, DirectionType direction) co
 }
 
 bool Board::IsEmpty(void) const {
-	bool result = (Count() == 0);
+	bool const result = (Count() == 0);
 
 	return result;
 }
 
 bool Board::IsValidMove(Move const &rMove) const {
 	char const *reason;
-	bool result = IsValidMove(rMove, reason);
+	bool const result = IsValidMove(rMove, reason);
+	// forget the reason
 
 	return result;
 }
@@ -499,7 +500,7 @@ bool Board::IsValidMove(Move const &rMove, char const *&rReason) const {
              dir <= DIRECTION_LAST_POSITIVE;
              dir++)
         {
-            DirectionType direction = DirectionType(dir);
+            DirectionType const direction = DirectionType(dir);
 			if (::is_scoring_direction(direction)) {
                 if (cells.AreAllInSameOrtho(direction)) {
                     direction_of_play = direction;

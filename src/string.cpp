@@ -93,7 +93,7 @@ void String::Capitalize(void) {
 
 	for (unsigned i_char = 0; i_char < Length(); i_char++) {
         char ch = at(i_char);
-		bool is_graphic = (::isgraph(ch) != 0);
+		bool const is_graphic = (::isgraph(ch) != 0);
 
 		if (!is_graphic) {
 			ch = space;
@@ -109,23 +109,21 @@ void String::Capitalize(void) {
 	}
 
 	*this = result;
-	unsigned len = Length();
+	unsigned const len = Length();
 	if (len > 0 && at(len - 1) == space) {  // trailing non-graphic character
 		erase(len - 1, 1);  // trim it
 	}
 }
 
 unsigned String::Length(void) const {
-	unsigned result = size();
+	unsigned const result = size();
 
 	return result;
 }
 
 // enclose the string in single quotes
 String String::Quote(void) const {
-	String result;
-
-	result = "'" + *this + "'";
+	String const result("'" + *this + "'");
 
 	return result;
 }
@@ -134,7 +132,7 @@ String String::Quote(void) const {
 // inquiry methods
 
 bool String::IsEmpty(void) const {
-	bool result = (Length() == 0);
+	bool const result = (Length() == 0);
 
 	return result;
 }

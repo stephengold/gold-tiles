@@ -91,17 +91,19 @@ BaseBoard::operator Tiles(void) const {
 
     CellConstIterator i_cell;
 	for (i_cell = mCells.begin(); i_cell != mCells.end(); i_cell++) {
-		Tile tile = i_cell->second;
+		Tile const tile = i_cell->second;
 		result.Add(tile);
 	}
 
 	return result;
 }
 
+
 // misc methods
 
 unsigned BaseBoard::Count(void) const {
-	unsigned result = mCells.size();
+	unsigned const result = mCells.size();
+
 	ASSERT(mTiles.size() == result);
 
 	return result;
@@ -114,13 +116,13 @@ IndexType BaseBoard::EastMax(void) const {
 
 // get iterators to specific cells
 BaseBoard::CellConstIterator BaseBoard::Find(IndexType northing, IndexType easting) const {
-    Cell ref(northing, easting);
+    Cell const ref(northing, easting);
     CellConstIterator result = mCells.find(ref);
 
     return result;
 }
 BaseBoard::CellIterator BaseBoard::Find(IndexType northing, IndexType easting) {
-    Cell ref(northing, easting);
+    Cell const ref(northing, easting);
     CellIterator result = mCells.find(ref);
 
     return result;
@@ -141,25 +143,26 @@ Tile const *BaseBoard::GetCell(Cell const &rSquare) const {
 // locate the Cell which contains a specific Tile
 bool BaseBoard::LocateTileId(TileIdType id, Cell &rCell) const {
     TileConstIterator i_tile = mTiles.find(id);
-    bool result = (i_tile != mTiles.end());
+    bool const result = (i_tile != mTiles.end());
     if (result) {
         rCell = i_tile->second;
     }
+
     return result;
 }
 
 // make a specific cell empty
 void BaseBoard::MakeEmpty(Cell const &rCell) {
-    IndexType row = rCell.Row();
-    IndexType column = rCell.Column();
+    IndexType const row = rCell.Row();
+    IndexType const column = rCell.Column();
     
     CellIterator i_cell = Find(row, column);
-    Tile tile = i_cell->second;
-    TileIdType id = tile.Id();
+    Tile const tile = i_cell->second;
+    TileIdType const id = tile.Id();
     ASSERT(i_cell != mCells.end());
     mCells.erase(i_cell);
     
-    TileIterator i_tile = mTiles.find(id);
+    TileIterator const i_tile = mTiles.find(id);
     ASSERT(i_tile != mTiles.end());
     mTiles.erase(i_tile);
 
@@ -192,7 +195,7 @@ IndexType BaseBoard::NorthMax(void) const {
 // play a Tile on a specific cell
 void BaseBoard::PlayOnCell(Cell const &rCell, Tile const &rTile) {
     ASSERT(GetCell(rCell) == NULL);
-    TileIdType id = rTile.Id();
+    TileIdType const id = rTile.Id();
     ASSERT(mTiles.find(id) == mTiles.end());
 
     // expand the limits as needed
@@ -236,7 +239,7 @@ bool BaseBoard::IsEmptyColumn(IndexType column) const {
     bool result = true;
     
     for (IndexType row = -mWestMax; row <= mEastMax; row++) {
-        CellConstIterator i_cell = Find(row, column);
+        CellConstIterator const i_cell = Find(row, column);
         if (i_cell != mCells.end()) {
             result = false;
             break;
@@ -250,7 +253,7 @@ bool BaseBoard::IsEmptyRow(IndexType row) const {
     bool result = true;
     
     for (IndexType column = -mSouthMax; column <= mNorthMax; column++) {
-        CellConstIterator i_cell = Find(row, column);
+        CellConstIterator const i_cell = Find(row, column);
         if (i_cell != mCells.end()) {
             result = false;
             break;

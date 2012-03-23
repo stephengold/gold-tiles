@@ -94,7 +94,7 @@ void Partial::AddValidNextUses(
 {
     Cells::ConstIterator i_cell;
     for (i_cell = rBasis.begin(); i_cell != rBasis.end(); i_cell++) {
-        Cell cell = *i_cell;
+        Cell const cell = *i_cell;
         if (!mHintedCells.Contains(cell) 
          && IsValidNextStep(rMove, cell, rTile))
         {
@@ -108,7 +108,7 @@ void Partial::BoardToHand(void) {
     ASSERT(IsOnBoard(mActiveId));
     ASSERT(!IsInHand(mActiveId));
     
-    Cell cell = LocateTile(mActiveId);
+    Cell const cell = LocateTile(mActiveId);
     mBoard.MakeEmpty(cell);
     --mPlayedTileCnt;
     mHintedCellsValid = false;
@@ -121,7 +121,7 @@ void Partial::BoardToHand(void) {
 unsigned Partial::CountHand(void) const {
     ASSERT(CountTiles() >= CountPlayed() + CountSwap());
     
-    unsigned result = CountTiles() - CountPlayed() - CountSwap();
+    unsigned const result = CountTiles() - CountPlayed() - CountSwap();
     
     return result; 
 }
@@ -132,7 +132,7 @@ unsigned Partial::CountHinted(void) {
     }
     ASSERT(mHintedCellsValid);
 
-    unsigned result = mHintedCells.Count();
+    unsigned const result = mHintedCells.Count();
 
 	return result;
 }
@@ -142,7 +142,7 @@ unsigned Partial::CountPlayed(void) const {
 }
 
 unsigned Partial::CountSwap(void) const {
-    unsigned result = mSwapIds.Count();
+    unsigned const result = mSwapIds.Count();
     
     ASSERT(result <= CountTiles());
     ASSERT(!HasGame() || result <= mpGame->CountStock());
@@ -151,7 +151,7 @@ unsigned Partial::CountSwap(void) const {
 }
 
 unsigned Partial::CountTiles(void) const {
-    unsigned result = mTiles.Count();
+    unsigned const result = mTiles.Count();
     
     return result; 
 }
@@ -166,10 +166,10 @@ void Partial::Deactivate(void) {
 void Partial::FindBestMove(Partial &rBest, unsigned &rBestScore) const {
     ASSERT(HasGame());
 
-	Partial temp = *this;
+	Partial temp = *this; // make a temporary copy
     temp.Deactivate();
     temp.SetHintStrength(HINT_USABLE_SELECTED);
-    unsigned score = temp.Score();
+    unsigned const score = temp.Score();
 
     if (score > rBestScore) {        
         rBest = temp;
@@ -177,17 +177,18 @@ void Partial::FindBestMove(Partial &rBest, unsigned &rBestScore) const {
     }
 
 	for (unsigned i = 0; i < CountTiles(); i++) {
-        Tile tile = mTiles[i];
-	    TileIdType id = tile.Id();
+        Tile const tile = mTiles[i];
+	    TileIdType const id = tile.Id();
 	    if (temp.IsInHand(id)) {
 			Yields();
 
             temp.Activate(id);
             temp.SetHintedCells();
-            Cells cells = temp.mHintedCells;
+            Cells const cells = temp.mHintedCells;
+
             Cells::ConstIterator i_cell;
             for (i_cell = cells.begin(); i_cell != cells.end(); i_cell++) {
-                Cell cell = *i_cell;
+                Cell const cell = *i_cell;
                 temp.HandToCell(cell);
                 temp.FindBestMove(rBest, rBestScore);
                 temp.BoardToHand();
@@ -203,8 +204,8 @@ Cell Partial::FirstHinted(void) {
     }
     ASSERT(mHintedCellsValid);
 	ASSERT(!mHintedCells.IsEmpty());
-    Cells::ConstIterator i_cell = mHintedCells.begin();
-	Cell result = *i_cell;
+    Cells::ConstIterator const i_cell = mHintedCells.begin();
+	Cell const result = *i_cell;
 
 	return result;
 }
@@ -225,7 +226,7 @@ TileIdType Partial::GetActive(void) const {
 TileIdType Partial::GetCellTile(Cell const &rCell) const {
     TileIdType result = Tile::ID_NONE;
     
-    Tile const *p_tile = mBoard.GetCell(rCell);
+    Tile const *const p_tile = mBoard.GetCell(rCell);
     if (p_tile != NULL) {
         result = p_tile->Id();
     }
@@ -237,8 +238,8 @@ Move Partial::GetMove(bool includeActiveFlag) const {
     Move result;
     
     for (unsigned i = 0; i < CountTiles(); i++) {
-        Tile tile = GetTileByIndex(i);
-        TileIdType id = tile.Id();
+        Tile const tile = GetTileByIndex(i);
+        TileIdType const id = tile.Id();
 		if (includeActiveFlag || !IsActive(id)) {
             Cell cell;
             if (mBoard.LocateTileId(id, cell)) {
@@ -263,7 +264,7 @@ Tile Partial::GetTileById(TileIdType id) const {
         Cell cell;
         bool found = mBoard.LocateTileId(id, cell);
         ASSERT(found);
-        Tile const *p_tile = mBoard.GetCell(cell);
+        Tile const *const p_tile = mBoard.GetCell(cell);
         ASSERT(p_tile != NULL);
         result = *p_tile;
     }
@@ -275,7 +276,7 @@ Tile Partial::GetTileById(TileIdType id) const {
 Tile Partial::GetTileByIndex(unsigned i) const {
     ASSERT(i < mTiles.Count());
 
-    Tile result = mTiles[i];
+    Tile const result = mTiles[i];
     
     return result;                       
 }
@@ -286,7 +287,7 @@ void Partial::HandToCell(Cell const &cell) {
 	ASSERT(mBoard.HasEmptyCell(cell));
 	ASSERT(!IsOnBoard(mActiveId));
 
-    Tile tile = mTiles.FindTile(mActiveId);
+    Tile const tile = mTiles.FindTile(mActiveId);
     mBoard.PlayOnCell(cell, tile);
     ++mPlayedTileCnt;
     mHintedCellsValid = false;
@@ -308,7 +309,7 @@ void Partial::HandToSwap(void) {
 
 Cell Partial::LocateTile(TileIdType id) const {
     Cell result;
-    bool success = mBoard.LocateTileId(id, result);
+    bool const success = mBoard.LocateTileId(id, result);
     ASSERT(success);
     
     return result;
@@ -317,8 +318,8 @@ Cell Partial::LocateTile(TileIdType id) const {
 unsigned Partial::Score(void) const {
     ASSERT(GetActive() == Tile::ID_NONE);
     
-    Move move = GetMove(false);
-    unsigned result = mBoard.ScoreMove(move);
+    Move const move = GetMove(false);
+    unsigned const result = mBoard.ScoreMove(move);
     
     return result;
 }
@@ -336,20 +337,20 @@ void Partial::SetHintedCells(void) {
 
     // hint all valid empty cells (from start of turn)
 	int row_fringe = 1;
-	int column_fringe = 1;
+	int const column_fringe = 1;
 	if (Cell::Grid() == GRID_HEX) {
 		row_fringe = 2;
 	}
-    IndexType top_row = row_fringe + mBoard.NorthMax();
-    IndexType bottom_row = -row_fringe - mBoard.SouthMax();
-    IndexType right_column = column_fringe + mBoard.EastMax();
-    IndexType left_column = -column_fringe - mBoard.WestMax();
+    IndexType const top_row = row_fringe + mBoard.NorthMax();
+    IndexType const bottom_row = -row_fringe - mBoard.SouthMax();
+    IndexType const right_column = column_fringe + mBoard.EastMax();
+    IndexType const left_column = -column_fringe - mBoard.WestMax();
     ASSERT(bottom_row <= top_row);
     ASSERT(left_column <= right_column);
     for (IndexType row = top_row; row >= bottom_row; row--) {
         for (IndexType column = left_column; column <= right_column; column++) {
 			if (Cell::IsValid(row, column)) {
-                Cell cell(row, column);
+                Cell const cell(row, column);
                 if (mpGame->HasEmptyCell(cell)) {
                     mHintedCells.Add(cell);
                 }
@@ -365,12 +366,12 @@ void Partial::SetHintedCells(void) {
 	Cells base = mHintedCells;
 	mHintedCells.MakeEmpty();
 	if (mBoard.IsEmpty()) {
-        Cell start;
-        mHintedCells.Add(start);
+        Cell const start_cell;
+        mHintedCells.Add(start_cell);
     } else {
         Cells::Iterator i_cell;
         for (i_cell = base.begin(); i_cell != base.end(); i_cell++) {
-            Cell cell = *i_cell;
+            Cell const cell = *i_cell;
             if (mBoard.HasNeighbor(cell)) {
                 mHintedCells.Add(cell);
             }
@@ -390,8 +391,8 @@ void Partial::SetHintedCells(void) {
     Move move = GetMove(false);
 
 	for (unsigned i = 0; i < CountTiles(); i++) {
-        Tile tile = mTiles[i];
-	    TileIdType id = tile.Id();
+        Tile const tile = mTiles[i];
+	    TileIdType const id = tile.Id();
         bool include_tile = (!mBoard.ContainsId(id) || id == mActiveId);
         if (mHintStrength == HINT_USABLE_SELECTED && mActiveId != Tile::ID_NONE) {
             include_tile = (mActiveId == id);
@@ -433,7 +434,7 @@ void Partial::Suggest(void) {
     ASSERT(HasGame());
 	Reset();
 
-    Partial best = *this;
+    Partial best = *this; // make a copy
     unsigned best_score = 0;
     FindBestMove(best, best_score);
     if (best_score == 0 && CanSwapAll()) {
@@ -450,8 +451,8 @@ void Partial::SwapAll(void) {
     ASSERT(CanSwapAll());
 
 	for (unsigned i = 0; i < CountTiles(); i++) {
-        Tile tile = mTiles[i];
-	    TileIdType id = tile.Id();
+        Tile const tile = mTiles[i];
+	    TileIdType const id = tile.Id();
 		if (!mSwapIds.Contains(id)) {
 	        mSwapIds.Add(id);
 		}
@@ -472,7 +473,7 @@ void Partial::SwapToHand(void) {
 
 /* static */ void Partial::Yields(void) {
 	if (mspYieldFunction != NULL) {
-           (*mspYieldFunction)(mspYieldArgument);
+        (*mspYieldFunction)(mspYieldArgument);
     }
 }
 
@@ -506,27 +507,27 @@ bool Partial::CanUndo(void) const {
 }
 
 bool Partial::Contains(TileIdType id) const {
-     bool result = mTiles.ContainsId(id);     
+     bool const result = mTiles.ContainsId(id);     
 
      return result;
 }
 
 bool Partial::HasGame(void) const {
-     bool result = (mpGame != NULL);
+     bool const result = (mpGame != NULL);
      
      return result;
 }
 
 bool Partial::IsActive(TileIdType id) const {
     ASSERT(id != Tile::ID_NONE);
-    bool result = (mActiveId == id);
+    bool const result = (mActiveId == id);
     
     return result;
 }
 
 bool Partial::IsEmpty(Cell const &rCell) const {
-    Tile const *p_tile = mBoard.GetCell(rCell);
-    bool result = (p_tile == NULL);
+    Tile const *const p_tile = mBoard.GetCell(rCell);
+    bool const result = (p_tile == NULL);
 
     return result;
 }
@@ -578,16 +579,15 @@ bool Partial::IsInHand(TileIdType id) const {
 }
 
 bool Partial::IsInSwap(TileIdType id) const {
-    bool result = mSwapIds.Contains(id);
+    bool const result = mSwapIds.Contains(id);
     
     return result;
 }
 
-
 bool Partial::IsLocalPlayer(void) const {
 	bool result = false;
 	if (HasGame() && !IsGameOver()) {
-		Hand hand = Hand(*mpGame);
+		Hand const hand = Hand(*mpGame);
 		result = !hand.IsAutomatic();
 	}
 
@@ -595,13 +595,13 @@ bool Partial::IsLocalPlayer(void) const {
 }
 
 bool Partial::IsOnBoard(TileIdType id) const {
-    bool result = mBoard.ContainsId(id);
+    bool const result = mBoard.ContainsId(id);
     
     return result;
 }
 
 bool Partial::IsPass(void) const {
-    bool result = (CountPlayed() + CountSwap() == 0);
+    bool const result = (CountPlayed() + CountSwap() == 0);
 
     return result;
 }
@@ -629,25 +629,25 @@ bool Partial::IsValidNextStep(
 
 bool Partial::IsVisible(Cell const &rCell) {
 	int row_fringe = 1;
-	int column_fringe = 1;
+	int const column_fringe = 1;
 	if (Cell::Grid() == GRID_HEX) {
 		row_fringe = 2;
 	}
 
-    IndexType top_row = row_fringe + mBoard.NorthMax();
-    IndexType bottom_row = -row_fringe - mBoard.SouthMax();
-    IndexType right_column = column_fringe + mBoard.EastMax();
-    IndexType left_column = -column_fringe - mBoard.WestMax();
+    IndexType const top_row = row_fringe + mBoard.NorthMax();
+    IndexType const bottom_row = -row_fringe - mBoard.SouthMax();
+    IndexType const right_column = column_fringe + mBoard.EastMax();
+    IndexType const left_column = -column_fringe - mBoard.WestMax();
     ASSERT(bottom_row <= top_row);
     ASSERT(left_column <= right_column);
 
-	IndexType row = rCell.Row();
-	IndexType column = rCell.Column();
+	IndexType const row = rCell.Row();
+	IndexType const column = rCell.Column();
 
-	bool result = (row >= bottom_row) 
-		       && (row <= top_row)
-			   && (column >= left_column)
-			   && (column <= right_column);
+	bool const result = (row >= bottom_row) 
+		             && (row <= top_row)
+			         && (column >= left_column)
+			         && (column <= right_column);
 
 	return result;
 }

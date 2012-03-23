@@ -31,32 +31,37 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 #include <time.h>
 #endif // !defined(WIN32)
 
+
 void assertion_failed(const char *file, unsigned line) {
     std::cout << "Assertion failed at line " << line << " in " << file << std::endl;
+
+	// A pause is needed when running in a console window because the windown will
+	// be destroyed soon after exit() is called.
     ::pause();
+
     ::exit(EXIT_FAILURE);
 }
 
 bool is_even(long number) {
-	bool result = ((number & 0x1) == 0);
+	bool const result = ((number & 0x1) == 0);
 
 	return result;
 }
 
 bool is_odd(long number) {
-	bool result = ((number & 0x1) == 0x1);
+	bool const result = ((number & 0x1) == 0x1);
 
 	return result;
 }
 
-long milliseconds(void) {
-	long result;
+MsecIntervalType milliseconds(void) {
+	MsecIntervalType result;
 #ifdef WIN32
-	Win::DWORD ticks = Win::GetTickCount();
-    result = long(ticks);
+	Win::DWORD const ticks = Win::GetTickCount();
+    result = MsecIntervalType(ticks);
 #else // !defined(WIN32)
-	time_t seconds = ::time(NULL);
-	result = MSECS_PER_SECOND*long(seconds);
+	time_t const seconds = ::time(NULL);
+	result = MSECS_PER_SECOND*MsecIntervalType(seconds);
 #endif // !defined(WIN32)
 
 	return result;
@@ -65,8 +70,8 @@ long milliseconds(void) {
 String ordinal(unsigned n) {
     String result(n);
 
-	unsigned ones_place = n % 10;
-	unsigned tens_place = (n / 10) % 10;
+	unsigned const ones_place = n % 10;
+	unsigned const tens_place = (n / 10) % 10;
 
 	if (tens_place == 1) {
 		result += "th";
@@ -100,13 +105,13 @@ String plural(unsigned n, const char *noun) {
     String result = String(n);
 	result += " ";
 	result += noun;
-	result += plural(n);
+	result += ::plural(n);
 
     return result;
 }
 
 bool str_eq(char const *string1, char const *string2) {
-	bool result = (::strcmp(string1, string2) == 0);
+	bool const result = (::strcmp(string1, string2) == 0);
 
 	return result;
 }

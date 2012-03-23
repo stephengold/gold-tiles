@@ -21,7 +21,6 @@ You should have received a copy of the GNU General Public License
 along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "string.hpp"
 #include "tilecell.hpp"
 
 
@@ -38,7 +37,8 @@ TileCell::TileCell(Tile const &rTile):
 }
 
 TileCell::TileCell(Tile const &rTile, Cell const &rCell):
-    mTile(rTile), mCell(rCell)
+    mTile(rTile), 
+	mCell(rCell)
 {
 	mSwapFlag = false;
 }
@@ -79,7 +79,7 @@ TileCell::operator Cell(void) const {
 
 TileCell::operator String(void) const {
 	String result = String(mTile);
-	if (mSwapFlag) {
+	if (IsSwap()) {
 		result += "@swap";
 	} else {
 		result += "@";
@@ -97,7 +97,7 @@ TileCell::operator Tile(void) const {
 // misc methods
 
 String TileCell::GetUserChoice(Tiles const &rAvailableTiles, Strings const &rAlts) {
-    String result = mTile.GetUserChoice(rAvailableTiles, rAlts);
+    String const result = mTile.GetUserChoice(rAvailableTiles, rAlts);
 	if (result == String(mTile)) {
         mSwapFlag = mCell.GetUserChoice("swap");
 	}

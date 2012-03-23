@@ -113,10 +113,9 @@ String GameView::ClockText(Hand &rHand) const {
 		seconds = -seconds;
 	}
 
-	unsigned minutes, tens_of_seconds;
-	minutes = seconds / SECONDS_PER_MINUTE;
+	unsigned minutes = seconds / SECONDS_PER_MINUTE;
 	seconds -= minutes*SECONDS_PER_MINUTE;
-    tens_of_seconds = seconds / 10;
+    unsigned tens_of_seconds = seconds / 10;
 	seconds -= tens_of_seconds*10;
 
 	ASSERT(seconds >= 0);
@@ -127,7 +126,7 @@ String GameView::ClockText(Hand &rHand) const {
 
 	String result;
 	if (minus_sign) {
-		result += "-";
+		result = "-";
 	}
 	result += String(minutes) + ":" 
 		   + String(tens_of_seconds) + String(seconds);
@@ -268,8 +267,8 @@ void GameView::DrawBlankTile(Canvas &rCanvas, Point const &rCenter, bool oddFlag
 void GameView::DrawBoard(Canvas &rCanvas, unsigned showLayer) {
     Board board = Board(*this);
 
+	int const column_fringe = 1;
 	int row_fringe = 1;
-	int column_fringe = 1;
 	if (Cell::Grid() == GRID_HEX) {
 		row_fringe = 2;
 	}
@@ -282,7 +281,7 @@ void GameView::DrawBoard(Canvas &rCanvas, unsigned showLayer) {
     ASSERT(left_column <= right_column);
 
 	unsigned swap_cnt = CountSwap();
-	TileIdType active_tile = GetActive();
+	TileIdType const active_tile = GetActive();
 	if (IsInSwap(active_tile)) {
 	    ASSERT(swap_cnt > 0);
 		--swap_cnt;
@@ -301,9 +300,9 @@ void GameView::DrawBoard(Canvas &rCanvas, unsigned showLayer) {
             if (CellX(column) > LogicalXType(mpWindow->ClientAreaWidth())) {
                 break;
             } else if (Cell::IsValid(row, column)) {
-                Cell cell(row, column);
-				bool hinted = IsHinted(cell);
-				bool empty = IsEmpty(cell);
+                Cell const cell(row, column);
+				bool const hinted = IsHinted(cell);
+				bool const empty = IsEmpty(cell);
 				unsigned layer = 0;
 				if (hinted || empty) {
 					layer = 1;
@@ -317,14 +316,14 @@ void GameView::DrawBoard(Canvas &rCanvas, unsigned showLayer) {
 }
 
 void GameView::DrawCell(Canvas &rCanvas, Cell const &rCell, unsigned swapCnt) {
-	IndexType row = rCell.Row();
-    IndexType column = rCell.Column();
-	LogicalXType center_x = CellX(column);
-    LogicalYType center_y = CellY(row);
-    Point center(center_x, center_y);
+	IndexType const row = rCell.Row();
+    IndexType const column = rCell.Column();
+	LogicalXType const center_x = CellX(column);
+    LogicalYType const center_y = CellY(row);
+    Point const center(center_x, center_y);
 
-    bool hinted = IsHinted(rCell);
-	bool used = !IsEmpty(rCell);
+    bool const hinted = IsHinted(rCell);
+	bool const used = !IsEmpty(rCell);
 
     ColorType cell_color = COLOR_BLACK;
 	ColorType feature_color = COLOR_LIGHT_GRAY;
@@ -345,10 +344,11 @@ void GameView::DrawCell(Canvas &rCanvas, Cell const &rCell, unsigned swapCnt) {
 		grid_color = feature_color;
 	}
 
-    PCntType cell_height = CellHeight();
-    PCntType cell_width = CellWidth();
-	bool odd_flag = rCell.IsOdd();
-    Rect rect = rCanvas.DrawCell(center, cell_width, cell_height, cell_color, grid_color, odd_flag);
+    PCntType const cell_height = CellHeight();
+    PCntType const cell_width = CellWidth();
+	bool const odd_flag = rCell.IsOdd();
+    Rect const rect = rCanvas.DrawCell(center, cell_width, cell_height, 
+		   cell_color, grid_color, odd_flag);
     
 	// draw cell features
 	rCanvas.UseColors(cell_color, feature_color);
@@ -361,9 +361,9 @@ void GameView::DrawCell(Canvas &rCanvas, Cell const &rCell, unsigned swapCnt) {
 	}
 
     // Draw the active tile later (not now) so it won't get obscured.
-	TileIdType id = Partial::GetCellTile(rCell);
+	TileIdType const id = Partial::GetCellTile(rCell);
     if (id != 0 && !IsActive(id)) {
-        Tile tile = GetTileById(id);
+        Tile const tile = GetTileById(id);
         DrawTile(rCanvas, center, tile, odd_flag);
     }
 }
@@ -378,16 +378,16 @@ Rect GameView::DrawHandHeader(
 {
     ASSERT(mpGame != NULL);
 
-    unsigned cell_width = CellWidth();
+    PCntType const cell_width = CellWidth();
 
-    String name_text = rHand.Name();
-    Hand active_hand = Hand(*mpGame);
-    unsigned w = rCanvas.TextWidth(name_text);
-    unsigned width = (cell_width > w) ? cell_width : w;
+    String const name_text = rHand.Name();
+    Hand const active_hand = Hand(*mpGame);
+    PCntType const w = rCanvas.TextWidth(name_text);
+    PCntType width = (cell_width > w) ? cell_width : w;
     if (name_text == active_hand.Name()) {
-	    w = rCanvas.TextWidth("in the stock bag");
-	    if (w > width) {
-		    width = w;
+	    PCntType w2 = rCanvas.TextWidth("in the stock bag");
+	    if (w2 > width) {
+		    width = w2;
 	    }
     }
 
@@ -395,23 +395,23 @@ Rect GameView::DrawHandHeader(
     if (mpMenuBar->AreScoresVisible()) {
         unsigned score = rHand.Score();
         scoreText = plural(score, "point");
-        w = rCanvas.TextWidth(scoreText);
-        if (w > width) {
-            width = w;
+        PCntType w3 = rCanvas.TextWidth(scoreText);
+        if (w3 > width) {
+            width = w3;
         }
     }
     
     String clock_text;
     if (mpMenuBar->AreClocksVisible()) {
         clock_text = ClockText(rHand);
-        w = rCanvas.TextWidth(clock_text);
-        if (w > width) {
-            width = w;
+        PCntType w4 = rCanvas.TextWidth(clock_text);
+        if (w4 > width) {
+            width = w4;
         }
     }
                                  
     width += 2*mPadPixels;
-    int left_x, right_x;
+    LogicalXType left_x, right_x;
     if (leftFlag) {
         left_x = leftRight;
         right_x = left_x + width;
@@ -419,24 +419,24 @@ Rect GameView::DrawHandHeader(
         right_x = leftRight;
         left_x = right_x - width;
     }
-    unsigned text_height = rCanvas.TextHeight();
+    PCntType const text_height = rCanvas.TextHeight();
 
-    unsigned score_height = 0;
+    PCntType score_height = 0;
     if (mpMenuBar->AreScoresVisible()) {
         score_height = text_height;
     }
-    unsigned clock_height = 0;
+    PCntType clock_height = 0;
     if (mpMenuBar->AreClocksVisible()) {
         clock_height = text_height;
     }
-    unsigned height = text_height + score_height + clock_height + 2*mPadPixels;
+    PCntType height = text_height + score_height + clock_height + 2*mPadPixels;
     rCanvas.UseColors(areaColor, areaColor);
     Rect result = rCanvas.DrawRectangle(topY, left_x, width, height);
 
-    ColorType text_color = COLOR_WHITE;
+    ColorType const text_color = COLOR_WHITE;
     rCanvas.UseColors(areaColor, text_color);
 
-    int y = topY + mPadPixels;
+    LogicalYType y = topY + mPadPixels;
     Rect bounds(y, left_x, width, text_height);
     rCanvas.DrawText(bounds, name_text);
     y += text_height;
@@ -461,18 +461,18 @@ void GameView::DrawHandTile(
     Tile const &rTile,
 	bool oddFlag)
 {
-    TileIdType id = rTile.Id();
+    TileIdType const id = rTile.Id();
 
 	if (!IsLocalPlayer() && !IsOnBoard(id) && !mpMenuBar->IsPeeking()) {
 		// draw the tile's backside
         DrawBlankTile(rCanvas, rCenter, oddFlag);
 
     } else {  // draw the tile's face
-        Rect rect = DrawTile(rCanvas, rCenter, rTile, oddFlag);
+        Rect const rect = DrawTile(rCanvas, rCenter, rTile, oddFlag);
         
-        TilePair pair(id, rect);
-        TileInsResult ins_result = mTileMap.insert(pair);
-        bool success = ins_result.second;
+        TilePair const pair(id, rect);
+        TileInsResult const ins_result = mTileMap.insert(pair);
+        bool const success = ins_result.second;
         ASSERT(success);
    }
 }
@@ -480,7 +480,7 @@ void GameView::DrawHandTile(
 void GameView::DrawHandTiles(Canvas &rCanvas) {
 	ASSERT(mpGame != NULL);
 
-    PCntType cell_height = CellHeight();
+    PCntType const cell_height = CellHeight();
     LogicalYType hand_y = mHandRect.TopY() + mPadPixels + cell_height/2;
     LogicalYType swap_y = mSwapRect.TopY() + mPadPixels + cell_height/2;
 
@@ -520,7 +520,7 @@ void GameView::DrawHandTiles(Canvas &rCanvas) {
             hand_y += cell_height;
         }
         
-        Point base(x, y);
+        Point const base(x, y);
         if (!IsActive(id)) {
             DrawHandTile(rCanvas, base, tile, odd_flag);
         } else {
@@ -529,10 +529,10 @@ void GameView::DrawHandTiles(Canvas &rCanvas) {
         }
     }
     
-    TileIdType active_id = GetActive();
+    TileIdType const active_id = GetActive();
     if (active_id != Tile::ID_NONE) {
 		// there's an active tile
-        Tile active_tile = GetTileById(active_id);
+        Tile const active_tile = GetTileById(active_id);
         DrawHandTile(rCanvas, active_base, active_tile, active_odd);
     }
 
@@ -542,7 +542,7 @@ void GameView::DrawHandTiles(Canvas &rCanvas) {
 void GameView::DrawInactiveHands(Canvas &rCanvas) {
 	ASSERT(mpGame != NULL);
 
-    PCntType cell_height = CellHeight();
+    PCntType const cell_height = CellHeight();
     ColorType area_color = COLOR_DARK_BLUE;
     ColorType edge_color = COLOR_LIGHT_GRAY;
 
@@ -581,7 +581,7 @@ void GameView::DrawInactiveHands(Canvas &rCanvas) {
 			rCanvas.DrawText(hand_rect, text);
 		} else {
             // draw tiles
-            LogicalXType tile_x = hand_rect.CenterX();
+            LogicalXType const tile_x = hand_rect.CenterX();
             LogicalYType tile_y = hand_rect.TopY() + mPadPixels + cell_height/2;
 
             for (unsigned i = 0; i < tile_count; i++) {
@@ -618,16 +618,16 @@ void GameView::DrawPaused(Canvas &rCanvas) {
     ColorType text_color = COLOR_WHITE;
     rCanvas.UseColors(bg_color, text_color);
 
-    LogicalXType x = 0;
-    LogicalYType y = 0;
+    LogicalXType const x = 0;
+    LogicalYType const y = 0;
     Rect clientArea(y, x, mpWindow->ClientAreaWidth(), mpWindow->ClientAreaHeight());
     rCanvas.DrawText(clientArea, "The game is paused.  Click here to proceed.");
         
 	if (mpGame != NULL) {
-	    int top_y = mPadPixels;
-        int left_x = mPadPixels;
+	    LogicalYType const top_y = mPadPixels;
+        LogicalXType const left_x = mPadPixels;
         Hand active_hand = Hand(*mpGame);
-        bool left = true;
+        bool const left = true;
         DrawHandHeader(rCanvas, top_y, left_x, active_hand, bg_color, left);
 	}
 }
@@ -657,7 +657,7 @@ Rect GameView::DrawTile(Canvas &rCanvas, Point point, Tile const &rTile, bool od
         colorInd = 0;
 	}
 	ASSERT(colorInd < Tile::VALUE_CNT_MAX);
-    ColorType glyph_color = GlyphColors[colorInd];
+    ColorType const glyph_color = GlyphColors[colorInd];
 
     ACountType numberOfGlyphAttributes = Tile::AttributeCnt() - mColorAttributeCnt;
     AValueType glyphs[4];
@@ -670,8 +670,7 @@ Rect GameView::DrawTile(Canvas &rCanvas, Point point, Tile const &rTile, bool od
          }
     }
 
-	PCntType tile_height = TileHeight();
-
+	PCntType const tile_height = TileHeight();
     Rect result = rCanvas.DrawTile(point, mTileWidth, tile_height,
                     numberOfGlyphAttributes, glyphs, tile_color, glyph_color, oddFlag);
     
@@ -686,24 +685,24 @@ Cell GameView::GetPointCell(Point const &rPoint) const {
     if (dx >= 0) {
 		column = dx / grid_unit_x;
 	} else {
-		LogicalXType abs_num = grid_unit_x - dx - 1;
+		LogicalXType const abs_num = grid_unit_x - dx - 1;
 		ASSERT(abs_num > 1);
 		column = -long(abs_num / grid_unit_x);
 	}
 
-    PCntType grid_unit_y = GridUnitY();
-	PCntType offset_y = grid_unit_y/2;
+    PCntType const grid_unit_y = GridUnitY();
+	PCntType const offset_y = grid_unit_y/2;
 	LogicalYType dy = rPoint.Y() - mStartCell.Y() + offset_y;
 	IndexType row;
     if (dy >= 0) {
 		row = -long(dy / grid_unit_y);
 	} else {
-		LogicalYType abs_num = grid_unit_y - dy - 1;
+		LogicalYType const abs_num = grid_unit_y - dy - 1;
 		ASSERT(abs_num > 1);
 		row = abs_num / grid_unit_y;
 	}
 
-    Cell result(row, column);
+    Cell const result(row, column);
     
     return result;
 }
@@ -713,8 +712,8 @@ TileIdType GameView::GetTileId(Point const &rPoint) const {
 
 	TileConstIter i_tile;
     for (i_tile = mTileMap.begin(); i_tile != mTileMap.end(); i_tile++) {
-        TileIdType id = i_tile->first;
-        Rect rect = i_tile->second;
+        TileIdType const id = i_tile->first;
+        Rect const rect = i_tile->second;
         if (rect.Contains(rPoint)) {
             if (IsActive(id)) {
                 result = id;
@@ -786,8 +785,8 @@ PCntType GameView::GridUnitY(void) const {
 
 void GameView::Recenter(PCntType oldHeight, PCntType oldWidth) {
     if (mpWindow->ClientAreaWidth() > 250 && mpWindow->ClientAreaHeight() > 100) {
-        LogicalXType x = mpWindow->ClientAreaWidth()/2; // TODO
-        LogicalYType y = mpWindow->ClientAreaHeight()/2;
+        LogicalXType const x = mpWindow->ClientAreaWidth()/2; // TODO
+        LogicalYType const y = mpWindow->ClientAreaHeight()/2;
         mStartCell = Point(x, y);
     }
 }
@@ -878,9 +877,9 @@ Cell GameView::TargetCell(void) const {
 }
 
 Point GameView::TileCenter(TileIdType id) const {
-	TileConstIter i_tile = mTileMap.find(id);
-    Rect rect = i_tile->second;
-    Point result = rect.Center();
+	TileConstIter const i_tile = mTileMap.find(id);
+    Rect const rect = i_tile->second;
+    Point const result = rect.Center();
 
 	return result;
 }
@@ -905,7 +904,8 @@ PCntType GameView::TileHeight(void) const {
 }
 
 void GameView::ToggleTargetCell(Point const &rPoint) {
-	Cell cell = GetPointCell(rPoint);
+	Cell const cell = GetPointCell(rPoint);
+
 	if (cell.IsValid() && IsInCellArea(rPoint, cell)) {
 		if (mTargetCellFlag && cell == mTargetCell) {
 			ResetTargetCell();
@@ -933,31 +933,31 @@ bool GameView::IsDragging(void) const {
 }
 
 bool GameView::IsGridVisible(void) const {
-	bool result = mpMenuBar->IsGridVisible();
+	bool const result = mpMenuBar->IsGridVisible();
 
 	return result;
 }
 
 bool GameView::IsInCellArea(Point const &rPoint, Cell const &rCell) const {
-	IndexType row = rCell.Row();
-    IndexType column = rCell.Column();
-	LogicalXType center_x = CellX(column);
-    LogicalYType center_y = CellY(row);
-    Point center(center_x, center_y);
+	IndexType const row = rCell.Row();
+    IndexType const column = rCell.Column();
+	LogicalXType const center_x = CellX(column);
+    LogicalYType const center_y = CellY(row);
+    Point const center(center_x, center_y);
 
-	PCntType cell_height = CellHeight();
-    PCntType cell_width = CellWidth();
-	bool odd_flag = rCell.IsOdd();
-	Rect cell_rect = Canvas::InteriorGridShape(center, cell_width, 
+	PCntType const cell_height = CellHeight();
+    PCntType const cell_width = CellWidth();
+	bool const odd_flag = rCell.IsOdd();
+	Rect const cell_rect = Canvas::InteriorGridShape(center, cell_width, 
 		               cell_height, odd_flag);
 
-	bool result = cell_rect.Contains(rPoint);
+	bool const result = cell_rect.Contains(rPoint);
 
 	return result;
 }
 
 bool GameView::IsInHandArea(Point const &rPoint) const {
-	bool result = mHandRect.Contains(rPoint);
+	bool const result = mHandRect.Contains(rPoint);
 
 	return result;
 }
@@ -969,8 +969,8 @@ bool GameView::IsInSwapArea(Point const &rPoint) const {
 }
 
 bool GameView::IsInTile(Point const &rPoint) const {
-	TileIdType id = GetTileId(rPoint);
-	bool result = (id != Tile::ID_NONE);
+	TileIdType const id = GetTileId(rPoint);
+	bool const result = (id != Tile::ID_NONE);
 
 	return result;
 }
@@ -983,7 +983,7 @@ bool GameView::IsTargetUsed(void) const {
 	bool result = false;
 
 	if (mTargetCellFlag) {
-		TileIdType id = GetCellTile(mTargetCell);
+		TileIdType const id = GetCellTile(mTargetCell);
 		result = (id != Tile::ID_NONE);
 	}
 

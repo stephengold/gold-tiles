@@ -35,13 +35,9 @@ FractionPair::FractionPair(double x, double y) {
 }
 
 float FractionPair::X(void) const {
-    float result = mX;
-    
-    return result;
+    return mX;
 }
 
 float FractionPair::Y(void) const {
-    float result = mY;
-    
-    return result;
+    return mY;
 }

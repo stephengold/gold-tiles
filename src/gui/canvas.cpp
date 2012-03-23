@@ -84,7 +84,7 @@ Rect Canvas::DrawCell(
 
 	UseColors(cellColor, gridColor);
 	DrawGridShape(rCenter, width, height, oddFlag);
-	Rect interior = InteriorGridShape(rCenter, width, height, oddFlag);
+	Rect const interior = InteriorGridShape(rCenter, width, height, oddFlag);
 
 	return interior;
 }
@@ -97,7 +97,7 @@ void Canvas::DrawGridShape(
 {
     Point ulc = rCenter;
 	ulc.Offset(-long(width/2), -long(height/2));
-	Rect rectangle = Rect(ulc, width, height);
+	Rect const rectangle = Rect(ulc, width, height);
 
 	Rect interior(0,0,0,0);
 	switch (Cell::Grid()) {
@@ -136,14 +136,14 @@ void Canvas::DrawGlyph(
         UseColors(glyphColor, glyphColor);
         
         ASSERT(glyph < msShapes.size());
-        Poly polygon = msShapes[glyph];
-		Rect square = rBounds.CenterSquare();
+        Poly const polygon = msShapes[glyph];
+		Rect const square = rBounds.CenterSquare();
         DrawPolygon(polygon, square);
         
     } else { 
         UseColors(backgroundColor, glyphColor);
 
-        String str = attribute_to_string(ind - 1, glyph);
+        String const str = ::attribute_to_string(ind - 1, glyph);
         DrawText(rBounds, str);
     }
 }
@@ -151,16 +151,15 @@ void Canvas::DrawGlyph(
 void Canvas::DrawTarget(Rect const &rBounds) {
     // for now, just draw an X
 	FractionPair pair_ulc(0.1, 0.9);
-    Point ulc = rBounds.Interpolate(pair_ulc);
+    Point const ulc = rBounds.Interpolate(pair_ulc);
 	FractionPair pair_brc(0.9, 0.1);
-    Point brc = rBounds.Interpolate(pair_brc);
+    Point const brc = rBounds.Interpolate(pair_brc);
 	DrawLine(ulc, brc);
 
-
 	FractionPair pair_urc(0.9, 0.9);
-    Point urc = rBounds.Interpolate(pair_urc);
+    Point const urc = rBounds.Interpolate(pair_urc);
 	FractionPair pair_blc(0.1, 0.1);
-    Point blc = rBounds.Interpolate(pair_blc);
+    Point const blc = rBounds.Interpolate(pair_blc);
 	DrawLine(urc, blc);
 }
 
@@ -186,7 +185,7 @@ Rect Canvas::DrawTile(
 	    case GRID_4WAY:
 	    case GRID_8WAY: {
 			ASSERT(width == height);
-            PCntType circle_diameter = width/TILE_POINTEDNESS;
+            PCntType const circle_diameter = width/TILE_POINTEDNESS;
 	        DrawRoundedSquare(rCenter, width, circle_diameter);
 	        interior = InteriorRoundedSquare(rCenter, width, circle_diameter);
 			break;
@@ -223,8 +222,8 @@ Rect Canvas::DrawTile(
             ASSERT(numGlyphs == 1);
         }
 
-        Rect glyphBounds(glyph_top, glyph_left, glyph_width, glyph_height);
-        AValueType glyph = glyphs[ind];
+        Rect const glyphBounds(glyph_top, glyph_left, glyph_width, glyph_height);
+        AValueType const glyph = glyphs[ind];
 		DrawGlyph(glyphBounds, ind, glyph, tileColor, glyphColor);
     }
     
@@ -237,9 +236,9 @@ Rect Canvas::DrawTile(
     {
         Poly roundel;
         for (unsigned i = 0; i < 20; i++) {
-            double phi = M_PI/10 * (double)i;
-            double x = 0.5 + 0.44*::cos(phi);
-            double y = 0.5 + 0.44*::sin(phi);
+            double const phi = M_PI/10 * (double)i;
+            double const x = 0.5 + 0.44*::cos(phi);
+            double const y = 0.5 + 0.44*::sin(phi);
             roundel.Add(x, y);
         }
         msShapes.push_back(roundel);
@@ -274,7 +273,7 @@ Rect Canvas::DrawTile(
     {
         Poly mulletOfSeven;
         for (unsigned i = 0; i < 14; i++) {
-            double phi = M_PI/7 * (float)i;
+            double const phi = M_PI/7 * (float)i;
             double x, y;
             if (::is_odd(i)) {
                 x = 0.5 + 0.2*::sin(phi);
@@ -364,7 +363,7 @@ Rect Canvas::DrawTile(
         msShapes.push_back(spade);
     }
 
-    ASSERT(msShapes.size() == 9);
+    ASSERT(msShapes.size() >= Tile::VALUE_CNT_MAX);
 }
 
 /* static */ Rect Canvas::InteriorGridShape(
@@ -375,7 +374,7 @@ Rect Canvas::DrawTile(
 {
     Point ulc = rCenter;
 	ulc.Offset(-long(width/2), -long(height/2));
-	Rect rectangle = Rect(ulc, width, height);
+	Rect const rectangle = Rect(ulc, width, height);
 
 	Rect interior(0,0,0,0);
 	switch (Cell::Grid()) {

@@ -54,8 +54,8 @@ Cell::Cell(Cell const &rBase, DirectionType direction, IndexType count) {
 	ASSERT(count == 1 || count == -1);
 
 	DirectionType old_direction = direction;
-	IndexType old_group = rBase.Group(old_direction);
-	IndexType old_ortho = rBase.Ortho(old_direction);
+	IndexType const old_group = rBase.Group(old_direction);
+	IndexType const old_ortho = rBase.Ortho(old_direction);
 
 	if (count < 0) {
 		direction = ::opposite_direction(direction);
@@ -107,9 +107,9 @@ Cell::Cell(Cell const &rBase, DirectionType direction, IndexType count) {
 	    }
 	}
 
-	IndexType new_ortho = Ortho(old_direction);
+	IndexType const new_ortho = Ortho(old_direction);
 	ASSERT(old_ortho == new_ortho);
-	IndexType new_group = Group(old_direction);
+	IndexType const new_group = Group(old_direction);
 	ASSERT(old_group != new_group);
 	ASSERT(IsValid());
 }
@@ -123,15 +123,15 @@ bool Cell::operator!=(const Cell &rOther) const {
 	ASSERT(IsValid());
 	ASSERT(rOther.IsValid());
 
-	bool same_row = (mRow == rOther.mRow);
-    bool result = (!same_row || mColumn != rOther.mColumn);
+	bool const same_row = (mRow == rOther.mRow);
+    bool const result = (!same_row || mColumn != rOther.mColumn);
     
     return result;
 }
 
 bool Cell::operator<(Cell const &rOther) const {
-	bool result;
-	bool same_row = (mRow == rOther.mRow);
+	bool result = false;
+	bool const same_row = (mRow == rOther.mRow);
      
     if (same_row) {
         result = (mColumn < rOther.mColumn);
@@ -145,8 +145,8 @@ bool Cell::operator<(Cell const &rOther) const {
 // The compiler-generated assignment operator is fine.
 
 bool Cell::operator==(const Cell &rOther) const {
-	bool same_row = (mRow == rOther.mRow);
-    bool result = (same_row && mColumn == rOther.mColumn);
+	bool const same_row = (mRow == rOther.mRow);
+    bool const result = (same_row && mColumn == rOther.mColumn);
     
     return result;
 }
@@ -154,8 +154,7 @@ bool Cell::operator==(const Cell &rOther) const {
 Cell::operator String(void) const {
 	ASSERT(IsValid());
 
-    String result;
-    result = "(";
+    String result("(");
 	result += String(mRow);
 	result += ", ";
 	result += String(mColumn);
@@ -260,8 +259,8 @@ IndexType Cell::Group(DirectionType direction) const {
 			break;
         }
 		case DIRECTION_SOUTHEAST: {
-		    long row_pair = (mRow + (::is_odd(mRow) ? 1 : 0))/2;
-		    long column_pair = (mColumn + (::is_odd(mColumn) ? 1 : 0))/2;
+		    long const row_pair = (mRow + (::is_odd(mRow) ? 1 : 0))/2;
+		    long const column_pair = (mColumn + (::is_odd(mColumn) ? 1 : 0))/2;
 		    result = column_pair - 3*row_pair;
 		    if (::is_even(mRow) && ::is_odd(mColumn)) {
 			    result -= 1;
@@ -271,8 +270,8 @@ IndexType Cell::Group(DirectionType direction) const {
 			break;
 	    }
 		case DIRECTION_NORTHWEST: {
-		    long row_pair = (mRow + (::is_odd(mRow) ? 1 : 0))/2;
-		    long column_pair = (mColumn + (::is_odd(mColumn) ? 1 : 0))/2;
+		    long const row_pair = (mRow + (::is_odd(mRow) ? 1 : 0))/2;
+		    long const column_pair = (mColumn + (::is_odd(mColumn) ? 1 : 0))/2;
 		    result = - column_pair + 3*row_pair;
 		    if (::is_odd(mRow) && ::is_even(mColumn)) {
 			    result -= 1;
@@ -305,7 +304,7 @@ IndexType Cell::Group(DirectionType direction) const {
 void Cell::Next(DirectionType direction, IndexType count) {
 	ASSERT(count == 1 || count == -1);
 
-    Cell next(*this, direction, count);
+    Cell const next(*this, direction, count);
     *this = next;
 }
 
@@ -371,8 +370,8 @@ IndexType Cell::Ortho(DirectionType direction) const {
 		    result = mColumn;
 			break;
 		case DIRECTION_SOUTHEAST: {
-		    long row_pair = (mRow + (::is_odd(mRow) ? 1 : 0))/2;
-		    long column_pair = (mColumn + (::is_odd(mColumn) ? 1 : 0))/2;
+		    long const row_pair = (mRow + (::is_odd(mRow) ? 1 : 0))/2;
+		    long const column_pair = (mColumn + (::is_odd(mColumn) ? 1 : 0))/2;
 		    result = column_pair - row_pair;
 		    if (::is_even(mRow) && ::is_odd(mColumn)) {
 			    result -= 1;
@@ -380,8 +379,8 @@ IndexType Cell::Ortho(DirectionType direction) const {
 			break;
 		}
 		case DIRECTION_NORTHEAST: {
-		    long row_pair = (mRow + (::is_odd(mRow) ? 1 : 0))/2;
-		    long column_pair = (mColumn + (::is_odd(mColumn) ? 1 : 0))/2;
+		    long const row_pair = (mRow + (::is_odd(mRow) ? 1 : 0))/2;
+		    long const column_pair = (mColumn + (::is_odd(mColumn) ? 1 : 0))/2;
             result = column_pair + row_pair;
 		    if (::is_odd(mRow) && ::is_odd(mColumn)) {
 			    result -= 1;

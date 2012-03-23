@@ -88,12 +88,17 @@ class WindowClass;
 class YesNo;
 #endif  // defined(_GUI)
 
+// project-wide typedefs
+
+typedef unsigned long MsecIntervalType;
+
 // project-wide utility functions
 
 void        assertion_failed(const char *, unsigned);
 bool        is_even(long);
 bool        is_odd(long);
-long        milliseconds(void);  // read clock
+MsecIntervalType
+	        milliseconds(void);  // read clock
 String      ordinal(unsigned);
 void        pause(void);
 const char *plural(unsigned);
@@ -106,8 +111,8 @@ bool        str_eq(char const *, char const *);  // compare text strings
 const double   M_PI = 3.14159265358979323846;
 #endif // !defined(M_PI)
 
-const unsigned MSECS_PER_SECOND = 1000;
-const double   SQRT_3 = 1.732050807568877;
-const unsigned SECONDS_PER_MINUTE = 60;
+const MsecIntervalType MSECS_PER_SECOND = 1000;
+const double           SQRT_3 = 1.732050807568877;
+const unsigned         SECONDS_PER_MINUTE = 60;
 
 #endif // !defined(PROJECT_HPP_INCLUDED)

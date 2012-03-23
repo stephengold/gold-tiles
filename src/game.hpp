@@ -88,6 +88,7 @@ public:
     bool IsLegalMove(Move const &) const;
     bool IsLegalMove(Move const &, char const *&rReason) const;
     bool IsLegalPartial(Partial const &) const;
+	bool IsOutOfTime(void) const;
     bool IsOver(void) const;
 	bool IsPaused(void) const;
 	bool IsStockEmpty(void) const;
@@ -102,13 +103,14 @@ private:
 	String           mFirstTurnMessage;
 	String           mGoingOutReport;
     Hands            mHands;         // all hands being played
-	unsigned         mHandSize;      // max tiles per hand
+	unsigned const   mHandSize;      // max tiles per hand
 	Turns            mHistory;       // history of turns for undo/redo
-	Turns::Iterator miRedo;          // current place in the history
-	unsigned         mRedundancy;    // number of instances of each possible tile
-	unsigned         mSecondsPerHand; // 0 indicates count up instead of down
+	Turns::Iterator miRedo;          // current position in the history
+	unsigned const   mRedundancy;    // number of instances of each possible tile
+	unsigned const   mSecondsPerHand; // 0 indicates count up instead of down
     Tiles            mStockBag;      // stock bag from which tiles are drawn
-	GameStyleType    mStyle;         // constant for duration of game
+	GameStyleType const
+		             mStyle;
 	bool             mUnsavedChanges;
 
 	// private lifecycle

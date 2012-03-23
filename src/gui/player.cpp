@@ -52,7 +52,7 @@ Player::operator Point(void) const {
 // misc methods
 
 /* static */ Player &Player::rLookup(String const &rName) {
-    ConstIterator i_player = msMap.find(rName);
+    ConstIterator const i_player = msMap.find(rName);
 
 	Player *p_result = NULL;
     if (i_player != msMap.end()) {
@@ -61,9 +61,9 @@ Player::operator Point(void) const {
 		p_result = new Player(rName);
 	    ASSERT(p_result != NULL);
 
-		Pair new_mapping(rName, p_result); 
-	    InsertResult ins_result = msMap.insert(new_mapping);
-	    bool success = ins_result.second;
+		Pair const new_mapping(rName, p_result); 
+	    InsertResult const ins_result = msMap.insert(new_mapping);
+	    bool const success = ins_result.second;
 	    ASSERT(success);
 	}
 

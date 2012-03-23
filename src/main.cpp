@@ -64,12 +64,12 @@ int main(int argCnt, char *argValues[]) {
 	int exit_code = EXIT_SUCCESS;
 
 	// seed the pseudo-random number generator
-	unsigned seed = ::milliseconds();
+	unsigned const seed = ::milliseconds();
     ::srand(seed);
 
-	ACountType attribute_cnt = 2;
-	AValueType max_attribute[] = { Tile::VALUE_CNT_DEFAULT - 1, Tile::VALUE_CNT_DEFAULT - 1 };
-	double bonus_fraction = 0.0;
+	ACountType const attribute_cnt = 2;
+	AValueType const max_attribute[] = { Tile::VALUE_CNT_DEFAULT - 1, Tile::VALUE_CNT_DEFAULT - 1 };
+	double const bonus_fraction = 0.0;
 	Tile::SetStatic(attribute_cnt, max_attribute, bonus_fraction);
 
 #ifdef _CONSOLE
@@ -119,8 +119,8 @@ int main(int argCnt, char *argValues[]) {
 	std::cout << std::endl;
 	
 	// Clone tiles so that there are enough to fill each hand at least three times.
-	unsigned tiles_needed = 3 * hand_size * hand_cnt;
-	long combo_cnt = Tile::CombinationCnt();
+	unsigned const tiles_needed = 3 * hand_size * hand_cnt;
+	long const combo_cnt = Tile::CombinationCnt();
 	unsigned clones_per_tile = unsigned(tiles_needed / combo_cnt);
 
     // Instantiate the game.
@@ -129,7 +129,7 @@ int main(int argCnt, char *argValues[]) {
 	game.PlayGame();
 	std::cout << "The game is over." << std::endl;
 
-	// A pause is needed when running in a console window, which will
+	// A pause is needed when running in a console window because the windown will
 	// be destroyed soon after this function returns. 
     ::pause();
 #endif // defined(_CONSOLE)

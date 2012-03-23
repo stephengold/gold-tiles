@@ -63,7 +63,7 @@ char const *WindowClass::Name(void) const {
 }
 
 void WindowClass::RegisterClass(void) {
-    ATOM classAtom = Win::RegisterClassEx(this);
+    ATOM const classAtom = Win::RegisterClassEx(this);
 	ASSERT(classAtom != 0);
 };
 

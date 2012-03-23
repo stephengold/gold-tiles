@@ -36,9 +36,9 @@ static INT_PTR CALLBACK message_handler(
 	LPARAM lParameter)
 {
 	ASSERT(windowHandle != NULL);
-	ParmBox1 *p_box = (ParmBox1 *)Window::Lookup(windowHandle);
+	ParmBox1 * const p_box = (ParmBox1 *)Window::Lookup(windowHandle);
     ASSERT(HWND(*p_box) == windowHandle);
-	INT_PTR result = p_box->HandleMessage(message, wParameter, lParameter);
+	INT_PTR const result = p_box->HandleMessage(message, wParameter, lParameter);
 
 	return result;
 }
@@ -75,11 +75,13 @@ ParmBox1::ParmBox1(GameStyleType gameStyle, unsigned secondsPerHand):
 	ASSERT(mPlayerMinutes <= PLAYER_MINUTES_MAX);
 }
 
+
 // operators
 
 ParmBox1::operator GameStyleType(void) const {
     return mGameStyle;
 }
+
 
 // misc methods
 
@@ -92,11 +94,11 @@ INT_PTR ParmBox1::HandleMessage(MessageType message, WPARAM wParam, LPARAM lPara
 
 			SetStyle();
 
-			IdType slider_id = IDC_SLIDERMINUTES;
-			ValueType min_value = PLAYER_MINUTES_MIN;
-			ValueType max_value = PLAYER_MINUTES_MAX;
+			IdType const slider_id = IDC_SLIDERMINUTES;
+			ValueType const min_value = PLAYER_MINUTES_MIN;
+			ValueType const max_value = PLAYER_MINUTES_MAX;
 	        SetSliderRange(slider_id, min_value, max_value);
-	        ValueType slider_value = SetSliderValue(slider_id, mPlayerMinutes);
+	        ValueType const slider_value = SetSliderValue(slider_id, mPlayerMinutes);
 	        ASSERT(slider_value == mPlayerMinutes);
 
             SetTextValue(IDC_EDITMINUTES, slider_value);
@@ -107,14 +109,14 @@ INT_PTR ParmBox1::HandleMessage(MessageType message, WPARAM wParam, LPARAM lPara
         }
 
         case WM_COMMAND: {
-            IdType id = LOWORD(wParam);
-			int notification_code = HIWORD(wParam);
+            IdType const id = LOWORD(wParam);
+			int const notification_code = HIWORD(wParam);
             switch (id) {
                 case IDC_EDITMINUTES: {
-                    ValueType value = GetTextValue(id);
+                    ValueType const value = GetTextValue(id);
 					if (value != VALUE_INVALID) {
-                        IdType slider_id = IDC_SLIDERMINUTES;
-                        ValueType slider_value = SetSliderValue(slider_id, value);
+                        IdType const slider_id = IDC_SLIDERMINUTES;
+                        ValueType const slider_value = SetSliderValue(slider_id, value);
 					    if (slider_value != value) {
                             SetTextValue(id, slider_value);
 					    }
@@ -138,11 +140,11 @@ INT_PTR ParmBox1::HandleMessage(MessageType message, WPARAM wParam, LPARAM lPara
 
 		case WM_VSCROLL:
         case WM_HSCROLL: {
-			HWND control_handle = HWND(lParam);
+			HWND const control_handle = HWND(lParam);
 
-            IdType slider_id = IDC_SLIDERMINUTES;
+            IdType const slider_id = IDC_SLIDERMINUTES;
 			ASSERT(control_handle == GetControlHandle(slider_id));
-            ValueType value = GetSliderValue(slider_id);
+            ValueType const value = GetSliderValue(slider_id);
             IdType editbox_id = IDC_EDITMINUTES;
             SetTextValue(editbox_id, value);
 		    mPlayerMinutes = value;

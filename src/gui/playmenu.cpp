@@ -108,8 +108,8 @@ void PlayMenu::EnableItems(
 	bool canRedo,
 	bool isLocal)
 {
-	bool is_challenge = (gameStyle == GAME_STYLE_CHALLENGE);
-	bool is_friendly = (gameStyle == GAME_STYLE_FRIENDLY);
+	bool const is_challenge = (gameStyle == GAME_STYLE_CHALLENGE);
+	bool const is_friendly = (gameStyle == GAME_STYLE_FRIENDLY);
 
     mPlay.Enable(isLocal && !isOver && !isPaused && !isPass);
     mTakeBack.Enable(isLocal && !isOver && !isPaused && !isPass);

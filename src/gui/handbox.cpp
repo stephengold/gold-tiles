@@ -38,7 +38,7 @@ static INT_PTR CALLBACK message_handler(
 	ASSERT(windowHandle != NULL);
     HandBox *p_box = (HandBox *)Window::Lookup(windowHandle);
     ASSERT(HWND(*p_box) == windowHandle);
-	INT_PTR result = p_box->HandleMessage(message, wParameter);
+	INT_PTR const result = p_box->HandleMessage(message, wParameter);
 
 	return result;
 }
@@ -112,14 +112,14 @@ INT_PTR HandBox::HandleMessage(MessageType message, WPARAM wParam) {
         }
 
         case WM_COMMAND: {
-            IdType id = LOWORD(wParam);
-			int notification_code = HIWORD(wParam);
+            IdType const id = LOWORD(wParam);
+			int const notification_code = HIWORD(wParam);
             switch (id) {
                 case IDC_EDITNAME:
 					if (notification_code == EN_CHANGE) {
                         mPlayerName = GetTextString(id);
 					    mPlayerName.Capitalize();
-					    bool good_name = !mPlayerName.IsEmpty();
+					    bool const good_name = !mPlayerName.IsEmpty();
 	                    EnableButton(IDOK, good_name);
 					}
  					break;

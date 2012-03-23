@@ -46,7 +46,7 @@ Point::Point(POINTS const &pt) {
 // operators
 
 bool Point::operator== (Point const &rOther) const {
-    bool result = (mX == rOther.mX && mY == rOther.mY);
+    bool const result = (mX == rOther.mX && mY == rOther.mY);
 
 	return result;
 }
@@ -81,13 +81,9 @@ void Point::Offset(long dx, long dy) {
 }
 
 LogicalXType Point::X(void) const {
-    LogicalYType result = mX;
-    
-    return result;
+    return mX;
 }
 
 LogicalYType Point::Y(void) const {
-    LogicalYType result = mY;
-    
-    return result;
+    return mY;
 }

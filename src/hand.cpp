@@ -55,6 +55,12 @@ void Hand::Restart(void) {
 
 // The compiler-generated assignment method is fine.
 
+bool Hand::operator ==(Hand const &rOther) const {
+	bool const result = (Name() == rOther.Name());
+
+	return result;
+}
+
 Hand::operator Tiles(void) const {
     return mTiles;
 }
@@ -63,7 +69,9 @@ Hand::operator Tiles(void) const {
 // misc methods
 
 void Hand::AddScore(unsigned points) {
-	unsigned new_score = mScore + points;
+    ASSERT(!IsClockRunning());
+
+	unsigned const new_score = mScore + points;
 	ASSERT(new_score >= mScore); // check for wraparound
 	mScore = new_score;
 }
@@ -73,6 +81,7 @@ void Hand::AddTiles(Tiles const &rTiles) {
 }
 
 Move Hand::ChooseMove(void) const {
+    ASSERT(IsClockRunning());
     ASSERT(IsLocalPlayer());
     
     DisplayTiles();
@@ -98,7 +107,7 @@ Tiles Hand::DrawTiles(unsigned tileCount, Tiles &rBag) {
     Tiles result;
     result.DrawTiles(tileCount, rBag);
 
-	unsigned count = result.Count();
+	unsigned const count = result.Count();
 	if (count > 0) {
 	    std::cout << Name() << " drew " << plural(count, "tile") 
 		     << " from the stock bag." << std::endl;
@@ -111,20 +120,20 @@ Tiles Hand::DrawTiles(unsigned tileCount, Tiles &rBag) {
 
 // find the longest run of compatible tiles in the hand
 Tiles Hand::LongestRun(void) const {
-	Tiles result = mTiles.LongestRun();
+	Tiles const result = mTiles.LongestRun();
             
 	return result;
 }
 
 // read the hand's elapsed time clock
 // and if the clock is running, update mTurnMilliseconds
-long Hand::Milliseconds(void) const {
-	long result = mMilliseconds;
+MsecIntervalType Hand::Milliseconds(void) const {
+	MsecIntervalType result = mMilliseconds;
 
     if (mClockRunning) {
-	    long now = ::milliseconds();
-		long turn_msec = now - mStartTime;
-		ASSERT(turn_msec >= 0);
+	    MsecIntervalType const now = ::milliseconds();
+		ASSERT(now >= mStartTime);
+		MsecIntervalType const turn_msec = now - mStartTime;
         result += turn_msec;
 		ASSERT(result >= mMilliseconds);
 	}
@@ -149,6 +158,7 @@ void Hand::RemoveTiles(Tiles const &rTiles) {
 }
 
 void Hand::Resign(Tiles &rBag) {
+    ASSERT(!IsClockRunning());
 	ASSERT(!HasResigned());
 
 	rBag.AddTiles(mTiles);
@@ -163,8 +173,8 @@ unsigned Hand::Score(void) const {
 }
 
 unsigned Hand::Seconds(void) const {
-	long msecs = Milliseconds();
-    unsigned result = unsigned(msecs/MSECS_PER_SECOND);
+	MsecIntervalType const msecs = Milliseconds();
+    unsigned const result = unsigned(msecs/MSECS_PER_SECOND);
 
 	return result;
 }
@@ -183,19 +193,23 @@ unsigned Hand::StopClock(void) {
 	mClockRunning = false;
 
 	// return the number of elapsed seconds
-	unsigned result = unsigned(mMilliseconds/MSECS_PER_SECOND);
+	unsigned const result = unsigned(mMilliseconds/MSECS_PER_SECOND);
 
 	return result;
 }
 
 void Hand::SubtractScore(unsigned points) {
-	unsigned new_score = mScore - points;
+	ASSERT(!HasResigned());
+    ASSERT(!IsClockRunning());
+
+	unsigned const new_score = mScore - points;
 	ASSERT(new_score <= mScore); // check for wraparound
 	mScore = new_score;
 }
 
 void Hand::Unresign(Tiles &rBag, Tiles const &rHand) {
 	ASSERT(HasResigned());
+    ASSERT(!IsClockRunning());
 
 	rBag.RemoveTiles(rHand);
 	mTiles = rHand;
@@ -208,7 +222,7 @@ void Hand::Unresign(Tiles &rBag, Tiles const &rHand) {
 // inquiry methods
 
 bool Hand::HasGoneOut(void) const {
-    bool result = IsEmpty() && !HasResigned();
+    bool const result = IsEmpty() && !HasResigned();
 	
 	return result;
 }
@@ -222,7 +236,7 @@ bool Hand::IsAutomatic(void) const {
 }
 
 bool Hand::IsEmpty(void) const {
-     bool result = mTiles.IsEmpty();
+     bool const result = mTiles.IsEmpty();
      
      return result;
 }
@@ -232,7 +246,7 @@ bool Hand::IsClockRunning(void) const {
 }
 
 bool Hand::IsLocalPlayer(void) const {
-    bool result = !mAutomatic;
+    bool const result = !mAutomatic;
 
 	return result;
 }

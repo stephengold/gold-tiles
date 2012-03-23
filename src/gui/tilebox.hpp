@@ -37,7 +37,7 @@ The TileBox class is an extension of the Dialog class.
 class TileBox: public Dialog {
 public:
     // public lifecycle
-	TileBox(char const *templateName, ACountType attributeCnt, AValueType pValueMax[5]);
+	TileBox(char const *templateName, ACountType attributeCnt, AValueType pValueMax[Tile::ATTRIBUTE_CNT_GUI_MAX]);
 	// no default constructor
 	// ~TileBox(void);  compiler-generated destructor is OK
 
@@ -47,7 +47,7 @@ public:
 
 private:
 	ACountType mAttributeCnt;
-    ValueType mpNumValues[5];
+    ValueType mpNumValues[Tile::ATTRIBUTE_CNT_GUI_MAX];
 
 	// private lifecycle
     TileBox(TileBox const &);  // not copyable

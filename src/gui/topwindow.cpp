@@ -871,20 +871,21 @@ void TopWindow::Play(bool passFlag) {
 	ASSERT(!IsGameOver());
 	ASSERT(!IsGamePaused());
 
-	// check whether the player has run out of time
     Move move;
-	if (mpGame->IsOutOfTime()) {
-		// force resignation
-		move.MakeResign(mpGame->ActiveTiles()); 
-	} else {
+
+	// check whether the player has run out of time
+	if (!mpGame->IsOutOfTime()) {
 		move = mGameView.GetMove(true);
+	} else {
+		// hand ran out of time:  force resignation
+		move.MakeResign(mpGame->ActiveTiles()); 
 	}
 
+	// check whether the move is a legal one
 	char const *reason;
 	bool const is_legal = mpGame->IsLegalMove(move, reason);
     if (is_legal && move.IsPass() == passFlag) {
         mpGame->FinishTurn(move);
-        mGameView.Reset();
 
         if (!mpGame->IsOver()) {
 			// the game isn't over, so proceed to the next hand
@@ -904,6 +905,7 @@ void TopWindow::Play(bool passFlag) {
 			String const report = mpGame->GoingOutReport();
 	        Window::InfoBox(report, "Going Out - Gold Tile");
         }
+        mGameView.Reset();
 
     } else if (!is_legal) { // explain the issue
         RuleBox(reason);

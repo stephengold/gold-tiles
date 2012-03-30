@@ -76,10 +76,8 @@ public:
 	void         SavePlayerOptions(Player &) const;
 	void         SetDisplayModes(DisplayModes const &);
 	void         SetGame(Game *);
-	void         SetStartCellPosition(Point const &);
 	void         SetTileWidth(IdType command);
 	void         StartCellOffset(long dx, long dy);
-	Point        StartCellPosition(void) const;
 	Cell         TargetCell(void) const;
 	Point        TileCenter(TileIdType) const;
 	PCntType     TileHeight(void) const;

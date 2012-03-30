@@ -50,6 +50,10 @@ Player::Player(String const &rName):
 
 // operators
 
+Player::operator DisplayModes(void) const {
+    return mDisplayModes;
+}
+
 Player::operator Point(void) const {
     return mStartCellPosition;
 }
@@ -79,6 +83,10 @@ Player::operator Point(void) const {
 
 void Player::SetAutopause(bool value) {
 	mAutopause = value;
+}
+
+void Player::SetDisplayModes(DisplayModes const &rDisplayModes) {
+	mDisplayModes = rDisplayModes;
 }
 
 void Player::SetPeek(bool value) {

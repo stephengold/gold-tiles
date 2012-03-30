@@ -46,18 +46,21 @@ public:
     // ~Player(void);  compiler-generated destructor is OK
 
 	// public operators
+	operator DisplayModes(void) const;
 	operator Point(void) const;    // get logical coordinates of Start cell
 
 	// misc public methods
-    static Player & rLookup(String const &);
-	void             SetAutopause(bool);
-    void             SetPeek(bool);
-	void             SetShowClocks(bool);
-    void             SetShowGrid(bool);
-	void             SetShowScores(bool);
-	void             SetStartCellPosition(Point const &);
-	void             SetTileSize(IdType);
-	IdType           TileSize(void) const;
+    static Player & 
+		  rLookup(String const &);
+	void   SetAutopause(bool);
+	void   SetDisplayModes(DisplayModes const &);
+    void   SetPeek(bool);
+	void   SetShowClocks(bool);
+    void   SetShowGrid(bool);
+	void   SetShowScores(bool);
+	void   SetStartCellPosition(Point const &);
+	void   SetTileSize(IdType);
+	IdType TileSize(void) const;
 
 	// public inquiry methods
 	bool Autopause(void) const;

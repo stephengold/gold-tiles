@@ -768,8 +768,8 @@ PCntType GameView::GridUnitY(void) const {
 }
 
 void GameView::LoadPlayerOptions(Player const &rPlayer) {
-	Point const start_cell_position = Point(rPlayer);
-	SetStartCellPosition(start_cell_position);
+	mDisplayModes = DisplayModes(rPlayer);
+	mStartCell = Point(rPlayer);
 }
 
 void GameView::Recenter(PCntType oldHeight, PCntType oldWidth) {
@@ -803,9 +803,8 @@ void GameView::ResetTargetCell(void) {
 }
 
 void GameView::SavePlayerOptions(Player &rPlayer) const {
-	Point const start_cell_position = StartCellPosition();
-	rPlayer.SetStartCellPosition(start_cell_position);
-
+    rPlayer.SetDisplayModes(mDisplayModes);
+	rPlayer.SetStartCellPosition(mStartCell);
 }
 
 void GameView::SetDisplayModes(DisplayModes const &rDisplayModes) {
@@ -824,10 +823,6 @@ void GameView::SetGame(Game *pGame) {
 	
     SetTileWidth(IDM_LARGE_TILES);
 	ResetTargetCell();
-}
-
-void GameView::SetStartCellPosition(Point const &rPoint) {
-	mStartCell = rPoint;
 }
 
 void GameView::SetTileWidth(IdType command) {
@@ -865,10 +860,6 @@ void GameView::SetTileWidth(IdType command) {
 
 void GameView::StartCellOffset(long dx, long dy) {
     mStartCell.Offset(dx, dy);
-}
-
-Point GameView::StartCellPosition(void) const {
-    return mStartCell;
 }
 
 Cell GameView::TargetCell(void) const {

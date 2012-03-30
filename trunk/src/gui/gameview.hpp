@@ -33,15 +33,12 @@ Drawing is performed on a temporary Canvas owned by the caller.
 */
 
 #include "gui/color.hpp"
-#include "gui/rect.hpp" // HASA Rect
-#include "partial.hpp"  // ISA Partial
+#include "gui/displaymodes.hpp" // HASA DisplayModes
+#include "gui/rect.hpp"         // HASA Rect
+#include "partial.hpp"          // ISA Partial
 
 class GameView: public Partial {
 public:
-	// public types
-
-	// public constants
-
 	// public lifecycle
 	GameView::GameView(Game const &rGame);
 	// no default constructor
@@ -50,6 +47,7 @@ public:
 
 	// public operators
     // GameView &operator=(GameView const &);  compiler-generated assignment operator is OK
+	operator DisplayModes(void) const;
 
 	// misc public methods
     PCntType     CellHeight(void) const;
@@ -66,14 +64,17 @@ public:
     void         DrawHandTiles(Canvas &);
     void         DrawInactiveHands(Canvas &);
 	void         DrawPaused(Canvas &);
-	Rect         DrawTile(Canvas &, Point, Tile const &, bool odd);
+	Rect         DrawTile(Canvas &, Point const &center, Tile const &, bool odd);
 	Cell         GetPointCell(Point const &) const;
     TileIdType   GetTileId(Point const &) const;
     PCntType     GridUnitX(void) const;
     PCntType     GridUnitY(void) const;
+	void         LoadPlayerOptions(Player const &);
 	void         Recenter(PCntType oldWidth, PCntType oldHeight);
-    void         Repaint(Canvas &rCanvas);
+    void         Repaint(Canvas &);
 	void         ResetTargetCell(void);
+	void         SavePlayerOptions(Player &) const;
+	void         SetDisplayModes(DisplayModes const &);
 	void         SetGame(Game *);
 	void         SetStartCellPosition(Point const &);
 	void         SetTileWidth(IdType command);
@@ -103,7 +104,7 @@ private:
     typedef std::pair<TileIter,bool>   TileInsResult;
 
 	// private data
-	ACountType   mColorAttributeCnt;
+	DisplayModes mDisplayModes;
 	Rect         mHandRect;
 	MenuBar *   mpMenuBar;
 	PCntType     mPadPixels;
@@ -122,7 +123,8 @@ private:
     GameView &operator=(GameView const &);  // not assignable
 
 	// misc private methods
-	String ClockText(Hand &) const;
+	String     ClockText(Hand &) const;
+	AIndexType ColorAttribute(void) const;
 
 	// private inquiry methods
 	bool IsGridVisible(void) const;

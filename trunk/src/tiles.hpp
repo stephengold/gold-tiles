@@ -48,6 +48,7 @@ public:
 	void     AddAllTiles(AIndexType, Tile &);
     bool     CopyIds(Tiles const &);
 	unsigned Count(void) const;
+	Tile     DrawFirstTile(void);
     Tile     DrawRandomTile(void);
 	void     DrawTiles(unsigned, Tiles &rBag);
 	Tile     FindTile(TileIdType) const;
@@ -62,18 +63,24 @@ public:
     Tiles    UniqueTiles(void) const;
 
 	// public inquiry methods
-    bool     AreAllCompatible(void) const;
-    bool     Contains(Tile const &) const;
-	bool     ContainsClone(Tile const &) const;
-    bool     ContainsId(TileIdType) const;
-	bool     IsEmpty(void) const;
-    bool     IsValid(void) const;
+    bool AreAllCompatible(void) const;
+    bool AreAllCompatibleWith(Tile const &) const;
+    bool Contains(Tile const &) const;
+	bool ContainsClone(Tile const &) const;
+    bool ContainsId(TileIdType) const;
+	bool IsEmpty(void) const;
+    bool IsValid(void) const;
 
 private:
+	// private types
 	typedef std::map<TileIdType,Tile>::const_iterator ConstIterator;
 	typedef std::map<TileIdType,Tile>::iterator       Iterator;
 
+	// private data
 	std::map<TileIdType,Tile> mMap;
+
+	// private methods
+	void BuildRuns(Tiles const &runSoFar, Tiles &bestRun) const;
 };
 
 #endif // !defined(TILES_HPP_INCLUDED)

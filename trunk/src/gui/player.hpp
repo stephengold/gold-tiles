@@ -31,10 +31,12 @@ The Player class implements a static map for translating names to
 user-interface settings.
 */
 
-#include <map>           // HASA std::map
-#include "gui/win.hpp"   // HASA IdType
-#include "string.hpp"    // HASA String
-#include "gui/point.hpp" // HASA Point
+#include <map>                  // HASA std::map
+#include "gui/displaymodes.hpp" // HASA DisplayModes
+#include "gui/point.hpp"        // HASA Point
+#include "gui/win.hpp"          // HASA IdType
+#include "string.hpp"           // HASA String
+
 
 class Player {
 public:
@@ -73,15 +75,16 @@ private:
     typedef std::pair<Iterator, bool>  InsertResult;
 
 	// private data
-	bool        mAutopause;
-    static Map msMap;
-	String      mName;
-	bool        mPeek;
-	bool        mShowClocks;
-	bool        mShowGrid;
-	bool        mShowScores;
-	Point       mStartCellPosition;  // logical coordinates of the Start cell
-	IdType      mTileSize;
+	bool         mAutopause;
+	DisplayModes mDisplayModes;
+    static Map  msMap;
+	String       mName;
+	bool         mPeek;
+	bool         mShowClocks;
+	bool         mShowGrid;
+	bool         mShowScores;
+	Point        mStartCellPosition;  // logical coordinates of the Start cell
+	IdType       mTileSize;
 
 	// private lifecycle
 	Player(Player const &);  // not copyable

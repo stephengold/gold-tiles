@@ -57,14 +57,16 @@ public:
 
 protected:
 	// misc protected methods
+	ValueType AddListboxItem(IdType, char const *);
     void      Close(int);
-	void      EnableButton(IdType, bool);
-	void      EnableEditBox(IdType, bool);
+	void      EnableControl(IdType, bool);
 	Win::HWND GetControlHandle(IdType) const;
+	ValueType GetListboxSelection(IdType);
     ValueType GetSliderValue(IdType);
 	String    GetTextString(IdType);
     ValueType GetTextValue(IdType);
 	void      SetButton(IdType, bool);
+	void      SetListboxSelection(IdType, ValueType);
     ValueType SetSliderValue(IdType, ValueType);
 	void      SetSliderRange(IdType, ValueType min, ValueType max);
 	void      SetTextString(IdType, String const &);

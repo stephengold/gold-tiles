@@ -26,19 +26,13 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 #include "gui/color.hpp"
 #include "gui/gameview.hpp"
 #include "gui/menubar.hpp"
+#include "gui/player.hpp"
 #include "gui/rect.hpp"
 #include "gui/resource.hpp"
 #include "gui/topwindow.hpp"
 
 
 // static data
-
-static const ColorType GlyphColors[Tile::VALUE_CNT_MAX] = {
-	COLOR_BLACK,      COLOR_RED,       COLOR_DARK_BLUE, 
-    COLOR_DARK_GREEN, COLOR_PURPLE,    COLOR_BROWN, 
-    COLOR_DARK_GRAY,  COLOR_PINK,      COLOR_LIGHT_BLUE
-};
-
 
 // lifecycle
 
@@ -48,12 +42,12 @@ GameView::GameView(Game const &rGame):
     mStartCell(0, 0),
     mSwapRect(0, 0, 0, 0)
 {
-    mColorAttributeCnt = 1;
     mpMenuBar = NULL;
     mPadPixels = 6;
 	mTargetCellFlag = false;
-	SetTileWidth(IDM_LARGE_TILES);
 	mpWindow = NULL;
+
+	SetTileWidth(IDM_LARGE_TILES);
 }
 
 // The compiler-generated destructor is OK.
@@ -61,6 +55,13 @@ GameView::GameView(Game const &rGame):
 void GameView::SetWindow(TopWindow *pWindow, MenuBar *pMenuBar) {
 	mpMenuBar = pMenuBar;
 	mpWindow = pWindow;
+}
+
+
+// operators
+
+GameView::operator DisplayModes(void) const {
+	return mDisplayModes;
 }
 
 
@@ -632,7 +633,7 @@ void GameView::DrawPaused(Canvas &rCanvas) {
 	}
 }
 
-Rect GameView::DrawTile(Canvas &rCanvas, Point point, Tile const &rTile, bool oddFlag) {
+Rect GameView::DrawTile(Canvas &rCanvas, Point const &rCenter, Tile const &rTile, bool oddFlag) {
     TileIdType id = rTile.Id();
 
     ColorType tile_color = COLOR_LIGHT_GRAY;
@@ -645,34 +646,17 @@ Rect GameView::DrawTile(Canvas &rCanvas, Point point, Tile const &rTile, bool od
 		    tile_color = COLOR_GOLD;
 	    }
     }
+
+	Point center = rCenter;
     if (IsActive(id)) {
-       point.Offset(mpWindow->DragTileDeltaX(), mpWindow->DragTileDeltaY());
+       center.Offset(mpWindow->DragTileDeltaX(), mpWindow->DragTileDeltaY());
     }
 	
-	AIndexType colorInd;
-	if (mColorAttributeCnt == 1) {
-        colorInd = rTile.Attribute(0);
-	} else {
-		ASSERT(mColorAttributeCnt == 0);
-        colorInd = 0;
-	}
-	ASSERT(colorInd < Tile::VALUE_CNT_MAX);
-    ColorType const glyph_color = GlyphColors[colorInd];
-
-    ACountType numberOfGlyphAttributes = Tile::AttributeCnt() - mColorAttributeCnt;
-    AValueType glyphs[4];
-    for (AIndexType gi = 0; gi < 4; gi++) {
-		AIndexType ind = gi + mColorAttributeCnt;
-         if (gi < numberOfGlyphAttributes) {
-             glyphs[gi] = rTile.Attribute(ind);
-         } else {
-             glyphs[gi] = 0;
-         }
-    }
+	TileDisplay const tile_display(rTile, mDisplayModes);
 
 	PCntType const tile_height = TileHeight();
-    Rect result = rCanvas.DrawTile(point, mTileWidth, tile_height,
-                    numberOfGlyphAttributes, glyphs, tile_color, glyph_color, oddFlag);
+    Rect result = rCanvas.DrawTile(tile_display, tile_color, center, mTileWidth, 
+		               tile_height, oddFlag);
     
     return result;
 }
@@ -783,6 +767,11 @@ PCntType GameView::GridUnitY(void) const {
     return result;
 }
 
+void GameView::LoadPlayerOptions(Player const &rPlayer) {
+	Point const start_cell_position = Point(rPlayer);
+	SetStartCellPosition(start_cell_position);
+}
+
 void GameView::Recenter(PCntType oldHeight, PCntType oldWidth) {
     if (mpWindow->ClientAreaWidth() > 250 && mpWindow->ClientAreaHeight() > 100) {
         LogicalXType const x = mpWindow->ClientAreaWidth()/2; // TODO
@@ -811,6 +800,16 @@ void GameView::Repaint(Canvas &rCanvas) {
 
 void GameView::ResetTargetCell(void) {
 	mTargetCellFlag = false;
+}
+
+void GameView::SavePlayerOptions(Player &rPlayer) const {
+	Point const start_cell_position = StartCellPosition();
+	rPlayer.SetStartCellPosition(start_cell_position);
+
+}
+
+void GameView::SetDisplayModes(DisplayModes const &rDisplayModes) {
+	mDisplayModes = rDisplayModes;
 }
 
 void GameView::SetGame(Game *pGame) {

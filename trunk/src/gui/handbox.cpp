@@ -92,12 +92,12 @@ INT_PTR HandBox::HandleMessage(MessageType message, WPARAM wParam) {
 			}
 			SetTextString(IDC_WHO, message);
 			SetTextString(IDC_EDITNAME, mPlayerName);
-			EnableButton(IDC_RADIOLOCAL, true);
-	        EnableButton(IDC_RADIOAUTO, true);
+			EnableControl(IDC_RADIOLOCAL, true);
+	        EnableControl(IDC_RADIOAUTO, true);
 #if 1
 			// TODO
 			mIsRemote = false;
-	        EnableButton(IDC_RADIOREMOTE, false);
+	        EnableControl(IDC_RADIOREMOTE, false);
 #endif
 			SetButton(IDC_RADIOLOCAL, !mIsAutomatic && !mIsRemote);
 	        SetButton(IDC_RADIOAUTO, mIsAutomatic && !mIsRemote);
@@ -120,7 +120,7 @@ INT_PTR HandBox::HandleMessage(MessageType message, WPARAM wParam) {
                         mPlayerName = GetTextString(id);
 					    mPlayerName.Capitalize();
 					    bool const good_name = !mPlayerName.IsEmpty();
-	                    EnableButton(IDOK, good_name);
+	                    EnableControl(IDOK, good_name);
 					}
  					break;
 

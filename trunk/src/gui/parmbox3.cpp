@@ -72,7 +72,7 @@ unsigned ParmBox3::ClonesPerTile(void) const {
     return mClonesPerTile;
 }
 
-IdType ParmBox3::EditboxId(IdType sliderId) const {
+/* static */ IdType ParmBox3::EditboxId(IdType sliderId) {
     IdType result = 0;
 
     switch (sliderId) {
@@ -167,8 +167,8 @@ void ParmBox3::InitControl(
 	ValueType minValue,
 	ValueType maxValue)
 {
-    ASSERT(value <= maxValue);
     ASSERT(value >= minValue);
+    ASSERT(value <= maxValue);
 	
 	SetSliderRange(sliderId, minValue, maxValue);
 
@@ -185,7 +185,7 @@ void ParmBox3::InitControl(
     SetTextValue(editbox_id, slider_value);
 }
 
-IdType ParmBox3::MaxId(IdType sliderId) const {
+/* static */ IdType ParmBox3::MaxId(IdType sliderId) {
     IdType result = 0;
 
     switch (sliderId) {
@@ -211,7 +211,7 @@ IdType ParmBox3::MaxId(IdType sliderId) const {
     return result;
 }
 
-IdType ParmBox3::MinId(IdType sliderId) const {
+/* static */ IdType ParmBox3::MinId(IdType sliderId) {
     IdType result = 0;
 
     switch (sliderId) {
@@ -242,7 +242,7 @@ unsigned ParmBox3::HandCnt(void) const {
     return mHandCnt;
 }
 
-IdType ParmBox3::SliderId(IdType editboxId) const {
+/* static */ IdType ParmBox3::SliderId(IdType editboxId) {
     IdType result = 0;
 
     switch (editboxId) {

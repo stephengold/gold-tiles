@@ -65,6 +65,7 @@ public:
 	// misc public methods
 	void     Capitalize(void);
 	unsigned Length(void) const;
+	String   Purge(void) const;
 	String   Quote(void) const;
 
 	// public inquiry methods

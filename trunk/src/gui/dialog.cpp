@@ -78,21 +78,26 @@ int Dialog::Run(Window *pParent) {
 
 // misc methods
 
+Dialog::ValueType Dialog::AddListboxItem(IdType listboxId, char const *text) {
+	HWND const listbox_handle = GetControlHandle(listboxId);
+
+	WPARAM const unused = 0;
+	LRESULT const success = Win::SendMessage(listbox_handle, LB_ADDSTRING, unused, LPARAM(text));
+	ASSERT(success != LB_ERR);
+	ValueType result = success;
+
+	return result;
+}
+
 void Dialog::Close(int result) {
-	HWND window = HWND(*this);
+	HWND const window = HWND(*this);
     Win::EndDialog(window, INT_PTR(result));
 }
 
-void Dialog::EnableButton(IdType buttonId, bool enable) {
-    HWND const button_handle = GetControlHandle(buttonId);
+void Dialog::EnableControl(IdType controlId, bool enable) {
+    HWND const control_handle = GetControlHandle(controlId);
 	BOOL const enable_flag = enable ? TRUE : FALSE;
-	Win::Button_Enable(button_handle, enable_flag);
-}
-
-void Dialog::EnableEditBox(IdType boxId, bool enable) {
-    HWND const box_handle = GetControlHandle(boxId);
-	BOOL const enable_flag = enable ? TRUE : FALSE;
-	Win::Edit_Enable(box_handle, enable_flag);
+	Win::EnableWindow(control_handle, enable_flag);
 }
 
 // get the window handle for a particular control
@@ -102,6 +107,19 @@ HWND Dialog::GetControlHandle(IdType controlId) const {
     ASSERT(result != NULL);
 
 	return result;
+}
+
+// fetch the numeric value of a listbox control
+Dialog::ValueType Dialog::GetListboxSelection(IdType sliderId) {
+    HWND const listbox_handle = GetControlHandle(sliderId);
+
+    // Get selected index.
+	WPARAM const unused_w = 0;
+	LPARAM const unused_l = 0;
+    ValueType const result = Win::SendMessage(listbox_handle, LB_GETCURSEL, unused_w, unused_l);
+	ASSERT(result != LB_ERR);
+    
+    return result;
 }
 
 // fetch the numeric value of a slider control
@@ -188,11 +206,23 @@ void Dialog::SetButton(IdType buttonId, bool value) {
     Win::SendMessage(button_handle, BM_SETCHECK, wparam, unused);
 }
 
+void Dialog::SetListboxSelection(IdType listboxId, ValueType position) {
+	HWND const listbox_handle = GetControlHandle(listboxId);
+
+	LPARAM unused = 0;
+	WPARAM wparam = WPARAM(-1);
+	if (position != VALUE_INVALID) {
+		wparam = WPARAM(position);
+	}
+	LRESULT const success = Win::SendMessage(listbox_handle, LB_SETCURSEL, wparam, unused);
+	ASSERT(success != LB_ERR || wparam == -1);
+}
+
 void Dialog::SetSliderRange(IdType sliderId, ValueType minValue, ValueType maxValue) {
     ASSERT(minValue < maxValue);
 	ASSERT(maxValue < VALUE_INVALID);
 
-    HWND slider_handle = GetControlHandle(sliderId);
+    HWND const slider_handle = GetControlHandle(sliderId);
     
     WPARAM redraw = WPARAM(FALSE);
     Win::SendMessage(slider_handle, TBM_SETRANGEMIN, redraw, LPARAM(minValue));
@@ -206,7 +236,7 @@ Dialog::ValueType Dialog::SetSliderValue(IdType id, ValueType value) {
     
     // set slider value
     WPARAM const redraw = WPARAM(TRUE);
-    Win::SendMessage(slider_handle, TBM_SETPOS, redraw, (LPARAM)value);
+    Win::SendMessage(slider_handle, TBM_SETPOS, redraw, LPARAM(value));
     
     // read it back
     ValueType result = GetSliderValue(id);

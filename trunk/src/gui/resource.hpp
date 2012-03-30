@@ -58,6 +58,11 @@
 #define IDC_RADIO_CONNECTED                     1603
 #define IDC_RADIO_USABLE_ANY                    1604
 #define IDC_RADIO_USABLE_SELECTED               1605
+#define IDC_LIST1                               1701
+#define IDC_LIST2                               1702
+#define IDC_LIST3                               1703
+#define IDC_LIST4                               1704
+#define IDC_LIST5                               1705
 #define IDM_NEW                                 6000
 #define IDM_OPEN                                6001
 #define IDM_REOPEN                              6002

@@ -176,6 +176,63 @@ void Game::DisplayStatus(void) const {
         << std::endl << std::endl << String(mBoard) << std::endl;
 }
 
+String Game::EndBonus(void) {
+    ASSERT(IsOver());
+
+	// start writing the report
+	String result = miActiveHand->Name();
+	result += " had ";
+	result += plural(miActiveHand->Score(), "point");
+	result += ".\n\n";
+    
+	// the active hand scores a point for each tile in every other hand
+    Hands::ConstIterator i_hand = miActiveHand;
+	mHands.Next(i_hand);
+    while (i_hand != miActiveHand) {
+        Tiles hand = Tiles(*i_hand);
+        unsigned const tiles_in_hand = hand.Count();
+		unsigned const points_in_hand = tiles_in_hand;  // TODO
+
+		if (points_in_hand > 0) {
+            miActiveHand->AddScore(points_in_hand);
+
+		    result += "Add ";
+		    result += plural(points_in_hand, "point");
+		    result += " for the tile";
+		    result += plural(tiles_in_hand);
+		    result += " held by ";
+		    result += i_hand->Name();
+		    result += ".\n";
+		}
+
+		mHands.Next(i_hand);
+    }
+
+	result += "\n";
+	result += miActiveHand->Name();
+	result += " ended up with ";
+	result += plural(miActiveHand->Score(), "point");
+	result += ".\n\n";
+
+	if (mHands.Count() > 1) {
+	    Strings const winning_hands = WinningHands();
+	    if (winning_hands.Count() == 1) {
+		    String const winner = winning_hands.First();
+    	    result += winner;
+	        result += " won the game.\n";
+	    } else {
+		    ASSERT(!winning_hands.IsEmpty());
+		    String const winners(winning_hands, " and ");
+    	    result += winners;
+	        result += " tied for first place.\n";
+		}
+	}
+
+	mUnsavedChanges = true;
+
+	return result;
+}
+
 void Game::FindBestRun(void) {
     mBestRunLength = 0;
 	mBestRunReport = "";
@@ -287,64 +344,6 @@ void Game::FirstTurn(void) {
     ASSERT(!IsClockRunning());
 }
 
-void Game::GoingOutBonus(void) {
-    ASSERT(IsOver());
-
-	// start writing the report
-	mGoingOutReport = miActiveHand->Name();
-	mGoingOutReport += " went out with ";
-	mGoingOutReport += plural(miActiveHand->Score(), "point");
-	mGoingOutReport += ".\n\n";
-    
-	// the active hand scores a point for each tile in every other hand
-    Hands::ConstIterator i_hand = miActiveHand;
-	mHands.Next(i_hand);
-    while (i_hand != miActiveHand) {
-        Tiles hand = Tiles(*i_hand);
-        unsigned const tiles_in_hand = hand.Count();
-		unsigned const points_in_hand = tiles_in_hand;  // TODO
-
-		if (points_in_hand > 0) {
-            miActiveHand->AddScore(points_in_hand);
-
-		    mGoingOutReport += "Add ";
-		    mGoingOutReport += plural(points_in_hand, "point");
-		    mGoingOutReport += " for the tile";
-		    mGoingOutReport += plural(tiles_in_hand);
-		    mGoingOutReport += " held by ";
-		    mGoingOutReport += i_hand->Name();
-		    mGoingOutReport += ".\n";
-		}
-
-		mHands.Next(i_hand);
-    }
-
-	mGoingOutReport += "\n";
-	mGoingOutReport += miActiveHand->Name();
-	mGoingOutReport += " ended up with ";
-	mGoingOutReport += plural(miActiveHand->Score(), "point");
-	mGoingOutReport += ".\n\n";
-
-	Strings const winning_hands = WinningHands();
-	if (winning_hands.Count() == 1) {
-		String const winner = winning_hands.First();
-    	mGoingOutReport += winner;
-	    mGoingOutReport += " won the game.\n";
-	} else {
-		ASSERT(!winning_hands.IsEmpty());
-		String const winners(winning_hands, " and ");
-    	mGoingOutReport += winners;
-	    mGoingOutReport += " tied for first place.\n";
-	}
-
-	std::cout << mGoingOutReport;
-	mUnsavedChanges = true;
-}
-
-String Game::GoingOutReport(void) const {
-    return mGoingOutReport;
-}
-
 unsigned Game::HandSize(void) const {
 	ASSERT(mHandSize > 0);
 
@@ -409,7 +408,8 @@ void Game::PlayGame(void) {
 	    NextTurn();
     }
 
-	GoingOutBonus();
+	String const report = EndBonus();
+	std::cout << report;
 
     // display final scores
     DisplayScores();
@@ -658,16 +658,17 @@ bool Game::IsLegalMove(Move const &rMove) const {
 bool Game::IsLegalMove(Move const &rMove, char const *&rReason) const {
     unsigned const stock = CountStock();
     bool result = true;
+	unsigned const tiles_played = rMove.CountTilesPlayed();
     
 	if (!mBoard.IsValidMove(rMove, rReason)) {
 	    result = false;
 
 	} else if (mBestRunLength > 0
 		    && !rMove.IsResign()
-		    && rMove.CountTilesPlayed() != mBestRunLength)
+		    && tiles_played != mBestRunLength)
 	{
-		// first turn but didn't resign or play the longest run
-		ASSERT(rMove.CountTilesPlayed() < mBestRunLength);
+		// first turn but didn't resign, nor play the longest run
+		ASSERT(tiles_played < mBestRunLength);
 	    rReason = "FIRST";
         result = false;
 

@@ -63,9 +63,8 @@ public:
     Tiles         ActiveTiles(void) const;
 	String        BestRunReport(void) const;
     unsigned      CountStock(void) const;
+	String        EndBonus(void);
     void          FinishTurn(Move const &);
-    void          GoingOutBonus(void);
-	String        GoingOutReport(void) const;
 	unsigned      HandSize(void) const;
     Hands         InactiveHands(void) const;
     void          PlayGame(void);
@@ -101,7 +100,6 @@ private:
     Board            mBoard;         // extensible playing surface
 	String           mFilespec;      // associated file for load/save
 	String           mFirstTurnMessage;
-	String           mGoingOutReport;
     Hands            mHands;         // all hands being played
 	unsigned const   mHandSize;      // max tiles per hand
 	Turns            mHistory;       // history of turns for undo/redo

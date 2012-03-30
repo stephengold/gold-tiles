@@ -129,6 +129,7 @@ private:
     void         Resize(PCntType width, PCntType height);
 	void         RestartGame(void);
 	void         RuleBox(char const *message);
+	String       SaveHandOptions(void) const;
 	void         SavePlayerOptions(Hand const &) const;
 	void         SetGame(Game *pGame);
 	void         SetTileWidth(IdType command);

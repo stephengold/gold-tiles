@@ -32,9 +32,10 @@ Gold Tile Game.
 
 */
 
-#include <vector>            // HASA std::vector
-#include "gui/graphics.hpp"  // ISA Graphics
-#include "tile.hpp"          // USES ACountType
+#include <vector>              // HASA std::vector
+#include "gui/graphics.hpp"    // ISA Graphics
+#include "gui/tiledisplay.hpp" // USES TileDisplay
+#include "tile.hpp"            // USES ACountType
 
 class Canvas: public Graphics {
 public:
@@ -49,18 +50,17 @@ public:
 	Rect        DrawCell(Point const &, PCntType width, PCntType height,
                      ColorType cellColor, ColorType gridColor, bool odd);
     void        DrawTarget(Rect const &);
-    Rect        DrawTile(Point const &, PCntType width, PCntType height,
-                     ACountType numGlyphs, const AValueType glyphs[],
-                     ColorType tile, ColorType glyph, bool odd);
+    Rect        DrawTile(TileDisplay const &, ColorType tileColor, Point const &center, 
+		             PCntType width, PCntType height, bool odd);
 	static Rect InteriorGridShape(Point const &rCenter, PCntType width, 
-		             PCntType height, bool oddFlag);
+		             PCntType height, bool odd);
 
 private:
 	// private constants
 	static const unsigned TILE_POINTEDNESS = 3;
 
 	// private data
-    static std::vector<Poly> msShapes; // TODO more options
+    static std::vector<Poly> msShapes; // TODO more choices
     
 	// private lifecycle
     Canvas(Canvas const &);  // not copyable
@@ -69,8 +69,8 @@ private:
     Canvas &operator=(Canvas const &);  // not assignable
 
 	// misc private methods
-    void        DrawGlyph(Rect const &rBounds, AIndexType, AValueType, 
-                   ColorType background, ColorType glyph);
+    void        DrawGlyph(Rect const &bounds, ADisplayType, AValueType, ColorType bg,
+                       ColorType fg);
 	void        DrawGridShape(Point const &rCenter, PCntType width, 
 		               PCntType height, bool oddFlag);
     static void InitShapes(void);            

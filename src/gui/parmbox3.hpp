@@ -64,14 +64,14 @@ private:
     ParmBox3 &operator=(ParmBox3 const &);  // not assignable
 
 	// misc private methods
-    IdType EditboxId(IdType slider) const;
-    void   InitControl(IdType slider, ValueType value, 
+    static IdType EditboxId(IdType slider);
+    void          InitControl(IdType slider, ValueType value, 
 		                  ValueType min, ValueType max);
-    IdType MaxId(IdType slider) const;
-    IdType MinId(IdType slider) const;
-    IdType SliderId(IdType editbox) const;
-	IdType SliderId(Win::HWND) const;
-	void   UpdateValue(IdType slider, ValueType);
+    static IdType MaxId(IdType slider);
+    static IdType MinId(IdType slider);
+    static IdType SliderId(IdType editbox);
+	IdType        SliderId(Win::HWND) const;
+	void          UpdateValue(IdType slider, ValueType);
 };
 
 #endif

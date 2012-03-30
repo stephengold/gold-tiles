@@ -64,6 +64,7 @@ class Turns;
 // forward declarations of GUI classes
 class Canvas;
 class Dialog;
+class DisplayModes;
 class FileMenu;
 class GameView;
 class Graphics;

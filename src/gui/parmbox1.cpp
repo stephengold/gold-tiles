@@ -107,7 +107,7 @@ INT_PTR ParmBox1::HandleMessage(MessageType message, WPARAM wParam, LPARAM lPara
 	        ASSERT(slider_value == mPlayerMinutes);
 
             SetTextValue(IDC_EDITMINUTES, slider_value);
-	        EnableEditBox(IDC_EDITMINUTES, mGameStyle == GAME_STYLE_CHALLENGE);
+	        EnableControl(IDC_EDITMINUTES, mGameStyle == GAME_STYLE_CHALLENGE);
 
 			result = TRUE;
 			break;
@@ -198,6 +198,6 @@ void ParmBox1::SetStyle(IdType buttonId) {
 		default:
 			FAIL();
 	}
-	EnableEditBox(IDC_EDITMINUTES, mGameStyle == GAME_STYLE_CHALLENGE);
+	EnableControl(IDC_EDITMINUTES, mGameStyle == GAME_STYLE_CHALLENGE);
 }
 #endif // defined(_WINDOWS)

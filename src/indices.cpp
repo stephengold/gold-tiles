@@ -53,6 +53,15 @@ unsigned Indices::Count(void) const {
 	return result;
 }
 
+IndexType Indices::First(void) const {
+	ASSERT(!IsEmpty());
+
+	ConstIterator iterator = begin();
+	IndexType const result = *iterator;
+
+	return result;
+}
+
 void Indices::MakeEmpty(void) {
 	clear();
 }
@@ -73,6 +82,12 @@ void Indices::Remove(IndexType index) {
 // inquiry methods
 bool Indices::Contains(IndexType index) const {
 	bool const result = (find(index) != end());
+
+	return result;
+}
+
+bool Indices::IsEmpty(void) const {
+	bool const result = (Count() == 0);
 
 	return result;
 }

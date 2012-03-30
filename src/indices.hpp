@@ -47,15 +47,16 @@ public:
 	static const IndexType INDEX_MIN = LONG_MIN;
 
 	// misc public methods
-	void     Add(IndexType);
-	void     AddRemove(IndexType, bool);
-    unsigned Count(void) const;
-	void     MakeEmpty(void);
-	void     Remove(IndexType);
+	void      Add(IndexType);
+	void      AddRemove(IndexType, bool);
+    unsigned  Count(void) const;
+	IndexType First() const;
+	void      MakeEmpty(void);
+	void      Remove(IndexType);
 
 	// public inquiry methods
     bool Contains(IndexType) const;
-	bool IsEmpty(IndexType) const;
+	bool IsEmpty(void) const;
 };
 
 #endif // !defined(INDICES_HPP_INCLUDED)

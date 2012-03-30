@@ -25,7 +25,11 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 #include "gui/resource.hpp" // IDM_LARGE_TILES
 #include "project.hpp"      // ASSERT
 
+
+// static data
+
 Player::Map Player::msMap;
+
 
 // lifecycle
 
@@ -43,11 +47,13 @@ Player::Player(String const &rName):
 
 // The compiler-generated destructor is OK.
 
+
 // operators
 
 Player::operator Point(void) const {
     return mStartCellPosition;
 }
+
 
 // misc methods
 

@@ -122,29 +122,38 @@ void Canvas::DrawGridShape(
 
 void Canvas::DrawGlyph(
     Rect const &rBounds, 
-    AIndexType ind,
+    ADisplayType displayMode,
     AValueType glyph,
     ColorType backgroundColor,
     ColorType glyphColor)
 {
-    if (msShapes.size() == 0) {
+	if (msShapes.size() == 0) {
         InitShapes();
     }
     
-    // TODO less arbitrary
-    if (ind == 0) {
-        UseColors(glyphColor, glyphColor);
+	switch (displayMode) {
+	    case ADISPLAY_SHAPE: {
+            UseColors(glyphColor, glyphColor);
         
-        ASSERT(glyph < msShapes.size());
-        Poly const polygon = msShapes[glyph];
-		Rect const square = rBounds.CenterSquare();
-        DrawPolygon(polygon, square);
+            ASSERT(glyph < msShapes.size());
+            Poly const polygon = msShapes[glyph];
+		    Rect const square = rBounds.CenterSquare();
+            DrawPolygon(polygon, square);
+			break;
+		}
         
-    } else { 
-        UseColors(backgroundColor, glyphColor);
+		case ADISPLAY_ABC:
+		case ADISPLAY_RST:
+		case ADISPLAY_123: {
+            UseColors(backgroundColor, glyphColor);
 
-        String const str = ::attribute_to_string(ind - 1, glyph);
-        DrawText(rBounds, str);
+            String const ch = Tile::AttributeToString(displayMode, glyph);
+            DrawText(rBounds, ch);
+			break;
+		}
+
+		default:
+			FAIL();
     }
 }
 
@@ -164,20 +173,16 @@ void Canvas::DrawTarget(Rect const &rBounds) {
 }
 
 Rect Canvas::DrawTile(
-    Point const &rCenter,
+	TileDisplay const &rTileDisplay,
+	ColorType tileColor,
+	Point const &rCenter,
 	PCntType width,
     PCntType height,
-    ACountType numGlyphs, 
-    const AValueType glyphs[],
-    ColorType tileColor,
-    ColorType glyphColor,
 	bool oddFlag)
 {
-    ASSERT(numGlyphs > 0);
-    ASSERT(numGlyphs <= 4);
 	ASSERT(::is_even(width));
 
-	ColorType border_color = COLOR_DARK_GRAY;
+	ColorType const border_color = COLOR_DARK_GRAY;
     UseColors(tileColor, border_color);
 
 	Rect interior(0,0,0,0);
@@ -199,32 +204,36 @@ Rect Canvas::DrawTile(
 			FAIL();
 	}
 
+	unsigned const glyph_cnt = rTileDisplay.GlyphCnt();
+
     PCntType glyph_width = interior.Width();
     PCntType glyph_height = interior.Height();    
-    if (numGlyphs == 2) {
+    if (glyph_cnt == 2) {
         glyph_width /= 2;
-    } else if (numGlyphs == 3 || numGlyphs == 4) {
+    } else if (glyph_cnt == 3 || glyph_cnt == 4) {
         glyph_width /= 2;
         glyph_height /= 2;
     } else {
-        ASSERT(numGlyphs == 1);
+        ASSERT(glyph_cnt == 1);
     }
-   
-    for (AIndexType ind = 0; ind < numGlyphs; ind++) {
+
+	ColorType const glyph_color = rTileDisplay.GlyphColor();
+    for (AIndexType ind = 0; ind < glyph_cnt; ind++) {
         LogicalXType glyph_left = interior.LeftX();
         LogicalYType glyph_top = interior.TopY();
-        if (numGlyphs == 2) {
+        if (glyph_cnt == 2) {
             glyph_left += ind*glyph_width;
-        } else if (numGlyphs == 3 || numGlyphs == 4) {
+        } else if (glyph_cnt == 3 || glyph_cnt == 4) {
             glyph_left += (ind%2)*glyph_width;
             glyph_top += (ind/2)*glyph_height;
         } else {
-            ASSERT(numGlyphs == 1);
+            ASSERT(glyph_cnt == 1);
         }
 
-        Rect const glyphBounds(glyph_top, glyph_left, glyph_width, glyph_height);
-        AValueType const glyph = glyphs[ind];
-		DrawGlyph(glyphBounds, ind, glyph, tileColor, glyphColor);
+        Rect const glyph_bounds(glyph_top, glyph_left, glyph_width, glyph_height);
+		ADisplayType const mode = rTileDisplay.Mode(ind);
+		AValueType const glyph = rTileDisplay.Glyph(ind);
+		DrawGlyph(glyph_bounds, mode, glyph, tileColor, glyph_color); 
     }
     
     return interior;

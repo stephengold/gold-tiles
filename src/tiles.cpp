@@ -61,10 +61,14 @@ Tiles::operator String(void) const {
     ConstIterator i_tile;
     for (i_tile = mMap.begin(); i_tile != mMap.end(); i_tile++) {
         if (i_tile != mMap.begin()) {
+			// append a separator
             result += ", ";
-        } 
+        }
+
 		Tile const tile = i_tile->second;
-        result += String(tile);
+		String str = String(tile);
+		str = str.Purge();
+        result += str;
     }       
     result += "}";
 
@@ -98,7 +102,7 @@ void Tiles::Add(Tile const &tile) {
 	ASSERT(Contains(tile));
 }
 
-// generate tiles for the stock bag (recursive)
+// generate tiles for the stock bag - RECURSIVE
 void Tiles::AddAllTiles(AIndexType attributeIndex, Tile &rModelTile) {
     ACountType const na = Tile::AttributeCnt();
 	if (attributeIndex < na) {
@@ -109,7 +113,7 @@ void Tiles::AddAllTiles(AIndexType attributeIndex, Tile &rModelTile) {
          }
 	} else {
         ASSERT(attributeIndex == na);
-        Tile clone = rModelTile.Clone();
+        Tile clone = rModelTile.CloneAndSetBonus();
 		Add(clone);
 	}
 }
@@ -123,10 +127,43 @@ void Tiles::AddTiles(Tiles const &tiles) {
 	}
 }
 
+// build runs of mutually-compatible tiles - RECURSIVE
+void Tiles::BuildRuns(Tiles const &rRunSoFar, Tiles &rLongestRun) const {
+	if (IsEmpty()) {
+		if (rRunSoFar.Count() > rLongestRun.Count()) {
+			rLongestRun = rRunSoFar;
+		}
+	} else {
+		Tiles run(rRunSoFar);
+	    Tiles remainder(*this);
+	    Tile const first = remainder.DrawFirstTile();
+
+		// build runs without the first tile
+		remainder.BuildRuns(run, rLongestRun);
+
+		if (run.AreAllCompatibleWith(first)) {
+		   // build runs with the first tile
+		   run.Add(first);
+	       remainder.BuildRuns(run, rLongestRun);
+		}
+	}
+}
+
 unsigned Tiles::Count(void) const {
 	unsigned const result = mMap.size();
 
 	return result;
+}
+
+Tile Tiles::DrawFirstTile(void) {
+	ASSERT(!IsEmpty());
+
+    Iterator const i_tile = mMap.begin();
+    ASSERT(i_tile != mMap.end());
+    Tile const result = i_tile->second;
+    mMap.erase(i_tile);
+
+    return result;
 }
 
 Tile Tiles::DrawRandomTile(void) {
@@ -201,41 +238,14 @@ void Tiles::GetUserChoice(Tiles const &rAvailableTiles) {
 
 // return the largest subset of mutually compatible tiles
 Tiles Tiles::LongestRun(void) const {
-
 	// clones are never compatible, so consider only the unique tiles
 	Tiles const unique = UniqueTiles();
 
 	Tiles result;
-
-	// for each choice of starting tile
-    ConstIterator i_tile;
-    for (i_tile = unique.mMap.begin(); i_tile != unique.mMap.end(); i_tile++) {
-        Tile const start_tile = i_tile->second;
-
-	    // for each attribute of that tile
-        for (AIndexType ind = 0; ind < Tile::AttributeCnt(); ind++) {
-            AValueType const value = start_tile.Attribute(ind);
-
-			Tiles run(start_tile);
-
-			// for each successor tile
-            ConstIterator i_tile2 = i_tile;
-            for (i_tile2++; i_tile2 != unique.mMap.end(); i_tile2++) {
-				Tile const tile2 = i_tile2->second;
-
-				// if successor shares the attribute and is compatible
-                if (tile2.HasAttribute(ind, value) && tile2.IsCompatibleWith(&start_tile)) {
-					// add it to the run
-                    run.Add(tile2);
-                }
-            }
-            if (run.Count() > result.Count()) {
-				// save new best run
-                result = run;
-            }
-        }
-    }
+    Tiles const empty_run;
+	unique.BuildRuns(empty_run, result);
     
+	ASSERT(result.AreAllCompatible());
 	return result;
 }
 
@@ -271,7 +281,8 @@ void Tiles::RemoveTiles(Tiles const &rTiles) {
 
 	ConstIterator i_tile;
 	for (i_tile = rTiles.mMap.begin(); i_tile != rTiles.mMap.end(); i_tile++) {
-        RemoveTileId(i_tile->first);
+		TileIdType id = i_tile->first;
+        RemoveTileId(id);
     }
 }
 
@@ -332,8 +343,22 @@ bool Tiles::AreAllCompatible(void) const {
     return true; 
 }
 
-bool Tiles::Contains(Tile const &tile) const {
-	TileIdType const id = tile.Id();
+bool Tiles::AreAllCompatibleWith(Tile const &rTile) const {
+	bool result = true;
+
+    ConstIterator i_tile;
+    for (i_tile = mMap.begin(); i_tile != mMap.end(); i_tile++) {
+  		Tile const tile = i_tile->second;
+        if (!tile.IsCompatibleWith(&rTile)) {
+            return false;
+        }
+    }
+
+	return result;
+}
+
+bool Tiles::Contains(Tile const &rTile) const {
+	TileIdType const id = rTile.Id();
     bool const result = ContainsId(id);
     
     return result;

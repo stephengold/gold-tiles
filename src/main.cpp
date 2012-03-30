@@ -67,7 +67,7 @@ int main(int argCnt, char *argValues[]) {
 	unsigned const seed = ::milliseconds();
     ::srand(seed);
 
-	ACountType const attribute_cnt = 2;
+	ACountType const attribute_cnt = Tile::ATTRIBUTE_CNT_DEFAULT;
 	AValueType const max_attribute[] = { Tile::VALUE_CNT_DEFAULT - 1, Tile::VALUE_CNT_DEFAULT - 1 };
 	double const bonus_fraction = 0.0;
 	Tile::SetStatic(attribute_cnt, max_attribute, bonus_fraction);
@@ -84,9 +84,20 @@ int main(int argCnt, char *argValues[]) {
         << "it under certain conditions; see LICENSE.txt for details." << std::endl
         << std::endl;
 
+	std::cout << ::plural(Tile::AttributeCnt(), "attribute") << ":" << std::endl;
+	for (AIndexType i_attr = 0; i_attr < Tile::AttributeCnt(); i_attr++) {
+		ADisplayType const display_mode = Tile::DefaultDisplayMode(i_attr);
+		AValueType const value_max = Tile::ValueMax(i_attr);
+		std::cout << " " << ::ordinal(i_attr + 1) << " attribute ranges from " 
+			      << Tile::AttributeToString(display_mode, 0) << " to " 
+				  << Tile::AttributeToString(display_mode, value_max)
+				  << std::endl;
+	}
+	std::cout << std::endl;
+
 	unsigned hand_cnt = 0;
 	while (hand_cnt == 0) {
-	    std::cout << "How many hands? ";
+	    std::cout << "Deal how many hands? ";
 	    std::cin >> hand_cnt;
         char buffer[256];
         std::cin.getline(buffer, 256);

@@ -136,6 +136,22 @@ unsigned String::Length(void) const {
 	return result;
 }
 
+// purge non-graphic characters
+String String::Purge(void) const {
+	String result;
+
+	for (unsigned i_char = 0; i_char < Length(); i_char++) {
+        char const ch = at(i_char);
+		bool const is_graphic = (::isgraph(ch) != 0);
+
+		if (is_graphic) {
+			result += ch;
+		}
+	}
+
+	return result;
+}
+
 // enclose the string in single quotes
 String String::Quote(void) const {
 	String const result("'" + *this + "'");

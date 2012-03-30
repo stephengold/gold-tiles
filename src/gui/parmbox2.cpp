@@ -180,10 +180,10 @@ IndexType ParmBox2::Height(void) const {
 }
 
 void ParmBox2::SetGrid(void) {
-	EnableButton(IDC_TRIANGLE, false);
-	EnableButton(IDC_4WAY, true);
-	EnableButton(IDC_HEX, true);
-	EnableButton(IDC_8WAY, true);
+	EnableControl(IDC_TRIANGLE, false);
+	EnableControl(IDC_4WAY, true);
+	EnableControl(IDC_HEX, true);
+	EnableControl(IDC_8WAY, true);
 
 	SetButton(IDC_TRIANGLE, mGrid == GRID_TRIANGLE);
 	SetButton(IDC_4WAY, mGrid == GRID_4WAY);
@@ -221,17 +221,17 @@ void ParmBox2::SetTextIndex(IdType controlId, ValueType value) {
 void ParmBox2::SetTopology(void) {
 #if 1
 	// TODO
-	EnableButton(IDC_ENDLESS, true);
-	EnableButton(IDC_RECT, false);
-	EnableButton(IDC_TORUS, false);
-	EnableButton(IDC_VSTRIP, false);
-	EnableButton(IDC_HSTRIP, false);
-	EnableButton(IDC_VCYLINDER, false);
-	EnableButton(IDC_HCYLINDER, false);
+	EnableControl(IDC_ENDLESS, true);
+	EnableControl(IDC_RECT, false);
+	EnableControl(IDC_TORUS, false);
+	EnableControl(IDC_VSTRIP, false);
+	EnableControl(IDC_HSTRIP, false);
+	EnableControl(IDC_VCYLINDER, false);
+	EnableControl(IDC_HCYLINDER, false);
 	mHeight = Cell::HEIGHT_MAX;
 	mWidth = Cell::WIDTH_MAX;
-	EnableEditBox(IDC_EDITHEIGHT, false);
-	EnableEditBox(IDC_EDITWIDTH, false);
+	EnableControl(IDC_EDITHEIGHT, false);
+	EnableControl(IDC_EDITWIDTH, false);
 #endif
 
 	SetButton(IDC_ENDLESS, mHeight == Cell::HEIGHT_MAX 

@@ -43,6 +43,7 @@ TopWindow::TopWindow(Game *pGame):
 #endif
 
 #ifdef  _WINDOWS
+#include "gui/attrbox.hpp"
 #include "gui/handbox.hpp"
 #include "gui/hintbox.hpp"
 #include "gui/parmbox1.hpp"
@@ -154,6 +155,7 @@ void TopWindow::Initialize(CREATESTRUCT const &rCreateStruct) {
 	ASSERT(mpMenuBar != NULL);
 
 	mGameView.SetWindow(this, mpMenuBar);
+
     SetTileWidth(IDM_LARGE_TILES);
 	if (HasGame()) {
 	    Hands const hands = Hands(*mpGame);
@@ -163,10 +165,8 @@ void TopWindow::Initialize(CREATESTRUCT const &rCreateStruct) {
 			    SavePlayerOptions(*i_hand);
 			}
 		}
-	}
-
-	if (HasGame() && mpGame->Style() != GAME_STYLE_CHALLENGE) {
-		mpGame->StartClock();
+		
+		ChangeHand("");
 	}
 
 	SetTimer(TIMEOUT_MSEC, ID_CLOCK_TIMER);
@@ -386,9 +386,14 @@ void TopWindow::HandleMenuCommand(IdType command) {
         case IDM_RECENTER:
             Resize(ClientAreaWidth(), ClientAreaHeight());
             break;
-		case IDM_ATTRIBUTES:
-		    // TODO
+		case IDM_ATTRIBUTES: {
+			DisplayModes modes = DisplayModes(mGameView);
+		    AttrBox box(modes);
+			box.Run(this);
+			modes = DisplayModes(box);
+			mGameView.SetDisplayModes(modes);
 			break;
+		}
         case IDM_HINTS: {
 			HintType hint_strength = HintType(mGameView);
 			GameStyleType const game_style = mGameView.GameStyle();
@@ -582,10 +587,9 @@ void TopWindow::InfoBox(char const *messageText) {
 void TopWindow::LoadPlayerOptions(Hand const &rHand) {
 	String const player_name = rHand.PlayerName();
 	Player const &r_player = Player::rLookup(player_name);
-	mpMenuBar->LoadPlayerOptions(r_player);
 
-	Point const start_cell_position = Point(r_player);
-	mGameView.SetStartCellPosition(start_cell_position);
+	mpMenuBar->LoadPlayerOptions(r_player);
+	mGameView.LoadPlayerOptions(r_player);
 
 	IdType const tile_size = r_player.TileSize();
 	SetTileWidth(tile_size);
@@ -611,12 +615,12 @@ void TopWindow::OfferNewGame(void) {
 	GridType grid = Cell::Grid();
 	ParmBox2 parmbox2(wrap_flag, height, width, grid);
 
-	// begin setting up third dialog box
+	// begin setting up the third dialog box
 	ACountType attribute_cnt = Tile::AttributeCnt();
 	unsigned tile_redundancy = Game::TILE_REDUNDANCY_DEFAULT;
 	unsigned hand_cnt = HAND_CNT_DEFAULT;
 	unsigned hand_size = Game::HAND_SIZE_DEFAULT;
-	unsigned bonus_pct = unsigned(0.5 + 100.0*Tile::BonusFraction());
+	unsigned bonus_pct = unsigned(0.5 + 100.0*Tile::BonusProbability());
 
 	ACountType max_attribute_cnt = Tile::AttributeCnt();
 	AValueType *max_attribute_values = new AValueType[max_attribute_cnt];
@@ -625,7 +629,7 @@ void TopWindow::OfferNewGame(void) {
 		max_attribute_values[i_attr] = Tile::ValueMax(i_attr);
 	}
 
-	// begin setting up fifth dialog box
+	// begin setting up the fifth dialog box
 	unsigned max_hand_cnt = 0;
 	Strings player_names;
     Indices auto_hands;
@@ -732,16 +736,16 @@ STEP3:
 			new_max_attribute_values[i_attr] = Tile::VALUE_CNT_DEFAULT - 1;
 		}
 
-		max_attribute_cnt = attribute_cnt;
 		max_attribute_values = new_max_attribute_values;
 	}
+	max_attribute_cnt = attribute_cnt;
 	String template_name = "TILEBOX" + String(attribute_cnt);
 	TileBox tilebox((char const *)template_name, attribute_cnt, max_attribute_values);
 
 	// further work on fifth dialog
    	if (hand_cnt > max_hand_cnt) {
 		// initialize new addresses and names
-		for (unsigned i = max_hand_cnt; i < hand_cnt; i++) {
+		for (unsigned i_hand = max_hand_cnt; i_hand < hand_cnt; i_hand++) {
 			String name;
 			switch (game_style) {
 			case GAME_STYLE_PRACTICE:
@@ -805,32 +809,32 @@ STEP4:
 
 	// fifth dialog and onward:  parameters of each hand
 	Strings::Iterator i_name = player_names.Begin();
-	for (unsigned i = 0; i < hand_cnt; ) {
+	for (unsigned i_hand = 0; i_hand < hand_cnt; ) {
 		ASSERT(i_name != player_names.End());
-		bool const more_flag = (i+1 < hand_cnt);
-		bool const auto_flag = auto_hands.Contains(i);
-		bool const remote_flag = remote_hands.Contains(i);
-		IpAddressType const ip_address = ips[i];
-		HandBox handbox(i+1, more_flag, *i_name, auto_flag, remote_flag, ip_address);
+		bool const more_flag = (i_hand+1 < hand_cnt);
+		bool const auto_flag = auto_hands.Contains(i_hand);
+		bool const remote_flag = remote_hands.Contains(i_hand);
+		IpAddressType const ip_address = ips[i_hand];
+		HandBox handbox(i_hand+1, more_flag, *i_name, auto_flag, remote_flag, ip_address);
 		result = handbox.Run(this);
 		if (result == Dialog::RESULT_CANCEL) {
 	        delete[] max_attribute_values;
 		    return;
 		} else if (result == Dialog::RESULT_BACK) {
-			if (i == 0) {
+			if (i_hand == 0) {
 				goto STEP4;
 			} else {
-				i--;
+				i_hand--;
 				i_name--;
 			}
 		} else {
 		    ASSERT(result == Dialog::RESULT_OK);
 		    *i_name = handbox.PlayerName();
-		    auto_hands.AddRemove(i, handbox.IsAutomatic());
-		    remote_hands.AddRemove(i, handbox.IsRemote());
-		    ips[i] = IpAddressType(handbox);
+		    auto_hands.AddRemove(i_hand, handbox.IsAutomatic());
+		    remote_hands.AddRemove(i_hand, handbox.IsRemote());
+		    ips[i_hand] = IpAddressType(handbox);
 
-			i++;
+			i_hand++;
 			i_name++;
 		}
 	}
@@ -888,21 +892,15 @@ void TopWindow::Play(bool passFlag) {
         mpGame->FinishTurn(move);
 
         if (!mpGame->IsOver()) {
-			// the game isn't over, so proceed to the next hand
-			Hand const old_hand = Hand(*mpGame);
-			if (old_hand.IsLocalPlayer()) {
-		        SavePlayerOptions(old_hand);
-			}
-			String const old_player_name = old_hand.PlayerName();
-
+			// the game isn't over yet, so proceed to the next hand
+			String const old_player_name = SaveHandOptions();
             mpGame->ActivateNextHand();
 			ChangeHand(old_player_name);
 
         } else {
 			// the game is over, so award bonus
-            mpMenuBar->GameOver();                  
-            mpGame->GoingOutBonus();	
-			String const report = mpGame->GoingOutReport();
+            mpMenuBar->GameOver(); 
+			String const report = mpGame->EndBonus();
 	        Window::InfoBox(report, "Going Out - Gold Tile");
         }
         mGameView.Reset();
@@ -921,14 +919,11 @@ void TopWindow::RedoTurn(void) {
 	ASSERT(!IsGamePaused());
 
 	mpGame->StopClock();
-	Hand const old_hand = Hand(*mpGame);
-	if (old_hand.IsLocalPlayer()) {
-	    SavePlayerOptions(old_hand);
-	}
-	String const old_player_name = old_hand.PlayerName();
+	String const old_player_name = SaveHandOptions();
 
     mpGame->Redo();
 	mGameView.Reset();
+
 	ChangeHand(old_player_name);
 }
 
@@ -1068,14 +1063,11 @@ void TopWindow::ResignHand(void) {
     mpGame->FinishTurn(move);
 
     if (!mpGame->IsOver()) {
-		// the game isn't over, so proceed to the next hand
-		Hand const old_hand = Hand(*mpGame);
-		if (old_hand.IsLocalPlayer()) {
-	        SavePlayerOptions(old_hand);
-		}
-		String const old_player_name = old_hand.PlayerName();
+		// the game isn't over yet, so proceed to the next hand
+		String const old_player_name = SaveHandOptions();
 
 		mpGame->ActivateNextHand();
+
 		ChangeHand(old_player_name);
 
 	} else {
@@ -1100,14 +1092,11 @@ void TopWindow::RestartGame(void) {
 	if (!IsGameOver()) {
 	    mpGame->StopClock();
 	}
-	Hand const old_hand = Hand(*mpGame);
-	if (old_hand.IsLocalPlayer()) {
-	    SavePlayerOptions(old_hand);
-	}
-	String const old_player_name = old_hand.PlayerName();
+	String const old_player_name = SaveHandOptions();
 
 	mpGame->Restart();
 	mGameView.Reset();
+
 	ChangeHand(old_player_name);
 }
 
@@ -1120,14 +1109,24 @@ void TopWindow::RuleBox(char const *reason) {
 	ErrorBox(message, title);
 }
 
+String TopWindow::SaveHandOptions(void) const {
+	Hand const old_hand = Hand(*mpGame);
+	if (old_hand.IsLocalPlayer()) {
+	    SavePlayerOptions(old_hand);
+	}
+	String const result = old_hand.PlayerName();
+
+	return result;
+}
+
 void TopWindow::SavePlayerOptions(Hand const &rHand) const {
+	ASSERT(mpMenuBar != NULL);
+
 	String const player_name = rHand.PlayerName();
-
 	Player &r_player = Player::rLookup(player_name);
-	mpMenuBar->SavePlayerOptions(r_player);
 
-	Point const start_cell_position = mGameView.StartCellPosition();
-	r_player.SetStartCellPosition(start_cell_position);
+	mpMenuBar->SavePlayerOptions(r_player);
+	mGameView.SavePlayerOptions(r_player);
 }
 
 void TopWindow::SetGame(Game *pGame) {
@@ -1143,8 +1142,8 @@ void TopWindow::SetGame(Game *pGame) {
 
 	mGameView.SetGame(mpGame);
 	mpMenuBar->NewGame(old_style);
-    SetTileWidth(IDM_LARGE_TILES);
 
+    SetTileWidth(IDM_LARGE_TILES);
 	if (HasGame()) {
 	    Hands const hands = Hands(*mpGame);
 		Hands::ConstIterator i_hand;
@@ -1224,14 +1223,11 @@ void TopWindow::UndoTurn(void) {
 	if (!IsGameOver()) {
 	    mpGame->StopClock();
 	}
-	Hand const old_hand = Hand(*mpGame);
-	if (old_hand.IsLocalPlayer()) {
-	    SavePlayerOptions(old_hand);
-	}
-	String const old_player_name = old_hand.PlayerName();
+	String const old_player_name = SaveHandOptions();
 
     mpGame->Undo();
 	mGameView.Reset();
+
 	ChangeHand(old_player_name);
 }
 

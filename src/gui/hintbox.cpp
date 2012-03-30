@@ -72,9 +72,9 @@ INT_PTR HintBox::HandleMessage(MessageType message, WPARAM wParam) {
 
 			if (mGameStyle == GAME_STYLE_CHALLENGE) {
 	            // disable the stronger hints
-	            EnableButton(IDC_RADIO_CONNECTED, false);
-	            EnableButton(IDC_RADIO_USABLE_ANY, false);
-	            EnableButton(IDC_RADIO_USABLE_SELECTED, false);
+	            EnableControl(IDC_RADIO_CONNECTED, false);
+	            EnableControl(IDC_RADIO_USABLE_ANY, false);
+	            EnableControl(IDC_RADIO_USABLE_SELECTED, false);
 			}
 			SetHintStrength();
 			result = TRUE;

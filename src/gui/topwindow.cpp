@@ -24,6 +24,7 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 #include "gui/canvas.hpp"
 #include "gui/menubar.hpp"
 #include "gui/topwindow.hpp"
+#include "strings.hpp"
 
 #ifdef _QT
 #include "ui_topwindow.h"
@@ -54,11 +55,13 @@ TopWindow::TopWindow(Game *pGame):
 #include "gui/tilebox.hpp"
 #include "gui/win_types.hpp"
 #include "gui/windowclass.hpp"
-#include "strings.hpp"
+#include "handopts.hpp"
+
 
 // static data of the class
 
 WindowClass *TopWindow::mspClass = NULL;
+
 
 // static callback functions
 
@@ -95,6 +98,7 @@ static void yield(void *pArgument) {
 
 	window->Yields();
 }
+
 
 // lifecycle
 
@@ -161,7 +165,7 @@ void TopWindow::Initialize(CREATESTRUCT const &rCreateStruct) {
 	    Hands const hands = Hands(*mpGame);
 		Hands::ConstIterator i_hand;
 		for (i_hand = hands.begin(); i_hand != hands.end(); i_hand++) {
-			if (i_hand->IsLocalPlayer()) {
+			if (i_hand->IsLocalUser()) {
 			    SavePlayerOptions(*i_hand);
 			}
 		}
@@ -183,12 +187,14 @@ void TopWindow::ChangeHand(String const &rOldPlayerName) {
 
 	Hand const hand = Hand(*mpGame);
 
-	if (hand.IsLocalPlayer()) {
+	if (hand.IsLocalUser()) {
         LoadPlayerOptions(hand);
 	}
+	double const skip_probability = hand.SkipProbability();
+    mGameView.Reset(skip_probability);
 
 	if (!IsGameOver()) {
-	    if (!hand.IsLocalPlayer()) {
+	    if (!hand.IsLocalUser()) {
 			mpGame->StartClock();
 		} else if (rOldPlayerName == hand.PlayerName())	{
 		    mpGame->StartClock();
@@ -630,26 +636,15 @@ void TopWindow::OfferNewGame(void) {
 	}
 
 	// begin setting up the fifth dialog box
-	unsigned max_hand_cnt = 0;
-	Strings player_names;
-    Indices auto_hands;
-    Indices remote_hands;
-	std::vector<IpAddressType> ips;
+	HandOpts hand_options;
 	if (HasGame()) {
 	    Hands hands = Hands(*mpGame);
-		max_hand_cnt = hands.Count();
-		unsigned i = 0;
 		Hands::ConstIterator i_hand;
 		for (i_hand = hands.begin(); i_hand != hands.end(); i_hand++) {
-			String const name = i_hand->PlayerName();
-			player_names.Append(name);
-			if (i_hand->IsAutomatic()) {
-				auto_hands.Add(i);
-			}
-			// TODO add to remote_hands
-			ips.push_back(0);  // produces 0.0.0.0
-			i++;
+			HandOpt options = HandOpt(*i_hand);
+			hand_options.Append(options);
 		}
+		ASSERT(hand_options.Count() == hands.Count());
 	}
 
 STEP1:
@@ -665,12 +660,8 @@ STEP1:
 
 	bool new_game_style = (game_style != old_game_style);
 	old_game_style = GAME_STYLE_NONE;
-	if (new_game_style && max_hand_cnt > 0) {
-		max_hand_cnt = 0;
-		player_names.MakeEmpty();
-		auto_hands.MakeEmpty();
-		remote_hands.MakeEmpty();
-		ips.clear();
+	if (new_game_style) {
+		hand_options.MakeEmpty();
 	}
 
 STEP2:
@@ -743,31 +734,16 @@ STEP3:
 	TileBox tilebox((char const *)template_name, attribute_cnt, max_attribute_values);
 
 	// further work on fifth dialog
-   	if (hand_cnt > max_hand_cnt) {
-		// initialize new addresses and names
-		for (unsigned i_hand = max_hand_cnt; i_hand < hand_cnt; i_hand++) {
-			String name;
-			switch (game_style) {
-			case GAME_STYLE_PRACTICE:
-				name = "Player";
-				break;
-			case GAME_STYLE_DEBUG:
-				name = "Tester";
-				break;
-			case GAME_STYLE_FRIENDLY:
-			case GAME_STYLE_CHALLENGE:
-				name = player_names.InventUnique("Player");
-				break;
-			default:
-				FAIL();
-			}
-			player_names.Append(name);
-			// TODO add to auto_hands and/or remote_hands
-			ips.push_back(0);  // produces 0.0.0.0
+   	if (hand_cnt > hand_options.Count()) {
+		// initialize new hand_options
+		Strings const player_names = hand_options.AllPlayerNames();
+		for (unsigned i_hand = hand_options.Count(); i_hand < hand_cnt; i_hand++) {
+			HandOpt options = HandOpt(game_style, player_names);
+			hand_options.Append(options);
+			ASSERT(i_hand + 1 == hand_options.Count());
 		}
-		max_hand_cnt = hand_cnt;
 	}
-	ASSERT(max_hand_cnt >= hand_cnt);
+	ASSERT(hand_options.Count() >= hand_cnt);
 
 STEP4:
 	// fourth dialog:  number of values for each attribute
@@ -808,14 +784,9 @@ STEP4:
 	}
 
 	// fifth dialog and onward:  parameters of each hand
-	Strings::Iterator i_name = player_names.Begin();
 	for (unsigned i_hand = 0; i_hand < hand_cnt; ) {
-		ASSERT(i_name != player_names.End());
 		bool const more_flag = (i_hand+1 < hand_cnt);
-		bool const auto_flag = auto_hands.Contains(i_hand);
-		bool const remote_flag = remote_hands.Contains(i_hand);
-		IpAddressType const ip_address = ips[i_hand];
-		HandBox handbox(i_hand+1, more_flag, *i_name, auto_flag, remote_flag, ip_address);
+		HandBox handbox(i_hand+1, more_flag, hand_options[i_hand]);
 		result = handbox.Run(this);
 		if (result == Dialog::RESULT_CANCEL) {
 	        delete[] max_attribute_values;
@@ -825,17 +796,11 @@ STEP4:
 				goto STEP4;
 			} else {
 				i_hand--;
-				i_name--;
 			}
 		} else {
 		    ASSERT(result == Dialog::RESULT_OK);
-		    *i_name = handbox.PlayerName();
-		    auto_hands.AddRemove(i_hand, handbox.IsAutomatic());
-		    remote_hands.AddRemove(i_hand, handbox.IsRemote());
-		    ips[i_hand] = IpAddressType(handbox);
-
+			hand_options[i_hand] = HandOpt(handbox);
 			i_hand++;
-			i_name++;
 		}
 	}
 
@@ -846,11 +811,9 @@ STEP4:
 	Tile::SetStatic(attribute_cnt, max_attribute_values, bonus_fraction);
 	delete[] max_attribute_values;
 
-	while (player_names.Count() > hand_cnt) {
-		player_names.Unappend();
-	}
+	hand_options.Truncate(hand_cnt);
 
-	Game *const p_new_game = new Game(player_names, auto_hands, game_style, 
+	Game *const p_new_game = new Game(hand_options, game_style, 
 		                        tile_redundancy, hand_size, seconds_per_hand);
 	ASSERT(p_new_game != NULL);
 
@@ -902,8 +865,8 @@ void TopWindow::Play(bool passFlag) {
             mpMenuBar->GameOver(); 
 			String const report = mpGame->EndBonus();
 	        Window::InfoBox(report, "Going Out - Gold Tile");
+            mGameView.Reset();
         }
-        mGameView.Reset();
 
     } else if (!is_legal) { // explain the issue
         RuleBox(reason);
@@ -1111,7 +1074,7 @@ void TopWindow::RuleBox(char const *reason) {
 
 String TopWindow::SaveHandOptions(void) const {
 	Hand const old_hand = Hand(*mpGame);
-	if (old_hand.IsLocalPlayer()) {
+	if (old_hand.IsLocalUser()) {
 	    SavePlayerOptions(old_hand);
 	}
 	String const result = old_hand.PlayerName();

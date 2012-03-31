@@ -93,6 +93,7 @@ public:
 	// misc public methods
 	AValueType        Attribute(AIndexType) const;
     static ACountType AttributeCnt(void);
+	static String     AttributeReport(void);
 	static String     AttributeToString(ADisplayType, AValueType);
 	static double     BonusProbability(void);
 	Tile              CloneAndSetBonus(void) const;

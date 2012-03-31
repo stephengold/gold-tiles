@@ -110,6 +110,24 @@ String plural(unsigned n, const char *noun) {
     return result;
 }
 
+bool random_bool(double probability) {
+	ASSERT(probability >= 0.0);
+	ASSERT(probability <= 1.0);
+    bool result = false;
+
+	if (probability == 1.0) {
+		result = true;
+
+	} else if (probability > 0.0) {
+	    double const r = double(::rand())/RAND_MAX;
+	    ASSERT(r >= 0.0);
+	    ASSERT(r <= 1.0);
+	    result = (r < probability);
+	}
+
+	return result;
+}
+
 bool str_eq(char const *string1, char const *string2) {
 	bool const result = (::strcmp(string1, string2) == 0);
 

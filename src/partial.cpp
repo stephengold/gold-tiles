@@ -29,20 +29,29 @@ void (*Partial::mspYieldFunction)(void *) = NULL;
 
 // lifecycle
 
-Partial::Partial(Game const *pGame, HintType strength) {
-    Reset(pGame, strength);
+Partial::Partial(Game const *pGame, HintType strength, double skipProbability) {
+    Reset(pGame, strength, skipProbability);
 }
 
 // Partial(Partial const &);  compiler-generated copy constructor is OK
 // ~Partial(void);  compiler-generated destructor is OK
 
-void Partial::Reset(Game const *pGame, HintType strength) {
+void Partial::Reset(Game const *pGame, HintType strength, double skipProbability) {
 	mpGame = pGame;
     mHintStrength = strength;
-    Reset();
+    Reset(skipProbability);
 }
 
-// method invoked by takeback and at the start of a turn
+// method invoked at the start of a turn
+void Partial::Reset(double skipProbability) {
+	ASSERT(skipProbability >= 0.0);
+	ASSERT(skipProbability < 1.0);
+
+	mSkipProbability = skipProbability;
+	Reset();
+}
+
+// method invoked by takeback
 void Partial::Reset(void) {
     mActiveId = Tile::ID_NONE;
     mHintedCellsValid = false;
@@ -163,6 +172,7 @@ void Partial::Deactivate(void) {
     }
 }
 
+// RECURSIVE
 void Partial::FindBestMove(Partial &rBest, unsigned &rBestScore) const {
     ASSERT(HasGame());
 
@@ -179,7 +189,7 @@ void Partial::FindBestMove(Partial &rBest, unsigned &rBestScore) const {
 	for (unsigned i = 0; i < CountTiles(); i++) {
         Tile const tile = mTiles[i];
 	    TileIdType const id = tile.Id();
-	    if (temp.IsInHand(id)) {
+	    if (temp.IsInHand(id) && !::random_bool(mSkipProbability)) {
 			Yields();
 
             temp.Activate(id);
@@ -476,6 +486,7 @@ void Partial::SwapToHand(void) {
         (*mspYieldFunction)(mspYieldArgument);
     }
 }
+
 
 // inquiry methods
 

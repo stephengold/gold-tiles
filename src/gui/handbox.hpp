@@ -32,42 +32,40 @@ The HandBox class is an extension of the Dialog class.
 */
 
 #include "gui/dialog.hpp"   // ISA Dialog
-#include "string.hpp"       // HASA String
-
-typedef Win::LPARAM IpAddressType;
+#include "handopt.hpp"      // HASA HandOpt
 
 class HandBox: public Dialog {
 public:
     // public lifecycle
-	HandBox(unsigned handIndex, bool more, String const &player, 
-		    bool autop, bool rem, IpAddressType); 
+	HandBox(unsigned handIndex, bool more, HandOpt const &options); 
 	// no default constructor
 	// ~HandBox(void);  compiler-generated destructor is OK
 
 	// public operators
-	operator IpAddressType(void) const;
+	operator HandOpt(void) const;
 
 	// misc public methods
 	int    HandleMessage(MessageType, Win::WPARAM);
-	String PlayerName(void) const;
-
-	// public inquiry methods
-	bool IsAutomatic(void) const;
-	bool IsRemote(void) const;
 
 private:
+	// private constants
+	static const ValueType LEVEL_MAX = 8;
+
 	// private data
 	bool          mAreMoreHands;
 	unsigned      mHandIndex;
-	IpAddressType mIpAddress;
-    bool          mIsAutomatic, mIsRemote;
-	String        mPlayerName;
+	HandOpt       mOptions;
 
-	// private operators
+	// private lifecycle
     HandBox(HandBox const &);  // not copyable
 
 	// private operators
     HandBox &operator=(HandBox const &);  // not assignable
-};
 
+	// private misc methods
+	void HandleButtonClick(IdType);
+	void UpdateButtons(void);
+	void UpdateNameBox(String const &);
+	void UpdateSlider(void);
+};
 #endif

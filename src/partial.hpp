@@ -54,12 +54,13 @@ enum HintType {
 class Partial {
 public:
 	// public lifecycle
-	Partial(Game const *, HintType);
+	Partial(Game const *, HintType, double skipProb);
 	// no default constructor
     //Partial(Partial const &);  compiler-generated copy constructor is OK
     //~Partial(void);
 	void Reset(void);
-	void Reset(Game const *, HintType);
+	void Reset(double skipProb);
+	void Reset(Game const *, HintType, double skipProb);
 
 	// operators
     //Partial &operator=(Partial const &);  compiler-generated assignment operator is OK
@@ -68,7 +69,7 @@ public:
 	operator Tiles(void) const;
 
 	// misc public methods
-	void          Activate(TileIdType);  // TODO Mobilize()
+	void          Activate(TileIdType);
 	void          BoardToHand(void);             // move the active tile
 	unsigned      CountHand(void) const;
 	unsigned      CountHinted(void);
@@ -76,7 +77,6 @@ public:
 	unsigned      CountSwap(void) const;
 	unsigned      CountTiles(void) const;
 	void          Deactivate(void);
-	void          FindBestMove(Partial &, unsigned &) const;
 	Cell          FirstHinted(void);
 	GameStyleType GameStyle(void) const;
 	TileIdType    GetActive(void) const;
@@ -125,6 +125,7 @@ private:
 	bool            mHintedCellsValid;
 	HintType        mHintStrength;
 	unsigned        mPlayedTileCnt;  // number of tiles played to the board
+	double          mSkipProbability;
 	Indices         mSwapIds;        // indices of all tiles in the swap area
 	Tiles           mTiles;          // the set of all available tiles
 	static void * mspYieldArgument;
@@ -132,6 +133,7 @@ private:
 
 	// misc private methods
 	void        AddValidNextUses(Move const &, Tile const &, Cells const &);
+	void        FindBestMove(Partial &, unsigned &) const;
 	void        SetHintedCells(void);
 	static void Yields(void);
 

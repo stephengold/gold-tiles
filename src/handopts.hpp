@@ -1,8 +1,8 @@
-#ifndef HANDS_HPP_INCLUDED
-#define HANDS_HPP_INCLUDED
+#ifndef HANDOPTS_HPP_INCLUDED
+#define HANDOPTS_HPP_INCLUDED
 
-// File:    hands.hpp
-// Purpose: Hands class
+// File:    handopts.hpp
+// Purpose: HandOpts class
 // Author:  Stephen Gold sgold@sonic.net
 // (c) Copyright 2012 Stephen Gold
 // Distributed under the terms of the GNU General Public License
@@ -25,34 +25,32 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 /*
-A Hands object represents a circular sequence of zero or more hands of tiles.
+A HandOpts object represents a list of hand options.
+
+The HandsOpt class encapsulates a vector of HandOpt objects.
 */
 
-#include <vector>    // ISA std::vector
-#include "hand.hpp"  // HASA Hand
+#include <vector>       // HASA std::vector
+#include "handopt.hpp"  // HASA HandOpt
 
-class Hands: public std::vector<Hand> {
+class HandOpts {
 public:
-	// public types
-    typedef std::vector<Hand>::const_iterator ConstIterator;
-    typedef std::vector<Hand>::iterator       Iterator;
+	// public operators
+	HandOpt &operator[](unsigned);
+    HandOpt const &operator[](unsigned) const;
 
 	// misc public methods
-	void     Append(Hand const &);
+	Strings  AllPlayerNames(void) const;
+	void     Append(HandOpt const &);
     unsigned Count(void) const;
-	ConstIterator 
-		     Find(String const &) const;
-	Iterator Find(String const &);
-	unsigned MaxScore(void) const;
-    void     Next(ConstIterator &) const;
-    void     Next(Iterator &);
-	void     NextWorking(Iterator &);
-    void     Previous(ConstIterator &) const;
-    void     Previous(Iterator &);
+	void     MakeEmpty(void);
+	void     Truncate(unsigned new_length);
 
 	// public inquiry method
-	bool HasAnyGoneOut(void) const;
-	bool HaveAllResigned(void) const;
 	bool IsEmpty(void) const;
+
+private:
+	// private date
+	std::vector<HandOpt> mList;
 };
-#endif // !defined(HANDS_HPP_INCLUDED)
+#endif // !defined(HANDOPTS_HPP_INCLUDED)

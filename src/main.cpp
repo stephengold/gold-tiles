@@ -84,17 +84,9 @@ int main(int argCnt, char *argValues[]) {
         << "it under certain conditions; see LICENSE.txt for details." << std::endl
         << std::endl;
 
-	std::cout << ::plural(Tile::AttributeCnt(), "attribute") << ":" << std::endl;
-	for (AIndexType i_attr = 0; i_attr < Tile::AttributeCnt(); i_attr++) {
-		ADisplayType const display_mode = Tile::DefaultDisplayMode(i_attr);
-		AValueType const value_max = Tile::ValueMax(i_attr);
-		std::cout << " " << ::ordinal(i_attr + 1) << " attribute ranges from " 
-			      << Tile::AttributeToString(display_mode, 0) << " to " 
-				  << Tile::AttributeToString(display_mode, value_max)
-				  << std::endl;
-	}
-	std::cout << std::endl;
-
+	String const report = Tile::AttributeReport();
+	std::cout << report;
+	
 	unsigned hand_cnt = 0;
 	while (hand_cnt == 0) {
 	    std::cout << "Deal how many hands? ";
@@ -103,9 +95,7 @@ int main(int argCnt, char *argValues[]) {
         std::cin.getline(buffer, 256);
 	}
 
-	Strings player_names;
-	Indices auto_flags;
-
+	HandOpts hand_options;
 	for (unsigned i_hand = 0; i_hand < hand_cnt; i_hand++) {
 	    String name;
 		while (name.IsEmpty()) {
@@ -114,12 +104,13 @@ int main(int argCnt, char *argValues[]) {
             char buffer[256];
             std::cin.getline(buffer, 256);
 			name = buffer;
-		    name.Capitalize();
 		}
-	    player_names.Append(name);
-	    if (name == "Computer") {
-			auto_flags.Add(i_hand);
+
+		HandOpt opt(name);
+	    if (opt.PlayerName() == "Computer") {
+		    opt.SetAutomatic();
 	    }
+		hand_options.Append(opt);
 	}
 
 	unsigned hand_size = 0;
@@ -135,7 +126,7 @@ int main(int argCnt, char *argValues[]) {
 	unsigned clones_per_tile = unsigned(tiles_needed / combo_cnt);
 
     // Instantiate the game.
-	Game game(player_names, auto_flags, GAME_STYLE_PRACTICE, clones_per_tile + 1, hand_size);
+	Game game(hand_options, GAME_STYLE_PRACTICE, clones_per_tile + 1, hand_size);
 
 	game.PlayGame();
 	std::cout << "The game is over." << std::endl;

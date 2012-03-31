@@ -155,9 +155,7 @@ Cell::operator String(void) const {
 	ASSERT(IsValid());
 
     String result("(");
-	result += String(mRow);
-	result += ", ";
-	result += String(mColumn);
+	result += String(mRow) + "," + String(mColumn);
 	result += ")";
 
     return result;

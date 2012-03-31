@@ -37,7 +37,7 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 // lifecycle
 
 GameView::GameView(Game const &rGame):
-    Partial(&rGame, HINT_DEFAULT),
+    Partial(&rGame, HINT_DEFAULT, 0.0),
     mHandRect(0, 0, 0, 0),
     mStartCell(0, 0),
     mSwapRect(0, 0, 0, 0)
@@ -816,9 +816,9 @@ void GameView::SetGame(Game *pGame) {
 	mpGame = pGame;
 
     if (pGame != NULL && pGame->Style() == GAME_STYLE_CHALLENGE) {
-	    Reset(mpGame, HINT_CHALLENGE_DEFAULT);
+	    Reset(mpGame, HINT_CHALLENGE_DEFAULT, 0.0);
 	} else {
-	    Reset(mpGame, HINT_DEFAULT);
+	    Reset(mpGame, HINT_DEFAULT, 0.0);
 	}
 	
     SetTileWidth(IDM_LARGE_TILES);

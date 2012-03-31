@@ -182,6 +182,20 @@ AValueType Tile::Attribute(AIndexType ind) const {
 	return msAttributeCnt;
 }
 
+/* static */ String Tile::AttributeReport(void) {
+	String result = ::plural(Tile::AttributeCnt(), "attribute") + ":\n";
+	for (AIndexType i_attr = 0; i_attr < Tile::AttributeCnt(); i_attr++) {
+		ADisplayType const display_mode = Tile::DefaultDisplayMode(i_attr);
+		AValueType const value_max = Tile::ValueMax(i_attr);
+		result += " " + ::ordinal(i_attr + 1) + " attribute ranges from ";
+		result += Tile::AttributeToString(display_mode, 0) + " to ";
+		result += Tile::AttributeToString(display_mode, value_max) + "\n";
+	}
+	result += "\n";
+
+	return result;
+}
+
 /* static */ String Tile::AttributeToString(ADisplayType display_mode, AValueType value) {
     char ch = '?'; // invalid
 
@@ -243,12 +257,8 @@ Tile Tile::CloneAndSetBonus(void) const {
     result.mId = NextId();
 
 	// randomize bonus value
-	double const r = double(::rand())/RAND_MAX;
-	if (r < msBonusProbability) {
-		result.mBonusValue = 1;
-	} else {
-	    result.mBonusValue = 0;
-	}
+	bool const gets_bonus = ::random_bool(msBonusProbability);
+	result.mBonusValue = gets_bonus ? 1 : 0;
 
 	ASSERT(result.IsValid());
     return result;

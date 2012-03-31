@@ -24,13 +24,14 @@ You should have received a copy of the GNU General Public License
 along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "string.hpp"  // HASA String
+#include "handopt.hpp" // HASA HandOpt
+#include "project.hpp"
 #include "tiles.hpp"   // HASA Tiles
 
 class Hand {
 public:
 	// public lifecycle
-    Hand(String const &name, String const &playerName, bool autom);
+    Hand(String const &handName, HandOpt const &);
 	void Restart(void);
 	// no default constructor
     // Hand(Hand const &); The compiler-generated copy constructor is fine.
@@ -39,6 +40,7 @@ public:
 	// public operators
     // Hand &operator=(Hand const &); The compiler-generated assignment method is fine.
 	bool operator==(Hand const &) const;
+	operator HandOpt(void) const;
 	operator Tiles(void) const;
 
 	// misc public methods
@@ -60,6 +62,7 @@ public:
 	void     Resign(Tiles &bag);
 	unsigned Score(void) const;
 	unsigned Seconds(void) const;
+	double   SkipProbability(void) const;
 	void     StartClock(void);
 	unsigned StopClock(void);
 	void     SubtractScore(unsigned);
@@ -70,17 +73,17 @@ public:
 	bool HasResigned(void) const;
 	bool IsAutomatic(void) const;
 	bool IsClockRunning(void) const;
-	bool IsLocalPlayer(void) const;
+	bool IsLocalUser(void) const;
+	bool IsRemote(void) const;
 
 private:
 	// private data
-	bool      mAutomatic;
-	bool      mClockRunning;
+	bool      mClockRunningFlag;
 	MsecIntervalType
 		      mMilliseconds;   // total time charged to the hand
 	String    mName;           // the "name" of the hand
-	String    mPlayerName;
-	bool      mResigned;
+	HandOpt   mOptions;
+	bool      mResignedFlag;
 	unsigned  mScore;
 	MsecIntervalType
 		      mStartTime;

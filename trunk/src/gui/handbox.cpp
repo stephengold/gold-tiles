@@ -46,35 +46,49 @@ static INT_PTR CALLBACK message_handler(
 
 // lifecycle
 
-HandBox::HandBox(
-	unsigned handIndex,
-	bool areMoreHands,
-	String const &playerName,
-	bool isAutomatic,
-	bool isRemote,
-	LPARAM ipAddress)
-:
-    Dialog("HANDBOX", &message_handler)
+HandBox::HandBox(unsigned handIndex, bool areMoreHands, HandOpt const &rOptions):
+    Dialog("HANDBOX", &message_handler),
+	mOptions(rOptions)
 {
 	mAreMoreHands = areMoreHands;
 	mHandIndex = handIndex;
-	mIsAutomatic = isAutomatic;
-	mIsRemote = isRemote;
-	mIpAddress = ipAddress;
-	mPlayerName = playerName;
-	mPlayerName.Capitalize();
 }
 
 
 // operators
 
-HandBox::operator IpAddressType(void) const {
-	return mIpAddress;
+HandBox::operator HandOpt(void) const {
+	return mOptions;
 }
 
 
 // misc methods
 
+void HandBox::HandleButtonClick(IdType buttonId) {
+	switch (buttonId) {
+		case IDC_RADIOAUTO:
+            mOptions.SetAutomatic();
+			UpdateNameBox("Computer");
+            break;
+
+		case IDC_RADIOLOCAL:
+			mOptions.SetLocalUser();
+		    if (mOptions.PlayerName() == "Computer") {
+				UpdateNameBox("User");
+			}
+            break;
+				
+		case IDC_RADIOREMOTE:
+            mOptions.SetRemote();
+		    if (mOptions.PlayerName() == "Computer") {
+				UpdateNameBox("Remote Player");
+			}
+            break;
+	}
+
+	UpdateButtons();
+}
+				
 INT_PTR HandBox::HandleMessage(MessageType message, WPARAM wParam) {
 	INT_PTR result = FALSE;
 
@@ -91,21 +105,23 @@ INT_PTR HandBox::HandleMessage(MessageType message, WPARAM wParam) {
 				message += "last hand?";
 			}
 			SetTextString(IDC_WHO, message);
-			SetTextString(IDC_EDITNAME, mPlayerName);
-			EnableControl(IDC_RADIOLOCAL, true);
-	        EnableControl(IDC_RADIOAUTO, true);
-#if 1
-			// TODO
-			mIsRemote = false;
-	        EnableControl(IDC_RADIOREMOTE, false);
-#endif
-			SetButton(IDC_RADIOLOCAL, !mIsAutomatic && !mIsRemote);
-	        SetButton(IDC_RADIOAUTO, mIsAutomatic && !mIsRemote);
-	        SetButton(IDC_RADIOREMOTE, mIsRemote);
 
 			if (!mAreMoreHands) {
 			    SetTextString(IDOK, "Start Game");
 			}
+
+	        EnableControl(IDC_RADIOAUTO, true);
+			EnableControl(IDC_RADIOLOCAL, true);
+#if 1
+			// TODO
+			ASSERT(!mOptions.IsRemote());
+	        EnableControl(IDC_RADIOREMOTE, false);
+#endif
+            SetSliderRange(IDC_SLIDER1, 0, LEVEL_MAX);
+			UpdateButtons();
+			String const name = mOptions.PlayerName();
+			UpdateNameBox(name);
+			UpdateSlider();
 
 			result = TRUE;
 			break;
@@ -117,48 +133,31 @@ INT_PTR HandBox::HandleMessage(MessageType message, WPARAM wParam) {
             switch (id) {
                 case IDC_EDITNAME:
 					if (notification_code == EN_CHANGE) {
-                        mPlayerName = GetTextString(id);
-					    mPlayerName.Capitalize();
-					    bool const good_name = !mPlayerName.IsEmpty();
+                        String name = GetTextString(id);
+					    mOptions.SetPlayerName(name);
+					    bool const good_name = mOptions.HasValidName();
 	                    EnableControl(IDOK, good_name);
 					}
  					break;
 
-				case IDC_RADIOAUTO: 
-					if (notification_code == BN_CLICKED) {
-					    SetButton(IDC_RADIOLOCAL, false);
-					    SetButton(IDC_RADIOREMOTE, false);
-                        mIsAutomatic = true;
-                        mIsRemote = false;
-						mPlayerName = "Computer";
-			            SetTextString(IDC_EDITNAME, mPlayerName);
-					}
-                    break;
-
+				case IDC_RADIOAUTO:
 				case IDC_RADIOLOCAL:
-					if (notification_code == BN_CLICKED) {
-					    SetButton(IDC_RADIOAUTO, false);
-					    SetButton(IDC_RADIOREMOTE, false);
-                        mIsAutomatic = false;
-                        mIsRemote = false;
-						if (mPlayerName == "Computer") {
-							mPlayerName = "Player";
-							SetTextString(IDC_EDITNAME, mPlayerName);
-						}
-					}
-                    break;
-				
 				case IDC_RADIOREMOTE:
 					if (notification_code == BN_CLICKED) {
-					    SetButton(IDC_RADIOAUTO, false);
-					    SetButton(IDC_RADIOLOCAL, false);
-                        mIsRemote = true;
+					    HandleButtonClick(id);
 					}
-                    break;
-				
+					break;
             }
-            break;
-        }
+			break;
+		}
+
+		case WM_HSCROLL:
+		case WM_VSCROLL: {
+            ValueType const value = GetSliderValue(IDC_SLIDER1);
+			double const prob = double(LEVEL_MAX - value)/10.0;
+			mOptions.SetSkipProbability(prob);
+			break;
+		}
     }
 
 	if (result == FALSE) {
@@ -168,18 +167,29 @@ INT_PTR HandBox::HandleMessage(MessageType message, WPARAM wParam) {
     return result;
 }
 
-String HandBox::PlayerName(void) const {
-	return mPlayerName;
+void HandBox::UpdateButtons(void) {
+    SetButton(IDC_RADIOAUTO, mOptions.IsAutomatic());
+    SetButton(IDC_RADIOLOCAL, mOptions.IsLocalUser());
+    SetButton(IDC_RADIOREMOTE, mOptions.IsRemote());
+
+	EnableControl(IDC_IPADDRESS1, mOptions.IsRemote());
+	EnableControl(IDC_SLIDER1, mOptions.IsAutomatic());
 }
 
+void HandBox::UpdateNameBox(String const &rName) {
+	mOptions.SetPlayerName(rName);
+    SetTextString(IDC_EDITNAME, rName);
 
-// inquiry methods
-
-bool HandBox::IsAutomatic(void) const {
-	return mIsAutomatic;
+    bool const good_name = mOptions.HasValidName();
+    EnableControl(IDOK, good_name);
 }
 
-bool HandBox::IsRemote(void) const {
-	return mIsRemote;
+void HandBox::UpdateSlider(void) {
+	double const prob = mOptions.SkipProbability();
+	ValueType const level = LEVEL_MAX - ValueType(0.5 + 10.0*prob);
+	ValueType const new_level = SetSliderValue(IDC_SLIDER1, level);
+	double const new_prob = double(LEVEL_MAX - new_level)/10.0;
+	mOptions.SetSkipProbability(new_prob);
 }
+
 #endif // defined(_WINDOWS)

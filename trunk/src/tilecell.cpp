@@ -79,6 +79,8 @@ TileCell::operator Cell(void) const {
 
 TileCell::operator String(void) const {
 	String result = String(mTile);
+	result = result.Purge();
+
 	if (IsSwap()) {
 		result += "@swap";
 	} else {

@@ -48,6 +48,8 @@ class Cells;
 class FractionPair;
 class Game;
 class Hand;
+class HandOpt;
+class HandOpts;
 class Hands;
 class Indices;
 class Move;
@@ -104,6 +106,7 @@ String      ordinal(unsigned);
 void        pause(void);
 const char *plural(unsigned);
 String      plural(unsigned, const char *);
+bool        random_bool(double probability);
 bool        str_eq(char const *, char const *);  // compare text strings
 
 // project-wide constants
@@ -113,7 +116,7 @@ const double   M_PI = 3.14159265358979323846;
 #endif // !defined(M_PI)
 
 const MsecIntervalType MSECS_PER_SECOND = 1000;
-const double           SQRT_3 = 1.732050807568877;
 const unsigned         SECONDS_PER_MINUTE = 60;
+const double           SQRT_3 = 1.732050807568877;
 
 #endif // !defined(PROJECT_HPP_INCLUDED)

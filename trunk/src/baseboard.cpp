@@ -55,18 +55,20 @@ void BaseBoard::MakeEmpty(void) {
 
 // convert the entire board to a string
 BaseBoard::operator String(void) const {
-    String result(5, ' ');
-    for (int column = -(int)mWestMax; column <= (int)mEastMax; column++) {
-       String column_tag(column);
-       result += String(5 - column_tag.Length(), ' ');
+	unsigned const width = Tile::AttributeCnt() + 4;
+
+    String result(width, ' ');
+    for (int column = -int(mWestMax); column <= int(mEastMax); column++) {
+       String const column_tag(column);
+       result += String(width - column_tag.Length(), ' ');
        result += column_tag;
     }
     result += "\n";
-    for (int row = (int)mNorthMax; row >= -(int)mSouthMax; row--) {
-        String row_tag(row);
-        result += String(5 - row_tag.Length(), ' ');
+    for (int row = int(mNorthMax); row >= -int(mSouthMax); row--) {
+        String const row_tag(row);
+        result += String(width - row_tag.Length(), ' ');
         result += row_tag;
-	    for (int column = -(int)mWestMax; column <= (int)mEastMax; column++) {
+	    for (int column = -int(mWestMax); column <= int(mEastMax); column++) {
             CellConstIterator i_cell = Find(row, column);
 			if (i_cell == mCells.end()) {
 				result += " .";

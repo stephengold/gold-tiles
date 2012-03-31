@@ -28,12 +28,11 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 
 // lifecycle
 
-Hand::Hand(const String &name, const String &playerName, bool autoFlag):
-    mName(name),
-	mPlayerName(playerName)
+Hand::Hand(const String &rHandName, HandOpt const &rOptions):
+    mName(rHandName),
+	mOptions(rOptions)
 {
-	mAutomatic = autoFlag;
-	mClockRunning = false;
+	mClockRunningFlag = false;
 	Restart();
 }
 
@@ -41,7 +40,7 @@ void Hand::Restart(void) {
 	ASSERT(!IsClockRunning());
 
 	mMilliseconds = 0L;
-	mResigned = false;
+	mResignedFlag = false;
 	mScore = 0;
 	// mStartTime gets initialized in StartClock()
 	mTiles.MakeEmpty();
@@ -59,6 +58,10 @@ bool Hand::operator ==(Hand const &rOther) const {
 	bool const result = (Name() == rOther.Name());
 
 	return result;
+}
+
+Hand::operator HandOpt(void) const {
+	return mOptions;
 }
 
 Hand::operator Tiles(void) const {
@@ -82,7 +85,7 @@ void Hand::AddTiles(Tiles const &rTiles) {
 
 Move Hand::ChooseMove(void) const {
     ASSERT(IsClockRunning());
-    ASSERT(IsLocalPlayer());
+    ASSERT(IsLocalUser());
     
     DisplayTiles();
 	Move result;
@@ -130,7 +133,7 @@ Tiles Hand::LongestRun(void) const {
 MsecIntervalType Hand::Milliseconds(void) const {
 	MsecIntervalType result = mMilliseconds;
 
-    if (mClockRunning) {
+    if (mClockRunningFlag) {
 	    MsecIntervalType const now = ::milliseconds();
 		ASSERT(now >= mStartTime);
 		MsecIntervalType const turn_msec = now - mStartTime;
@@ -146,7 +149,9 @@ String Hand::Name(void) const {
 }
 
 String Hand::PlayerName(void) const {
-    return mPlayerName;
+    String result = mOptions.PlayerName();
+
+	return result;
 }
 
 void Hand::RemoveTile(Tile const &rTile) {
@@ -163,15 +168,17 @@ void Hand::Resign(Tiles &rBag) {
 
 	rBag.AddTiles(mTiles);
 	mTiles.MakeEmpty();
-	mResigned = true;
+	mResignedFlag = true;
 
 	ASSERT(HasResigned());
 }
 
+// total points this hand has scored
 unsigned Hand::Score(void) const {
     return mScore;
 }
 
+// how much time this hand has spent, in seconds
 unsigned Hand::Seconds(void) const {
 	MsecIntervalType const msecs = Milliseconds();
     unsigned const result = unsigned(msecs/MSECS_PER_SECOND);
@@ -179,18 +186,24 @@ unsigned Hand::Seconds(void) const {
 	return result;
 }
 
+double Hand::SkipProbability(void) const {
+	double result = mOptions.SkipProbability();
+
+	return result;
+}
+
 void Hand::StartClock(void) {
-	ASSERT(!mClockRunning);
+	ASSERT(!mClockRunningFlag);
 
 	mStartTime = ::milliseconds();
-	mClockRunning = true;
+	mClockRunningFlag = true;
 }
 
 unsigned Hand::StopClock(void) {
 	ASSERT(IsClockRunning());
 
 	mMilliseconds = Milliseconds();
-	mClockRunning = false;
+	mClockRunningFlag = false;
 
 	// return the number of elapsed seconds
 	unsigned const result = unsigned(mMilliseconds/MSECS_PER_SECOND);
@@ -213,7 +226,7 @@ void Hand::Unresign(Tiles &rBag, Tiles const &rHand) {
 
 	rBag.RemoveTiles(rHand);
 	mTiles = rHand;
-	mResigned = false;
+	mResignedFlag = false;
 
 	ASSERT(!HasResigned());
 }
@@ -228,11 +241,13 @@ bool Hand::HasGoneOut(void) const {
 }
 
 bool Hand::HasResigned(void) const {
-    return mResigned;
+    return mResignedFlag;
 }
 
 bool Hand::IsAutomatic(void) const {
-    return mAutomatic;
+    bool const result = mOptions.IsAutomatic();
+
+	return result;
 }
 
 bool Hand::IsEmpty(void) const {
@@ -242,11 +257,11 @@ bool Hand::IsEmpty(void) const {
 }
 
 bool Hand::IsClockRunning(void) const {
-	return mClockRunning;
+	return mClockRunningFlag;
 }
 
-bool Hand::IsLocalPlayer(void) const {
-    bool const result = !mAutomatic;
+bool Hand::IsLocalUser(void) const {
+    bool const result = mOptions.IsLocalUser();
 
 	return result;
 }

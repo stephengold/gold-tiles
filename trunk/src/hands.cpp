@@ -26,6 +26,12 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 
 // misc methods
 
+void Hands::Append(Hand const &rHand) {
+	push_back(rHand);
+
+	ASSERT(!IsEmpty());
+}
+
 unsigned Hands::Count(void) const {
     unsigned const result = size();
 
@@ -47,7 +53,7 @@ Hands::Iterator Hands::Find(String const &rName) {
 }
 
 unsigned Hands::MaxScore(void) const {
-	ASSERT(Count() > 0);
+	ASSERT(!IsEmpty());
 
 	unsigned result = 0;
 
@@ -108,17 +114,17 @@ void Hands::Previous(Iterator &riCurrent) {
 // inquiry methods
 
 bool Hands::HasAnyGoneOut(void) const {
-   bool result = false;
+    bool result = false;
 
-   ConstIterator i_hand;
-   for (i_hand = begin(); i_hand != end(); i_hand++) {
-	   if (i_hand->HasGoneOut()) {
-		   result = true;
-		   break;
-	   }
-   }
+    ConstIterator i_hand;
+    for (i_hand = begin(); i_hand != end(); i_hand++) {
+	    if (i_hand->HasGoneOut()) {
+	 	    result = true;
+		    break;
+	    }
+    }
 
-   return result;
+    return result;
 }
 
 bool Hands::HaveAllResigned(void) const {
@@ -134,3 +140,10 @@ bool Hands::HaveAllResigned(void) const {
 
 	return result;
 }
+
+bool Hands::IsEmpty(void) const {
+	bool result = (Count() == 0);
+
+	return result;
+}
+

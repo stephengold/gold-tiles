@@ -24,6 +24,7 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 #include <iostream>
 #include "board.hpp"
 #include "game.hpp"
+#include "handopts.hpp"
 #include "partial.hpp"
 #include "strings.hpp"
 
@@ -31,8 +32,7 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 // lifecycle
 
 Game::Game(
-    Strings const &rPlayerNames,
-	Indices const &rAutoFlags,
+	HandOpts const &rHandOptions,
     GameStyleType style,
     unsigned tileRedundancy,
     unsigned handSize,
@@ -43,7 +43,7 @@ Game::Game(
 	mSecondsPerHand(secondsPerHand),
     mStyle(style)
 {
-	ASSERT(!rPlayerNames.IsEmpty());
+	ASSERT(!rHandOptions.IsEmpty());
 	ASSERT(style != GAME_STYLE_NONE);
 	ASSERT(tileRedundancy >= 1);
 	ASSERT(handSize >= 1);
@@ -55,21 +55,23 @@ Game::Game(
 	}
     std::cout << "Placed " << plural(CountStock(), "tile") << " in the stock bag." << std::endl;
     
-    // construct hands and generate a unique name for each one
-    Strings unique = rPlayerNames.Unique();
-	Strings::ConstIterator i_player;
-	unsigned i = 0;
-	for (i_player = rPlayerNames.Begin(); i_player != rPlayerNames.End(); i_player++) {
-		String player_name = *i_player;
+    // generate list of unique player names
+    Strings names = rHandOptions.AllPlayerNames();
 
-		String hand_name = player_name;
-		if (rPlayerNames.Count(player_name) > 1) {
-		    hand_name = unique.InventUnique(player_name, "'s ", " hand");
-		    unique.Append(hand_name);
+    // construct hands and generate a unique name for each
+	unsigned i = 0;
+	for (unsigned i_hand = 0; i_hand < rHandOptions.Count(); i_hand++) {
+		HandOpt options = rHandOptions[i_hand];
+
+		String hand_name = options.PlayerName();
+		unsigned const cnt = names.Count(hand_name);
+		if (cnt > 1) {
+		    hand_name = names.InventUnique(hand_name, "'s ", " hand");
+		    names.Append(hand_name);
 		}
 
-		Hand const hand(hand_name, player_name, rAutoFlags.Contains(i));
-	    mHands.push_back(hand);
+		Hand const hand(hand_name, rHandOptions[i]);
+	    mHands.Append(hand);
 		i++;
     }
 
@@ -374,13 +376,14 @@ void Game::NextTurn(void) {
     Move move;
     if (miActiveHand->IsAutomatic()) {
 		ASSERT(!CanRedo());
-        Partial partial(this, HINT_NONE);
+		double skip_probability = miActiveHand->SkipProbability();
+        Partial partial(this, HINT_NONE, skip_probability);
         partial.Suggest();
         move = partial.GetMove(false);
 		std::cout << miActiveHand->Name() << " played " << String(move) << std::endl;
 
 	} else {
-		ASSERT(miActiveHand->IsLocalPlayer());
+		ASSERT(miActiveHand->IsLocalUser());
 	    for (;;) {
 		    move = miActiveHand->ChooseMove();
 			char const *reason;

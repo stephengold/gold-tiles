@@ -25,16 +25,9 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "board.hpp"  // HASA Board
+#include "handopts.hpp"
 #include "hands.hpp"  // HASA Hands
 #include "turns.hpp"  // HASA Turns
-
-enum GameStyleType {
-    GAME_STYLE_NONE,
-	GAME_STYLE_DEBUG,    // allows peeking, undo, all hints; clock is optional
-	GAME_STYLE_PRACTICE, // no peeking; allows undo, all hints; clock is optional
-	GAME_STYLE_FRIENDLY, // no peeking, no undo; allows all hints; clock is optional
-	GAME_STYLE_CHALLENGE // no peeking, no undo, no hints; time limits
-};
 
 class Game {
 public:
@@ -44,9 +37,7 @@ public:
 	static const unsigned TIME_UNLIMITED = 0;
 
 	// public lifecycle
-    Game(Strings const &playerNames,
-		 Indices const &autoFlags,
-         GameStyleType, 
+    Game(HandOpts const &, GameStyleType, 
 		 unsigned tileRedundancy = TILE_REDUNDANCY_DEFAULT, 
 		 unsigned handSize = HAND_SIZE_DEFAULT,
 		 unsigned secondsPerHand = TIME_UNLIMITED);

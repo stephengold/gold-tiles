@@ -22,7 +22,7 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "gui/displaymodes.hpp"
-#include "gui/tiledisplay.hpp"
+#include "gui/markings.hpp"
 
 
 // lifecycle
@@ -71,7 +71,7 @@ DisplayModes &DisplayModes::operator=(DisplayModes const &rOther) {
 void DisplayModes::Cleanup(void) {
 	// can't display more than 4 glyphs per tile
 	ACountType const glyph_cnt = GlyphCnt();
-	if (glyph_cnt > TileDisplay::GLYPH_CNT) {
+	if (glyph_cnt > Markings::GLYPH_CNT) {
 		ADisplayType const mode = ADISPLAY_COLOR;
 		SetMode(0, mode);
 	}
@@ -84,7 +84,7 @@ void DisplayModes::Cleanup(void) {
 	}
 
 	ASSERT(ColorCnt() <= 1);
-	ASSERT(GlyphCnt() <= TileDisplay::GLYPH_CNT);
+	ASSERT(GlyphCnt() <= Markings::GLYPH_CNT);
 }
 
 ACountType DisplayModes::ColorCnt(void) const {

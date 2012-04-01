@@ -173,7 +173,7 @@ void Canvas::DrawTarget(Rect const &rBounds) {
 }
 
 Rect Canvas::DrawTile(
-	TileDisplay const &rTileDisplay,
+	Markings const &rMarkings,
 	ColorType tileColor,
 	Point const &rCenter,
 	PCntType width,
@@ -204,7 +204,7 @@ Rect Canvas::DrawTile(
 			FAIL();
 	}
 
-	unsigned const glyph_cnt = rTileDisplay.GlyphCnt();
+	unsigned const glyph_cnt = rMarkings.GlyphCnt();
 
     PCntType glyph_width = interior.Width();
     PCntType glyph_height = interior.Height();    
@@ -217,7 +217,7 @@ Rect Canvas::DrawTile(
         ASSERT(glyph_cnt == 1);
     }
 
-	ColorType const glyph_color = rTileDisplay.GlyphColor();
+	ColorType const glyph_color = rMarkings.GlyphColor();
     for (AIndexType ind = 0; ind < glyph_cnt; ind++) {
         LogicalXType glyph_left = interior.LeftX();
         LogicalYType glyph_top = interior.TopY();
@@ -231,8 +231,8 @@ Rect Canvas::DrawTile(
         }
 
         Rect const glyph_bounds(glyph_top, glyph_left, glyph_width, glyph_height);
-		ADisplayType const mode = rTileDisplay.Mode(ind);
-		AValueType const glyph = rTileDisplay.Glyph(ind);
+		ADisplayType const mode = rMarkings.Mode(ind);
+		AValueType const glyph = rMarkings.Glyph(ind);
 		DrawGlyph(glyph_bounds, mode, glyph, tileColor, glyph_color); 
     }
     

@@ -44,13 +44,13 @@ static int CALLBACK message_handler3(
 
 // lifecycle
 
-ParmBox3::ParmBox3(unsigned attributeCnt, unsigned clonesPerTile, 
+ParmBox3::ParmBox3(unsigned attributeCnt, unsigned clonesPerCombo, 
 		     unsigned handSize, unsigned handCnt, unsigned bonusTilePercentage):
     Dialog("PARMBOX3", &message_handler3)
 {
     mAttributeCnt = attributeCnt;
 	mBonusTilePercentage = bonusTilePercentage;
-    mClonesPerTile = clonesPerTile;
+    mClonesPerCombo = clonesPerCombo;
     mHandCnt = handCnt;
     mHandSize = handSize;            
 }
@@ -68,8 +68,8 @@ unsigned ParmBox3::BonusTilePercentage(void) const {
     return mBonusTilePercentage;
 }
 
-unsigned ParmBox3::ClonesPerTile(void) const {
-    return mClonesPerTile;
+unsigned ParmBox3::ClonesPerCombo(void) const {
+    return mClonesPerCombo;
 }
 
 /* static */ IdType ParmBox3::EditboxId(IdType sliderId) {
@@ -108,7 +108,7 @@ INT_PTR ParmBox3::HandleMessage(MessageType message, WPARAM wParam, LPARAM lPara
 			InitControl(IDC_SLIDER1, mHandCnt, 1, 10);
 		    InitControl(IDC_SLIDER2, mHandSize, 1, 12);
 		    InitControl(IDC_SLIDER3, mAttributeCnt, 2, 5);
-		    InitControl(IDC_SLIDER4, mClonesPerTile, 0, 8);
+		    InitControl(IDC_SLIDER4, mClonesPerCombo, 0, 8);
 		    InitControl(IDC_SLIDER5, mBonusTilePercentage, 0, 25);
 
             result = TRUE;
@@ -300,7 +300,7 @@ void ParmBox3::UpdateValue(IdType sliderId, ValueType value) {
             mAttributeCnt = value;
             break;
         case IDC_SLIDER4:
-            mClonesPerTile = value;
+            mClonesPerCombo = value;
             break;
         case IDC_SLIDER5:
             mBonusTilePercentage = value;

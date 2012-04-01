@@ -268,7 +268,9 @@ Tile Tile::CloneAndSetBonus(void) const {
 /* static */ long Tile::CombinationCnt(void) {
 	long result = 1L;
     for (AIndexType i_attr = 0; i_attr < msAttributeCnt; i_attr++) {
-		AValueType possible_values = 1 + mspValueMax[i_attr];
+		ASSERT(i_attr < Tile::ATTRIBUTE_CNT_MAX);
+		AValueType const max_value = mspValueMax[i_attr];
+		AValueType const possible_values = max_value + 1;  // zero is a possible value
 		result *= possible_values;
 	}
 

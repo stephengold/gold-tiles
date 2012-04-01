@@ -27,6 +27,9 @@
 #define IDC_EDITWIDTH                           1322
 #define IDC_CELLCNT                             1328
 #define IDC_RECALC                              1329
+#define IDC_COMBINATIONS                        1401
+#define IDC_CLONES                              1402
+#define IDC_TOTAL_TILES                         1403
 #define IDC_SLIDER1                             1411
 #define IDC_SLIDER2                             1412
 #define IDC_SLIDER3                             1413

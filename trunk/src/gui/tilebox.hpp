@@ -37,17 +37,20 @@ The TileBox class is an extension of the Dialog class.
 class TileBox: public Dialog {
 public:
     // public lifecycle
-	TileBox(char const *templateName, ACountType attributeCnt, AValueType pValueMax[Tile::ATTRIBUTE_CNT_MAX]);
+	TileBox(ACountType attributeCnt, 
+		    AValueType (&numValues)[Tile::ATTRIBUTE_CNT_MAX],
+			unsigned mClonesPerCombo);
 	// no default constructor
 	// ~TileBox(void);  compiler-generated destructor is OK
 
 	// misc public methods
-	int        HandleMessage(MessageType, Win::WPARAM, Win::LPARAM);
-	ValueType *NumValues(void);
+	int  HandleMessage(MessageType, Win::WPARAM, Win::LPARAM);
+	long TotalTileCnt(void) const;
 
 private:
 	ACountType mAttributeCnt;
-    ValueType mpNumValues[Tile::ATTRIBUTE_CNT_MAX];
+	unsigned   mClonesPerCombo;
+    AValueType (&mrNumValues)[Tile::ATTRIBUTE_CNT_MAX];
 
 	// private lifecycle
     TileBox(TileBox const &);  // not copyable
@@ -56,13 +59,14 @@ private:
     TileBox &operator=(TileBox const &); // not assignable
 
 	// misc private methods
+	long   ComboCnt(void) const;
     IdType EditboxId(IdType slider) const;
-    void   InitControl(IdType slider, ValueType value, 
-		                  ValueType min, ValueType max);
+    void   InitControl(IdType slider, ValueType value, bool enable);
     IdType MaxId(IdType slider) const;
     IdType MinId(IdType slider) const;
     IdType SliderId(IdType editbox) const;
 	IdType SliderId(Win::HWND) const;
+	void   UpdateTileCnt(void);
 	void   UpdateValue(IdType slider, ValueType);
 };
 

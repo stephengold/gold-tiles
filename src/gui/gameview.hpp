@@ -43,7 +43,7 @@ public:
 	GameView::GameView(Game const &rGame);
 	// no default constructor
     // ~GameView(void);  compiler-generated destructor is OK
-	void SetWindow(TopWindow *, MenuBar *);
+	void SetWindow(GameWindow *, MenuBar *);
 
 	// public operators
     // GameView &operator=(GameView const &);  compiler-generated assignment operator is OK
@@ -112,7 +112,7 @@ private:
 	bool         mTargetCellFlag;
 	TileMap      mTileMap;
 	PCntType     mTileWidth;
-	TopWindow * mpWindow;
+	GameWindow * mpWindow;
 
 	// private lifecycle
 	GameView(GameView const &);  // not copyable

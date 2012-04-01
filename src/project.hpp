@@ -85,7 +85,7 @@ class Poly;
 class Rect;
 class SubMenu;
 class TileDisplay;
-class TopWindow;
+class GameWindow;
 class ViewMenu;
 class Window;
 class WindowClass;

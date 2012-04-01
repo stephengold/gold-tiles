@@ -29,7 +29,7 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 #include "gui/player.hpp"
 #include "gui/rect.hpp"
 #include "gui/resource.hpp"
-#include "gui/topwindow.hpp"
+#include "gui/gamewindow.hpp"
 
 
 // static data
@@ -52,7 +52,7 @@ GameView::GameView(Game const &rGame):
 
 // The compiler-generated destructor is OK.
 
-void GameView::SetWindow(TopWindow *pWindow, MenuBar *pMenuBar) {
+void GameView::SetWindow(GameWindow *pWindow, MenuBar *pMenuBar) {
 	mpMenuBar = pMenuBar;
 	mpWindow = pWindow;
 }

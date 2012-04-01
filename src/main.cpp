@@ -38,8 +38,8 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 #endif // defined(_WINDOWS)
 
 #ifdef _GUI
-#include "gui/topwindow.hpp"
-TopWindow *gTopWindow = NULL;
+#include "gui/gamewindow.hpp"
+GameWindow *gGameWindow = NULL;
 #endif // defined(_GUI)
 
 #ifdef _WINDOWS
@@ -140,19 +140,19 @@ int main(int argCnt, char *argValues[]) {
 	// Instantiate top window and display it.
     QApplication application(argCnt, argValues);
 
-    gTopWindow = new TopWindow(NULL);
-    gTopWindow->show();
+    gGameWindow = new GameWindow(NULL);
+    gGameWindow->show();
     
     exit_code = application.exec();
 #endif // defined(_QT)
 
 #ifdef _WINDOWS
 	// Instantiate top window and display it.
-	gTopWindow = new TopWindow(applicationInstance, NULL);
-	gTopWindow->Show(showHow);
+	gGameWindow = new GameWindow(applicationInstance, NULL);
+	gGameWindow->Show(showHow);
 
     // Retrieve and dispatch messages for this application. 
-	exit_code = gTopWindow->MessageDispatchLoop();
+	exit_code = gGameWindow->MessageDispatchLoop();
 #endif // defined(_WINDOWS)
 
 	return exit_code;

@@ -1,5 +1,5 @@
-// File:    topwindow.cpp
-// Purpose: TopWindow class
+// File:    gamewindow.cpp
+// Purpose: GameWindow class
 // Author:  Stephen Gold sgold@sonic.net
 // (c) Copyright 2012 Stephen Gold
 // Distributed under the terms of the GNU General Public License
@@ -23,18 +23,18 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "gui/canvas.hpp"
 #include "gui/menubar.hpp"
-#include "gui/topwindow.hpp"
+#include "gui/gamewindow.hpp"
 #include "strings.hpp"
 
 #ifdef _QT
-#include "ui_topwindow.h"
+#include "ui_gamewindow.h"
 
-TopWindow::TopWindow(Game *pGame):
+GameWindow::GameWindow(Game *pGame):
     QMainWindow(NULL),  // the top window has no parent
     mMouseLast(0, 0),
     mGameView(*pGame)
 {
-    mpUi = new Ui::TopWindow;
+    mpUi = new Ui::GameWindow;
     mpUi->setupUi(this);
 
     mpGame = pGame;
@@ -60,7 +60,7 @@ TopWindow::TopWindow(Game *pGame):
 
 // static data of the class
 
-WindowClass *TopWindow::mspClass = NULL;
+WindowClass *GameWindow::mspClass = NULL;
 
 
 // static callback functions
@@ -73,7 +73,7 @@ static LRESULT CALLBACK message_handler(
 	LPARAM lParam)
 {
 	ASSERT(windowHandle != NULL);
-    TopWindow * const window = (TopWindow *)Window::Lookup(windowHandle);
+    GameWindow * const window = (GameWindow *)Window::Lookup(windowHandle);
 
 	LRESULT result;
 	if (window == NULL) { // unknown window
@@ -88,13 +88,13 @@ static LRESULT CALLBACK message_handler(
 }
 
 static void CALLBACK think(void *pArgument) {
-	TopWindow * const window = (TopWindow *)pArgument;
+	GameWindow * const window = (GameWindow *)pArgument;
 
     window->Think();
 }
 
 static void yield(void *pArgument) {
-	TopWindow * const window = (TopWindow *)pArgument;
+	GameWindow * const window = (GameWindow *)pArgument;
 
 	window->Yields();
 }
@@ -102,14 +102,14 @@ static void yield(void *pArgument) {
 
 // lifecycle
 
-TopWindow::TopWindow(HINSTANCE applicationInstance, Game *pGame):
+GameWindow::GameWindow(HINSTANCE applicationInstance, Game *pGame):
     mMouseLast(0, 0),
 	mGameView(*pGame)
 {
 	ASSERT(HWND(*this) == 0);
 	ASSERT(applicationInstance != NULL);
 
-	LPCTSTR class_name = "TOPWINDOW";
+	LPCTSTR class_name = "GAMEWINDOW";
     if (mspClass == NULL) {
 		// for first instance:  create a Microsoft Windows window class
 		mspClass = new WindowClass(applicationInstance, &message_handler, class_name);
@@ -143,11 +143,11 @@ TopWindow::TopWindow(HINSTANCE applicationInstance, Game *pGame):
 	// wait for message_handler() to receive a message with this handle
 }
 
-TopWindow::~TopWindow(void) {
+GameWindow::~GameWindow(void) {
     delete mpMenuBar;
 }
 
-void TopWindow::Initialize(CREATESTRUCT const &rCreateStruct) {
+void GameWindow::Initialize(CREATESTRUCT const &rCreateStruct) {
     // Initialization which takes place after the Microsoft Windows window
     // has received its WM_CREATE message.
 
@@ -180,7 +180,7 @@ void TopWindow::Initialize(CREATESTRUCT const &rCreateStruct) {
 
 // misc methods
 
-void TopWindow::ChangeHand(String const &rOldPlayerName) {
+void GameWindow::ChangeHand(String const &rOldPlayerName) {
 	ASSERT(HasGame());
 	ASSERT(IsGamePaused());
 	ASSERT(mpMenuBar != NULL);
@@ -204,15 +204,15 @@ void TopWindow::ChangeHand(String const &rOldPlayerName) {
 	}
 }
 
-long TopWindow::DragTileDeltaX(void) const {
+long GameWindow::DragTileDeltaX(void) const {
 	return mDragTileDeltaX;
 }
 
-long TopWindow::DragTileDeltaY(void) const {
+long GameWindow::DragTileDeltaY(void) const {
 	return mDragTileDeltaY;
 }
 
-int TopWindow::GameWarnBox(char const *messageText) {
+int GameWindow::GameWarnBox(char const *messageText) {
 	String message(messageText);
 	String title = "Information";
 
@@ -228,7 +228,7 @@ int TopWindow::GameWarnBox(char const *messageText) {
 	return result;
 }
 
-void TopWindow::HandleButtonDown(Point const &rMouse) {
+void GameWindow::HandleButtonDown(Point const &rMouse) {
 	ASSERT(HasGame());
 	ASSERT(!IsGamePaused());
 	ASSERT(!mGameView.IsDragging());
@@ -257,7 +257,7 @@ void TopWindow::HandleButtonDown(Point const &rMouse) {
     }
 }
 
-void TopWindow::HandleButtonUp(Point const &rMouse) {
+void GameWindow::HandleButtonUp(Point const &rMouse) {
 	ASSERT(HasGame());
 
 	HandleMouseMove(rMouse);
@@ -276,7 +276,7 @@ void TopWindow::HandleButtonUp(Point const &rMouse) {
     }
 }
 
-void TopWindow::HandleMenuCommand(IdType command) {
+void GameWindow::HandleMenuCommand(IdType command) {
     switch (command) {
     // File menu options
         case IDM_NEW: {
@@ -441,7 +441,7 @@ void TopWindow::HandleMenuCommand(IdType command) {
 	ForceRepaint();
 }
 
-LRESULT TopWindow::HandleMessage(MessageType message, WPARAM wParam, LPARAM lParam) {
+LRESULT GameWindow::HandleMessage(MessageType message, WPARAM wParam, LPARAM lParam) {
 	LRESULT result = 0;
     switch (message) {
 	    case WM_CLOSE: {
@@ -560,7 +560,7 @@ LRESULT TopWindow::HandleMessage(MessageType message, WPARAM wParam, LPARAM lPar
 	return result;
 }
 
-void TopWindow::HandleMouseMove(Point const &rMouse) {
+void GameWindow::HandleMouseMove(Point const &rMouse) {
     long const drag_x = rMouse.X() - mMouseLast.X();
     long const drag_y = rMouse.Y() - mMouseLast.Y();
     mMouseLast = rMouse;
@@ -576,7 +576,7 @@ void TopWindow::HandleMouseMove(Point const &rMouse) {
     }
 }
 
-void TopWindow::InfoBox(char const *messageText) {
+void GameWindow::InfoBox(char const *messageText) {
 	String message = messageText;
 	String title = "Information";
 
@@ -590,7 +590,7 @@ void TopWindow::InfoBox(char const *messageText) {
 	Window::InfoBox(message, title);
 }
 
-void TopWindow::LoadPlayerOptions(Hand const &rHand) {
+void GameWindow::LoadPlayerOptions(Hand const &rHand) {
 	String const player_name = rHand.PlayerName();
 	Player const &r_player = Player::rLookup(player_name);
 
@@ -601,11 +601,11 @@ void TopWindow::LoadPlayerOptions(Hand const &rHand) {
 	SetTileWidth(tile_size);
 }
 
-char const *TopWindow::Name(void) const {
+char const *GameWindow::Name(void) const {
 	return "Gold Tile - a game by Stephen Gold";
 }
 
-void TopWindow::OfferNewGame(void) {
+void GameWindow::OfferNewGame(void) {
 	// set up first dialog box
 	GameStyleType old_game_style = mGameView.GameStyle();
 	unsigned seconds_per_hand = SECONDS_PER_MINUTE * ParmBox1::PLAYER_MINUTES_DEFAULT;
@@ -789,7 +789,7 @@ STEP4:
 	SetGame(p_new_game);
 }
 
-void TopWindow::OfferSaveGame(void) {
+void GameWindow::OfferSaveGame(void) {
 #if 0
     YesNo box("UNSAVED");
 	box.Run(this);
@@ -797,7 +797,7 @@ void TopWindow::OfferSaveGame(void) {
 #endif
 }
 
-void TopWindow::Play(bool passFlag) {
+void GameWindow::Play(bool passFlag) {
 	ASSERT(HasGame());
 	ASSERT(mpMenuBar != NULL);
 	ASSERT(mGameView.GetActive() == Tile::ID_NONE);
@@ -842,7 +842,7 @@ void TopWindow::Play(bool passFlag) {
 	}
 }
 
-void TopWindow::RedoTurn(void) {
+void GameWindow::RedoTurn(void) {
 	ASSERT(HasGame());
 	ASSERT(mpMenuBar != NULL);
 	ASSERT(!IsGamePaused());
@@ -856,7 +856,7 @@ void TopWindow::RedoTurn(void) {
 	ChangeHand(old_player_name);
 }
 
-void TopWindow::ReleaseActiveTile(Point const &rMouse) {
+void GameWindow::ReleaseActiveTile(Point const &rMouse) {
 	ASSERT(HasGame());
 
     TileIdType const id = mGameView.GetActive(); 
@@ -963,7 +963,7 @@ void TopWindow::ReleaseActiveTile(Point const &rMouse) {
 	StopDragging();
 }
 
-void TopWindow::Repaint(void) {
+void GameWindow::Repaint(void) {
 	BeginPaint();
     Canvas canvas(*this);
 	mGameView.Repaint(canvas);
@@ -979,7 +979,7 @@ void TopWindow::Repaint(void) {
 	}
 }
 
-void TopWindow::ResignHand(void) {
+void GameWindow::ResignHand(void) {
 	ASSERT(HasGame());
 	ASSERT(mpMenuBar != NULL);
 	ASSERT(!IsGameOver());
@@ -1005,7 +1005,7 @@ void TopWindow::ResignHand(void) {
     }
 }
 
-void TopWindow::Resize(PCntType clientAreaWidth, PCntType clientAreaHeight) {
+void GameWindow::Resize(PCntType clientAreaWidth, PCntType clientAreaHeight) {
     PCntType old_height = ClientAreaHeight();
     PCntType old_width = ClientAreaWidth();
     SetClientArea(clientAreaWidth, clientAreaHeight);
@@ -1013,7 +1013,7 @@ void TopWindow::Resize(PCntType clientAreaWidth, PCntType clientAreaHeight) {
     ForceRepaint();
 }
 
-void TopWindow::RestartGame(void) {
+void GameWindow::RestartGame(void) {
 	ASSERT(HasGame());
 	ASSERT(mpMenuBar != NULL);
 	ASSERT(!IsGamePaused());
@@ -1029,7 +1029,7 @@ void TopWindow::RestartGame(void) {
 	ChangeHand(old_player_name);
 }
 
-void TopWindow::RuleBox(char const *reason) {
+void GameWindow::RuleBox(char const *reason) {
 	// expand reason shortcuts
 	String title;
 	String const message = Board::ReasonMessage(reason, title);
@@ -1038,7 +1038,7 @@ void TopWindow::RuleBox(char const *reason) {
 	ErrorBox(message, title);
 }
 
-String TopWindow::SaveHandOptions(void) const {
+String GameWindow::SaveHandOptions(void) const {
 	Hand const old_hand = Hand(*mpGame);
 	if (old_hand.IsLocalUser()) {
 	    SavePlayerOptions(old_hand);
@@ -1048,7 +1048,7 @@ String TopWindow::SaveHandOptions(void) const {
 	return result;
 }
 
-void TopWindow::SavePlayerOptions(Hand const &rHand) const {
+void GameWindow::SavePlayerOptions(Hand const &rHand) const {
 	ASSERT(mpMenuBar != NULL);
 
 	String const player_name = rHand.PlayerName();
@@ -1058,7 +1058,7 @@ void TopWindow::SavePlayerOptions(Hand const &rHand) const {
 	mGameView.SavePlayerOptions(r_player);
 }
 
-void TopWindow::SetGame(Game *pGame) {
+void GameWindow::SetGame(Game *pGame) {
 	ASSERT(mpMenuBar != NULL);
 
 	GameStyleType old_style = GAME_STYLE_NONE;
@@ -1090,14 +1090,14 @@ void TopWindow::SetGame(Game *pGame) {
 	Window::InfoBox(report, "Opening Bids - Gold Tile");
 }
 
-void TopWindow::SetTileWidth(IdType command) {
+void GameWindow::SetTileWidth(IdType command) {
 	ASSERT(mpMenuBar != NULL);
 
 	mGameView.SetTileWidth(command);
 	mpMenuBar->SetTileSize(command);
 }
 
-void TopWindow::StopDragging(void) {
+void GameWindow::StopDragging(void) {
 	ASSERT(mGameView.IsDragging());
 
 	mGameView.Deactivate();
@@ -1110,7 +1110,7 @@ void TopWindow::StopDragging(void) {
 }
 
 // code executed by the think fiber
-void TopWindow::Think(void) {
+void GameWindow::Think(void) {
 	for (;;) {
 		while (!mThinking) {
 			Yields();
@@ -1136,7 +1136,7 @@ void TopWindow::Think(void) {
 	}
 }
 
-void TopWindow::TogglePause(void) {
+void GameWindow::TogglePause(void) {
 	if (HasGame() && !IsGameOver()) {
 		if (IsGamePaused()) {
 		    mpGame->StartClock();
@@ -1146,7 +1146,7 @@ void TopWindow::TogglePause(void) {
 	}
 }
 
-void TopWindow::UndoTurn(void) {
+void GameWindow::UndoTurn(void) {
 	ASSERT(HasGame());
 	ASSERT(mpMenuBar != NULL);
 	ASSERT(!IsGamePaused());
@@ -1163,7 +1163,7 @@ void TopWindow::UndoTurn(void) {
 	ChangeHand(old_player_name);
 }
 
-void TopWindow::UpdateMenuBar(void) {
+void GameWindow::UpdateMenuBar(void) {
 	mpMenuBar->Update();
     Window::UpdateMenuBar();
 }
@@ -1171,7 +1171,7 @@ void TopWindow::UpdateMenuBar(void) {
 
 // inquiry methods
 
-bool TopWindow::AreUnsavedChanges(void) const {
+bool GameWindow::AreUnsavedChanges(void) const {
      bool result = false;
      if (HasGame()) {
          result = mpGame->HasUnsavedChanges();
@@ -1180,17 +1180,17 @@ bool TopWindow::AreUnsavedChanges(void) const {
      return result;
 }
 
-bool TopWindow::HasGame(void) const {
+bool GameWindow::HasGame(void) const {
 	bool const result = (mpGame != NULL);
 
 	return result;
 }
 
-bool TopWindow::IsDraggingBoard(void) const {
+bool GameWindow::IsDraggingBoard(void) const {
 	return mDragBoardFlag;
 }
 
-bool TopWindow::IsGameOver(void) const {
+bool GameWindow::IsGameOver(void) const {
 	bool result = false;
 	if (HasGame()) {
 		result = mpGame->IsOver();
@@ -1199,7 +1199,7 @@ bool TopWindow::IsGameOver(void) const {
 	return result;
 }
 
-bool TopWindow::IsGamePaused(void) const {
+bool GameWindow::IsGamePaused(void) const {
 	bool result = false;
 	if (HasGame() && !mpGame->IsOver()) {
 		result = mpGame->IsPaused();

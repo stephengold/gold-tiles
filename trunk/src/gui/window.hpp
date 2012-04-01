@@ -96,12 +96,12 @@ protected:
 	void           WarpCursor(Point const &);
 
 private:
-    typedef unsigned long             Key;
-    typedef std::map<Key, Window*>    Map;
-    typedef std::pair<Key, Window*>   Pair;
-	typedef Map::const_iterator       ConstIterator;
-    typedef Map::iterator             Iterator;
-    typedef std::pair<Iterator, bool> InsertResult;
+    typedef unsigned long               KeyType;
+    typedef std::map<KeyType, Window*>  Map;
+    typedef std::pair<KeyType, Window*> Pair;
+	typedef Map::const_iterator         ConstIterator;
+    typedef Map::iterator               Iterator;
+    typedef std::pair<Iterator, bool>   InsertResult;
 
 	static Map msMap;
 	

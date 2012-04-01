@@ -280,7 +280,7 @@ void TopWindow::HandleMenuCommand(IdType command) {
     switch (command) {
     // File menu options
         case IDM_NEW: {
-	        if (HasGame() && mpGame->HasUnsavedChanges()) {
+	        if (AreUnsavedChanges()) {
 				OfferSaveGame();
 			}
 			OfferNewGame();

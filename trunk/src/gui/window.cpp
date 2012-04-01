@@ -284,7 +284,7 @@ void Window::InfoBox(char const *message, char const *title) {
 }
 
 /* static */ Window *Window::Lookup(HWND handle) {
-    Key const key = Key(handle);
+    KeyType const key = KeyType(handle);
     ConstIterator const i_window = msMap.find(key);
 
 	Window *result = NULL;
@@ -367,7 +367,7 @@ void Window::SetCursorSelect(void) {
 void Window::SetHandle(HWND handle) {
 	mHandle = handle;
 
-	Key const key = Key(handle);
+	KeyType const key = KeyType(handle);
 	Pair const new_mapping(key, this); 
 	InsertResult const ins_result = msMap.insert(new_mapping);
 	bool const success = ins_result.second;
@@ -483,5 +483,4 @@ bool Window::IsMouseCaptured(void) const {
 	
 	return result;
 }
-
 #endif // defined(_WINDOWS)

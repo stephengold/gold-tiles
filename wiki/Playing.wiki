@@ -186,8 +186,8 @@ There are four legal moves:
 At the end of a hand's turn, if it has played all its
 tiles and is unable to draw any replacements (because the 
 stock bag is empty), the hand *goes out*, and the 
-game is over.  Otherwise, the next hand (the one to its 
-left) gets the next turn.
+game is over.  Otherwise, the hand on its 
+left which hasn't yet resigned gets the next turn.
 
 In *challenge* games, each hand gets a limited amount of time 
 in which to make all its moves.  If a hand uses up its 
@@ -198,16 +198,16 @@ allotted time, it is forced to resign.
 Every tile played must use an empty cell on the board.
 
 Except for the start cell (used on the first turn), each 
-cell which used must have at least one neighbor which 
-is already used.  In other words, all used cells must 
-be connected.
+cell used in a play must be a neighbor of a previously used 
+cell.  In other words, all used cells must connect back
+to the start cell.
 
 The cells used in a play must all lie in a single rank, 
-with no empty cells intervening.
+with no  intervening empty cells.
 
 If two or more tiles are placed in single rank without any 
 intervening empty cells, the tiles must all be mutually compatible.
-(Consequently, tiles in adjacent cells must be compatible.)
+(Consequently, tiles placed in adjacent cells must be compatible.)
 
 ==== Swapping restrictions ====
 
@@ -223,8 +223,53 @@ Alternatively, a game may end when all hands have resigned.
 
 === Scoring ===
 
-TBD
+Each hand starts the game with zero points.
+A hand can earn points, but points are never taken away
+from a hand.
+
+==== For making a play ====
+
+After a hand makes a play, it earns points as follows:
+ 
+For each rank where two or more tiles were connected by the play, the *base score* is the number of connected tiles in that rank at the end of the turn.
+
+Each base score gets adjusted as follows:
+* If the connected tiles all share a single common attribute and the number of connected tiles equals the number of values for the attribute, then the base score is doubled.
+* For each bonus tile among the connected tiles, the base score is doubled yet again.
+
+The adjusted base scores get added to the playable hand's points.
+
+==== For going out ====
+
+After a hand goes out, it earns a point for each tile 
+held by any of the remaining hands.
 
 == Graphical interface ==
 
-TBD
+The game window consists of a menu bar and a game view.
+
+The *menu bar* across the top of the window provides
+pull-down menus of *commands* you can invoke in order 
+to control the game.
+Many of these commands have keyboard shortcuts.
+
+The *game view* portion of the game window illustrates 
+the game in progress, including tiles, hands, the board, 
+and so on.
+
+The board fills the background of the game view area.
+You can grab the board and drag it with your mouse.
+
+The start cell is marked with the word START (or the letter S).
+
+The playable hand floats above the board in the upper 
+left corner of the game view.  Other hands float 
+in the upper right of the game view.
+
+Non-movable tiles have gray (or dark yellow) backgrounds.
+Movable tiles are shown with white (or bright yellow) backgrounds.
+
+There are several ways to move tiles:
+* You can grab a tile and drag it with the mouse.
+* You can click on a movable tile to *activate* it, then click a second time on its destination.
+* You can click on an empty cell to designate it as the *target*, then click on a tile to place it on the target.  (The target is marked with a large green X.)

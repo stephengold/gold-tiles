@@ -42,8 +42,8 @@ public:
     Point(Win::POINT const &);
     Point(Win::POINTS const &);
 	// no default constructor
-    //Point(Point const &);  compiler-generated copy constructor is OK
-    //~Point(void);
+    // Point(Point const &);  compiler-generated copy constructor is OK
+    // ~Point(void);
 
 	// public operators
 	//Point &operator=(Point const &);  compiler-generated assignment operator is OK

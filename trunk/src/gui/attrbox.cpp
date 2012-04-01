@@ -24,6 +24,7 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 #ifdef _WINDOWS
 #include "gui/attrbox.hpp"
 #include "gui/resource.hpp"
+#include "gui/tiledisplay.hpp"
 #include "gui/win_types.hpp"
 
 // message handler (callback) for this dialog
@@ -103,11 +104,11 @@ void AttrBox::BumpDisplayMode(AIndexType ind) {
 			}
 		}
 	}
-	IndexType i_mode = unused_modes.First();
-	ADisplayType mode = ADisplayType(i_mode);
+	IndexType const i_mode = unused_modes.First();
+	ADisplayType const mode = ADisplayType(i_mode);
 	mDisplayModes.SetMode(ind, mode);
 
-	IdType listbox_id = ListboxId(ind);
+	IdType const listbox_id = ListboxId(ind);
 	SetListboxSelection(listbox_id, mode); // relies on assertion in HandleMessage()
 }
 
@@ -226,8 +227,9 @@ void AttrBox::UpdateValue(IdType listboxId, ADisplayType value) {
 	AIndexType const ind = AIndex(listboxId);
     mDisplayModes.SetMode(ind, value);
 
+	// only one attribute can use color
 	if (value == ValueType(ADISPLAY_COLOR)) {
-		// check whether another attribute is using color
+		// check whether another attribute is already using color
 		for (AIndexType i_attr = 0; i_attr < Tile::AttributeCnt(); i_attr++) {
 			if (i_attr != ind && mDisplayModes.IsColor(i_attr)) {
 				BumpDisplayMode(i_attr);
@@ -235,6 +237,22 @@ void AttrBox::UpdateValue(IdType listboxId, ADisplayType value) {
 			}
 		}
 	}
-}
 
+	// can't display more than 4 glyphs per tile
+	ACountType glyph_cnt = mDisplayModes.GlyphCnt();
+	if (glyph_cnt > TileDisplay::GLYPH_CNT) {
+		AIndexType new_color_index = 0;
+		if (ind == new_color_index) {
+			new_color_index++;
+		}
+		ADisplayType const mode = ADISPLAY_COLOR;
+		mDisplayModes.SetMode(new_color_index, mode);
+
+	    IdType const listbox_id = ListboxId(new_color_index);
+	    SetListboxSelection(listbox_id, mode); // relies on assertion in HandleMessage()
+
+		glyph_cnt = mDisplayModes.GlyphCnt();
+	}
+	ASSERT(glyph_cnt <= TileDisplay::GLYPH_CNT);
+}
 #endif // defined(_WINDOWS)

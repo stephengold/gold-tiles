@@ -84,6 +84,7 @@ class Point;
 class Poly;
 class Rect;
 class SubMenu;
+class TileDisplay;
 class TopWindow;
 class ViewMenu;
 class Window;

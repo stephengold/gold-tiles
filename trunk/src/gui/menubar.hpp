@@ -56,7 +56,7 @@ public:
     MenuBar(Win::CREATESTRUCT const &, Partial const &);
 #endif // defined(_WINDOWS)
     // no default constructor
-    //~MenuBar(void);
+    // ~MenuBar(void);
 
     // misc public methods
     void   GameOver(void);

@@ -43,7 +43,11 @@ public:
     DisplayModes &operator=(DisplayModes const &);
 
 	// misc public methods
+	void         Cleanup(void);
+	ACountType   ColorCnt(void) const;
+	ACountType   GlyphCnt(void) const;
 	ADisplayType Mode(AIndexType) const;
+	AIndexType   SecondColorIndex(void) const;
 	void         SetMode(AIndexType, ADisplayType);
 
 	// public inquiry methods

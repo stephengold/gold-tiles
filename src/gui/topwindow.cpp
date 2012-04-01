@@ -628,11 +628,13 @@ void TopWindow::OfferNewGame(void) {
 	unsigned hand_size = Game::HAND_SIZE_DEFAULT;
 	unsigned bonus_pct = unsigned(0.5 + 100.0*Tile::BonusProbability());
 
-	ACountType max_attribute_cnt = Tile::AttributeCnt();
-	AValueType *max_attribute_values = new AValueType[max_attribute_cnt];
-	ASSERT(max_attribute_values != NULL);
-	for (AIndexType i_attr = 0; i_attr < max_attribute_cnt; i_attr++) {
-		max_attribute_values[i_attr] = Tile::ValueMax(i_attr);
+	AValueType value_cnts[Tile::ATTRIBUTE_CNT_MAX];
+	for (AIndexType i_attr = 0; i_attr < Tile::ATTRIBUTE_CNT_MAX; i_attr++) {
+		AValueType value_cnt = Tile::VALUE_CNT_DEFAULT;
+		if (i_attr < attribute_cnt) {
+		    value_cnt = Tile::ValueMax(i_attr) + 1; // zero counts as an attribute value
+		}
+		value_cnts[i_attr] = value_cnt;
 	}
 
 	// begin setting up the fifth dialog box
@@ -651,7 +653,6 @@ STEP1:
 	// first dialog:  prompt for game style and time limit
 	int result = parmbox1.Run(this);
 	if (result == Dialog::RESULT_CANCEL) {
-	    delete[] max_attribute_values;
 		return;
 	}
 	ASSERT(result == Dialog::RESULT_OK);
@@ -668,7 +669,6 @@ STEP2:
 	// second dialog:  prompt for grid type and topology
 	result = parmbox2.Run(this);
 	if (result == Dialog::RESULT_CANCEL) {
-	    delete[] max_attribute_values;
 		return;
 	} else if (result == Dialog::RESULT_BACK) {
 		goto STEP1;
@@ -699,39 +699,19 @@ STEP3:
 	ParmBox3 parmbox3(attribute_cnt, clones_per_tile, hand_size, hand_cnt, bonus_pct);
 	result = parmbox3.Run(this);
 	if (result == Dialog::RESULT_CANCEL) {
-	    delete[] max_attribute_values;
 		return;
 	} else if (result == Dialog::RESULT_BACK) {
 		goto STEP2;
 	}
 	ASSERT(result == Dialog::RESULT_OK);
 	attribute_cnt = parmbox3.AttributeCnt();
-	tile_redundancy = 1 + parmbox3.ClonesPerTile();
+	tile_redundancy = 1 + parmbox3.ClonesPerCombo();
 	hand_size = parmbox3.HandSize();
 	hand_cnt = parmbox3.HandCnt();
 	bonus_pct = parmbox3.BonusTilePercentage();
 
 	// set up fourth dialog
-   	if (attribute_cnt > max_attribute_cnt) {
-		// allocate storage for more attribute limits
-	    AValueType *new_max_attribute_values = new AValueType[attribute_cnt];
-
-		// copy old limits
-	    for (unsigned i_attr = 0; i_attr < max_attribute_cnt; i_attr++) {
-		    new_max_attribute_values[i_attr] = max_attribute_values[i_attr];
-	    }
-		delete[] max_attribute_values;
-
-		// initialize limits for new attributes
-		for (unsigned i_attr = max_attribute_cnt; i_attr < attribute_cnt; i_attr++) {
-			new_max_attribute_values[i_attr] = Tile::VALUE_CNT_DEFAULT - 1;
-		}
-
-		max_attribute_values = new_max_attribute_values;
-	}
-	max_attribute_cnt = attribute_cnt;
-	String template_name = "TILEBOX" + String(attribute_cnt);
-	TileBox tilebox((char const *)template_name, attribute_cnt, max_attribute_values);
+	TileBox tilebox(attribute_cnt, value_cnts, tile_redundancy - 1);
 
 	// further work on fifth dialog
    	if (hand_cnt > hand_options.Count()) {
@@ -748,16 +728,9 @@ STEP3:
 STEP4:
 	// fourth dialog:  number of values for each attribute
 	result = tilebox.Run(this);
-    TileBox::ValueType *num_values = tilebox.NumValues();
+	// value_cnts[] gets updated
 
-	// copy new limits
-    for (AIndexType i_attr = 0; i_attr < max_attribute_cnt; i_attr++) {
-		ASSERT(num_values[i_attr] >= Tile::VALUE_CNT_MIN);
-		ASSERT(num_values[i_attr] <= Tile::VALUE_CNT_MAX);
-	    max_attribute_values[i_attr] = AValueType(num_values[i_attr] - 1);
-    }
 	if (result == Dialog::RESULT_CANCEL) {
-	    delete[] max_attribute_values;
 		return;
 	} else if (result == Dialog::RESULT_BACK) {
 		goto STEP3;
@@ -765,17 +738,11 @@ STEP4:
 	ASSERT(result == Dialog::RESULT_OK);
 
 	// check sanity of the parameters so far
-	unsigned const tiles_needed = hand_cnt*hand_size;
-
-	unsigned long tile_cnt = tile_redundancy;
-	for (unsigned i_attr = 0; i_attr < max_attribute_cnt; i_attr++) {
-		tile_cnt *= num_values[i_attr];
-	}
-
-	if (tile_cnt < tiles_needed) {
+	long const tiles_needed = hand_cnt*hand_size;
+	long const total_tile_cnt = tilebox.TotalTileCnt();
+	if (total_tile_cnt < tiles_needed) {
 		result = GameWarnBox("FEWTILES");
 		if (result == IDCANCEL) {
-	        delete[] max_attribute_values;
 		    return;
 	    } else if (result == IDTRYAGAIN) {
 			goto STEP3;
@@ -789,7 +756,6 @@ STEP4:
 		HandBox handbox(i_hand+1, more_flag, hand_options[i_hand]);
 		result = handbox.Run(this);
 		if (result == Dialog::RESULT_CANCEL) {
-	        delete[] max_attribute_values;
 		    return;
 		} else if (result == Dialog::RESULT_BACK) {
 			if (i_hand == 0) {
@@ -807,9 +773,12 @@ STEP4:
 	// can't cancel now - go ahead and set up the new game
 	Cell::SetGrid(grid);
 	Cell::SetTopology(wrap_flag, height, width);
+	AValueType maxes[Tile::ATTRIBUTE_CNT_MAX];
+	for (AIndexType i_attr = 0; i_attr < attribute_cnt; i_attr++) {
+		maxes[i_attr] = value_cnts[i_attr] - 1; // zero counts
+	}
 	double const bonus_fraction = double(bonus_pct)/100.0;
-	Tile::SetStatic(attribute_cnt, max_attribute_values, bonus_fraction);
-	delete[] max_attribute_values;
+	Tile::SetStatic(attribute_cnt, maxes, bonus_fraction);
 
 	hand_options.Truncate(hand_cnt);
 

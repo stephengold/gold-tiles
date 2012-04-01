@@ -102,11 +102,12 @@ public:
 
 private:
 	// private data
+	IndexType         mColumn;
 	static GridType  msGrid;
 	static IndexType msHeight;   // must be even and <= HEIGHT_MAX
+	IndexType         mRow;
 	static IndexType msWidth;    // must be even and <= WIDTH_MAX
 	static bool      msWrapFlag; // coordinates wrap around
-	IndexType         mColumn, mRow;
 
     // misc private methods
 	static void NextCellOffsets(DirectionType, IndexType &rowOffset, 

@@ -22,6 +22,7 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #ifdef _WINDOWS
+#include "string.hpp"
 #include "gui/tilebox.hpp"
 #include "gui/resource.hpp"
 #include "gui/win_types.hpp"
@@ -44,17 +45,34 @@ static INT_PTR CALLBACK message_handler(
 
 // lifecycle
 
-TileBox::TileBox(char const *templateName, ACountType attributeCnt, AValueType *pValueMax):
-    Dialog(templateName, &message_handler)
+TileBox::TileBox(
+	ACountType attributeCnt, 
+	AValueType (&rNumValues)[Tile::ATTRIBUTE_CNT_MAX], 
+	unsigned clonesPerCombo)
+:
+    Dialog("TILEBOX", &message_handler),
+	mrNumValues(rNumValues)
 {
     mAttributeCnt = attributeCnt;
-	for (unsigned i = 0; i < attributeCnt; i++) {
-		mpNumValues[i] = pValueMax[i] + 1;
-	}
+	mClonesPerCombo = clonesPerCombo;
 }
 
 
 // misc methods
+
+long TileBox::ComboCnt(void) const {
+	// count the possible combinations
+	long result = 1L;
+	for (AIndexType i_attr = 0; i_attr < mAttributeCnt; i_attr++) {
+		ASSERT(i_attr < Tile::ATTRIBUTE_CNT_MAX);
+	    ValueType const possible_values = mrNumValues[i_attr];
+		result *= possible_values;
+	}
+	ASSERT(result >= Tile::COMBINATION_CNT_MIN);
+    ASSERT(result <= Tile::COMBINATION_CNT_MAX);
+
+	return result;
+}
 
 IdType TileBox::EditboxId(IdType sliderId) const {
     IdType result = 0;
@@ -89,17 +107,13 @@ INT_PTR TileBox::HandleMessage(MessageType message, WPARAM wParam, LPARAM lParam
         case WM_INITDIALOG: {
 		    Dialog::HandleMessage(message, wParam);
 		    
-			InitControl(IDC_SLIDER1, mpNumValues[0], Tile::VALUE_CNT_MIN, Tile::VALUE_CNT_MAX);
-		    InitControl(IDC_SLIDER2, mpNumValues[1], Tile::VALUE_CNT_MIN, Tile::VALUE_CNT_MAX);
-			if (mAttributeCnt > 2) {
-		        InitControl(IDC_SLIDER3, mpNumValues[2], Tile::VALUE_CNT_MIN, Tile::VALUE_CNT_MAX);
-			}
-			if (mAttributeCnt > 3) {
-		        InitControl(IDC_SLIDER4, mpNumValues[3], Tile::VALUE_CNT_MIN, Tile::VALUE_CNT_MAX);
-			}
-			if (mAttributeCnt > 4) {
-		        InitControl(IDC_SLIDER5, mpNumValues[4], Tile::VALUE_CNT_MIN, Tile::VALUE_CNT_MAX);
-			}
+			InitControl(IDC_SLIDER1, mrNumValues[0], mAttributeCnt > 0);
+		    InitControl(IDC_SLIDER2, mrNumValues[1], mAttributeCnt > 1);
+	        InitControl(IDC_SLIDER3, mrNumValues[2], mAttributeCnt > 2);
+	        InitControl(IDC_SLIDER4, mrNumValues[3], mAttributeCnt > 3);
+	        InitControl(IDC_SLIDER5, mrNumValues[4], mAttributeCnt > 4);
+
+			UpdateTileCnt();
             result = TRUE;
 			break;
         }
@@ -149,25 +163,29 @@ INT_PTR TileBox::HandleMessage(MessageType message, WPARAM wParam, LPARAM lParam
 void TileBox::InitControl(
 	IdType sliderId,
 	ValueType value,
-	ValueType minValue,
-	ValueType maxValue)
+	bool enableFlag)
 {
-    ASSERT(value <= maxValue);
-    ASSERT(value >= minValue);
+	AValueType const min_value = Tile::VALUE_CNT_MIN;
+	AValueType const max_value = Tile::VALUE_CNT_MAX;
+    ASSERT(value <= max_value);
+    ASSERT(value >= min_value);
 	
-	SetSliderRange(sliderId, minValue, maxValue);
-
+	SetSliderRange(sliderId, min_value, max_value);
 	ValueType const slider_value = SetSliderValue(sliderId, value);
 	ASSERT(slider_value == value);
+	EnableControl(sliderId, enableFlag);
 
 	IdType const min_id = MinId(sliderId);
-	SetTextValue(min_id, minValue);
+	SetTextValue(min_id, min_value);
+	EnableControl(min_id, enableFlag);
 
 	IdType const max_id = MaxId(sliderId);
-	SetTextValue(max_id, maxValue);
+	SetTextValue(max_id, max_value);
+	EnableControl(max_id, enableFlag);
 
 	IdType const editbox_id = EditboxId(sliderId);
     SetTextValue(editbox_id, slider_value);
+	EnableControl(editbox_id, enableFlag);
 }
 
 IdType TileBox::MaxId(IdType sliderId) const {
@@ -222,10 +240,6 @@ IdType TileBox::MinId(IdType sliderId) const {
     return result;
 }
 
-TileBox::ValueType *TileBox::NumValues(void) {
-    return mpNumValues;
-}
-
 IdType TileBox::SliderId(IdType editboxId) const {
     IdType result = 0;
 
@@ -272,25 +286,50 @@ IdType TileBox::SliderId(HWND handle) const {
 	return result;
 }
 
+long TileBox::TotalTileCnt(void) const {
+	long const combo_cnt = ComboCnt();
+	long result = combo_cnt * (1 + mClonesPerCombo);
+
+	return result;
+}
+
+void TileBox::UpdateTileCnt(void) {
+	long const combo_cnt = ComboCnt();
+
+	// calculate the number of possible clones and total tiles
+	ValueType const clone_cnt = mClonesPerCombo * combo_cnt;
+	ValueType const total_tile_cnt = combo_cnt + clone_cnt;
+
+	String const combo_cnt_string = ::plural(combo_cnt, "combination");
+	String const clone_cnt_string = ::plural(clone_cnt, "clone");
+	String const total_tile_cnt_string = ::plural(total_tile_cnt, "total tile");
+
+	SetTextString(IDC_COMBINATIONS, combo_cnt_string);
+    SetTextString(IDC_CLONES, clone_cnt_string);
+    SetTextString(IDC_TOTAL_TILES, total_tile_cnt_string);
+}
+
 void TileBox::UpdateValue(IdType sliderId, ValueType value) {
+	AValueType const num_values = AValueType(value);
     switch (sliderId) {
         case IDC_SLIDER1:
-            mpNumValues[0] = value;
+            mrNumValues[0] = num_values;
             break;
         case IDC_SLIDER2:
-            mpNumValues[1] = value;
+            mrNumValues[1] = num_values;
             break;
         case IDC_SLIDER3:
-            mpNumValues[2] = value;
+            mrNumValues[2] = num_values;
             break;
         case IDC_SLIDER4:
-            mpNumValues[3] = value;
+            mrNumValues[3] = num_values;
             break;
         case IDC_SLIDER5:
-            mpNumValues[4] = value;
+            mrNumValues[4] = num_values;
             break;
         default:
             FAIL();
     }
+	UpdateTileCnt();
 }
 #endif // defined(_WINDOWS)

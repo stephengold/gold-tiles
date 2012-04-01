@@ -73,6 +73,9 @@ public:
 	static const AValueType VALUE_CNT_DEFAULT = 6;
 	static const AValueType VALUE_CNT_MAX = 9;
 
+	static const long COMBINATION_CNT_MIN = 4L;
+	static const long COMBINATION_CNT_MAX = 59049L;
+
 	static const TileIdType ID_NONE = 0;
 	static const TileIdType ID_DEFAULT = 1; // generated only by default constructor
 	static const TileIdType ID_FIRST = 2;
@@ -123,10 +126,6 @@ public:
 	bool MatchesString(String const &) const;
 
 private:
-	// private constants
-	static const long COMBINATION_CNT_MIN = 4L;
-	static const long COMBINATION_CNT_MAX = 59049L;
-
 	// private data
 	AValueType *mpArray;     // array of attributes
 	TileIdType   mId;        // to distinguish clones

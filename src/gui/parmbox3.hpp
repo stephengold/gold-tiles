@@ -45,14 +45,14 @@ public:
 	// misc public methods
 	ACountType AttributeCnt(void) const;
 	unsigned   BonusTilePercentage(void) const;
-	unsigned   ClonesPerTile(void) const;
+	unsigned   ClonesPerCombo(void) const;
 	unsigned   HandCnt(void) const;
 	int        HandleMessage(MessageType, Win::WPARAM, Win::LPARAM);
 	unsigned   HandSize(void) const;
 
 private:
     ValueType mAttributeCnt;
-	ValueType mClonesPerTile;
+	ValueType mClonesPerCombo;
 	ValueType mHandSize;
 	ValueType mHandCnt;
 	ValueType mBonusTilePercentage;

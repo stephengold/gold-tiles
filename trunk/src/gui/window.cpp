@@ -58,7 +58,7 @@ void Window::Initialize(CREATESTRUCT const &rCreateStruct) {
     ASSERT(success != 0);
     SetClientArea(client_area_size.cx, client_area_size.cy);
 
-	char const *const icon_resource_name = "TOPWINDOWICON";
+	char const *const icon_resource_name = "GAMEICON";
 	SetIcons(icon_resource_name);
 }
 

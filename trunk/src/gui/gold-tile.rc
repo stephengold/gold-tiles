@@ -37,7 +37,7 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 // Menu resources
 //
 LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
-TOPWINDOW MENU
+GAMEWINDOW MENU
 {
     POPUP "&File"
     {
@@ -249,7 +249,7 @@ FONT 10, "Microsoft Sans Serif"
     EDITTEXT        IDC_EDIT1, 180, 10, 12, 12, ES_AUTOHSCROLL | ES_NUMBER
     CTEXT           "X", IDC_SMIN1, 100, 21, 8, 8, SS_CENTER
     CTEXT           "X", IDC_SMAX1, 167, 21, 8, 8, SS_CENTER
-    RTEXT           "Number of tiles in a hand", IDC_STATIC, 6, 44, 90, 8, SS_RIGHT
+    RTEXT           "Number of tiles per hand", IDC_STATIC, 21, 44, 75, 8, SS_RIGHT
     CONTROL         "", IDC_SLIDER2, TRACKBAR_CLASS, WS_TABSTOP | TBS_AUTOTICKS | TBS_BOTH, 97, 36, 80, 16
     EDITTEXT        IDC_EDIT2, 180, 42, 12, 12, ES_AUTOHSCROLL | ES_NUMBER
     CTEXT           "X", IDC_SMIN2, 100, 53, 8, 8, SS_CENTER
@@ -259,7 +259,7 @@ FONT 10, "Microsoft Sans Serif"
     EDITTEXT        IDC_EDIT3, 180, 74, 12, 12, ES_AUTOHSCROLL | ES_NUMBER
     CTEXT           "X", IDC_SMIN3, 100, 85, 8, 8, SS_CENTER
     CTEXT           "X", IDC_SMAX3, 167, 85, 8, 8, SS_CENTER
-    RTEXT           "Number of clones of each tile", IDC_STATIC, 6, 108, 90, 8, SS_RIGHT
+    RTEXT           "Clones per combination", IDC_STATIC, 25, 108, 71, 8, SS_RIGHT
     CONTROL         "", IDC_SLIDER4, TRACKBAR_CLASS, WS_TABSTOP | TBS_AUTOTICKS | TBS_BOTH, 97, 100, 80, 16
     EDITTEXT        IDC_EDIT4, 180, 106, 12, 12, ES_AUTOHSCROLL | ES_NUMBER
     CTEXT           "X", IDC_SMIN4, 100, 117, 8, 8, SS_CENTER
@@ -310,9 +310,9 @@ FONT 10, "Microsoft Sans Serif"
     CTEXT           "X", IDC_SMAX5, 76, 143, 8, 8, SS_CENTER
     LTEXT           "values for fifth tile attribute", IDC_STATIC, 100, 133, 92, 8, SS_LEFT
     CTEXT           "00000 combinations", IDC_COMBINATIONS, 6, 155, 61, 8, SS_CENTER
-    LTEXT           "+", IDC_STATIC, 69, 155, 5, 8, SS_LEFT
+    LTEXT           "+", IDC_STATIC, 69, 155, 8, 8, SS_LEFT
     CTEXT           "000000 clones", IDC_CLONES, 74, 155, 44, 8, SS_CENTER
-    LTEXT           "=", IDC_STATIC, 120, 155, 5, 8, SS_LEFT
+    LTEXT           "=", IDC_STATIC, 120, 155, 8, 8, SS_LEFT
     CTEXT           "000000 total tiles", IDC_TOTAL_TILES, 126, 155, 52, 8, SS_CENTER
 }
 
@@ -371,4 +371,4 @@ HOTKEYS ACCELERATORS
 // Icon resources
 //
 LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
-TOPWINDOWICON      ICON           "../gold-tile.ico"
+GAMEICON           ICON           "../gold-tile.ico"

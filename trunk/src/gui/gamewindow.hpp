@@ -1,8 +1,8 @@
-#ifndef TOPWINDOW_HPP_INCLUDED
-#define TOPWINDOW_HPP_INCLUDED
+#ifndef GAMEWINDOW_HPP_INCLUDED
+#define GAMEWINDOW_HPP_INCLUDED
 
-// File:    topwindow.hpp
-// Purpose: TopWindow class
+// File:    gamewindow.hpp
+// Purpose: GameWindow class
 // Author:  Stephen Gold sgold@sonic.net
 // (c) Copyright 2012 Stephen Gold
 // Distributed under the terms of the GNU General Public License
@@ -25,10 +25,10 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 /*
-A TopWindow object represents the main window for the game.
+A GameWindow object represents the main window for the game.
 
-In the native version, the TopWindow class extends the Window class.
-In the Qt version, the TopWindow class extends the QMainWindow class.
+In the native version, the GameWindow class extends the Window class.
+In the Qt version, the GameWindow class extends the QMainWindow class.
 */
 
 #include "gui/gameview.hpp" // HASA GameView
@@ -42,26 +42,26 @@ In the Qt version, the TopWindow class extends the QMainWindow class.
 
 #ifdef _QT
 namespace Ui {
-    class TopWindow;
+    class GameWindow;
 }
 #endif // defined(_QT)
 
 #ifdef _QT
-class TopWindow: public QMainWindow {
+class GameWindow: public QMainWindow {
     Q_OBJECT
 #elif defined(_WINDOWS)
-class TopWindow: public Window {
+class GameWindow: public Window {
 #endif // defined(_QT)
 
 public:
     // public lifecycle
 #ifdef _QT
-    TopWindow(Game *pGame = NULL);
+    GameWindow(Game *pGame = NULL);
 #elif defined(_WINDOWS)
-    TopWindow(Win::HINSTANCE, Game *pGame = NULL);
+    GameWindow(Win::HINSTANCE, Game *pGame = NULL);
 #endif // defined(_QT)
     // no default constructor
-    ~TopWindow(void);
+    ~GameWindow(void);
 
     // misc public methods
     long         DragTileDeltaX(void) const;
@@ -96,15 +96,15 @@ private:
 	bool       mThinking;
 	void *     mThinkFiber;
 #ifdef _QT
-    Ui::TopWindow * mpUi;
+    Ui::GameWindow * mpUi;
 #endif // defined(_QT)
 
 	// private lifecycle
-    TopWindow(TopWindow const &); // not copyable
+    GameWindow(GameWindow const &); // not copyable
     void Initialize(Win::CREATESTRUCT const &);
 
 	// private operator
-    TopWindow &operator=(TopWindow const &); // not assignable
+    GameWindow &operator=(GameWindow const &); // not assignable
 
 	// misc private methods
 	void         ChangeHand(String const &old_player);
@@ -145,4 +145,4 @@ private:
 	bool IsGamePaused(void) const;
 };
 
-#endif // !defined(TOPWINDOW_HPP_INCLUDED)
+#endif // !defined(GAMEWINDOW_HPP_INCLUDED)

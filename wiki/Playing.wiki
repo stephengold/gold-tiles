@@ -234,8 +234,8 @@ After a hand makes a play, it earns points as follows:
 For each rank where two or more tiles were connected by the play, the *base score* is the number of connected tiles in that rank at the end of the turn.
 
 Each base score gets adjusted as follows:
-* If the connected tiles all share a single common attribute and the number of connected tiles equals the number of values for the attribute, then the base score is doubled.
-* For each bonus tile among the connected tiles, the base score is doubled yet again.
+ * If the connected tiles all share a single common attribute and the number of connected tiles equals the number of values for the attribute, then the base score is doubled.
+ * For each bonus tile among the connected tiles, the base score is doubled yet again.
 
 The adjusted base scores get added to the playable hand's points.
 
@@ -270,6 +270,6 @@ Non-movable tiles have gray (or dark yellow) backgrounds.
 Movable tiles are shown with white (or bright yellow) backgrounds.
 
 There are several ways to move tiles:
-* You can grab a tile and drag it with the mouse.
-* You can click on a movable tile to *activate* it, then click a second time on its destination.
-* You can click on an empty cell to designate it as the *target*, then click on a tile to place it on the target.  (The target is marked with a large green X.)
+ * You can grab a movable tile and drag it with the mouse.
+ * You can click on a movable tile to *activate* it, then click a second time on its destination.
+ * You can click on an empty cell to make it the *target*, then click on a tile to place it on the target.  (The target is indicated by a large green X.)

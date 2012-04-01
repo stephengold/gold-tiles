@@ -121,9 +121,7 @@ String GameView::ClockText(Hand &rHand) const {
 
 	ASSERT(seconds >= 0);
 	ASSERT(seconds <= 9);
-	ASSERT(tens_of_seconds >= 0);
 	ASSERT(tens_of_seconds <= 5);
-	ASSERT(minutes >= 0);
 
 	String result;
 	if (minus_sign) {
@@ -585,8 +583,8 @@ void GameView::DrawInactiveHands(Canvas &rCanvas) {
             LogicalXType const tile_x = hand_rect.CenterX();
             LogicalYType tile_y = hand_rect.TopY() + mPadPixels + cell_height/2;
 
-            for (unsigned i = 0; i < tile_count; i++) {
-                Tile tile = hand_tiles[i];
+            for (unsigned i_tile = 0; i_tile < tile_count; i_tile++) {
+                Tile tile = hand_tiles[i_tile];
                 Point point(tile_x, tile_y);
                 if (mpMenuBar->IsPeeking()) {
                     DrawTile(rCanvas, point, tile, false);
@@ -635,6 +633,9 @@ void GameView::DrawPaused(Canvas &rCanvas) {
 
 Rect GameView::DrawTile(Canvas &rCanvas, Point const &rCenter, Tile const &rTile, bool oddFlag) {
     TileIdType id = rTile.Id();
+
+	ACountType const glyph_cnt = mDisplayModes.GlyphCnt();
+	ASSERT(glyph_cnt <= TileDisplay::GLYPH_CNT);
 
     ColorType tile_color = COLOR_LIGHT_GRAY;
 	if (rTile.HasBonus()) {
@@ -769,6 +770,7 @@ PCntType GameView::GridUnitY(void) const {
 
 void GameView::LoadPlayerOptions(Player const &rPlayer) {
 	mDisplayModes = DisplayModes(rPlayer);
+	ASSERT(mDisplayModes.GlyphCnt() <= TileDisplay::GLYPH_CNT);
 	mStartCell = Point(rPlayer);
 }
 
@@ -823,6 +825,7 @@ void GameView::SetGame(Game *pGame) {
 	
     SetTileWidth(IDM_LARGE_TILES);
 	ResetTargetCell();
+	mDisplayModes.Cleanup();
 }
 
 void GameView::SetTileWidth(IdType command) {

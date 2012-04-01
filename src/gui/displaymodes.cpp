@@ -22,15 +22,13 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "gui/displaymodes.hpp"
-#include "tile.hpp"
+#include "gui/tiledisplay.hpp"
 
 
 // lifecycle
 
 DisplayModes::DisplayModes(void) {
-	for (AIndexType i_attr = 0; i_attr < Tile::AttributeCnt(); i_attr++) {
-		ASSERT(i_attr < Tile::ATTRIBUTE_CNT_MAX);
-
+	for (AIndexType i_attr = 0; i_attr < Tile::ATTRIBUTE_CNT_MAX; i_attr++) {
 		ADisplayType const mode = Tile::DefaultDisplayMode(i_attr);
 		ASSERT(mode >= ADISPLAY_MIN);
 		ASSERT(mode <= ADISPLAY_MAX);
@@ -40,9 +38,7 @@ DisplayModes::DisplayModes(void) {
 }
 
 DisplayModes::DisplayModes(DisplayModes const &rOther) {
-	for (AIndexType i_attr = 0; i_attr < Tile::AttributeCnt(); i_attr++) {
-		ASSERT(i_attr < Tile::ATTRIBUTE_CNT_MAX);
-
+	for (AIndexType i_attr = 0; i_attr < Tile::ATTRIBUTE_CNT_MAX; i_attr++) {
 		ADisplayType const mode = rOther.mArray[i_attr];
 		ASSERT(mode >= ADISPLAY_MIN);
 		ASSERT(mode <= ADISPLAY_MAX);
@@ -57,9 +53,7 @@ DisplayModes::DisplayModes(DisplayModes const &rOther) {
 // operators
 
 DisplayModes &DisplayModes::operator=(DisplayModes const &rOther) {
-	for (AIndexType i_attr = 0; i_attr < Tile::AttributeCnt(); i_attr++) {
-		ASSERT(i_attr < Tile::ATTRIBUTE_CNT_MAX);
-
+	for (AIndexType i_attr = 0; i_attr < Tile::ATTRIBUTE_CNT_MAX; i_attr++) {
 		ADisplayType const mode = rOther.mArray[i_attr];
 		ASSERT(mode >= ADISPLAY_MIN);
 		ASSERT(mode <= ADISPLAY_MAX);
@@ -73,8 +67,49 @@ DisplayModes &DisplayModes::operator=(DisplayModes const &rOther) {
 
 // misc methods
 
+// clean up  display modes for the start of a new game
+void DisplayModes::Cleanup(void) {
+	// can't display more than 4 glyphs per tile
+	ACountType const glyph_cnt = GlyphCnt();
+	if (glyph_cnt > TileDisplay::GLYPH_CNT) {
+		ADisplayType const mode = ADISPLAY_COLOR;
+		SetMode(0, mode);
+	}
+
+	// only one attribute can use color
+	while (ColorCnt() > 1) {
+		AIndexType const ind = SecondColorIndex();
+		ADisplayType const mode = ADISPLAY_MIN;
+		SetMode(ind, mode);
+	}
+
+	ASSERT(ColorCnt() <= 1);
+	ASSERT(GlyphCnt() <= TileDisplay::GLYPH_CNT);
+}
+
+ACountType DisplayModes::ColorCnt(void) const {
+	AIndexType result = 0;
+	for (AIndexType i_attr = 0; i_attr < Tile::AttributeCnt(); i_attr++) {
+		if (IsColor(i_attr)) {
+			result++;
+		}
+	}
+
+	return result;
+}
+
+ACountType DisplayModes::GlyphCnt(void) const {
+	ACountType result = 0;
+	for (AIndexType i_attr = 0; i_attr < Tile::AttributeCnt(); i_attr++) {
+		if (!IsColor(i_attr)) {
+			result++;
+		}
+	}
+
+	return result;
+}
+
 ADisplayType DisplayModes::Mode(AIndexType ind) const {
-	ASSERT(ind < Tile::AttributeCnt());
 	ASSERT(ind < Tile::ATTRIBUTE_CNT_MAX);
 
 	ADisplayType const result = mArray[ind];
@@ -84,8 +119,24 @@ ADisplayType DisplayModes::Mode(AIndexType ind) const {
 	return result;
 }
 
+AIndexType DisplayModes::SecondColorIndex(void) const {
+	ACountType count = 0;
+	for (AIndexType i_attr = 0; i_attr < Tile::AttributeCnt(); i_attr++) {
+		ADisplayType const mode = Mode(i_attr);
+		if (mode == ADISPLAY_COLOR) {
+			count++;
+			if (count == 2) {
+				ASSERT(i_attr > 0);
+				return i_attr;
+			}
+		}
+	}
+
+	FAIL();
+	return 0;
+}
+
 void DisplayModes::SetMode(AIndexType ind, ADisplayType mode) {
-	ASSERT(ind < Tile::AttributeCnt());
 	ASSERT(ind < Tile::ATTRIBUTE_CNT_MAX);
 	ASSERT(mode >= ADISPLAY_MIN);
 	ASSERT(mode <= ADISPLAY_MAX);

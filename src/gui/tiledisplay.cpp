@@ -42,13 +42,15 @@ TileDisplay::TileDisplay(Tile const &rTile,	DisplayModes const &rDisplayModes) {
 
     for (AIndexType i_attr = 0; i_attr < Tile::AttributeCnt(); i_attr++) {
 		 ADisplayType const display_mode = rDisplayModes.Mode(i_attr);
+		 AValueType const attr_value = rTile.Attribute(i_attr);
+		 ASSERT(attr_value < Tile::VALUE_CNT_MAX);
+
 		 if (display_mode == ADISPLAY_COLOR) {
-			 AValueType const color_index = rTile.Attribute(i_attr);
-	         mGlyphColor = msGlyphColors[color_index];
+	         mGlyphColor = msGlyphColors[attr_value];
 		 } else {
 			 ASSERT(i_glyph < GLYPH_CNT);
 			 mModes[i_glyph] = display_mode;
-             mGlyphs[i_glyph] = rTile.Attribute(i_attr);
+             mGlyphs[i_glyph] = attr_value;
 			 i_glyph++;
 		 }
     }
@@ -74,10 +76,11 @@ AValueType TileDisplay::Glyph(AIndexType ind) const {
 
 	AValueType result = mGlyphs[ind];
 
+	ASSERT(result < Tile::VALUE_CNT_MAX);
 	return result;
 }
 
-unsigned TileDisplay::GlyphCnt(void) const {
+ACountType TileDisplay::GlyphCnt(void) const {
     return mGlyphCnt;
 }
 

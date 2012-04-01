@@ -46,11 +46,11 @@ public:
     // ~TileDisplay(void);  compiler-generated destructor is OK
 
 	// public operators
-    //TileDisplay &operator=(TileDisplay const &);  compiler-generated assignment method is OK
+    // TileDisplay &operator=(TileDisplay const &);  compiler-generated assignment method is OK
 
 	// misc public methods
 	AValueType   Glyph(AIndexType) const;
-	unsigned     GlyphCnt(void) const;
+	ACountType   GlyphCnt(void) const;
 	ColorType    GlyphColor(void) const;
 	ADisplayType Mode(AIndexType) const;
 

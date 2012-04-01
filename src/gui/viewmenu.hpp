@@ -46,7 +46,7 @@ public:
     ViewMenu(Menu const &, unsigned position);
     // no default constructor
 #endif // defined(_WINDOWS)
-    //~ViewMenu(void);  compiler-generated destructor is OK
+    // ~ViewMenu(void);  compiler-generated destructor is OK
 
     // misc public methods
     void Animation(bool);

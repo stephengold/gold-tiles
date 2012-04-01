@@ -35,7 +35,7 @@ public:
 	void Restart(void);
 	// no default constructor
     // Hand(Hand const &); The compiler-generated copy constructor is fine.
-    //~Hand(void); The compiler-generated destructor is fine.
+    // ~Hand(void); The compiler-generated destructor is fine.
 
 	// public operators
     // Hand &operator=(Hand const &); The compiler-generated assignment method is fine.

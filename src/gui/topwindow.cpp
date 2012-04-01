@@ -817,9 +817,6 @@ STEP4:
 		                        tile_redundancy, hand_size, seconds_per_hand);
 	ASSERT(p_new_game != NULL);
 
-	String const report = p_new_game->BestRunReport();
-	Window::InfoBox(report, "Opening Bids - Gold Tile");
-
 	SetGame(p_new_game);
 }
 
@@ -1119,6 +1116,9 @@ void TopWindow::SetGame(Game *pGame) {
 
 	ForceRepaint();
     UpdateMenuBar();
+
+	String const report = pGame->BestRunReport();
+	Window::InfoBox(report, "Opening Bids - Gold Tile");
 }
 
 void TopWindow::SetTileWidth(IdType command) {

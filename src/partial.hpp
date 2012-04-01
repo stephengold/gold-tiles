@@ -56,8 +56,8 @@ public:
 	// public lifecycle
 	Partial(Game const *, HintType, double skipProb);
 	// no default constructor
-    //Partial(Partial const &);  compiler-generated copy constructor is OK
-    //~Partial(void);
+    // Partial(Partial const &);  compiler-generated copy constructor is OK
+    // ~Partial(void);
 	void Reset(void);
 	void Reset(double skipProb);
 	void Reset(Game const *, HintType, double skipProb);

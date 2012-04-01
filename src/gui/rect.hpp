@@ -41,11 +41,11 @@ public:
     Rect(Point const &ulc, PCntType width, PCntType height);
     Rect(LogicalYType, LogicalXType, PCntType width, PCntType height);
 	// no default constructor
-    //Rect(Rect const &);  compiler-generated copy constructor is OK
-    //~Rect(void);
+    // Rect(Rect const &);  compiler-generated copy constructor is OK
+    // ~Rect(void);
 
 	// public operators
-	//Rect &operator=(Rect const &);  compiler-generated assignment method is OK
+	// Rect &operator=(Rect const &);  compiler-generated assignment method is OK
     operator Win::RECT(void) const;
 
 	// misc public methods

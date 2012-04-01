@@ -1,5 +1,5 @@
-// File:    tiledisplay.cpp
-// Purpose: TileDisplay class
+// File:    markings.cpp
+// Purpose: Markings class
 // Author:  Stephen Gold sgold@sonic.net
 // (c) Copyright 2012 Stephen Gold
 // Distributed under the terms of the GNU General Public License
@@ -23,11 +23,11 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <vector>
 #include "gui/displaymodes.hpp"
-#include "gui/tiledisplay.hpp"
+#include "gui/markings.hpp"
 
 // static data
 
-const ColorType TileDisplay::msGlyphColors[Tile::VALUE_CNT_MAX] = {
+const ColorType Markings::msGlyphColors[Tile::VALUE_CNT_MAX] = {
     COLOR_BLACK,      COLOR_RED,       COLOR_DARK_BLUE, 
     COLOR_DARK_GREEN, COLOR_PURPLE,    COLOR_BROWN, 
     COLOR_DARK_GRAY,  COLOR_PINK,      COLOR_LIGHT_BLUE
@@ -36,7 +36,7 @@ const ColorType TileDisplay::msGlyphColors[Tile::VALUE_CNT_MAX] = {
 
 // lifecycle
 
-TileDisplay::TileDisplay(Tile const &rTile,	DisplayModes const &rDisplayModes) {
+Markings::Markings(Tile const &rTile,	DisplayModes const &rDisplayModes) {
 	mGlyphColor = COLOR_BLACK;
 	AIndexType i_glyph = 0;
 
@@ -71,7 +71,7 @@ TileDisplay::TileDisplay(Tile const &rTile,	DisplayModes const &rDisplayModes) {
 
 // misc methods
 
-AValueType TileDisplay::Glyph(AIndexType ind) const {
+AValueType Markings::Glyph(AIndexType ind) const {
 	ASSERT(ind < mGlyphCnt);
 
 	AValueType result = mGlyphs[ind];
@@ -80,15 +80,15 @@ AValueType TileDisplay::Glyph(AIndexType ind) const {
 	return result;
 }
 
-ACountType TileDisplay::GlyphCnt(void) const {
+ACountType Markings::GlyphCnt(void) const {
     return mGlyphCnt;
 }
 
-ColorType TileDisplay::GlyphColor(void) const {
+ColorType Markings::GlyphColor(void) const {
 	return mGlyphColor;
 }
 
-ADisplayType TileDisplay::Mode(AIndexType ind) const {
+ADisplayType Markings::Mode(AIndexType ind) const {
 	ASSERT(ind < mGlyphCnt);
 
 	ADisplayType result = mModes[ind];

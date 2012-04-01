@@ -1,8 +1,8 @@
-#ifndef TILEDISPLAY_HPP_INCLUDED
-#define TILEDISPLAY_HPP_INCLUDED
+#ifndef MARKINGS_HPP_INCLUDED
+#define MARKINGS_HPP_INCLUDED
 
-// File:    tiledisplay.hpp
-// Purpose: TileDisplay class header file
+// File:    markings.hpp
+// Purpose: Markings class header file
 // Author:  Stephen Gold sgold@sonic.net
 // (c) Copyright 2012 Stephen Gold
 // Distributed under the terms of the GNU General Public License
@@ -25,9 +25,9 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 /*
-A TileDisplay object represents information needed to draw a tile in the GUI.
+A Markings object represents information needed to draw a tile in the GUI.
 
-The TileDisplay class encapsulates the tile's foreground color, its glyphs,
+The Markings class encapsulates the tile's foreground color, its glyphs,
 and the display method for each glyph.
 */
 
@@ -35,18 +35,18 @@ and the display method for each glyph.
 #include "tile.hpp"       // HASA ACountType
 
 
-class TileDisplay {
+class Markings {
 public:
 	// public constants
 	static const ACountType GLYPH_CNT = 4;
 
 	// public lifecycle
-	TileDisplay(Tile const &, DisplayModes const &);  
-    // TileDisplay(TileDisplay const &); compiler-generated copy constructor is OK
-    // ~TileDisplay(void);  compiler-generated destructor is OK
+	Markings(Tile const &, DisplayModes const &);  
+    // Markings(Markings const &); compiler-generated copy constructor is OK
+    // ~Markings(void);  compiler-generated destructor is OK
 
 	// public operators
-    // TileDisplay &operator=(TileDisplay const &);  compiler-generated assignment method is OK
+    // Markings &operator=(Markings const &);  compiler-generated assignment method is OK
 
 	// misc public methods
 	AValueType   Glyph(AIndexType) const;
@@ -64,4 +64,4 @@ private:
 	AValueType   mGlyphs[GLYPH_CNT];
 	ADisplayType mModes[GLYPH_CNT];
 };
-#endif // !defined(TILEDISPLAY_HPP_INCLUDED)
+#endif // !defined(MARKINGS_HPP_INCLUDED)

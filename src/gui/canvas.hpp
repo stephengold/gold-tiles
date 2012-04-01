@@ -32,10 +32,10 @@ Gold Tile Game.
 
 */
 
-#include <vector>              // HASA std::vector
-#include "gui/graphics.hpp"    // ISA Graphics
-#include "gui/tiledisplay.hpp" // USES TileDisplay
-#include "tile.hpp"            // USES ACountType
+#include <vector>           // HASA std::vector
+#include "gui/graphics.hpp" // ISA Graphics
+#include "gui/markings.hpp" // USES Markings
+#include "tile.hpp"         // USES ACountType
 
 class Canvas: public Graphics {
 public:
@@ -50,7 +50,7 @@ public:
 	Rect        DrawCell(Point const &, PCntType width, PCntType height,
                      ColorType cellColor, ColorType gridColor, bool odd);
     void        DrawTarget(Rect const &);
-    Rect        DrawTile(TileDisplay const &, ColorType tileColor, Point const &center, 
+    Rect        DrawTile(Markings const &, ColorType tileColor, Point const &center, 
 		             PCntType width, PCntType height, bool odd);
 	static Rect InteriorGridShape(Point const &rCenter, PCntType width, 
 		             PCntType height, bool odd);

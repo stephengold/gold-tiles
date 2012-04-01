@@ -24,7 +24,7 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 #ifdef _WINDOWS
 #include "gui/attrbox.hpp"
 #include "gui/resource.hpp"
-#include "gui/tiledisplay.hpp"
+#include "gui/markings.hpp"
 #include "gui/win_types.hpp"
 
 // message handler (callback) for this dialog
@@ -240,7 +240,7 @@ void AttrBox::UpdateValue(IdType listboxId, ADisplayType value) {
 
 	// can't display more than 4 glyphs per tile
 	ACountType glyph_cnt = mDisplayModes.GlyphCnt();
-	if (glyph_cnt > TileDisplay::GLYPH_CNT) {
+	if (glyph_cnt > Markings::GLYPH_CNT) {
 		AIndexType new_color_index = 0;
 		if (ind == new_color_index) {
 			new_color_index++;
@@ -253,6 +253,6 @@ void AttrBox::UpdateValue(IdType listboxId, ADisplayType value) {
 
 		glyph_cnt = mDisplayModes.GlyphCnt();
 	}
-	ASSERT(glyph_cnt <= TileDisplay::GLYPH_CNT);
+	ASSERT(glyph_cnt <= Markings::GLYPH_CNT);
 }
 #endif // defined(_WINDOWS)

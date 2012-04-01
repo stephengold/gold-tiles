@@ -635,7 +635,7 @@ Rect GameView::DrawTile(Canvas &rCanvas, Point const &rCenter, Tile const &rTile
     TileIdType id = rTile.Id();
 
 	ACountType const glyph_cnt = mDisplayModes.GlyphCnt();
-	ASSERT(glyph_cnt <= TileDisplay::GLYPH_CNT);
+	ASSERT(glyph_cnt <= Markings::GLYPH_CNT);
 
     ColorType tile_color = COLOR_LIGHT_GRAY;
 	if (rTile.HasBonus()) {
@@ -653,7 +653,7 @@ Rect GameView::DrawTile(Canvas &rCanvas, Point const &rCenter, Tile const &rTile
        center.Offset(mpWindow->DragTileDeltaX(), mpWindow->DragTileDeltaY());
     }
 	
-	TileDisplay const tile_display(rTile, mDisplayModes);
+	Markings const tile_display(rTile, mDisplayModes);
 
 	PCntType const tile_height = TileHeight();
     Rect result = rCanvas.DrawTile(tile_display, tile_color, center, mTileWidth, 
@@ -770,7 +770,7 @@ PCntType GameView::GridUnitY(void) const {
 
 void GameView::LoadPlayerOptions(Player const &rPlayer) {
 	mDisplayModes = DisplayModes(rPlayer);
-	ASSERT(mDisplayModes.GlyphCnt() <= TileDisplay::GLYPH_CNT);
+	ASSERT(mDisplayModes.GlyphCnt() <= Markings::GLYPH_CNT);
 	mStartCell = Point(rPlayer);
 }
 

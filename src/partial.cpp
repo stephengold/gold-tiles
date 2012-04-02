@@ -328,8 +328,13 @@ Cell Partial::LocateTile(TileIdType id) const {
 unsigned Partial::Score(void) const {
     ASSERT(GetActive() == Tile::ID_NONE);
     
-    Move const move = GetMove(false);
-    unsigned const result = mBoard.ScoreMove(move);
+	unsigned const played_tile_cnt = CountPlayed();
+	unsigned const best_run_length = mpGame->BestRunLength();
+	unsigned result = 0;
+	if (best_run_length == 0 || played_tile_cnt == best_run_length) {
+        Move const move = GetMove(false);
+        result = mBoard.ScoreMove(move);
+	}
     
     return result;
 }
@@ -442,8 +447,8 @@ void Partial::SetHintStrength(HintType strength) {
 
 void Partial::Suggest(void) {
     ASSERT(HasGame());
-	Reset();
 
+	Reset();
     Partial best = *this; // make a copy
     unsigned best_score = 0;
     FindBestMove(best, best_score);

@@ -73,8 +73,9 @@ private:
     bool AreAllCompatible(Cells const &) const;
     bool AreAllEmpty(Cells const &) const;
     bool DoesAnyHaveNeighbor(Cells const &) const;
-    bool IsDirectionCompatible(Cell const &, DirectionType) const;
     bool IsConnectedDirection(Cells const &, DirectionType) const;
+    bool IsDirectionCompatible(Cell const &, DirectionType) const;
+	static bool
+		 IsScoringDirection(DirectionType);
 };
-
-#endif
+#endif // !defined(BOARD_HPP_INCLUDED)

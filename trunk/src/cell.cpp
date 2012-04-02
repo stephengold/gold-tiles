@@ -32,6 +32,7 @@ IndexType Cell::msHeight   = HEIGHT_MAX;
 IndexType Cell::msWidth    = WIDTH_MAX;
 bool      Cell::msWrapFlag = false;
 
+
 // lifecycle
 
 // default constructor:  refer to the start cell
@@ -58,7 +59,7 @@ Cell::Cell(Cell const &rBase, DirectionType direction, IndexType count) {
 	IndexType const old_ortho = rBase.Ortho(old_direction);
 
 	if (count < 0) {
-		direction = ::opposite_direction(direction);
+		direction = OppositeDirection(direction);
 		count = -count;
 	}
 
@@ -350,17 +351,52 @@ void Cell::Next(DirectionType direction, IndexType count) {
     }
 }
 
+/* static */ DirectionType Cell::OppositeDirection(DirectionType direction) {
+    DirectionType result = DIRECTION_UNKNOWN;
+    
+    switch (direction) {
+        case DIRECTION_NORTH:
+			result = DIRECTION_SOUTH;
+			break;
+        case DIRECTION_SOUTH:
+            result = DIRECTION_NORTH;
+            break;
+        case DIRECTION_NORTHEAST:
+			result = DIRECTION_SOUTHWEST;
+			break;
+        case DIRECTION_SOUTHWEST:
+            result = DIRECTION_NORTHEAST;
+            break;
+        case DIRECTION_EAST:
+			result = DIRECTION_WEST;
+			break;
+        case DIRECTION_WEST:
+            result = DIRECTION_EAST;
+            break;
+        case DIRECTION_NORTHWEST:
+			result = DIRECTION_SOUTHEAST;
+			break;
+        case DIRECTION_SOUTHEAST:
+            result = DIRECTION_NORTHWEST;
+            break;
+		default:
+			FAIL();
+    }
+    
+    return result;
+}
+
 IndexType Cell::Ortho(DirectionType direction) const {
-    DirectionType ortho = ::ortho_direction(direction);
+    DirectionType const axis = OrthoAxis(direction);
 
 	IndexType result = 0;
 
 	if (Grid() != GRID_TRIANGLE) {
         IndexType row_offset, column_offset;
-        NextCellOffsets(ortho, row_offset, column_offset);
+        NextCellOffsets(axis, row_offset, column_offset);
         result = row_offset*mRow + column_offset*mColumn;
 
-	} else switch (ortho) {
+	} else switch (axis) {
 	    case DIRECTION_NORTH:
 		    result = mRow;
 			break;
@@ -390,6 +426,34 @@ IndexType Cell::Ortho(DirectionType direction) const {
 	} 
 
     return result;        
+}
+
+/* static */ DirectionType Cell::OrthoAxis(DirectionType direction) {
+    DirectionType result = DIRECTION_UNKNOWN;
+    
+    switch(direction) {
+        case DIRECTION_NORTH:
+        case DIRECTION_SOUTH:
+            result = DIRECTION_EAST;
+            break;
+        case DIRECTION_NORTHEAST:
+        case DIRECTION_SOUTHWEST:
+            result = DIRECTION_SOUTHEAST;
+            break;
+        case DIRECTION_EAST:
+        case DIRECTION_WEST:
+            result = DIRECTION_NORTH;
+            break;
+        case DIRECTION_NORTHWEST:
+        case DIRECTION_SOUTHEAST:
+            result = DIRECTION_NORTHEAST;
+            break;
+		default:
+			FAIL();
+    }
+    
+    // always return one of the four "positive" directions
+    return result;
 }
 
 IndexType Cell::Row(void) const {
@@ -532,95 +596,3 @@ bool Cell::IsValid(void) const {
 	return result;
 }
 
-// utility functions
-
-bool is_scoring_direction(DirectionType direction) {
-     bool result = false;
-     switch (Cell::Grid()) {
-         case GRID_TRIANGLE:
-             result = (direction != DIRECTION_NORTH 
-                    && direction != DIRECTION_SOUTH);
-             break;
-         case GRID_4WAY:
-             result = (direction == DIRECTION_NORTH 
-                    || direction == DIRECTION_EAST
-                    || direction == DIRECTION_SOUTH
-                    || direction == DIRECTION_WEST);
-             break;
-         case GRID_HEX:
-             result = (direction != DIRECTION_EAST
-                    && direction != DIRECTION_WEST);
-             break;
-         case GRID_8WAY:
-             result = true;
-             break;
-         default:
-             FAIL();
-     }
-     
-     return result;
-}
-
-DirectionType opposite_direction(DirectionType direction) {
-    DirectionType result = DIRECTION_UNKNOWN;
-    
-    switch(direction) {
-        case DIRECTION_NORTH:
-			result = DIRECTION_SOUTH;
-			break;
-        case DIRECTION_SOUTH:
-            result = DIRECTION_NORTH;
-            break;
-        case DIRECTION_NORTHEAST:
-			result = DIRECTION_SOUTHWEST;
-			break;
-        case DIRECTION_SOUTHWEST:
-            result = DIRECTION_NORTHEAST;
-            break;
-        case DIRECTION_EAST:
-			result = DIRECTION_WEST;
-			break;
-        case DIRECTION_WEST:
-            result = DIRECTION_EAST;
-            break;
-        case DIRECTION_NORTHWEST:
-			result = DIRECTION_SOUTHEAST;
-			break;
-        case DIRECTION_SOUTHEAST:
-            result = DIRECTION_NORTHWEST;
-            break;
-		default:
-			FAIL();
-    }
-    
-    // always return a "positive" direction
-    return result;
-}
-
-DirectionType ortho_direction(DirectionType direction) {
-    DirectionType result = DIRECTION_UNKNOWN;
-    
-    switch(direction) {
-        case DIRECTION_NORTH:
-        case DIRECTION_SOUTH:
-            result = DIRECTION_EAST;
-            break;
-        case DIRECTION_NORTHEAST:
-        case DIRECTION_SOUTHWEST:
-            result = DIRECTION_SOUTHEAST;
-            break;
-        case DIRECTION_EAST:
-        case DIRECTION_WEST:
-            result = DIRECTION_NORTH;
-            break;
-        case DIRECTION_NORTHWEST:
-        case DIRECTION_SOUTHEAST:
-            result = DIRECTION_NORTHEAST;
-            break;
-		default:
-			FAIL();
-    }
-    
-    // always return a "positive" direction
-    return result;
-}

@@ -246,7 +246,7 @@ unsigned Board::ScoreMove(Move const &rMove) const {
              dir++)
     {
         DirectionType direction = DirectionType(dir);
-        if (::is_scoring_direction(direction)) {
+        if (IsScoringDirection(direction)) {
             Indices done_ortho;
 
             Cells::ConstIterator i_cell;
@@ -379,7 +379,7 @@ bool Board::HasNeighbor(Cell const &rCell) const {
 }
 
 bool Board::IsConnectedDirection(Cells const &rCells, DirectionType direction) const {
-	 ASSERT(::is_scoring_direction(direction));
+	 ASSERT(IsScoringDirection(direction));
      bool result = true;
     
     if (rCells.Count() > 1) {
@@ -418,7 +418,7 @@ bool Board::IsConnectedDirection(Cells const &rCells, DirectionType direction) c
 
 bool Board::IsDirectionCompatible(Cell const &rCell, DirectionType direction) const {
     ASSERT(!HasEmptyCell(rCell));
-	ASSERT(::is_scoring_direction(direction));
+	ASSERT(IsScoringDirection(direction));
     
     Cell first_cell, last_cell;
     GetLimits(rCell, direction, first_cell, last_cell);
@@ -444,6 +444,33 @@ bool Board::IsEmpty(void) const {
 	bool const result = (Count() == 0);
 
 	return result;
+}
+
+/* static */ bool Board::IsScoringDirection(DirectionType direction) {
+     bool result = false;
+     switch (Cell::Grid()) {
+         case GRID_TRIANGLE:
+             result = (direction != DIRECTION_NORTH 
+                    && direction != DIRECTION_SOUTH);
+             break;
+         case GRID_4WAY:
+             result = (direction == DIRECTION_NORTH 
+                    || direction == DIRECTION_EAST
+                    || direction == DIRECTION_SOUTH
+                    || direction == DIRECTION_WEST);
+             break;
+         case GRID_HEX:
+             result = (direction != DIRECTION_EAST
+                    && direction != DIRECTION_WEST);
+             break;
+         case GRID_8WAY:
+             result = true;
+             break;
+         default:
+             FAIL();
+     }
+     
+     return result;
 }
 
 bool Board::IsValidMove(Move const &rMove) const {
@@ -501,7 +528,7 @@ bool Board::IsValidMove(Move const &rMove, char const *&rReason) const {
              dir++)
         {
             DirectionType const direction = DirectionType(dir);
-			if (::is_scoring_direction(direction)) {
+			if (IsScoringDirection(direction)) {
                 if (cells.AreAllInSameOrtho(direction)) {
                     direction_of_play = direction;
                 }
@@ -541,7 +568,7 @@ bool Board::IsValidMove(Move const &rMove, char const *&rReason) const {
              dir++)
     {
         DirectionType direction = DirectionType(dir);
-        if (::is_scoring_direction(direction)) {
+        if (IsScoringDirection(direction)) {
             if (!after.AreAllCompatible(cells, direction)) {
                 switch (direction) {
                     case DIRECTION_NORTH:

@@ -110,14 +110,9 @@ private:
 	static bool      msWrapFlag; // coordinates wrap around
 
     // misc private methods
-	static void NextCellOffsets(DirectionType, IndexType &rowOffset, 
+	static void          NextCellOffsets(DirectionType, IndexType &rowOffset, 
 		                        IndexType &columnOffset);
+    static DirectionType OppositeDirection(DirectionType);
+	static DirectionType OrthoAxis(DirectionType);
 };
-
-// utility functions
-
-extern bool          is_scoring_direction(DirectionType);
-extern DirectionType opposite_direction(DirectionType);
-extern DirectionType ortho_direction(DirectionType);
-
-#endif
+#endif // !defined(CELL_HPP_INCLUDED)

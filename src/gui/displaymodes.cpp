@@ -71,7 +71,7 @@ DisplayModes &DisplayModes::operator=(DisplayModes const &rOther) {
 void DisplayModes::Cleanup(void) {
 	// can't display more than 4 glyphs per tile
 	ACountType const glyph_cnt = GlyphCnt();
-	if (glyph_cnt > Markings::GLYPH_CNT) {
+	if (glyph_cnt > Markings::GLYPH_CNT_MAX) {
 		ADisplayType const mode = ADISPLAY_COLOR;
 		SetMode(0, mode);
 	}
@@ -84,7 +84,7 @@ void DisplayModes::Cleanup(void) {
 	}
 
 	ASSERT(ColorCnt() <= 1);
-	ASSERT(GlyphCnt() <= Markings::GLYPH_CNT);
+	ASSERT(GlyphCnt() <= Markings::GLYPH_CNT_MAX);
 }
 
 ACountType DisplayModes::ColorCnt(void) const {

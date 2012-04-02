@@ -86,9 +86,4 @@ private:
 	// private methods
 	char const *Name(void) const;
 };
-
-// globals
-
-extern Dialog *gpNewlyCreatedDialog;
-
-#endif
+#endif // !defined(DIALOG_HPP_INCLUDED)

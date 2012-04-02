@@ -108,7 +108,7 @@ public:
 	bool IsHinted(Cell const &);
 	bool IsInHand(TileIdType) const;
 	bool IsInSwap(TileIdType) const;
-	bool IsLocalPlayer(void) const;
+	bool IsLocalUsersTurn(void) const;
 	bool IsOnBoard(TileIdType) const;
 	bool IsPass(void) const;
 	bool IsVisible(Cell const &);
@@ -140,5 +140,4 @@ private:
 	// private inquiry methods
 	bool IsValidNextStep(Move const &, Cell const &, Tile const &) const;
 };
-
-#endif
+#endif // !defined(PARTIAL_HPP_INCLUDED)

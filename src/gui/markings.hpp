@@ -38,7 +38,7 @@ and the display method for each glyph.
 class Markings {
 public:
 	// public constants
-	static const ACountType GLYPH_CNT = 4;
+	static const ACountType GLYPH_CNT_MAX = 4;
 
 	// public lifecycle
 	Markings(Tile const &, DisplayModes const &);  
@@ -61,7 +61,7 @@ private:
 	// private data
 	ACountType   mGlyphCnt;
 	ColorType    mGlyphColor;
-	AValueType   mGlyphs[GLYPH_CNT];
-	ADisplayType mModes[GLYPH_CNT];
+	AValueType   mGlyphs[GLYPH_CNT_MAX];
+	ADisplayType mModes[GLYPH_CNT_MAX];
 };
 #endif // !defined(MARKINGS_HPP_INCLUDED)

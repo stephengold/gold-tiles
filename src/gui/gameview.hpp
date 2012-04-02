@@ -50,38 +50,20 @@ public:
 	operator DisplayModes(void) const;
 
 	// misc public methods
-    PCntType     CellHeight(void) const;
-    LogicalXType CellX(IndexType column) const;
-    LogicalYType CellY(IndexType row) const;
-    PCntType     CellWidth(void) const;
-    void         DrawActiveHand(Canvas &);
-	void         DrawBlankTile(Canvas &, Point const &, bool odd);
-    void         DrawBoard(Canvas &, unsigned layer);
-    void         DrawCell(Canvas &, Cell const &, unsigned swapCnt);
-    Rect         DrawHandHeader(Canvas &, LogicalYType top, LogicalXType leftRight, Hand &, 
-                                ColorType, bool leftFlag);
-    void         DrawHandTile(Canvas &, Point const &, Tile const &, bool odd);
-    void         DrawHandTiles(Canvas &);
-    void         DrawInactiveHands(Canvas &);
-	void         DrawPaused(Canvas &);
-	Rect         DrawTile(Canvas &, Point const &center, Tile const &, bool odd);
-	Cell         GetPointCell(Point const &) const;
-    TileIdType   GetTileId(Point const &) const;
-    PCntType     GridUnitX(void) const;
-    PCntType     GridUnitY(void) const;
-	void         LoadPlayerOptions(Player const &);
-	void         Recenter(PCntType oldWidth, PCntType oldHeight);
-    void         Repaint(Canvas &);
-	void         ResetTargetCell(void);
-	void         SavePlayerOptions(Player &) const;
-	void         SetDisplayModes(DisplayModes const &);
-	void         SetGame(Game *);
-	void         SetTileWidth(IdType command);
-	void         StartCellOffset(long dx, long dy);
-	Cell         TargetCell(void) const;
-	Point        TileCenter(TileIdType) const;
-	PCntType     TileHeight(void) const;
-	void         ToggleTargetCell(Point const &);
+	Cell       GetPointCell(Point const &) const;
+    TileIdType GetTileId(Point const &) const;
+	void       LoadPlayerOptions(Player const &);
+	void       Recenter(PCntType oldWidth, PCntType oldHeight);
+    void       Repaint(Canvas &);
+	void       ResetTargetCell(void);
+	void       SavePlayerOptions(Player &) const;
+	void       SetDisplayModes(DisplayModes const &);
+	void       SetGame(Game *);
+	void       SetTileWidth(IdType command);
+	void       StartCellOffset(long dx, long dy);
+	Cell       TargetCell(void) const;
+	Point      TileCenter(TileIdType) const;
+	void       ToggleTargetCell(Point const &);
 
 	// public inquiry methods
 	bool IsDragging(void) const;
@@ -121,11 +103,31 @@ private:
     GameView &operator=(GameView const &);  // not assignable
 
 	// misc private methods
-	String     ClockText(Hand &) const;
-	AIndexType ColorAttribute(void) const;
+    PCntType     CellHeight(void) const;
+    PCntType     CellWidth(void) const;
+    LogicalXType CellX(IndexType column) const;
+    LogicalYType CellY(IndexType row) const;
+	String       ClockText(Hand &) const;
+	AIndexType   ColorAttribute(void) const;
+    void         DrawActiveHand(Canvas &);
+	void         DrawBlankTile(Canvas &, Point const &, bool odd);
+    void         DrawBoard(Canvas &, unsigned layer);
+    void         DrawCell(Canvas &, Cell const &, unsigned swapCnt);
+	void         DrawPaused(Canvas &);
+    Rect         DrawHandHeader(Canvas &, LogicalYType, LogicalXType leftRight, Hand &, 
+                                ColorType, bool leftFlag);
+    void         DrawHandTile(Canvas &, Point const &, Tile const &, bool odd);
+    void         DrawHandTiles(Canvas &);
+    void         DrawInactiveHands(Canvas &);
+	void         DrawStockArea(Canvas &, LogicalYType, LogicalXType, PCntType width);
+	Rect         DrawSwapArea(Canvas &, LogicalYType, LogicalXType, PCntType width);
+	Rect         DrawTile(Canvas &, Point const &center, Tile const &, bool odd);
+    PCntType     GridUnitX(void) const;
+    PCntType     GridUnitY(void) const;
+	PCntType     TileHeight(void) const;
 
 	// private inquiry methods
 	bool IsGridVisible(void) const;
 
 };
-#endif
+#endif // !defined(GAMEVIEW_HPP_INCLUDED)

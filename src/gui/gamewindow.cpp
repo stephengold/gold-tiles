@@ -782,9 +782,11 @@ STEP4:
 
 	hand_options.Truncate(hand_cnt);
 
+	SetCursorBusy();
 	Game *const p_new_game = new Game(hand_options, game_style, 
 		                        tile_redundancy, hand_size, seconds_per_hand);
 	ASSERT(p_new_game != NULL);
+	SetCursorSelect();
 
 	SetGame(p_new_game);
 }

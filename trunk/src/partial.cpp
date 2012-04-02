@@ -564,7 +564,7 @@ bool Partial::IsGamePaused(void) const {
 bool Partial::IsHinted(Cell const &rCell) {
 	bool result = false;
 
-	if (IsLocalPlayer()) {
+	if (IsLocalUsersTurn()) {
         if (!mHintedCellsValid) {
             SetHintedCells();
         }
@@ -595,11 +595,11 @@ bool Partial::IsInSwap(TileIdType id) const {
     return result;
 }
 
-bool Partial::IsLocalPlayer(void) const {
+bool Partial::IsLocalUsersTurn(void) const {
 	bool result = false;
 	if (HasGame() && !IsGameOver()) {
 		Hand const hand = Hand(*mpGame);
-		result = !hand.IsAutomatic();
+		result = hand.IsLocalUser();
 	}
 
 	return result;

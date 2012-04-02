@@ -154,7 +154,7 @@ IdType MenuBar::TileSize(void) const {
 void MenuBar::Update(void) {
 	bool const have_game = mrPartial.HasGame();
 	bool const is_over = mrPartial.IsGameOver();
-	bool const is_local = mrPartial.IsLocalPlayer();
+	bool const is_local = mrPartial.IsLocalUsersTurn();
     bool const is_pass = mrPartial.IsPass();
 	bool const is_paused = mrPartial.IsGamePaused();
 	bool const can_swap_all = mrPartial.CanSwapAll();

@@ -263,7 +263,7 @@ void GameWindow::HandleButtonUp(Point const &rMouse) {
 	HandleMouseMove(rMouse);
 
 	if (mDragBoardFlag) {
-		if (mDragBoardPixelCnt < 5 && !mpGame->IsOver() && mGameView.IsLocalPlayer()) {
+		if (mDragBoardPixelCnt < 5 && mGameView.IsLocalUsersTurn()) {
 		    // Drags shorter than five pixels 
 			// are treated as normal mouse-clicks 
 			// which change or deactivate the target cell.

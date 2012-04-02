@@ -141,14 +141,14 @@ void GameView::DrawActiveHand(Canvas &rCanvas) {
     LogicalXType left_x = mPadPixels;
     Hand active_hand = Hand(*mpGame);
     ColorType area_color = COLOR_BLACK;
-    bool left = true;
+    bool const left = true;
     Rect header_rect = DrawHandHeader(rCanvas, top_y, left_x, active_hand, area_color, left);
     left_x = header_rect.LeftX();
     PCntType width = header_rect.Width();
     
     // calculate height of hand area (mHandRect)
     unsigned tile_cnt = CountHand();
-    PCntType cell_height = CellHeight();
+    PCntType const cell_height = CellHeight();
 	PCntType height = rCanvas.TextHeight() + 2*mPadPixels;
 	if (!active_hand.HasResigned() && !active_hand.HasGoneOut()) {
         height = tile_cnt*cell_height + 2*mPadPixels;
@@ -159,21 +159,21 @@ void GameView::DrawActiveHand(Canvas &rCanvas) {
 	}
 
 	// choose colors for hand area (mHandRect)
-	TileIdType active_tile = GetActive();
+	TileIdType const active_tile = GetActive();
 	if (IsInHand(active_tile)) {
         // The active tile started from this hand.
 		ASSERT(tile_cnt > 0);
 		--tile_cnt;
 	}
 
-	if (!IsLocalPlayer()) {
+	if (!IsLocalUsersTurn()) {
 	    area_color = COLOR_DARK_BLUE;
 	} else if (tile_cnt < CountTiles()) {
         area_color = COLOR_DARK_GREEN;
     } else { // hand is full
         area_color = COLOR_BROWN;
     }
-    ColorType edge_color = COLOR_WHITE;
+    ColorType const edge_color = COLOR_WHITE;
     rCanvas.UseColors(area_color, edge_color);
 
     // draw hand area (mHandRect)
@@ -183,88 +183,32 @@ void GameView::DrawActiveHand(Canvas &rCanvas) {
     width = mHandRect.Width();
 
     if (active_hand.HasResigned()) {
-		String text = "resigned";
-		rCanvas.DrawText(mHandRect, text);
+		rCanvas.DrawText(mHandRect, "resigned");
 	} else if (active_hand.HasGoneOut()) {
-		String text = "went out";
-		rCanvas.DrawText(mHandRect, text);
+		rCanvas.DrawText(mHandRect, "went out");
 	}
 
-    unsigned stock_cnt = mpGame->CountStock();
+    // draw swap area (mSwapRect)
     top_y = mHandRect.BottomY() - 1;
-
 	if (active_hand.HasGoneOut() || active_hand.HasResigned()) {
         mSwapRect = Rect(top_y, left_x, width, 0);
 	} else {
-        // calculate height of swap area (mSwapRect)
-        tile_cnt = CountSwap();
-        height = tile_cnt*cell_height + rCanvas.TextHeight() + 3*mPadPixels;
-	    unsigned played_tile_cnt = CountPlayed();
-        if (tile_cnt < CountTiles() && tile_cnt < stock_cnt) {
-            // there's room for more tiles
-            height += cell_height/2;
-	    }
-
-        // choose color for swap area (mSwapRect)
-	    if (IsInSwap(active_tile)) {
-		    ASSERT(tile_cnt > 0);
-		    --tile_cnt;
-	    }
-	    if (IsOnBoard(active_tile)) {
-		    ASSERT(played_tile_cnt > 0);
-		    --played_tile_cnt;
-	    }
-	    if (!IsLocalPlayer()) {
-	        area_color = COLOR_DARK_BLUE;
-	    } else if (played_tile_cnt == 0
-                && tile_cnt < CountTiles()
-                && tile_cnt < stock_cnt)
-        {
-            area_color = COLOR_DARK_GREEN;
-        } else { // can't add more tiles to swap area
-            area_color = COLOR_BROWN;
-        }
-        rCanvas.UseColors(area_color, edge_color);
-
-        // draw swap area (mSwapRect)
-        mSwapRect = rCanvas.DrawRectangle(top_y, left_x, width, height);
-    
-        String swap_text = "swap area";
-        LogicalYType y = mSwapRect.BottomY() - mPadPixels - rCanvas.TextHeight();
-        Rect bounds(y, left_x, width, rCanvas.TextHeight());
-        rCanvas.DrawText(bounds, swap_text);
+		mSwapRect = DrawSwapArea(rCanvas, top_y, left_x, width);
 	}
 
-    // calculate height of stock area
-    height = 2*rCanvas.TextHeight() + 3*mPadPixels;
-
-	// choose colors for stock area
-    area_color = COLOR_DARK_BLUE;
-    rCanvas.UseColors(area_color, edge_color);
-
-	// draw stock area
+    // draw stock area (mSwapRect)
     top_y = mSwapRect.BottomY() - 1;
-    Rect stock_rect = rCanvas.DrawRectangle(top_y, left_x, width, height);
-
-    String stock_text1 = plural(stock_cnt, "tile");
-	LogicalYType y = top_y + mPadPixels;
-    Rect bounds1(y, left_x, width, rCanvas.TextHeight());
-    rCanvas.DrawText(bounds1, stock_text1);
-
-    String stock_text2 = "in the stock bag";
-	y = bounds1.BottomY();
-    Rect bounds2(y, left_x, width, rCanvas.TextHeight() + mPadPixels);
-    rCanvas.DrawText(bounds2, stock_text2);
+	DrawStockArea(rCanvas, top_y, left_x, width);
 }
 
 void GameView::DrawBlankTile(Canvas &rCanvas, Point const &rCenter, bool oddFlag) {
-	PCntType height = TileHeight();
+	PCntType const height = TileHeight();
     ColorType tile_color = COLOR_LIGHT_GRAY;
     rCanvas.DrawBlankTile(rCenter, mTileWidth, height, tile_color, oddFlag);
 }
 
-void GameView::DrawBoard(Canvas &rCanvas, unsigned showLayer) {
-    Board board = Board(*this);
+void GameView::DrawBoard(Canvas &rCanvas, unsigned showLayer){
+    Board const board = Board(*this);
 
 	int const column_fringe = 1;
 	int row_fringe = 1;
@@ -272,10 +216,10 @@ void GameView::DrawBoard(Canvas &rCanvas, unsigned showLayer) {
 		row_fringe = 2;
 	}
 
-    IndexType top_row = row_fringe + board.NorthMax();
-    IndexType bottom_row = -row_fringe - board.SouthMax();
-    IndexType right_column = column_fringe + board.EastMax();
-    IndexType left_column = -column_fringe - board.WestMax();
+    IndexType const top_row = row_fringe + board.NorthMax();
+    IndexType const bottom_row = -row_fringe - board.SouthMax();
+    IndexType const right_column = column_fringe + board.EastMax();
+    IndexType const left_column = -column_fringe - board.WestMax();
     ASSERT(bottom_row <= top_row);
     ASSERT(left_column <= right_column);
 
@@ -286,7 +230,7 @@ void GameView::DrawBoard(Canvas &rCanvas, unsigned showLayer) {
 		--swap_cnt;
 	}
 
-	if (IsLocalPlayer() && !mTargetCellFlag && CountHinted() == 1) {
+	if (IsLocalUsersTurn() && !mTargetCellFlag && CountHinted() == 1) {
 		mTargetCell = FirstHinted();
 		mTargetCellFlag = true;
 	}
@@ -462,7 +406,7 @@ void GameView::DrawHandTile(
 {
     TileIdType const id = rTile.Id();
 
-	if (!IsLocalPlayer() && !IsOnBoard(id) && !mpMenuBar->IsPeeking()) {
+	if (!IsLocalUsersTurn() && !IsOnBoard(id) && !mpMenuBar->IsPeeking()) {
 		// draw the tile's backside
         DrawBlankTile(rCanvas, rCenter, oddFlag);
 
@@ -535,7 +479,7 @@ void GameView::DrawHandTiles(Canvas &rCanvas) {
         DrawHandTile(rCanvas, active_base, active_tile, active_odd);
     }
 
-	ASSERT(!IsLocalPlayer() || mTileMap.size() == CountTiles());
+	ASSERT(!IsLocalUsersTurn() || mTileMap.size() == CountTiles());
 }
 
 void GameView::DrawInactiveHands(Canvas &rCanvas) {
@@ -613,14 +557,14 @@ void GameView::DrawPaused(Canvas &rCanvas) {
 	ASSERT(IsGamePaused());
 	ASSERT(!IsGameOver());
 
-    ColorType bg_color = COLOR_BLACK;
-    ColorType text_color = COLOR_WHITE;
+    ColorType const bg_color = COLOR_BLACK;
+    ColorType const text_color = COLOR_WHITE;
     rCanvas.UseColors(bg_color, text_color);
 
     LogicalXType const x = 0;
     LogicalYType const y = 0;
-    Rect clientArea(y, x, mpWindow->ClientAreaWidth(), mpWindow->ClientAreaHeight());
-    rCanvas.DrawText(clientArea, "The game is paused.  Click here to proceed.");
+    Rect const client_area(y, x, mpWindow->ClientAreaWidth(), mpWindow->ClientAreaHeight());
+    rCanvas.DrawText(client_area, "The game is paused.  Click here to proceed.");
         
 	if (mpGame != NULL) {
 	    LogicalYType const top_y = mPadPixels;
@@ -631,11 +575,92 @@ void GameView::DrawPaused(Canvas &rCanvas) {
 	}
 }
 
+void GameView::DrawStockArea(
+	Canvas &rCanvas,
+	LogicalYType top_y,
+	LogicalXType left_x,
+	PCntType width)
+{
+    // calculate height of the stock area
+    PCntType const height = 2*rCanvas.TextHeight() + 3*mPadPixels;
+
+	// set colors for the stock area
+    ColorType const area_color = COLOR_DARK_BLUE;
+    ColorType const edge_color = COLOR_WHITE;
+    rCanvas.UseColors(area_color, edge_color);
+
+	// draw the stock area
+    Rect const stock_rect = rCanvas.DrawRectangle(top_y, left_x, width, height);
+
+    unsigned const stock_cnt = mpGame->CountStock();
+    String const stock_text1 = plural(stock_cnt, "tile");
+	LogicalYType y = top_y + mPadPixels;
+    Rect const bounds1(y, left_x, width, rCanvas.TextHeight());
+    rCanvas.DrawText(bounds1, stock_text1);
+
+	y = bounds1.BottomY();
+    Rect const bounds2(y, left_x, width, rCanvas.TextHeight() + mPadPixels);
+    rCanvas.DrawText(bounds2, "in the stock bag");
+}
+
+Rect GameView::DrawSwapArea(
+	Canvas &rCanvas,
+	LogicalYType top_y,
+	LogicalXType left_x,
+	PCntType width)
+{
+    // calculate height of swap area (mSwapRect)
+    PCntType const cell_height = CellHeight();
+    unsigned const stock_cnt = mpGame->CountStock();
+    unsigned tile_cnt = CountSwap();
+    PCntType height = tile_cnt*cell_height + rCanvas.TextHeight() + 3*mPadPixels;
+
+	if (tile_cnt < CountTiles() && tile_cnt < stock_cnt) {
+        // show that there's room for more tiles
+        height += cell_height/2;
+    }
+
+    // choose color for swap area
+	TileIdType const active_tile = GetActive();
+	if (IsInSwap(active_tile)) {
+		ASSERT(tile_cnt > 0);
+		--tile_cnt;
+	}
+    unsigned played_tile_cnt = CountPlayed();
+	if (IsOnBoard(active_tile)) {
+	    ASSERT(played_tile_cnt > 0);
+	    --played_tile_cnt;
+    }
+	ColorType area_color;
+    if (!IsLocalUsersTurn()) {
+        area_color = COLOR_DARK_BLUE;
+    } else if (played_tile_cnt == 0
+            && tile_cnt < CountTiles()
+            && tile_cnt < stock_cnt)
+    {
+        area_color = COLOR_DARK_GREEN;
+    } else { // can't add more tiles to swap area
+        area_color = COLOR_BROWN;
+    }
+    ColorType const edge_color = COLOR_WHITE;
+    rCanvas.UseColors(area_color, edge_color);
+
+    // draw swap area
+    Rect const swap_rect = rCanvas.DrawRectangle(top_y, left_x, width, height);
+
+	// label swap area
+    LogicalYType y = swap_rect.BottomY() - mPadPixels - rCanvas.TextHeight();
+    Rect bounds(y, left_x, width, rCanvas.TextHeight());
+    rCanvas.DrawText(bounds, "swap area");
+
+	return swap_rect;
+}
+
 Rect GameView::DrawTile(Canvas &rCanvas, Point const &rCenter, Tile const &rTile, bool oddFlag) {
     TileIdType id = rTile.Id();
 
 	ACountType const glyph_cnt = mDisplayModes.GlyphCnt();
-	ASSERT(glyph_cnt <= Markings::GLYPH_CNT);
+	ASSERT(glyph_cnt <= Markings::GLYPH_CNT_MAX);
 
     ColorType tile_color = COLOR_LIGHT_GRAY;
 	if (rTile.HasBonus()) {
@@ -770,7 +795,7 @@ PCntType GameView::GridUnitY(void) const {
 
 void GameView::LoadPlayerOptions(Player const &rPlayer) {
 	mDisplayModes = DisplayModes(rPlayer);
-	ASSERT(mDisplayModes.GlyphCnt() <= Markings::GLYPH_CNT);
+	ASSERT(mDisplayModes.GlyphCnt() <= Markings::GLYPH_CNT_MAX);
 	mStartCell = Point(rPlayer);
 }
 

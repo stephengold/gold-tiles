@@ -25,6 +25,7 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 #include "gui/displaymodes.hpp"
 #include "gui/markings.hpp"
 
+
 // static data
 
 const ColorType Markings::msGlyphColors[Tile::VALUE_CNT_MAX] = {
@@ -36,7 +37,7 @@ const ColorType Markings::msGlyphColors[Tile::VALUE_CNT_MAX] = {
 
 // lifecycle
 
-Markings::Markings(Tile const &rTile,	DisplayModes const &rDisplayModes) {
+Markings::Markings(Tile const &rTile, DisplayModes const &rDisplayModes) {
 	mGlyphColor = COLOR_BLACK;
 	AIndexType i_glyph = 0;
 
@@ -48,7 +49,7 @@ Markings::Markings(Tile const &rTile,	DisplayModes const &rDisplayModes) {
 		 if (display_mode == ADISPLAY_COLOR) {
 	         mGlyphColor = msGlyphColors[attr_value];
 		 } else {
-			 ASSERT(i_glyph < GLYPH_CNT);
+			 ASSERT(i_glyph < GLYPH_CNT_MAX);
 			 mModes[i_glyph] = display_mode;
              mGlyphs[i_glyph] = attr_value;
 			 i_glyph++;
@@ -57,7 +58,7 @@ Markings::Markings(Tile const &rTile,	DisplayModes const &rDisplayModes) {
 
 	mGlyphCnt = i_glyph;
 	ASSERT(mGlyphCnt > 0);
-	ASSERT(mGlyphCnt <= GLYPH_CNT);
+	ASSERT(mGlyphCnt <= GLYPH_CNT_MAX);
 }
 
 // The compiler-generated copy constructor is fine.

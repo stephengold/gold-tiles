@@ -240,7 +240,7 @@ void AttrBox::UpdateValue(IdType listboxId, ADisplayType value) {
 
 	// can't display more than 4 glyphs per tile
 	ACountType glyph_cnt = mDisplayModes.GlyphCnt();
-	if (glyph_cnt > Markings::GLYPH_CNT) {
+	if (glyph_cnt > Markings::GLYPH_CNT_MAX) {
 		AIndexType new_color_index = 0;
 		if (ind == new_color_index) {
 			new_color_index++;
@@ -253,6 +253,6 @@ void AttrBox::UpdateValue(IdType listboxId, ADisplayType value) {
 
 		glyph_cnt = mDisplayModes.GlyphCnt();
 	}
-	ASSERT(glyph_cnt <= Markings::GLYPH_CNT);
+	ASSERT(glyph_cnt <= Markings::GLYPH_CNT_MAX);
 }
 #endif // defined(_WINDOWS)

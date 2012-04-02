@@ -52,6 +52,7 @@ public:
 	// misc public methods
     void          ActivateNextHand(void);
     Tiles         ActiveTiles(void) const;
+	unsigned      BestRunLength(void) const;
 	String        BestRunReport(void) const;
     unsigned      CountStock(void) const;
 	String        EndBonus(void);

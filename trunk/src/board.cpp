@@ -139,25 +139,33 @@ unsigned Board::ScoreDirection(
 
 	unsigned result = 0;
     if (length > 1) {
-        Tile first_tile = GetTile(first_cell);
-        Tile last_tile = GetTile(last_cell);
-        AIndexType attr = first_tile.CommonAttribute(last_tile);
-        unsigned max_length = Tile::ValueCnt(attr);
-        if (length == max_length) {
-            result = 2*length;
-        } else {
-            ASSERT(length < max_length);
-            result = length;
-        }
+		result = length; // base score
 
-		// double the score for every bonus tile in this row/column/diagonal
+		// examine each tiles in the group
         Cell i_cell(first_cell);
 		for (unsigned i = 0; i < length; i++) {
             Tile const tile = GetTile(i_cell);
+	        // double the score for each bonus tile
 			if (tile.HasBonus()) {
 				result *= 2;
 			}
-            i_cell.Next(direction, +1);
+            i_cell.Next(direction);
+		}
+
+		// special bonus for two-attribute games
+		if (Tile::AttributeCnt() == 2) {
+		    // determine the common attribute
+            Tile const first_tile = GetTile(first_cell);
+            Tile const last_tile = GetTile(last_cell);
+            AIndexType const common_attr = first_tile.CommonAttribute(last_tile);
+			AIndexType const other_attr = 1 - common_attr;
+            unsigned const max_length = Tile::ValueCnt(other_attr);
+
+		    // double the score yet again if at max length
+		    ASSERT(length <= max_length);
+            if (length == max_length) {
+				result *= 2;
+		    }
 		}
     }
 

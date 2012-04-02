@@ -150,6 +150,10 @@ void Game::AddTurn(Turn const &rTurn) {
 	mUnsavedChanges = true;
 }
 
+unsigned Game::BestRunLength(void) const {
+	return mBestRunLength;
+}
+
 String Game::BestRunReport(void) const {
 	return mBestRunReport;
 }

@@ -46,7 +46,7 @@ public:
 
 	// public operators
     operator Board(void) const;
-	operator Hand(void) const;
+	operator Hand(void) const; // playable hand
 	operator Hands(void) const;
 
 	// misc public methods
@@ -68,6 +68,7 @@ public:
 	void          StartClock(void);
 	void          StopClock(void);
     GameStyleType Style(void) const;
+	void          TogglePause(void);
 	void          Undo(void);
 
 	// public inquiry methods

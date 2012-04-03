@@ -538,15 +538,29 @@ unsigned Game::SecondsPerHand(void) const {
 
 void Game::StartClock(void) {
 	ASSERT(!IsOver());
+	ASSERT(!IsClockRunning());
+
 	miActiveHand->StartClock();
 }
 
 void Game::StopClock(void) {
+	ASSERT(IsClockRunning());
+
 	miActiveHand->StopClock();
 }
 
 GameStyleType Game::Style(void) const {
     return mStyle;
+}
+
+void Game::TogglePause(void) {
+    ASSERT(!IsOver());
+
+	if (IsClockRunning()) {
+		StopClock();
+	} else {
+		StartClock();
+	}
 }
 
 void Game::Undo(void) {

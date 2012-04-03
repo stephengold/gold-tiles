@@ -27,10 +27,10 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 
 // static data
 
-ACountType  Tile:: msAttributeCnt = 0;    // configured by SetStatic()
+AttrCntType Tile:: msAttributeCnt = 0;    // configured by SetStatic()
 double      Tile:: msBonusProbability = 0.0; // configured by SetStatic()
 TileIdType  Tile:: msNextId = ID_FIRST;
-AValueType *Tile::mspValueMax = NULL;     // allocated by SetStatic()
+AttrType *  Tile::mspValueMax = NULL;     // allocated by SetStatic()
 
 
 // lifecycle
@@ -38,8 +38,8 @@ AValueType *Tile::mspValueMax = NULL;     // allocated by SetStatic()
 Tile::Tile(void) {
     ASSERT(msAttributeCnt >= ATTRIBUTE_CNT_MIN);
 
-    mpArray = new AValueType[msAttributeCnt];
-    for (AIndexType i_attr = 0; i_attr < msAttributeCnt; i_attr++) {
+    mpArray = new AttrType[msAttributeCnt];
+    for (AttrIndexType i_attr = 0; i_attr < msAttributeCnt; i_attr++) {
         mpArray[i_attr] = 0;
     }
 	mBonusValue = 0;
@@ -50,16 +50,16 @@ Tile::Tile(void) {
 Tile::Tile(String const &rString) {
     ASSERT(msAttributeCnt >= ATTRIBUTE_CNT_MIN);
 
-    mpArray = new AValueType[msAttributeCnt];
+    mpArray = new AttrType[msAttributeCnt];
 	mBonusValue = 0;
 
-    AIndexType i_attr = 0;
+    AttrIndexType i_attr = 0;
     String::ConstIterator i_char;
     for (i_char = rString.begin() ; i_char != rString.end(); i_char++) {
         char const ch = *i_char;
         if (i_attr < msAttributeCnt) {
-			ADisplayType const display_mode = DefaultDisplayMode(i_attr);
-			AValueType value = CharToAttribute(display_mode, ch);
+			AttrModeType const display_mode = DefaultDisplayMode(i_attr);
+			AttrType value = CharToAttribute(display_mode, ch);
 			if (value > ValueMax(i_attr)) {
 				value = 0; // so resulting object can be valid
 			}
@@ -85,10 +85,10 @@ Tile::Tile(String const &rString) {
 Tile::Tile(Tile const &rBase) {
     ASSERT(msAttributeCnt >= ATTRIBUTE_CNT_MIN);
 
-    mpArray = new AValueType[msAttributeCnt];
+    mpArray = new AttrType[msAttributeCnt];
 	ASSERT(mpArray != NULL);
-    for (AIndexType i_attr = 0; i_attr < msAttributeCnt; i_attr++) {
-        AValueType const value = rBase.mpArray[i_attr];
+    for (AttrIndexType i_attr = 0; i_attr < msAttributeCnt; i_attr++) {
+        AttrType const value = rBase.mpArray[i_attr];
         mpArray[i_attr] = value;
     }
 	mBonusValue = rBase.mBonusValue;
@@ -116,10 +116,10 @@ Tile &Tile::operator=(Tile const &rOther) {
     ASSERT(IsValid());
 	ASSERT(rOther.IsValid());
 
-    mpArray = new AValueType[msAttributeCnt];
+    mpArray = new AttrType[msAttributeCnt];
 	ASSERT(mpArray != NULL);
-    for (AIndexType i_attr = 0; i_attr < msAttributeCnt; i_attr++) {
-        AValueType const value = rOther.mpArray[i_attr];
+    for (AttrIndexType i_attr = 0; i_attr < msAttributeCnt; i_attr++) {
+        AttrType const value = rOther.mpArray[i_attr];
         ASSERT(value <= mspValueMax[i_attr]);
         mpArray[i_attr] = value;
     }
@@ -145,11 +145,11 @@ Tile::operator String(void) const {
 
 	String result;
 
-    for (AIndexType i_attr = 0; i_attr < msAttributeCnt; i_attr++) {
-        AValueType const value = mpArray[i_attr];
+    for (AttrIndexType i_attr = 0; i_attr < msAttributeCnt; i_attr++) {
+        AttrType const value = mpArray[i_attr];
         ASSERT(value <= mspValueMax[i_attr]);
 
-		ADisplayType const display_mode = DefaultDisplayMode(i_attr);
+		AttrModeType const display_mode = DefaultDisplayMode(i_attr);
         result += AttributeToString(display_mode, value);
     }
 	if (mBonusValue > 0) {
@@ -167,16 +167,16 @@ Tile::operator String(void) const {
 
 // misc methods
 
-AValueType Tile::Attribute(AIndexType ind) const {
+AttrType Tile::Attribute(AttrIndexType ind) const {
 	ASSERT(IsValid());
     ASSERT(ind < msAttributeCnt);
 
-    AValueType const result = mpArray[ind];
+    AttrType const result = mpArray[ind];
     
     return result;
 }
 
-/* static */ ACountType Tile::AttributeCnt(void) {
+/* static */ AttrCntType Tile::AttributeCnt(void) {
     ASSERT(msAttributeCnt >= ATTRIBUTE_CNT_MIN);
 
 	return msAttributeCnt;
@@ -184,9 +184,9 @@ AValueType Tile::Attribute(AIndexType ind) const {
 
 /* static */ String Tile::AttributeReport(void) {
 	String result = ::plural(Tile::AttributeCnt(), "attribute") + ":\n";
-	for (AIndexType i_attr = 0; i_attr < Tile::AttributeCnt(); i_attr++) {
-		ADisplayType const display_mode = Tile::DefaultDisplayMode(i_attr);
-		AValueType const value_max = Tile::ValueMax(i_attr);
+	for (AttrIndexType i_attr = 0; i_attr < Tile::AttributeCnt(); i_attr++) {
+		AttrModeType const display_mode = Tile::DefaultDisplayMode(i_attr);
+		AttrType const value_max = Tile::ValueMax(i_attr);
 		result += " " + ::ordinal(i_attr + 1) + " attribute ranges from ";
 		result += Tile::AttributeToString(display_mode, 0) + " to ";
 		result += Tile::AttributeToString(display_mode, value_max) + "\n";
@@ -196,17 +196,17 @@ AValueType Tile::Attribute(AIndexType ind) const {
 	return result;
 }
 
-/* static */ String Tile::AttributeToString(ADisplayType display_mode, AValueType value) {
+/* static */ String Tile::AttributeToString(AttrModeType display_mode, AttrType value) {
     char ch = '?'; // invalid
 
     switch (display_mode) {
-        case ADISPLAY_ABC:
+        case ATTR_MODE_ABC:
             ch = char('A' + value);
             break;
-        case ADISPLAY_RST:
+        case ATTR_MODE_RST:
             ch = char('R' + value);
             break;
-        case ADISPLAY_123:
+        case ATTR_MODE_123:
             ch = char('1' + value);
             break;
 		default:
@@ -225,18 +225,18 @@ AValueType Tile::Attribute(AIndexType ind) const {
 	return msBonusProbability;
 }
 
-/* static */ AValueType Tile::CharToAttribute(ADisplayType display_mode, char ch) {
-    AValueType result = 0;
+/* static */ AttrType Tile::CharToAttribute(AttrModeType display_mode, char ch) {
+    AttrType result = 0;
 
     switch (display_mode) {
-        case ADISPLAY_ABC:
-            result = AValueType(ch - 'A');
+        case ATTR_MODE_ABC:
+            result = AttrType(ch - 'A');
             break;
-        case ADISPLAY_RST:
-            result = AValueType(ch - 'R');
+        case ATTR_MODE_RST:
+            result = AttrType(ch - 'R');
             break;
-        case ADISPLAY_123:
-            result = AValueType(ch - '1');
+        case ATTR_MODE_123:
+            result = AttrType(ch - '1');
             break;
 		default:
 			FAIL();
@@ -267,10 +267,10 @@ Tile Tile::CloneAndSetBonus(void) const {
 // calculate the number of possible combinations of attributes
 /* static */ long Tile::CombinationCnt(void) {
 	long result = 1L;
-    for (AIndexType i_attr = 0; i_attr < msAttributeCnt; i_attr++) {
+    for (AttrIndexType i_attr = 0; i_attr < msAttributeCnt; i_attr++) {
 		ASSERT(i_attr < Tile::ATTRIBUTE_CNT_MAX);
-		AValueType const max_value = mspValueMax[i_attr];
-		AValueType const possible_values = max_value + 1;  // zero is a possible value
+		AttrType const max_value = mspValueMax[i_attr];
+		AttrType const possible_values = max_value + 1;  // zero is a possible value
 		result *= possible_values;
 	}
 
@@ -280,13 +280,13 @@ Tile Tile::CloneAndSetBonus(void) const {
 }
 
 // identify the common attribute of a compatible tile
-AIndexType Tile::CommonAttribute(Tile const &rOther) const {
+AttrIndexType Tile::CommonAttribute(Tile const &rOther) const {
 	ASSERT(IsValid());
 	ASSERT(rOther.IsValid());
     ASSERT(CountMatchingAttributes(rOther) == 1);
     
-    AIndexType result = msAttributeCnt;
-    for (AIndexType i_attr = 0; i_attr < msAttributeCnt; i_attr++) {
+    AttrIndexType result = msAttributeCnt;
+    for (AttrIndexType i_attr = 0; i_attr < msAttributeCnt; i_attr++) {
         if (mpArray[i_attr] == rOther.mpArray[i_attr]) {
             result = i_attr;
             break;
@@ -297,13 +297,13 @@ AIndexType Tile::CommonAttribute(Tile const &rOther) const {
     return result;
 }
 
-ACountType Tile::CountMatchingAttributes(Tile const &rOther) const {
+AttrCntType Tile::CountMatchingAttributes(Tile const &rOther) const {
 	ASSERT(IsValid());
 	ASSERT(rOther.IsValid());
 
-	ACountType result = 0;
-    for (AIndexType i_attr = 0; i_attr < msAttributeCnt; i_attr++) {
-		AValueType const attr_value = rOther.mpArray[i_attr];
+	AttrCntType result = 0;
+    for (AttrIndexType i_attr = 0; i_attr < msAttributeCnt; i_attr++) {
+		AttrType const attr_value = rOther.mpArray[i_attr];
         if (HasAttribute(i_attr, attr_value)) {
              ++result;
         }
@@ -312,36 +312,36 @@ ACountType Tile::CountMatchingAttributes(Tile const &rOther) const {
     return result;
 }
 
-/* static */ ADisplayType Tile::DefaultDisplayMode(AIndexType ind) {
-	ADisplayType result = ADISPLAY_123;
+/* static */ AttrModeType Tile::DefaultDisplayMode(AttrIndexType ind) {
+	AttrModeType result = ATTR_MODE_123;
 
 	switch (ind) {
 #ifdef _GUI
 	    case 0:
-			result = ADISPLAY_SHAPE;
+			result = ATTR_MODE_SHAPE;
 			break;
 		case 1:
-			result = ADISPLAY_COLOR;
+			result = ATTR_MODE_COLOR;
 			break;
 		case 2:
-			result = ADISPLAY_ABC;
+			result = ATTR_MODE_ABC;
 			break;
 		case 3:
-			result = ADISPLAY_RST;
+			result = ATTR_MODE_RST;
 			break;
 		case 4:
-			result = ADISPLAY_123;
+			result = ATTR_MODE_123;
 			break;
 #else // !defined(_GUI)
 	    case 0:
-			result = ADISPLAY_ABC;
+			result = ATTR_MODE_ABC;
 			break;
 		case 1:
-			result = ADISPLAY_RST;
+			result = ATTR_MODE_RST;
 			break;
 #endif // !defined(_GUI)
 		default:
-			result = ADISPLAY_123;
+			result = ATTR_MODE_123;
 			break;
 	}
 
@@ -405,7 +405,7 @@ TileIdType Tile::Id(void) const {
 	return result;
 }
 
-void Tile::SetAttribute(AIndexType ind, AValueType value) {
+void Tile::SetAttribute(AttrIndexType ind, AttrType value) {
     ASSERT(ind < msAttributeCnt);
     ASSERT(value <= mspValueMax[ind]);
 
@@ -415,8 +415,8 @@ void Tile::SetAttribute(AIndexType ind, AValueType value) {
 }
 
 /* static */ void Tile::SetStatic(
-	ACountType attributeCnt,
-	AValueType const pValueMax[],
+	AttrCntType attributeCnt,
+	AttrType const pValueMax[],
 	double bonusProbability)
 {
     ASSERT(attributeCnt >= ATTRIBUTE_CNT_MIN);
@@ -430,10 +430,10 @@ void Tile::SetAttribute(AIndexType ind, AValueType value) {
 	msBonusProbability = bonusProbability;
 
 	delete[] mspValueMax;
-    mspValueMax = new AValueType[attributeCnt];
+    mspValueMax = new AttrType[attributeCnt];
 	ASSERT(mspValueMax != NULL);
 
-    for (AIndexType i_attr = 0; i_attr < attributeCnt; i_attr++) {
+    for (AttrIndexType i_attr = 0; i_attr < attributeCnt; i_attr++) {
 		unsigned const value_cnt = pValueMax[i_attr] + 1;
         ASSERT(value_cnt >= VALUE_CNT_MIN);
         ASSERT(value_cnt <= VALUE_CNT_MAX);
@@ -450,15 +450,15 @@ void Tile::SetAttribute(AIndexType ind, AValueType value) {
     return result;
 }
 
-/* static */ AValueType Tile::ValueCnt(AIndexType attrIndex) {
-    AValueType const result = ValueMax(attrIndex) + 1;
+/* static */ AttrType Tile::ValueCnt(AttrIndexType attrIndex) {
+    AttrType const result = ValueMax(attrIndex) + 1;
     
     return result;
 }
 
-/* static */ AValueType Tile::ValueMax(AIndexType attrIndex) {
+/* static */ AttrType Tile::ValueMax(AttrIndexType attrIndex) {
     ASSERT(attrIndex < msAttributeCnt);
-    AValueType const result = mspValueMax[attrIndex];
+    AttrType const result = mspValueMax[attrIndex];
     
     return result;
 }
@@ -466,10 +466,10 @@ void Tile::SetAttribute(AIndexType ind, AValueType value) {
 
 // inquiry methods
 
-bool Tile::HasAttribute(AIndexType ind, AValueType value) const {
+bool Tile::HasAttribute(AttrIndexType ind, AttrType value) const {
     ASSERT(ind < msAttributeCnt);
 
-    AValueType const attrib = mpArray[ind];
+    AttrType const attrib = mpArray[ind];
     bool const result = (attrib == value);
     
     return result;
@@ -496,7 +496,7 @@ bool Tile::IsClone(Tile const &rOther) const {
 	// copies (with the same ID) do not count as clones
     if (mId != rOther.mId) {
 		// the bonus value and all attributes match
-		ACountType const cnt = CountMatchingAttributes(rOther);
+		AttrCntType const cnt = CountMatchingAttributes(rOther);
         result = (cnt == msAttributeCnt && mBonusValue == rOther.mBonusValue);
     }
 
@@ -513,7 +513,7 @@ bool Tile::IsCompatibleWith(Tile const *pOther) const {
     bool result = true;
     
     if (pOther != NULL) {
-        ACountType const matchCnt = CountMatchingAttributes(*pOther);
+        AttrCntType const matchCnt = CountMatchingAttributes(*pOther);
         result = (matchCnt == 1);
     }
     
@@ -529,7 +529,7 @@ bool Tile::IsValid(void) const {
 	{
         result = true;
 #if 0
-        for (AIndexType i_attr = 0; i_attr < msAttributeCnt; i_attr++) {
+        for (AttrIndexType i_attr = 0; i_attr < msAttributeCnt; i_attr++) {
             if (mpArray[i_attr] > mspValueMax[i_attr]) {
                 result = false;
                 break;

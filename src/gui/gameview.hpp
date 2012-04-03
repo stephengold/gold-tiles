@@ -53,7 +53,7 @@ public:
 	Cell       GetPointCell(Point const &) const;
     TileIdType GetTileId(Point const &) const;
 	void       LoadPlayerOptions(Player const &);
-	void       Recenter(PCntType oldWidth, PCntType oldHeight);
+	void       Recenter(PixelCntType oldWidth, PixelCntType oldHeight);
     void       Repaint(Canvas &);
 	void       ResetTargetCell(void);
 	void       SavePlayerOptions(Player &) const;
@@ -87,13 +87,13 @@ private:
 	DisplayModes mDisplayModes;
 	Rect         mHandRect;
 	MenuBar *   mpMenuBar;
-	PCntType     mPadPixels;
+	PixelCntType mPadPixels;
 	Point        mStartCell;
 	Rect         mSwapRect;
 	Cell         mTargetCell;
 	bool         mTargetCellFlag;
 	TileMap      mTileMap;
-	PCntType     mTileWidth;
+	PixelCntType mTileWidth;
 	GameWindow * mpWindow;
 
 	// private lifecycle
@@ -103,28 +103,28 @@ private:
     GameView &operator=(GameView const &);  // not assignable
 
 	// misc private methods
-    PCntType     CellHeight(void) const;
-    PCntType     CellWidth(void) const;
-    LogicalXType CellX(IndexType column) const;
-    LogicalYType CellY(IndexType row) const;
-	String       ClockText(Hand &) const;
-	AIndexType   ColorAttribute(void) const;
-    void         DrawActiveHand(Canvas &);
-	void         DrawBlankTile(Canvas &, Point const &, bool odd);
-    void         DrawBoard(Canvas &, unsigned layer);
-    void         DrawCell(Canvas &, Cell const &, unsigned swapCnt);
-	void         DrawPaused(Canvas &);
-    Rect         DrawHandHeader(Canvas &, LogicalYType, LogicalXType leftRight, Hand &, 
+    PixelCntType  CellHeight(void) const;
+    PixelCntType  CellWidth(void) const;
+    LogicalXType  CellX(IndexType column) const;
+    LogicalYType  CellY(IndexType row) const;
+	String        ClockText(Hand &) const;
+	AttrIndexType ColorAttribute(void) const;
+    void          DrawActiveHand(Canvas &);
+	void          DrawBlankTile(Canvas &, Point const &, bool odd);
+    void          DrawBoard(Canvas &, unsigned layer);
+    void          DrawCell(Canvas &, Cell const &, unsigned swapCnt);
+	void          DrawPaused(Canvas &);
+    Rect          DrawHandHeader(Canvas &, LogicalYType, LogicalXType leftRight, Hand &, 
                                 ColorType, bool leftFlag);
-    void         DrawHandTile(Canvas &, Point const &, Tile const &, bool odd);
-    void         DrawHandTiles(Canvas &);
-    void         DrawInactiveHands(Canvas &);
-	void         DrawStockArea(Canvas &, LogicalYType, LogicalXType, PCntType width);
-	Rect         DrawSwapArea(Canvas &, LogicalYType, LogicalXType, PCntType width);
-	Rect         DrawTile(Canvas &, Point const &center, Tile const &, bool odd);
-    PCntType     GridUnitX(void) const;
-    PCntType     GridUnitY(void) const;
-	PCntType     TileHeight(void) const;
+    void          DrawHandTile(Canvas &, Point const &, Tile const &, bool odd);
+    void          DrawHandTiles(Canvas &);
+    void          DrawInactiveHands(Canvas &);
+	void          DrawStockArea(Canvas &, LogicalYType, LogicalXType, PixelCntType width);
+	Rect          DrawSwapArea(Canvas &, LogicalYType, LogicalXType, PixelCntType width);
+	Rect          DrawTile(Canvas &, Point const &center, Tile const &, bool odd);
+    PixelCntType  GridUnitX(void) const;
+    PixelCntType  GridUnitY(void) const;
+	PixelCntType  TileHeight(void) const;
 
 	// private inquiry methods
 	bool IsGridVisible(void) const;

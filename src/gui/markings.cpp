@@ -39,14 +39,14 @@ const ColorType Markings::msGlyphColors[Tile::VALUE_CNT_MAX] = {
 
 Markings::Markings(Tile const &rTile, DisplayModes const &rDisplayModes) {
 	mGlyphColor = COLOR_BLACK;
-	AIndexType i_glyph = 0;
+	AttrIndexType i_glyph = 0;
 
-    for (AIndexType i_attr = 0; i_attr < Tile::AttributeCnt(); i_attr++) {
-		 ADisplayType const display_mode = rDisplayModes.Mode(i_attr);
-		 AValueType const attr_value = rTile.Attribute(i_attr);
+    for (AttrIndexType i_attr = 0; i_attr < Tile::AttributeCnt(); i_attr++) {
+		 AttrModeType const display_mode = rDisplayModes.Mode(i_attr);
+		 AttrType const attr_value = rTile.Attribute(i_attr);
 		 ASSERT(attr_value < Tile::VALUE_CNT_MAX);
 
-		 if (display_mode == ADISPLAY_COLOR) {
+		 if (display_mode == ATTR_MODE_COLOR) {
 	         mGlyphColor = msGlyphColors[attr_value];
 		 } else {
 			 ASSERT(i_glyph < GLYPH_CNT_MAX);
@@ -72,16 +72,16 @@ Markings::Markings(Tile const &rTile, DisplayModes const &rDisplayModes) {
 
 // misc methods
 
-AValueType Markings::Glyph(AIndexType ind) const {
+AttrType Markings::Glyph(AttrIndexType ind) const {
 	ASSERT(ind < mGlyphCnt);
 
-	AValueType result = mGlyphs[ind];
+	AttrType result = mGlyphs[ind];
 
 	ASSERT(result < Tile::VALUE_CNT_MAX);
 	return result;
 }
 
-ACountType Markings::GlyphCnt(void) const {
+AttrCntType Markings::GlyphCnt(void) const {
     return mGlyphCnt;
 }
 
@@ -89,10 +89,10 @@ ColorType Markings::GlyphColor(void) const {
 	return mGlyphColor;
 }
 
-ADisplayType Markings::Mode(AIndexType ind) const {
+AttrModeType Markings::Mode(AttrIndexType ind) const {
 	ASSERT(ind < mGlyphCnt);
 
-	ADisplayType result = mModes[ind];
+	AttrModeType result = mModes[ind];
 
 	return result;
 }

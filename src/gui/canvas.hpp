@@ -35,7 +35,7 @@ Gold Tile Game.
 #include <vector>           // HASA std::vector
 #include "gui/graphics.hpp" // ISA Graphics
 #include "gui/markings.hpp" // USES Markings
-#include "tile.hpp"         // USES ACountType
+#include "tile.hpp"         // USES AttrCntType
 
 class Canvas: public Graphics {
 public:
@@ -45,15 +45,15 @@ public:
     // ~Canvas(void);  compiler-generated destructor is OK
         
 	// misc public methods
-    void        DrawBlankTile(Point const &, PCntType width, PCntType height, 
+    void        DrawBlankTile(Point const &, PixelCntType width, PixelCntType height, 
 		             ColorType, bool odd);
-	Rect        DrawCell(Point const &, PCntType width, PCntType height,
+	Rect        DrawCell(Point const &, PixelCntType width, PixelCntType height,
                      ColorType cellColor, ColorType gridColor, bool odd);
     void        DrawTarget(Rect const &);
     Rect        DrawTile(Markings const &, ColorType tileColor, Point const &center, 
-		             PCntType width, PCntType height, bool odd);
-	static Rect InteriorGridShape(Point const &rCenter, PCntType width, 
-		             PCntType height, bool odd);
+		             PixelCntType width, PixelCntType height, bool odd);
+	static Rect InteriorGridShape(Point const &rCenter, PixelCntType width, 
+		             PixelCntType height, bool odd);
 
 private:
 	// private constants
@@ -69,11 +69,12 @@ private:
     Canvas &operator=(Canvas const &);  // not assignable
 
 	// misc private methods
-    void        DrawGlyph(Rect const &bounds, ADisplayType, AValueType, ColorType bg,
+    void DrawGlyph(Rect const &bounds, AttrModeType, AttrType, ColorType bg,
                        ColorType fg);
-	void        DrawGridShape(Point const &rCenter, PCntType width, 
-		               PCntType height, bool oddFlag);
-    static void InitShapes(void);            
+	void DrawGridShape(Point const &rCenter, PixelCntType width, 
+		               PixelCntType height, bool oddFlag);
+    static void 
+		 InitShapes(void);            
 };
 
 #endif

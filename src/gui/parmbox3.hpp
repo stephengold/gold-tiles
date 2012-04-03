@@ -32,7 +32,7 @@ The ParmBox3 class is an extension of the Dialog class.
 */
 
 #include "gui/dialog.hpp"   // ISA Dialog
-#include "tile.hpp"         // ACountType
+#include "tile.hpp"         // AttrCntType
 
 class ParmBox3: public Dialog {
 public:
@@ -43,12 +43,12 @@ public:
 	// ~ParmBox3(void);  compiler-generated destructor is OK
 
 	// misc public methods
-	ACountType AttributeCnt(void) const;
-	unsigned   BonusTilePercentage(void) const;
-	unsigned   ClonesPerCombo(void) const;
-	unsigned   HandCnt(void) const;
-	int        HandleMessage(MessageType, Win::WPARAM, Win::LPARAM);
-	unsigned   HandSize(void) const;
+	AttrCntType AttributeCnt(void) const;
+	unsigned    BonusTilePercentage(void) const;
+	unsigned    ClonesPerCombo(void) const;
+	unsigned    HandCnt(void) const;
+	int         HandleMessage(MessageType, Win::WPARAM, Win::LPARAM);
+	unsigned    HandSize(void) const;
 
 private:
     ValueType mAttributeCnt;

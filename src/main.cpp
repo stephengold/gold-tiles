@@ -67,8 +67,8 @@ int main(int argCnt, char *argValues[]) {
 	unsigned const seed = ::milliseconds();
     ::srand(seed);
 
-	ACountType const attribute_cnt = Tile::ATTRIBUTE_CNT_DEFAULT;
-	AValueType const max_attribute[] = { Tile::VALUE_CNT_DEFAULT - 1, Tile::VALUE_CNT_DEFAULT - 1 };
+	AttrCntType const attribute_cnt = Tile::ATTRIBUTE_CNT_DEFAULT;
+	AttrType const max_attribute[] = { Tile::VALUE_CNT_DEFAULT - 1, Tile::VALUE_CNT_DEFAULT - 1 };
 	double const bonus_fraction = 0.0;
 	Tile::SetStatic(attribute_cnt, max_attribute, bonus_fraction);
 

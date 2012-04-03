@@ -32,7 +32,7 @@ a static map for translating handles to Window objects.
 */
 
 #include <map>            // HASA std::map
-#include "gui/rect.hpp"   // HASA PCntType
+#include "gui/rect.hpp"   // HASA PixelCntType
 
 typedef Win::UINT MessageType;
 
@@ -47,8 +47,8 @@ public:
     operator Rect(void) const;
 
 	// misc public methods
-	PCntType        ClientAreaHeight(void) const;
-	PCntType        ClientAreaWidth(void) const;
+	PixelCntType    ClientAreaHeight(void) const;
+	PixelCntType    ClientAreaWidth(void) const;
 	Win::LRESULT    HandleMessage(MessageType, Win::WPARAM, Win::LPARAM); 
     static Window * Lookup(Win::HWND);
     int             MessageDispatchLoop(void);
@@ -83,7 +83,7 @@ protected:
 	void           ReleaseMouse(void);
 	void           SelfDestruct(void);
 	void           SetAcceleratorTable(char const *resourceName);
-	void           SetClientArea(PCntType width, PCntType height);
+	void           SetClientArea(PixelCntType width, PixelCntType height);
 	void           SetCursorBusy(void);
 	void           SetCursorDrag(void);
 	void           SetCursorSelect(void);
@@ -106,7 +106,7 @@ private:
 	static Map msMap;
 	
 	Win::HACCEL      mAcceleratorTable;
-    PCntType         mClientAreaWidth, mClientAreaHeight;
+    PixelCntType     mClientAreaWidth, mClientAreaHeight;
     Win::HWND        mHandle;
 	void *           mMainFiber;
     Win::HINSTANCE   mModule; // the module/instance which owns this window  TODO static?

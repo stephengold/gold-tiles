@@ -43,23 +43,23 @@ public:
 	virtual ~Graphics(void);
 
 	// misc public methods
-    void        Close(void);
-	void        DrawEquilateral(Rect const &, bool invert);
-	void        DrawHexagon(Rect const &);
-	void        DrawLine(Point const &, Point const &);
-	void        DrawLine(LogicalXType, LogicalYType, LogicalXType, LogicalYType);
-    void        DrawPolygon(Poly const &, Rect const &, bool invert = false);
-    Rect        DrawRectangle(Rect const &);
-    Rect        DrawRectangle(LogicalYType, LogicalXType, PCntType width, PCntType height);
-    void        DrawRoundedSquare(Point const &, PCntType edge, PCntType diameter);
-    void        DrawText(Rect const &, char const *, char const *alt = NULL);
-    void        GetColors(ColorType &rBrushBk, ColorType &rPenText) const;
-	static Rect InteriorEquilateral(Rect const &, bool invert);
-	static Rect InteriorHexagon(Rect const &);
-    static Rect InteriorRoundedSquare(Point const &, PCntType edge, PCntType diameter);
-    PCntType    TextHeight(void) const;
-    PCntType    TextWidth(char const *) const;
-    void        UseColors(ColorType brushBk, ColorType penText);
+    void         Close(void);
+	void         DrawEquilateral(Rect const &, bool invert);
+	void         DrawHexagon(Rect const &);
+	void         DrawLine(Point const &, Point const &);
+	void         DrawLine(LogicalXType, LogicalYType, LogicalXType, LogicalYType);
+    void         DrawPolygon(Poly const &, Rect const &, bool invert = false);
+    Rect         DrawRectangle(Rect const &);
+    Rect         DrawRectangle(LogicalYType, LogicalXType, PixelCntType width, PixelCntType height);
+    void         DrawRoundedSquare(Point const &, PixelCntType edge, PixelCntType diameter);
+    void         DrawText(Rect const &, char const *, char const *alt = NULL);
+    void         GetColors(ColorType &rBrushBk, ColorType &rPenText) const;
+	static Rect  InteriorEquilateral(Rect const &, bool invert);
+	static Rect  InteriorHexagon(Rect const &);
+    static Rect  InteriorRoundedSquare(Point const &, PixelCntType edge, PixelCntType diameter);
+    PixelCntType TextHeight(void) const;
+    PixelCntType TextWidth(char const *) const;
+    void         UseColors(ColorType brushBk, ColorType penText);
 
 private:
 	// private data

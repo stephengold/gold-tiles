@@ -41,37 +41,38 @@ In addition, some randomly-selected tiles are bonus tiles with extra value.
 typedef IndexType TileIdType;
 
 // attribute types
-typedef unsigned short ACountType, AIndexType;
-typedef unsigned short AValueType;
+typedef unsigned short AttrCntType, AttrIndexType;
+typedef unsigned short AttrType;
 
 // attribute display types
-enum ADisplayType {
-	ADISPLAY_MIN = 0,
-	ADISPLAY_ABC = 0,
-	ADISPLAY_RST = 1,
-	ADISPLAY_123 = 2,
+enum AttrModeType {
+	ATTR_MODE_MIN = 0,
+	ATTR_MODE_ABC = 0,
+	ATTR_MODE_RST = 1,
+	ATTR_MODE_123 = 2,
 #ifdef _GUI
-	ADISPLAY_COLOR = 3,
-	ADISPLAY_SHAPE = 4,
-	ADISPLAY_MAX = 4,
-	ADISPLAY_CNT = 5
+	ATTR_MODE_COLOR = 3,
+	ATTR_MODE_SHAPE = 4,
+	ATTR_MODE_MAX = 4,
+	ATTR_MODE_CNT = 5
 #else // !defined(_GUI)
-	ADISPLAY_MAX = 2,
-	ADISPLAY_CNT = 3
+	ATTR_MODE_MAX = 2,
+	ATTR_MODE_CNT = 3
 #endif // !defined(_GUI)
 };
 
 class Tile {
 public:
 	// public constants
-	static const ACountType ATTRIBUTE_CNT_MIN = 2;
-	static const ACountType ATTRIBUTE_CNT_DEFAULT = 2;
+	static const AttrCntType ATTRIBUTE_CNT_MIN = 2;
+	static const AttrCntType ATTRIBUTE_CNT_DEFAULT = 2;
 #ifdef _GUI
-	static const ACountType ATTRIBUTE_CNT_MAX = 5;
+	static const AttrCntType ATTRIBUTE_CNT_MAX = 5;
 #endif // defined(_GUI)
-	static const AValueType VALUE_CNT_MIN = 2;
-	static const AValueType VALUE_CNT_DEFAULT = 6;
-	static const AValueType VALUE_CNT_MAX = 9;
+
+	static const AttrType VALUE_CNT_MIN = 2;
+	static const AttrType VALUE_CNT_DEFAULT = 6;
+	static const AttrType VALUE_CNT_MAX = 9;
 
 	static const long COMBINATION_CNT_MIN = 4L;
 	static const long COMBINATION_CNT_MAX = 59049L;
@@ -94,29 +95,29 @@ public:
 	operator String(void) const;
 
 	// misc public methods
-	AValueType        Attribute(AIndexType) const;
-    static ACountType AttributeCnt(void);
-	static String     AttributeReport(void);
-	static String     AttributeToString(ADisplayType, AValueType);
-	static double     BonusProbability(void);
-	Tile              CloneAndSetBonus(void) const;
-	static long       CombinationCnt(void);
-	AIndexType        CommonAttribute(Tile const &) const;
-	ACountType        CountMatchingAttributes(Tile const &) const;
-	static ADisplayType 
-		              DefaultDisplayMode(AIndexType);
-	void              Display(void) const;
-    static void       DisplayEmpty(void);
-	String            GetUserChoice(Tiles const &, Strings const &);
-	TileIdType        Id(void) const;
-	void              SetAttribute(AIndexType, AValueType);
-	static void       SetStatic(ACountType, AValueType const maxes[], double bonusProb);
-    static String     StringEmpty(void);
-    static AValueType ValueCnt(AIndexType);
-    static AValueType ValueMax(AIndexType);
+	AttrType           Attribute(AttrIndexType) const;
+    static AttrCntType AttributeCnt(void);
+	static String      AttributeReport(void);
+	static String      AttributeToString(AttrModeType, AttrType);
+	static double      BonusProbability(void);
+	Tile               CloneAndSetBonus(void) const;
+	static long        CombinationCnt(void);
+	AttrIndexType      CommonAttribute(Tile const &) const;
+	AttrCntType        CountMatchingAttributes(Tile const &) const;
+	static AttrModeType 
+		               DefaultDisplayMode(AttrIndexType);
+	void               Display(void) const;
+    static void        DisplayEmpty(void);
+	String             GetUserChoice(Tiles const &, Strings const &);
+	TileIdType         Id(void) const;
+	void               SetAttribute(AttrIndexType, AttrType);
+	static void        SetStatic(AttrCntType, AttrType const maxes[], double bonusProb);
+    static String      StringEmpty(void);
+    static AttrType    ValueCnt(AttrIndexType);
+    static AttrType    ValueMax(AttrIndexType);
 
 	// public inquiry methods
-	bool HasAttribute(AIndexType, AValueType) const;
+	bool HasAttribute(AttrIndexType, AttrType) const;
 	bool HasBonus(void) const;
 	bool HasId(TileIdType) const;
 	bool IsClone(Tile const &) const;
@@ -127,17 +128,17 @@ public:
 
 private:
 	// private data
-	AValueType *mpArray;     // array of attributes
-	TileIdType   mId;        // to distinguish clones
-	unsigned     mBonusValue;
+	AttrType *mpArray;     // array of attributes
+	TileIdType mId;        // to distinguish clones
+	unsigned   mBonusValue;
 
-	static AIndexType   msAttributeCnt;  // number of attributes per tile
-	static double       msBonusProbability;
-	static TileIdType   msNextId;
-	static AValueType *mspValueMax;      // max value for each tile attribute
+	static AttrIndexType msAttributeCnt;  // number of attributes per tile
+	static double        msBonusProbability;
+	static TileIdType    msNextId;
+	static AttrType *    mspValueMax;      // max value for each tile attribute
 
 	// misc private methods
-	static AValueType   CharToAttribute(ADisplayType, char);
-	static TileIdType   NextId(void);
+	static AttrType   CharToAttribute(AttrModeType, char);
+	static TileIdType NextId(void);
 };
 #endif // !defined(TILE_HPP_INCLUDED)

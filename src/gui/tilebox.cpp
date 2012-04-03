@@ -46,8 +46,8 @@ static INT_PTR CALLBACK message_handler(
 // lifecycle
 
 TileBox::TileBox(
-	ACountType attributeCnt, 
-	AValueType (&rNumValues)[Tile::ATTRIBUTE_CNT_MAX], 
+	AttrCntType attributeCnt, 
+	AttrType (&rNumValues)[Tile::ATTRIBUTE_CNT_MAX], 
 	unsigned clonesPerCombo)
 :
     Dialog("TILEBOX", &message_handler),
@@ -63,7 +63,7 @@ TileBox::TileBox(
 long TileBox::ComboCnt(void) const {
 	// count the possible combinations
 	long result = 1L;
-	for (AIndexType i_attr = 0; i_attr < mAttributeCnt; i_attr++) {
+	for (AttrIndexType i_attr = 0; i_attr < mAttributeCnt; i_attr++) {
 		ASSERT(i_attr < Tile::ATTRIBUTE_CNT_MAX);
 	    ValueType const possible_values = mrNumValues[i_attr];
 		result *= possible_values;
@@ -165,8 +165,8 @@ void TileBox::InitControl(
 	ValueType value,
 	bool enableFlag)
 {
-	AValueType const min_value = Tile::VALUE_CNT_MIN;
-	AValueType const max_value = Tile::VALUE_CNT_MAX;
+	AttrType const min_value = Tile::VALUE_CNT_MIN;
+	AttrType const max_value = Tile::VALUE_CNT_MAX;
     ASSERT(value <= max_value);
     ASSERT(value >= min_value);
 	
@@ -310,7 +310,7 @@ void TileBox::UpdateTileCnt(void) {
 }
 
 void TileBox::UpdateValue(IdType sliderId, ValueType value) {
-	AValueType const num_values = AValueType(value);
+	AttrType const num_values = AttrType(value);
     switch (sliderId) {
         case IDC_SLIDER1:
             mrNumValues[0] = num_values;

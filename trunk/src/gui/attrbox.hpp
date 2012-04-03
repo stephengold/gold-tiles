@@ -33,7 +33,7 @@ The AttrBox class is an extension of the Dialog class.
 
 #include "gui/dialog.hpp"       // ISA Dialog
 #include "gui/displaymodes.hpp" // HASA DisplayModes
-#include "tile.hpp"             // USES AIndexType
+#include "tile.hpp"             // USES AttrIndexType
 
 class AttrBox: public Dialog {
 public:
@@ -59,10 +59,10 @@ private:
     AttrBox &operator=(AttrBox const &); // not assignable
 
 	// misc private methods
-	static AIndexType   AIndex(IdType);
-	void                BumpDisplayMode(AIndexType);
-	static char const * DisplayModeText(ADisplayType);
-	static IdType       ListboxId(AIndexType);
-	void                UpdateValue(IdType, ADisplayType);
+	static AttrIndexType AttrIndex(IdType);
+	void                 BumpDisplayMode(AttrIndexType);
+	static char const *  DisplayModeText(AttrModeType);
+	static IdType        ListboxId(AttrIndexType);
+	void                 UpdateValue(IdType, AttrModeType);
 };
 #endif

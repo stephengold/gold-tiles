@@ -60,8 +60,8 @@ AttrBox::operator DisplayModes(void) const {
 
 // misc methods
 
-/* static */ AIndexType AttrBox::AIndex(IdType listboxId) {
-	AIndexType result = 0;
+/* static */ AttrIndexType AttrBox::AttrIndex(IdType listboxId) {
+	AttrIndexType result = 0;
 
     switch (listboxId) {
         case IDC_LIST1:
@@ -86,17 +86,17 @@ AttrBox::operator DisplayModes(void) const {
 	return result;
 }
 
-void AttrBox::BumpDisplayMode(AIndexType ind) {
+void AttrBox::BumpDisplayMode(AttrIndexType ind) {
 	ASSERT(ind < Tile::AttributeCnt());
 
 	// list all available modes
 	Indices unused_modes;
-	for (IndexType i_mode = ADISPLAY_MIN; i_mode <= ADISPLAY_MAX; i_mode++) {
+	for (IndexType i_mode = ATTR_MODE_MIN; i_mode <= ATTR_MODE_MAX; i_mode++) {
 		unused_modes.Add(i_mode);
 	}
 
 	// remove modes used for other attributes
-	for (AIndexType i_attr = 0; i_attr < Tile::AttributeCnt(); i_attr++) {
+	for (AttrIndexType i_attr = 0; i_attr < Tile::AttributeCnt(); i_attr++) {
 		if (i_attr != ind) {
 			ValueType mode = mDisplayModes.Mode(i_attr);
 			if (unused_modes.Contains(mode)) {
@@ -105,30 +105,30 @@ void AttrBox::BumpDisplayMode(AIndexType ind) {
 		}
 	}
 	IndexType const i_mode = unused_modes.First();
-	ADisplayType const mode = ADisplayType(i_mode);
+	AttrModeType const mode = AttrModeType(i_mode);
 	mDisplayModes.SetMode(ind, mode);
 
 	IdType const listbox_id = ListboxId(ind);
 	SetListboxSelection(listbox_id, mode); // relies on assertion in HandleMessage()
 }
 
-/* static */ char const * AttrBox::DisplayModeText(ADisplayType disp) {
+/* static */ char const * AttrBox::DisplayModeText(AttrModeType disp) {
 	char const * result = "";
 
 	switch (disp) {
-	    case ADISPLAY_COLOR:
+	    case ATTR_MODE_COLOR:
 			result = "colors";
 			break;
-		case ADISPLAY_SHAPE:
+		case ATTR_MODE_SHAPE:
 			result = "shapes";
 			break;
-		case ADISPLAY_ABC:
+		case ATTR_MODE_ABC:
 			result = "ABC...";
 			break;
-		case ADISPLAY_RST:
+		case ATTR_MODE_RST:
 			result = "RST...";
 			break;
-		case ADISPLAY_123:
+		case ATTR_MODE_123:
 			result = "123...";
 			break;
         default:
@@ -146,13 +146,13 @@ INT_PTR AttrBox::HandleMessage(MessageType message, WPARAM wParam, LPARAM lParam
         case WM_INITDIALOG: {
 		    Dialog::HandleMessage(message, wParam);
 
-			for (AIndexType i_attr = 0; i_attr < Tile::ATTRIBUTE_CNT_MAX; i_attr++) {
+			for (AttrIndexType i_attr = 0; i_attr < Tile::ATTRIBUTE_CNT_MAX; i_attr++) {
 				bool const enable_flag = (i_attr < Tile::AttributeCnt());
 				IdType const listbox_id = ListboxId(i_attr);
 				EnableControl(listbox_id, enable_flag);
 
-				for (unsigned i_mode = ADISPLAY_MIN; i_mode <= ADISPLAY_MAX; i_mode++) {
-					ADisplayType const mode = ADisplayType(i_mode);
+				for (unsigned i_mode = ATTR_MODE_MIN; i_mode <= ATTR_MODE_MAX; i_mode++) {
+					AttrModeType const mode = AttrModeType(i_mode);
 				    char const * const text = DisplayModeText(mode);
 					unsigned const item_index = AddListboxItem(listbox_id, text);
 					ASSERT(item_index == i_mode); // BumpDisplayMode() relies on this
@@ -180,7 +180,7 @@ INT_PTR AttrBox::HandleMessage(MessageType message, WPARAM wParam, LPARAM lParam
                 case IDC_LIST5:
                     if (notification_code == LBN_SELCHANGE) {
 						ValueType const value = GetListboxSelection(id);
-						UpdateValue(id, ADisplayType(value)); 
+						UpdateValue(id, AttrModeType(value)); 
 					}
                     break;
             }
@@ -195,7 +195,7 @@ INT_PTR AttrBox::HandleMessage(MessageType message, WPARAM wParam, LPARAM lParam
     return result;
 }
 
-/* static */ IdType AttrBox::ListboxId(AIndexType ind) {
+/* static */ IdType AttrBox::ListboxId(AttrIndexType ind) {
 	IdType result = 0;
 
 	switch (ind) {
@@ -221,16 +221,16 @@ INT_PTR AttrBox::HandleMessage(MessageType message, WPARAM wParam, LPARAM lParam
 	return result;
 }
 
-void AttrBox::UpdateValue(IdType listboxId, ADisplayType value) {
+void AttrBox::UpdateValue(IdType listboxId, AttrModeType value) {
 	ASSERT(value != VALUE_INVALID);
 
-	AIndexType const ind = AIndex(listboxId);
+	AttrIndexType const ind = AttrIndex(listboxId);
     mDisplayModes.SetMode(ind, value);
 
 	// only one attribute can use color
-	if (value == ValueType(ADISPLAY_COLOR)) {
+	if (value == ValueType(ATTR_MODE_COLOR)) {
 		// check whether another attribute is already using color
-		for (AIndexType i_attr = 0; i_attr < Tile::AttributeCnt(); i_attr++) {
+		for (AttrIndexType i_attr = 0; i_attr < Tile::AttributeCnt(); i_attr++) {
 			if (i_attr != ind && mDisplayModes.IsColor(i_attr)) {
 				BumpDisplayMode(i_attr);
 				break;
@@ -239,13 +239,13 @@ void AttrBox::UpdateValue(IdType listboxId, ADisplayType value) {
 	}
 
 	// can't display more than 4 glyphs per tile
-	ACountType glyph_cnt = mDisplayModes.GlyphCnt();
+	AttrCntType glyph_cnt = mDisplayModes.GlyphCnt();
 	if (glyph_cnt > Markings::GLYPH_CNT_MAX) {
-		AIndexType new_color_index = 0;
+		AttrIndexType new_color_index = 0;
 		if (ind == new_color_index) {
 			new_color_index++;
 		}
-		ADisplayType const mode = ADISPLAY_COLOR;
+		AttrModeType const mode = ATTR_MODE_COLOR;
 		mDisplayModes.SetMode(new_color_index, mode);
 
 	    IdType const listbox_id = ListboxId(new_color_index);

@@ -45,7 +45,7 @@ Rect::Rect(Point const &rUlc, Point const &rBrc) {
     ASSERT(Brc() == rBrc);
 }
 
-Rect::Rect(Point const &rUlc, PCntType width, PCntType height) {
+Rect::Rect(Point const &rUlc, PixelCntType width, PixelCntType height) {
     mTop = rUlc.Y();
     mLeft = rUlc.X();
     mRight = mLeft + width;
@@ -58,8 +58,8 @@ Rect::Rect(Point const &rUlc, PCntType width, PCntType height) {
 Rect::Rect(
     LogicalYType topY,
     LogicalXType leftX,
-    PCntType width,
-    PCntType height)
+    PixelCntType width,
+    PixelCntType height)
 {
     ASSERT(width < 10000);
     ASSERT(height < 10000);
@@ -124,8 +124,8 @@ Rect Rect::CenterRect(float aspectRatio) const {
     ASSERT(aspectRatio > 0.01);
     ASSERT(aspectRatio < 100.0);
     
-    PCntType width = Width();
-    PCntType height = Height();
+    PixelCntType width = Width();
+    PixelCntType height = Height();
     LogicalXType left = LeftX();
     LogicalYType top = TopY();
     
@@ -145,8 +145,8 @@ Rect Rect::CenterRect(float aspectRatio) const {
 // construct the largest square that is centered and contained
 // within this Rect
 Rect Rect::CenterSquare(void) const {
-    PCntType width = Width();
-    PCntType height = Height();
+    PixelCntType width = Width();
+    PixelCntType height = Height();
     LogicalXType left = LeftX();
     LogicalYType top = TopY();
     
@@ -175,9 +175,9 @@ LogicalYType Rect::CenterY(void) const {
 	return result;
 }
 
-PCntType Rect::Height(void) const {
+PixelCntType Rect::Height(void) const {
     ASSERT(BottomY() >= TopY());
-    PCntType const result = BottomY() - TopY();
+    PixelCntType const result = BottomY() - TopY();
     
     return result;
 }
@@ -186,7 +186,7 @@ Point Rect::Interpolate(FractionPair const &rPair, bool invertFlag) const {
     double const height = double(Height() - 1);
     double const width = double(Width() - 1);
 
-    PCntType const dx = PCntType(0.5 + rPair.X()*width);
+    PixelCntType const dx = PixelCntType(0.5 + rPair.X()*width);
     ASSERT(dx < Width());
     LogicalXType const x = LeftX() + dx;
     
@@ -194,7 +194,7 @@ Point Rect::Interpolate(FractionPair const &rPair, bool invertFlag) const {
 	if (!invertFlag) {
 		y_fraction = 1.0 - y_fraction;
 	}
-    PCntType const dy = PCntType(0.5 + y_fraction*height);
+    PixelCntType const dy = PixelCntType(0.5 + y_fraction*height);
     ASSERT(dy < Height());
     LogicalYType const y = TopY() + dy;  
 
@@ -223,9 +223,9 @@ Point Rect::Ulc(void) const {
     return result;
 }
 
-PCntType Rect::Width(void) const {
+PixelCntType Rect::Width(void) const {
     ASSERT(RightX() >= LeftX());
-    PCntType const result = RightX() - LeftX();
+    PixelCntType const result = RightX() - LeftX();
     
     return result;
 }
@@ -242,8 +242,8 @@ bool Rect::Contains(Point const &rPoint) const {
 }
 
 bool Rect::Contains(LogicalXType x, LogicalYType y) const {
-    PCntType const dx = x - mLeft;
-    PCntType const dy = y - mTop;
+    PixelCntType const dx = x - mLeft;
+    PixelCntType const dy = y - mTop;
     bool const result = (dx < Width() && dy < Height());
     
     return result; 

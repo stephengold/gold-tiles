@@ -58,8 +58,8 @@ ParmBox3::ParmBox3(unsigned attributeCnt, unsigned clonesPerCombo,
 
 // misc methods
 
-ACountType ParmBox3::AttributeCnt(void) const {
-    ACountType const result = ACountType(mAttributeCnt);
+AttrCntType ParmBox3::AttributeCnt(void) const {
+    AttrCntType const result = AttrCntType(mAttributeCnt);
 
     return result;
 }

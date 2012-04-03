@@ -103,11 +103,11 @@ void Tiles::Add(Tile const &tile) {
 }
 
 // generate tiles for the stock bag - RECURSIVE
-void Tiles::AddAllTiles(AIndexType attributeIndex, Tile &rModelTile) {
-    ACountType const na = Tile::AttributeCnt();
+void Tiles::AddAllTiles(AttrIndexType attributeIndex, Tile &rModelTile) {
+    AttrCntType const na = Tile::AttributeCnt();
 	if (attributeIndex < na) {
-		AValueType const max = Tile::ValueMax(attributeIndex);
-		for (AValueType attr = 0; attr <= max; attr++) {
+		AttrType const max = Tile::ValueMax(attributeIndex);
+		for (AttrType attr = 0; attr <= max; attr++) {
         	rModelTile.SetAttribute(attributeIndex, attr);
 	        AddAllTiles(attributeIndex + 1, rModelTile);
          }
@@ -288,7 +288,7 @@ void Tiles::RemoveTiles(Tiles const &rTiles) {
 
 // add one instance of every possible combination of attributes
 void Tiles::Restock(void) {
-	AIndexType const attribute_index = 0;
+	AttrIndexType const attribute_index = 0;
 	Tile model_tile;
 
     AddAllTiles(attribute_index, model_tile);

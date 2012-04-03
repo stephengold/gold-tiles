@@ -88,7 +88,7 @@ private:
 	static WindowClass * 
 		        mspClass;
 	bool          mDragBoardFlag;
-	PCntType      mDragBoardPixelCnt;
+	PixelCntType  mDragBoardPixelCnt;
 	long          mDragTileDeltaX;
 	long          mDragTileDeltaY;
 	Game *       mpGame;
@@ -98,8 +98,8 @@ private:
 	MenuBar *    mpMenuBar;
 	Point         mMouseLast; // coordinates of last mouse update
 	unsigned      mMouseUpCnt;
-	ThinkModeType mThinkMode;
 	void *        mThinkFiber;
+	ThinkModeType mThinkMode;
 #ifdef _QT
     Ui::GameWindow * mpUi;
 #endif // defined(_QT)
@@ -132,7 +132,7 @@ private:
 	void         ReleaseActiveTile(Point const &);
 	void         Repaint(void);
 	void         ResignHand(void);
-    void         Resize(PCntType width, PCntType height);
+    void         Resize(PixelCntType width, PixelCntType height);
 	void         RestartGame(void);
 	void         RuleBox(char const *message);
 	String       SaveHandOptions(void) const;

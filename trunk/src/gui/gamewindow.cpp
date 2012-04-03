@@ -133,8 +133,8 @@ GameWindow::GameWindow(HINSTANCE applicationInstance, Game *pGame):
 
 	// determine initial window size:  to cover 64% of desktop
 	Rect const desktop_bounds = DesktopBounds();
-	PCntType const height = PCntType(0.8*double(desktop_bounds.Height()));
-	PCntType const width = PCntType(0.8*double(desktop_bounds.Width()));
+	PixelCntType const height = PixelCntType(0.8*double(desktop_bounds.Height()));
+	PixelCntType const width = PixelCntType(0.8*double(desktop_bounds.Width()));
 	LogicalXType const x = width/8;
 	LogicalYType const y = height/8;
 	Rect const rect(y, x, width, height);
@@ -200,7 +200,6 @@ void GameWindow::ChangeHand(String const &rOldPlayerName) {
     if (mGameView.IsTargetUsed()) {
 		mGameView.ResetTargetCell();
     }
-
 
 	if (!IsGameOver()) {
 	    if (!playable_hand.IsLocalUser()) {
@@ -544,8 +543,8 @@ LRESULT GameWindow::HandleMessage(MessageType message, WPARAM wParam, LPARAM lPa
             break;
            
         case WM_SIZE: { // resize request
-            PCntType const client_area_width = LOWORD(lParam);
-            PCntType const client_area_height = HIWORD(lParam);
+            PixelCntType const client_area_width = LOWORD(lParam);
+            PixelCntType const client_area_height = HIWORD(lParam);
             Resize(client_area_width, client_area_height);
             break;
         }
@@ -639,15 +638,15 @@ void GameWindow::OfferNewGame(void) {
 	ParmBox2 parmbox2(wrap_flag, height, width, grid);
 
 	// begin setting up the third dialog box
-	ACountType attribute_cnt = Tile::AttributeCnt();
+	AttrCntType attribute_cnt = Tile::AttributeCnt();
 	unsigned tile_redundancy = Game::TILE_REDUNDANCY_DEFAULT;
 	unsigned hand_cnt = HAND_CNT_DEFAULT;
 	unsigned hand_size = Game::HAND_SIZE_DEFAULT;
 	unsigned bonus_pct = unsigned(0.5 + 100.0*Tile::BonusProbability());
 
-	AValueType value_cnts[Tile::ATTRIBUTE_CNT_MAX];
-	for (AIndexType i_attr = 0; i_attr < Tile::ATTRIBUTE_CNT_MAX; i_attr++) {
-		AValueType value_cnt = Tile::VALUE_CNT_DEFAULT;
+	AttrType value_cnts[Tile::ATTRIBUTE_CNT_MAX];
+	for (AttrIndexType i_attr = 0; i_attr < Tile::ATTRIBUTE_CNT_MAX; i_attr++) {
+		AttrType value_cnt = Tile::VALUE_CNT_DEFAULT;
 		if (i_attr < attribute_cnt) {
 		    value_cnt = Tile::ValueMax(i_attr) + 1; // zero counts as an attribute value
 		}
@@ -790,8 +789,8 @@ STEP4:
 	// can't cancel now - go ahead and set up the new game
 	Cell::SetGrid(grid);
 	Cell::SetTopology(wrap_flag, height, width);
-	AValueType maxes[Tile::ATTRIBUTE_CNT_MAX];
-	for (AIndexType i_attr = 0; i_attr < attribute_cnt; i_attr++) {
+	AttrType maxes[Tile::ATTRIBUTE_CNT_MAX];
+	for (AttrIndexType i_attr = 0; i_attr < attribute_cnt; i_attr++) {
 		maxes[i_attr] = value_cnts[i_attr] - 1; // zero counts
 	}
 	double const bonus_fraction = double(bonus_pct)/100.0;
@@ -1017,9 +1016,9 @@ void GameWindow::ResignHand(void) {
     }
 }
 
-void GameWindow::Resize(PCntType clientAreaWidth, PCntType clientAreaHeight) {
-    PCntType old_height = ClientAreaHeight();
-    PCntType old_width = ClientAreaWidth();
+void GameWindow::Resize(PixelCntType clientAreaWidth, PixelCntType clientAreaHeight) {
+    PixelCntType old_height = ClientAreaHeight();
+    PixelCntType old_width = ClientAreaWidth();
     SetClientArea(clientAreaWidth, clientAreaHeight);
     mGameView.Recenter(old_height, old_width);
     ForceRepaint();

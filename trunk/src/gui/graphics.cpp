@@ -47,8 +47,8 @@ Graphics::Graphics(HDC device, Window &rWindow, bool releaseMe, bool bufferFlag)
         ASSERT(mDraw != NULL);
         ASSERT(mDraw != mDevice);
 
-		PCntType const width = mRect.Width();
-		PCntType const height = mRect.Height();
+		PixelCntType const width = mRect.Width();
+		PixelCntType const height = mRect.Height();
         HGDIOBJ const bitmap = Win::CreateCompatibleBitmap(mDevice, width, height);
         ASSERT(bitmap != NULL);
         mBitmapSave = Win::SelectObject(mDraw, bitmap);
@@ -109,8 +109,8 @@ void Graphics::Close(void) {
 		// copy buffer to device
         LogicalXType const dest_x = 0;
         LogicalYType const dest_y = 0;
-        PCntType const width = mRect.Width();
-        PCntType const height = mRect.Height();
+        PixelCntType const width = mRect.Width();
+        PixelCntType const height = mRect.Height();
         LogicalXType const source_x = 0;
         LogicalYType const source_y = 0;
         DWORD const options = SRCCOPY;
@@ -194,8 +194,8 @@ Rect Graphics::DrawRectangle(Rect const &rRect) {
 Rect Graphics::DrawRectangle(
 	LogicalYType top,
     LogicalXType left,
-    PCntType width,
-    PCntType height)
+    PixelCntType width,
+    PixelCntType height)
 {
 	LogicalXType const right = left + width;
 	LogicalYType const bottom = top + height;
@@ -209,13 +209,13 @@ Rect Graphics::DrawRectangle(
 
 void Graphics::DrawRoundedSquare(
     Point const &rCenter,
-    PCntType edge,
-    PCntType circleDiameter)
+    PixelCntType edge,
+    PixelCntType circleDiameter)
 {
     ASSERT(edge > circleDiameter);
     
-    PCntType const ellipse_width = circleDiameter;
-    PCntType const ellipse_height = circleDiameter;
+    PixelCntType const ellipse_width = circleDiameter;
+    PixelCntType const ellipse_height = circleDiameter;
     LogicalXType const left_x = rCenter.X() - edge/2;
     LogicalXType const right_x = left_x + edge;
     LogicalYType const top_y = rCenter.Y() - edge/2;
@@ -282,15 +282,15 @@ Rect Graphics::InteriorHexagon(Rect const &rBounds) {
 
 Rect Graphics::InteriorRoundedSquare(
     Point const &rCenter,
-    PCntType edge,
-    PCntType circleDiameter)
+    PixelCntType edge,
+    PixelCntType circleDiameter)
 {
     LogicalXType left_x = rCenter.X() - edge/2;
     LogicalYType top_y = rCenter.Y() - edge/2;
 
 	// estimate the interior sqaure
-	PCntType const radius = circleDiameter/2;
-	PCntType pad = radius - PCntType(0.7 * float(radius));
+	PixelCntType const radius = circleDiameter/2;
+	PixelCntType pad = radius - PixelCntType(0.7 * float(radius));
     top_y += pad;
     left_x += pad;
     edge -= 2*pad;
@@ -299,18 +299,18 @@ Rect Graphics::InteriorRoundedSquare(
     return result;
 }
 
-PCntType Graphics::TextHeight(void) const {
-    PCntType const result = 20;
+PixelCntType Graphics::TextHeight(void) const {
+    PixelCntType const result = 20;
     
     return result;
 }
 
-PCntType Graphics::TextWidth(char const *text) const {
+PixelCntType Graphics::TextWidth(char const *text) const {
     int const length = ::strlen(text);
     SIZE extent;
     BOOL const success = Win::GetTextExtentPoint32(mDraw, text, length, &extent);
 	ASSERT(success != 0);
-    PCntType const result = extent.cx;
+    PixelCntType const result = extent.cx;
     
     return result;
 }

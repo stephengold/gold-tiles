@@ -45,8 +45,8 @@ Canvas::Canvas(Window &rWindow):
 
 void Canvas::DrawBlankTile(
     Point const &rCenter,
-    PCntType width,
-	PCntType height,
+    PixelCntType width,
+	PixelCntType height,
     ColorType tileColor,
 	bool oddFlag)
 {
@@ -59,7 +59,7 @@ void Canvas::DrawBlankTile(
 	    case GRID_4WAY:
 	    case GRID_8WAY: {
 			ASSERT(width == height);
-            PCntType circle_diameter = width/TILE_POINTEDNESS;
+            PixelCntType circle_diameter = width/TILE_POINTEDNESS;
 	        DrawRoundedSquare(rCenter, width, circle_diameter);
 			break;
 		}
@@ -74,8 +74,8 @@ void Canvas::DrawBlankTile(
 
 Rect Canvas::DrawCell(
     Point const &rCenter,
-    PCntType width,
-	PCntType height,
+    PixelCntType width,
+	PixelCntType height,
     ColorType cellColor,
     ColorType gridColor,
 	bool oddFlag)
@@ -91,8 +91,8 @@ Rect Canvas::DrawCell(
 
 void Canvas::DrawGridShape(
     Point const &rCenter,
-    PCntType width,
-	PCntType height,
+    PixelCntType width,
+	PixelCntType height,
 	bool oddFlag)
 {
     Point ulc = rCenter;
@@ -122,8 +122,8 @@ void Canvas::DrawGridShape(
 
 void Canvas::DrawGlyph(
     Rect const &rBounds, 
-    ADisplayType displayMode,
-    AValueType glyph,
+    AttrModeType displayMode,
+    AttrType glyph,
     ColorType backgroundColor,
     ColorType glyphColor)
 {
@@ -132,7 +132,7 @@ void Canvas::DrawGlyph(
     }
     
 	switch (displayMode) {
-	    case ADISPLAY_SHAPE: {
+	    case ATTR_MODE_SHAPE: {
             UseColors(glyphColor, glyphColor);
         
             ASSERT(glyph < msShapes.size());
@@ -142,9 +142,9 @@ void Canvas::DrawGlyph(
 			break;
 		}
         
-		case ADISPLAY_ABC:
-		case ADISPLAY_RST:
-		case ADISPLAY_123: {
+		case ATTR_MODE_ABC:
+		case ATTR_MODE_RST:
+		case ATTR_MODE_123: {
             UseColors(backgroundColor, glyphColor);
 
             String const ch = Tile::AttributeToString(displayMode, glyph);
@@ -176,8 +176,8 @@ Rect Canvas::DrawTile(
 	Markings const &rMarkings,
 	ColorType tileColor,
 	Point const &rCenter,
-	PCntType width,
-    PCntType height,
+	PixelCntType width,
+    PixelCntType height,
 	bool oddFlag)
 {
 	ASSERT(::is_even(width));
@@ -190,7 +190,7 @@ Rect Canvas::DrawTile(
 	    case GRID_4WAY:
 	    case GRID_8WAY: {
 			ASSERT(width == height);
-            PCntType const circle_diameter = width/TILE_POINTEDNESS;
+            PixelCntType const circle_diameter = width/TILE_POINTEDNESS;
 	        DrawRoundedSquare(rCenter, width, circle_diameter);
 	        interior = InteriorRoundedSquare(rCenter, width, circle_diameter);
 			break;
@@ -206,8 +206,8 @@ Rect Canvas::DrawTile(
 
 	unsigned const glyph_cnt = rMarkings.GlyphCnt();
 
-    PCntType glyph_width = interior.Width();
-    PCntType glyph_height = interior.Height();    
+    PixelCntType glyph_width = interior.Width();
+    PixelCntType glyph_height = interior.Height();    
     if (glyph_cnt == 2) {
         glyph_width /= 2;
     } else if (glyph_cnt == 3 || glyph_cnt == 4) {
@@ -218,7 +218,7 @@ Rect Canvas::DrawTile(
     }
 
 	ColorType const glyph_color = rMarkings.GlyphColor();
-    for (AIndexType ind = 0; ind < glyph_cnt; ind++) {
+    for (AttrIndexType ind = 0; ind < glyph_cnt; ind++) {
         LogicalXType glyph_left = interior.LeftX();
         LogicalYType glyph_top = interior.TopY();
         if (glyph_cnt == 2) {
@@ -231,8 +231,8 @@ Rect Canvas::DrawTile(
         }
 
         Rect const glyph_bounds(glyph_top, glyph_left, glyph_width, glyph_height);
-		ADisplayType const mode = rMarkings.Mode(ind);
-		AValueType const glyph = rMarkings.Glyph(ind);
+		AttrModeType const mode = rMarkings.Mode(ind);
+		AttrType const glyph = rMarkings.Glyph(ind);
 		DrawGlyph(glyph_bounds, mode, glyph, tileColor, glyph_color); 
     }
     
@@ -377,8 +377,8 @@ Rect Canvas::DrawTile(
 
 /* static */ Rect Canvas::InteriorGridShape(
     Point const &rCenter,
-    PCntType width,
-	PCntType height,
+    PixelCntType width,
+	PixelCntType height,
 	bool oddFlag)
 {
     Point ulc = rCenter;

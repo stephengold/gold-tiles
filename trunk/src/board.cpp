@@ -157,8 +157,8 @@ unsigned Board::ScoreDirection(
 		    // determine the common attribute
             Tile const first_tile = GetTile(first_cell);
             Tile const last_tile = GetTile(last_cell);
-            AIndexType const common_attr = first_tile.CommonAttribute(last_tile);
-			AIndexType const other_attr = 1 - common_attr;
+            AttrIndexType const common_attr = first_tile.CommonAttribute(last_tile);
+			AttrIndexType const other_attr = 1 - common_attr;
             unsigned const max_length = Tile::ValueCnt(other_attr);
 
 		    // double the score yet again if at max length

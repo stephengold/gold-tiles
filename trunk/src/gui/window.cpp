@@ -119,19 +119,19 @@ void Window::Center(void) {
     Win::GetWindowRect(this_window, &bounds);
     Rect const window_bounds(bounds);
 
-	PCntType pad_left = (owner_bounds.Width() - window_bounds.Width())/2;
-	PCntType pad_top = (owner_bounds.Height() - window_bounds.Height())/2;
+	PixelCntType pad_left = (owner_bounds.Width() - window_bounds.Width())/2;
+	PixelCntType pad_top = (owner_bounds.Height() - window_bounds.Height())/2;
 
     LogicalXType const x = owner_bounds.LeftX() + pad_left;
     LogicalYType const y = owner_bounds.TopY() + pad_top;
     Win::SetWindowPos(this_window, HWND_TOP, x, y, 0, 0, SWP_NOSIZE); 
 }
 
-PCntType Window::ClientAreaHeight(void) const {
+PixelCntType Window::ClientAreaHeight(void) const {
 	return mClientAreaHeight;
 }
 
-PCntType Window::ClientAreaWidth(void) const {
+PixelCntType Window::ClientAreaWidth(void) const {
 	return mClientAreaWidth;
 }
 
@@ -164,8 +164,8 @@ void Window::Create(
 	ASSERT(class_name != NULL);
 
 	DWORD const window_style = WS_OVERLAPPEDWINDOW;
-	PCntType const height = rRect.Height();
-	PCntType const width = rRect.Width();
+	PixelCntType const height = rRect.Height();
+	PixelCntType const width = rRect.Width();
 	LogicalXType const x = rRect.LeftX();
 	LogicalYType const y = rRect.TopY();
 
@@ -262,8 +262,8 @@ LRESULT Window::HandleMessage(MessageType message, WPARAM wParameter, LPARAM lPa
             break;
 
         case WM_SIZE: { // resize window
-			PCntType const width = LOWORD(lParameter);
-			PCntType const height = HIWORD(lParameter);
+			PixelCntType const width = LOWORD(lParameter);
+			PixelCntType const height = HIWORD(lParameter);
             SetClientArea(width, height);
             break;
 		}
@@ -335,7 +335,7 @@ void Window::SetAcceleratorTable(char const *resourceName) {
 	ASSERT(mAcceleratorTable != NULL);
 }
 
-void Window::SetClientArea(PCntType width, PCntType height) {
+void Window::SetClientArea(PixelCntType width, PixelCntType height) {
     ASSERT(width < 4000);
     ASSERT(height < 4000);
     mClientAreaWidth = width;
@@ -344,8 +344,8 @@ void Window::SetClientArea(PCntType width, PCntType height) {
 
 void Window::SetCursor(LPSTR resource) {
 	HINSTANCE const instance = NULL;
-	PCntType const desired_width = 0;
-    PCntType const desired_height = 0;
+	PixelCntType const desired_width = 0;
+    PixelCntType const desired_height = 0;
 	UINT const options = LR_DEFAULTCOLOR | LR_DEFAULTSIZE | LR_SHARED;
 	HCURSOR const handle = (HCURSOR)Win::LoadImage(instance, resource, IMAGE_CURSOR,
 		desired_width, desired_height, options);
@@ -378,8 +378,8 @@ void Window::SetHandle(HWND handle) {
 void Window::SetIcons(char const *resourceName) {
 	ASSERT(mHandle != 0);
 
-	PCntType desired_width;
-    PCntType desired_height;
+	PixelCntType desired_width;
+    PixelCntType desired_height;
 	UINT const options = LR_DEFAULTCOLOR;
 
 	// small icon for title bar

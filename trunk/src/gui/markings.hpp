@@ -32,13 +32,13 @@ and the display method for each glyph.
 */
 
 #include "gui/color.hpp"  // HASA ColorType
-#include "tile.hpp"       // HASA ACountType
+#include "tile.hpp"       // HASA AttrCntType
 
 
 class Markings {
 public:
 	// public constants
-	static const ACountType GLYPH_CNT_MAX = 4;
+	static const AttrCntType GLYPH_CNT_MAX = 4;
 
 	// public lifecycle
 	Markings(Tile const &, DisplayModes const &);  
@@ -49,19 +49,19 @@ public:
     // Markings &operator=(Markings const &);  compiler-generated assignment method is OK
 
 	// misc public methods
-	AValueType   Glyph(AIndexType) const;
-	ACountType   GlyphCnt(void) const;
+	AttrType     Glyph(AttrIndexType) const;
+	AttrCntType  GlyphCnt(void) const;
 	ColorType    GlyphColor(void) const;
-	ADisplayType Mode(AIndexType) const;
+	AttrModeType Mode(AttrIndexType) const;
 
 private:
     // private constants
 	static const ColorType msGlyphColors[Tile::VALUE_CNT_MAX];
 
 	// private data
-	ACountType   mGlyphCnt;
+	AttrCntType  mGlyphCnt;
 	ColorType    mGlyphColor;
-	AValueType   mGlyphs[GLYPH_CNT_MAX];
-	ADisplayType mModes[GLYPH_CNT_MAX];
+	AttrType     mGlyphs[GLYPH_CNT_MAX];
+	AttrModeType mModes[GLYPH_CNT_MAX];
 };
 #endif // !defined(MARKINGS_HPP_INCLUDED)

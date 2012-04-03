@@ -31,15 +31,15 @@ A Rect object represents a rectangular region in the client area of a window.
 #include "gui/point.hpp"  // USES Point
 #include "project.hpp"    // USES FractionPair
 
-typedef unsigned long PCntType; // pixel count
+typedef unsigned long PixelCntType;
 
 class Rect {
 public:
 	// public lifecycle
     Rect(Win::RECT const &);
     Rect(Point const &ulc, Point const &lrc);
-    Rect(Point const &ulc, PCntType width, PCntType height);
-    Rect(LogicalYType, LogicalXType, PCntType width, PCntType height);
+    Rect(Point const &ulc, PixelCntType width, PixelCntType height);
+    Rect(LogicalYType, LogicalXType, PixelCntType width, PixelCntType height);
 	// no default constructor
     // Rect(Rect const &);  compiler-generated copy constructor is OK
     // ~Rect(void);
@@ -57,13 +57,13 @@ public:
     Rect         CenterSquare(void) const;
     LogicalXType CenterX(void) const;
     LogicalYType CenterY(void) const;
-    PCntType     Height(void) const;
+    PixelCntType Height(void) const;
     Point        Interpolate(FractionPair const &, bool invert = false) const;
     LogicalXType LeftX(void) const;
     LogicalXType RightX(void) const;
     LogicalYType TopY(void) const;
     Point        Ulc(void) const;  // upper left corner coordinates
-    PCntType     Width(void) const;
+    PixelCntType Width(void) const;
 
 	// public inquiry methods
     bool Contains(Point const &) const;

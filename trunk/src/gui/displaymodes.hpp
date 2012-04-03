@@ -27,10 +27,10 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 /*
 A DisplayModes object represents the parameters used to display tiles in the GUI.
 
-The DisplayModes class encapsulates an array of ADisplayType values.
+The DisplayModes class encapsulates an array of AttrModeType values.
 */
 
-#include "tile.hpp"  // HASA ADisplayType 
+#include "tile.hpp"  // HASA AttrModeType 
 
 class DisplayModes {
 public:
@@ -43,18 +43,18 @@ public:
     DisplayModes &operator=(DisplayModes const &);
 
 	// misc public methods
-	void         Cleanup(void);
-	ACountType   ColorCnt(void) const;
-	ACountType   GlyphCnt(void) const;
-	ADisplayType Mode(AIndexType) const;
-	AIndexType   SecondColorIndex(void) const;
-	void         SetMode(AIndexType, ADisplayType);
+	void          Cleanup(void);
+	AttrCntType   ColorCnt(void) const;
+	AttrCntType   GlyphCnt(void) const;
+	AttrModeType  Mode(AttrIndexType) const;
+	AttrIndexType SecondColorIndex(void) const;
+	void          SetMode(AttrIndexType, AttrModeType);
 
 	// public inquiry methods
-	bool IsColor(AIndexType) const;
+	bool IsColor(AttrIndexType) const;
 
 private:
 	// private data
-	ADisplayType mArray[Tile::ATTRIBUTE_CNT_MAX];
+	AttrModeType mArray[Tile::ATTRIBUTE_CNT_MAX];
 };
 #endif // !defined(DISPLAYMODES_HPP_INCLUDED)

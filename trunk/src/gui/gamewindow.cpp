@@ -65,7 +65,7 @@ WindowClass *GameWindow::mspClass = NULL;
 
 // static callback functions
 
-// message handler (callback) for top window
+// message handler (callback) for game window
 static LRESULT CALLBACK message_handler(
 	HWND windowHandle,
 	MessageType message,
@@ -87,6 +87,7 @@ static LRESULT CALLBACK message_handler(
 	return result;
 }
 
+// callback for Think fiber
 static void CALLBACK think(void *pArgument) {
 	GameWindow * const window = (GameWindow *)pArgument;
 
@@ -122,12 +123,15 @@ GameWindow::GameWindow(HINSTANCE applicationInstance, Game *pGame):
 	mInitialNewGame = (pGame == NULL);
     mpMenuBar = NULL;
 	
+	// set up Think fiber for background processing
 	UseFibers();
-	mThinking = false;
+	mThinkMode = THINK_IDLE;
 	mThinkFiber = AddFiber(think);
 
+	// set up keyboard shortcuts
 	SetAcceleratorTable("HOTKEYS");
 
+	// determine initial window size:  to cover 64% of desktop
 	Rect const desktop_bounds = DesktopBounds();
 	PCntType const height = PCntType(0.8*double(desktop_bounds.Height()));
 	PCntType const width = PCntType(0.8*double(desktop_bounds.Width()));
@@ -169,7 +173,6 @@ void GameWindow::Initialize(CREATESTRUCT const &rCreateStruct) {
 			    SavePlayerOptions(*i_hand);
 			}
 		}
-		
 		ChangeHand("");
 	}
 
@@ -210,6 +213,16 @@ long GameWindow::DragTileDeltaX(void) const {
 
 long GameWindow::DragTileDeltaY(void) const {
 	return mDragTileDeltaY;
+}
+
+void GameWindow::GameOver(void) {
+	ASSERT(HasGame());
+	ASSERT(mpGame->IsOver());
+
+    mpMenuBar->GameOver();
+	String const report = mpGame->EndBonus();
+    Window::InfoBox(report, "Game Over - Gold Tile");
+    mGameView.Reset();
 }
 
 int GameWindow::GameWarnBox(char const *messageText) {
@@ -546,13 +559,13 @@ LRESULT GameWindow::HandleMessage(MessageType message, WPARAM wParam, LPARAM lPa
     }
 
 	if (HasGame()) {
-		Hand const active_hand = Hand(*mpGame);
-	    if (active_hand.IsAutomatic() && !mpGame->CanRedo() && !mThinking) {
+		Hand const playable_hand = Hand(*mpGame);
+	    if (playable_hand.IsAutomatic() && !mpGame->CanRedo() && mThinkMode == THINK_IDLE) {
     	    Partial::SetYield(&yield, (void *)this);
-		    mThinking = true;
+		    mThinkMode = THINK_AUTOPLAY;
 	    }
 	}
-	if (mThinking) {
+	if (mThinkMode != THINK_IDLE) {
 	    ASSERT(mThinkFiber != NULL);
 	    Win::SwitchToFiber(mThinkFiber);
 	}
@@ -1114,17 +1127,17 @@ void GameWindow::StopDragging(void) {
 // code executed by the think fiber
 void GameWindow::Think(void) {
 	for (;;) {
-		while (!mThinking) {
+		while (mThinkMode == THINK_IDLE) {
 			Yields();
 		}
 
-		ASSERT(mThinking);
+		ASSERT(mThinkMode == THINK_AUTOPLAY || mThinkMode == THINK_SUGGEST);
 	    mGameView.Suggest();
 		ForceRepaint();
 
 		// pause 800 milliseconds to faciliate human comprehension
 		MsecIntervalType start = ::milliseconds();
-		while (::milliseconds() <= start + 800) {
+		while (::milliseconds() <= start + PAUSE_MSEC) {
 		    Yields();
 		}
 
@@ -1134,7 +1147,7 @@ void GameWindow::Think(void) {
 			UpdateMenuBar();
 		}
 
-	    mThinking = false;
+	    mThinkMode = THINK_IDLE;
 	}
 }
 

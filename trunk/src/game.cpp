@@ -185,36 +185,40 @@ void Game::DisplayStatus(void) const {
 String Game::EndBonus(void) {
     ASSERT(IsOver());
 
-	// start writing the report
-	String result = miActiveHand->Name();
-	result += " had ";
-	result += plural(miActiveHand->Score(), "point");
-	result += ".\n\n";
+	String result;
+	if (IsStockEmpty()) { // went out
+
+	    // start writing the report
+	    result += miActiveHand->Name();
+        result += " went out with ";
+	    result += plural(miActiveHand->Score(), "point");
+	    result += ".\n\n";
     
-	// the active hand scores a point for each tile in every other hand
-    Hands::ConstIterator i_hand = miActiveHand;
-	mHands.Next(i_hand);
-    while (i_hand != miActiveHand) {
-        Tiles hand = Tiles(*i_hand);
-        unsigned const tiles_in_hand = hand.Count();
-		unsigned const points_in_hand = tiles_in_hand;  // TODO
+	    // the active hand scores a point for each tile in every other hand
+        Hands::ConstIterator i_hand = miActiveHand;
+	    mHands.Next(i_hand);
+        while (i_hand != miActiveHand) {
+            Tiles hand = Tiles(*i_hand);
+            unsigned const tiles_in_hand = hand.Count();
+		    unsigned const points_in_hand = tiles_in_hand;  // TODO
 
-		if (points_in_hand > 0) {
-            miActiveHand->AddScore(points_in_hand);
+		    if (points_in_hand > 0) {
+                miActiveHand->AddScore(points_in_hand);
 
-		    result += "Add ";
-		    result += plural(points_in_hand, "point");
-		    result += " for the tile";
-		    result += plural(tiles_in_hand);
-		    result += " held by ";
-		    result += i_hand->Name();
-		    result += ".\n";
-		}
+		        result += "Add ";
+		        result += plural(points_in_hand, "point");
+		        result += " for the tile";
+		        result += plural(tiles_in_hand);
+		        result += " held by ";
+		        result += i_hand->Name();
+		        result += ".\n";
+		    }
 
-		mHands.Next(i_hand);
-    }
+		    mHands.Next(i_hand);
+        }
+	    result += "\n";
+	}
 
-	result += "\n";
 	result += miActiveHand->Name();
 	result += " ended up with ";
 	result += plural(miActiveHand->Score(), "point");

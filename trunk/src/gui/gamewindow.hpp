@@ -40,13 +40,16 @@ In the Qt version, the GameWindow class extends the QMainWindow class.
 # include "gui/window.hpp"   // ISA Window
 #endif // defined(_WINDOWS)
 
+enum ThinkModeType {
+	THINK_IDLE,
+	THINK_SUGGEST,
+	THINK_AUTOPLAY
+};
+
 #ifdef _QT
 namespace Ui {
     class GameWindow;
 }
-#endif // defined(_QT)
-
-#ifdef _QT
 class GameWindow: public QMainWindow {
     Q_OBJECT
 #elif defined(_WINDOWS)
@@ -76,25 +79,27 @@ public:
 
 private:
     // private constants
-    static const unsigned HAND_CNT_DEFAULT = 2;
-    static const unsigned ID_CLOCK_TIMER = 1;
-    static const unsigned TIMEOUT_MSEC = 500;
+    static const unsigned         HAND_CNT_DEFAULT = 2;
+    static const unsigned         ID_CLOCK_TIMER = 1;
+    static const MsecIntervalType PAUSE_MSEC = 800;
+    static const MsecIntervalType TIMEOUT_MSEC = 500;
 
 	// private data
 	static WindowClass * 
-		     mspClass;
-	bool       mDragBoardFlag;
-	PCntType   mDragBoardPixelCnt;
-	long       mDragTileDeltaX, mDragTileDeltaY;
-	Game *    mpGame;
-	GameView   mGameView;  // view of the move in progress
-	bool       mInitialNewGame;
-	bool       mIsStartCentered;
-	MenuBar * mpMenuBar;
-	Point      mMouseLast; // coordinates of last mouse down
-	unsigned   mMouseUpCnt;
-	bool       mThinking;
-	void *     mThinkFiber;
+		        mspClass;
+	bool          mDragBoardFlag;
+	PCntType      mDragBoardPixelCnt;
+	long          mDragTileDeltaX;
+	long          mDragTileDeltaY;
+	Game *       mpGame;
+	GameView      mGameView;  // view of the move in progress
+	bool          mInitialNewGame;
+	bool          mIsStartCentered;
+	MenuBar *    mpMenuBar;
+	Point         mMouseLast; // coordinates of last mouse update
+	unsigned      mMouseUpCnt;
+	ThinkModeType mThinkMode;
+	void *        mThinkFiber;
 #ifdef _QT
     Ui::GameWindow * mpUi;
 #endif // defined(_QT)
@@ -111,6 +116,7 @@ private:
     char const * ClassName(void) const;
 	int          CreateNewGame(void);
 	void         DiscardGame(void);
+	void         GameOver(void);
 	int          GameWarnBox(char const *message);
     void         HandleButtonDown(Point const &);
 	void         HandleButtonUp(Point const &);

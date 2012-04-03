@@ -522,21 +522,21 @@ LRESULT GameWindow::HandleMessage(MessageType message, WPARAM wParam, LPARAM lPa
 			}
             break;
 
-		case WM_MOUSEWHEEL: {
+		case WM_MOUSEWHEEL: { // wheel position update
             int const z_delta = GET_WHEEL_DELTA_WPARAM(wParam);
 			mGameView.StartCellOffset(0, -z_delta/5);
 			ForceRepaint();
 			break;
 		}
 
-	    case WM_PAINT: // repaint
+	    case WM_PAINT: // request to repaint the client area
             Repaint();
             break;
            
-        case WM_SIZE: { // resize
-            PCntType const clientAreaWidth = LOWORD(lParam);
-            PCntType const clientAreaHeight = HIWORD(lParam);
-            Resize(clientAreaWidth, clientAreaHeight);
+        case WM_SIZE: { // resize request
+            PCntType const client_area_width = LOWORD(lParam);
+            PCntType const client_area_height = HIWORD(lParam);
+            Resize(client_area_width, client_area_height);
             break;
         }
 
@@ -558,13 +558,15 @@ LRESULT GameWindow::HandleMessage(MessageType message, WPARAM wParam, LPARAM lPa
 		    break;
     }
 
-	if (HasGame()) {
+	if (mThinkMode == THINK_IDLE && HasGame() && !mpGame->CanRedo() && !mpGame->IsOver()) {
 		Hand const playable_hand = Hand(*mpGame);
-	    if (playable_hand.IsAutomatic() && !mpGame->CanRedo() && mThinkMode == THINK_IDLE) {
+	    if (playable_hand.IsAutomatic()) {
     	    Partial::SetYield(&yield, (void *)this);
 		    mThinkMode = THINK_AUTOPLAY;
 	    }
 	}
+
+	// give the Think fiber an opportunity to run
 	if (mThinkMode != THINK_IDLE) {
 	    ASSERT(mThinkFiber != NULL);
 	    Win::SwitchToFiber(mThinkFiber);

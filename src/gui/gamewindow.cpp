@@ -204,6 +204,15 @@ void GameWindow::ChangeHand(String const &rOldPlayerName) {
 		} else if (!mpMenuBar->IsAutopause()) {
 			mpGame->StartClock();
 		}
+
+		if (playable_hand.IsAutomatic() && !mpGame->CanRedo()) {
+			// launch autoplay
+	        double const skip_probability = playable_hand.SkipProbability();
+            mGameView.Reset(skip_probability);
+    	    Partial::SetYield(&yield, (void *)this);
+			ASSERT(mThinkMode == THINK_IDLE);
+		    mThinkMode = THINK_AUTOPLAY;
+		}
 	}
 }
 
@@ -557,14 +566,6 @@ LRESULT GameWindow::HandleMessage(MessageType message, WPARAM wParam, LPARAM lPa
 		    result = Window::HandleMessage(message, wParam, lParam);
 		    break;
     }
-
-	if (mThinkMode == THINK_IDLE && HasGame() && !mpGame->CanRedo() && !mpGame->IsOver()) {
-		Hand const playable_hand = Hand(*mpGame);
-	    if (playable_hand.IsAutomatic()) {
-    	    Partial::SetYield(&yield, (void *)this);
-		    mThinkMode = THINK_AUTOPLAY;
-	    }
-	}
 
 	// give the Think fiber an opportunity to run
 	if (mThinkMode != THINK_IDLE) {
@@ -1140,13 +1141,12 @@ void GameWindow::Think(void) {
 		    Yields();
 		}
 
+	    mThinkMode = THINK_IDLE;
 		if (HasGame() && !IsGameOver()) {
 	        Play(false);
     		ForceRepaint();
 			UpdateMenuBar();
 		}
-
-	    mThinkMode = THINK_IDLE;
 	}
 }
 

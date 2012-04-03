@@ -66,6 +66,7 @@ void Partial::Reset(void) {
 	}
 }
 
+
 // operators
 
 // BaseBoard &operator=(BaseBoard const &);  compiler-generated assignment operator is OK
@@ -247,8 +248,8 @@ TileIdType Partial::GetCellTile(Cell const &rCell) const {
 Move Partial::GetMove(bool includeActiveFlag) const {
     Move result;
     
-    for (unsigned i = 0; i < CountTiles(); i++) {
-        Tile const tile = GetTileByIndex(i);
+    for (unsigned i_tile = 0; i_tile < CountTiles(); i_tile++) {
+        Tile const tile = GetTileByIndex(i_tile);
         TileIdType const id = tile.Id();
 		if (includeActiveFlag || !IsActive(id)) {
             Cell cell;

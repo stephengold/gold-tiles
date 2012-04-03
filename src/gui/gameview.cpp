@@ -427,8 +427,8 @@ void GameView::DrawHandTiles(Canvas &rCanvas) {
     LogicalYType hand_y = mHandRect.TopY() + mPadPixels + cell_height/2;
     LogicalYType swap_y = mSwapRect.TopY() + mPadPixels + cell_height/2;
 
-    unsigned tile_cnt = CountSwap();
-    unsigned stock_cnt = mpGame->CountStock();
+    unsigned const tile_cnt = CountSwap();
+    unsigned const stock_cnt = mpGame->CountStock();
     if (tile_cnt < CountTiles()  && tile_cnt < stock_cnt) {
         swap_y += cell_height/2;
     }

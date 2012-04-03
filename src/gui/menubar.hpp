@@ -66,7 +66,7 @@ public:
     void   SavePlayerOptions(Player &) const;
     void   SetTileSize(IdType);
     IdType TileSize(void) const;
-    void   Update(void);
+    void   Update(bool thinking);
 
     // public inquiry methods
     bool AreClocksVisible(void) const;

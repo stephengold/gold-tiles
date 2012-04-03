@@ -151,15 +151,15 @@ IdType MenuBar::TileSize(void) const {
 	return mTileSizeItem;
 }
 
-void MenuBar::Update(void) {
+void MenuBar::Update(bool isThinking) {
 	bool const have_game = mrPartial.HasGame();
+	bool const is_local = mrPartial.IsLocalUsersTurn() && !isThinking;
 	bool const is_over = mrPartial.IsGameOver();
-	bool const is_local = mrPartial.IsLocalUsersTurn();
     bool const is_pass = mrPartial.IsPass();
 	bool const is_paused = mrPartial.IsGamePaused();
 	bool const can_swap_all = mrPartial.CanSwapAll();
-	bool const can_undo = mrPartial.CanUndo();
 	bool const can_redo = mrPartial.CanRedo();
+	bool const can_undo = mrPartial.CanUndo();
     GameStyleType const game_style = mrPartial.GameStyle();
 
 	// "File" menu

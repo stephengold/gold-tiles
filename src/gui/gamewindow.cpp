@@ -163,6 +163,7 @@ void GameWindow::Initialize(CREATESTRUCT const &rCreateStruct) {
 	ASSERT(mpMenuBar != NULL);
 
 	mGameView.SetWindow(this, mpMenuBar);
+    Partial::SetYield(&yield, (void *)this);
 
     SetTileWidth(IDM_LARGE_TILES);
 	if (HasGame()) {
@@ -187,6 +188,7 @@ void GameWindow::ChangeHand(String const &rOldPlayerName) {
 	ASSERT(HasGame());
 	ASSERT(IsGamePaused() || IsGameOver());
 	ASSERT(mpMenuBar != NULL);
+	ASSERT(mThinkMode == THINK_IDLE);
 
 	Hand const playable_hand = Hand(*mpGame);
 
@@ -195,6 +197,10 @@ void GameWindow::ChangeHand(String const &rOldPlayerName) {
 	}
 	double const skip_probability = playable_hand.SkipProbability();
     mGameView.Reset(skip_probability);
+    if (mGameView.IsTargetUsed()) {
+		mGameView.ResetTargetCell();
+    }
+
 
 	if (!IsGameOver()) {
 	    if (!playable_hand.IsLocalUser()) {
@@ -207,10 +213,6 @@ void GameWindow::ChangeHand(String const &rOldPlayerName) {
 
 		if (playable_hand.IsAutomatic() && !mpGame->CanRedo()) {
 			// launch autoplay
-	        double const skip_probability = playable_hand.SkipProbability();
-            mGameView.Reset(skip_probability);
-    	    Partial::SetYield(&yield, (void *)this);
-			ASSERT(mThinkMode == THINK_IDLE);
 		    mThinkMode = THINK_AUTOPLAY;
 		}
 	}
@@ -351,10 +353,9 @@ void GameWindow::HandleMenuCommand(IdType command) {
 			ASSERT(HasGame());
 		    ASSERT(!IsGameOver());
 			ASSERT(!IsGamePaused());
-         	Partial::SetYield(NULL, NULL);
-			SetCursorBusy();
-            mGameView.Suggest();
-			SetCursorSelect();
+            mGameView.Reset();
+			ASSERT(mThinkMode == THINK_IDLE);
+            mThinkMode = THINK_SUGGEST;
             break;
              
 	    case IDM_PAUSE:
@@ -1132,21 +1133,35 @@ void GameWindow::Think(void) {
 		}
 
 		ASSERT(mThinkMode == THINK_AUTOPLAY || mThinkMode == THINK_SUGGEST);
+	    UpdateMenuBar();
 	    mGameView.Suggest();
-		ForceRepaint();
 
-		// pause to faciliate human comprehension
-		MsecIntervalType const start = ::milliseconds();
-		while (::milliseconds() <= start + PAUSE_MSEC) {
-		    Yields();
+		if (mThinkMode == THINK_SUGGEST) {
+		    if (mGameView.IsTargetUsed()) {
+				mGameView.ResetTargetCell();
+			}
+
+	        mThinkMode = THINK_IDLE;
+
+		} else {
+			ASSERT(mThinkMode == THINK_AUTOPLAY);
+
+			// reveal the computer's move
+		    ForceRepaint();
+
+		    // pause for human comprehension
+		    MsecIntervalType const start = ::milliseconds();
+		    while (::milliseconds() <= start + PAUSE_MSEC) {
+		        Yields();
+		    }
+
+			// commit the move
+	        mThinkMode = THINK_IDLE;
+            Play(false);
 		}
 
-	    mThinkMode = THINK_IDLE;
-		if (HasGame() && !IsGameOver()) {
-	        Play(false);
-    		ForceRepaint();
-			UpdateMenuBar();
-		}
+	    ForceRepaint();
+	    UpdateMenuBar();
 	}
 }
 
@@ -1168,7 +1183,7 @@ void GameWindow::UndoTurn(void) {
 }
 
 void GameWindow::UpdateMenuBar(void) {
-	mpMenuBar->Update();
+	mpMenuBar->Update(mThinkMode != THINK_IDLE);
     Window::UpdateMenuBar();
 }
 

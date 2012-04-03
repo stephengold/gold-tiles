@@ -64,7 +64,9 @@ See [http://www.possibility.com/Cpp/CppCodingStandard.html] for rationale.
 
 ==== Abbreviations ====
 
- * a = attribute
+Abbreviations in identifiers are used sparingly.
+
+ * attr = attribute
  * cnt = count
  * const = constant
  * id = identifier
@@ -73,6 +75,5 @@ See [http://www.possibility.com/Cpp/CppCodingStandard.html] for rationale.
  * max = maximum
  * min = minimum
  * msec = millisecond
- * p = pixel
  * rect = rectangle
  * ulc = upper left corner

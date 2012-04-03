@@ -185,21 +185,21 @@ void GameWindow::Initialize(CREATESTRUCT const &rCreateStruct) {
 
 void GameWindow::ChangeHand(String const &rOldPlayerName) {
 	ASSERT(HasGame());
-	ASSERT(IsGamePaused());
+	ASSERT(IsGamePaused() || IsGameOver());
 	ASSERT(mpMenuBar != NULL);
 
-	Hand const hand = Hand(*mpGame);
+	Hand const playable_hand = Hand(*mpGame);
 
-	if (hand.IsLocalUser()) {
-        LoadPlayerOptions(hand);
+	if (playable_hand.IsLocalUser()) {
+        LoadPlayerOptions(playable_hand);
 	}
-	double const skip_probability = hand.SkipProbability();
+	double const skip_probability = playable_hand.SkipProbability();
     mGameView.Reset(skip_probability);
 
 	if (!IsGameOver()) {
-	    if (!hand.IsLocalUser()) {
+	    if (!playable_hand.IsLocalUser()) {
 			mpGame->StartClock();
-		} else if (rOldPlayerName == hand.PlayerName())	{
+		} else if (rOldPlayerName == playable_hand.PlayerName())	{
 		    mpGame->StartClock();
 		} else if (!mpMenuBar->IsAutopause()) {
 			mpGame->StartClock();
@@ -350,7 +350,7 @@ void GameWindow::HandleMenuCommand(IdType command) {
              
 	    case IDM_PAUSE:
 			ASSERT(HasGame());
-			TogglePause();
+			mpGame->TogglePause();
 		    break;
 
 		case IDM_SWAP_ALL:
@@ -484,7 +484,7 @@ LRESULT GameWindow::HandleMessage(MessageType message, WPARAM wParam, LPARAM lPa
         case WM_LBUTTONDOWN: // begin left-click
 			if (HasGame()) {
 			    if (IsGamePaused()) {
-				    TogglePause();
+				    mpGame->StartClock();
                 } else if (!mGameView.IsDragging()) {
 			        POINTS points = MAKEPOINTS(lParam);
 			        Point mouse(points);
@@ -842,11 +842,7 @@ void GameWindow::Play(bool passFlag) {
 			ChangeHand(old_player_name);
 
         } else {
-			// the game is over, so award bonus
-            mpMenuBar->GameOver(); 
-			String const report = mpGame->EndBonus();
-	        Window::InfoBox(report, "Going Out - Gold Tile");
-            mGameView.Reset();
+			GameOver();
         }
 
     } else if (!is_legal) { // explain the issue
@@ -1009,14 +1005,11 @@ void GameWindow::ResignHand(void) {
     if (!mpGame->IsOver()) {
 		// the game isn't over yet, so proceed to the next hand
 		String const old_player_name = SaveHandOptions();
-
 		mpGame->ActivateNextHand();
-
 		ChangeHand(old_player_name);
 
 	} else {
-		// the game is over
-        mpMenuBar->GameOver();
+        GameOver();
     }
 }
 
@@ -1101,8 +1094,12 @@ void GameWindow::SetGame(Game *pGame) {
 	ForceRepaint();
     UpdateMenuBar();
 
-	String const report = pGame->BestRunReport();
-	Window::InfoBox(report, "Opening Bids - Gold Tile");
+	if (HasGame()) {
+		ASSERT(!mpGame->CanRedo());
+		ASSERT(!mpGame->IsOver());
+    	String const report = pGame->BestRunReport();
+	    Window::InfoBox(report, "Opening Bids - Gold Tile");
+	}
 }
 
 void GameWindow::SetTileWidth(IdType command) {
@@ -1135,8 +1132,8 @@ void GameWindow::Think(void) {
 	    mGameView.Suggest();
 		ForceRepaint();
 
-		// pause 800 milliseconds to faciliate human comprehension
-		MsecIntervalType start = ::milliseconds();
+		// pause to faciliate human comprehension
+		MsecIntervalType const start = ::milliseconds();
 		while (::milliseconds() <= start + PAUSE_MSEC) {
 		    Yields();
 		}
@@ -1148,16 +1145,6 @@ void GameWindow::Think(void) {
 		}
 
 	    mThinkMode = THINK_IDLE;
-	}
-}
-
-void GameWindow::TogglePause(void) {
-	if (HasGame() && !IsGameOver()) {
-		if (IsGamePaused()) {
-		    mpGame->StartClock();
-		} else {
-			mpGame->StopClock();
-		}
 	}
 }
 

@@ -140,7 +140,6 @@ private:
 	void         SetGame(Game *pGame);
 	void         SetTileWidth(IdType command);
 	void         StopDragging(void);
-	void         TogglePause(void);
 	void         UndoTurn(void);
 	void         UpdateMenuBar(void);
 

@@ -1,6 +1,6 @@
 == Builds ==
 
-There are two builds of the gold-tiles application:
+There are two builds of the Gold Tiles Game:
 
  * gold-tile-Win32 - The main product, targeting the Microsoft Windows(tm) platform.
 
@@ -18,13 +18,37 @@ telnet/rsh) or users lacking a pointing device.  The `_CONSOLE` preprocessor mac
 
 Source files needed only for GUI builds belong in src/gui.
 
-Every header file should use #ifndef to prevent multiple inclusions.
+Every header file should use #ifndef to guard against multiple inclusions.
 
 For every class Foo there should ideally be a header file "foo.hpp" and a code file "foo.cpp".
 
 Project-wide definitions belong in "project.hpp"
 
+=== Indentation ===
+
+ * Indent the contents of each block by four spaces.
+ * Use Unix-style indentation when the open brace fits on the same line with the preceding keyword.
+ * If it doesn't fit, align the open brace with the keyword.
+
 === Identifiers ===
+
+==== Prefixes ====
+
+ * g = global
+ * i = iterator over
+ * m = member data (i.e. attribute)
+ * p = pointer
+ * r = reference
+ * s = static
+
+==== Suffixes ====
+
+ * s = collection of
+
+For instance, if "Foo" is the name of a class, then the container
+class for Foo objects would be named "Foos".
+
+==== Capitalization ====
 
  * attributes - `mMixedCasePrefixedByLowercaseM (this->mWidth)`
  * auto variables - `all_lowercase_with_underscores (int all_done;)`
@@ -38,6 +62,16 @@ Project-wide definitions belong in "project.hpp"
 
 See [http://www.possibility.com/Cpp/CppCodingStandard.html] for rationale.
 
-=== Indentation ===
+==== Abbreviations ====
 
- * Use Unix-style indentation when the curly brace fits on the same line with the preceding keyword.
+ * a = attribute
+ * cnt = count
+ * const = constant
+ * id = idenfifier
+ * opt = options
+ * max = maximum
+ * min = minimum
+ * msec = millisecond
+ * p = pixel
+ * rect = rectangle
+ * ulc = upper left corner

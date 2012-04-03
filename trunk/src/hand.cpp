@@ -33,16 +33,17 @@ Hand::Hand(const String &rHandName, HandOpt const &rOptions):
 	mOptions(rOptions)
 {
 	mClockRunningFlag = false;
+	mMilliseconds = 0L;
+	// mStartTime gets initialized in StartClock()
+
 	Restart();
 }
 
 void Hand::Restart(void) {
 	ASSERT(!IsClockRunning());
 
-	mMilliseconds = 0L;
 	mResignedFlag = false;
 	mScore = 0;
-	// mStartTime gets initialized in StartClock()
 	mTiles.MakeEmpty();
 }
 

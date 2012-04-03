@@ -3,7 +3,7 @@ programmed by Stephen Gold (sgold@sonic.net)
 
 Gold Tile is a turn-based multi-player game in which tiles 
 are drawn from a bag and played on a 2-D grid.  Tiles played to 
-adjacent grid squares must share exactly one attribute.
+adjacent grid cells must share exactly one attribute.
 
 The Gold Tile Game is (c) Copyright 2012 Stephen Gold and is
 released under the terms of the GNU General Public License, 

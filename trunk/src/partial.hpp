@@ -27,7 +27,8 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 /*
 A Partial object represents the active hand's move in progress, including
 the location of every tile in the hand.  It also decides which cells should
-be "hinted" (that is to say highlighted) for the player's benefit.
+be "hinted" (that is to say highlighted) for the player's benefit.  It also
+implements a Suggest() method for user assistance and automatic play.
 
 The tiles may be located in the active hand, in the swap area, or on the board.
 At any instant, only one tile may be active (in motion).
@@ -119,15 +120,15 @@ protected:
 
 private:
 	// private data
-	TileIdType      mActiveId;       // tile actively being dragged (or else Tile::ID_NONE)
+	TileIdType      mActiveId;        // tile actively being dragged (or else Tile::ID_NONE)
     Board           mBoard;
-	Cells           mHintedCells;    // cached choice of cells
+	Cells           mHintedCells;     // cached choice of cells
 	bool            mHintedCellsValid;
 	HintType        mHintStrength;
-	unsigned        mPlayedTileCnt;  // number of tiles played to the board
-	double          mSkipProbability;
-	Indices         mSwapIds;        // indices of all tiles in the swap area
-	Tiles           mTiles;          // the set of all available tiles
+	unsigned        mPlayedTileCnt;   // number of tiles played to the board
+	double          mSkipProbability; // reduces thoroughness of Suggest() method
+	Indices         mSwapIds;         // indices of all tiles in the swap area
+	Tiles           mTiles;           // the set of all available tiles
 	static void * mspYieldArgument;
 	static void (*mspYieldFunction)(void*);
 

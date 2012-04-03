@@ -68,6 +68,7 @@ See [http://www.possibility.com/Cpp/CppCodingStandard.html] for rationale.
  * cnt = count
  * const = constant
  * id = identifier
+ * ind = index
  * opt = options
  * max = maximum
  * min = minimum

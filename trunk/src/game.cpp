@@ -31,25 +31,31 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 
 // lifecycle
 
-Game::Game(
-	HandOpts const &rHandOptions,
-    GameStyleType style,
-    unsigned tileRedundancy,
-    unsigned handSize,
-	unsigned secondsPerHand)
-:
-	mHandSize(handSize),
-	mRedundancy(tileRedundancy),
-	mSecondsPerHand(secondsPerHand),
-    mStyle(style)
+Game::Game(GameOpt const &rGameOpt, HandOpts const &rHandOptions):
+	mOptions(rGameOpt)
 {
 	ASSERT(!rHandOptions.IsEmpty());
-	ASSERT(style != GAME_STYLE_NONE);
-	ASSERT(tileRedundancy >= 1);
-	ASSERT(handSize >= 1);
+
+	GridType const grid = GridType(mOptions);
+	Cell::SetGrid(grid);
+
+	bool const does_board_wrap = mOptions.DoesBoardWrap();
+	IndexType const board_height = mOptions.BoardHeight();
+	IndexType const board_width = mOptions.BoardWidth();
+	Cell::SetTopology(does_board_wrap, board_height, board_width);
+
+	AttrCntType const attr_cnt = mOptions.AttrCnt();
+	AttrType *maxes = new AttrType[attr_cnt];
+	for (AttrIndexType i_attr = 0; i_attr < attr_cnt; i_attr++) {
+		maxes[i_attr] = mOptions.MaxAttrValue(i_attr);
+	}
+	unsigned const bonus_percent = mOptions.BonusPercent();
+	double const bonus_fraction = double(bonus_percent)/100.0;
+	Tile::SetStatic(attr_cnt, maxes, bonus_fraction);
+	delete maxes;
 
 	// add tiles to the stock bag
-	for (unsigned i = 0; i < mRedundancy; i++) {
+	for (unsigned i = 0; i < mOptions.TilesPerCombo(); i++) {
         // generate all possible tiles
 		mStockBag.Restock();
 	}
@@ -76,9 +82,10 @@ Game::Game(
     }
 
     // deal tiles to each hand from the stock bag
+	unsigned const hand_size = mOptions.HandSize();
     Hands::Iterator i_hand;
     for (i_hand = mHands.begin(); i_hand < mHands.end(); i_hand++) {
-        Tiles const tiles = i_hand->DrawTiles(mHandSize, mStockBag);
+        Tiles const tiles = i_hand->DrawTiles(hand_size, mStockBag);
 
 		// record the deal in mHistory
 		String const name = i_hand->Name();
@@ -106,6 +113,10 @@ Game::Game(
 
 Game::operator Board(void) const {
     return mBoard;
+}
+
+Game::operator GameOpt(void) const {
+	return mOptions;
 }
 
 Game::operator Hand(void) const {
@@ -355,9 +366,9 @@ void Game::FirstTurn(void) {
 }
 
 unsigned Game::HandSize(void) const {
-	ASSERT(mHandSize > 0);
+	unsigned const result = mOptions.HandSize();
 
-	return mHandSize;
+	return result;
 }
 
 Hands Game::InactiveHands(void) const {
@@ -472,12 +483,6 @@ void Game::Redo(void) {
 	ASSERT(!IsClockRunning());
 }
 
-unsigned Game::Redundancy(void) const {
-	ASSERT(mRedundancy > 0);
-
-	return mRedundancy;
-}
-
 void Game::Restart(void) {
 	ASSERT(!IsClockRunning());
 
@@ -506,7 +511,7 @@ void Game::Restart(void) {
 		miActiveHand = mHands.Find(hand_name);
 
 		Tiles const draw_tiles = miRedo->Draw();
-		ASSERT(draw_tiles.Count() == mHandSize);
+		ASSERT(draw_tiles.Count() == HandSize());
 
 		miActiveHand->AddTiles(draw_tiles);
 		mStockBag.RemoveTiles(draw_tiles);
@@ -524,16 +529,20 @@ void Game::Restart(void) {
 int Game::Seconds(Hand &rHand) const {
 	// read the clock of a particular hand
 	int result = rHand.Seconds();
-	if (mSecondsPerHand > 0) {
+
+	if (mOptions.HasTimeLimit()) {
 		// counting down
-		result = mSecondsPerHand - result;
+    	unsigned const time_limit = SecondsPerHand();
+		result = time_limit - result;
 	}
 
 	return result;
 }
 
 unsigned Game::SecondsPerHand(void) const {
-	return mSecondsPerHand;
+	unsigned const result = mOptions.SecondsPerHand();
+
+	return result;
 }
 
 void Game::StartClock(void) {
@@ -550,7 +559,9 @@ void Game::StopClock(void) {
 }
 
 GameStyleType Game::Style(void) const {
-    return mStyle;
+	GameStyleType const result = GameStyleType(mOptions);
+
+    return result;
 }
 
 void Game::TogglePause(void) {
@@ -663,8 +674,8 @@ bool Game::IsClockRunning(void) const {
 bool Game::IsOutOfTime(void) const {
     bool result = false;
 
-	if (mSecondsPerHand > 0) {
-		MsecIntervalType const have_msec = MSECS_PER_SECOND * mSecondsPerHand;
+	if (mOptions.HasTimeLimit()) {
+		MsecIntervalType const have_msec = MSECS_PER_SECOND * SecondsPerHand();
 	    MsecIntervalType const used_msec = miActiveHand->Milliseconds();
 
 		result = (used_msec >= have_msec);

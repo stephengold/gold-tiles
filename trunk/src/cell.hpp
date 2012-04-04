@@ -56,7 +56,8 @@ enum GridType {
 	GRID_TRIANGLE = 3,
 	GRID_4WAY = 4,
 	GRID_HEX = 6,
-	GRID_8WAY = 8
+	GRID_8WAY = 8,
+	GRID_DEFAULT = GRID_4WAY
 };
 
 class Cell {

@@ -79,7 +79,6 @@ public:
 
 private:
     // private constants
-    static const unsigned         HAND_CNT_DEFAULT = 2;
     static const unsigned         ID_CLOCK_TIMER = 1;
     static const MsecIntervalType PAUSE_MSEC = 800;
     static const MsecIntervalType TIMEOUT_MSEC = 500;

@@ -182,20 +182,6 @@ AttrType Tile::Attribute(AttrIndexType ind) const {
 	return msAttributeCnt;
 }
 
-/* static */ String Tile::AttributeReport(void) {
-	String result = ::plural(Tile::AttributeCnt(), "attribute") + ":\n";
-	for (AttrIndexType i_attr = 0; i_attr < Tile::AttributeCnt(); i_attr++) {
-		AttrModeType const display_mode = Tile::DefaultDisplayMode(i_attr);
-		AttrType const value_max = Tile::ValueMax(i_attr);
-		result += " " + ::ordinal(i_attr + 1) + " attribute ranges from ";
-		result += Tile::AttributeToString(display_mode, 0) + " to ";
-		result += Tile::AttributeToString(display_mode, value_max) + "\n";
-	}
-	result += "\n";
-
-	return result;
-}
-
 /* static */ String Tile::AttributeToString(AttrModeType display_mode, AttrType value) {
     char ch = '?'; // invalid
 
@@ -266,6 +252,8 @@ Tile Tile::CloneAndSetBonus(void) const {
 
 // calculate the number of possible combinations of attributes
 /* static */ long Tile::CombinationCnt(void) {
+    ASSERT(msAttributeCnt >= ATTRIBUTE_CNT_MIN);
+
 	long result = 1L;
     for (AttrIndexType i_attr = 0; i_attr < msAttributeCnt; i_attr++) {
 		AttrType const max_value = mspValueMax[i_attr];
@@ -274,7 +262,9 @@ Tile Tile::CloneAndSetBonus(void) const {
 	}
 
 	ASSERT(result >= COMBINATION_CNT_MIN);
+#ifdef _GUI
 	ASSERT(result <= COMBINATION_CNT_MAX);
+#endif // defined(_GUI)
 	return result;
 }
 

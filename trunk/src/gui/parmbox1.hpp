@@ -30,31 +30,25 @@ A ParmBox1 object represents a dialog box for setting the style of the game.
 The ParmBox1 class is an extension of the Dialog class.
 */
 
-#include "game.hpp"        // HASA GameStyleType
+#include "gameopt.hpp"     // HASA GameOpt
 #include "gui/dialog.hpp"  // ISA Dialog
 
 class ParmBox1: public Dialog {
 public:
     // lifecycle
-	ParmBox1(GameStyleType, unsigned secondsPerHand);
+	ParmBox1(GameOpt &);
 	// no default constructor
 	// ~ParmBox1(void);  compiler-generated destructor is OK
 
-	// public operators
-	operator GameStyleType(void) const;
-
 	// misc public methods
 	Win::INT_PTR  HandleMessage(MessageType, Win::WPARAM, Win::LPARAM);
-	unsigned PlayerSeconds(void) const;
-
-	// constants
-	static const ValueType PLAYER_MINUTES_MIN = 2;
-	static const ValueType PLAYER_MINUTES_DEFAULT = 30;
-	static const ValueType PLAYER_MINUTES_MAX = 120;
 
 private:
-	GameStyleType mGameStyle;
-    ValueType     mPlayerMinutes;
+	// private constants
+	static const ValueType MINUTES_PER_HAND_MAX = 120;
+
+	// private data
+	GameOpt &mrGameOpt;
 
 	// private lifecycle
 	ParmBox1(ParmBox1 const &);    // not copyable
@@ -66,5 +60,4 @@ private:
     void SetStyle(void);
 	void SetStyle(IdType buttonId);
 };
-
-#endif
+#endif // !defined(PARMBOX1_HPP_INCLUDED)

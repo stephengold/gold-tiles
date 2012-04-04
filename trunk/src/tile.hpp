@@ -41,11 +41,11 @@ In addition, some randomly-selected tiles are bonus tiles with extra value.
 typedef IndexType TileIdType;
 
 // attribute types
-typedef unsigned short AttrCntType, AttrIndexType;
-typedef unsigned short AttrType;
+typedef unsigned short AttrCntType;   // an attribute count
+typedef unsigned short AttrIndexType; // an index into an array of attributes
+typedef unsigned short AttrType;      // an attribute value
 
-// attribute display types
-enum AttrModeType {
+enum AttrModeType {                   // display mode type
 	ATTR_MODE_MIN = 0,
 	ATTR_MODE_ABC = 0,
 	ATTR_MODE_RST = 1,
@@ -61,6 +61,7 @@ enum AttrModeType {
 #endif // !defined(_GUI)
 };
 
+
 class Tile {
 public:
 	// public constants
@@ -75,14 +76,16 @@ public:
 	static const AttrType VALUE_CNT_MAX = 9;
 
 	static const long COMBINATION_CNT_MIN = 4L;
+#ifdef _GUI
 	static const long COMBINATION_CNT_MAX = 59049L;
+#endif // defined(_GUI)
 
 	static const TileIdType ID_NONE = 0;
 	static const TileIdType ID_DEFAULT = 1; // generated only by default constructor
 	static const TileIdType ID_FIRST = 2;
 	static const TileIdType ID_LAST = LONG_MAX;
 
-	// public lifecycle
+    // public lifecycle
 	Tile(void);
 	Tile(String const &);
 	Tile(Tile const &);
@@ -97,7 +100,6 @@ public:
 	// misc public methods
 	AttrType           Attribute(AttrIndexType) const;
     static AttrCntType AttributeCnt(void);
-	static String      AttributeReport(void);
 	static String      AttributeToString(AttrModeType, AttrType);
 	static double      BonusProbability(void);
 	Tile               CloneAndSetBonus(void) const;

@@ -46,45 +46,10 @@ static INT_PTR CALLBACK message_handler(
 
 // lifecycle
 
-ParmBox1::ParmBox1(GameStyleType gameStyle, unsigned secondsPerHand):
-    Dialog("PARMBOX1", &message_handler)
+ParmBox1::ParmBox1(GameOpt &rGameOpt):
+    Dialog("PARMBOX1", &message_handler),
+	mrGameOpt(rGameOpt)
 {
-	mGameStyle = gameStyle;
-	if (mGameStyle == GAME_STYLE_NONE) {
-		// default style
-#ifdef _DEBUG
-		mGameStyle = GAME_STYLE_DEBUG;
-#else // !defined(_DEBUG)
-		mGameStyle = GAME_STYLE_PRACTICE;
-#endif // !defined(_DEBUG)
-	}
-
-	if (secondsPerHand == Game::TIME_UNLIMITED) {
-		mPlayerMinutes = PLAYER_MINUTES_DEFAULT;
-
-	} else { // limited time
-
-    	// convert to minutes so slider doesn't have to deal with small change
-	    mPlayerMinutes = (secondsPerHand + SECONDS_PER_MINUTE - 1)/SECONDS_PER_MINUTE;
-
-		// limit range so value will fit on the slider
-		if (mPlayerMinutes < PLAYER_MINUTES_MIN) {
-			mPlayerMinutes = PLAYER_MINUTES_MIN;
-		}
-		if (mPlayerMinutes > PLAYER_MINUTES_MAX) {
-			mPlayerMinutes = PLAYER_MINUTES_MAX;
-		}
-
-	}
-	ASSERT(mPlayerMinutes >= PLAYER_MINUTES_MIN);
-	ASSERT(mPlayerMinutes <= PLAYER_MINUTES_MAX);
-}
-
-
-// operators
-
-ParmBox1::operator GameStyleType(void) const {
-    return mGameStyle;
 }
 
 
@@ -100,32 +65,34 @@ INT_PTR ParmBox1::HandleMessage(MessageType message, WPARAM wParam, LPARAM lPara
 			SetStyle();
 
 			IdType const slider_id = IDC_SLIDERMINUTES;
-			ValueType const min_value = PLAYER_MINUTES_MIN;
-			ValueType const max_value = PLAYER_MINUTES_MAX;
+			ValueType const min_value = GameOpt::MINUTES_PER_HAND_MIN;
+			ValueType const max_value = MINUTES_PER_HAND_MAX;
 	        SetSliderRange(slider_id, min_value, max_value);
-	        ValueType const slider_value = SetSliderValue(slider_id, mPlayerMinutes);
-	        ASSERT(slider_value == mPlayerMinutes);
+
+			ValueType const minutes = mrGameOpt.MinutesPerHand();
+	        ValueType const slider_value = SetSliderValue(slider_id, minutes);
+	        ASSERT(slider_value == minutes);
 
             SetTextValue(IDC_EDITMINUTES, slider_value);
-	        EnableControl(IDC_EDITMINUTES, mGameStyle == GAME_STYLE_CHALLENGE);
+	        EnableControl(IDC_EDITMINUTES, mrGameOpt.HasTimeLimit());
 
 			result = TRUE;
 			break;
         }
 
         case WM_COMMAND: {
-            IdType const id = LOWORD(wParam);
+            IdType const control_id = LOWORD(wParam);
 			int const notification_code = HIWORD(wParam);
-            switch (id) {
+            switch (control_id) {
                 case IDC_EDITMINUTES: {
-                    ValueType const value = GetTextValue(id);
+                    ValueType const value = GetTextValue(control_id);
 					if (value != VALUE_INVALID) {
                         IdType const slider_id = IDC_SLIDERMINUTES;
                         ValueType const slider_value = SetSliderValue(slider_id, value);
 					    if (slider_value != value) {
-                            SetTextValue(id, slider_value);
+                            SetTextValue(control_id, slider_value);
 					    }
-         			    mPlayerMinutes = slider_value;
+         			    mrGameOpt.SetMinutesPerHand(slider_value);
 					}
                     break;
                 }
@@ -134,7 +101,7 @@ INT_PTR ParmBox1::HandleMessage(MessageType message, WPARAM wParam, LPARAM lPara
 				case IDC_RADIOFRIENDLY:
 				case IDC_RADIOCHALLENGE: {
 					if (notification_code == BN_CLICKED) {
-                        SetStyle(id);
+                        SetStyle(control_id);
 					}
                     break;
 				}
@@ -152,7 +119,7 @@ INT_PTR ParmBox1::HandleMessage(MessageType message, WPARAM wParam, LPARAM lPara
             ValueType const value = GetSliderValue(slider_id);
             IdType editbox_id = IDC_EDITMINUTES;
             SetTextValue(editbox_id, value);
-		    mPlayerMinutes = value;
+		    mrGameOpt.SetMinutesPerHand(value);
 			break;
 		}
     }
@@ -164,40 +131,30 @@ INT_PTR ParmBox1::HandleMessage(MessageType message, WPARAM wParam, LPARAM lPara
     return result;
 }
 
-unsigned ParmBox1::PlayerSeconds(void) const {
-	unsigned result = Game::TIME_UNLIMITED;
-
-	if (mGameStyle == GAME_STYLE_CHALLENGE) {
-		result = mPlayerMinutes * SECONDS_PER_MINUTE;
-	}
-
-	return result;
-}
-
 void ParmBox1::SetStyle(void) {
-	SetButton(IDC_RADIODEBUG, mGameStyle == GAME_STYLE_DEBUG);
-	SetButton(IDC_RADIOPRACTICE, mGameStyle == GAME_STYLE_PRACTICE);
-	SetButton(IDC_RADIOFRIENDLY, mGameStyle == GAME_STYLE_FRIENDLY);
-	SetButton(IDC_RADIOCHALLENGE, mGameStyle == GAME_STYLE_CHALLENGE);
+	SetButton(IDC_RADIODEBUG, mrGameOpt.IsDebug());
+	SetButton(IDC_RADIOPRACTICE, mrGameOpt.IsPractice());
+	SetButton(IDC_RADIOFRIENDLY, mrGameOpt.IsFriendly());
+	SetButton(IDC_RADIOCHALLENGE, mrGameOpt.IsChallenge());
 }
 
 void ParmBox1::SetStyle(IdType buttonId) {
 	switch (buttonId) {
 		case IDC_RADIODEBUG:
-			mGameStyle = GAME_STYLE_DEBUG;
+			mrGameOpt.SetDebug();
 			break;
 		case IDC_RADIOPRACTICE:
-			mGameStyle = GAME_STYLE_PRACTICE;
+			mrGameOpt.SetPractice();
 			break;
 		case IDC_RADIOFRIENDLY:
-			mGameStyle = GAME_STYLE_FRIENDLY;
+			mrGameOpt.SetFriendly();
 			break;
 		case IDC_RADIOCHALLENGE:
-			mGameStyle = GAME_STYLE_CHALLENGE;
+			mrGameOpt.SetChallenge();
 			break;
 		default:
 			FAIL();
 	}
-	EnableControl(IDC_EDITMINUTES, mGameStyle == GAME_STYLE_CHALLENGE);
+	EnableControl(IDC_EDITMINUTES, mrGameOpt.IsChallenge());
 }
 #endif // defined(_WINDOWS)

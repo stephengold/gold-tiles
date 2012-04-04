@@ -32,30 +32,27 @@ The ParmBox3 class is an extension of the Dialog class.
 */
 
 #include "gui/dialog.hpp"   // ISA Dialog
-#include "tile.hpp"         // AttrCntType
+#include "gameopt.hpp"      // HASA GameOpt
 
 class ParmBox3: public Dialog {
 public:
     // lifecycle
-	ParmBox3(unsigned attributeCnt, unsigned clonesPerTile, 
-		     unsigned handSize, unsigned handCnt, unsigned bonusPercent);
+	ParmBox3(GameOpt &);
 	// no default constructor
 	// ~ParmBox3(void);  compiler-generated destructor is OK
 
 	// misc public methods
-	AttrCntType AttributeCnt(void) const;
-	unsigned    BonusTilePercentage(void) const;
-	unsigned    ClonesPerCombo(void) const;
-	unsigned    HandCnt(void) const;
-	int         HandleMessage(MessageType, Win::WPARAM, Win::LPARAM);
-	unsigned    HandSize(void) const;
+	int HandleMessage(MessageType, Win::WPARAM, Win::LPARAM);
 
 private:
-    ValueType mAttributeCnt;
-	ValueType mClonesPerCombo;
-	ValueType mHandSize;
-	ValueType mHandCnt;
-	ValueType mBonusTilePercentage;
+	// private constants
+	static const ValueType BONUS_PERCENT_MAX = 25;
+	static const ValueType CLONES_PER_COMBO_MAX = 10;
+	static const ValueType HAND_SIZE_MAX = 10;
+	static const ValueType HANDS_DEALT_MAX = 10;
+
+	// private data
+	GameOpt &mrGameOpt;
 
 	// private lifecycle
     ParmBox3(ParmBox3 const &);  // not copyable
@@ -73,5 +70,4 @@ private:
 	IdType        SliderId(Win::HWND) const;
 	void          UpdateValue(IdType slider, ValueType);
 };
-
-#endif
+#endif // !defined(PARMBOX3_HPP_INCLUDED)

@@ -32,25 +32,21 @@ The TileBox class is an extension of the Dialog class.
 */
 
 #include "gui/dialog.hpp"   // ISA Dialog
-#include "tile.hpp"         // USES AttrCntType
+#include "gameopt.hpp"      // HASA GameOpt
 
 class TileBox: public Dialog {
 public:
     // public lifecycle
-	TileBox(AttrCntType attributeCnt, 
-		    AttrType (&numValues)[Tile::ATTRIBUTE_CNT_MAX],
-			unsigned mClonesPerCombo);
+	TileBox(GameOpt &);
 	// no default constructor
 	// ~TileBox(void);  compiler-generated destructor is OK
 
 	// misc public methods
-	int  HandleMessage(MessageType, Win::WPARAM, Win::LPARAM);
-	long TotalTileCnt(void) const;
+	int HandleMessage(MessageType, Win::WPARAM, Win::LPARAM);
 
 private:
-	AttrCntType   mAttributeCnt;
-	unsigned      mClonesPerCombo;
-    AttrType (&mrNumValues)[Tile::ATTRIBUTE_CNT_MAX];
+	// private data
+	GameOpt &mrGameOpt;
 
 	// private lifecycle
     TileBox(TileBox const &);  // not copyable
@@ -59,7 +55,6 @@ private:
     TileBox &operator=(TileBox const &); // not assignable
 
 	// misc private methods
-	long   ComboCnt(void) const;
     IdType EditboxId(IdType slider) const;
     void   InitControl(IdType slider, ValueType value, bool enable);
     IdType MaxId(IdType slider) const;
@@ -69,5 +64,4 @@ private:
 	void   UpdateTileCnt(void);
 	void   UpdateValue(IdType slider, ValueType);
 };
-
-#endif
+#endif // !defined(TILEBOX_HPP_INCLUDED)

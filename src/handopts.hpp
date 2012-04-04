@@ -43,6 +43,7 @@ public:
 	Strings  AllPlayerNames(void) const;
 	void     Append(HandOpt const &);
     unsigned Count(void) const;
+	void     GetUserChoice(unsigned hand_cnt);
 	void     MakeEmpty(void);
 	void     Truncate(unsigned new_length);
 

@@ -46,25 +46,12 @@ static INT_PTR CALLBACK message_handler(
 
 // lifecycle
 
-ParmBox2::ParmBox2(
-	bool wrapFlag,
-	IndexType height,
-	IndexType width,
-	GridType grid)
-:
-    Dialog("PARMBOX2", &message_handler)
+ParmBox2::ParmBox2(GameOpt &rGameOpt):
+    Dialog("PARMBOX2", &message_handler),
+	mrGameOpt(rGameOpt)
 {
-	mGrid = grid;
-	mHeight = height;
-	mWidth = width;
-	mWrapFlag = wrapFlag;
 }
 
-// operators
-
-ParmBox2::operator GridType(void) const {
-	return mGrid;
-}
 
 // misc methods
 
@@ -89,8 +76,8 @@ INT_PTR ParmBox2::HandleMessage(MessageType message, WPARAM wParam) {
 			SetGrid();
 			SetTopology();
 
-			SetTextIndex(IDC_EDITHEIGHT, mHeight);
-			SetTextIndex(IDC_EDITWIDTH, mWidth);
+			SetTextIndex(IDC_EDITHEIGHT, mrGameOpt.BoardHeight());
+			SetTextIndex(IDC_EDITWIDTH, mrGameOpt.BoardWidth());
 			UpdateCellCnt();
 
             result = TRUE;
@@ -102,36 +89,34 @@ INT_PTR ParmBox2::HandleMessage(MessageType message, WPARAM wParam) {
 			int const notification_code = HIWORD(wParam);
             switch (id) {
                 case IDC_EDITHEIGHT: {
-                    ValueType const value = GetTextIndex(id);
-					if (value >= Cell::HEIGHT_MIN
-					 && value <= Cell::HEIGHT_MAX) {
-						if (::is_odd(value)) { // make even
-							mHeight = value + 1;
-						} else {
-							mHeight = value;
-						}
-			            UpdateCellCnt();
+                    ValueType height = GetTextIndex(id);
+					if (::is_odd(height)) { // make even
+						height++;
 					}
+					if (height >= Cell::HEIGHT_MIN
+					 && height <= Cell::HEIGHT_MAX) {
+						mrGameOpt.SetBoardHeight(height);
+					}
+		            UpdateCellCnt();
                     break;
                 }
                 case IDC_EDITWIDTH: {
-                    ValueType const value = GetTextIndex(id);
-					if (value >= Cell::WIDTH_MIN
-					 && value <= Cell::WIDTH_MAX) {
-						if (::is_odd(value)) { // make even
-							mWidth = value + 1;
-						} else {
-							mWidth = value;
-						}
-						UpdateCellCnt();
+                    ValueType width = GetTextIndex(id);
+					if (::is_odd(width)) { // make even
+						width++;
 					}
+					if (width >= Cell::WIDTH_MIN
+					 && width <= Cell::WIDTH_MAX) {
+						mrGameOpt.SetBoardWidth(width);
+					}
+					UpdateCellCnt();
                     break;
                 }
 				case IDC_RECALC:
 					if (notification_code == BN_CLICKED) {
                         SetTopology();
-            			SetTextIndex(IDC_EDITHEIGHT, mHeight);
-			            SetTextIndex(IDC_EDITWIDTH, mWidth);
+            			SetTextIndex(IDC_EDITHEIGHT, mrGameOpt.BoardHeight());
+			            SetTextIndex(IDC_EDITWIDTH, mrGameOpt.BoardWidth());
 						UpdateCellCnt();
 					}
 					break;
@@ -142,8 +127,8 @@ INT_PTR ParmBox2::HandleMessage(MessageType message, WPARAM wParam) {
 					if (notification_code == BN_CLICKED) {
                         SetGrid(id);
                         SetTopology();
-            			SetTextIndex(IDC_EDITHEIGHT, mHeight);
-			            SetTextIndex(IDC_EDITWIDTH, mWidth);
+            			SetTextIndex(IDC_EDITHEIGHT, mrGameOpt.BoardHeight());
+			            SetTextIndex(IDC_EDITWIDTH, mrGameOpt.BoardWidth());
 						UpdateCellCnt();
 					}
                     break;
@@ -158,8 +143,8 @@ INT_PTR ParmBox2::HandleMessage(MessageType message, WPARAM wParam) {
 					if (notification_code == BN_CLICKED) {
                         SetTopology(id);
                         SetGrid();
-            			SetTextIndex(IDC_EDITHEIGHT, mHeight);
-			            SetTextIndex(IDC_EDITWIDTH, mWidth);
+            			SetTextIndex(IDC_EDITHEIGHT, mrGameOpt.BoardHeight());
+			            SetTextIndex(IDC_EDITWIDTH, mrGameOpt.BoardWidth());
 						UpdateCellCnt();
 					}
                     break;
@@ -175,35 +160,32 @@ INT_PTR ParmBox2::HandleMessage(MessageType message, WPARAM wParam) {
     return result;
 }
 
-IndexType ParmBox2::Height(void) const {
-	return mHeight;
-}
-
 void ParmBox2::SetGrid(void) {
-	EnableControl(IDC_TRIANGLE, false);
+	EnableControl(IDC_TRIANGLE, false); // TODO
 	EnableControl(IDC_4WAY, true);
 	EnableControl(IDC_HEX, true);
 	EnableControl(IDC_8WAY, true);
 
-	SetButton(IDC_TRIANGLE, mGrid == GRID_TRIANGLE);
-	SetButton(IDC_4WAY, mGrid == GRID_4WAY);
-	SetButton(IDC_HEX, mGrid == GRID_HEX);
-	SetButton(IDC_8WAY, mGrid == GRID_8WAY);    
+	GridType const grid = GridType(mrGameOpt);
+	SetButton(IDC_TRIANGLE, grid == GRID_TRIANGLE);
+	SetButton(IDC_4WAY, grid == GRID_4WAY);
+	SetButton(IDC_HEX, grid == GRID_HEX);
+	SetButton(IDC_8WAY, grid == GRID_8WAY);    
 }
 
 void ParmBox2::SetGrid(IdType buttonId) {
 	switch (buttonId) {
 		case IDC_TRIANGLE:
-			mGrid = GRID_TRIANGLE;
+			mrGameOpt.SetGrid(GRID_TRIANGLE);
 			break;
 		case IDC_4WAY:
-			mGrid = GRID_4WAY;
+			mrGameOpt.SetGrid(GRID_4WAY);
 			break;
 		case IDC_HEX:
-			mGrid = GRID_HEX;
+			mrGameOpt.SetGrid(GRID_HEX);
 			break;
 		case IDC_8WAY:
-			mGrid = GRID_8WAY;
+			mrGameOpt.SetGrid(GRID_8WAY);
 			break;
 		default:
 			FAIL();
@@ -228,72 +210,73 @@ void ParmBox2::SetTopology(void) {
 	EnableControl(IDC_HSTRIP, false);
 	EnableControl(IDC_VCYLINDER, false);
 	EnableControl(IDC_HCYLINDER, false);
-	mHeight = Cell::HEIGHT_MAX;
-	mWidth = Cell::WIDTH_MAX;
+	mrGameOpt.SetBoardHeight(Cell::HEIGHT_MAX);
+	mrGameOpt.SetBoardWidth(Cell::WIDTH_MAX);
 	EnableControl(IDC_EDITHEIGHT, false);
 	EnableControl(IDC_EDITWIDTH, false);
 #endif
 
-	SetButton(IDC_ENDLESS, mHeight == Cell::HEIGHT_MAX 
-	                    && mWidth == Cell::WIDTH_MAX);
-	SetButton(IDC_RECT, !mWrapFlag 
-		             && mHeight < Cell::HEIGHT_MAX 
-					 && mWidth < Cell::WIDTH_MAX);
-	SetButton(IDC_TORUS, mWrapFlag
-		              && mHeight < Cell::HEIGHT_MAX 
-					  && mWidth < Cell::WIDTH_MAX);
-	SetButton(IDC_VSTRIP, !mWrapFlag
-		              && mHeight == Cell::HEIGHT_MAX 
-					  && mWidth < Cell::WIDTH_MAX);
-	SetButton(IDC_HSTRIP, !mWrapFlag
-		              && mHeight < Cell::HEIGHT_MAX 
-					  && mWidth == Cell::WIDTH_MAX);
-	SetButton(IDC_VCYLINDER, mWrapFlag
-		              && mHeight == Cell::HEIGHT_MAX 
-					  && mWidth < Cell::WIDTH_MAX);
-	SetButton(IDC_HCYLINDER, mWrapFlag
-		              && mHeight < Cell::HEIGHT_MAX 
-					  && mWidth == Cell::WIDTH_MAX);
+	bool const wrap = mrGameOpt.DoesBoardWrap();
+	bool const finite_height = mrGameOpt.HasFiniteHeight();
+	bool const finite_width = mrGameOpt.HasFiniteWidth();
+	bool const inf_height = !finite_height;
+	bool const inf_width = !finite_width;
+
+	SetButton(IDC_ENDLESS, inf_height && inf_width);
+	SetButton(IDC_RECT, !wrap && finite_height && finite_width);
+	SetButton(IDC_TORUS, wrap && finite_height && finite_width);
+	SetButton(IDC_VSTRIP, !wrap && inf_height && finite_width);
+	SetButton(IDC_HSTRIP, !wrap && finite_height && inf_width);
+	SetButton(IDC_VCYLINDER, wrap && inf_height && finite_width);
+	SetButton(IDC_HCYLINDER, wrap && finite_height && inf_width);
 }
 
 void ParmBox2::SetTopology(IdType buttonId) {
+	// update board height and width
+	IndexType height = mrGameOpt.BoardHeight();
+	IndexType width = mrGameOpt.BoardWidth();
+
 	switch (buttonId) {
 		case IDC_ENDLESS:
-			mHeight = Cell::HEIGHT_MAX;
-			mWidth = Cell::WIDTH_MAX;
+			height = Cell::HEIGHT_MAX;
+			width = Cell::WIDTH_MAX;
 			break;
 
 		case IDC_RECT:
 		case IDC_TORUS:
-			if (mHeight == Cell::HEIGHT_MAX) {
-				mHeight = HEIGHT_DEFAULT;
+			if (height == Cell::HEIGHT_MAX) {
+				height = HEIGHT_DEFAULT;
 			}
-			if (mWidth == Cell::WIDTH_MAX) {
-				mWidth = WIDTH_DEFAULT;
+			if (height == Cell::WIDTH_MAX) {
+				height = WIDTH_DEFAULT;
 			}
 			break;
 
 		case IDC_VSTRIP:
 		case IDC_VCYLINDER:
-			mHeight = Cell::HEIGHT_MAX;
-			if (mWidth == Cell::WIDTH_MAX) {
-				mWidth = WIDTH_DEFAULT;
+			height = Cell::HEIGHT_MAX;
+			if (width == Cell::WIDTH_MAX) {
+				width = WIDTH_DEFAULT;
 			}
 			break;
 
 		case IDC_HSTRIP:
 		case IDC_HCYLINDER:
-			if (mHeight == Cell::HEIGHT_MAX) {
-				mHeight = HEIGHT_DEFAULT;
+			if (height == Cell::HEIGHT_MAX) {
+				height = HEIGHT_DEFAULT;
 			}
-			mWidth = Cell::WIDTH_MAX;
+			width = Cell::WIDTH_MAX;
 			break;
 
 		default:
 			FAIL();
 	}
 
-	// set mWrapFlag
+	mrGameOpt.SetBoardHeight(height);
+	mrGameOpt.SetBoardWidth(width);
+
+	// update wrap flag
+	bool does_wrap = mrGameOpt.DoesBoardWrap();
 	switch (buttonId) {
 		case IDC_ENDLESS:
 			// mWrapFlag doesn't matter
@@ -302,43 +285,33 @@ void ParmBox2::SetTopology(IdType buttonId) {
 		case IDC_HSTRIP:
 		case IDC_RECT:
 		case IDC_VSTRIP:
-			mWrapFlag = false;
+			does_wrap = false;
 			break;
 
 		case IDC_HCYLINDER:
 		case IDC_TORUS:
 		case IDC_VCYLINDER:
-			mWrapFlag = true;
+			does_wrap = true;
 			break;
 
 		default:
 			FAIL();
 	}
+	mrGameOpt.SetDoesBoardWrap(does_wrap);
 }
 
 void ParmBox2::UpdateCellCnt(void) {
 	IndexType cell_cnt = Cell::HEIGHT_MAX;
-	if (mHeight < Cell::HEIGHT_MAX && mWidth < Cell::WIDTH_MAX) {
-        IndexType const max = (mHeight < mWidth) ? mWidth : mHeight;
-        mHeight = max;
-        mWidth = max;
-		if (mGrid == GRID_HEX) { // hex grids have half as many cells
-		    cell_cnt = (mHeight/2) * mWidth;
+
+	if (mrGameOpt.HasFiniteHeight() && mrGameOpt.HasFiniteWidth()) {
+	    IndexType const height = mrGameOpt.BoardHeight();
+	    IndexType const width = mrGameOpt.BoardWidth();
+		if (GridType(mrGameOpt) == GRID_HEX) { // hex grids have half as many cells
+		    cell_cnt = (height/2) * width;
 		} else {
-		    cell_cnt = mHeight * mWidth;
+		    cell_cnt = height * width;
 		}
 	}
     SetTextIndex(IDC_CELLCNT, cell_cnt);
-}
-
-IndexType ParmBox2::Width(void) const {
-	return mWidth;
-}
-
-
-// inquiry methods
-
-bool ParmBox2::DoesWrap(void) const {
-	return mWrapFlag;
 }
 #endif // defined(_WINDOWS)

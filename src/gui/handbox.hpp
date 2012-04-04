@@ -37,7 +37,7 @@ The HandBox class is an extension of the Dialog class.
 class HandBox: public Dialog {
 public:
     // public lifecycle
-	HandBox(unsigned handIndex, bool more, HandOpt const &options); 
+	HandBox(unsigned handIndex, bool more, HandOpt const &); 
 	// no default constructor
 	// ~HandBox(void);  compiler-generated destructor is OK
 
@@ -52,9 +52,9 @@ private:
 	static const ValueType LEVEL_MAX = 8;
 
 	// private data
-	bool          mAreMoreHands;
-	unsigned      mHandIndex;
-	HandOpt       mOptions;
+	bool     mAreMoreHands;
+	unsigned mHandIndex;
+	HandOpt  mOptions;
 
 	// private lifecycle
     HandBox(HandBox const &);  // not copyable

@@ -31,7 +31,7 @@ such as the number of rows and columns.
 The ParmBox2 class extends the Dialog class.
 */
 
-#include "cell.hpp"        // HASA GridType
+#include "gameopt.hpp"     // HASA GameOpt
 #include "gui/dialog.hpp"  // ISA Dialog
 
 class ParmBox2: public Dialog {
@@ -41,27 +41,16 @@ public:
 	static const IndexType WIDTH_DEFAULT = 32;
 
     // lifecycle
-	ParmBox2(bool wrapFlag, IndexType height, IndexType width, GridType);
+	ParmBox2(GameOpt &);
 	// no default constructor
 	// ~ParmBox2(void);  compiler-generated destructor is OK
 
-	// public operators
-	operator GridType(void) const;
-
 	// misc public methods
-	int       HandleMessage(MessageType, Win::WPARAM);
-	IndexType Height(void) const;
-	IndexType Width(void) const;
-
-	// public inquiry methods
-	bool      DoesWrap(void) const;
+	int HandleMessage(MessageType, Win::WPARAM);
 
 private:
 	// private data
-	GridType     mGrid;
-	IndexType    mHeight;
-	IndexType    mWidth;
-	bool         mWrapFlag;
+	GameOpt &mrGameOpt;
 
 	// private lifecycle
     ParmBox2(ParmBox2 const &);  // not copyable
@@ -78,5 +67,4 @@ private:
 	void      SetTopology(IdType);
 	void      UpdateCellCnt(void);
 };
-
-#endif
+#endif // !defined(PARMBOX2_CPP_INCLUDED)

@@ -26,6 +26,7 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 #ifdef _CONSOLE
 #include <iostream>
 #include "game.hpp"
+#include "handopts.hpp"
 #include "strings.hpp"
 #endif // defined(_CONSOLE)
 
@@ -67,11 +68,6 @@ int main(int argCnt, char *argValues[]) {
 	unsigned const seed = ::milliseconds();
     ::srand(seed);
 
-	AttrCntType const attribute_cnt = Tile::ATTRIBUTE_CNT_DEFAULT;
-	AttrType const max_attribute[] = { Tile::VALUE_CNT_DEFAULT - 1, Tile::VALUE_CNT_DEFAULT - 1 };
-	double const bonus_fraction = 0.0;
-	Tile::SetStatic(attribute_cnt, max_attribute, bonus_fraction);
-
 #ifdef _CONSOLE
 	argCnt;
 	argValues;
@@ -84,49 +80,15 @@ int main(int argCnt, char *argValues[]) {
         << "it under certain conditions; see LICENSE.txt for details." << std::endl
         << std::endl;
 
-	String const report = Tile::AttributeReport();
-	std::cout << report;
-	
-	unsigned hand_cnt = 0;
-	while (hand_cnt == 0) {
-	    std::cout << "Deal how many hands? ";
-	    std::cin >> hand_cnt;
-        char buffer[256];
-        std::cin.getline(buffer, 256);
-	}
+	GameOpt game_opt;
+	game_opt.GetUserChoice();
 
-	HandOpts hand_options;
-	for (unsigned i_hand = 0; i_hand < hand_cnt; i_hand++) {
-	    String name;
-		while (name.IsEmpty()) {
-	        std::cout << "Name of player for the " << ::ordinal(i_hand + 1)
-			      << " hand? (or else 'computer') ";
-            char buffer[256];
-            std::cin.getline(buffer, 256);
-			name = buffer;
-		}
-
-		HandOpt opt(name);
-	    if (opt.PlayerName() == "Computer") {
-		    opt.SetAutomatic();
-	    }
-		hand_options.Append(opt);
-	}
-
-	unsigned hand_size = 0;
-	while (hand_size == 0) {
-	    std::cout << "How many tiles per hand? ";
-	    std::cin >> hand_size;
-	}
-	std::cout << std::endl;
-	
-	// Clone tiles so that there are enough to fill each hand at least three times.
-	unsigned const tiles_needed = 3 * hand_size * hand_cnt;
-	long const combo_cnt = Tile::CombinationCnt();
-	unsigned clones_per_tile = unsigned(tiles_needed / combo_cnt);
+	unsigned const hand_cnt = game_opt.HandsDealt();
+	HandOpts hand_opts;
+	hand_opts.GetUserChoice(hand_cnt);
 
     // Instantiate the game.
-	Game game(hand_options, GAME_STYLE_PRACTICE, clones_per_tile + 1, hand_size);
+	Game game(game_opt, hand_opts);
 
 	game.PlayGame();
 	std::cout << "The game is over." << std::endl;

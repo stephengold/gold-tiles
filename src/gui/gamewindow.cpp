@@ -622,67 +622,44 @@ char const *GameWindow::Name(void) const {
 }
 
 void GameWindow::OfferNewGame(void) {
-	// set up first dialog box
-	GameStyleType old_game_style = mGameView.GameStyle();
-	unsigned seconds_per_hand = SECONDS_PER_MINUTE * ParmBox1::PLAYER_MINUTES_DEFAULT;
-	if (HasGame()) {
-		seconds_per_hand = mpGame->SecondsPerHand();
-	}
-	ParmBox1 parmbox1(old_game_style, seconds_per_hand);
-
-	// set up second dialog box
-	bool wrap_flag;
-	IndexType height, width;
-	Cell::GetTopology(wrap_flag, height, width);
-	GridType grid = Cell::Grid();
-	ParmBox2 parmbox2(wrap_flag, height, width, grid);
-
-	// begin setting up the third dialog box
-	AttrCntType attribute_cnt = Tile::AttributeCnt();
-	unsigned tile_redundancy = Game::TILE_REDUNDANCY_DEFAULT;
-	unsigned hand_cnt = HAND_CNT_DEFAULT;
-	unsigned hand_size = Game::HAND_SIZE_DEFAULT;
-	unsigned bonus_pct = unsigned(0.5 + 100.0*Tile::BonusProbability());
-
-	AttrType value_cnts[Tile::ATTRIBUTE_CNT_MAX];
-	for (AttrIndexType i_attr = 0; i_attr < Tile::ATTRIBUTE_CNT_MAX; i_attr++) {
-		AttrType value_cnt = Tile::VALUE_CNT_DEFAULT;
-		if (i_attr < attribute_cnt) {
-		    value_cnt = Tile::ValueMax(i_attr) + 1; // zero counts as an attribute value
-		}
-		value_cnts[i_attr] = value_cnt;
-	}
-
-	// begin setting up the fifth dialog box
+    // set up default options
+	GameOpt game_options;
 	HandOpts hand_options;
+
 	if (HasGame()) {
+		// copy options from game
+		game_options = GameOpt(*mpGame);
+
 	    Hands hands = Hands(*mpGame);
 		Hands::ConstIterator i_hand;
 		for (i_hand = hands.begin(); i_hand != hands.end(); i_hand++) {
-			HandOpt options = HandOpt(*i_hand);
-			hand_options.Append(options);
+			HandOpt const opt = HandOpt(*i_hand);
+			hand_options.Append(opt);
 		}
 		ASSERT(hand_options.Count() == hands.Count());
 	}
 
 STEP1:
+	GameStyleType const old_game_style = GameStyleType(game_options);
+
 	// first dialog:  prompt for game style and time limit
+	ParmBox1 parmbox1(game_options);
 	int result = parmbox1.Run(this);
 	if (result == Dialog::RESULT_CANCEL) {
 		return;
 	}
 	ASSERT(result == Dialog::RESULT_OK);
-	GameStyleType game_style = GameStyleType(parmbox1);
-	seconds_per_hand = parmbox1.PlayerSeconds();
 
-	bool new_game_style = (game_style != old_game_style);
-	old_game_style = GAME_STYLE_NONE;
-	if (new_game_style) {
+	if (GameStyleType(game_options) != old_game_style) {  // changing game styles
+		game_options.StyleChange();
+
+		// invalidate all hand options
 		hand_options.MakeEmpty();
 	}
 
 STEP2:
 	// second dialog:  prompt for grid type and topology
+	ParmBox2 parmbox2(game_options);
 	result = parmbox2.Run(this);
 	if (result == Dialog::RESULT_CANCEL) {
 		return;
@@ -690,29 +667,10 @@ STEP2:
 		goto STEP1;
 	}
 	ASSERT(result == Dialog::RESULT_OK);
-	grid = GridType(parmbox2);
-	wrap_flag = parmbox2.DoesWrap();
-	height = parmbox2.Height();
-	width = parmbox2.Width();
-
-	// finish setting up third dialog
-	if (new_game_style) {
-		if (game_style == GAME_STYLE_PRACTICE) {
-		    hand_cnt = 1;
-		}
-		new_game_style = false;
-
-	} else if (HasGame()) {
-		// set based on previous game
-		tile_redundancy = mpGame->Redundancy();
-	    hand_size = mpGame->HandSize();
-	    hand_cnt = Hands(*mpGame).Count();
-	}
 
 STEP3:
 	// third dialog:  prompt for attribute count, clones, hand size, and number of hands
-	unsigned clones_per_tile = tile_redundancy - 1;
-	ParmBox3 parmbox3(attribute_cnt, clones_per_tile, hand_size, hand_cnt, bonus_pct);
+	ParmBox3 parmbox3(game_options);
 	result = parmbox3.Run(this);
 	if (result == Dialog::RESULT_CANCEL) {
 		return;
@@ -720,18 +678,11 @@ STEP3:
 		goto STEP2;
 	}
 	ASSERT(result == Dialog::RESULT_OK);
-	attribute_cnt = parmbox3.AttributeCnt();
-	tile_redundancy = 1 + parmbox3.ClonesPerCombo();
-	hand_size = parmbox3.HandSize();
-	hand_cnt = parmbox3.HandCnt();
-	bonus_pct = parmbox3.BonusTilePercentage();
 
-	// set up fourth dialog
-	TileBox tilebox(attribute_cnt, value_cnts, tile_redundancy - 1);
-
-	// further work on fifth dialog
-   	if (hand_cnt > hand_options.Count()) {
-		// initialize new hand_options
+	unsigned const hand_cnt = game_options.HandsDealt();
+	if (hand_cnt > hand_options.Count()) { // adding new hands
+		// initialize a new hand_option for each new hand
+	    GameStyleType const game_style = GameStyleType(game_options);
 		Strings const player_names = hand_options.AllPlayerNames();
 		for (unsigned i_hand = hand_options.Count(); i_hand < hand_cnt; i_hand++) {
 			HandOpt options = HandOpt(game_style, player_names);
@@ -743,9 +694,8 @@ STEP3:
 
 STEP4:
 	// fourth dialog:  number of values for each attribute
+	TileBox tilebox(game_options);
 	result = tilebox.Run(this);
-	// value_cnts[] gets updated
-
 	if (result == Dialog::RESULT_CANCEL) {
 		return;
 	} else if (result == Dialog::RESULT_BACK) {
@@ -754,8 +704,9 @@ STEP4:
 	ASSERT(result == Dialog::RESULT_OK);
 
 	// check sanity of the parameters so far
+	unsigned const hand_size = game_options.HandSize();
 	long const tiles_needed = hand_cnt*hand_size;
-	long const total_tile_cnt = tilebox.TotalTileCnt();
+	long const total_tile_cnt = game_options.TotalTileCnt();
 	if (total_tile_cnt < tiles_needed) {
 		result = GameWarnBox("FEWTILES");
 		if (result == IDCANCEL) {
@@ -787,20 +738,10 @@ STEP4:
 	}
 
 	// can't cancel now - go ahead and set up the new game
-	Cell::SetGrid(grid);
-	Cell::SetTopology(wrap_flag, height, width);
-	AttrType maxes[Tile::ATTRIBUTE_CNT_MAX];
-	for (AttrIndexType i_attr = 0; i_attr < attribute_cnt; i_attr++) {
-		maxes[i_attr] = value_cnts[i_attr] - 1; // zero counts
-	}
-	double const bonus_fraction = double(bonus_pct)/100.0;
-	Tile::SetStatic(attribute_cnt, maxes, bonus_fraction);
-
 	hand_options.Truncate(hand_cnt);
 
 	SetCursorBusy();
-	Game *const p_new_game = new Game(hand_options, game_style, 
-		                        tile_redundancy, hand_size, seconds_per_hand);
+	Game *const p_new_game = new Game(game_options, hand_options);
 	ASSERT(p_new_game != NULL);
 	SetCursorSelect();
 

@@ -45,34 +45,14 @@ static INT_PTR CALLBACK message_handler(
 
 // lifecycle
 
-TileBox::TileBox(
-	AttrCntType attributeCnt, 
-	AttrType (&rNumValues)[Tile::ATTRIBUTE_CNT_MAX], 
-	unsigned clonesPerCombo)
-:
+TileBox::TileBox(GameOpt &rGameOpt):
     Dialog("TILEBOX", &message_handler),
-	mrNumValues(rNumValues)
+	mrGameOpt(rGameOpt)
 {
-    mAttributeCnt = attributeCnt;
-	mClonesPerCombo = clonesPerCombo;
 }
 
 
 // misc methods
-
-long TileBox::ComboCnt(void) const {
-	// count the possible combinations
-	long result = 1L;
-	for (AttrIndexType i_attr = 0; i_attr < mAttributeCnt; i_attr++) {
-		ASSERT(i_attr < Tile::ATTRIBUTE_CNT_MAX);
-	    ValueType const possible_values = mrNumValues[i_attr];
-		result *= possible_values;
-	}
-	ASSERT(result >= Tile::COMBINATION_CNT_MIN);
-    ASSERT(result <= Tile::COMBINATION_CNT_MAX);
-
-	return result;
-}
 
 IdType TileBox::EditboxId(IdType sliderId) const {
     IdType result = 0;
@@ -107,11 +87,12 @@ INT_PTR TileBox::HandleMessage(MessageType message, WPARAM wParam, LPARAM lParam
         case WM_INITDIALOG: {
 		    Dialog::HandleMessage(message, wParam);
 		    
-			InitControl(IDC_SLIDER1, mrNumValues[0], mAttributeCnt > 0);
-		    InitControl(IDC_SLIDER2, mrNumValues[1], mAttributeCnt > 1);
-	        InitControl(IDC_SLIDER3, mrNumValues[2], mAttributeCnt > 2);
-	        InitControl(IDC_SLIDER4, mrNumValues[3], mAttributeCnt > 3);
-	        InitControl(IDC_SLIDER5, mrNumValues[4], mAttributeCnt > 4);
+			AttrType const attr_cnt = mrGameOpt.AttrCnt();
+			InitControl(IDC_SLIDER1, mrGameOpt.CountAttrValues(0), attr_cnt > 0);
+		    InitControl(IDC_SLIDER2, mrGameOpt.CountAttrValues(1), attr_cnt > 1);
+	        InitControl(IDC_SLIDER3, mrGameOpt.CountAttrValues(2), attr_cnt > 2);
+	        InitControl(IDC_SLIDER4, mrGameOpt.CountAttrValues(3), attr_cnt > 3);
+	        InitControl(IDC_SLIDER5, mrGameOpt.CountAttrValues(4), attr_cnt > 4);
 
 			UpdateTileCnt();
             result = TRUE;
@@ -286,19 +267,10 @@ IdType TileBox::SliderId(HWND handle) const {
 	return result;
 }
 
-long TileBox::TotalTileCnt(void) const {
-	long const combo_cnt = ComboCnt();
-	long result = combo_cnt * (1 + mClonesPerCombo);
-
-	return result;
-}
-
 void TileBox::UpdateTileCnt(void) {
-	long const combo_cnt = ComboCnt();
-
-	// calculate the number of possible clones and total tiles
-	ValueType const clone_cnt = mClonesPerCombo * combo_cnt;
-	ValueType const total_tile_cnt = combo_cnt + clone_cnt;
+	ValueType const combo_cnt = mrGameOpt.ComboCnt();
+	ValueType const clone_cnt = mrGameOpt.CloneCnt();
+	ValueType const total_tile_cnt = mrGameOpt.TotalTileCnt();
 
 	String const combo_cnt_string = ::plural(combo_cnt, "combination");
 	String const clone_cnt_string = ::plural(clone_cnt, "clone");
@@ -313,19 +285,19 @@ void TileBox::UpdateValue(IdType sliderId, ValueType value) {
 	AttrType const num_values = AttrType(value);
     switch (sliderId) {
         case IDC_SLIDER1:
-            mrNumValues[0] = num_values;
+            mrGameOpt.SetNumAttrValues(0, num_values);
             break;
         case IDC_SLIDER2:
-            mrNumValues[1] = num_values;
+            mrGameOpt.SetNumAttrValues(1, num_values);
             break;
         case IDC_SLIDER3:
-            mrNumValues[2] = num_values;
+            mrGameOpt.SetNumAttrValues(2, num_values);
             break;
         case IDC_SLIDER4:
-            mrNumValues[3] = num_values;
+            mrGameOpt.SetNumAttrValues(3, num_values);
             break;
         case IDC_SLIDER5:
-            mrNumValues[4] = num_values;
+            mrGameOpt.SetNumAttrValues(4, num_values);
             break;
         default:
             FAIL();

@@ -25,19 +25,25 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 /*
-A HandOptions object represents the configuration options of a hand.
+A HandOpt object represents the configuration options for a Hand.
 
-The HandOptions class ...
+The HandOpt class encapsulates the hand's name and type, plus optional
+characteristics such as its IP address.
 */
 
 #include "string.hpp"  // HASA String
 
 enum GameStyleType {
     GAME_STYLE_NONE,
-	GAME_STYLE_DEBUG,    // allows peeking, undo, all hints; clock is optional
-	GAME_STYLE_PRACTICE, // no peeking; allows undo, all hints; clock is optional
-	GAME_STYLE_FRIENDLY, // no peeking, no undo; allows all hints; clock is optional
-	GAME_STYLE_CHALLENGE // no peeking, no undo, no hints; time limits
+	GAME_STYLE_DEBUG,     // allows peeking, undo, all hints; clock is optional
+	GAME_STYLE_PRACTICE,  // no peeking; allows undo, all hints; clock is optional
+	GAME_STYLE_FRIENDLY,  // no peeking, no undo; allows all hints; clock is optional
+	GAME_STYLE_CHALLENGE, // no peeking, no undo, no hints; time limits
+#ifdef _DEBUG
+	GAME_STYLE_DEFAULT = GAME_STYLE_DEBUG,
+#else // !defined(_DEBUG)
+	GAME_STYLE_DEFAULT = GAME_STYLE_PRACTICE
+#endif // !defined(_DEBUG)
 };
 
 typedef unsigned long IpAddressType;
@@ -75,9 +81,9 @@ private:
 	// private data
 	bool   mAutomaticFlag;
 	IpAddressType 
-		   mIpAddress;       // for remote hands only
+		   mIpAddress;       // for remote hands only, else ignored
 	String mPlayerName;
 	bool   mRemoteFlag;
-	double mSkipProbability; // for automatic hands only
+	double mSkipProbability; // for automatic hands only, else 0.0
 };
-#endif
+#endif  // !defined(HANDOPT_HPP_INCLUDED)

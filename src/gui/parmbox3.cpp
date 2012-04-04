@@ -44,33 +44,14 @@ static int CALLBACK message_handler3(
 
 // lifecycle
 
-ParmBox3::ParmBox3(unsigned attributeCnt, unsigned clonesPerCombo, 
-		     unsigned handSize, unsigned handCnt, unsigned bonusTilePercentage):
-    Dialog("PARMBOX3", &message_handler3)
+ParmBox3::ParmBox3(GameOpt &rGameOpt):
+    Dialog("PARMBOX3", &message_handler3),
+	mrGameOpt(rGameOpt)
 {
-    mAttributeCnt = attributeCnt;
-	mBonusTilePercentage = bonusTilePercentage;
-    mClonesPerCombo = clonesPerCombo;
-    mHandCnt = handCnt;
-    mHandSize = handSize;            
 }
 
 
 // misc methods
-
-AttrCntType ParmBox3::AttributeCnt(void) const {
-    AttrCntType const result = AttrCntType(mAttributeCnt);
-
-    return result;
-}
-
-unsigned ParmBox3::BonusTilePercentage(void) const {
-    return mBonusTilePercentage;
-}
-
-unsigned ParmBox3::ClonesPerCombo(void) const {
-    return mClonesPerCombo;
-}
 
 /* static */ IdType ParmBox3::EditboxId(IdType sliderId) {
     IdType result = 0;
@@ -105,11 +86,16 @@ INT_PTR ParmBox3::HandleMessage(MessageType message, WPARAM wParam, LPARAM lPara
         case WM_INITDIALOG: {
 		    Dialog::HandleMessage(message, wParam);
 		    
-			InitControl(IDC_SLIDER1, mHandCnt, 1, 10);
-		    InitControl(IDC_SLIDER2, mHandSize, 1, 12);
-		    InitControl(IDC_SLIDER3, mAttributeCnt, 2, 5);
-		    InitControl(IDC_SLIDER4, mClonesPerCombo, 0, 8);
-		    InitControl(IDC_SLIDER5, mBonusTilePercentage, 0, 25);
+			InitControl(IDC_SLIDER1, mrGameOpt.HandsDealt(), 
+				GameOpt::HANDS_DEALT_MIN, HANDS_DEALT_MAX);
+		    InitControl(IDC_SLIDER2, mrGameOpt.HandSize(), 
+				GameOpt::HAND_SIZE_MIN, HAND_SIZE_MAX);
+		    InitControl(IDC_SLIDER3, mrGameOpt.AttrCnt(), 
+				Tile::ATTRIBUTE_CNT_MIN, Tile::ATTRIBUTE_CNT_MAX);
+		    InitControl(IDC_SLIDER4, mrGameOpt.ClonesPerCombo(),
+				0, CLONES_PER_COMBO_MAX);
+		    InitControl(IDC_SLIDER5, mrGameOpt.BonusPercent(),
+				0, BONUS_PERCENT_MAX);
 
             result = TRUE;
 			break;
@@ -155,10 +141,6 @@ INT_PTR ParmBox3::HandleMessage(MessageType message, WPARAM wParam, LPARAM lPara
 	}
 
     return result;
-}
-
-unsigned ParmBox3::HandSize(void) const {
-    return mHandSize;
 }
 
 void ParmBox3::InitControl(
@@ -237,11 +219,6 @@ void ParmBox3::InitControl(
     return result;
 }
 
-
-unsigned ParmBox3::HandCnt(void) const {
-    return mHandCnt;
-}
-
 /* static */ IdType ParmBox3::SliderId(IdType editboxId) {
     IdType result = 0;
 
@@ -291,19 +268,23 @@ IdType ParmBox3::SliderId(HWND handle) const {
 void ParmBox3::UpdateValue(IdType sliderId, ValueType value) {
     switch (sliderId) {
         case IDC_SLIDER1:
-            mHandCnt = value;
+            mrGameOpt.SetHandsDealt(value);
             break;
         case IDC_SLIDER2:
-            mHandSize = value;
+            mrGameOpt.SetHandSize(value);
             break;
-        case IDC_SLIDER3:
-            mAttributeCnt = value;
+        case IDC_SLIDER3: {
+			ASSERT(value >= Tile::ATTRIBUTE_CNT_MIN);
+			ASSERT(value <= Tile::ATTRIBUTE_CNT_MAX);
+			AttrCntType attr_cnt = AttrCntType(value);
+            mrGameOpt.SetAttrCnt(attr_cnt);
             break;
+		}
         case IDC_SLIDER4:
-            mClonesPerCombo = value;
+            mrGameOpt.SetClonesPerCombo(value);
             break;
         case IDC_SLIDER5:
-            mBonusTilePercentage = value;
+            mrGameOpt.SetBonusPercent(value);
             break;
         default:
             FAIL();

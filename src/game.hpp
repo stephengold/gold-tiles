@@ -25,28 +25,21 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "board.hpp"  // HASA Board
-#include "handopts.hpp"
+#include "gameopt.hpp"
 #include "hands.hpp"  // HASA Hands
 #include "turns.hpp"  // HASA Turns
 
 class Game {
 public:
-	// public constants
-    static const unsigned HAND_SIZE_DEFAULT = 6;
-    static const unsigned TILE_REDUNDANCY_DEFAULT = 1;
-	static const unsigned TIME_UNLIMITED = 0;
-
 	// public lifecycle
-    Game(HandOpts const &, GameStyleType, 
-		 unsigned tileRedundancy = TILE_REDUNDANCY_DEFAULT, 
-		 unsigned handSize = HAND_SIZE_DEFAULT,
-		 unsigned secondsPerHand = TIME_UNLIMITED);
+    Game(GameOpt const &, HandOpts const &);
 	// no default constructor
     // ~Game(void);  compiler-generated destructor is OK
 
 	// public operators
     operator Board(void) const;
-	operator Hand(void) const; // playable hand
+	operator GameOpt(void) const;
+	operator Hand(void) const;   // the playable hand
 	operator Hands(void) const;
 
 	// misc public methods
@@ -62,7 +55,6 @@ public:
     void          PlayGame(void);
 	void          Redo(void);
 	void          Restart(void);
-	unsigned      Redundancy(void) const;
 	int           Seconds(Hand &) const;
 	unsigned      SecondsPerHand(void) const;
 	void          StartClock(void);
@@ -94,14 +86,10 @@ private:
 	String           mFilespec;      // associated file for load/save
 	String           mFirstTurnMessage;
     Hands            mHands;         // all hands being played
-	unsigned const   mHandSize;      // max tiles per hand
 	Turns            mHistory;       // history of turns for undo/redo
+	GameOpt const    mOptions;
 	Turns::Iterator miRedo;          // current position in the history
-	unsigned const   mRedundancy;    // number of instances of each possible tile
-	unsigned const   mSecondsPerHand; // 0 indicates count up instead of down
     Tiles            mStockBag;      // stock bag from which tiles are drawn
-	GameStyleType const
-		             mStyle;
 	bool             mUnsavedChanges;
 
 	// private lifecycle

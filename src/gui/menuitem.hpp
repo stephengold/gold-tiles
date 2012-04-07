@@ -52,6 +52,7 @@ public:
     MenuItem(QObject *pParent, QString const &label);
 #elif defined(_WINDOWS)
     MenuItem(Menu const &, IdType);
+    MenuItem(Menu const &, IdType first, IdType last, IdType item);
 #endif // defined(_WINDOWS)
     // no default constructor
     // ~MenuItem(void);  compiler-generated destructor is OK
@@ -61,6 +62,7 @@ public:
     QAction *pAction(void);
 #endif // defined(_QT)
     void      Check(bool);
+    void      CheckRadio(bool);
     void      Enable(bool);
 #ifdef _QT
     void      SetShortcut(QString const &);
@@ -71,7 +73,9 @@ private:
 #ifdef _QT
     QAction *mpAction;
 #elif defined(_WINDOWS)
+    IdType       mFirstItemId;
     IdType       mItemId;
+    IdType       mLastItemId;
     Menu const &mrMenu;
 #endif // defined(_WINDOWS)
 

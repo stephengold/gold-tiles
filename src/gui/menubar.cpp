@@ -155,12 +155,8 @@ void MenuBar::Update(bool isThinking) {
 	bool const have_game = mrPartial.HasGame();
 	bool const is_local = mrPartial.IsLocalUsersTurn() && !isThinking;
 	bool const is_over = mrPartial.IsGameOver();
-    bool const is_pass = mrPartial.IsPass();
 	bool const is_paused = mrPartial.IsGamePaused();
-	bool const can_swap_all = mrPartial.CanSwapAll();
 	bool const can_redo = mrPartial.CanRedo();
-	bool const can_undo = mrPartial.CanUndo();
-    GameStyleType const game_style = mrPartial.GameStyle();
 
 	// "File" menu
 	mFileMenu.EnableItems(have_game);
@@ -170,8 +166,7 @@ void MenuBar::Update(bool isThinking) {
     mPlayMenu.Autopause(mAutopauseFlag);
     mPlayMenu.Pause(is_paused);
     
-	mPlayMenu.EnableItems(game_style, is_over, is_paused, is_pass, 
-		  can_swap_all, can_undo, can_redo, is_local);
+	mPlayMenu.EnableItems(mrPartial, isThinking);
 	mPlayMenu.Enable(have_game && (is_local || is_over || can_redo));
 
 	// "View" menu
@@ -183,7 +178,7 @@ void MenuBar::Update(bool isThinking) {
     mViewMenu.ShowScores(mShowScoresFlag);
     mViewMenu.ShowTiles(mPeekFlag);
     
-	mViewMenu.EnableItems(game_style, is_over, is_local);
+	mViewMenu.EnableItems(mrPartial, isThinking);
 	mViewMenu.Enable(!is_paused);
 	
 	mHelpMenu.Enable(true);

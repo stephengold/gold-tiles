@@ -77,7 +77,7 @@ public:
 
 	static const long COMBINATION_CNT_MIN = 4L;
 #ifdef _GUI
-	static const long COMBINATION_CNT_MAX = 59049L;
+	static const long COMBINATION_CNT_MAX = 59049L; // 9^5
 #endif // defined(_GUI)
 
 	static const TileIdType ID_NONE = 0;

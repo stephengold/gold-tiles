@@ -163,6 +163,8 @@ void GameWindow::Initialize(CREATESTRUCT const &rCreateStruct) {
 	ASSERT(mpMenuBar != NULL);
 
 	mGameView.SetWindow(this, mpMenuBar);
+   	SetCursorSelect();
+
     Partial::SetYield(&yield, (void *)this);
 
     SetTileWidth(IDM_LARGE_TILES);

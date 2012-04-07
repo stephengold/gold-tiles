@@ -22,6 +22,7 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "gui/playmenu.hpp"
+#include "partial.hpp"
 #ifdef _WINDOWS
 # include "gui/resource.hpp"
 # include "gui/win_types.hpp"
@@ -98,29 +99,28 @@ void PlayMenu::Pause(bool paused) {
 	mPause.Check(paused);
 }
 
-void PlayMenu::EnableItems(
-	GameStyleType gameStyle,
-	bool isOver,
-	bool isPaused,
-	bool isPass,
-	bool canSwapAll,
-	bool canUndo,
-	bool canRedo,
-	bool isLocal)
-{
-	bool const is_challenge = (gameStyle == GAME_STYLE_CHALLENGE);
-	bool const is_friendly = (gameStyle == GAME_STYLE_FRIENDLY);
+void PlayMenu::EnableItems(Partial const &rPartial, bool isThinking) {
+	bool const is_local = rPartial.IsLocalUsersTurn() && !isThinking;
+	bool const is_over = rPartial.IsGameOver();
+    bool const is_pass = rPartial.IsPass();
+	bool const is_paused = rPartial.IsGamePaused();
+	bool const can_swap_all = rPartial.CanSwapAll();
+	bool const can_redo = rPartial.CanRedo();
+	bool const can_undo = rPartial.CanUndo();
+    GameStyleType const game_style = rPartial.GameStyle();
 
-    mPlay.Enable(isLocal && !isOver && !isPaused && !isPass);
-    mTakeBack.Enable(isLocal && !isOver && !isPaused && !isPass);
-    mSuggest.Enable(isLocal && !isOver && !isPaused && !is_challenge);
-    mPause.Enable(!isOver);
-	mSwapAll.Enable(isLocal && !isOver && !isPaused && isPass && canSwapAll);
-    mPass.Enable(isLocal && !isOver && !isPaused && isPass);
-    mResign.Enable(isLocal && !isOver && !isPaused);
-    mRestart.Enable(!isPaused && !is_challenge && !is_friendly);
-    mUndo.Enable(canUndo && !isPaused && !is_challenge && !is_friendly);
-    mRedo.Enable(canRedo && !isPaused && !is_challenge && !is_friendly);
-    mAutopause.Enable(isLocal && !isOver && !isPaused && !is_challenge);
+	bool const is_challenge = (game_style == GAME_STYLE_CHALLENGE);
+	bool const is_friendly = (game_style == GAME_STYLE_FRIENDLY);
+
+    mPlay.Enable(is_local && !is_over && !is_paused && !is_pass);
+    mTakeBack.Enable(is_local && !is_over && !is_paused && !is_pass);
+    mSuggest.Enable(is_local && !is_over && !is_paused && !is_challenge);
+    mPause.Enable(!is_over);
+	mSwapAll.Enable(is_local && !is_over && !is_paused && is_pass && can_swap_all);
+    mPass.Enable(is_local && !is_over && !is_paused && is_pass);
+    mResign.Enable(is_local && !is_over && !is_paused);
+    mRestart.Enable(!is_paused && !is_challenge && !is_friendly);
+    mUndo.Enable(can_undo && !is_paused && !is_challenge && !is_friendly);
+    mRedo.Enable(can_redo && !is_paused && !is_challenge && !is_friendly);
+    mAutopause.Enable(is_local && !is_over && !is_paused && !is_challenge);
 }
-

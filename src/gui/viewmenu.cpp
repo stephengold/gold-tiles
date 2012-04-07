@@ -23,6 +23,7 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "gui/resource.hpp"
 #include "gui/viewmenu.hpp"
+#include "partial.hpp"
 #ifdef _WINDOWS
 # include "gui/win_types.hpp"
 #endif // defined(_WINDOWS)
@@ -68,9 +69,9 @@ ViewMenu::ViewMenu(void):
 
 ViewMenu::ViewMenu(Menu const &rRootMenu, unsigned position):
 	SubMenu(rRootMenu, position),
-    mSmallTiles(rRootMenu, IDM_SMALL_TILES),
-    mMediumTiles(rRootMenu, IDM_MEDIUM_TILES),
-    mLargeTiles(rRootMenu, IDM_LARGE_TILES),
+    mSmallTiles(rRootMenu, IDM_SMALL_TILES, IDM_LARGE_TILES, IDM_SMALL_TILES),
+    mMediumTiles(rRootMenu, IDM_SMALL_TILES, IDM_LARGE_TILES, IDM_MEDIUM_TILES),
+    mLargeTiles(rRootMenu, IDM_SMALL_TILES, IDM_LARGE_TILES, IDM_LARGE_TILES),
     mRecenter(rRootMenu, IDM_RECENTER),
     mAttributes(rRootMenu, IDM_ATTRIBUTES),
     mHints(rRootMenu, IDM_HINTS),
@@ -88,17 +89,22 @@ ViewMenu::ViewMenu(Menu const &rRootMenu, unsigned position):
 
 // misc methods
 
-void ViewMenu::EnableItems(GameStyleType gameStyle, bool isOver, bool isLocalPlayer) {
+void ViewMenu::EnableItems(Partial const &rPartial, bool isThinking) {
+	bool const is_over = rPartial.IsGameOver();
+	bool const is_local = rPartial.IsLocalUsersTurn() && !isThinking;
+    GameStyleType const game_style = rPartial.GameStyle();
+
+
     mSmallTiles.Enable(true);
     mMediumTiles.Enable(true);
     mLargeTiles.Enable(true);
     mRecenter.Enable(true);
     mAttributes.Enable(true);
-    mHints.Enable(!isOver && isLocalPlayer);
+    mHints.Enable(!is_over && is_local);
     mShowClocks.Enable(true);
     mShowGrid.Enable(true);
     mShowScores.Enable(true);
-    mShowTiles.Enable(isOver || gameStyle == GAME_STYLE_DEBUG);
+    mShowTiles.Enable(is_over || game_style == GAME_STYLE_DEBUG);
     mAnimation.Enable(false); // TODO
 }
 
@@ -116,29 +122,19 @@ void ViewMenu::ShowTiles(bool shown) {
 }
 
 #ifdef _WINDOWS
-
 void ViewMenu::TileSize(IdType itemId) {
-	UncheckAllSizes();
-	
 	switch (itemId) {
  	    case IDM_SMALL_TILES:
-	        mSmallTiles.Check(true);
+	        mSmallTiles.CheckRadio(true);
 			break;
 		case IDM_MEDIUM_TILES:
-            mMediumTiles.Check(true);
+            mMediumTiles.CheckRadio(true);
 			break;
 		case IDM_LARGE_TILES:
-        	mLargeTiles.Check(true);
+        	mLargeTiles.CheckRadio(true);
 			break;
 		default:
 			FAIL();
 	}
 }
 #endif // defined(_WINDOWS)
-
-void ViewMenu::UncheckAllSizes(void) {
-	mSmallTiles.Check(false);
-    mMediumTiles.Check(false);
-    mLargeTiles.Check(false);
-}
-

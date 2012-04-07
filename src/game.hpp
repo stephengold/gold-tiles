@@ -40,7 +40,7 @@ public:
     operator Board(void) const;
 	operator GameOpt(void) const;
 	operator Hand(void) const;   // the playable hand
-	operator Hands(void) const;
+	operator Hands(void) const;  // all hands
 
 	// misc public methods
     void          ActivateNextHand(void);
@@ -109,5 +109,4 @@ private:
 	Strings  WinningHands(void) const;
 	unsigned WinningScore(void) const;
 };
-
 #endif // !defined(GAME_HPP_INCLUDED)

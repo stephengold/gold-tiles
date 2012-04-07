@@ -49,8 +49,7 @@ public:
 
     // misc public methods
     void Autopause(bool);
-    void EnableItems(GameStyleType, bool over, bool paused, bool pass, 
-		bool swapAll, bool undo, bool redo, bool local);
+    void EnableItems(Partial const &, bool thinking);
     void Pause(bool);
 
 private:

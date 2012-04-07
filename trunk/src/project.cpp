@@ -70,6 +70,27 @@ MsecIntervalType milliseconds(void) {
 String ordinal(unsigned n) {
     String result(n);
 
+	// tweak a few common cases
+	switch (n) {
+	    case 1: 
+		    result = "fir";
+			break;
+	    case 2:
+		    result = "seco";
+			break;
+	    case 3:
+		    result = "thi";
+			break;
+	    case 4:
+		    result = "four";
+			break;
+	    case 5:
+		    result = "fif";
+		    break;
+		default:
+			break; // digits will suffice
+	}
+
 	unsigned const ones_place = n % 10;
 	unsigned const tens_place = (n / 10) % 10;
 

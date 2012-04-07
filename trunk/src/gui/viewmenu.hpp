@@ -50,7 +50,7 @@ public:
 
     // misc public methods
     void Animation(bool);
-    void EnableItems(GameStyleType, bool over, bool local);
+    void EnableItems(Partial const &, bool thinking);
     void ShowClocks(bool);
     void ShowGrid(bool);
     void ShowHints(bool);
@@ -70,9 +70,5 @@ private:
 
     // private operators
     ViewMenu &operator=(ViewMenu const &);  // not assignable
-
-    // misc private methods
-    void UncheckAllSizes(void);
 };
-
 #endif // !defined(VIEWMENU_HPP_INCLUDED)

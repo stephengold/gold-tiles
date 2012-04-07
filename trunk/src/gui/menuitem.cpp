@@ -43,7 +43,18 @@ MenuItem::MenuItem(QObject *pParent, QString const &label) {
 MenuItem::MenuItem(Menu const &rMenu, IdType itemId):
     mrMenu(rMenu)
 {
+    mFirstItemId = itemId;
     mItemId = itemId;
+    mLastItemId = itemId;
+}
+
+// a menu item that's part of a group
+MenuItem::MenuItem(Menu const &rMenu, IdType firstId, IdType lastId, IdType itemId):
+    mrMenu(rMenu)
+{
+    mFirstItemId = firstId;
+    mItemId = itemId;
+    mLastItemId = lastId;
 }
 
 #endif // defined(_WINDOWS)
@@ -72,6 +83,20 @@ void MenuItem::Check(bool checkedFlag) {
         flags |= MF_UNCHECKED;
     }
     Win::CheckMenuItem(HMENU(mrMenu), mItemId, flags);
+#endif // defined(_WINDOWS)
+}
+
+void MenuItem::CheckRadio(bool checkedFlag) {
+#ifdef _QT
+    mpAction->setChecked(checkedFlag);
+#elif defined(_WINDOWS)
+    UINT flags = MF_BYCOMMAND;
+    if (checkedFlag) {
+        flags |= MF_CHECKED;
+    } else {
+        flags |= MF_UNCHECKED;
+    }
+    Win::CheckMenuRadioItem(HMENU(mrMenu), mFirstItemId, mLastItemId, mItemId, flags);
 #endif // defined(_WINDOWS)
 }
 

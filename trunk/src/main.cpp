@@ -27,7 +27,6 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 #include <iostream>
 #include "game.hpp"
 #include "handopts.hpp"
-#include "strings.hpp"
 #endif // defined(_CONSOLE)
 
 #ifdef _QT
@@ -93,7 +92,7 @@ int main(int argCnt, char *argValues[]) {
 	game.PlayGame();
 	std::cout << "The game is over." << std::endl;
 
-	// A pause is needed when running in a console window because the windown will
+	// A pause is needed when running in a console window because the window will
 	// be destroyed soon after this function returns. 
     ::pause();
 #endif // defined(_CONSOLE)

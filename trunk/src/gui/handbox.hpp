@@ -37,7 +37,7 @@ The HandBox class is an extension of the Dialog class.
 class HandBox: public Dialog {
 public:
     // public lifecycle
-	HandBox(unsigned handIndex, bool more, HandOpt const &); 
+	HandBox(unsigned handIndex, unsigned handCnt, HandOpt const &); 
 	// no default constructor
 	// ~HandBox(void);  compiler-generated destructor is OK
 
@@ -45,7 +45,7 @@ public:
 	operator HandOpt(void) const;
 
 	// misc public methods
-	int    HandleMessage(MessageType, Win::WPARAM);
+	int HandleMessage(MessageType, Win::WPARAM);
 
 private:
 	// private constants
@@ -53,6 +53,7 @@ private:
 
 	// private data
 	bool     mAreMoreHands;
+	unsigned mHandCnt;
 	unsigned mHandIndex;
 	HandOpt  mOptions;
 

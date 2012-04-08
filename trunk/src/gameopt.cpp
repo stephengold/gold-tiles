@@ -28,33 +28,10 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 // lifecycle
 
 GameOpt::GameOpt(void) {
-    mAttrCnt = Tile::ATTRIBUTE_CNT_DEFAULT;
-    mBoardHeight = Cell::HEIGHT_MAX;
-	mBoardWidth = Cell::WIDTH_MAX;
-	mBonusPercent = BONUS_PERCENT_DEFAULT;
-	mClonesPerCombo = CLONES_PER_COMBO_DEFAULT;
-	mDoesBoardWrap = false;
-	mGrid = GRID_DEFAULT;
-	mHandsDealt = HAND_CNT_DEFAULT;
-	mHandSize = HAND_SIZE_DEFAULT;
 	mMinutesPerHand = MINUTES_PER_HAND_DEFAULT;
 	mStyle = GAME_STYLE_DEFAULT;
-
-	ASSERT(mAttrCnt >= Tile::ATTRIBUTE_CNT_MIN);
-#ifdef _GUI
-	ASSERT(mAttrCnt <= Tile::ATTRIBUTE_CNT_MAX);
-#endif // defined(_GUI)
-	ASSERT(::is_even(mBoardHeight));
-	ASSERT(mBoardHeight >= Cell::HEIGHT_MIN);
-	ASSERT(mBoardHeight <= Cell::HEIGHT_MAX);
-	ASSERT(::is_even(mBoardWidth));
-	ASSERT(mBoardWidth >= Cell::WIDTH_MIN);
-	ASSERT(mBoardWidth <= Cell::WIDTH_MAX);
-	ASSERT(mBonusPercent < 100);
-	ASSERT(mHandsDealt >= HANDS_DEALT_MIN);
-	ASSERT(mHandSize >= HAND_SIZE_MIN);
-	ASSERT(mMinutesPerHand >= MINUTES_PER_HAND_MIN);
-	ASSERT(mStyle != GAME_STYLE_NONE);
+	Standardize();
+	Validate();
 }
 
 // The compiler-generated copy constructor is OK.
@@ -73,6 +50,10 @@ GameOpt::operator GameStyleType(void) const {
 
 GameOpt::operator GridType(void) const {
 	return mGrid;
+}
+
+GameOpt::operator RulesType(void) const {
+	return mRules;
 }
 
 
@@ -311,6 +292,28 @@ void GameOpt::SetPractice(void) {
 	mStyle = GAME_STYLE_PRACTICE;
 }
 
+void GameOpt::SetRules(RulesType rules) {
+	mRules = rules;
+}
+
+void GameOpt::Standardize(void) {
+    mAttrCnt = Tile::ATTRIBUTE_CNT_DEFAULT;
+	mMaxAttrValues.clear();
+	for (unsigned i_attr = 0; i_attr < mAttrCnt; i_attr++) {
+	    mMaxAttrValues.push_back(Tile::VALUE_CNT_DEFAULT - 1);
+	}
+
+    mBoardHeight = Cell::HEIGHT_MAX;
+	mBoardWidth = Cell::WIDTH_MAX;
+	mBonusPercent = BONUS_PERCENT_DEFAULT;
+	mClonesPerCombo = CLONES_PER_COMBO_DEFAULT;
+	mDoesBoardWrap = false;
+	mGrid = GRID_DEFAULT;
+	mHandsDealt = HAND_CNT_DEFAULT;
+	mHandSize = HAND_SIZE_DEFAULT;
+	mRules = RULES_STANDARD;
+}
+
 void GameOpt::StyleChange(void) {
 	switch (mStyle) {
 		case GAME_STYLE_PRACTICE:
@@ -338,6 +341,25 @@ long GameOpt::TotalTileCnt(void) const {
 
 	return result;
 }
+
+void GameOpt::Validate(void) const {
+	ASSERT(mAttrCnt >= Tile::ATTRIBUTE_CNT_MIN);
+#ifdef _GUI
+	ASSERT(mAttrCnt <= Tile::ATTRIBUTE_CNT_MAX);
+#endif // defined(_GUI)
+	ASSERT(::is_even(mBoardHeight));
+	ASSERT(mBoardHeight >= Cell::HEIGHT_MIN);
+	ASSERT(mBoardHeight <= Cell::HEIGHT_MAX);
+	ASSERT(::is_even(mBoardWidth));
+	ASSERT(mBoardWidth >= Cell::WIDTH_MIN);
+	ASSERT(mBoardWidth <= Cell::WIDTH_MAX);
+	ASSERT(mBonusPercent < 100);
+	ASSERT(mHandsDealt >= HANDS_DEALT_MIN);
+	ASSERT(mHandSize >= HAND_SIZE_MIN);
+	ASSERT(mMinutesPerHand >= MINUTES_PER_HAND_MIN);
+	ASSERT(mStyle != GAME_STYLE_NONE);
+}
+
 
 // inquiry methods
 

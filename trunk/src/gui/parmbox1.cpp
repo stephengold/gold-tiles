@@ -76,6 +76,20 @@ INT_PTR ParmBox1::HandleMessage(MessageType message, WPARAM wParam, LPARAM lPara
             SetTextValue(IDC_EDITMINUTES, slider_value);
 	        EnableControl(IDC_EDITMINUTES, mrGameOpt.HasTimeLimit());
 
+			RulesType const rules = RulesType(mrGameOpt);
+			unsigned const standard_index = AddListboxItem(IDC_LIST1, 
+				 "Standard Rules - 2 hands, 108 square tiles, limitless grid");
+			ASSERT(standard_index == RULES_STANDARD);
+			unsigned const custom_index = AddListboxItem(IDC_LIST1, 
+				 "Custom Rules - pick the rules you want");
+			ASSERT(custom_index == RULES_CUSTOM);
+			if (rules == RULES_REPLAY) {
+			    unsigned const replay_index = AddListboxItem(IDC_LIST1, 
+				    "Replay - use the same rules as last time");
+			    ASSERT(replay_index == RULES_REPLAY);
+			}
+			SetListboxSelection(IDC_LIST1, rules);
+
 			result = TRUE;
 			break;
         }
@@ -96,6 +110,13 @@ INT_PTR ParmBox1::HandleMessage(MessageType message, WPARAM wParam, LPARAM lPara
 					}
                     break;
                 }
+                case IDC_LIST1:
+					if (notification_code == LBN_SELCHANGE) {
+						ValueType const value = GetListboxSelection(control_id);
+						RulesType rules = RulesType(value);
+						mrGameOpt.SetRules(rules); 
+					}
+					break;
 				case IDC_RADIODEBUG:
 				case IDC_RADIOPRACTICE:
 				case IDC_RADIOFRIENDLY:

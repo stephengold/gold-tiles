@@ -182,13 +182,13 @@ FONT 10, "Microsoft Sans Serif"
 
 
 LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
-PARMBOX1 DIALOG 0, 0, 178, 94
+PARMBOX1 DIALOG 0, 0, 188, 128
 STYLE DS_3DLOOK | DS_CENTER | DS_MODALFRAME | DS_SHELLFONT | WS_CAPTION | WS_VISIBLE | WS_POPUP | WS_SYSMENU
 CAPTION "Create New Game - Gold Tile"
 FONT 10, "Microsoft Sans Serif"
 {
-    DEFPUSHBUTTON   "Next >", IDOK, 83, 79, 92, 12
-    PUSHBUTTON      "Cancel", IDCANCEL, 4, 79, 32, 12
+    DEFPUSHBUTTON   "Next >", IDOK, 91, 112, 93, 12
+    PUSHBUTTON      "Cancel", IDCANCEL, 4, 112, 32, 12
     AUTORADIOBUTTON "Debug - allows peeking, undo, and hints", IDC_RADIODEBUG, 7, 15, 134, 8
     AUTORADIOBUTTON "Practice - allows undo and hints, but no peeking", IDC_RADIOPRACTICE, 7, 26, 158, 8
     AUTORADIOBUTTON "Friendly - hints, but no undo or time limit", IDC_RADIOFRIENDLY, 7, 37, 136, 8
@@ -196,7 +196,8 @@ FONT 10, "Microsoft Sans Serif"
     CONTROL         "", IDC_SLIDERMINUTES, TRACKBAR_CLASS, WS_TABSTOP | TBS_BOTH | TBS_NOTICKS, 17, 59, 81, 12
     EDITTEXT        IDC_EDITMINUTES, 98, 60, 14, 12, ES_AUTOHSCROLL
     LTEXT           "minutes per hand", IDC_STATIC, 116, 62, 53, 8, SS_LEFT
-    LTEXT           "Which style of play would you prefer?", IDC_STATIC, 6, 4, 112, 8, SS_LEFT
+    LISTBOX         IDC_LIST1, 4, 79, 180, 29, WS_TABSTOP | WS_VSCROLL | LBS_NOINTEGRALHEIGHT | LBS_NOTIFY
+    GROUPBOX        "Which style of play would you prefer?", IDC_STATIC, 4, 4, 167, 71
 }
 
 

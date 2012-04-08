@@ -199,9 +199,7 @@ void GameWindow::ChangeHand(String const &rOldPlayerName) {
 	}
 	double const skip_probability = playable_hand.SkipProbability();
     mGameView.Reset(skip_probability);
-    if (mGameView.IsTargetUsed()) {
-		mGameView.ResetTargetCell();
-    }
+	mGameView.ResetTargetCell();
 
 	if (!IsGameOver()) {
 	    if (!playable_hand.IsLocalUser()) {
@@ -626,26 +624,31 @@ char const *GameWindow::Name(void) const {
 void GameWindow::OfferNewGame(void) {
     // set up default options
 	GameOpt game_options;
+	ParmBox1 parmbox1(game_options);
+	ParmBox2 parmbox2(game_options);
+	ParmBox3 parmbox3(game_options);
+	TileBox tilebox(game_options);
+
 	HandOpts hand_options;
 
 	if (HasGame()) {
 		// copy options from game
-		game_options = GameOpt(*mpGame);
+		game_options = *mpGame;
+		game_options.SetRules(RULES_REPLAY);
 
-	    Hands hands = Hands(*mpGame);
+	    Hands hands(*mpGame);
 		Hands::ConstIterator i_hand;
 		for (i_hand = hands.begin(); i_hand != hands.end(); i_hand++) {
-			HandOpt const opt = HandOpt(*i_hand);
+			HandOpt const opt(*i_hand);
 			hand_options.Append(opt);
 		}
 		ASSERT(hand_options.Count() == hands.Count());
 	}
 
 STEP1:
-	GameStyleType const old_game_style = GameStyleType(game_options);
+	GameStyleType const old_game_style = game_options;
 
-	// first dialog:  prompt for game style and time limit
-	ParmBox1 parmbox1(game_options);
+	// first dialog:  prompt for game style, time limit, and standard/custom rules
 	int result = parmbox1.Run(this);
 	if (result == Dialog::RESULT_CANCEL) {
 		return;
@@ -658,28 +661,34 @@ STEP1:
 		// invalidate all hand options
 		hand_options.MakeEmpty();
 	}
+	RulesType const rules = RulesType(game_options);
+	if (rules == RULES_STANDARD) {
+		game_options.Standardize();
+	}
 
 STEP2:
-	// second dialog:  prompt for grid type and topology
-	ParmBox2 parmbox2(game_options);
-	result = parmbox2.Run(this);
-	if (result == Dialog::RESULT_CANCEL) {
-		return;
-	} else if (result == Dialog::RESULT_BACK) {
-		goto STEP1;
+	if (rules == RULES_CUSTOM) {
+	    // second dialog:  prompt for grid type and topology
+	    result = parmbox2.Run(this);
 	}
-	ASSERT(result == Dialog::RESULT_OK);
+    if (result == Dialog::RESULT_CANCEL) {
+	    return;
+    } else if (result == Dialog::RESULT_BACK) {
+	    goto STEP1;
+    }
+    ASSERT(result == Dialog::RESULT_OK);
 
 STEP3:
-	// third dialog:  prompt for attribute count, clones, hand size, and number of hands
-	ParmBox3 parmbox3(game_options);
-	result = parmbox3.Run(this);
-	if (result == Dialog::RESULT_CANCEL) {
-		return;
-	} else if (result == Dialog::RESULT_BACK) {
-		goto STEP2;
+	if (rules == RULES_CUSTOM) {
+	    // third dialog:  prompt for attribute count, clones, hand size, and number of hands
+	    result = parmbox3.Run(this);
 	}
-	ASSERT(result == Dialog::RESULT_OK);
+    if (result == Dialog::RESULT_CANCEL) {
+	    return;
+    } else if (result == Dialog::RESULT_BACK) {
+	    goto STEP2;
+    }
+    ASSERT(result == Dialog::RESULT_OK);
 
 	unsigned const hand_cnt = game_options.HandsDealt();
 	if (hand_cnt > hand_options.Count()) { // adding new hands
@@ -695,17 +704,18 @@ STEP3:
 	ASSERT(hand_options.Count() >= hand_cnt);
 
 STEP4:
-	// fourth dialog:  number of values for each attribute
-	TileBox tilebox(game_options);
-	result = tilebox.Run(this);
+	if (rules == RULES_CUSTOM) {
+	    // fourth dialog:  number of values for each attribute
+	    result = tilebox.Run(this);
+	}
 	if (result == Dialog::RESULT_CANCEL) {
-		return;
+	    return;
 	} else if (result == Dialog::RESULT_BACK) {
-		goto STEP3;
+	    goto STEP3;
 	}
 	ASSERT(result == Dialog::RESULT_OK);
 
-	// check sanity of the parameters so far
+	// check the sanity of the parameters so far
 	unsigned const hand_size = game_options.HandSize();
 	long const tiles_needed = hand_cnt*hand_size;
 	long const total_tile_cnt = game_options.TotalTileCnt();
@@ -721,8 +731,7 @@ STEP4:
 
 	// fifth dialog and onward:  parameters of each hand
 	for (unsigned i_hand = 0; i_hand < hand_cnt; ) {
-		bool const more_flag = (i_hand+1 < hand_cnt);
-		HandBox handbox(i_hand+1, more_flag, hand_options[i_hand]);
+		HandBox handbox(i_hand+1, hand_cnt, hand_options[i_hand]);
 		result = handbox.Run(this);
 		if (result == Dialog::RESULT_CANCEL) {
 		    return;
@@ -739,10 +748,10 @@ STEP4:
 		}
 	}
 
-	// can't cancel now - go ahead and set up the new game
+	// can't cancel now - set up the new game
 	hand_options.Truncate(hand_cnt);
 
-	SetCursorBusy();
+	SetCursorBusy(); // constructing tiles may cause a noticeable delay
 	Game *const p_new_game = new Game(game_options, hand_options);
 	ASSERT(p_new_game != NULL);
 	SetCursorSelect();
@@ -908,15 +917,9 @@ void GameWindow::ReleaseActiveTile(Point const &rMouse) {
 			reason = "STARTSIMPLE";
 	    }
 	    RuleBox(reason);
-
-		// perhaps the problem has to do with the target cell
-		mGameView.ResetTargetCell();
 	}
 
-    if (mGameView.IsTargetUsed()) {
-		mGameView.ResetTargetCell();
-    }
-
+	mGameView.ResetTargetCell();
 	StopDragging();
 }
 
@@ -1079,10 +1082,7 @@ void GameWindow::Think(void) {
 	    mGameView.Suggest();
 
 		if (mThinkMode == THINK_SUGGEST) {
-		    if (mGameView.IsTargetUsed()) {
-				mGameView.ResetTargetCell();
-			}
-
+			mGameView.ResetTargetCell();
 	        mThinkMode = THINK_IDLE;
 
 		} else {

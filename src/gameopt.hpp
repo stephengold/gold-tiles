@@ -36,11 +36,17 @@ The GameOpt class ...
 #include "string.hpp"  // HASA String
 #include "tile.hpp"    // HASA AttrCntType
 
+enum RulesType {
+	RULES_STANDARD,
+	RULES_CUSTOM,
+	RULES_REPLAY
+};
+
 class GameOpt {
 public:
 	// public constants
 	static const unsigned BONUS_PERCENT_DEFAULT = 10;
-    static const unsigned CLONES_PER_COMBO_DEFAULT = 0;
+    static const unsigned CLONES_PER_COMBO_DEFAULT = 2;
     static const unsigned HAND_CNT_DEFAULT = 2;
     static const unsigned HAND_SIZE_MIN = 1;
     static const unsigned HAND_SIZE_DEFAULT = 6;
@@ -58,6 +64,7 @@ public:
     // GameOpt &operator=(GameOpt const &);  compiler-generated assignment operator is OK
 	operator GameStyleType(void) const;
 	operator GridType(void) const;
+	operator RulesType(void) const;
 
 	// misc public methods
 	AttrCntType AttrCnt(void) const;
@@ -93,6 +100,8 @@ public:
 	void        SetMinutesPerHand(unsigned);
 	void        SetNumAttrValues(AttrIndexType, AttrType);
 	void        SetPractice(void);
+	void        SetRules(RulesType);
+	void        Standardize(void);
 	void        StyleChange(void);
 	unsigned    TilesPerCombo(void) const;
 	long        TotalTileCnt(void) const;
@@ -121,6 +130,10 @@ private:
 	std::vector<AttrType>
 		          mMaxAttrValues;   // maximum value of each attribute
 	unsigned      mMinutesPerHand;  // used only with GAME_STYLE_CHALLENGE
+	RulesType     mRules;
 	GameStyleType mStyle;
+
+	// private misc methods
+	void Validate(void) const;
 };
 #endif // !defined(GAMEOPT_HPP_INCLUDED)

@@ -46,11 +46,12 @@ static INT_PTR CALLBACK message_handler(
 
 // lifecycle
 
-HandBox::HandBox(unsigned handIndex, bool areMoreHands, HandOpt const &rOptions):
+HandBox::HandBox(unsigned handIndex, unsigned handCnt, HandOpt const &rOptions):
     Dialog("HANDBOX", &message_handler),
 	mOptions(rOptions)
 {
-	mAreMoreHands = areMoreHands;
+	mAreMoreHands = (handIndex < handCnt);
+	mHandCnt = handCnt;
 	mHandIndex = handIndex;
 }
 
@@ -98,11 +99,13 @@ INT_PTR HandBox::HandleMessage(MessageType message, WPARAM wParam) {
 
 			String message = "Who will play the ";
 			if (mAreMoreHands) {
-				message += ::ordinal(mHandIndex) + " hand?";
+				message += ::ordinal(mHandIndex) + " of the ";
+				message += String(mHandCnt) + " hands?";
 			} else if (mHandIndex == 1) {
 				message += "hand?";
 			} else {
-				message += "last hand?";
+				message += "last of the ";
+				message += String(mHandCnt) + " hands?";
 			}
 			SetTextString(IDC_WHO, message);
 
@@ -133,7 +136,7 @@ INT_PTR HandBox::HandleMessage(MessageType message, WPARAM wParam) {
             switch (id) {
                 case IDC_EDITNAME:
 					if (notification_code == EN_CHANGE) {
-                        String name = GetTextString(id);
+                        String const name = GetTextString(id);
 					    mOptions.SetPlayerName(name);
 					    bool const good_name = mOptions.HasValidName();
 	                    EnableControl(IDOK, good_name);
@@ -191,5 +194,4 @@ void HandBox::UpdateSlider(void) {
 	double const new_prob = double(LEVEL_MAX - new_level)/10.0;
 	mOptions.SetSkipProbability(new_prob);
 }
-
 #endif // defined(_WINDOWS)

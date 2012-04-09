@@ -22,15 +22,18 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "cells.hpp"
-#include "project.hpp" // ASSERT
 
-// constructors, assignment, and destructor
+
+// lifecycle
 
 // The compiler.generated default constructor is fine.
 // The compiler-generated copy constructor is fine.
-// The compiler-generated assignment method is fine.
 // The compiler-generated destructor is fine.
 
+
+// operators
+
+#if 0
 Cells::operator String(void) const {
     String result("{");
 
@@ -45,12 +48,18 @@ Cells::operator String(void) const {
 
     return result;
 }
+#endif
+
+// The compiler-generated assignment method is fine.
+
 
 // misc methods
 
 void Cells::Add(Cell const &cell) {
 	ASSERT(!Contains(cell));
+
 	insert(cell);
+
 	ASSERT(Contains(cell));
 }
 
@@ -65,6 +74,7 @@ void Cells::MakeEmpty(void) {
 	
 	ASSERT(IsEmpty());
 }
+
 
 // inquiry methods
 
@@ -95,8 +105,7 @@ bool Cells::Contains(Cell const &rCell) const {
 bool Cells::IsAnyStart(void) const {
     bool result = false;
     
-    ConstIterator i_cell;
-    for (i_cell = begin(); i_cell != end(); i_cell++) {
+    for (ConstIterator i_cell = begin(); i_cell != end(); i_cell++) {
         if (i_cell->IsStart()) {
             result = true;
             break;

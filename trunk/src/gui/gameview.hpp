@@ -32,13 +32,22 @@ The GameView class extends the Partial class with drawing methods.
 Drawing is performed on a temporary Canvas owned by the caller.
 */
 
+#include "partial.hpp"          // ISA Partial
 #include "gui/color.hpp"
 #include "gui/displaymodes.hpp" // HASA DisplayModes
 #include "gui/rect.hpp"         // HASA Rect
-#include "partial.hpp"          // ISA Partial
 
 class GameView: public Partial {
 public:
+	// public constants
+	static const PixelCntType PAD_PIXELS_DEFAULT = 6;
+	static const unsigned     TILE_SIZE_MIN = 1;
+	static const unsigned     TILE_SIZE_DEFAULT = 6;
+	static const unsigned     TILE_SIZE_MAX = 7;
+	static const PixelCntType WIDTH_TINY_SQUARE = 10;
+	static const PixelCntType WIDTH_TINY_HEX = 12;
+	static const PixelCntType WIDTH_TINY_TRIANGLE = 16;
+
 	// public lifecycle
 	GameView::GameView(Game const &rGame);
 	// no default constructor
@@ -59,7 +68,7 @@ public:
 	void       SavePlayerOptions(Player &) const;
 	void       SetDisplayModes(DisplayModes const &);
 	void       SetGame(Game *);
-	void       SetTileWidth(IdType command);
+	void       SetTileSize(unsigned);
 	void       StartCellOffset(long dx, long dy);
 	Cell       TargetCell(void) const;
 	Point      TileCenter(TileIdType) const;
@@ -81,12 +90,12 @@ private:
     typedef std::pair<TileIdType,Rect> TilePair;
     typedef TileMap::iterator          TileIter;
     typedef TileMap::const_iterator    TileConstIter;
-    typedef std::pair<TileIter,bool>   TileInsResult;
+    typedef std::pair<TileIter,bool>   TileInsertResult;
 
 	// private data
 	DisplayModes mDisplayModes;
 	Rect         mHandRect;
-	MenuBar *   mpMenuBar;
+	MenuBar*    mpMenuBar;
 	PixelCntType mPadPixels;
 	Point        mStartCell;
 	Rect         mSwapRect;
@@ -94,7 +103,7 @@ private:
 	bool         mTargetCellFlag;
 	TileMap      mTileMap;
 	PixelCntType mTileWidth;
-	GameWindow * mpWindow;
+	GameWindow* mpWindow;
 
 	// private lifecycle
 	GameView(GameView const &);  // not copyable
@@ -128,6 +137,5 @@ private:
 
 	// private inquiry methods
 	bool IsGridVisible(void) const;
-
 };
 #endif // !defined(GAMEVIEW_HPP_INCLUDED)

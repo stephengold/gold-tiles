@@ -15,6 +15,10 @@ online at http://www.gnu.org/licenses/gpl.txt
 Documentation, downloads, and source code are 
 online at http://code.google.com/p/gold-tiles
 
+If MSVCP100.dll is missing from your computer, you can 
+download and install the DLL from Microsoft's website
+at http://www.microsoft.com/download/en/details.aspx?displaylang=en&id=5555
+
 
 ACKNOWLEGMENTS
 
@@ -25,7 +29,8 @@ helped me create this application:
  + my sweetie Gale for her encouragement and understanding
  + Noah Picard for his advice on the user interface design
  + Skyler Burwell for testing Release 0.6
- + Julian Gold for testing Release 0.61
+ + Julian Gold for testing various beta released and for his
+   advice on game features
  + the creators of the ResEdit free resource editor (www.resedit.net)
  + Microsoft Corporation for creating and distributing Microsoft
    Visual C++ 2010 Express

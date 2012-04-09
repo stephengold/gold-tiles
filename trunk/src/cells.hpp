@@ -53,5 +53,4 @@ public:
     bool IsAnyStart(void) const;
 	bool IsEmpty(void) const;
 };
-
-#endif
+#endif // !defined(CELLS_HPP_INCLUDED)

@@ -59,14 +59,14 @@ public:
     // ~MenuBar(void);
 
     // misc public methods
-    void   GameOver(void);
-    void   HandleMenuCommand(IdType);
-    void   LoadPlayerOptions(Player const &);
-    void   NewGame(GameStyleType old);
-    void   SavePlayerOptions(Player &) const;
-    void   SetTileSize(IdType);
-    IdType TileSize(void) const;
-    void   Update(bool thinking);
+    void     GameOver(void);
+    void     HandleMenuCommand(IdType);
+    void     LoadPlayerOptions(Player const &);
+    void     NewGame(GameStyleType old);
+    void     SavePlayerOptions(Player &) const;
+    void     SetTileSize(unsigned);
+    unsigned TileSize(void) const;
+    void     Update(bool thinking);
 
     // public inquiry methods
     bool AreClocksVisible(void) const;
@@ -89,15 +89,14 @@ private:
     bool             mShowClocksFlag;
     bool             mShowGridFlag;
     bool             mShowScoresFlag;
-    IdType           mTileSizeItem;
+    unsigned         mTileSize;
     ViewMenu         mViewMenu;
 
     // private lifecycle
 	MenuBar(MenuBar const &);  // not copyable
+	void Initialize(GameStyleType);
 
     // private operators
 	MenuBar &operator=(MenuBar const &);  // not assignable
-	void Initialize(GameStyleType);
 };
-
 #endif // !defined(MENUBAR_HPP_INCLUDED)

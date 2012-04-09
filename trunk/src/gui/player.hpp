@@ -37,7 +37,6 @@ user-interface settings.
 #include "gui/win.hpp"          // HASA IdType
 #include "string.hpp"           // HASA String
 
-
 class Player {
 public:
 	// public lifecycle
@@ -52,15 +51,15 @@ public:
 	// misc public methods
     static Player & 
 		  rLookup(String const &);
-	void   SetAutopause(bool);
-	void   SetDisplayModes(DisplayModes const &);
-    void   SetPeek(bool);
-	void   SetShowClocks(bool);
-    void   SetShowGrid(bool);
-	void   SetShowScores(bool);
-	void   SetStartCellPosition(Point const &);
-	void   SetTileSize(IdType);
-	IdType TileSize(void) const;
+	void     SetAutopause(bool);
+	void     SetDisplayModes(DisplayModes const &);
+    void     SetPeek(bool);
+	void     SetShowClocks(bool);
+    void     SetShowGrid(bool);
+	void     SetShowScores(bool);
+	void     SetStartCellPosition(Point const &);
+	void     SetTileSize(unsigned);
+	unsigned TileSize(void) const;
 
 	// public inquiry methods
 	bool Autopause(void) const;
@@ -87,7 +86,7 @@ private:
 	bool         mShowGrid;
 	bool         mShowScores;
 	Point        mStartCellPosition;  // logical coordinates of the Start cell
-	IdType       mTileSize;
+	unsigned     mTileSize;
 
 	// private lifecycle
 	Player(Player const &);  // not copyable
@@ -95,4 +94,4 @@ private:
 	// private operators
 	Player &operator=(Player const &);  // not assignable
 };
-#endif
+#endif // !defined(PLAYER_HPP_INCLUDED)

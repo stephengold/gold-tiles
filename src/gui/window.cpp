@@ -394,8 +394,8 @@ void Window::SetIcons(char const *resourceName) {
 	// large icon for ALT+TAB dialog box
 	desired_width = Win::GetSystemMetrics(SM_CXICON);
     desired_height = Win::GetSystemMetrics(SM_CYICON);
-	HICON const large_icon = (HICON)Win::LoadImage(mModule, resourceName, IMAGE_ICON,
-		desired_width, desired_height, options);
+	HICON const large_icon = HICON(Win::LoadImage(mModule, resourceName, IMAGE_ICON,
+		desired_width, desired_height, options));
 	ASSERT(large_icon != NULL);
 
     Win::SendMessage(mHandle, WM_SETICON, WPARAM(ICON_BIG), LPARAM(large_icon));

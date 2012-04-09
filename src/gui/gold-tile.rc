@@ -37,7 +37,7 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 // Menu resources
 //
 LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
-GAMEWINDOW MENU
+MENUBAR MENU
 {
     POPUP "&File"
     {
@@ -71,10 +71,16 @@ GAMEWINDOW MENU
     }
     POPUP "&View"
     {
-        MENUITEM "&Small Tiles", IDM_SMALL_TILES
-        MENUITEM "&Medium Tiles", IDM_MEDIUM_TILES
-        MENUITEM "&Large Tiles", IDM_LARGE_TILES
-        MENUITEM SEPARATOR
+        POPUP "&Tile Size"
+        {
+            MENUITEM "&1 Tiny", IDM_TS1
+            MENUITEM "&2 Small", IDM_TS2
+            MENUITEM "&3 Smallish", IDM_TS3
+            MENUITEM "&4 Medium", IDM_TS4
+            MENUITEM "&5 Largish", IDM_TS5
+            MENUITEM "&6 Large", IDM_TS6
+            MENUITEM "&7 Very Large", IDM_TS7
+        }
         MENUITEM "&Re-center\tC", IDM_RECENTER
         MENUITEM "Tile &Attributes...", IDM_ATTRIBUTES
         MENUITEM "&Hints...", IDM_HINTS

@@ -35,9 +35,7 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 
 ViewMenu::ViewMenu(void):
     SubMenu(tr("&View")),
-    mSmallTiles(Qt(), "&Small Tiles"),
-    mMediumTiles(Qt(), "&Medium Tiles"),
-    mLargeTiles(Qt(), "&Large Tiles"),
+    mTileSize(Qt(), "&Tile Size"),
     mRecenter(Qt(), "&Re-center\tC"),
     mAttributes(Qt(), "Tile &Attributes..."),
     mHints(Qt(), "&Hints..."),
@@ -50,10 +48,7 @@ ViewMenu::ViewMenu(void):
     QKeySequence const c(tr("C"));
     mRecenter.SetShortcut(c);
 
-    Add(mSmallTiles);
-    Add(mMediumTiles);
-    Add(mLargeTiles);
-    AddSeparator();
+    Add(mTileSize);
     Add(mRecenter);
     Add(mAttributes);
     Add(mHints);
@@ -69,9 +64,7 @@ ViewMenu::ViewMenu(void):
 
 ViewMenu::ViewMenu(Menu const &rRootMenu, unsigned position):
 	SubMenu(rRootMenu, position),
-    mSmallTiles(rRootMenu, IDM_SMALL_TILES, IDM_LARGE_TILES, IDM_SMALL_TILES),
-    mMediumTiles(rRootMenu, IDM_SMALL_TILES, IDM_LARGE_TILES, IDM_MEDIUM_TILES),
-    mLargeTiles(rRootMenu, IDM_SMALL_TILES, IDM_LARGE_TILES, IDM_LARGE_TILES),
+	mTileSize(rRootMenu, IDM_TILE_SIZE),
     mRecenter(rRootMenu, IDM_RECENTER),
     mAttributes(rRootMenu, IDM_ATTRIBUTES),
     mHints(rRootMenu, IDM_HINTS),
@@ -94,10 +87,7 @@ void ViewMenu::EnableItems(Partial const &rPartial, bool isThinking) {
 	bool const is_local = rPartial.IsLocalUsersTurn() && !isThinking;
     GameStyleType const game_style = rPartial.GameStyle();
 
-
-    mSmallTiles.Enable(true);
-    mMediumTiles.Enable(true);
-    mLargeTiles.Enable(true);
+    mTileSize.Enable(true);
     mRecenter.Enable(true);
     mAttributes.Enable(true);
     mHints.Enable(!is_over && is_local);
@@ -120,21 +110,6 @@ void ViewMenu::ShowScores(bool shown) {
 void ViewMenu::ShowTiles(bool shown) {
 	mShowTiles.Check(shown);
 }
-
-#ifdef _WINDOWS
-void ViewMenu::TileSize(IdType itemId) {
-	switch (itemId) {
- 	    case IDM_SMALL_TILES:
-	        mSmallTiles.CheckRadio(true);
-			break;
-		case IDM_MEDIUM_TILES:
-            mMediumTiles.CheckRadio(true);
-			break;
-		case IDM_LARGE_TILES:
-        	mLargeTiles.CheckRadio(true);
-			break;
-		default:
-			FAIL();
-	}
+void ViewMenu::TileSize(unsigned size) {
+	mTileSize.SetSize(size);
 }
-#endif // defined(_WINDOWS)

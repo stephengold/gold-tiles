@@ -58,5 +58,4 @@ enum ColorType {
     
     COLOR_PURPLE     = PALETTERGB(128, 0, 128)
 };
-
-#endif
+#endif // !defined(COLOR_HPP_INCLUDED)

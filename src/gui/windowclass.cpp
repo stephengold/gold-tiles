@@ -31,7 +31,8 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 WindowClass::WindowClass(
     HINSTANCE applicationInstance,
     WNDPROC messageHandler,
-    char const *name)
+    char const *className,
+	char const *menuName)
 {
 	cbClsExtra = 0;
 	cbWndExtra = 0;
@@ -44,9 +45,8 @@ WindowClass::WindowClass(
 	hInstance = applicationInstance;
 	lpfnWndProc = messageHandler;  // callback
 
-	// The menu bar and the window class will share the same name.
-	lpszClassName = name;
-	lpszMenuName = name;
+	lpszClassName = className;
+	lpszMenuName = menuName;
 
 	style = CS_HREDRAW | CS_VREDRAW | CS_OWNDC;
 }

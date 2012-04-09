@@ -25,7 +25,7 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "board.hpp"  // HASA Board
-#include "gameopt.hpp"
+#include "gameopt.hpp"// HASA GameOpt
 #include "hands.hpp"  // HASA Hands
 #include "turns.hpp"  // HASA Turns
 
@@ -100,7 +100,6 @@ private:
 
 	// misc private methods
     void     AddTurn(Turn const &);
-    Cell     ChooseCell(void) const;
     void     DisplayScores(void) const;
     void     DisplayStatus(void) const;
 	void     FindBestRun(void);

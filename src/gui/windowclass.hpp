@@ -36,7 +36,8 @@ The WindowClass class extends the Win::WNDCLASSEX structure.
 class WindowClass: public Win::WNDCLASSEX {
 public:
 	// public lifecycle
-    WindowClass(Win::HINSTANCE, Win::WNDPROC, char const *name);
+    WindowClass(Win::HINSTANCE, Win::WNDPROC, char const *className, 
+		char const *menuName);
 	// no default constructor
     // ~WindowClass(void);  compiler-generated destructor is fine
 

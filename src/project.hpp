@@ -89,7 +89,6 @@ class SubMenu;
 class ViewMenu;
 class Window;
 class WindowClass;
-class YesNo;
 #endif  // defined(_GUI)
 
 // project-wide typedefs

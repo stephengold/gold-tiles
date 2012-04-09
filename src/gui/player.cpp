@@ -21,8 +21,8 @@ You should have received a copy of the GNU General Public License
 along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include "gui/gameview.hpp" // TILE_SIZE_DEFAULT
 #include "gui/player.hpp"
-#include "gui/resource.hpp" // IDM_LARGE_TILES
 #include "project.hpp"      // ASSERT
 
 
@@ -42,7 +42,7 @@ Player::Player(String const &rName):
 	mShowClocks = false;
 	mShowGrid = false;
 	mShowScores = false;
-	mTileSize = IDM_LARGE_TILES;
+	mTileSize = GameView::TILE_SIZE_DEFAULT;
 }
 
 // The compiler-generated destructor is OK.
@@ -109,15 +109,14 @@ void Player::SetStartCellPosition(Point const &rPoint) {
 	mStartCellPosition = rPoint;
 }
 
-void Player::SetTileSize(IdType value) {
-	ASSERT(value == IDM_LARGE_TILES
-		 || value == IDM_MEDIUM_TILES
-		 || value == IDM_SMALL_TILES);
+void Player::SetTileSize(unsigned size) {
+	ASSERT(size >= GameView::TILE_SIZE_MIN);
+	ASSERT(size <= GameView::TILE_SIZE_MAX);
 
-	mTileSize = value;
+	mTileSize = size;
 }
 
-IdType Player::TileSize(void) const {
+unsigned Player::TileSize(void) const {
 	return mTileSize;
 }
 

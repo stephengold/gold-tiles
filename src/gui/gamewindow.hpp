@@ -137,7 +137,7 @@ private:
 	String       SaveHandOptions(void) const;
 	void         SavePlayerOptions(Hand const &) const;
 	void         SetGame(Game *pGame);
-	void         SetTileWidth(IdType command);
+	void         SetTileSize(IdType);
 	void         StopDragging(void);
 	void         UndoTurn(void);
 	void         UpdateMenuBar(void);

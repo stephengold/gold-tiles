@@ -21,7 +21,7 @@ You should have received a copy of the GNU General Public License
 along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "partial.hpp"      // order-dependent #include
+#include "gui/gameview.hpp"
 #include "gui/menubar.hpp"
 #include "gui/player.hpp"
 #ifdef _WINDOWS
@@ -75,7 +75,7 @@ void MenuBar::Initialize(GameStyleType game_style) {
    	mShowGridFlag = is_debug;
 	mShowScoresFlag = true;
 	mPeekFlag = is_debug;
-    mTileSizeItem = IDM_LARGE_TILES;
+    mTileSize = GameView::TILE_SIZE_DEFAULT;
 }
 
 // The compiler-generated destructor is OK.
@@ -119,7 +119,7 @@ void MenuBar::LoadPlayerOptions(Player const &rPlayer) {
 	mShowClocksFlag = rPlayer.ShowClocks();
     mShowGridFlag = rPlayer.ShowGrid();
 	mShowScoresFlag = rPlayer.ShowScores();
-	mTileSizeItem = rPlayer.TileSize();
+	mTileSize = rPlayer.TileSize();
 }
 
 void MenuBar::NewGame(GameStyleType oldStyle) {
@@ -140,15 +140,15 @@ void MenuBar::SavePlayerOptions(Player &rPlayer) const {
 	rPlayer.SetShowClocks(mShowClocksFlag);
     rPlayer.SetShowGrid(mShowGridFlag);
 	rPlayer.SetShowScores(mShowScoresFlag);
-	rPlayer.SetTileSize(mTileSizeItem);
+	rPlayer.SetTileSize(mTileSize);
 }
 
-void MenuBar::SetTileSize(IdType menuItem) {
-	mTileSizeItem = menuItem;
+void MenuBar::SetTileSize(unsigned size) {
+	mTileSize = size;
 }
 
-IdType MenuBar::TileSize(void) const {
-	return mTileSizeItem;
+unsigned MenuBar::TileSize(void) const {
+	return mTileSize;
 }
 
 void MenuBar::Update(bool isThinking) {
@@ -170,9 +170,7 @@ void MenuBar::Update(bool isThinking) {
 	mPlayMenu.Enable(have_game && (is_local || is_over || can_redo));
 
 	// "View" menu
-#ifdef _WINDOWS
-    mViewMenu.TileSize(mTileSizeItem);
-#endif // defined(_WINDOWS)
+    mViewMenu.TileSize(mTileSize);
     mViewMenu.ShowClocks(mShowClocksFlag);
     mViewMenu.ShowGrid(mShowGridFlag);
     mViewMenu.ShowScores(mShowScoresFlag);

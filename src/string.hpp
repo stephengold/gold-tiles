@@ -28,7 +28,7 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 A String object represents a text string (sequence of characters).
 */
 
-#include <string>  //  ISA std::string
+#include <string>      // ISA std::string
 #include "project.hpp"
 
 
@@ -72,5 +72,4 @@ public:
 	bool IsBlank(void) const;
 	bool IsEmpty(void) const;
 };
-
 #endif // !defined(STRING_HPP_INCLUDED)

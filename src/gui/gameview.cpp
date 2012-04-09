@@ -43,11 +43,11 @@ GameView::GameView(Game const &rGame):
     mSwapRect(0, 0, 0, 0)
 {
     mpMenuBar = NULL;
-    mPadPixels = 6;
+    mPadPixels = PAD_PIXELS_DEFAULT;
 	mTargetCellFlag = false;
 	mpWindow = NULL;
 
-	SetTileWidth(IDM_LARGE_TILES);
+	SetTileSize(TILE_SIZE_DEFAULT);
 }
 
 // The compiler-generated destructor is OK.
@@ -414,7 +414,7 @@ void GameView::DrawHandTile(
         Rect const rect = DrawTile(rCanvas, rCenter, rTile, oddFlag);
         
         TilePair const pair(id, rect);
-        TileInsResult const ins_result = mTileMap.insert(pair);
+        TileInsertResult const ins_result = mTileMap.insert(pair);
         bool const success = ins_result.second;
         ASSERT(success);
    }
@@ -444,9 +444,9 @@ void GameView::DrawHandTiles(Canvas &rCanvas) {
         LogicalXType x;
         LogicalYType y;
         if (IsOnBoard(id)) {
-            Cell cell = LocateTile(id);
-			IndexType row = cell.Row();
-			IndexType column = cell.Column();
+            Cell const cell = LocateTile(id);
+			IndexType const row = cell.Row();
+			IndexType const column = cell.Column();
 			odd_flag = (is_odd(column) != is_odd(row));
             x = CellX(column);
             y = CellY(row);
@@ -487,7 +487,7 @@ void GameView::DrawInactiveHands(Canvas &rCanvas) {
 
     PixelCntType const cell_height = CellHeight();
     ColorType area_color = COLOR_DARK_BLUE;
-    ColorType edge_color = COLOR_LIGHT_GRAY;
+    ColorType const edge_color = COLOR_LIGHT_GRAY;
 
     Hands other_hands = mpGame->InactiveHands();
     Hands::Iterator i_hand;
@@ -495,32 +495,30 @@ void GameView::DrawInactiveHands(Canvas &rCanvas) {
     LogicalYType top_y = mPadPixels;
     for (i_hand = other_hands.begin(); i_hand < other_hands.end(); i_hand++) {
         // draw header
-        bool rightFlag = false;
-        ColorType header_color = COLOR_BLACK;
+        bool const rightFlag = false;
+        ColorType const header_color = COLOR_BLACK;
         Rect header_rect = DrawHandHeader(rCanvas, top_y, right_x, *i_hand, header_color, rightFlag);
 
         // draw hand area below the header
         top_y = header_rect.BottomY() - 1;
-        LogicalXType left_x = header_rect.LeftX();
-        PixelCntType width = header_rect.Width();
-        Tiles hand_tiles = Tiles(*i_hand);
-        unsigned tile_count = hand_tiles.Count();
+        LogicalXType const left_x = header_rect.LeftX();
+        PixelCntType const width = header_rect.Width();
+        Tiles const hand_tiles = *i_hand;
+        unsigned const tile_count = hand_tiles.Count();
         area_color = COLOR_DARK_BLUE;
         rCanvas.UseColors(area_color, edge_color);
 		PixelCntType height = rCanvas.TextHeight() + 2*mPadPixels;
 		if (!i_hand->HasResigned() && !i_hand->HasGoneOut() && mpMenuBar->IsPeeking()) {
             height = tile_count*cell_height + 2*mPadPixels;
 		}
-        Rect hand_rect = rCanvas.DrawRectangle(top_y, left_x, width, height);
+        Rect const hand_rect = rCanvas.DrawRectangle(top_y, left_x, width, height);
 
 		if (i_hand->HasResigned()) {
-			String text = "resigned";
-			rCanvas.DrawText(hand_rect, text);
+			rCanvas.DrawText(hand_rect, "resigned");
 		} else if (i_hand->HasGoneOut()) {
-			String text = "went out";
-			rCanvas.DrawText(hand_rect, text);
+			rCanvas.DrawText(hand_rect, "went out");
 		} else if (!mpMenuBar->IsPeeking()) {
-			String text = ::plural(tile_count, "tile");
+			String const text = ::plural(tile_count, "tile");
 			rCanvas.DrawText(hand_rect, text);
 		} else {
             // draw tiles
@@ -528,12 +526,12 @@ void GameView::DrawInactiveHands(Canvas &rCanvas) {
             LogicalYType tile_y = hand_rect.TopY() + mPadPixels + cell_height/2;
 
             for (unsigned i_tile = 0; i_tile < tile_count; i_tile++) {
-                Tile tile = hand_tiles[i_tile];
-                Point point(tile_x, tile_y);
+                Tile const tile = hand_tiles[i_tile];
+                Point const center(tile_x, tile_y);
                 if (mpMenuBar->IsPeeking()) {
-                    DrawTile(rCanvas, point, tile, false);
+                    DrawTile(rCanvas, center, tile, false);
                 } else {
-                    DrawBlankTile(rCanvas, point, false);
+                    DrawBlankTile(rCanvas, center, false);
                 } 
                 tile_y += cell_height;
 			}
@@ -796,7 +794,11 @@ PixelCntType GameView::GridUnitY(void) const {
 void GameView::LoadPlayerOptions(Player const &rPlayer) {
 	mDisplayModes = DisplayModes(rPlayer);
 	ASSERT(mDisplayModes.GlyphCnt() <= Markings::GLYPH_CNT_MAX);
+
 	mStartCell = Point(rPlayer);
+
+	unsigned const size = rPlayer.TileSize();
+	SetTileSize(size);
 }
 
 void GameView::Recenter(PixelCntType oldHeight, PixelCntType oldWidth) {
@@ -832,6 +834,7 @@ void GameView::ResetTargetCell(void) {
 void GameView::SavePlayerOptions(Player &rPlayer) const {
     rPlayer.SetDisplayModes(mDisplayModes);
 	rPlayer.SetStartCellPosition(mStartCell);
+	// tile size is saved from the menu bar
 }
 
 void GameView::SetDisplayModes(DisplayModes const &rDisplayModes) {
@@ -848,42 +851,36 @@ void GameView::SetGame(Game *pGame) {
 	    Reset(mpGame, HINT_DEFAULT, 0.0);
 	}
 	
-    SetTileWidth(IDM_LARGE_TILES);
+    SetTileSize(TILE_SIZE_DEFAULT);
 	ResetTargetCell();
 	mDisplayModes.Cleanup();
 }
 
-void GameView::SetTileWidth(IdType command) {
-	PixelCntType small_width = 0;
+void GameView::SetTileSize(unsigned size) {
+	ASSERT(size >= TILE_SIZE_MIN);
+	ASSERT(size <= TILE_SIZE_MAX);
+
+	PixelCntType tiny_width = 0;
 
 	switch(Cell::Grid()) {
 	case GRID_4WAY:
 	case GRID_8WAY:
-	    small_width = 20; // TODO define named constants
+	    tiny_width = WIDTH_TINY_SQUARE;
 	    break;
 	case GRID_HEX:
-		small_width = 24;
+		tiny_width = WIDTH_TINY_HEX;
 		break;
 	case GRID_TRIANGLE:
-		small_width = 32;
+		tiny_width = WIDTH_TINY_TRIANGLE;
 		break;
 	default:
 		FAIL();
 	}
 
-	switch(command) {
-    case IDM_SMALL_TILES:
-        mTileWidth = small_width;
-        break;
-    case IDM_MEDIUM_TILES:
-        mTileWidth = 2*small_width;
-        break;
-    case IDM_LARGE_TILES:
-        mTileWidth = 3*small_width;
-        break;
-	default:
-		FAIL();
-	}
+	mTileWidth = size * tiny_width;
+
+	ASSERT(mTileWidth > 0);
+	ASSERT(::is_even(mTileWidth));
 }
 
 void GameView::StartCellOffset(long dx, long dy) {

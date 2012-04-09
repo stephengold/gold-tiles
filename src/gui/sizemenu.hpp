@@ -1,8 +1,8 @@
-#ifndef VIEWMENU_HPP_INCLUDED
-#define VIEWMENU_HPP_INCLUDED
+#ifndef SIZEMENU_HPP_INCLUDED
+#define SIZEMENU_HPP_INCLUDED
 
-// File:    viewmenu.hpp
-// Purpose: ViewMenu class
+// File:    sizemenu.hpp
+// Purpose: SizeMenu class
 // Author:  Stephen Gold sgold@sonic.net
 // (c) Copyright 2012 Stephen Gold
 // Distributed under the terms of the GNU General Public License
@@ -25,54 +25,44 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 /*
-A ViewMenu object represents the "view" SubMenu in the menu bar.
+A SizeMenu object represents the "Tile Size" SubMenu in the "View" Menu.
 
-The ViewMenu class extends the SubMenu class.
+The SizeMenu class extends the SubMenu class.
 */
 
-#include "game.hpp"           // USES GameStyleType
 #include "gui/menuitem.hpp"   // HASA MenuItem
-#include "gui/sizemenu.hpp"   // HASA SizeMenu
+#include "gui/submenu.hpp"   // ISA SubMenu
 
-
-class ViewMenu: public SubMenu {
+class SizeMenu: public SubMenu {
     Q_OBJECT
 
 public:
     // public lifecycle
 #ifdef _QT
-    ViewMenu(void);
+    SizeMenu(void);
 #elif defined(_WINDOWS)
-    ViewMenu(Menu const &, unsigned position);
+    SizeMenu(Menu const &, unsigned position);
     // no default constructor
 #endif // defined(_WINDOWS)
-    // ~ViewMenu(void);  compiler-generated destructor is OK
+    // ~SizeMenu(void);  compiler-generated destructor is OK
 
     // misc public methods
-    void Animation(bool);
-    void EnableItems(Partial const &, bool thinking);
-    void ShowClocks(bool);
-    void ShowGrid(bool);
-    void ShowHints(bool);
-    void ShowScores(bool);
-    void ShowTiles(bool);
-    void TileSize(unsigned);
+    void EnableItems(void);
+    void SetSize(unsigned);
 
 private:
-    SizeMenu mTileSize;
-    MenuItem mRecenter;
-	MenuItem mAnimation;
-	MenuItem mAttributes;
-	MenuItem mHints;
-    MenuItem mShowClocks;
-	MenuItem mShowGrid;
-	MenuItem mShowScores;
-	MenuItem mShowTiles;
+    MenuItem mSize1;
+    MenuItem mSize2;
+    MenuItem mSize3;
+    MenuItem mSize4;
+    MenuItem mSize5;
+    MenuItem mSize6;
+    MenuItem mSize7;
 
     // private lifecycle
-    ViewMenu(ViewMenu const &);   // not copyable
+    SizeMenu(SizeMenu const &);   // not copyable
 
     // private operators
-    ViewMenu &operator=(ViewMenu const &);  // not assignable
+    SizeMenu &operator=(SizeMenu const &);  // not assignable
 };
-#endif // !defined(VIEWMENU_HPP_INCLUDED)
+#endif // !defined(SIZEMENU_HPP_INCLUDED)

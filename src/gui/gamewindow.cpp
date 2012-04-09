@@ -110,10 +110,11 @@ GameWindow::GameWindow(HINSTANCE applicationInstance, Game *pGame):
 	ASSERT(HWND(*this) == 0);
 	ASSERT(applicationInstance != NULL);
 
-	LPCTSTR class_name = "GAMEWINDOW";
+	String const class_name = "GAMEWINDOW";
+	String const menubar_name = "MENUBAR";
     if (mspClass == NULL) {
 		// for first instance:  create a Microsoft Windows window class
-		mspClass = new WindowClass(applicationInstance, &message_handler, class_name);
+		mspClass = new WindowClass(applicationInstance, &message_handler, class_name, menubar_name);
 	    ASSERT(mspClass != NULL);
 		mspClass->RegisterClass();
 	}
@@ -167,7 +168,7 @@ void GameWindow::Initialize(CREATESTRUCT const &rCreateStruct) {
 
     Partial::SetYield(&yield, (void *)this);
 
-    SetTileWidth(IDM_LARGE_TILES);
+    SetTileSize(GameView::TILE_SIZE_DEFAULT);
 	if (HasGame()) {
 	    Hands const hands = Hands(*mpGame);
 		Hands::ConstIterator i_hand;
@@ -405,12 +406,30 @@ void GameWindow::HandleMenuCommand(IdType command) {
             mpMenuBar->HandleMenuCommand(command);
             break;
 
-	    // View menu options
-        case IDM_SMALL_TILES:
-        case IDM_MEDIUM_TILES:
-        case IDM_LARGE_TILES:
-            SetTileWidth(command);
+	    // Tile Size menu options
+        case IDM_TS1:
+            SetTileSize(1);
             break;
+        case IDM_TS2:
+            SetTileSize(2);
+            break;
+        case IDM_TS3:
+            SetTileSize(3);
+            break;
+        case IDM_TS4:
+            SetTileSize(4);
+            break;
+        case IDM_TS5:
+            SetTileSize(5);
+            break;
+        case IDM_TS6:
+            SetTileSize(6);
+            break;
+        case IDM_TS7:
+            SetTileSize(7);
+            break;
+
+	    // View menu options
         case IDM_RECENTER:
             Resize(ClientAreaWidth(), ClientAreaHeight());
             break;
@@ -612,9 +631,6 @@ void GameWindow::LoadPlayerOptions(Hand const &rHand) {
 
 	mpMenuBar->LoadPlayerOptions(r_player);
 	mGameView.LoadPlayerOptions(r_player);
-
-	IdType const tile_size = r_player.TileSize();
-	SetTileWidth(tile_size);
 }
 
 char const *GameWindow::Name(void) const {
@@ -1029,7 +1045,7 @@ void GameWindow::SetGame(Game *pGame) {
 	mGameView.SetGame(mpGame);
 	mpMenuBar->NewGame(old_style);
 
-    SetTileWidth(IDM_LARGE_TILES);
+    SetTileSize(GameView::TILE_SIZE_DEFAULT);
 	if (HasGame()) {
 	    Hands const hands = Hands(*mpGame);
 		Hands::ConstIterator i_hand;
@@ -1051,11 +1067,13 @@ void GameWindow::SetGame(Game *pGame) {
 	}
 }
 
-void GameWindow::SetTileWidth(IdType command) {
+void GameWindow::SetTileSize(unsigned size) {
 	ASSERT(mpMenuBar != NULL);
+	ASSERT(size >= GameView::TILE_SIZE_MIN);
+	ASSERT(size <= GameView::TILE_SIZE_MAX);
 
-	mGameView.SetTileWidth(command);
-	mpMenuBar->SetTileSize(command);
+    mpMenuBar->SetTileSize(size);
+    mGameView.SetTileSize(size);
 }
 
 void GameWindow::StopDragging(void) {

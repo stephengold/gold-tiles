@@ -338,19 +338,6 @@ FONT 10, "Microsoft Sans Serif"
 
 
 
-LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
-WARRANTY DIALOG 0, 0, 176, 132
-STYLE DS_MODALFRAME | DS_SETFONT | WS_VISIBLE | WS_POPUP
-FONT 8, "Microsoft Sans Serif"
-{
-    DEFPUSHBUTTON   "OK", IDOK, 77, 109, 28, 14
-    LTEXT           "There is NO warranty for the program, to the extent permitted by applicable law. Except when otherwise stated in writing the copyright holders and/or other ", IDC_STATIC, 10, 9, 160, 33, SS_LEFT
-    LTEXT           "other parties provide the program “as is” without warranty of any kind, either expressed or implied, including, but not limited to, the implied warranties of merchantability and fitness for a particular purpose.", IDC_STATIC, 10, 33, 160, 33, SS_LEFT
-    LTEXT           "The entire risk as to the quality and performance of the program is with you. Should the program prove defective, you assume the cost  of all necessary servicing, repair or correction.", IDC_STATIC, 10, 68, 160, 33, SS_LEFT
-}
-
-
-
 //
 // Accelerator resources
 //

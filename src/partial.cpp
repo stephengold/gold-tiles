@@ -453,8 +453,10 @@ void Partial::Suggest(void) {
     Partial best = *this; // make a copy
     unsigned best_score = 0;
     FindBestMove(best, best_score);
-    if (best_score == 0 && CanSwapAll()) {
-        SwapAll();
+    if (best_score == 0) {
+		if (CanSwapAll()) {
+            SwapAll();
+		} // TODO - partial swaps
     } else {
         best.SetHintStrength(mHintStrength);
         *this = best;

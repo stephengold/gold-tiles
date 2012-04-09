@@ -110,8 +110,8 @@ GameWindow::GameWindow(HINSTANCE applicationInstance, Game *pGame):
 	ASSERT(HWND(*this) == 0);
 	ASSERT(applicationInstance != NULL);
 
-	String const class_name = "GAMEWINDOW";
-	String const menubar_name = "MENUBAR";
+	char const *class_name = "GAMEWINDOW";
+	char const *menubar_name = "MENUBAR";
     if (mspClass == NULL) {
 		// for first instance:  create a Microsoft Windows window class
 		mspClass = new WindowClass(applicationInstance, &message_handler, class_name, menubar_name);
@@ -1125,7 +1125,8 @@ void GameWindow::Think(void) {
 
 			// commit the move
 	        mThinkMode = THINK_IDLE;
-            Play(false);
+			bool const is_pass = mGameView.IsPass();
+            Play(is_pass);
 		}
 
 	    ForceRepaint();

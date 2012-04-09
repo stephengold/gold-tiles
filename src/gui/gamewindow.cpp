@@ -459,20 +459,17 @@ void GameWindow::HandleMenuCommand(IdType command) {
 			break;
 
         // Help menu options
-        case IDM_RULES: {
+        case IDM_RULES:
 	   	    InfoBox("RULES");
             break;
-		}
         case IDM_ABOUT: {
 	   	    Dialog about("ABOUT");
 			about.Run(this);
             break;
 		}
-        case IDM_WARRANTY: {
-	   	    Dialog warranty("WARRANTY");
-			warranty.Run(this);
+		case IDM_WARRANTY:
+	   	    InfoBox("WARRANTY");
             break;
-		}
 
 		default:
 			FAIL();
@@ -619,6 +616,17 @@ void GameWindow::InfoBox(char const *messageText) {
 	if (::str_eq(message, "RULES")) {
 		message = "The rules of Gold Tile are available online at http://code.google.com/p/gold-tiles/wiki/Playing";
 		title = "Rules";
+	} else if (::str_eq(message, "WARRANTY")) {
+		message =  "There is NO warranty for the program, to the extent permitted by ";
+		message += "applicable law.  Except when otherwise stated in writing the ";
+		message += "copyright holders and/or other parties provide the program ";
+		message += "\"AS IS\" without warranty of any kind, either expressed or implied, ";
+	    message += "including, but not limited to, the implied warranties of ";
+		message += "merchantability and fitness for a particular purpose.  The entire ";
+		message += "risk as to the quality and performance of the program is with you. ";
+		message += "Should the program prove defective, you assume the cost of all ";
+		message += "necessary servicing, repair, or correction.";
+		title = "Warranty";
 	}
 
 	title += " - Gold Tile";

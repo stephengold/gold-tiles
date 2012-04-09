@@ -86,7 +86,6 @@
 #define IDM_UNDO                                6108
 #define IDM_REDO                                6109
 #define IDM_AUTOPAUSE                           6110
-#define IDM_TILE_SIZE							6201
 #define IDM_RECENTER                            6202
 #define IDM_ATTRIBUTES                          6203
 #define IDM_HINTS                               6204

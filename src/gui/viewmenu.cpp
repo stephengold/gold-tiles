@@ -64,7 +64,7 @@ ViewMenu::ViewMenu(void):
 
 ViewMenu::ViewMenu(Menu const &rRootMenu, unsigned position):
 	SubMenu(rRootMenu, position),
-	mTileSize(rRootMenu, IDM_TILE_SIZE),
+	mTileSize(rRootMenu, 0),
     mRecenter(rRootMenu, IDM_RECENTER),
     mAttributes(rRootMenu, IDM_ATTRIBUTES),
     mHints(rRootMenu, IDM_HINTS),

@@ -85,14 +85,14 @@ FileMenu::FileMenu(Menu const &rRootMenu, unsigned position):
 
 // misc methods
 
-void FileMenu::EnableItems(bool isGame) {
+void FileMenu::EnableItems(bool haveGame) {
     mNew.Enable(true);
     mOpen.Enable(false); // TODO
     mReopen.Enable(false);
     mRevert.Enable(false);
     mSave.Enable(false);
     mSaveAs.Enable(false);
-    mClose.Enable(isGame);
+    mClose.Enable(haveGame);
     mPrint.Enable(false);
     mExit.Enable(true);
 }

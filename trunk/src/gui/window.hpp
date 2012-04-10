@@ -75,7 +75,6 @@ protected:
 	void           EndPaint(void);
 	void           ErrorBox(char const *message, char const *title);
 	void           ForceRepaint(void);
-	Win::HMENU     GetMenu(char const *resourceName);
 	void           InfoBox(char const *message, char const *title);
 	bool           IsMouseCaptured(void) const;
 	virtual char const * 
@@ -127,5 +126,4 @@ private:
 	// private inquiry methods
 	bool HasAMessage(void) const;
 };
-
-#endif
+#endif // !defined(WINDOW_HPP_INCLUDED)

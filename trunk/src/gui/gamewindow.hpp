@@ -32,6 +32,7 @@ In the Qt version, the GameWindow class extends the QMainWindow class.
 */
 
 #include "gui/gameview.hpp" // HASA GameView
+#include "gui/submenu.hpp"  // HASA ThinkModeType
 #ifdef _QT
 # include <QMainWindow>
 # include "gui/rect.hpp"
@@ -39,12 +40,6 @@ In the Qt version, the GameWindow class extends the QMainWindow class.
 # include "gui/color.hpp"
 # include "gui/window.hpp"   // ISA Window
 #endif // defined(_WINDOWS)
-
-enum ThinkModeType {
-	THINK_IDLE,
-	THINK_SUGGEST,
-	THINK_AUTOPLAY
-};
 
 #ifdef _QT
 namespace Ui {
@@ -76,6 +71,7 @@ public:
 
     // public inquiry methods
     bool IsDraggingBoard(void) const;
+	bool IsThinkCanceled(void) const;
 
 private:
     // private constants
@@ -148,5 +144,4 @@ private:
 	bool IsGameOver(void) const;
 	bool IsGamePaused(void) const;
 };
-
 #endif // !defined(GAMEWINDOW_HPP_INCLUDED)

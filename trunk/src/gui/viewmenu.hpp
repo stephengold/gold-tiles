@@ -50,7 +50,7 @@ public:
 
     // misc public methods
     void Animation(bool);
-    void EnableItems(Partial const &, bool thinking);
+    void EnableItems(Partial const &, ThinkModeType);
     void ShowClocks(bool);
     void ShowGrid(bool);
     void ShowHints(bool);

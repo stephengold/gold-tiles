@@ -66,7 +66,7 @@ public:
     void     SavePlayerOptions(Player &) const;
     void     SetTileSize(unsigned);
     unsigned TileSize(void) const;
-    void     Update(bool thinking);
+    void     Update(ThinkModeType);
 
     // public inquiry methods
     bool AreClocksVisible(void) const;
@@ -77,20 +77,22 @@ public:
 
 private:
     // private data
-    bool             mAutopauseFlag;
-    FileMenu         mFileMenu;
-    SubMenu          mHelpMenu;
+    bool     mAutopauseFlag;
+    FileMenu mFileMenu;
+    SubMenu  mHelpMenu;
 #ifdef _WINDOWS
     Menu             mMenu;
 #endif // defined(_WINDOWS)
-    Partial const & mrPartial;
-    bool             mPeekFlag;
-    PlayMenu         mPlayMenu;
-    bool             mShowClocksFlag;
-    bool             mShowGridFlag;
-    bool             mShowScoresFlag;
-    unsigned         mTileSize;
-    ViewMenu         mViewMenu;
+    Partial const &
+		    mrPartial;
+    bool     mPeekFlag;
+    PlayMenu mPlayMenu;
+    bool     mShowClocksFlag;
+    bool     mShowGridFlag;
+    bool     mShowScoresFlag;
+	SubMenu  mThinking;
+    unsigned mTileSize;
+    ViewMenu mViewMenu;
 
     // private lifecycle
 	MenuBar(MenuBar const &);  // not copyable

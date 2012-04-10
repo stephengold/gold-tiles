@@ -51,8 +51,15 @@ public:
 
 private:
     // private data
-    MenuItem mNew, mOpen, mReopen, mRevert;
-    MenuItem mSave, mSaveAs, mClose, mPrint, mExit;
+    MenuItem mNew;
+	MenuItem mOpen;
+	MenuItem mReopen;
+	MenuItem mRevert;
+    MenuItem mSave;
+	MenuItem mSaveAs;
+	MenuItem mClose;
+	MenuItem mPrint;
+	MenuItem mExit;
 
     // private lifecycle
     FileMenu(FileMenu const &);   // not copyable
@@ -60,5 +67,4 @@ private:
     // private operators
     FileMenu &operator=(FileMenu const &);  // not assignable
 };
-
 #endif // !defined(FILEMENU_HPP_INCLUDED)

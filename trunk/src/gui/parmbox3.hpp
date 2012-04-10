@@ -48,7 +48,7 @@ private:
 	// private constants
 	static const ValueType BONUS_PERCENT_MAX = 25;
 	static const ValueType CLONES_PER_COMBO_MAX = 10;
-	static const ValueType HAND_SIZE_MAX = 10;
+	static const ValueType HAND_SIZE_MAX = 12;
 	static const ValueType HANDS_DEALT_MAX = 10;
 
 	// private data

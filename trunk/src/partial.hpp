@@ -54,6 +54,9 @@ enum HintType {
 
 class Partial {
 public:
+	// public types
+	typedef void YieldFunctionType(void *, bool &cancel);
+
 	// public lifecycle
 	Partial(Game const *, HintType, double skipProb);
 	// no default constructor
@@ -91,7 +94,7 @@ public:
 	Cell          LocateTile(TileIdType) const;
 	unsigned      Score(void) const;
 	void          SetHintStrength(HintType);
-	static void   SetYield(void(*fun)(void*), void *arg);
+	static void   SetYield(YieldFunctionType *, void *arg);
 	void          Suggest(void);
 	void          SwapAll(void);
 	void          SwapToHand(void);               // move the active tile
@@ -130,13 +133,14 @@ private:
 	Indices         mSwapIds;         // indices of all tiles in the swap area
 	Tiles           mTiles;           // the set of all available tiles
 	static void * mspYieldArgument;
-	static void (*mspYieldFunction)(void*);
+	static YieldFunctionType *
+		          mspYieldFunction;
 
 	// misc private methods
 	void        AddValidNextUses(Move const &, Tile const &, Cells const &);
 	void        FindBestMove(Partial &, unsigned &) const;
 	void        SetHintedCells(void);
-	static void Yields(void);
+	static void Yields(bool &cancel);
 
 	// private inquiry methods
 	bool IsValidNextStep(Move const &, Cell const &, Tile const &) const;

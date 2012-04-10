@@ -55,10 +55,11 @@ MenuBar::MenuBar(Partial const &rPartial):
 MenuBar::MenuBar(CREATESTRUCT const &rCreateStruct, Partial const &rPartial):
     mrPartial(rPartial),
     mMenu(rCreateStruct.hMenu),
-    mFileMenu(mMenu, 0),
-    mPlayMenu(mMenu, 1),
-    mViewMenu(mMenu, 2),
-    mHelpMenu(mMenu, 3)
+    mFileMenu(mMenu, 1),
+    mPlayMenu(mMenu, 2),
+    mViewMenu(mMenu, 3),
+	mThinking(mMenu, 4),
+    mHelpMenu(mMenu, 5)
 {
     GameStyleType game_style = mrPartial.GameStyle();
 	Initialize(game_style);
@@ -66,9 +67,9 @@ MenuBar::MenuBar(CREATESTRUCT const &rCreateStruct, Partial const &rPartial):
 
 #endif // defined(_WINDOWS)
 
-void MenuBar::Initialize(GameStyleType game_style) {
-	bool const is_challenge = (game_style == GAME_STYLE_CHALLENGE);
-	bool const is_debug = (game_style == GAME_STYLE_DEBUG);
+void MenuBar::Initialize(GameStyleType gameStyle) {
+	bool const is_challenge = (gameStyle == GAME_STYLE_CHALLENGE);
+	bool const is_debug = (gameStyle == GAME_STYLE_DEBUG);
 
 	mAutopauseFlag = is_challenge;
 	mShowClocksFlag = is_challenge || is_debug;
@@ -151,9 +152,9 @@ unsigned MenuBar::TileSize(void) const {
 	return mTileSize;
 }
 
-void MenuBar::Update(bool isThinking) {
+void MenuBar::Update(ThinkModeType thinkMode) {
 	bool const have_game = mrPartial.HasGame();
-	bool const is_local = mrPartial.IsLocalUsersTurn() && !isThinking;
+	bool const is_local = mrPartial.IsLocalUsersTurn() && (thinkMode != THINK_SUGGEST);
 	bool const is_over = mrPartial.IsGameOver();
 	bool const is_paused = mrPartial.IsGamePaused();
 	bool const can_redo = mrPartial.CanRedo();
@@ -166,7 +167,7 @@ void MenuBar::Update(bool isThinking) {
     mPlayMenu.Autopause(mAutopauseFlag);
     mPlayMenu.Pause(is_paused);
     
-	mPlayMenu.EnableItems(mrPartial, isThinking);
+	mPlayMenu.EnableItems(mrPartial, thinkMode);
 	mPlayMenu.Enable(have_game && (is_local || is_over || can_redo));
 
 	// "View" menu
@@ -176,8 +177,11 @@ void MenuBar::Update(bool isThinking) {
     mViewMenu.ShowScores(mShowScoresFlag);
     mViewMenu.ShowTiles(mPeekFlag);
     
-	mViewMenu.EnableItems(mrPartial, isThinking);
+	mViewMenu.EnableItems(mrPartial, thinkMode);
 	mViewMenu.Enable(!is_paused);
+
+	// "Thinking" menu
+	mThinking.Enable(thinkMode == THINK_SUGGEST || thinkMode == THINK_AUTOPLAY);
 	
 	mHelpMenu.Enable(true);
 }

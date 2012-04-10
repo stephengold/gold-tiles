@@ -25,11 +25,18 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 /*
-A SubMenu object represents a submenu of a menu bar, such as
-the "Play" submenu or the "View" submenu.
+A SubMenu object represents a popup menu such as the "Play" menu, the "Help" menu,
+or the "Tile Size" submenu.
 */
 
 #include "project.hpp"  // HASA Menu&
+
+enum ThinkModeType {
+	THINK_IDLE,
+	THINK_SUGGEST,
+	THINK_AUTOPLAY,
+	THINK_CANCEL
+};
 
 #ifdef _QT
 # include <QMenu>
@@ -71,8 +78,7 @@ private:
     // private lifecycle
     SubMenu(SubMenu const &);  // not copyable
 
-    //private operators
+    // private operators
     SubMenu &operator=(SubMenu const &);  // not assignable
 };
-
 #endif // !defined(SUBMENU_HPP_INCLUDED)

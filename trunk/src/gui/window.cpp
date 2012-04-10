@@ -49,8 +49,8 @@ void Window::Initialize(CREATESTRUCT const &rCreateStruct) {
 
     HDC const private_dc = Win::GetDC(mHandle);
     ASSERT(private_dc != NULL);
-    // It's a private DC because CS_OWNDC is hard-coded into the
-    // WindowClass constructor.
+    /* It's a private DC because CS_OWNDC is hard-coded into the
+       WindowClass constructor. */
 
 	// record size of client area
 	SIZE client_area_size;
@@ -119,8 +119,8 @@ void Window::Center(void) {
     Win::GetWindowRect(this_window, &bounds);
     Rect const window_bounds(bounds);
 
-	PixelCntType pad_left = (owner_bounds.Width() - window_bounds.Width())/2;
-	PixelCntType pad_top = (owner_bounds.Height() - window_bounds.Height())/2;
+	PixelCntType const pad_left = (owner_bounds.Width() - window_bounds.Width())/2;
+	PixelCntType const pad_top = (owner_bounds.Height() - window_bounds.Height())/2;
 
     LogicalXType const x = owner_bounds.LeftX() + pad_left;
     LogicalYType const y = owner_bounds.TopY() + pad_top;
@@ -142,7 +142,7 @@ void Window::Close(void) {
 
 HINSTANCE Window::CopyModule(Window const &rOther) {
 	mModule = rOther.mModule;
-    HINSTANCE result = mModule;
+    HINSTANCE const result = mModule;
 
 	return result;
 }
@@ -213,13 +213,6 @@ void Window::ForceRepaint(void) {
     BOOL const erase = TRUE;
     BOOL const success = Win::InvalidateRect(mHandle, entire_client_area, erase);
     ASSERT(success != 0);
-}
-
-HMENU Window::GetMenu(char const *resourceName) {
-	HMENU const result = Win::LoadMenu(mModule, resourceName);
-	ASSERT(result != NULL);
-
-	return result;
 }
 
 bool Window::GetAMessage(MSG &rMessage, int &rExitCode) {
@@ -463,6 +456,7 @@ void Window::Yields(void) {
 	    Win::SwitchToFiber(mMainFiber);
 	}
 }
+
 
 // inquiry methods
 

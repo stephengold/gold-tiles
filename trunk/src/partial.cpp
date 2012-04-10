@@ -24,8 +24,12 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 #include "game.hpp"
 #include "partial.hpp"
 
-void *Partial::mspYieldArgument = NULL;
-void (*Partial::mspYieldFunction)(void *) = NULL;
+
+// static data
+
+void *                       Partial::mspYieldArgument = NULL;
+Partial::YieldFunctionType * Partial::mspYieldFunction = NULL;
+
 
 // lifecycle
 
@@ -191,7 +195,12 @@ void Partial::FindBestMove(Partial &rBest, unsigned &rBestScore) const {
         Tile const tile = mTiles[i];
 	    TileIdType const id = tile.Id();
 	    if (temp.IsInHand(id) && !::random_bool(mSkipProbability)) {
-			Yields();
+			bool canceled = false;
+
+			Yields(canceled);
+			if (canceled) {
+				break;
+			}
 
             temp.Activate(id);
             temp.SetHintedCells();
@@ -199,6 +208,11 @@ void Partial::FindBestMove(Partial &rBest, unsigned &rBestScore) const {
 
             Cells::ConstIterator i_cell;
             for (i_cell = cells.begin(); i_cell != cells.end(); i_cell++) {
+				Yields(canceled);
+			    if (canceled) {
+				    break;
+			    }
+
                 Cell const cell = *i_cell;
                 temp.HandToCell(cell);
                 temp.FindBestMove(rBest, rBestScore);
@@ -439,7 +453,10 @@ void Partial::SetHintStrength(HintType strength) {
 	}
 }
 
-/* static */ void Partial::SetYield(void(*pFunction)(void*), void *pArgument) {
+/* static */ void Partial::SetYield(
+	YieldFunctionType *pFunction,
+	void *pArgument)
+{
 	// set up a callback to be invoked periodically during long-running operations --
 	// currently used only in FindBestMove(), by way of Yields()
 	mspYieldArgument = pArgument;
@@ -489,9 +506,9 @@ void Partial::SwapToHand(void) {
 	ASSERT(!mSwapIds.Contains(mActiveId));
 }
 
-/* static */ void Partial::Yields(void) {
+/* static */ void Partial::Yields(bool &rCanceled) {
 	if (mspYieldFunction != NULL) {
-        (*mspYieldFunction)(mspYieldArgument);
+        (*mspYieldFunction)(mspYieldArgument, rCanceled);
     }
 }
 

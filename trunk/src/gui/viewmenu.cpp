@@ -82,9 +82,9 @@ ViewMenu::ViewMenu(Menu const &rRootMenu, unsigned position):
 
 // misc methods
 
-void ViewMenu::EnableItems(Partial const &rPartial, bool isThinking) {
+void ViewMenu::EnableItems(Partial const &rPartial, ThinkModeType thinkMode) {
 	bool const is_over = rPartial.IsGameOver();
-	bool const is_local = rPartial.IsLocalUsersTurn() && !isThinking;
+	bool const is_local = rPartial.IsLocalUsersTurn() && (thinkMode != THINK_SUGGEST);
     GameStyleType const game_style = rPartial.GameStyle();
 
     mTileSize.Enable(true);

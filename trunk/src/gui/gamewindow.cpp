@@ -94,10 +94,11 @@ static void CALLBACK think(void *pArgument) {
     window->Think();
 }
 
-static void yield(void *pArgument) {
+static void yield(void *pArgument, bool &rCancel) {
 	GameWindow * const window = (GameWindow *)pArgument;
 
 	window->Yields();
+	rCancel = window->IsThinkCanceled();
 }
 
 
@@ -445,7 +446,7 @@ void GameWindow::HandleMenuCommand(IdType command) {
 			HintType hint_strength = HintType(mGameView);
 			GameStyleType const game_style = mGameView.GameStyle();
 			HintBox box(hint_strength, game_style);
-			int result = box.Run(this);
+			int const result = box.Run(this);
 			if (result == Dialog::RESULT_OK) {
 			    hint_strength = HintType(box);
 			    mGameView.SetHintStrength(hint_strength);
@@ -456,6 +457,14 @@ void GameWindow::HandleMenuCommand(IdType command) {
 		}
 		case IDM_ANIMATION:
 		    FAIL(); // TODO
+			break;
+
+		// Thinking menu options
+		case IDM_CANCEL:
+			if (mThinkMode != THINK_AUTOPLAY) {
+                ASSERT(mThinkMode == THINK_SUGGEST);
+			    mThinkMode = THINK_CANCEL;
+			}
 			break;
 
         // Help menu options
@@ -877,10 +886,10 @@ void GameWindow::ReleaseActiveTile(Point const &rMouse) {
 	    from_swap && to_swap ||
 	    from_board && to_board && from_cell == to_cell)
 	{
-		// Trivial drags which don't actually move the tile
-		// are treated as normal mouse-clicks which
-		// activate/deactivate the tile or play it to the
-		// target cell.
+		/* Trivial drags which don't actually move the tile
+		   are treated as normal mouse-clicks which
+		   activate/deactivate the tile or play it to the
+		   target cell. */
 		if (mMouseUpCnt == 1) {
 			StopDragging(); // deactivates the tile
     		return;
@@ -1099,7 +1108,10 @@ void GameWindow::StopDragging(void) {
 // code executed by the think fiber
 void GameWindow::Think(void) {
 	for (;;) {
-		while (mThinkMode == THINK_IDLE) {
+		while (mThinkMode == THINK_IDLE || mThinkMode == THINK_CANCEL) {
+			if (mThinkMode == THINK_CANCEL) {
+				mThinkMode = THINK_IDLE;
+			}
 			Yields();
 		}
 
@@ -1111,15 +1123,15 @@ void GameWindow::Think(void) {
 			mGameView.ResetTargetCell();
 	        mThinkMode = THINK_IDLE;
 
-		} else {
-			ASSERT(mThinkMode == THINK_AUTOPLAY);
-
+		} else if (mThinkMode == THINK_AUTOPLAY) {
 			// reveal the computer's move
 		    ForceRepaint();
 
 		    // pause for human comprehension
 		    MsecIntervalType const start = ::milliseconds();
-		    while (::milliseconds() <= start + PAUSE_MSEC) {
+		    while (mThinkMode == THINK_AUTOPLAY 
+			    && ::milliseconds() <= start + PAUSE_MSEC)
+			{
 		        Yields();
 		    }
 
@@ -1152,7 +1164,9 @@ void GameWindow::UndoTurn(void) {
 }
 
 void GameWindow::UpdateMenuBar(void) {
-	mpMenuBar->Update(mThinkMode != THINK_IDLE);
+	mpMenuBar->Update(mThinkMode);
+
+	// reveal any menubar changes
     Window::UpdateMenuBar();
 }
 
@@ -1192,6 +1206,12 @@ bool GameWindow::IsGamePaused(void) const {
 	if (HasGame() && !mpGame->IsOver()) {
 		result = mpGame->IsPaused();
 	}
+
+	return result;
+}
+
+bool GameWindow::IsThinkCanceled(void) const {
+	bool const result = (mThinkMode == THINK_CANCEL);
 
 	return result;
 }

@@ -78,10 +78,10 @@ INT_PTR ParmBox1::HandleMessage(MessageType message, WPARAM wParam, LPARAM lPara
 
 			RulesType const rules = RulesType(mrGameOpt);
 			unsigned const standard_index = AddListboxItem(IDC_LIST1, 
-				 "Standard Rules - 2 hands, 108 square tiles, limitless grid");
+				 "Standard Rules - 108 square tiles on an endless grid, 2 hands of 6");
 			ASSERT(standard_index == RULES_STANDARD);
 			unsigned const custom_index = AddListboxItem(IDC_LIST1, 
-				 "Custom Rules - pick the rules you want");
+				 "Custom Rules - you decide what the rules should be");
 			ASSERT(custom_index == RULES_CUSTOM);
 			if (rules == RULES_REPLAY) {
 			    unsigned const replay_index = AddListboxItem(IDC_LIST1, 

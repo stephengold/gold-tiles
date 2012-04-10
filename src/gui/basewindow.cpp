@@ -124,6 +124,7 @@ void BaseWindow::Create(void) {
 }
 
 void BaseWindow::SetHandle(HWND handle) {
+	ASSERT(handle != NULL);
 	mHandle = handle;
 
 	KeyType const key = KeyType(handle);

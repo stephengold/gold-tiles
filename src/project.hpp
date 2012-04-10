@@ -45,8 +45,8 @@ class BaseBoard;
 class Board;
 class Cell;
 class Cells;
-class FractionPair;
 class Game;
+class GameOpt;
 class Hand;
 class HandOpt;
 class HandOpts;
@@ -64,10 +64,13 @@ class Turns;
 
 #ifdef _GUI
 // forward declarations of GUI classes
+class AttrBox;
+class BaseWindow;
 class Canvas;
 class Dialog;
 class DisplayModes;
 class FileMenu;
+class FractionPair;
 class GameView;
 class GameWindow;
 class Graphics;
@@ -85,7 +88,9 @@ class PlayMenu;
 class Point;
 class Poly;
 class Rect;
+class SizeMenu;
 class SubMenu;
+class TileBox;
 class ViewMenu;
 class Window;
 class WindowClass;

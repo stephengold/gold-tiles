@@ -303,18 +303,22 @@ void GameView::DrawCell(Canvas &rCanvas, Cell const &rCell, unsigned swapCnt) {
 		   cell_color, grid_color, odd_flag);
     
 	// draw cell features
-	rCanvas.UseColors(cell_color, feature_color);
+	if (mTargetCellFlag && rCell == mTargetCell) {
+		// it's the target cell
+	    ColorType const target_color = COLOR_MEDIUM_GRAY;
+	    rCanvas.UseColors(target_color, target_color);
+	    rCanvas.DrawTarget(rect);
+	}
 	if (rCell.IsStart()) {
+		// it's the start cell
+	    rCanvas.UseColors(COLOR_TRANSPARENT, feature_color);
 	    rCanvas.DrawText(rect, "START", "S");
 	}
 	
-	if (mTargetCellFlag && rCell == mTargetCell) {
-	    rCanvas.DrawTarget(rect);
-	}
-
     // Draw the active tile later (not now) so it won't get obscured.
 	TileIdType const id = Partial::GetCellTile(rCell);
     if (id != 0 && !IsActive(id)) {
+		// inactive tile -- draw it now
         Tile const tile = GetTileById(id);
         DrawTile(rCanvas, center, tile, odd_flag);
     }

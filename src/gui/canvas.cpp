@@ -32,7 +32,9 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 
 // static data
 
-std::vector<Poly> Canvas::msShapes; // shapes for markings
+std::vector<Poly> Canvas::msShapes;  // polygons for markings
+Poly Canvas::msTargetArrow;          // polygon for target arrow
+
 
 // lifecycle
 
@@ -158,18 +160,11 @@ void Canvas::DrawMarking(
 }
 
 void Canvas::DrawTarget(Rect const &rBounds) {
-    // for now, just draw an X
-	FractionPair pair_ulc(0.1, 0.9);
-    Point const ulc = rBounds.Interpolate(pair_ulc);
-	FractionPair pair_brc(0.9, 0.1);
-    Point const brc = rBounds.Interpolate(pair_brc);
-	DrawLine(ulc, brc);
+	if (msShapes.size() == 0) {
+        InitShapes();
+    }
 
-	FractionPair pair_urc(0.9, 0.9);
-    Point const urc = rBounds.Interpolate(pair_urc);
-	FractionPair pair_blc(0.1, 0.1);
-    Point const blc = rBounds.Interpolate(pair_blc);
-	DrawLine(urc, blc);
+    DrawPolygon(msTargetArrow, rBounds);
 }
 
 Rect Canvas::DrawTile(
@@ -253,6 +248,17 @@ Rect Canvas::DrawTile(
 /* static */ void Canvas::InitShapes(void) {
     ASSERT(msShapes.size() == 0);
     
+	// arrow for indicating the target cell
+	msTargetArrow.Add(0.6, 0.4);
+	msTargetArrow.Add(0.5, 0.9);
+	msTargetArrow.Add(0.45, 0.65);
+	msTargetArrow.Add(0.2, 0.95);
+	msTargetArrow.Add(0.05, 0.8);
+	msTargetArrow.Add(0.35, 0.55);
+	msTargetArrow.Add(0.1, 0.5);
+	msTargetArrow.Add(0.6, 0.4);
+
+	// tile markings
     {
         Poly roundel;
         for (unsigned i = 0; i < 20; i++) {

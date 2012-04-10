@@ -33,9 +33,10 @@ Drawing is performed on a temporary Canvas owned by the caller.
 */
 
 #include "partial.hpp"          // ISA Partial
-#include "gui/color.hpp"
+#include "gui/color.hpp"        // USES ColorType
 #include "gui/displaymodes.hpp" // HASA DisplayModes
 #include "gui/rect.hpp"         // HASA Rect
+
 
 class GameView: public Partial {
 public:
@@ -119,7 +120,7 @@ private:
 	String        ClockText(Hand &) const;
 	AttrIndexType ColorAttribute(void) const;
     void          DrawActiveHand(Canvas &);
-	void          DrawBlankTile(Canvas &, Point const &, bool odd);
+	void          DrawBlankTile(Canvas &, Point const &, bool bonus, bool odd);
     void          DrawBoard(Canvas &, unsigned layer);
     void          DrawCell(Canvas &, Cell const &, unsigned swapCnt);
 	void          DrawPaused(Canvas &);

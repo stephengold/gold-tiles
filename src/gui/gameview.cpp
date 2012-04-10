@@ -201,9 +201,18 @@ void GameView::DrawActiveHand(Canvas &rCanvas) {
 	DrawStockArea(rCanvas, top_y, left_x, width);
 }
 
-void GameView::DrawBlankTile(Canvas &rCanvas, Point const &rCenter, bool oddFlag) {
+void GameView::DrawBlankTile(
+	Canvas &rCanvas,
+	Point const &rCenter,
+	bool hasBonus,
+	bool oddFlag)
+{
 	PixelCntType const height = TileHeight();
     ColorType tile_color = COLOR_LIGHT_GRAY;
+    if (hasBonus) {
+	    tile_color = COLOR_DULL_GOLD;
+    }
+
     rCanvas.DrawBlankTile(rCenter, mTileWidth, height, tile_color, oddFlag);
 }
 
@@ -408,7 +417,7 @@ void GameView::DrawHandTile(
 
 	if (!IsLocalUsersTurn() && !IsOnBoard(id) && !mpMenuBar->IsPeeking()) {
 		// draw the tile's backside
-        DrawBlankTile(rCanvas, rCenter, oddFlag);
+        DrawBlankTile(rCanvas, rCenter, rTile.HasBonus(), oddFlag);
 
     } else {  // draw the tile's face
         Rect const rect = DrawTile(rCanvas, rCenter, rTile, oddFlag);
@@ -520,8 +529,7 @@ void GameView::DrawInactiveHands(Canvas &rCanvas) {
 		} else if (!mpMenuBar->IsPeeking()) {
 			String const text = ::plural(tile_count, "tile");
 			rCanvas.DrawText(hand_rect, text);
-		} else {
-            // draw tiles
+		} else { // peeking:  draw tiles
             LogicalXType const tile_x = hand_rect.CenterX();
             LogicalYType tile_y = hand_rect.TopY() + mPadPixels + cell_height/2;
 
@@ -531,14 +539,13 @@ void GameView::DrawInactiveHands(Canvas &rCanvas) {
                 if (mpMenuBar->IsPeeking()) {
                     DrawTile(rCanvas, center, tile, false);
                 } else {
-                    DrawBlankTile(rCanvas, center, false);
+                    DrawBlankTile(rCanvas, center, tile.HasBonus(), false);
                 } 
                 tile_y += cell_height;
 			}
+		} // if peeking
 
-		}
-
-		// pad between hands
+		// add padding between hands
 		if (mpMenuBar->IsPeeking()) {
 		    // right to left
             right_x = header_rect.LeftX() - mPadPixels;

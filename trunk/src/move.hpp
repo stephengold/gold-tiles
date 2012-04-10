@@ -66,6 +66,7 @@ public:
 	// public inquiry methods
 	bool InvolvesSwap(void) const;
 	bool IsPass(void) const;
+	bool IsPlay(void) const;
 	bool IsPureSwap(void) const;
 	bool IsResign(void) const;
     bool RepeatsCell(void) const;

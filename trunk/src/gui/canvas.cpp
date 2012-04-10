@@ -178,12 +178,18 @@ Rect Canvas::DrawTile(
 	Point const &rCenter,
 	PixelCntType width,
     PixelCntType height,
+	bool borderFlag,
 	bool oddFlag)
 {
 	ASSERT(::is_even(width));
 
-	ColorType const border_color = COLOR_DARK_GRAY;
-    UseColors(tileColor, border_color);
+	ColorType border_color = COLOR_DARK_GRAY;
+	if (borderFlag) {
+		border_color = COLOR_PINK;
+        UseColors(border_color, border_color);
+	} else {
+        UseColors(tileColor, border_color);
+	}
 
 	Rect interior(0,0,0,0);
 	switch (Cell::Grid()) {
@@ -202,6 +208,11 @@ Rect Canvas::DrawTile(
 			break;
 		default:
 			FAIL();
+	}
+
+	if (borderFlag) {
+        UseColors(tileColor, tileColor);
+		DrawRectangle(interior);
 	}
 
 	unsigned const marking_cnt = rMarkings.MarkingCnt();

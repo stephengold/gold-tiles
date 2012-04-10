@@ -587,8 +587,8 @@ void Game::Undo(void) {
 	//  Roll back the first-move info.
     mBestRunLength = turn.BestRun();
 
-	Move const move = Move(turn);
-    Tiles const tiles = Tiles(move);
+	Move const move = turn;
+    Tiles const tiles = move;
 	if (move.IsResign()) {
 		miActiveHand->Unresign(mStockBag, tiles);
 
@@ -614,6 +614,21 @@ void Game::Undo(void) {
 	        miActiveHand->SubtractScore(points);
 		}
 	}
+}
+
+Indices Game::UndoTiles(void) const {
+	ASSERT(CanUndo());
+
+	Turns::ConstIterator previous = miRedo;
+	previous--;
+	Move const move = Turn(*previous);
+
+	Indices result;
+	if (move.IsPlay()) {
+	    result = Tiles(move);
+	}
+
+	return result;
 }
 
 Strings Game::WinningHands(void) const {

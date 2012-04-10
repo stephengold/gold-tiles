@@ -68,6 +68,7 @@ public:
 	void       ResetTargetCell(void);
 	void       SavePlayerOptions(Player &) const;
 	void       SetDisplayModes(DisplayModes const &);
+	void       SetWarmTiles(Indices const &);
 	void       SetGame(Game *);
 	void       SetTileSize(unsigned);
 	void       StartCellOffset(long dx, long dy);
@@ -98,12 +99,14 @@ private:
 	Rect         mHandRect;
 	MenuBar*    mpMenuBar;
 	PixelCntType mPadPixels;
+	Indices      mPreviousPlay;
 	Point        mStartCell;
 	Rect         mSwapRect;
 	Cell         mTargetCell;
 	bool         mTargetCellFlag;
 	TileMap      mTileMap;
 	PixelCntType mTileWidth;
+	Indices      mWarmTiles;
 	GameWindow* mpWindow;
 
 	// private lifecycle
@@ -138,5 +141,6 @@ private:
 
 	// private inquiry methods
 	bool IsGridVisible(void) const;
+	bool IsWarmTile(TileIdType) const;
 };
 #endif // !defined(GAMEVIEW_HPP_INCLUDED)

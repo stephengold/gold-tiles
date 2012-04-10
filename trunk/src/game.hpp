@@ -62,6 +62,7 @@ public:
     GameStyleType Style(void) const;
 	void          TogglePause(void);
 	void          Undo(void);
+	Indices       UndoTiles(void) const;
 
 	// public inquiry methods
 	bool CanRedo(void) const;

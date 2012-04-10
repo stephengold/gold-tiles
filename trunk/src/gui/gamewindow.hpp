@@ -76,7 +76,6 @@ public:
 private:
     // private constants
     static const unsigned         ID_CLOCK_TIMER = 1;
-    static const MsecIntervalType PAUSE_MSEC = 800;
     static const MsecIntervalType TIMEOUT_MSEC = 500;
 
 	// private data
@@ -103,7 +102,7 @@ private:
     GameWindow(GameWindow const &); // not copyable
     void Initialize(Win::CREATESTRUCT const &);
 
-	// private operator
+	// private operators
     GameWindow &operator=(GameWindow const &); // not assignable
 
 	// misc private methods

@@ -48,12 +48,12 @@ public:
 	void         DrawHexagon(Rect const &);
 	void         DrawLine(Point const &, Point const &);
 	void         DrawLine(LogicalXType, LogicalYType, LogicalXType, LogicalYType);
-    void         DrawPolygon(Poly const &, Rect const &, bool invert = false);
+    void         DrawPolygon(Poly const &, Rect const &, bool invert = false, bool fill = true);
     Rect         DrawRectangle(Rect const &);
     Rect         DrawRectangle(LogicalYType, LogicalXType, PixelCntType width, PixelCntType height);
     void         DrawRoundedSquare(Point const &, PixelCntType edge, PixelCntType diameter);
     void         DrawText(Rect const &, char const *, char const *alt = NULL);
-    void         GetColors(ColorType &rBrushBk, ColorType &rPenText) const;
+    void         GetColors(ColorType &brushBk, ColorType &penText) const;
 	static Rect  InteriorEquilateral(Rect const &, bool invert);
 	static Rect  InteriorHexagon(Rect const &);
     static Rect  InteriorRoundedSquare(Point const &, PixelCntType edge, PixelCntType diameter);
@@ -76,5 +76,4 @@ private:
 	// private operators
     Graphics &operator=(Graphics const &);  // not assignable
 };
-
-#endif
+#endif // !defined(GRAPHICS_HPP_INCLUDED)

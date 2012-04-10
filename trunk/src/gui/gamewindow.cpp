@@ -888,20 +888,23 @@ void GameWindow::ReleaseActiveTile(Point const &rMouse) {
 	    from_swap && to_swap ||
 	    from_board && to_board && from_cell == to_cell)
 	{
-		/* Trivial drags which don't actually move the tile
+		/* 
+		   Trivial drags (drags which don't actually move the tile)
 		   are treated as normal mouse-clicks which
 		   activate/deactivate the tile or play it to the
-		   target cell. */
+		   target cell.
+		 */
 		if (mMouseUpCnt == 1) {
 			StopDragging(); // deactivates the tile
     		return;
 		} else {
 		    ASSERT(mMouseUpCnt == 0);
-			if (mGameView.IsTargetSet()) {
+			if (mGameView.IsTargetSet() && !from_board) {
 			    to_board = true;
 				to_cell = mGameView.TargetCell();
 			} else {
         		mMouseUpCnt = 1;
+				mGameView.ResetTargetCell();
 				return;
 			}
 		}

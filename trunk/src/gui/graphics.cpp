@@ -29,10 +29,10 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 #include "gui/win_types.hpp"
 #include "gui/window.hpp"
 
+
 // lifecycle
 
-Graphics::Graphics(HDC device, Window &rWindow, bool releaseMe, bool bufferFlag)
-:
+Graphics::Graphics(HDC device, Window &rWindow, bool releaseMe, bool bufferFlag):
     mRect(Rect(rWindow))
 {
     mDevice = device;
@@ -62,15 +62,17 @@ Graphics::Graphics(HDC device, Window &rWindow, bool releaseMe, bool bufferFlag)
     mBrushSave = Win::SelectObject(mDraw, brush);
     ASSERT(mBrushSave != NULL);
     
-    // background color for text and broken lines
+    // background color and mode for text and broken lines
     // (same as brush color)
-    ColorType success = ColorType(Win::SetBkColor(mDraw, mBrushBkColor));
-    ASSERT(success != CLR_INVALID);
+    COLORREF const old_background_color = Win::SetBkColor(mDraw, mBrushBkColor);
+    ASSERT(old_background_color != CLR_INVALID);
+	int const old_mode = SetBkMode(mDraw, OPAQUE);
+    ASSERT(old_mode != 0);
 
     // foreground color for text and broken lines
     // (same as pen color)
-    success = ColorType(Win::SetTextColor(mDraw, mPenTextColor));
-    ASSERT(success != CLR_INVALID);
+    COLORREF const old_text_color = Win::SetTextColor(mDraw, mPenTextColor);
+    ASSERT(old_text_color != CLR_INVALID);
 
     // pen color for outlining shapes
     int const penStyle = PS_SOLID;
@@ -86,21 +88,22 @@ Graphics::Graphics(HDC device, Window &rWindow, bool releaseMe, bool bufferFlag)
     HGDIOBJ const brush = Win::SelectObject(mDraw, mBrushSave);
     ASSERT(brush != NULL);
     BOOL success = Win::DeleteObject(brush);
-    ASSERT(success != 0);
+    ASSERT(success);
 
     HGDIOBJ const pen = Win::SelectObject(mDraw, mPenSave);
     ASSERT(pen != NULL);
     success = Win::DeleteObject(pen);
-    ASSERT(success != 0);
+    ASSERT(success);
 
     if (mDraw != mDevice) {
         Win::DeleteDC(mDraw);
     }
     if (mReleaseMe) {
         int const success = Win::ReleaseDC(mWindow, mDevice);
-        ASSERT(success != 0);
+        ASSERT(success);
     }
 }
+
 
 // misc methods
 
@@ -116,12 +119,12 @@ void Graphics::Close(void) {
         DWORD const options = SRCCOPY;
         BOOL success = Win::BitBlt(mDevice, dest_x, dest_y, width, height, 
                                 mDraw, source_x, source_y, options);
-        ASSERT(success != 0);
+        ASSERT(success);
          
         HGDIOBJ const bitmap = Win::SelectObject(mDraw, mBitmapSave);
         ASSERT(bitmap != NULL);
         success = Win::DeleteObject(bitmap);
-        ASSERT(success != 0);
+        ASSERT(success);
     }
 }
 
@@ -132,7 +135,7 @@ void Graphics::DrawEquilateral(Rect const &rBounds, bool pointDownFlag) {
     triangle.Add(0.5, 1.0);
     triangle.Add(1.0, 0.0);
 
-	DrawPolygon(triangle, rBounds, pointDownFlag);
+	DrawPolygon(triangle, rBounds, pointDownFlag, true);
 }
 
 void Graphics::DrawHexagon(Rect const &rBounds) {
@@ -170,13 +173,18 @@ void Graphics::DrawLine(
 	ASSERT(success);
 }
 
-void Graphics::DrawPolygon(Poly const &rPolygon, Rect const &rBounds, bool invertFlag) {
+void Graphics::DrawPolygon(Poly const &rPolygon, Rect const &rBounds, bool invertFlag, bool fillFlag) {
     unsigned const pointCnt = rPolygon.Count();
     POINT *const points = new POINT[pointCnt];
     ASSERT(points != NULL);
     rPolygon.GetPoints(points, pointCnt, rBounds, invertFlag);
 
-    BOOL const success = Win::Polygon(mDraw, points, pointCnt);
+    BOOL success;
+	if (fillFlag) {
+		success = Win::Polygon(mDraw, points, pointCnt);
+	} else {
+		success = Win::Polyline(mDraw, points, pointCnt);
+	}
     ASSERT(success);
 } 
 
@@ -186,7 +194,7 @@ Rect Graphics::DrawRectangle(Rect const &rRect) {
 	LogicalXType const right = rRect.RightX();
 	LogicalYType const bottom = rRect.BottomY();
 	BOOL const success = Win::Rectangle(mDraw, left, top, right, bottom);
-	ASSERT(success != 0);
+	ASSERT(success);
 	
 	return rRect;
 }
@@ -200,7 +208,7 @@ Rect Graphics::DrawRectangle(
 	LogicalXType const right = left + width;
 	LogicalYType const bottom = top + height;
 	BOOL const success = Win::Rectangle(mDraw, left, top, right, bottom);
-	ASSERT(success != 0);
+	ASSERT(success);
 	
 	Rect const result(top, left, width, height);
 	
@@ -222,7 +230,7 @@ void Graphics::DrawRoundedSquare(
     LogicalYType const bottom_y = top_y + edge;
     BOOL const success = Win::RoundRect(mDraw, left_x, top_y, right_x, bottom_y,
                              ellipse_width, ellipse_height);
-    ASSERT(success != 0);
+    ASSERT(success);
 }
 
 void Graphics::DrawText(Rect const &rRect, char const *text, char const *altText) {
@@ -241,16 +249,19 @@ void Graphics::DrawText(Rect const &rRect, char const *text, char const *altText
                 | DT_SINGLELINE | DT_VCENTER;
     RECT bounds = RECT(rRect);
     BOOL const success = Win::DrawText(mDraw, str, str_length, &bounds, format);
-    ASSERT(success != 0);
+    ASSERT(success);
 }
 
+#if 0
 void Graphics::GetColors(ColorType &rBrushBkColor, ColorType &rPenTextColor) const {
     rPenTextColor = mPenTextColor;
     rBrushBkColor = mBrushBkColor;
 }
+#endif
 
 Rect Graphics::InteriorEquilateral(Rect const &rBounds, bool pointDownFlag) {
-	FractionPair pair_ulc(0,0), pair_brc(0,0);
+	FractionPair pair_ulc(0,0);
+	FractionPair pair_brc(0,0);
 	if (pointDownFlag) {
        pair_ulc = FractionPair(0.291, 0.900);
 	   pair_brc = FractionPair(0.709, 0.418);
@@ -309,42 +320,55 @@ PixelCntType Graphics::TextWidth(char const *text) const {
     int const length = ::strlen(text);
     SIZE extent;
     BOOL const success = Win::GetTextExtentPoint32(mDraw, text, length, &extent);
-	ASSERT(success != 0);
+	ASSERT(success);
     PixelCntType const result = extent.cx;
     
     return result;
 }
 
 void Graphics::UseColors(ColorType brushBkColor, ColorType penTextColor) {
-    if (brushBkColor != mBrushBkColor) {
-        HBRUSH const brush = Win::CreateSolidBrush(brushBkColor);
-        ASSERT(brush != NULL);
-        HGDIOBJ const old = Win::SelectObject(mDraw, brush);
-        ASSERT(old != NULL);
-        BOOL const success = Win::DeleteObject(old);
-        ASSERT(success != 0);
+	ASSERT(penTextColor != COLOR_TRANSPARENT);
 
-        ColorType const oldColor = ColorType(Win::SetBkColor(mDraw, brushBkColor));
-        ASSERT(oldColor != CLR_INVALID);
+	if (brushBkColor != mBrushBkColor) {
+		if (brushBkColor != COLOR_TRANSPARENT) {
+			// solid color brush
+            HBRUSH const brush = Win::CreateSolidBrush(brushBkColor);
+            ASSERT(brush != NULL);
+            HGDIOBJ const old = Win::SelectObject(mDraw, brush);
+            ASSERT(old != NULL);
+            BOOL const success = Win::DeleteObject(old);
+            ASSERT(success);
+
+			// solid color background
+            COLORREF const old_color = Win::SetBkColor(mDraw, brushBkColor);
+            ASSERT(old_color != CLR_INVALID);
+		    int const old_mode = SetBkMode(mDraw, OPAQUE);
+            ASSERT(old_mode != 0);
+		} else {
+			// TODO - should also set transparent brush
+
+			// transparent background
+		    int const old_mode = SetBkMode(mDraw, TRANSPARENT);
+            ASSERT(old_mode != 0);
+		}
 
         mBrushBkColor = brushBkColor;
     }
        
     if (penTextColor != mPenTextColor) {
-        ColorType const oldColor = ColorType(Win::SetTextColor(mDraw, penTextColor));
-        ASSERT(oldColor != CLR_INVALID);
+        COLORREF const old_color = Win::SetTextColor(mDraw, penTextColor);
+        ASSERT(old_color != CLR_INVALID);
 
-        int const penStyle = PS_SOLID;
-        int const penWidth = 0; // means a pen one pixel wide
-        HPEN const pen = Win::CreatePen(penStyle, penWidth, penTextColor);
+        int const pen_style = PS_SOLID;
+        int const pen_width = 0; // means a pen one pixel wide
+        HPEN const pen = Win::CreatePen(pen_style, pen_width, penTextColor);
         ASSERT(pen != NULL);
         HGDIOBJ const old = Win::SelectObject(mDraw, pen);
         ASSERT(old != NULL);
         BOOL const success = Win::DeleteObject(old);
-        ASSERT(success != 0);
+        ASSERT(success);
         
         mPenTextColor = penTextColor;
     }
 }
-
 #endif // defined(_WINDOWS)

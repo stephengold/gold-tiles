@@ -57,10 +57,11 @@ public:
 
 private:
 	// private constants
-	static const unsigned TILE_POINTEDNESS = 3;
+	static const unsigned TILE_POINTEDNESS = 3; // corners of square tiles
 
 	// private data
     static std::vector<Poly> msShapes; // TODO more choices
+	static Poly              msTargetArrow;
     
 	// private lifecycle
     Canvas(Canvas const &);  // not copyable

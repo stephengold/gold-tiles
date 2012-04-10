@@ -26,28 +26,19 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 #include "gui/win_types.hpp"
 #include "string.hpp"
 
-// static data
-
-/* static */ Window::Map Window::msMap;
-/* static */ Window *Window::mspNewlyCreatedWindow = NULL;
 
 // lifecycle
 
 Window::Window(void) {
 	mAcceleratorTable = 0;
-	mHandle = 0;
-	mModule = 0;
 	mPaintDevice = 0;
 }
 
 void Window::Initialize(CREATESTRUCT const &rCreateStruct) {
-	ASSERT(mHandle != 0);
-	ASSERT(mModule == 0);
+	BaseWindow::Initialize(rCreateStruct);
 
-	mModule = rCreateStruct.hInstance;
-	ASSERT(mModule != 0);
-
-    HDC const private_dc = Win::GetDC(mHandle);
+	HWND const this_window = *this;
+    HDC const private_dc = Win::GetDC(this_window);
     ASSERT(private_dc != NULL);
     /* It's a private DC because CS_OWNDC is hard-coded into the
        WindowClass constructor. */
@@ -64,10 +55,6 @@ void Window::Initialize(CREATESTRUCT const &rCreateStruct) {
 
 
 // operators
-
-Window::operator HWND(void) const {
-	return mHandle;
-}
 
 Window::operator Rect(void) const {
 	Point const origin(0,0);
@@ -89,42 +76,20 @@ void * Window::AddFiber(void (__stdcall &rStartRoutine)(void *)) {
 
 void Window::BeginPaint(void) {
 	ASSERT(mPaintDevice == NULL);
-	ASSERT(mHandle != NULL);
 
-    mPaintDevice = Win::BeginPaint(mHandle, &mPaintStruct);
+	HWND const this_window = *this;
+	ASSERT(this_window != NULL);
+
+    mPaintDevice = Win::BeginPaint(this_window, &mPaintStruct);
 
     ASSERT(mPaintDevice != NULL);
 }
 
 void Window::CaptureMouse(void) {
-	HWND const this_window = HWND(*this);
+	HWND const this_window = *this;
     Win::SetCapture(this_window);
 
 	ASSERT(IsMouseCaptured());
-}
-
-// Center a window on its parent.
-// If it has no parent, center it on the desktop.
-void Window::Center(void) {
-	HWND const this_window = HWND(*this);
-    HWND owner = Win::GetParent(this_window);
-    if (owner == NULL) {
-        owner = Win::GetDesktopWindow();
-	}
-
-	RECT bounds;
-	Win::GetWindowRect(owner, &bounds);
-	Rect const owner_bounds(bounds);
-
-    Win::GetWindowRect(this_window, &bounds);
-    Rect const window_bounds(bounds);
-
-	PixelCntType const pad_left = (owner_bounds.Width() - window_bounds.Width())/2;
-	PixelCntType const pad_top = (owner_bounds.Height() - window_bounds.Height())/2;
-
-    LogicalXType const x = owner_bounds.LeftX() + pad_left;
-    LogicalYType const y = owner_bounds.TopY() + pad_top;
-    Win::SetWindowPos(this_window, HWND_TOP, x, y, 0, 0, SWP_NOSIZE); 
 }
 
 PixelCntType Window::ClientAreaHeight(void) const {
@@ -137,25 +102,18 @@ PixelCntType Window::ClientAreaWidth(void) const {
 
 void Window::Close(void) {
 	int const ignored = 0;
-    Win::SendMessage(mHandle, WM_CLOSE, WPARAM(ignored), LPARAM(ignored));
-}
+	HWND const this_window = *this;
 
-HINSTANCE Window::CopyModule(Window const &rOther) {
-	mModule = rOther.mModule;
-    HINSTANCE const result = mModule;
-
-	return result;
+    Win::SendMessage(this_window, WM_CLOSE, WPARAM(ignored), LPARAM(ignored));
 }
 
 void Window::Create(
 	String const &rClassName,
 	Rect const &rRect,
-	Window *pParent,
+	BaseWindow *pParent,
 	HINSTANCE applicationInstance)
 {
-	// Make this object accessable to its message handler before WM_CREATE.
-    ASSERT(mspNewlyCreatedWindow == NULL);
-	mspNewlyCreatedWindow = this;
+	BaseWindow::Create();
 
 	LPCTSTR const name = Name();
 	ASSERT(name != NULL);
@@ -171,7 +129,7 @@ void Window::Create(
 
 	HWND parent_handle = NULL;
 	if (pParent != NULL) {
-		parent_handle = HWND(*pParent);
+		parent_handle = *pParent;
 	}
 
 	HMENU const menu_handle = NULL;
@@ -180,23 +138,16 @@ void Window::Create(
     HWND const handle = Win::CreateWindow(class_name, name, window_style, x, y, 
                              width, height, parent_handle, menu_handle, 
 							 applicationInstance, parameters);
-    ASSERT(handle == mHandle);
-}
-
-/* static */ Rect Window::DesktopBounds(void) {
-	HWND const desktop_handle = Win::GetDesktopWindow();
-	RECT rect;
-	Win::GetWindowRect(desktop_handle, &rect);
-	Rect const result(rect);
-
-	return result;
+    ASSERT(handle == HWND(*this));
 }
 
 void Window::EndPaint(void) {
-	ASSERT(mHandle != NULL);
+	HWND const this_window = *this;
+
+	ASSERT(this_window != NULL);
 	ASSERT(mPaintDevice != NULL);
 
-    Win::EndPaint(mHandle, &mPaintStruct);
+    Win::EndPaint(this_window, &mPaintStruct);
 	mPaintDevice = NULL;
 }
 
@@ -208,10 +159,12 @@ void Window::ErrorBox(char const *message, char const *title) {
 }
 
 void Window::ForceRepaint(void) {
-	ASSERT(mHandle != 0);
+	HWND const this_window = *this;
+	ASSERT(this_window != 0);
+
     RECT * const entire_client_area = NULL;
     BOOL const erase = TRUE;
-    BOOL const success = Win::InvalidateRect(mHandle, entire_client_area, erase);
+    BOOL const success = Win::InvalidateRect(this_window, entire_client_area, erase);
     ASSERT(success != 0);
 }
 
@@ -233,12 +186,13 @@ bool Window::GetAMessage(MSG &rMessage, int &rExitCode) {
 }
 
 LRESULT Window::HandleMessage(MessageType message, WPARAM wParameter, LPARAM lParameter) {
-	ASSERT(mHandle != 0);
+	HWND const this_window = *this;
+	ASSERT(this_window != 0);
 	LRESULT result = 0;
 
     switch (message) {
 	    case WM_CLOSE: {
-			BOOL const success = Win::DestroyWindow(mHandle);
+			BOOL const success = Win::DestroyWindow(this_window);
 			ASSERT(success);
 			break;
 		}
@@ -262,7 +216,7 @@ LRESULT Window::HandleMessage(MessageType message, WPARAM wParameter, LPARAM lPa
 		}
 
 		default:  // invoke default message handler
-			result = Win::DefWindowProc(mHandle, message, wParameter, lParameter);
+			result = Win::DefWindowProc(this_window, message, wParameter, lParameter);
 			break;
     }
 
@@ -271,26 +225,10 @@ LRESULT Window::HandleMessage(MessageType message, WPARAM wParameter, LPARAM lPa
 
 // display a simple dialog box with a informational message and an OK button
 void Window::InfoBox(char const *message, char const *title) {
+	HWND const this_window = *this;
 	UINT const options = MB_OK | MB_ICONINFORMATION | MB_DEFBUTTON1 | MB_APPLMODAL;
-    int const success = Win::MessageBox(mHandle, message, title, options);
+    int const success = Win::MessageBox(this_window, message, title, options);
 	ASSERT(success == IDOK);
-}
-
-/* static */ Window *Window::Lookup(HWND handle) {
-    KeyType const key = KeyType(handle);
-    ConstIterator const i_window = msMap.find(key);
-
-	Window *result = NULL;
-    if (i_window != msMap.end()) {
-        result = i_window->second;
-        ASSERT(result != NULL);
-    } else if (mspNewlyCreatedWindow != NULL) {
-		result = mspNewlyCreatedWindow;
-		mspNewlyCreatedWindow = NULL;
-		result->SetHandle(handle);
-	}
-
-	return result;
 }
 
 int Window::MessageDispatchLoop(void) {
@@ -324,7 +262,8 @@ void Window::SelfDestruct(void) {
 }
 
 void Window::SetAcceleratorTable(char const *resourceName) {
-	mAcceleratorTable = Win::LoadAccelerators(mModule, resourceName);
+	HINSTANCE const module = CopyModule(*this);
+	mAcceleratorTable = Win::LoadAccelerators(module, resourceName);
 	ASSERT(mAcceleratorTable != NULL);
 }
 
@@ -357,19 +296,12 @@ void Window::SetCursorSelect(void) {
 	SetCursor(IDC_ARROW);
 }
 
-void Window::SetHandle(HWND handle) {
-	mHandle = handle;
-
-	KeyType const key = KeyType(handle);
-	Pair const new_mapping(key, this); 
-	InsertResult const ins_result = msMap.insert(new_mapping);
-	bool const success = ins_result.second;
-	ASSERT(success);
-}
-
 // set large and small icons for a window
 void Window::SetIcons(char const *resourceName) {
-	ASSERT(mHandle != 0);
+	HWND const this_window = *this;
+	ASSERT(this_window != 0);
+
+	HINSTANCE const module = CopyModule(*this);
 
 	PixelCntType desired_width;
     PixelCntType desired_height;
@@ -378,37 +310,40 @@ void Window::SetIcons(char const *resourceName) {
 	// small icon for title bar
 	desired_width = Win::GetSystemMetrics(SM_CXSMICON);
     desired_height = Win::GetSystemMetrics(SM_CYSMICON);
-	HICON const small_icon = (HICON)Win::LoadImage(mModule, resourceName, IMAGE_ICON,
-		desired_width, desired_height, options);
+	HICON const small_icon = HICON(Win::LoadImage(module, resourceName, IMAGE_ICON,
+		desired_width, desired_height, options));
 	ASSERT(small_icon != NULL);
 
-    Win::SendMessage(mHandle, WM_SETICON, WPARAM(ICON_SMALL), LPARAM(small_icon));
+    Win::SendMessage(this_window, WM_SETICON, WPARAM(ICON_SMALL), LPARAM(small_icon));
 
 	// large icon for ALT+TAB dialog box
 	desired_width = Win::GetSystemMetrics(SM_CXICON);
     desired_height = Win::GetSystemMetrics(SM_CYICON);
-	HICON const large_icon = HICON(Win::LoadImage(mModule, resourceName, IMAGE_ICON,
+	HICON const large_icon = HICON(Win::LoadImage(module, resourceName, IMAGE_ICON,
 		desired_width, desired_height, options));
 	ASSERT(large_icon != NULL);
 
-    Win::SendMessage(mHandle, WM_SETICON, WPARAM(ICON_BIG), LPARAM(large_icon));
+    Win::SendMessage(this_window, WM_SETICON, WPARAM(ICON_BIG), LPARAM(large_icon));
 }
 
 void Window::SetTimer(unsigned interval_msecs, unsigned event_id) {
+	HWND const this_window = *this;
 	TIMERPROC const callback = NULL;
-	UINT_PTR const success = Win::SetTimer(mHandle, event_id, interval_msecs, callback);
+	UINT_PTR const success = Win::SetTimer(this_window, event_id, interval_msecs, callback);
     ASSERT(success != 0);
 }
 
 void Window::Show(int how) {
-	ASSERT(mHandle != 0);
+	HWND const this_window = *this;
+	ASSERT(this_window != 0);
 
-    Win::ShowWindow(mHandle, how);
+    Win::ShowWindow(this_window, how);
 }
 
 void Window::TranslateAndDispatch(MSG &rMessage) {
+	HWND const this_window = *this;
 	if (mAcceleratorTable != 0) {
-	    int const translated = Win::TranslateAccelerator(mHandle, mAcceleratorTable, &rMessage);
+	    int const translated = Win::TranslateAccelerator(this_window, mAcceleratorTable, &rMessage);
 	    if (translated != 0) {
 			return;
 		}
@@ -417,9 +352,10 @@ void Window::TranslateAndDispatch(MSG &rMessage) {
     Win::DispatchMessage(&rMessage); 
 }
 
+// redraw all menus
 void Window::UpdateMenuBar(void) {
-	// redraw all menus
-	BOOL const success = Win::DrawMenuBar(mHandle);
+	HWND const this_window = *this;
+	BOOL const success = Win::DrawMenuBar(this_window);
 	ASSERT(success);
 }
 
@@ -431,8 +367,9 @@ void Window::UseFibers(void) {
 
 // display a simple dialog box with a warning message and buttons for Cancel, Try Again, and Continue
 int Window::WarnBox(char const *message, char const *title) {
+	HWND const this_window = *this;
 	UINT const options = MB_CANCELTRYCONTINUE | MB_ICONERROR | MB_DEFBUTTON2 | MB_APPLMODAL;
-    int const result = Win::MessageBox(mHandle, message, title, options);
+    int const result = Win::MessageBox(this_window, message, title, options);
 	ASSERT(result == IDCANCEL || result == IDTRYAGAIN || result == IDCONTINUE);
 
     return result;
@@ -440,8 +377,9 @@ int Window::WarnBox(char const *message, char const *title) {
 
 void Window::WarpCursor(Point const &rDestination) {
     // convert to screen coordinates
+	HWND const this_window = *this;
     POINT point = POINT(rDestination);
-    BOOL success = Win::ClientToScreen(mHandle, &point);
+    BOOL success = Win::ClientToScreen(this_window, &point);
     ASSERT(success);
     
     // warp the cursor to new coordinates
@@ -473,7 +411,8 @@ bool Window::HasAMessage(void) const {
 
 bool Window::IsMouseCaptured(void) const {
 	HWND const captor = Win::GetCapture();
-    bool const result = (captor == mHandle);
+	HWND const this_window = *this;
+    bool const result = (captor == this_window);
 	
 	return result;
 }

@@ -36,7 +36,7 @@ static INT_PTR CALLBACK message_handler(
 	LPARAM lParameter)
 {
 	ASSERT(windowHandle != NULL);
-	ParmBox1 * const p_box = (ParmBox1 *)Window::Lookup(windowHandle);
+	ParmBox1 * const p_box = (ParmBox1 *)BaseWindow::Lookup(windowHandle);
     ASSERT(HWND(*p_box) == windowHandle);
 	INT_PTR const result = p_box->HandleMessage(message, wParameter, lParameter);
 

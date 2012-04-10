@@ -25,16 +25,17 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 /*
-A Dialog object represents a generic Microsoft Windows dialog box.
+A Dialog object represents a generic dialog box.
 It mimics a message box when its Run() method is invoked.
 
-The Dialog class is implemented as an extension of the Window class.
+The Dialog class is implemented as an extension of the BaseWindow class.
 It meant to be futher extended by adding controls.  
 */
 
-#include "gui/window.hpp"  // ISA Window
+#include "gui/basewindow.hpp"  // ISA BaseWindow
 
-class Dialog: public Window {
+
+class Dialog: public BaseWindow {
 public:
 	// public types
     typedef long ValueType; // value of a control
@@ -50,7 +51,7 @@ public:
 	Dialog(char const *templateName, Win::DLGPROC);
 	// no default constructor
     // ~Dialog(void);  compiler-generated destructor is OK
-	int Run(Window *pParent);
+	int Run(BaseWindow *pParent);
 
 	// misc public methods
 	int HandleMessage(MessageType, Win::WPARAM);

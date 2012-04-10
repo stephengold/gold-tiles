@@ -42,7 +42,7 @@ static INT_PTR CALLBACK message_handler(
 {
 	lParameter; // unused parameter
 	ASSERT(windowHandle != NULL);
-    Dialog *p_dialog = (Dialog *)Window::Lookup(windowHandle);
+    Dialog *p_dialog = (Dialog *)BaseWindow::Lookup(windowHandle);
 
 	INT_PTR result;
     ASSERT(HWND(*p_dialog) == windowHandle);
@@ -63,7 +63,7 @@ Dialog::Dialog(char const *templateName, DLGPROC messageHandler) {
 	mpMessageHandler = messageHandler;
 }
 
-int Dialog::Run(Window *pParent) {
+int Dialog::Run(BaseWindow *pParent) {
 	ASSERT(pParent != NULL);
 	mspNewlyCreatedWindow = this;
 
@@ -75,6 +75,7 @@ int Dialog::Run(Window *pParent) {
 	ASSERT(result > 0);
 	return int(result);
 }
+
 
 // misc methods
 
@@ -267,5 +268,4 @@ void Dialog::SetTextValue(IdType id, ValueType value) {
 
     ASSERT(GetTextValue(id) == value);
 }
-
 #endif // defined(_WINDOWS)

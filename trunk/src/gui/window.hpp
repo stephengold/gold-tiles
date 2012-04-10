@@ -25,90 +25,73 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 /*
-A Window object represents a generic Microsoft Windows window.
+A Window object represents an overlapped GUI window with the following feaures:
+ + a menubar
+ + a paintable/resizeable client area
+ + access to the mouse pointer (cursor)
+ + message boxes
+ + multiple fibers.
 
-The Window class encapsulates an HWND (window handle) and implements
-a static map for translating handles to Window objects. 
+The Window class is implemented by extending the BaseWindow class.
 */
 
-#include <map>            // HASA std::map
-#include "gui/rect.hpp"   // HASA PixelCntType
+#include "gui/basewindow.hpp" // ISA BaseWindow
+#include "gui/rect.hpp"       // HASA PixelCntType
 
-typedef Win::UINT MessageType;
 
-class Window {
+class Window: public BaseWindow {
 public:
 	// public lifecycle
 	Window(void);
-    // ~WindowClass(void);  compiler-generated destructor is OK
+    // ~Window(void);  compiler-generated destructor is OK
 
 	// public operators
-	operator Win::HWND(void) const;
     operator Rect(void) const;
 
 	// misc public methods
 	PixelCntType    ClientAreaHeight(void) const;
 	PixelCntType    ClientAreaWidth(void) const;
 	Win::LRESULT    HandleMessage(MessageType, Win::WPARAM, Win::LPARAM); 
-    static Window * Lookup(Win::HWND);
     int             MessageDispatchLoop(void);
 	Win::HDC        PaintDevice(void) const;
 	void            Show(int showHow);
 	void            Yields(void);
 
 protected:
-	static Window *mspNewlyCreatedWindow;
-
 	// protected lifecycle
     void Initialize(Win::CREATESTRUCT const &);
 
 	// misc protected methods
-	void *         AddFiber(void (CALLBACK &routine)(void *));
-	void           BeginPaint(void);
-	void           CaptureMouse(void);
-	void           Center(void);
-	void           Close(void);
-	Win::HINSTANCE CopyModule(Window const &);
-	void           Create(String const &rClassName, Rect const &, 
-		                  Window *pParent, Win::HINSTANCE);
-	static Rect    DesktopBounds(void);
-	void           EndPaint(void);
-	void           ErrorBox(char const *message, char const *title);
-	void           ForceRepaint(void);
-	void           InfoBox(char const *message, char const *title);
-	bool           IsMouseCaptured(void) const;
-	virtual char const * 
-		           Name(void) const = 0;
-	void           ReleaseMouse(void);
-	void           SelfDestruct(void);
-	void           SetAcceleratorTable(char const *resourceName);
-	void           SetClientArea(PixelCntType width, PixelCntType height);
-	void           SetCursorBusy(void);
-	void           SetCursorDrag(void);
-	void           SetCursorSelect(void);
-	void           SetHandle(Win::HWND);
-	void           SetIcons(char const *resourceName);
-	void           SetTimer(unsigned msecs, unsigned id);
-	void           UpdateMenuBar(void);
-	void           UseFibers(void);
-	int            WarnBox(char const *message, char const *title);
-	void           WarpCursor(Point const &);
+	void * AddFiber(void (CALLBACK &routine)(void *));
+	void   BeginPaint(void);
+	void   CaptureMouse(void);
+	void   Close(void);
+	void   Create(String const &rClassName, Rect const &, 
+		                  BaseWindow *pParent, Win::HINSTANCE);
+	void   EndPaint(void);
+	void   ErrorBox(char const *message, char const *title);
+	void   ForceRepaint(void);
+	void   InfoBox(char const *message, char const *title);
+	bool   IsMouseCaptured(void) const;
+	void   ReleaseMouse(void);
+	void   SelfDestruct(void);
+	void   SetAcceleratorTable(char const *resourceName);
+	void   SetClientArea(PixelCntType width, PixelCntType height);
+	void   SetCursorBusy(void);
+	void   SetCursorDrag(void);
+	void   SetCursorSelect(void);
+	void   SetIcons(char const *resourceName);
+	void   SetTimer(unsigned msecs, unsigned id);
+	void   UpdateMenuBar(void);
+	void   UseFibers(void);
+	int    WarnBox(char const *message, char const *title);
+	void   WarpCursor(Point const &);
 
 private:
-    typedef unsigned long               KeyType;
-    typedef std::map<KeyType, Window*>  Map;
-    typedef std::pair<KeyType, Window*> Pair;
-	typedef Map::const_iterator         ConstIterator;
-    typedef Map::iterator               Iterator;
-    typedef std::pair<Iterator, bool>   InsertResult;
-
-	static Map msMap;
-	
 	Win::HACCEL      mAcceleratorTable;
-    PixelCntType     mClientAreaWidth, mClientAreaHeight;
-    Win::HWND        mHandle;
+	PixelCntType     mClientAreaHeight;
+    PixelCntType     mClientAreaWidth;
 	void *           mMainFiber;
-    Win::HINSTANCE   mModule; // the module/instance which owns this window  TODO static?
 	Win::HDC         mPaintDevice;
 	Win::PAINTSTRUCT mPaintStruct;
 

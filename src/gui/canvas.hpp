@@ -69,12 +69,10 @@ private:
     Canvas &operator=(Canvas const &);  // not assignable
 
 	// misc private methods
-    void DrawGlyph(Rect const &bounds, AttrModeType, AttrType, ColorType bg,
-                       ColorType fg);
 	void DrawGridShape(Point const &rCenter, PixelCntType width, 
-		               PixelCntType height, bool oddFlag);
-    static void 
-		 InitShapes(void);            
+		PixelCntType height, bool oddFlag);
+    void DrawMarking(Rect const &bounds, AttrModeType, AttrType, ColorType bg,
+        ColorType fg);
+    static void	InitShapes(void);            
 };
-
-#endif
+#endif // !defined(CANVAS_HPP_INCLUDED)

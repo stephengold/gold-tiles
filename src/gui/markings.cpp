@@ -28,7 +28,7 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 
 // static data
 
-const ColorType Markings::msGlyphColors[Tile::VALUE_CNT_MAX] = {
+const ColorType Markings::msColors[Tile::VALUE_CNT_MAX] = {
     COLOR_BLACK,      COLOR_RED,       COLOR_DARK_BLUE, 
     COLOR_DARK_GREEN, COLOR_PURPLE,    COLOR_BROWN, 
     COLOR_DARK_GRAY,  COLOR_PINK,      COLOR_LIGHT_BLUE
@@ -38,8 +38,8 @@ const ColorType Markings::msGlyphColors[Tile::VALUE_CNT_MAX] = {
 // lifecycle
 
 Markings::Markings(Tile const &rTile, DisplayModes const &rDisplayModes) {
-	mGlyphColor = COLOR_BLACK;
-	AttrIndexType i_glyph = 0;
+	mMarkingColor = msColors[0];
+	AttrIndexType i_marking = 0;
 
     for (AttrIndexType i_attr = 0; i_attr < Tile::AttributeCnt(); i_attr++) {
 		 AttrModeType const display_mode = rDisplayModes.Mode(i_attr);
@@ -47,18 +47,18 @@ Markings::Markings(Tile const &rTile, DisplayModes const &rDisplayModes) {
 		 ASSERT(attr_value < Tile::VALUE_CNT_MAX);
 
 		 if (display_mode == ATTR_MODE_COLOR) {
-	         mGlyphColor = msGlyphColors[attr_value];
+	         mMarkingColor = msColors[attr_value];
 		 } else {
-			 ASSERT(i_glyph < GLYPH_CNT_MAX);
-			 mModes[i_glyph] = display_mode;
-             mGlyphs[i_glyph] = attr_value;
-			 i_glyph++;
+			 ASSERT(i_marking < MARKING_CNT_MAX);
+			 mModes[i_marking] = display_mode;
+             mMarkings[i_marking] = attr_value;
+			 i_marking++;
 		 }
     }
 
-	mGlyphCnt = i_glyph;
-	ASSERT(mGlyphCnt > 0);
-	ASSERT(mGlyphCnt <= GLYPH_CNT_MAX);
+	mMarkingCnt = i_marking;
+	ASSERT(mMarkingCnt > 0);
+	ASSERT(mMarkingCnt <= MARKING_CNT_MAX);
 }
 
 // The compiler-generated copy constructor is fine.
@@ -72,27 +72,27 @@ Markings::Markings(Tile const &rTile, DisplayModes const &rDisplayModes) {
 
 // misc methods
 
-AttrType Markings::Glyph(AttrIndexType ind) const {
-	ASSERT(ind < mGlyphCnt);
+AttrType Markings::Marking(AttrIndexType ind) const {
+	ASSERT(ind < mMarkingCnt);
 
-	AttrType result = mGlyphs[ind];
+	AttrType const result = mMarkings[ind];
 
 	ASSERT(result < Tile::VALUE_CNT_MAX);
 	return result;
 }
 
-AttrCntType Markings::GlyphCnt(void) const {
-    return mGlyphCnt;
+AttrCntType Markings::MarkingCnt(void) const {
+    return mMarkingCnt;
 }
 
-ColorType Markings::GlyphColor(void) const {
-	return mGlyphColor;
+ColorType Markings::MarkingColor(void) const {
+	return mMarkingColor;
 }
 
-AttrModeType Markings::Mode(AttrIndexType ind) const {
-	ASSERT(ind < mGlyphCnt);
+AttrModeType Markings::Mode(AttrIndexType index) const {
+	ASSERT(index < mMarkingCnt);
 
-	AttrModeType result = mModes[ind];
+	AttrModeType const result = mModes[index];
 
 	return result;
 }

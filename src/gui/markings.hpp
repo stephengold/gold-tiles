@@ -27,8 +27,8 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 /*
 A Markings object represents information needed to draw a tile in the GUI.
 
-The Markings class encapsulates the tile's foreground color, its glyphs,
-and the display method for each glyph.
+The Markings class encapsulates the tile's foreground color, its markings,
+and the display method for each marking.
 */
 
 #include "gui/color.hpp"  // HASA ColorType
@@ -38,7 +38,7 @@ and the display method for each glyph.
 class Markings {
 public:
 	// public constants
-	static const AttrCntType GLYPH_CNT_MAX = 4;
+	static const AttrCntType MARKING_CNT_MAX = 4;
 
 	// public lifecycle
 	Markings(Tile const &, DisplayModes const &);  
@@ -49,19 +49,19 @@ public:
     // Markings &operator=(Markings const &);  compiler-generated assignment method is OK
 
 	// misc public methods
-	AttrType     Glyph(AttrIndexType) const;
-	AttrCntType  GlyphCnt(void) const;
-	ColorType    GlyphColor(void) const;
+	AttrType     Marking(AttrIndexType) const;
+	AttrCntType  MarkingCnt(void) const;
+	ColorType    MarkingColor(void) const;
 	AttrModeType Mode(AttrIndexType) const;
 
 private:
     // private constants
-	static const ColorType msGlyphColors[Tile::VALUE_CNT_MAX];
+	static const ColorType msColors[Tile::VALUE_CNT_MAX];
 
 	// private data
-	AttrCntType  mGlyphCnt;
-	ColorType    mGlyphColor;
-	AttrType     mGlyphs[GLYPH_CNT_MAX];
-	AttrModeType mModes[GLYPH_CNT_MAX];
+	AttrCntType  mMarkingCnt;
+	ColorType    mMarkingColor;
+	AttrType     mMarkings[MARKING_CNT_MAX];
+	AttrModeType mModes[MARKING_CNT_MAX];
 };
 #endif // !defined(MARKINGS_HPP_INCLUDED)

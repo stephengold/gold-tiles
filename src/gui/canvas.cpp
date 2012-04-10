@@ -32,7 +32,7 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 
 // static data
 
-std::vector<Poly> Canvas::msShapes; // shapes for glyphs
+std::vector<Poly> Canvas::msShapes; // shapes for markings
 
 // lifecycle
 
@@ -120,12 +120,12 @@ void Canvas::DrawGridShape(
 	}
 }
 
-void Canvas::DrawGlyph(
+void Canvas::DrawMarking(
     Rect const &rBounds, 
     AttrModeType displayMode,
-    AttrType glyph,
+    AttrType marking,
     ColorType backgroundColor,
-    ColorType glyphColor)
+    ColorType markingColor)
 {
 	if (msShapes.size() == 0) {
         InitShapes();
@@ -133,10 +133,10 @@ void Canvas::DrawGlyph(
     
 	switch (displayMode) {
 	    case ATTR_MODE_SHAPE: {
-            UseColors(glyphColor, glyphColor);
+            UseColors(markingColor, markingColor);
         
-            ASSERT(glyph < msShapes.size());
-            Poly const polygon = msShapes[glyph];
+            ASSERT(marking < msShapes.size());
+            Poly const polygon = msShapes[marking];
 		    Rect const square = rBounds.CenterSquare();
             DrawPolygon(polygon, square);
 			break;
@@ -145,9 +145,9 @@ void Canvas::DrawGlyph(
 		case ATTR_MODE_ABC:
 		case ATTR_MODE_RST:
 		case ATTR_MODE_123: {
-            UseColors(backgroundColor, glyphColor);
+            UseColors(backgroundColor, markingColor);
 
-            String const ch = Tile::AttributeToString(displayMode, glyph);
+            String const ch = Tile::AttributeToString(displayMode, marking);
             DrawText(rBounds, ch);
 			break;
 		}
@@ -204,36 +204,36 @@ Rect Canvas::DrawTile(
 			FAIL();
 	}
 
-	unsigned const glyph_cnt = rMarkings.GlyphCnt();
+	unsigned const marking_cnt = rMarkings.MarkingCnt();
 
-    PixelCntType glyph_width = interior.Width();
-    PixelCntType glyph_height = interior.Height();    
-    if (glyph_cnt == 2) {
-        glyph_width /= 2;
-    } else if (glyph_cnt == 3 || glyph_cnt == 4) {
-        glyph_width /= 2;
-        glyph_height /= 2;
+    PixelCntType marking_width = interior.Width();
+    PixelCntType marking_height = interior.Height();    
+    if (marking_cnt == 2) {
+        marking_width /= 2;
+    } else if (marking_cnt == 3 || marking_cnt == 4) {
+        marking_width /= 2;
+        marking_height /= 2;
     } else {
-        ASSERT(glyph_cnt == 1);
+        ASSERT(marking_cnt == 1);
     }
 
-	ColorType const glyph_color = rMarkings.GlyphColor();
-    for (AttrIndexType ind = 0; ind < glyph_cnt; ind++) {
-        LogicalXType glyph_left = interior.LeftX();
-        LogicalYType glyph_top = interior.TopY();
-        if (glyph_cnt == 2) {
-            glyph_left += ind*glyph_width;
-        } else if (glyph_cnt == 3 || glyph_cnt == 4) {
-            glyph_left += (ind%2)*glyph_width;
-            glyph_top += (ind/2)*glyph_height;
+	ColorType const marking_color = rMarkings.MarkingColor();
+    for (AttrIndexType ind = 0; ind < marking_cnt; ind++) {
+        LogicalXType marking_left = interior.LeftX();
+        LogicalYType marking_top = interior.TopY();
+        if (marking_cnt == 2) {
+            marking_left += ind*marking_width;
+        } else if (marking_cnt == 3 || marking_cnt == 4) {
+            marking_left += (ind%2)*marking_width;
+            marking_top += (ind/2)*marking_height;
         } else {
-            ASSERT(glyph_cnt == 1);
+            ASSERT(marking_cnt == 1);
         }
 
-        Rect const glyph_bounds(glyph_top, glyph_left, glyph_width, glyph_height);
+        Rect const marking_bounds(marking_top, marking_left, marking_width, marking_height);
 		AttrModeType const mode = rMarkings.Mode(ind);
-		AttrType const glyph = rMarkings.Glyph(ind);
-		DrawGlyph(glyph_bounds, mode, glyph, tileColor, glyph_color); 
+		AttrType const marking = rMarkings.Marking(ind);
+		DrawMarking(marking_bounds, mode, marking, tileColor, marking_color); 
     }
     
     return interior;

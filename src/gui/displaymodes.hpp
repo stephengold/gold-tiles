@@ -45,7 +45,7 @@ public:
 	// misc public methods
 	void          Cleanup(void);
 	AttrCntType   ColorCnt(void) const;
-	AttrCntType   GlyphCnt(void) const;
+	AttrCntType   MarkingCnt(void) const;
 	AttrModeType  Mode(AttrIndexType) const;
 	AttrIndexType SecondColorIndex(void) const;
 	void          SetMode(AttrIndexType, AttrModeType);

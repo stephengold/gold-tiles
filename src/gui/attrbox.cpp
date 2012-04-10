@@ -238,9 +238,9 @@ void AttrBox::UpdateValue(IdType listboxId, AttrModeType value) {
 		}
 	}
 
-	// can't display more than 4 glyphs per tile
-	AttrCntType glyph_cnt = mDisplayModes.GlyphCnt();
-	if (glyph_cnt > Markings::GLYPH_CNT_MAX) {
+	// can't display more than 4 markings per tile
+	AttrCntType marking_cnt = mDisplayModes.MarkingCnt();
+	if (marking_cnt > Markings::MARKING_CNT_MAX) {
 		AttrIndexType new_color_index = 0;
 		if (ind == new_color_index) {
 			new_color_index++;
@@ -251,8 +251,8 @@ void AttrBox::UpdateValue(IdType listboxId, AttrModeType value) {
 	    IdType const listbox_id = ListboxId(new_color_index);
 	    SetListboxSelection(listbox_id, mode); // relies on assertion in HandleMessage()
 
-		glyph_cnt = mDisplayModes.GlyphCnt();
+		marking_cnt = mDisplayModes.MarkingCnt();
 	}
-	ASSERT(glyph_cnt <= Markings::GLYPH_CNT_MAX);
+	ASSERT(marking_cnt <= Markings::MARKING_CNT_MAX);
 }
 #endif // defined(_WINDOWS)

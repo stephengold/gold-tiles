@@ -69,9 +69,9 @@ DisplayModes &DisplayModes::operator=(DisplayModes const &rOther) {
 
 // clean up  display modes for the start of a new game
 void DisplayModes::Cleanup(void) {
-	// can't display more than 4 glyphs per tile
-	AttrCntType const glyph_cnt = GlyphCnt();
-	if (glyph_cnt > Markings::GLYPH_CNT_MAX) {
+	// can't display more than 4 markings per tile
+	AttrCntType const marking_cnt = MarkingCnt();
+	if (marking_cnt > Markings::MARKING_CNT_MAX) {
 		AttrModeType const mode = ATTR_MODE_COLOR;
 		SetMode(0, mode);
 	}
@@ -84,7 +84,7 @@ void DisplayModes::Cleanup(void) {
 	}
 
 	ASSERT(ColorCnt() <= 1);
-	ASSERT(GlyphCnt() <= Markings::GLYPH_CNT_MAX);
+	ASSERT(MarkingCnt() <= Markings::MARKING_CNT_MAX);
 }
 
 AttrCntType DisplayModes::ColorCnt(void) const {
@@ -98,7 +98,7 @@ AttrCntType DisplayModes::ColorCnt(void) const {
 	return result;
 }
 
-AttrCntType DisplayModes::GlyphCnt(void) const {
+AttrCntType DisplayModes::MarkingCnt(void) const {
 	AttrCntType result = 0;
 	for (AttrIndexType i_attr = 0; i_attr < Tile::AttributeCnt(); i_attr++) {
 		if (!IsColor(i_attr)) {

@@ -664,8 +664,8 @@ Rect GameView::DrawSwapArea(
 Rect GameView::DrawTile(Canvas &rCanvas, Point const &rCenter, Tile const &rTile, bool oddFlag) {
     TileIdType id = rTile.Id();
 
-	AttrCntType const glyph_cnt = mDisplayModes.GlyphCnt();
-	ASSERT(glyph_cnt <= Markings::GLYPH_CNT_MAX);
+	AttrCntType const marking_cnt = mDisplayModes.MarkingCnt();
+	ASSERT(marking_cnt <= Markings::MARKING_CNT_MAX);
 
     ColorType tile_color = COLOR_LIGHT_GRAY;
 	if (rTile.HasBonus()) {
@@ -800,7 +800,7 @@ PixelCntType GameView::GridUnitY(void) const {
 
 void GameView::LoadPlayerOptions(Player const &rPlayer) {
 	mDisplayModes = DisplayModes(rPlayer);
-	ASSERT(mDisplayModes.GlyphCnt() <= Markings::GLYPH_CNT_MAX);
+	ASSERT(mDisplayModes.MarkingCnt() <= Markings::MARKING_CNT_MAX);
 
 	mStartCell = Point(rPlayer);
 
@@ -1011,5 +1011,4 @@ bool GameView::IsTargetUsed(void) const {
 
 	return result;
 }
-
 #endif // defined(_WINDOWS)

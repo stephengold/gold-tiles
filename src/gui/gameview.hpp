@@ -106,7 +106,7 @@ private:
 	bool         mTargetCellFlag;
 	TileMap      mTileMap;
 	PixelCntType mTileWidth;
-	Indices      mWarmTiles;
+	Indices      mWarmTiles;   // tiles played on the previous turn
 	GameWindow* mpWindow;
 
 	// private lifecycle
@@ -137,6 +137,7 @@ private:
 	Rect          DrawTile(Canvas &, Point const &center, Tile const &, bool odd);
     PixelCntType  GridUnitX(void) const;
     PixelCntType  GridUnitY(void) const;
+	String        ScoreText(Hand const &, bool playable) const;
 	PixelCntType  TileHeight(void) const;
 
 	// private inquiry methods

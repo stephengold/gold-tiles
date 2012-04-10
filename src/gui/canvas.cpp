@@ -178,12 +178,14 @@ Rect Canvas::DrawTile(
 {
 	ASSERT(::is_even(width));
 
-	ColorType border_color = COLOR_DARK_GRAY;
 	if (borderFlag) {
-		border_color = COLOR_PINK;
+		ColorType border_color = COLOR_WHITE;
+		if (tileColor == COLOR_DULL_GOLD) {
+			border_color = COLOR_GOLD;
+		}
         UseColors(border_color, border_color);
 	} else {
-        UseColors(tileColor, border_color);
+        UseColors(tileColor, COLOR_DARK_GRAY);
 	}
 
 	Rect interior(0,0,0,0);

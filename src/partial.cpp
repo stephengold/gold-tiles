@@ -178,17 +178,17 @@ void Partial::Deactivate(void) {
 }
 
 // RECURSIVE
-void Partial::FindBestMove(Partial &rBest, unsigned &rBestScore) const {
+void Partial::FindBestMove(Partial &rBest, unsigned &rBestPoints) const {
     ASSERT(HasGame());
 
 	Partial temp = *this; // make a temporary copy
     temp.Deactivate();
     temp.SetHintStrength(HINT_USABLE_SELECTED);
-    unsigned const score = temp.Score();
+    unsigned const points = temp.Points();
 
-    if (score > rBestScore) {        
+    if (points > rBestPoints) {        
         rBest = temp;
-        rBestScore = score;
+        rBestPoints = points;
     }
 
 	for (unsigned i = 0; i < CountTiles(); i++) {
@@ -213,9 +213,8 @@ void Partial::FindBestMove(Partial &rBest, unsigned &rBestScore) const {
 				    break;
 			    }
 
-                Cell const cell = *i_cell;
-                temp.HandToCell(cell);
-                temp.FindBestMove(rBest, rBestScore);
+                temp.HandToCell(*i_cell);
+                temp.FindBestMove(rBest, rBestPoints);
                 temp.BoardToHand();
             }
             temp.Deactivate();
@@ -340,9 +339,7 @@ Cell Partial::LocateTile(TileIdType id) const {
     return result;
 }
 
-unsigned Partial::Score(void) const {
-    ASSERT(GetActive() == Tile::ID_NONE);
-    
+unsigned Partial::Points(void) const {
 	unsigned const played_tile_cnt = CountPlayed();
 	unsigned const best_run_length = mpGame->BestRunLength();
 	unsigned result = 0;

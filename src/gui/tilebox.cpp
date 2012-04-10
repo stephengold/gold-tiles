@@ -35,7 +35,7 @@ static INT_PTR CALLBACK message_handler(
 	LPARAM lParameter)
 {
 	ASSERT(windowHandle != NULL);
-    TileBox * const p_box = (TileBox *)Window::Lookup(windowHandle);
+    TileBox * const p_box = (TileBox *)BaseWindow::Lookup(windowHandle);
     ASSERT(HWND(*p_box) == windowHandle);
 	INT_PTR const result = p_box->HandleMessage(message, wParameter, lParameter);
 

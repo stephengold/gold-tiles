@@ -36,7 +36,7 @@ static INT_PTR CALLBACK message_handler(
 {
 	lParameter;  // unused parameter
 	ASSERT(windowHandle != NULL);
-    HintBox * const p_box = (HintBox *)Window::Lookup(windowHandle);
+    HintBox * const p_box = (HintBox *)BaseWindow::Lookup(windowHandle);
     ASSERT(HWND(*p_box) == windowHandle);
 	INT_PTR const result = p_box->HandleMessage(message, wParameter);
 

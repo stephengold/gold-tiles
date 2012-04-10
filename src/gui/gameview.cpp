@@ -683,19 +683,19 @@ Rect GameView::DrawTile(Canvas &rCanvas, Point const &rCenter, Tile const &rTile
        center.Offset(mpWindow->DragTileDeltaX(), mpWindow->DragTileDeltaY());
     }
 	
-	Markings const tile_display(rTile, mDisplayModes);
-
+	Markings const markings(rTile, mDisplayModes);
 	PixelCntType const tile_height = TileHeight();
-    Rect result = rCanvas.DrawTile(tile_display, tile_color, center, mTileWidth, 
-		               tile_height, oddFlag);
+	bool const warm_flag = IsWarmTile(id);
+    Rect const result = rCanvas.DrawTile(markings, tile_color, center, mTileWidth, 
+		tile_height, warm_flag, oddFlag);
     
     return result;
 }
 
 Cell GameView::GetPointCell(Point const &rPoint) const {
-    PixelCntType grid_unit_x = GridUnitX();
-	PixelCntType offset_x = grid_unit_x/2;
-	LogicalXType dx = rPoint.X() - mStartCell.X() + offset_x;
+    PixelCntType const grid_unit_x = GridUnitX();
+	PixelCntType const offset_x = grid_unit_x/2;
+	LogicalXType const dx = rPoint.X() - mStartCell.X() + offset_x;
 	IndexType column;
     if (dx >= 0) {
 		column = dx / grid_unit_x;
@@ -707,7 +707,7 @@ Cell GameView::GetPointCell(Point const &rPoint) const {
 
     PixelCntType const grid_unit_y = GridUnitY();
 	PixelCntType const offset_y = grid_unit_y/2;
-	LogicalYType dy = rPoint.Y() - mStartCell.Y() + offset_y;
+	LogicalYType const dy = rPoint.Y() - mStartCell.Y() + offset_y;
 	IndexType row;
     if (dy >= 0) {
 		row = -long(dy / grid_unit_y);
@@ -890,6 +890,10 @@ void GameView::SetTileSize(unsigned size) {
 	ASSERT(::is_even(mTileWidth));
 }
 
+void GameView::SetWarmTiles(Indices const &rIndices) {
+	mWarmTiles = rIndices;
+}
+
 void GameView::StartCellOffset(long dx, long dy) {
     mStartCell.Offset(dx, dy);
 }
@@ -1008,6 +1012,12 @@ bool GameView::IsTargetUsed(void) const {
 		TileIdType const id = GetCellTile(mTargetCell);
 		result = (id != Tile::ID_NONE);
 	}
+
+	return result;
+}
+
+bool GameView::IsWarmTile(TileIdType tileId) const {
+	bool const result = mWarmTiles.Contains(tileId);
 
 	return result;
 }

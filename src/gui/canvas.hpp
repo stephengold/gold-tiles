@@ -51,7 +51,7 @@ public:
                      ColorType cellColor, ColorType gridColor, bool odd);
     void        DrawTarget(Rect const &);
     Rect        DrawTile(Markings const &, ColorType tileColor, Point const &center, 
-		             PixelCntType width, PixelCntType height, bool odd);
+		             PixelCntType width, PixelCntType height, bool border, bool odd);
 	static Rect InteriorGridShape(Point const &rCenter, PixelCntType width, 
 		             PixelCntType height, bool odd);
 

@@ -192,10 +192,9 @@ void GameWindow::ChangeHand(String const &rOldPlayerName) {
 	ASSERT(HasGame());
 	ASSERT(IsGamePaused() || IsGameOver());
 	ASSERT(mpMenuBar != NULL);
-	ASSERT(mThinkMode == THINK_IDLE);
+	ASSERT(mThinkMode == THINK_IDLE || mThinkMode == THINK_CANCEL);
 
-	Hand const playable_hand = Hand(*mpGame);
-
+	Hand const playable_hand = *mpGame;
 	if (playable_hand.IsLocalUser()) {
         LoadPlayerOptions(playable_hand);
 	}
@@ -204,6 +203,11 @@ void GameWindow::ChangeHand(String const &rOldPlayerName) {
 	mGameView.ResetTargetCell();
 
 	if (!IsGameOver()) {
+		Indices tiles;
+		if (mpGame->CanUndo()) {
+			tiles = mpGame->UndoTiles();
+		}
+		mGameView.SetWarmTiles(tiles);
 	    if (!playable_hand.IsLocalUser()) {
 			mpGame->StartClock();
 		} else if (rOldPlayerName == playable_hand.PlayerName())	{
@@ -814,7 +818,8 @@ void GameWindow::Play(bool passFlag) {
 		move = mGameView.GetMove(true);
 	} else {
 		// hand ran out of time:  force resignation
-		move.MakeResign(mpGame->ActiveTiles()); 
+		move.MakeResign(mpGame->ActiveTiles());
+		passFlag = false;
 	}
 
 	// check whether the move is a legal one
@@ -848,10 +853,7 @@ void GameWindow::RedoTurn(void) {
 
 	mpGame->StopClock();
 	String const old_player_name = SaveHandOptions();
-
     mpGame->Redo();
-	mGameView.Reset();
-
 	ChangeHand(old_player_name);
 }
 
@@ -1012,10 +1014,7 @@ void GameWindow::RestartGame(void) {
 	    mpGame->StopClock();
 	}
 	String const old_player_name = SaveHandOptions();
-
 	mpGame->Restart();
-	mGameView.Reset();
-
 	ChangeHand(old_player_name);
 }
 
@@ -1119,26 +1118,17 @@ void GameWindow::Think(void) {
 	    UpdateMenuBar();
 	    mGameView.Suggest();
 
-		if (mThinkMode == THINK_SUGGEST) {
-			mGameView.ResetTargetCell();
-	        mThinkMode = THINK_IDLE;
-
-		} else if (mThinkMode == THINK_AUTOPLAY) {
-			// reveal the computer's move
-		    ForceRepaint();
-
-		    // pause for human comprehension
-		    MsecIntervalType const start = ::milliseconds();
-		    while (mThinkMode == THINK_AUTOPLAY 
-			    && ::milliseconds() <= start + PAUSE_MSEC)
-			{
-		        Yields();
-		    }
+		if (mThinkMode == THINK_AUTOPLAY) {
+			// must indicate idle before calling Play()
+            mThinkMode = THINK_IDLE;
 
 			// commit the move
-	        mThinkMode = THINK_IDLE;
 			bool const is_pass = mGameView.IsPass();
             Play(is_pass);
+
+		} else if (mThinkMode != THINK_CANCEL) {
+		    mGameView.ResetTargetCell();
+            mThinkMode = THINK_IDLE;
 		}
 
 	    ForceRepaint();
@@ -1156,10 +1146,7 @@ void GameWindow::UndoTurn(void) {
 	    mpGame->StopClock();
 	}
 	String const old_player_name = SaveHandOptions();
-
     mpGame->Undo();
-	mGameView.Reset();
-
 	ChangeHand(old_player_name);
 }
 

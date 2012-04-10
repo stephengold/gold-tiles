@@ -227,6 +227,12 @@ bool Move::IsResign(void) const {
 	return mResignFlag;
 }
 
+bool Move::IsPlay(void) const {
+	bool const result = (Count() > 0) && !mResignFlag && !InvolvesSwap();
+
+	return result;
+}
+
 bool Move::RepeatsTile(void) const {
     bool result = false;
     

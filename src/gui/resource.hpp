@@ -101,6 +101,7 @@
 #define IDM_TS5                                 6225
 #define IDM_TS6                                 6226
 #define IDM_TS7                                 6227
+#define IDM_CANCEL                              6301
 #define IDM_RULES                               6900
 #define IDM_WARRANTY                            6901
 #define IDM_ABOUT                               6902

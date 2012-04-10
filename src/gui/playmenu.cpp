@@ -99,8 +99,8 @@ void PlayMenu::Pause(bool paused) {
 	mPause.Check(paused);
 }
 
-void PlayMenu::EnableItems(Partial const &rPartial, bool isThinking) {
-	bool const is_local = rPartial.IsLocalUsersTurn() && !isThinking;
+void PlayMenu::EnableItems(Partial const &rPartial, ThinkModeType thinkMode) {
+	bool const is_local = rPartial.IsLocalUsersTurn() && (thinkMode != THINK_SUGGEST);
 	bool const is_over = rPartial.IsGameOver();
     bool const is_pass = rPartial.IsPass();
 	bool const is_paused = rPartial.IsGamePaused();

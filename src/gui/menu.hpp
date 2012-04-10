@@ -26,6 +26,8 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 
 /*
 A Menu object represents a top-level menu such as the menu bar of a window.
+
+The Menu class is implemented by encapsulating a menu handle (Win::HMENU).
 */
 
 #include "gui/win.hpp"   // HASA Win::HMENU
@@ -49,5 +51,4 @@ private:
 	// private operators
 	Menu &operator=(Menu const &);  // not copyable
 };
-
-#endif
+#endif // !defined(MENU_HPP_INCLUDED)

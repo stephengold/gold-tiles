@@ -39,6 +39,10 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
 MENUBAR MENU
 {
+    POPUP ""
+    {
+        MENUITEM SEPARATOR
+    }
     POPUP "&File"
     {
         MENUITEM "&New\tCtrl+N", IDM_NEW
@@ -90,6 +94,10 @@ MENUBAR MENU
         MENUITEM "Show Sc&ores", IDM_SHOW_SCORES
         MENUITEM "&Peek", IDM_PEEK
         MENUITEM "A&nimation", IDM_ANIMATION
+    }
+    POPUP "&Thinking"
+    {
+        MENUITEM "&Cancel\tCtrl-C", IDM_CANCEL
     }
     POPUP "&Help", HELP
     {
@@ -188,12 +196,12 @@ FONT 10, "Microsoft Sans Serif"
 
 
 LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
-PARMBOX1 DIALOG 0, 0, 188, 128
+PARMBOX1 DIALOG 0, 0, 196, 128
 STYLE DS_3DLOOK | DS_CENTER | DS_MODALFRAME | DS_SHELLFONT | WS_CAPTION | WS_VISIBLE | WS_POPUP | WS_SYSMENU
 CAPTION "Create New Game - Gold Tile"
 FONT 10, "Microsoft Sans Serif"
 {
-    DEFPUSHBUTTON   "Next >", IDOK, 91, 112, 93, 12
+    DEFPUSHBUTTON   "Next >", IDOK, 91, 112, 100, 12
     PUSHBUTTON      "Cancel", IDCANCEL, 4, 112, 32, 12
     AUTORADIOBUTTON "Debug - allows peeking, undo, and hints", IDC_RADIODEBUG, 7, 15, 134, 8
     AUTORADIOBUTTON "Practice - allows undo and hints, but no peeking", IDC_RADIOPRACTICE, 7, 26, 158, 8
@@ -202,7 +210,7 @@ FONT 10, "Microsoft Sans Serif"
     CONTROL         "", IDC_SLIDERMINUTES, TRACKBAR_CLASS, WS_TABSTOP | TBS_BOTH | TBS_NOTICKS, 17, 59, 81, 12
     EDITTEXT        IDC_EDITMINUTES, 98, 60, 14, 12, ES_AUTOHSCROLL
     LTEXT           "minutes per hand", IDC_STATIC, 116, 62, 53, 8, SS_LEFT
-    LISTBOX         IDC_LIST1, 4, 79, 180, 29, WS_TABSTOP | WS_VSCROLL | LBS_NOINTEGRALHEIGHT | LBS_NOTIFY
+    LISTBOX         IDC_LIST1, 4, 79, 187, 29, WS_TABSTOP | WS_VSCROLL | LBS_NOINTEGRALHEIGHT | LBS_NOTIFY
     GROUPBOX        "Which style of play would you prefer?", IDC_STATIC, 4, 4, 167, 71
 }
 
@@ -357,6 +365,7 @@ HOTKEYS ACCELERATORS
     87,            IDM_CLOSE, VIRTKEY, CONTROL
     89,            IDM_REDO, VIRTKEY
     90,            IDM_UNDO, VIRTKEY
+    67,            IDM_CANCEL, VIRTKEY, CONTROL
 }
 
 

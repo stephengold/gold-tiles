@@ -334,22 +334,22 @@ Rect GameView::DrawHandHeader(
 	    }
     }
 
-    String scoreText;
+    String score_text;
     if (mpMenuBar->AreScoresVisible()) {
-        unsigned score = rHand.Score();
-        scoreText = plural(score, "point");
-        PixelCntType w3 = rCanvas.TextWidth(scoreText);
-        if (w3 > width) {
-            width = w3;
+        unsigned const score = rHand.Score();
+        score_text = plural(score, "point");
+        PixelCntType const score_width = rCanvas.TextWidth(score_text);
+        if (score_width > width) {
+            width = score_width;
         }
     }
     
     String clock_text;
     if (mpMenuBar->AreClocksVisible()) {
         clock_text = ClockText(rHand);
-        PixelCntType w4 = rCanvas.TextWidth(clock_text);
-        if (w4 > width) {
-            width = w4;
+        PixelCntType const clock_width = rCanvas.TextWidth(clock_text);
+        if (clock_width > width) {
+            width = clock_width;
         }
     }
                                  
@@ -386,7 +386,7 @@ Rect GameView::DrawHandHeader(
     
     if (mpMenuBar->AreScoresVisible()) {
         Rect score_box(y, left_x, width, score_height);
-        rCanvas.DrawText(score_box, scoreText);
+        rCanvas.DrawText(score_box, score_text);
         y += score_height;
     }
 

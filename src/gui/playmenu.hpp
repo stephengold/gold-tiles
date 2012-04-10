@@ -49,7 +49,7 @@ public:
 
     // misc public methods
     void Autopause(bool);
-    void EnableItems(Partial const &, bool thinking);
+    void EnableItems(Partial const &, ThinkModeType);
     void Pause(bool);
 
 private:
@@ -63,5 +63,4 @@ private:
     // private operators
     PlayMenu &operator=(PlayMenu const &); // not assignable
 };
-
 #endif // !defined(PLAYMENU_HPP_INCLUDED)

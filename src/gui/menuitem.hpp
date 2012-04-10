@@ -25,7 +25,7 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 /*
-A MenuItem object represents a single item in a SubMenu.
+A MenuItem object represents a command item in a SubMenu.
 
 In the Qt version, the MenuItem class encapsulates a pointer to a QAction.
 In the native version, the MenuItem class encapsulates a handle and a resource id.
@@ -37,7 +37,6 @@ In the native version, the MenuItem class encapsulates a handle and a resource i
 # include <QAction>
 #elif defined(_WINDOWS)
 # include "gui/win.hpp"  // HASA IdType
-# include "project.hpp"  // HASA Menu&
 #endif // defined(_WINDOWS)
 
 #ifdef _QT
@@ -73,10 +72,11 @@ private:
 #ifdef _QT
     QAction *mpAction;
 #elif defined(_WINDOWS)
-    IdType       mFirstItemId;
-    IdType       mItemId;
-    IdType       mLastItemId;
-    Menu const &mrMenu;
+    IdType    mFirstItemId;
+    IdType    mItemId;
+    IdType    mLastItemId;
+    Menu const &
+		     mrMenu;
 #endif // defined(_WINDOWS)
 
     // private lifecycle
@@ -85,5 +85,4 @@ private:
     // private operators
     MenuItem &operator=(MenuItem const &);   // not assignable
 };
-
 #endif // !defined(MENUITEM_HPP_INCLUDED)

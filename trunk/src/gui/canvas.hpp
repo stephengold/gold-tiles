@@ -71,9 +71,9 @@ private:
 
 	// misc private methods
 	void DrawGridShape(Point const &rCenter, PixelCntType width, 
-		PixelCntType height, bool oddFlag);
+		     PixelCntType height, bool oddFlag);
     void DrawMarking(Rect const &bounds, AttrModeType, AttrType, ColorType bg,
-        ColorType fg);
+             ColorType fg);
     static void	InitShapes(void);            
 };
 #endif // !defined(CANVAS_HPP_INCLUDED)

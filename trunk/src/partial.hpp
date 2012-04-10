@@ -92,7 +92,7 @@ public:
 	void          HandToSwap(void);               // move the active tile
 	Cell          LocateTile(void) const;
 	Cell          LocateTile(TileIdType) const;
-	unsigned      Score(void) const;
+	unsigned      Points(void) const;             // points scored so far this turn
 	void          SetHintStrength(HintType);
 	static void   SetYield(YieldFunctionType *, void *arg);
 	void          Suggest(void);

@@ -139,10 +139,10 @@ void GameView::DrawActiveHand(Canvas &rCanvas) {
 
     LogicalYType top_y = mPadPixels;
     LogicalXType left_x = mPadPixels;
-    Hand active_hand = Hand(*mpGame);
+    Hand playable_hand = *mpGame;
     ColorType area_color = COLOR_BLACK;
     bool const left = true;
-    Rect header_rect = DrawHandHeader(rCanvas, top_y, left_x, active_hand, area_color, left);
+    Rect header_rect = DrawHandHeader(rCanvas, top_y, left_x, playable_hand, area_color, left);
     left_x = header_rect.LeftX();
     PixelCntType width = header_rect.Width();
     
@@ -150,7 +150,7 @@ void GameView::DrawActiveHand(Canvas &rCanvas) {
     unsigned tile_cnt = CountHand();
     PixelCntType const cell_height = CellHeight();
 	PixelCntType height = rCanvas.TextHeight() + 2*mPadPixels;
-	if (!active_hand.HasResigned() && !active_hand.HasGoneOut()) {
+	if (!playable_hand.HasResigned() && !playable_hand.HasGoneOut()) {
         height = tile_cnt*cell_height + 2*mPadPixels;
         if (tile_cnt < CountTiles()) {
             // show that there's room for more
@@ -182,15 +182,15 @@ void GameView::DrawActiveHand(Canvas &rCanvas) {
     left_x = mHandRect.LeftX();
     width = mHandRect.Width();
 
-    if (active_hand.HasResigned()) {
+    if (playable_hand.HasResigned()) {
 		rCanvas.DrawText(mHandRect, "resigned");
-	} else if (active_hand.HasGoneOut()) {
+	} else if (playable_hand.HasGoneOut()) {
 		rCanvas.DrawText(mHandRect, "went out");
 	}
 
     // draw swap area (mSwapRect)
     top_y = mHandRect.BottomY() - 1;
-	if (active_hand.HasGoneOut() || active_hand.HasResigned()) {
+	if (playable_hand.HasGoneOut() || playable_hand.HasResigned()) {
         mSwapRect = Rect(top_y, left_x, width, 0);
 	} else {
 		mSwapRect = DrawSwapArea(rCanvas, top_y, left_x, width);
@@ -337,10 +337,12 @@ Rect GameView::DrawHandHeader(
     PixelCntType const cell_width = CellWidth();
 
     String const name_text = rHand.Name();
-    Hand const active_hand = Hand(*mpGame);
-    PixelCntType const w = rCanvas.TextWidth(name_text);
+    Hand const playable_hand = *mpGame;
+	bool const is_playable = (name_text == playable_hand.Name());
+
+	PixelCntType const w = rCanvas.TextWidth(name_text);
     PixelCntType width = (cell_width > w) ? cell_width : w;
-    if (name_text == active_hand.Name()) {
+    if (is_playable) {
 	    PixelCntType w2 = rCanvas.TextWidth("in the stock bag");
 	    if (w2 > width) {
 		    width = w2;
@@ -349,8 +351,7 @@ Rect GameView::DrawHandHeader(
 
     String score_text;
     if (mpMenuBar->AreScoresVisible()) {
-        unsigned const score = rHand.Score();
-        score_text = plural(score, "point");
+        score_text = ScoreText(rHand, is_playable);
         PixelCntType const score_width = rCanvas.TextWidth(score_text);
         if (score_width > width) {
             width = score_width;
@@ -578,9 +579,9 @@ void GameView::DrawPaused(Canvas &rCanvas) {
 	if (mpGame != NULL) {
 	    LogicalYType const top_y = mPadPixels;
         LogicalXType const left_x = mPadPixels;
-        Hand active_hand = Hand(*mpGame);
+        Hand playable_hand = *mpGame;
         bool const left = true;
-        DrawHandHeader(rCanvas, top_y, left_x, active_hand, bg_color, left);
+        DrawHandHeader(rCanvas, top_y, left_x, playable_hand, bg_color, left);
 	}
 }
 
@@ -846,6 +847,26 @@ void GameView::SavePlayerOptions(Player &rPlayer) const {
     rPlayer.SetDisplayModes(mDisplayModes);
 	rPlayer.SetStartCellPosition(mStartCell);
 	// tile size is saved from the menu bar
+}
+
+String GameView::ScoreText(Hand const &rHand, bool isPlayable) const {
+	ASSERT(mpGame != NULL);
+
+    unsigned const score = rHand.Score();
+
+	unsigned points_this_turn = 0;
+	if (isPlayable) {
+	    points_this_turn = Points();
+	}
+
+	String result;
+	if (points_this_turn == 0) {
+	     result = plural(score, "point");
+	} else {
+		result = String(score) + "+" + plural(points_this_turn, "point");
+	}
+
+	return result;
 }
 
 void GameView::SetDisplayModes(DisplayModes const &rDisplayModes) {

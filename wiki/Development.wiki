@@ -75,5 +75,6 @@ Abbreviations in identifiers are used sparingly.
  * max = maximum
  * min = minimum
  * msec = millisecond
+ * poly = polygon
  * rect = rectangle
  * ulc = upper left corner

@@ -1,17 +1,15 @@
 #ifndef PROJECT_HPP_INCLUDED
 #define PROJECT_HPP_INCLUDED
 
-// File:    project.hpp
-// Purpose: project-wide definitions for the Gold Tile Game
-// Author:  Stephen Gold sgold@sonic.net
+// File:     project.hpp
+// Location: src
+// Purpose:  project-wide definitions for the Gold Tile Game
+// Author:   Stephen Gold sgold@sonic.net
 // (c) Copyright 2012 Stephen Gold
 // Distributed under the terms of the GNU General Public License
 
-// project-wide macros
 
-#ifdef QT_GUI_LIB
-# define _QT
-#endif // defined(QT_GUI_LIB)
+// project-wide macros
 
 #if defined(_WINDOWS) || defined(_QT)
 # define _GUI
@@ -24,7 +22,6 @@
 #endif // !defined(_QT)
 
 // debugging macros: D(), ASSERT(), and FAIL()
-
 #ifdef _DEBUG
 #define D(debug_only_code) (debug_only_code)
 #else  // !defined(_DEBUG)
@@ -40,7 +37,9 @@
 
 #define FAIL() ASSERT(false)
 
+
 // forward declarations of project classes
+
 class BaseBoard;
 class Board;
 class Cell;
@@ -96,23 +95,11 @@ class Window;
 class WindowClass;
 #endif  // defined(_GUI)
 
+
 // project-wide typedefs
 
 typedef unsigned long MsecIntervalType;
-
-// project-wide utility functions
-
-void        assertion_failed(const char *, unsigned);
-bool        is_even(long);
-bool        is_odd(long);
-MsecIntervalType
-	        milliseconds(void);  // read clock
-String      ordinal(unsigned);
-void        pause(void);
-const char *plural(unsigned);
-String      plural(unsigned, const char *);
-bool        random_bool(double probability);
-bool        str_eq(char const *, char const *);  // compare text strings
+typedef char const *  TextType;   // read-only, NUL-terminated char[]
 
 // project-wide constants
 
@@ -123,4 +110,20 @@ const double   M_PI = 3.14159265358979323846;
 const MsecIntervalType MSECS_PER_SECOND = 1000;
 const unsigned         SECONDS_PER_MINUTE = 60;
 const double           SQRT_3 = 1.732050807568877;
+
+
+// project-wide utility functions
+
+void        assertion_failed(TextType, unsigned);
+bool        is_even(long);
+bool        is_odd(long);
+MsecIntervalType
+	        milliseconds(void);  // read clock
+String      ordinal(unsigned);
+void        pause(void);
+const char *plural(unsigned);
+String      plural(unsigned, TextType);
+bool        random_bool(double probability);
+bool        str_eq(TextType, TextType);  // compare text strings
+
 #endif // !defined(PROJECT_HPP_INCLUDED)

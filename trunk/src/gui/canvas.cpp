@@ -1,6 +1,7 @@
-// File:    canvas.cpp
-// Purpose: Canvas class
-// Author:  Stephen Gold sgold@sonic.net
+// File:     canvas.cpp
+// Location: src/gui
+// Purpose:  Canvas class
+// Author:   Stephen Gold sgold@sonic.net
 // (c) Copyright 2012 Stephen Gold
 // Distributed under the terms of the GNU General Public License
 
@@ -26,9 +27,8 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 #include "cell.hpp"
 #include "gui/canvas.hpp"
 #include "gui/poly.hpp"
-#include "gui/rect.hpp"
 #include "gui/window.hpp"
-#include "string.hpp"
+
 
 // static data
 
@@ -150,7 +150,9 @@ void Canvas::DrawMarking(
             UseColors(backgroundColor, markingColor);
 
             String const ch = Tile::AttributeToString(displayMode, marking);
+			UseFont(rBounds.Height(), rBounds.Width());
             DrawText(rBounds, ch);
+			UseFont(FONT_HEIGHT_DEFAULT);
 			break;
 		}
 

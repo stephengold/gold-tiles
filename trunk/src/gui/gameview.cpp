@@ -307,7 +307,7 @@ void GameView::DrawCell(Canvas &rCanvas, Cell const &rCell, unsigned swapCnt) {
 		// it's the target cell
 	    ColorType const target_color = COLOR_MEDIUM_GRAY;
 	    rCanvas.UseColors(target_color, target_color);
-	    rCanvas.DrawTarget(rect);
+	    rCanvas.DrawTargetArrow(rect);
 	}
 	if (rCell.IsStart()) {
 		// it's the start cell

@@ -1,9 +1,10 @@
 #ifndef CANVAS_HPP_INCLUDED
 #define CANVAS_HPP_INCLUDED
 
-// File:    canvas.hpp
-// Purpose: Canvas class
-// Author:  Stephen Gold sgold@sonic.net
+// File:     canvas.hpp
+// Location: src/gui
+// Purpose:  Canvas class
+// Author:   Stephen Gold sgold@sonic.net
 // (c) Copyright 2012 Stephen Gold
 // Distributed under the terms of the GNU General Public License
 
@@ -25,7 +26,7 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 /*
-A Canvas object represents the client area of the top window.
+A Canvas object represents the client area of the game window.
 
 The Canvas class extends the Graphics class with features specific to the
 Gold Tile Game.
@@ -45,15 +46,16 @@ public:
     // ~Canvas(void);  compiler-generated destructor is OK
         
 	// misc public methods
-    void        DrawBlankTile(Point const &, PixelCntType width, PixelCntType height, 
-		             ColorType, bool odd);
-	Rect        DrawCell(Point const &, PixelCntType width, PixelCntType height,
-                     ColorType cellColor, ColorType gridColor, bool odd);
-    void        DrawTarget(Rect const &);
-    Rect        DrawTile(Markings const &, ColorType tileColor, Point const &center, 
-		             PixelCntType width, PixelCntType height, bool border, bool odd);
-	static Rect InteriorGridShape(Point const &rCenter, PixelCntType width, 
-		             PixelCntType height, bool odd);
+    void DrawBlankTile(Point const &, PixelCntType width, PixelCntType height, 
+		     ColorType, bool odd);
+	Rect DrawCell(Point const &, PixelCntType width, PixelCntType height,
+             ColorType cellColor, ColorType gridColor, bool odd);
+    void DrawTargetArrow(Rect const &);
+    Rect DrawTile(Markings const &, ColorType tileColor, Point const &center, 
+		     PixelCntType width, PixelCntType height, bool border, bool odd);
+	static Rect 
+		 InteriorGridShape(Point const &rCenter, PixelCntType width, 
+		     PixelCntType height, bool odd);
 
 private:
 	// private constants
@@ -61,7 +63,7 @@ private:
 
 	// private data
     static std::vector<Poly> msShapes; // TODO more choices
-	static Poly              msTargetArrow;
+	static Poly msTargetArrow;
     
 	// private lifecycle
     Canvas(Canvas const &);  // not copyable
@@ -70,10 +72,11 @@ private:
     Canvas &operator=(Canvas const &);  // not assignable
 
 	// misc private methods
-	void DrawGridShape(Point const &rCenter, PixelCntType width, 
-		     PixelCntType height, bool oddFlag);
-    void DrawMarking(Rect const &bounds, AttrModeType, AttrType, ColorType bg,
-             ColorType fg);
-    static void	InitShapes(void);            
+	void        DrawGridShape(Point const &rCenter, PixelCntType width, 
+		            PixelCntType height, bool oddFlag);
+    void        DrawMarking(Rect const &bounds, AttrModeType, AttrType, ColorType bg,
+                    ColorType fg);
+    static void	InitializeShapes(void);         
+    static void	InitializeTargetArrow(void);            
 };
 #endif // !defined(CANVAS_HPP_INCLUDED)

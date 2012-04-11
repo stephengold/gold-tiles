@@ -30,6 +30,12 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 #include "gui/window.hpp"
 
 
+// static data
+
+Poly Graphics::msEquilateral;  // polygon for triangular cells and tiles
+Poly Graphics::msHexagon;      // polygon for hexagonal cells and tiles
+
+
 // lifecycle
 
 Graphics::Graphics(HDC device, Window &rWindow, bool releaseMe, bool bufferFlag):
@@ -92,6 +98,14 @@ Graphics::Graphics(HDC device, Window &rWindow, bool releaseMe, bool bufferFlag)
 
 	TextSizeType const text_size = FindTextSize(FONT_HEIGHT_DEFAULT);
 	SetTextSize(text_size);
+
+	// static polygons initialized on first instantiation of this class
+	if (msEquilateral.Count() == 0) {
+	    InitializeEquilateral();
+	}
+	if (msHexagon.Count() == 0) {
+	    InitializeHexagon();
+	}
 }
 
 /* virtual */ Graphics::~Graphics(void) {
@@ -166,26 +180,15 @@ void Graphics::CreateFonts(void) {
 }
 
 void Graphics::DrawEquilateral(Rect const &rBounds, bool pointDownFlag) {
-	Poly triangle;
+    ASSERT(msEquilateral.Count() == 3);
 
-    triangle.Add(0.0, 0.0);
-    triangle.Add(0.5, 1.0);
-    triangle.Add(1.0, 0.0);
-
-	DrawPolygon(triangle, rBounds, pointDownFlag, true);
+	DrawPolygon(msEquilateral, rBounds, pointDownFlag, true);
 }
 
 void Graphics::DrawHexagon(Rect const &rBounds) {
-	Poly hex;
+    ASSERT(msHexagon.Count() == 6);
 
-	hex.Add(0.0, 0.5);
-	hex.Add(0.25, 1.0);
-	hex.Add(0.75, 1.0);
-	hex.Add(1.0, 0.5);
-	hex.Add(0.75, 0.0);
-	hex.Add(0.25, 0.0);
-
-	DrawPolygon(hex, rBounds);
+	DrawPolygon(msHexagon, rBounds);
 }
 
 void Graphics::DrawLine(Point const &rPoint1, Point const &rPoint2) {
@@ -318,6 +321,29 @@ Graphics::TextSizeType Graphics::FindTextSize(
 	}
 
 	return result;
+}
+
+/* static */ void Graphics::InitializeEquilateral(void) {
+    ASSERT(msEquilateral.Count() == 0);
+
+	msEquilateral.Add(0.0, 0.0);
+    msEquilateral.Add(0.5, 1.0);
+    msEquilateral.Add(1.0, 0.0);
+
+    ASSERT(msEquilateral.Count() == 3);
+}
+
+/* static */ void Graphics::InitializeHexagon(void) {
+    ASSERT(msHexagon.Count() == 0);
+
+	msHexagon.Add(0.0, 0.5);
+	msHexagon.Add(0.25, 1.0);
+	msHexagon.Add(0.75, 1.0);
+	msHexagon.Add(1.0, 0.5);
+	msHexagon.Add(0.75, 0.0);
+	msHexagon.Add(0.25, 0.0);
+
+    ASSERT(msHexagon.Count() == 6);
 }
 
 Rect Graphics::InteriorEquilateral(Rect const &rBounds, bool pointDownFlag) {

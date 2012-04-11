@@ -96,6 +96,10 @@ private:
 	PixelCntType mFontHeight[TEXT_SIZE_CNT];
 	PixelCntType mFontWidth[TEXT_SIZE_CNT];
 
+	// private data - standard shapes
+	static Poly msEquilateral;
+	static Poly msHexagon;
+
 	// private data - misc
     Win::HDC  mDevice;
 	Win::HDC  mDraw;
@@ -115,6 +119,10 @@ private:
 		 FindTextSize(PixelCntType height);
 	TextSizeType 
 		 FindTextSize(PixelCntType height, PixelCntType width);
+	static void
+		 InitializeEquilateral(void);
+	static void
+		 InitializeHexagon(void);
 	void MeasureFonts(void);
 	static PixelCntType 
 		 NominalHeight(TextSizeType size);

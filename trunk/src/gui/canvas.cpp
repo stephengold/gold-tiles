@@ -32,15 +32,23 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 
 // static data
 
-std::vector<Poly> Canvas::msShapes;  // polygons for markings
-Poly Canvas::msTargetArrow;          // polygon for target arrow
+std::vector<Poly> Canvas::msShapes; // polygons for tile markings
+Poly Canvas::msTargetArrow;         // polygon for target cell arrow
 
 
 // lifecycle
 
 Canvas::Canvas(Window &rWindow):
     Graphics(rWindow.PaintDevice(), rWindow, false, true)
-{}
+{
+	// static polygons initialized on first instantiation of this class
+	if (msShapes.size() == 0) {
+        InitializeShapes();
+    }
+	if (msTargetArrow.Count() == 0) {
+        InitializeTargetArrow();
+    }
+}
 
 
 // misc methods
@@ -129,10 +137,6 @@ void Canvas::DrawMarking(
     ColorType backgroundColor,
     ColorType markingColor)
 {
-	if (msShapes.size() == 0) {
-        InitShapes();
-    }
-    
 	switch (displayMode) {
 	    case ATTR_MODE_SHAPE: {
             UseColors(markingColor, markingColor);
@@ -161,11 +165,7 @@ void Canvas::DrawMarking(
     }
 }
 
-void Canvas::DrawTarget(Rect const &rBounds) {
-	if (msShapes.size() == 0) {
-        InitShapes();
-    }
-
+void Canvas::DrawTargetArrow(Rect const &rBounds) {
     DrawPolygon(msTargetArrow, rBounds);
 }
 
@@ -197,21 +197,24 @@ Rect Canvas::DrawTile(
 			ASSERT(width == height);
             PixelCntType const circle_diameter = width/TILE_POINTEDNESS;
 	        DrawRoundedSquare(rCenter, width, circle_diameter);
+			if (borderFlag) {
+                UseColors(tileColor, tileColor);
+			    DrawRoundedSquare(rCenter, (width*7)/8, (circle_diameter*7)/8);
+			}
 	        interior = InteriorRoundedSquare(rCenter, width, circle_diameter);
 			break;
 		}
 	    case GRID_HEX:
 	    case GRID_TRIANGLE: 
 			DrawGridShape(rCenter, width, height, oddFlag);
+			if (borderFlag) {
+                UseColors(tileColor, tileColor);
+			    DrawGridShape(rCenter, (width*5)/6, (height*5)/6, oddFlag);
+			}
 			interior = InteriorGridShape(rCenter, width, height, oddFlag);
 			break;
 		default:
 			FAIL();
-	}
-
-	if (borderFlag) {
-        UseColors(tileColor, tileColor);
-		DrawRectangle(interior);
 	}
 
 	unsigned const marking_cnt = rMarkings.MarkingCnt();
@@ -249,20 +252,10 @@ Rect Canvas::DrawTile(
     return interior;
 }
 
-/* static */ void Canvas::InitShapes(void) {
+/* static */ void Canvas::InitializeShapes(void) {
     ASSERT(msShapes.size() == 0);
-    
-	// arrow for indicating the target cell
-	msTargetArrow.Add(0.6, 0.4);
-	msTargetArrow.Add(0.5, 0.9);
-	msTargetArrow.Add(0.45, 0.65);
-	msTargetArrow.Add(0.2, 0.95);
-	msTargetArrow.Add(0.05, 0.8);
-	msTargetArrow.Add(0.35, 0.55);
-	msTargetArrow.Add(0.1, 0.5);
-	msTargetArrow.Add(0.6, 0.4);
 
-	// tile markings
+	// polygons for tile markings
     {
         Poly roundel;
         for (unsigned i = 0; i < 20; i++) {
@@ -394,6 +387,22 @@ Rect Canvas::DrawTile(
     }
 
     ASSERT(msShapes.size() >= Tile::VALUE_CNT_MAX);
+}
+
+/* static */ void Canvas::InitializeTargetArrow(void) {
+    ASSERT(msTargetArrow.Count() == 0);
+    
+	// polygon arrow for indicating the target cell
+	msTargetArrow.Add(0.6, 0.4);
+	msTargetArrow.Add(0.5, 0.9);
+	msTargetArrow.Add(0.45, 0.65);
+	msTargetArrow.Add(0.2, 0.95);
+	msTargetArrow.Add(0.05, 0.8);
+	msTargetArrow.Add(0.35, 0.55);
+	msTargetArrow.Add(0.1, 0.5);
+	msTargetArrow.Add(0.6, 0.4);
+
+    ASSERT(msTargetArrow.Count() > 0);
 }
 
 /* static */ Rect Canvas::InteriorGridShape(

@@ -1,9 +1,10 @@
 #ifndef DISPLAYMODES_HPP_INCLUDED
 #define DISPLAYMODES_HPP_INCLUDED
 
-// File:    displaymodes.hpp
-// Purpose: DisplayModes class header file
-// Author:  Stephen Gold sgold@sonic.net
+// File:     displaymodes.hpp
+// Location: src/gui
+// Purpose:  DisplayModes class header file
+// Author:   Stephen Gold sgold@sonic.net
 // (c) Copyright 2012 Stephen Gold
 // Distributed under the terms of the GNU General Public License
 
@@ -27,7 +28,7 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 /*
 A DisplayModes object represents the parameters used to display tiles in the GUI.
 
-The DisplayModes class encapsulates an array of AttrModeType values.
+The DisplayModes class encapsulates an array of five AttrModeType values.
 */
 
 #include "tile.hpp"  // HASA AttrModeType 

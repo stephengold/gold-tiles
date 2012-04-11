@@ -1,9 +1,10 @@
 #ifndef WIN_TYPES_HPP_INCLUDED
 #define WIN_TYPES_HPP_INCLUDED
 
-// File:    win_types.hpp
-// Purpose: types needed to access Microsoft Windows APIs
-// Author:  Stephen Gold sgold@sonic.net
+// File:     win_types.hpp
+// Location: src/gui
+// Purpose:  types needed to access Microsoft Windows APIs
+// Author:   Stephen Gold sgold@sonic.net
 // (c) Copyright 2012 Stephen Gold
 // Distributed under the terms of the GNU General Public License
 
@@ -39,6 +40,7 @@ using Win::HACCEL;
 using Win::HBRUSH;
 using Win::HCURSOR;
 using Win::HDC;
+using Win::HFONT;
 using Win::HGDIOBJ;
 using Win::HICON;
 using Win::HINSTANCE;
@@ -58,6 +60,7 @@ using Win::POINTS;
 using Win::RECT;
 using Win::SHORT;
 using Win::SIZE;
+using Win::TEXTMETRIC;
 using Win::TIMERPROC;
 using Win::UINT;
 using Win::UINT_PTR;

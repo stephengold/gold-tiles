@@ -1,9 +1,10 @@
 #ifndef GRAPHICS_HPP_INCLUDED
 #define GRAPHICS_HPP_INCLUDED
 
-// File:    graphics.hpp
-// Purpose: Graphics class
-// Author:  Stephen Gold sgold@sonic.net
+// File:     graphics.hpp
+// Location: src/gui
+// Purpose:  Graphics class
+// Author:   Stephen Gold sgold@sonic.net
 // (c) Copyright 2012 Stephen Gold
 // Distributed under the terms of the GNU General Public License
 
@@ -35,9 +36,13 @@ contexts:  mDraw for drawing and mDevice for the physical device.
 #include "gui/color.hpp"  // HASA ColorType
 #include "gui/rect.hpp"   // HASA Rect
 
+
 class Graphics {
 public:
-    // public lifecycle
+	// public constants
+	static const PixelCntType FONT_HEIGHT_DEFAULT = 24;
+
+	// public lifecycle
     Graphics(Win::HDC, Window &, bool releaseMe, bool doubleBufferingOption);
 	// no default constructor
 	virtual ~Graphics(void);
@@ -52,28 +57,73 @@ public:
     Rect         DrawRectangle(Rect const &);
     Rect         DrawRectangle(LogicalYType, LogicalXType, PixelCntType width, PixelCntType height);
     void         DrawRoundedSquare(Point const &, PixelCntType edge, PixelCntType diameter);
-    void         DrawText(Rect const &, char const *, char const *alt = NULL);
-    void         GetColors(ColorType &brushBk, ColorType &penText) const;
+    void         DrawText(Rect const &, TextType, TextType alt = NULL);
 	static Rect  InteriorEquilateral(Rect const &, bool invert);
 	static Rect  InteriorHexagon(Rect const &);
     static Rect  InteriorRoundedSquare(Point const &, PixelCntType edge, PixelCntType diameter);
     PixelCntType TextHeight(void) const;
-    PixelCntType TextWidth(char const *) const;
+    PixelCntType TextWidth(TextType) const;
     void         UseColors(ColorType brushBk, ColorType penText);
+	void         UseFont(PixelCntType height);
+	void         UseFont(PixelCntType height, PixelCntType width);
 
 private:
-	// private data
-	Win::HGDIOBJ mBitmapSave, mBrushSave, mPenSave;
-    ColorType    mBrushBkColor, mPenTextColor;
-    Win::HDC     mDevice, mDraw;
-    Rect         mRect;
-    bool         mReleaseMe;
-    Win::HWND    mWindow;
+	// private types
+    typedef unsigned short TextSizeType;
+
+	// private constants
+	static const PixelCntType FONT_HEIGHT_MAX = 999;
+	static const PixelCntType FONT_HEIGHT_MIN = 4;
+	static const PixelCntType FONT_WIDTH_MIN = 4;
+	static const TextSizeType TEXT_SIZE_MAX = 13;
+	static const TextSizeType TEXT_SIZE_CNT = TEXT_SIZE_MAX + 1;
+
+	// private data - saved GDI handles
+	Win::HGDIOBJ mBitmapSave;
+	Win::HGDIOBJ mBrushSave;
+	Win::HGDIOBJ mFontSave;
+	Win::HGDIOBJ mPenSave;
+
+	// private data - current colors and fonts
+    ColorType    mBackgroundColor;  // background color and mode for text and broken lines
+    ColorType    mBrushColor;	    // brush color for filling shapes
+	ColorType    mPenColor;         // pen color for broken lines
+	ColorType    mTextColor;        // foreground color for text
+	TextSizeType mTextSize;         // size for text
+
+	// private data - preselected fonts
+	Win::HFONT   mFonts[TEXT_SIZE_CNT];
+	PixelCntType mFontHeight[TEXT_SIZE_CNT];
+	PixelCntType mFontWidth[TEXT_SIZE_CNT];
+
+	// private data - misc
+    Win::HDC  mDevice;
+	Win::HDC  mDraw;
+    Rect      mRect;
+    bool      mReleaseMe;
+    Win::HWND mWindow;
 
 	// private lifecycle
 	Graphics(Graphics const &);  // not copyable
 
 	// private operators
     Graphics &operator=(Graphics const &);  // not assignable
+
+	// misc private methods
+	void CreateFonts(void);
+	TextSizeType 
+		 FindTextSize(PixelCntType height);
+	TextSizeType 
+		 FindTextSize(PixelCntType height, PixelCntType width);
+	void MeasureFonts(void);
+	static PixelCntType 
+		 NominalHeight(TextSizeType size);
+	void SetBackgroundColor(ColorType);
+	void SetBrushColor(ColorType);
+	void SetPenColor(ColorType);
+	void SetTextColor(ColorType);
+	void SetTextSize(TextSizeType);
+	void UseBrushBackgroundColors(ColorType);
+	void UsePenTextColors(ColorType);
 };
 #endif // !defined(GRAPHICS_HPP_INCLUDED)

@@ -1,6 +1,7 @@
-// File:    graphics.cpp
-// Purpose: Graphics class
-// Author:  Stephen Gold sgold@sonic.net
+// File:     graphics.cpp
+// Location: src/gui
+// Purpose:  Graphics class
+// Author:   Stephen Gold sgold@sonic.net
 // (c) Copyright 2012 Stephen Gold
 // Distributed under the terms of the GNU General Public License
 
@@ -22,7 +23,6 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #ifdef _WINDOWS
-#include <math.h>
 #include <vector>
 #include "gui/graphics.hpp"
 #include "gui/poly.hpp"
@@ -36,7 +36,7 @@ Graphics::Graphics(HDC device, Window &rWindow, bool releaseMe, bool bufferFlag)
     mRect(Rect(rWindow))
 {
     mDevice = device;
-    mWindow = HWND(rWindow);
+    mWindow = rWindow;
     mReleaseMe = releaseMe;
     
     if (!bufferFlag) {
@@ -51,37 +51,47 @@ Graphics::Graphics(HDC device, Window &rWindow, bool releaseMe, bool bufferFlag)
 		PixelCntType const height = mRect.Height();
         HGDIOBJ const bitmap = Win::CreateCompatibleBitmap(mDevice, width, height);
         ASSERT(bitmap != NULL);
+
+		// save original GDI handle
         mBitmapSave = Win::SelectObject(mDraw, bitmap);
         ASSERT(mBitmapSave != NULL);
     }
 
-    // brush color for filling shapes
-    mBrushBkColor = COLOR_WHITE;
-    HBRUSH const brush = Win::CreateSolidBrush(mBrushBkColor);
+	// create brush
+    mBrushColor = COLOR_WHITE;
+    HBRUSH const brush = Win::CreateSolidBrush(mBrushColor);
     ASSERT(brush != NULL);
+
+	// initialize mFonts[]
+	CreateFonts();
+
+	// create pen
+    mPenColor = COLOR_BLACK;
+	int const pen_style = PS_SOLID;
+    int const pen_width = 0; // means single pixel
+    HPEN const pen = Win::CreatePen(pen_style, pen_width, mPenColor);
+    ASSERT(pen != NULL);
+
+	// save the original GDI handles for brush, font, and pen
     mBrushSave = Win::SelectObject(mDraw, brush);
     ASSERT(mBrushSave != NULL);
-    
-    // background color and mode for text and broken lines
-    // (same as brush color)
-    COLORREF const old_background_color = Win::SetBkColor(mDraw, mBrushBkColor);
-    ASSERT(old_background_color != CLR_INVALID);
-	int const old_mode = SetBkMode(mDraw, OPAQUE);
-    ASSERT(old_mode != 0);
-
-    // foreground color for text and broken lines
-    // (same as pen color)
-    COLORREF const old_text_color = Win::SetTextColor(mDraw, mPenTextColor);
-    ASSERT(old_text_color != CLR_INVALID);
-
-    // pen color for outlining shapes
-    int const penStyle = PS_SOLID;
-    int const penWidth = 0; // means single pixel
-    mPenTextColor = COLOR_BLACK;
-    HPEN const pen = Win::CreatePen(penStyle, penWidth, mPenTextColor);
-    ASSERT(pen != NULL);
+    mFontSave = Win::SelectObject(mDraw, mFonts[0]);
+    ASSERT(mFontSave != NULL);
     mPenSave = Win::SelectObject(mDraw, pen);
     ASSERT(mPenSave != NULL);
+
+	// initialize mFontHeight[] and mFontWidth[]
+	MeasureFonts();
+
+	// initial size and colors for text
+    ColorType const background_color = mBrushColor;
+	SetBackgroundColor(background_color);
+
+    ColorType const text_color = mPenColor;
+    SetTextColor(text_color);
+
+	TextSizeType const text_size = FindTextSize(FONT_HEIGHT_DEFAULT);
+	SetTextSize(text_size);
 }
 
 /* virtual */ Graphics::~Graphics(void) {
@@ -94,6 +104,13 @@ Graphics::Graphics(HDC device, Window &rWindow, bool releaseMe, bool bufferFlag)
     ASSERT(pen != NULL);
     success = Win::DeleteObject(pen);
     ASSERT(success);
+
+    HGDIOBJ const font = Win::SelectObject(mDraw, mFontSave);
+	ASSERT(font != NULL);
+	for (TextSizeType i_size = 0; i_size < TEXT_SIZE_CNT; i_size++) {
+		success = Win::DeleteObject(mFonts[i_size]);
+        ASSERT(success);
+	}
 
     if (mDraw != mDevice) {
         Win::DeleteDC(mDraw);
@@ -126,6 +143,26 @@ void Graphics::Close(void) {
         success = Win::DeleteObject(bitmap);
         ASSERT(success);
     }
+}
+
+// create variable-width fonts in assorted sizes
+void Graphics::CreateFonts(void) {
+	int const orientation = 0;
+	int const weight = FW_MEDIUM;
+	DWORD const not = FALSE;
+	LPCTSTR const face_name = "Tahoma";
+	for (TextSizeType i_size = 0; i_size < TEXT_SIZE_CNT; i_size++) {
+		PixelCntType const height = NominalHeight(i_size);
+	    PixelCntType const width = height/3;  // narrow
+	    HFONT const font = Win::CreateFont(
+			height, width, orientation, orientation, weight,
+			not /* italic */, not /* underlined */, not /* strikeout */,
+			ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, PROOF_QUALITY,
+			(VARIABLE_PITCH | FF_SWISS), face_name);
+		ASSERT(font != NULL);
+
+		mFonts[i_size] = font;
+	}
 }
 
 void Graphics::DrawEquilateral(Rect const &rBounds, bool pointDownFlag) {
@@ -233,10 +270,10 @@ void Graphics::DrawRoundedSquare(
     ASSERT(success);
 }
 
-void Graphics::DrawText(Rect const &rRect, char const *text, char const *altText) {
+void Graphics::DrawText(Rect const &rRect, TextType text, TextType altText) {
 	ASSERT(text != NULL);
 
-	char const *str = "";
+	TextType str = "";
 
     if (altText == NULL || TextWidth(text) <= rRect.Width()) {
 		str = text;
@@ -247,17 +284,41 @@ void Graphics::DrawText(Rect const &rRect, char const *text, char const *altText
     int const str_length = ::strlen(str);
 	UINT const format = DT_CENTER | DT_EXTERNALLEADING | DT_NOPREFIX 
                 | DT_SINGLELINE | DT_VCENTER;
-    RECT bounds = RECT(rRect);
+    RECT bounds = rRect;
     BOOL const success = Win::DrawText(mDraw, str, str_length, &bounds, format);
     ASSERT(success);
 }
 
-#if 0
-void Graphics::GetColors(ColorType &rBrushBkColor, ColorType &rPenTextColor) const {
-    rPenTextColor = mPenTextColor;
-    rBrushBkColor = mBrushBkColor;
+Graphics::TextSizeType Graphics::FindTextSize(PixelCntType maxHeight) {
+	ASSERT(maxHeight >= 8);
+
+	TextSizeType result = 0;
+	for (TextSizeType i_size = 0; i_size < TEXT_SIZE_CNT; i_size++) {
+        if (mFontHeight[i_size] <= maxHeight) {
+			result = i_size;
+		}
+	}
+
+	return result;
 }
-#endif
+
+Graphics::TextSizeType Graphics::FindTextSize(
+	PixelCntType maxHeight,
+	PixelCntType maxWidth)
+{
+	ASSERT(maxHeight >= 3);
+	ASSERT(maxWidth >= 3);
+
+	TextSizeType result = 0;
+	for (TextSizeType i_size = 0; i_size < TEXT_SIZE_CNT; i_size++) {
+        if (mFontHeight[i_size] <= maxHeight
+		 && mFontWidth[i_size] <= maxWidth) {
+			result = i_size;
+		}
+	}
+
+	return result;
+}
 
 Rect Graphics::InteriorEquilateral(Rect const &rBounds, bool pointDownFlag) {
 	FractionPair pair_ulc(0,0);
@@ -310,13 +371,125 @@ Rect Graphics::InteriorRoundedSquare(
     return result;
 }
 
+// cache the actual height and width of each font
+void Graphics::MeasureFonts(void) {
+	for (TextSizeType i_size = 0; i_size < TEXT_SIZE_CNT; i_size++) {
+		SetTextSize(i_size);
+
+		TEXTMETRIC metrics;
+	    BOOL const success = Win::GetTextMetrics(mDraw, &metrics);
+	    ASSERT(success);
+
+	    PixelCntType const height = metrics.tmHeight;
+		ASSERT(height >= FONT_HEIGHT_MIN);
+	    ASSERT(height <= NominalHeight(i_size));
+		mFontHeight[i_size] = height;
+
+	    PixelCntType const width = TextWidth("W");
+		ASSERT(width >= FONT_WIDTH_MIN);
+	    ASSERT(width <= 3*height);
+		mFontWidth[i_size] = width;
+	}
+}
+
+/* static */ PixelCntType Graphics::NominalHeight(TextSizeType size) {
+	ASSERT(size <= TEXT_SIZE_MAX);
+
+	PixelCntType const result = 4*(size + 2);
+
+	ASSERT(result >= FONT_HEIGHT_MIN);
+	ASSERT(result <= FONT_HEIGHT_MAX);
+	return result;
+}
+
+void Graphics::SetBackgroundColor(ColorType color) {
+	if (color != COLOR_TRANSPARENT) {
+		// solid color background
+        COLORREF const old_color = Win::SetBkColor(mDraw, color);
+        ASSERT(old_color != CLR_INVALID);
+	    int const old_mode = SetBkMode(mDraw, OPAQUE);
+        ASSERT(old_mode != 0);
+	} else {
+		// transparent background
+		int const old_mode = SetBkMode(mDraw, TRANSPARENT);
+        ASSERT(old_mode != 0);
+	}
+
+    mBackgroundColor = color;
+}
+
+void Graphics::SetBrushColor(ColorType color) {
+	if (color != COLOR_TRANSPARENT) {
+		// solid color brush
+        HBRUSH const brush = Win::CreateSolidBrush(color);
+        ASSERT(brush != NULL);
+
+        HGDIOBJ const old = Win::SelectObject(mDraw, brush);
+        ASSERT(old != NULL);
+        BOOL const success = Win::DeleteObject(old);
+        ASSERT(success);
+	} else {
+		// TODO - transparent brush
+	}
+
+    mBrushColor = color;
+}
+
+void Graphics::SetPenColor(ColorType color) {
+	ASSERT(color != COLOR_TRANSPARENT);
+
+	int const pen_style = PS_SOLID;
+    int const pen_width = 0; // means a pen one pixel wide
+    HPEN const pen = Win::CreatePen(pen_style, pen_width, color);
+    ASSERT(pen != NULL);
+
+    HGDIOBJ const old = Win::SelectObject(mDraw, pen);
+    ASSERT(old != NULL);
+    BOOL const success = Win::DeleteObject(old);
+    ASSERT(success);
+        
+    mPenColor = color;
+}
+
+void Graphics::SetTextColor(ColorType color) {
+	ASSERT(color != COLOR_TRANSPARENT);
+
+	COLORREF const old_color = Win::SetTextColor(mDraw, color);
+    ASSERT(old_color != CLR_INVALID);
+        
+    mTextColor = color;
+}
+
+void Graphics::SetTextSize(TextSizeType size) {
+	ASSERT(size <= TEXT_SIZE_MAX);
+
+	HFONT const font = mFonts[size];
+	ASSERT(font != NULL);
+
+    HGDIOBJ old_font = Win::SelectObject(mDraw, font);
+    ASSERT(old_font != NULL);
+
+	mTextSize = size;
+}
+
 PixelCntType Graphics::TextHeight(void) const {
-    PixelCntType const result = 20;
-    
+	PixelCntType result = FONT_HEIGHT_MIN;
+	if (mTextSize <= TEXT_SIZE_MAX) {
+	    result = mFontHeight[mTextSize];
+	} else {
+	    TEXTMETRIC metrics;
+	    BOOL const success = Win::GetTextMetrics(mDraw, &metrics);
+	    ASSERT(success);
+	    result = metrics.tmHeight;
+	}
+
+	ASSERT(result >= FONT_HEIGHT_MIN);
+	ASSERT(result <= FONT_HEIGHT_MAX);
+
     return result;
 }
 
-PixelCntType Graphics::TextWidth(char const *text) const {
+PixelCntType Graphics::TextWidth(TextType text) const {
     int const length = ::strlen(text);
     SIZE extent;
     BOOL const success = Win::GetTextExtentPoint32(mDraw, text, length, &extent);
@@ -326,49 +499,52 @@ PixelCntType Graphics::TextWidth(char const *text) const {
     return result;
 }
 
-void Graphics::UseColors(ColorType brushBkColor, ColorType penTextColor) {
-	ASSERT(penTextColor != COLOR_TRANSPARENT);
+void Graphics::UseBrushBackgroundColors(ColorType color) {
+	if (color != mBrushColor) {
+	    SetBrushColor(color);
+	}
+	if (color != mBackgroundColor) {
+	    SetBackgroundColor(color);
+	}
 
-	if (brushBkColor != mBrushBkColor) {
-		if (brushBkColor != COLOR_TRANSPARENT) {
-			// solid color brush
-            HBRUSH const brush = Win::CreateSolidBrush(brushBkColor);
-            ASSERT(brush != NULL);
-            HGDIOBJ const old = Win::SelectObject(mDraw, brush);
-            ASSERT(old != NULL);
-            BOOL const success = Win::DeleteObject(old);
-            ASSERT(success);
+    ASSERT(mBrushColor == color);
+    ASSERT(mBackgroundColor == color);
+}
 
-			// solid color background
-            COLORREF const old_color = Win::SetBkColor(mDraw, brushBkColor);
-            ASSERT(old_color != CLR_INVALID);
-		    int const old_mode = SetBkMode(mDraw, OPAQUE);
-            ASSERT(old_mode != 0);
-		} else {
-			// TODO - should also set transparent brush
+void Graphics::UseColors(ColorType brushBackgroundColor, ColorType penTextColor) {
+	UseBrushBackgroundColors(brushBackgroundColor);
+	UsePenTextColors(penTextColor);
+}
 
-			// transparent background
-		    int const old_mode = SetBkMode(mDraw, TRANSPARENT);
-            ASSERT(old_mode != 0);
-		}
+void Graphics::UseFont(PixelCntType maxHeight) {
+	TextSizeType const best_size = FindTextSize(maxHeight);
 
-        mBrushBkColor = brushBkColor;
-    }
-       
-    if (penTextColor != mPenTextColor) {
-        COLORREF const old_color = Win::SetTextColor(mDraw, penTextColor);
-        ASSERT(old_color != CLR_INVALID);
+	if (best_size != mTextSize) {
+	    SetTextSize(best_size);
+	}
+	ASSERT(mTextSize == best_size);
+}
 
-        int const pen_style = PS_SOLID;
-        int const pen_width = 0; // means a pen one pixel wide
-        HPEN const pen = Win::CreatePen(pen_style, pen_width, penTextColor);
-        ASSERT(pen != NULL);
-        HGDIOBJ const old = Win::SelectObject(mDraw, pen);
-        ASSERT(old != NULL);
-        BOOL const success = Win::DeleteObject(old);
-        ASSERT(success);
-        
-        mPenTextColor = penTextColor;
-    }
+void Graphics::UseFont(PixelCntType maxHeight, PixelCntType maxWidth) {
+	TextSizeType const best_size = FindTextSize(maxHeight, maxWidth);
+
+	if (best_size != mTextSize) {
+	    SetTextSize(best_size);
+	}
+	ASSERT(mTextSize == best_size);
+}
+
+void Graphics::UsePenTextColors(ColorType color) {
+	ASSERT(color != COLOR_TRANSPARENT);
+
+	if (color != mPenColor) {
+	    SetPenColor(color);
+	}
+	if (color != mTextColor) {
+	    SetTextColor(color);
+	}
+
+	ASSERT(mPenColor == color);
+    ASSERT(mTextColor == color);
 }
 #endif // defined(_WINDOWS)

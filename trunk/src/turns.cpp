@@ -1,6 +1,7 @@
-// File:    turns.cpp
-// Purpose: Turns class
-// Author:  Stephen Gold sgold@sonic.net
+// File:     turns.cpp
+// Location: src
+// Purpose:  Turns class
+// Author:   Stephen Gold sgold@sonic.net
 // (c) Copyright 2012 Stephen Gold
 // Distributed under the terms of the GNU General Public License
 
@@ -23,6 +24,7 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "turns.hpp"
 
+
 // lifecycle
 
 // The compiler-generated default constructor is OK.
@@ -37,6 +39,12 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 
 // misc methods
 
+unsigned Turns::Count(void) const {
+	unsigned const result = size();
+
+	return result;
+}
+
 // convert an iterator to an index
 unsigned Turns::Index(Iterator const &rIterator) const {
 
@@ -46,6 +54,20 @@ unsigned Turns::Index(Iterator const &rIterator) const {
 	for (iterator = begin(); iterator != rIterator; iterator++) {
 		ASSERT(iterator != end());
 		result++;
+	}
+
+	return result;
+}
+
+unsigned Turns::IndexLastPlay(void) const {
+	unsigned result = Count();
+
+	for (ConstReverseIterator i_turn = rbegin(); i_turn != rend(); i_turn++) {
+		Move const move = *i_turn;
+		if (move.IsPlay()) {
+			break;
+		}
+		result--;
 	}
 
 	return result;

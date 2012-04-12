@@ -1,6 +1,7 @@
-// File:    cell.cpp
-// Purpose: Cell class
-// Author:  Stephen Gold sgold@sonic.net
+// File:     cell.cpp
+// Location: src
+// Purpose:  Cell class
+// Author:   Stephen Gold sgold@sonic.net
 // (c) Copyright 2012 Stephen Gold
 // Distributed under the terms of the GNU General Public License
 
@@ -112,7 +113,6 @@ Cell::Cell(Cell const &rBase, DirectionType direction, IndexType count) {
 	ASSERT(old_ortho == new_ortho);
 	IndexType const new_group = Group(old_direction);
 	ASSERT(old_group != new_group);
-	ASSERT(IsValid());
 }
 
 // The compiler-generated destructor is fine.
@@ -164,6 +164,53 @@ Cell::operator String(void) const {
 
 
 // misc methods
+
+/* static */ DirectionType Cell::Axis(DirectionType direction) {
+	DirectionType result = direction;
+
+	switch (direction) {
+	    case DIRECTION_NORTH:
+	    case DIRECTION_NORTHEAST:
+	    case DIRECTION_EAST:
+	    case DIRECTION_SOUTHEAST:
+			result = direction;
+			break;
+	    case DIRECTION_SOUTH:
+	    case DIRECTION_SOUTHWEST:
+	    case DIRECTION_WEST:
+	    case DIRECTION_NORTHWEST:
+			result = OppositeDirection(direction);
+			break;
+		default:
+			FAIL();
+			break;
+	}
+
+	return result;
+}
+
+
+/* static */ IndexType Cell::AxisLength(DirectionType axis) {
+	ASSERT(IsScoringAxis(axis));
+
+	IndexType result = HEIGHT_MAX;
+	switch (axis) {
+	    case DIRECTION_NORTH:
+		    result = msHeight;
+			break;
+	    case DIRECTION_EAST:
+		    result = msWidth;
+			break;
+	    case DIRECTION_NORTHEAST:
+	    case DIRECTION_SOUTHEAST:
+			// TODO
+		default:
+			FAIL();
+			break;
+	}
+
+	return result;
+}
 
 IndexType Cell::Column(void) const {
 	ASSERT(IsValid());
@@ -300,6 +347,27 @@ IndexType Cell::Group(DirectionType direction) const {
     return result;        
 }
 
+/* static */ DirectionType Cell::LongestAxis(void) {
+	DirectionType result = DIRECTION_UNKNOWN;
+	IndexType max_length = 0;
+
+	for (int dir = DIRECTION_FIRST; 
+             dir <= DIRECTION_LAST_POSITIVE;
+             dir++)
+    {
+        DirectionType const axis = DirectionType(dir);
+        if (IsScoringAxis(axis)) {
+			IndexType const length = AxisLength(axis);
+			if (length > max_length) {
+				max_length = length;
+				result = axis;
+			}
+		}
+	}
+
+	return result;
+}
+
 void Cell::Next(DirectionType direction, IndexType count) {
 	ASSERT(count == 1 || count == -1);
 
@@ -388,6 +456,7 @@ void Cell::Next(DirectionType direction, IndexType count) {
 
 IndexType Cell::Ortho(DirectionType direction) const {
     DirectionType const axis = OrthoAxis(direction);
+	ASSERT(IsAxis(axis));
 
 	IndexType result = 0;
 
@@ -496,6 +565,8 @@ IndexType Cell::Row(void) const {
 // inquiry methods
 
 bool Cell::HasNeighbor(DirectionType direction) const {
+	ASSERT(direction != DIRECTION_UNKNOWN);
+
 	bool result = true;
 
 	switch (msGrid) {
@@ -525,7 +596,7 @@ bool Cell::HasNeighbor(DirectionType direction) const {
 			break;
 
 		case GRID_8WAY:
-			// has neighbors in all directions
+			// has neighbors in all eight directions
 			break;
 
 		default:
@@ -549,10 +620,60 @@ bool Cell::HasNeighbor(DirectionType direction) const {
 	return result;
 }
 
+/* static */ bool Cell::IsAxis(DirectionType direction) {
+	bool result = false;
+
+	switch (direction) {
+	    case DIRECTION_NORTH:
+	    case DIRECTION_NORTHEAST:
+	    case DIRECTION_EAST:
+	    case DIRECTION_SOUTHEAST:
+			result = true;
+			break;
+		default:
+			result = false;
+			break;
+	}
+
+	return result;
+}
+
 bool Cell::IsOdd(void) const {
     bool result = (::is_odd(mRow) != ::is_odd(mColumn));
 
 	return result;
+}
+
+/* static */ bool Cell::IsScoringAxis(DirectionType axis) {
+	ASSERT(IsAxis(axis));
+
+    bool result = false;
+    switch (Cell::Grid()) {
+        case GRID_TRIANGLE:
+            result = (axis != DIRECTION_NORTH); 
+            break;
+        case GRID_4WAY:
+            result = (axis == DIRECTION_NORTH 
+                   || axis == DIRECTION_EAST);
+            break;
+        case GRID_HEX:
+            result = (axis != DIRECTION_EAST);
+            break;
+        case GRID_8WAY:
+            result = true;
+            break;
+        default:
+            FAIL();
+    }
+     
+    return result;
+}
+
+/* static */ bool Cell::IsScoringDirection(DirectionType direction) {
+	 DirectionType const axis = Axis(direction);
+     bool const result = IsScoringAxis(axis);
+
+	 return result;
 }
 
 bool Cell::IsStart(void) const {

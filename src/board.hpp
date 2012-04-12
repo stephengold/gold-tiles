@@ -1,9 +1,10 @@
 #ifndef BOARD_HPP_INCLUDED
 #define BOARD_HPP_INCLUDED
 
-// File:    board.hpp
-// Purpose: Board class
-// Author:  Stephen Gold sgold@sonic.net
+// File:     board.hpp
+// Location: src
+// Purpose:  Board class
+// Author:   Stephen Gold sgold@sonic.net
 // (c) Copyright 2012 Stephen Gold
 // Distributed under the terms of the GNU General Public License
 
@@ -38,6 +39,7 @@ BaseBoard is hidden from these extensions.
 #include "baseboard.hpp"   // ISA BaseBoard
 #include "move.hpp"        // USES Move
 
+
 class Board: public BaseBoard {
 public:
 	// misc public methods
@@ -45,7 +47,7 @@ public:
     bool       LocateTile(Tile const &, Cell &) const;
     void	   PlayMove(Move const &);
     static String 
-		       ReasonMessage(char const *reason, String &title);
+		       ReasonMessage(TextType reason, String &title);
     unsigned   ScoreMove(Move const &) const;
     void	   UnplayMove(Move const &);
 
@@ -56,7 +58,7 @@ public:
     bool HasNeighbor(Cell const &) const;
 	bool IsEmpty(void) const;
     bool IsValidMove(Move const &) const;
-    bool IsValidMove(Move const &, char const *&rReason) const;
+    bool IsValidMove(Move const &, TextType &rReason) const;
 
 private:
 	// misc private methods
@@ -73,9 +75,7 @@ private:
     bool AreAllCompatible(Cells const &) const;
     bool AreAllEmpty(Cells const &) const;
     bool DoesAnyHaveNeighbor(Cells const &) const;
+    bool IsAxisCompatible(Cell const &, DirectionType) const;
     bool IsConnectedDirection(Cells const &, DirectionType) const;
-    bool IsDirectionCompatible(Cell const &, DirectionType) const;
-	static bool
-		 IsScoringDirection(DirectionType);
 };
 #endif // !defined(BOARD_HPP_INCLUDED)

@@ -1,6 +1,7 @@
-// File:    board.cpp
-// Purpose: Board class
-// Author:  Stephen Gold sgold@sonic.net
+// File:     board.cpp
+// Location: src
+// Purpose:  Board class
+// Author:   Stephen Gold sgold@sonic.net
 // (c) Copyright 2012 Stephen Gold
 // Distributed under the terms of the GNU General Public License
 
@@ -61,23 +62,32 @@ long Board::GetLimits(
 	Cell &rFirst,
 	Cell &rLast) const
 {
+	ASSERT(Cell::IsScoringAxis(direction));
+	ASSERT(rCell.IsValid());
     ASSERT(!HasEmptyCell(rCell));
-	long result = -1;
-    
+	long result = 1;
+
+	// look in the negative direction; stop at first invalid or empty cell
     rFirst = rCell;
-    while (!HasEmptyCell(rFirst)) {
-        // TODO edge effects
-        rFirst.Next(direction, -1);
+    for (;;) {
+        Cell const previous(rFirst, direction, -1);
+        if (!previous.IsValid() || HasEmptyCell(previous)) {
+			break;
+		}
+		rFirst = previous;
 		++result;
-    }
-    rFirst.Next(direction);
+	}
     
+	// look in the positive direction; stop at first invalid or empty cell
     rLast = rCell;
-    while (!HasEmptyCell(rLast)) {
-        rLast.Next(direction);
+	for (;;) {
+        Cell const next(rLast, direction);
+        if (!next.IsValid() || HasEmptyCell(next)) {
+			break;
+		}
+		rLast = next;
 		++result;
-    }
-    rLast.Next(direction, -1);
+	}
 
 	return result;
 }
@@ -253,15 +263,15 @@ unsigned Board::ScoreMove(Move const &rMove) const {
              dir <= DIRECTION_LAST_POSITIVE;
              dir++)
     {
-        DirectionType direction = DirectionType(dir);
-        if (IsScoringDirection(direction)) {
+        DirectionType const axis = DirectionType(dir);
+        if (Cell::IsScoringAxis(axis)) {
             Indices done_ortho;
 
             Cells::ConstIterator i_cell;
             for (i_cell = cells.begin(); i_cell != cells.end(); i_cell++) {
-                IndexType const ortho = i_cell->Ortho(direction);
+                IndexType const ortho = i_cell->Ortho(axis);
                 if (!done_ortho.Contains(ortho)) {
-                    result += ScoreDirection(*i_cell, direction);        
+                    result += ScoreDirection(*i_cell, axis);        
                     done_ortho.Add(ortho);
                 }
             }
@@ -283,16 +293,18 @@ void Board::UnplayMove(Move const &rMove) {
 
 // inquiry methods
 
-bool Board::AreAllCompatible(Cells const &rCells, DirectionType direction) const {
+bool Board::AreAllCompatible(Cells const &rCells, DirectionType axis) const {
+	ASSERT(Cell::IsScoringAxis(axis));
+
     bool result = true;
     
     Indices done_orthos;
         
     Cells::ConstIterator i_cell;
     for (i_cell = rCells.begin(); i_cell != rCells.end(); i_cell++) {
-        IndexType const ortho = i_cell->Ortho(direction);
+        IndexType const ortho = i_cell->Ortho(axis);
         if (!done_orthos.Contains(ortho)) {
-            if (!IsDirectionCompatible(*i_cell, direction)) {
+            if (!IsAxisCompatible(*i_cell, axis)) {
                 result = false;
                 break;
             }
@@ -386,8 +398,39 @@ bool Board::HasNeighbor(Cell const &rCell) const {
     return result;
 }
 
+bool Board::IsAxisCompatible(Cell const &rCell, DirectionType axis) const {
+    ASSERT(!HasEmptyCell(rCell));
+	ASSERT(rCell.IsValid());
+	ASSERT(Cell::IsScoringAxis(axis));
+    
+    Cell first_cell;
+	Cell last_cell;
+    GetLimits(rCell, axis, first_cell, last_cell);
+
+    bool result = true;
+    
+    for (Cell cell1 = first_cell; result && cell1 != last_cell; cell1.Next(axis)) {
+        Tile const tile1 = GetTile(cell1);
+        for (Cell cell2(cell1, axis); cell2 != last_cell; cell2.Next(axis)) {
+            Tile const tile2 = GetTile(cell2);
+            if (!tile1.IsCompatibleWith(&tile2)) {
+                result = false;
+                break;
+            }
+        }
+		if (result) {
+            Tile const last_tile = GetTile(last_cell);
+            if (!tile1.IsCompatibleWith(&last_tile)) {
+                result = false;
+            }
+		}
+    }
+    
+    return result;
+}
+
 bool Board::IsConnectedDirection(Cells const &rCells, DirectionType direction) const {
-	 ASSERT(IsScoringDirection(direction));
+	 ASSERT(Cell::IsScoringDirection(direction));
      bool result = true;
     
     if (rCells.Count() > 1) {
@@ -424,61 +467,11 @@ bool Board::IsConnectedDirection(Cells const &rCells, DirectionType direction) c
     return result;
 }
 
-bool Board::IsDirectionCompatible(Cell const &rCell, DirectionType direction) const {
-    ASSERT(!HasEmptyCell(rCell));
-	ASSERT(IsScoringDirection(direction));
-    
-    Cell first_cell, last_cell;
-    GetLimits(rCell, direction, first_cell, last_cell);
-    Cell end_cell(last_cell, direction);
-
-    bool result = true;
-    
-    for (Cell cell1 = first_cell; cell1 != last_cell; cell1.Next(direction)) {
-        Tile const t1 = GetTile(cell1);
-        for (Cell cell2(cell1, direction); cell2 != end_cell; cell2.Next(direction)) {
-            Tile const t2 = GetTile(cell2);
-            if (!t1.IsCompatibleWith(&t2)) {
-                result = false;
-                break;
-            }
-        }
-    }
-    
-    return result;
-}
 
 bool Board::IsEmpty(void) const {
 	bool const result = (Count() == 0);
 
 	return result;
-}
-
-/* static */ bool Board::IsScoringDirection(DirectionType direction) {
-     bool result = false;
-     switch (Cell::Grid()) {
-         case GRID_TRIANGLE:
-             result = (direction != DIRECTION_NORTH 
-                    && direction != DIRECTION_SOUTH);
-             break;
-         case GRID_4WAY:
-             result = (direction == DIRECTION_NORTH 
-                    || direction == DIRECTION_EAST
-                    || direction == DIRECTION_SOUTH
-                    || direction == DIRECTION_WEST);
-             break;
-         case GRID_HEX:
-             result = (direction != DIRECTION_EAST
-                    && direction != DIRECTION_WEST);
-             break;
-         case GRID_8WAY:
-             result = true;
-             break;
-         default:
-             FAIL();
-     }
-     
-     return result;
 }
 
 bool Board::IsValidMove(Move const &rMove) const {
@@ -489,7 +482,7 @@ bool Board::IsValidMove(Move const &rMove) const {
 	return result;
 }
 
-bool Board::IsValidMove(Move const &rMove, char const *&rReason) const {
+bool Board::IsValidMove(Move const &rMove, TextType &rReason) const {
     // a pass (no tiles played or swapped) is always valid
     if (rMove.IsPass()) {
         return true;
@@ -528,21 +521,22 @@ bool Board::IsValidMove(Move const &rMove, char const *&rReason) const {
         return false;
     }
 
-    DirectionType direction_of_play = DIRECTION_UNKNOWN;
+    DirectionType axis_of_play = DIRECTION_UNKNOWN;
     if (cells.Count() > 1) {
         // make sure the cells lie in a single ortho
         for (int dir = DIRECTION_FIRST; 
              dir <= DIRECTION_LAST_POSITIVE;
              dir++)
         {
-            DirectionType const direction = DirectionType(dir);
-			if (IsScoringDirection(direction)) {
-                if (cells.AreAllInSameOrtho(direction)) {
-                    direction_of_play = direction;
+            DirectionType const axis = DirectionType(dir);
+			ASSERT(Cell::IsAxis(axis));
+			if (Cell::IsScoringAxis(axis)) {
+                if (cells.AreAllInSameOrtho(axis)) {
+                    axis_of_play = axis;
                 }
 			}
         }
-        if (direction_of_play == DIRECTION_UNKNOWN) {
+        if (axis_of_play == DIRECTION_UNKNOWN) {
 		    rReason = "ROWCOLUMN";
             return false;
         }
@@ -564,21 +558,21 @@ bool Board::IsValidMove(Move const &rMove, char const *&rReason) const {
 
     if (cells.Count() > 1) {
         // make sure there are no empty squares between played tiles
-        if (!after.IsConnectedDirection(cells, direction_of_play)) {
+        if (!after.IsConnectedDirection(cells, axis_of_play)) {
      		rReason = "GAP";
             return false;
         }
     }
     
-    // check compatibility of connected tiles in each group played
+    // check compatibility of connected tiles in each group
     for (int dir = DIRECTION_FIRST;
              dir <= DIRECTION_LAST_POSITIVE;
              dir++)
     {
-        DirectionType direction = DirectionType(dir);
-        if (IsScoringDirection(direction)) {
-            if (!after.AreAllCompatible(cells, direction)) {
-                switch (direction) {
+        DirectionType const axis = DirectionType(dir);
+        if (Cell::IsScoringAxis(axis)) {
+            if (!after.AreAllCompatible(cells, axis)) {
+                switch (axis) {
                     case DIRECTION_NORTH:
 		                rReason = "COLUMNCOMPAT";
                         return false;

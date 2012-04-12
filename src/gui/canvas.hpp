@@ -30,7 +30,6 @@ A Canvas object represents the client area of the game window.
 
 The Canvas class extends the Graphics class with features specific to the
 Gold Tile Game.
-
 */
 
 #include <vector>           // HASA std::vector

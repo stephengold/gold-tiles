@@ -1,6 +1,7 @@
-// File:    parmbox2.cpp
-// Purpose: ParmBox2 class
-// Author:  Stephen Gold sgold@sonic.net
+// File:     parmbox2.cpp
+// Location: src/gui
+// Purpose:  ParmBox2 class
+// Author:   Stephen Gold sgold@sonic.net
 // (c) Copyright 2012 Stephen Gold
 // Distributed under the terms of the GNU General Public License
 
@@ -97,6 +98,7 @@ INT_PTR ParmBox2::HandleMessage(MessageType message, WPARAM wParam) {
 					 && height <= Cell::HEIGHT_MAX) {
 						mrGameOpt.SetBoardHeight(height);
 					}
+					SetTopology();
 		            UpdateCellCnt();
                     break;
                 }
@@ -109,6 +111,7 @@ INT_PTR ParmBox2::HandleMessage(MessageType message, WPARAM wParam) {
 					 && width <= Cell::WIDTH_MAX) {
 						mrGameOpt.SetBoardWidth(width);
 					}
+					SetTopology();
 					UpdateCellCnt();
                     break;
                 }
@@ -201,19 +204,17 @@ void ParmBox2::SetTextIndex(IdType controlId, ValueType value) {
 }
 
 void ParmBox2::SetTopology(void) {
+	EnableControl(IDC_EDITHEIGHT, true);
+	EnableControl(IDC_EDITWIDTH, true);
+	EnableControl(IDC_ENDLESS, true);
+	EnableControl(IDC_RECT, true);
+	EnableControl(IDC_HSTRIP, true);
+	EnableControl(IDC_VSTRIP, true);
 #if 1
 	// TODO
-	EnableControl(IDC_ENDLESS, true);
-	EnableControl(IDC_RECT, false);
 	EnableControl(IDC_TORUS, false);
-	EnableControl(IDC_VSTRIP, false);
-	EnableControl(IDC_HSTRIP, false);
 	EnableControl(IDC_VCYLINDER, false);
 	EnableControl(IDC_HCYLINDER, false);
-	mrGameOpt.SetBoardHeight(Cell::HEIGHT_MAX);
-	mrGameOpt.SetBoardWidth(Cell::WIDTH_MAX);
-	EnableControl(IDC_EDITHEIGHT, false);
-	EnableControl(IDC_EDITWIDTH, false);
 #endif
 
 	bool const wrap = mrGameOpt.DoesBoardWrap();
@@ -247,8 +248,8 @@ void ParmBox2::SetTopology(IdType buttonId) {
 			if (height == Cell::HEIGHT_MAX) {
 				height = HEIGHT_DEFAULT;
 			}
-			if (height == Cell::WIDTH_MAX) {
-				height = WIDTH_DEFAULT;
+			if (width == Cell::WIDTH_MAX) {
+				width = WIDTH_DEFAULT;
 			}
 			break;
 

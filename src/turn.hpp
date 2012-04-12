@@ -1,9 +1,10 @@
 #ifndef TURN_HPP_INCLUDED
 #define TURN_HPP_INCLUDED
 
-// File:    turn.hpp
-// Purpose: Turn class
-// Author:  Stephen Gold sgold@sonic.net
+// File:     turn.hpp
+// Location: src
+// Purpose:  Turn class
+// Author:   Stephen Gold sgold@sonic.net
 // (c) Copyright 2012 Stephen Gold
 // Distributed under the terms of the GNU General Public License
 
@@ -39,7 +40,7 @@ class Turn {
 public:
 	// lifecycle
 	Turn(Tiles const &, String const &handName);
-	Turn(Move const &, String const &handName, unsigned bestRun);
+	Turn(Move const &, String const &handName, unsigned mustPlay);
 	// no default constructor
 	// Turn(Turn const &);  compiler-generated copy constructor is OK
 	// ~Turn(void);  compiler-generated destructor is OK
@@ -51,20 +52,19 @@ public:
     operator String(void) const;
     
     // misc methods
-	unsigned BestRun(void) const;
 	Tiles    Draw(void) const;
 	String   HandName(void) const;
+	unsigned MustPlay(void) const;
 	unsigned Points(void) const;
-	void     SetBestRun(unsigned);
     void     SetDraw(Tiles const &);
     void     SetPoints(unsigned);
 
 private:
 	// private data
-	unsigned mBestRun;      // set for first turn, otherwise zero
 	Tiles    mDraw;         // move first, then draw
 	String   mHandName;
 	Move     mMove;         // move first, then draw
+	unsigned mMustPlay;     // set for first turn, otherwise zero
 	unsigned mPoints;       // from start of turn
 };
 #endif // !defined(TURN_HPP_INCLUDED)

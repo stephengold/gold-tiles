@@ -1,6 +1,7 @@
-// File:    turn.cpp
-// Purpose: Turn class
-// Author:  Stephen Gold sgold@sonic.net
+// File:     turn.cpp
+// Location: src
+// Purpose:  Turn class
+// Author:   Stephen Gold sgold@sonic.net
 // (c) Copyright 2012 Stephen Gold
 // Distributed under the terms of the GNU General Public License
 
@@ -31,16 +32,16 @@ Turn::Turn(Tiles const &rTiles, String const &rHandName):
 	mHandName(rHandName)
 {
 	// one of the initial draws
-	mBestRun = 0;
+	mMustPlay = 0;
 	mPoints = 0;
 }
 
-Turn::Turn(Move const &rMove, String const &rHandName, unsigned bestRun):
+Turn::Turn(Move const &rMove, String const &rHandName, unsigned mustPlay):
     mHandName(rHandName),
 	mMove(rMove)
 {
 	// an ordinary turn
-	mBestRun = bestRun;
+	mMustPlay = mustPlay;
 	mPoints = 0;
 }
 
@@ -59,10 +60,6 @@ Turn::operator Move(void) const {
 
 // misc methods
 
-unsigned Turn::BestRun(void) const {
-    return mBestRun;
-}
-
 Tiles Turn::Draw(void) const {
 	return mDraw;
 }
@@ -75,14 +72,14 @@ unsigned Turn::Points(void) const {
 	return mPoints;
 }
 
-void Turn::SetBestRun(unsigned runLength) {
-     mBestRun = runLength;
-}
-
 void Turn::SetDraw(Tiles const &rDraw) {
      mDraw = rDraw;
 }
 
 void Turn::SetPoints(unsigned points) {
      mPoints = points;
+}
+
+unsigned Turn::MustPlay(void) const {
+    return mMustPlay;
 }

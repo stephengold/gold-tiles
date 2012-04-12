@@ -1,6 +1,7 @@
-// File:    partial.cpp
-// Purpose: Partial class
-// Author:  Stephen Gold sgold@sonic.net
+// File:     partial.cpp
+// Location: src
+// Purpose:  Partial class
+// Author:   Stephen Gold sgold@sonic.net
 // (c) Copyright 2012 Stephen Gold
 // Distributed under the terms of the GNU General Public License
 
@@ -341,9 +342,9 @@ Cell Partial::LocateTile(TileIdType id) const {
 
 unsigned Partial::Points(void) const {
 	unsigned const played_tile_cnt = CountPlayed();
-	unsigned const best_run_length = mpGame->BestRunLength();
+	unsigned const must_play = mpGame->MustPlay();
 	unsigned result = 0;
-	if (best_run_length == 0 || played_tile_cnt == best_run_length) {
+	if (must_play == 0 || played_tile_cnt == must_play) {
         Move const move = GetMove(false);
         result = mBoard.ScoreMove(move);
 	}
@@ -684,3 +685,4 @@ bool Partial::IsVisible(Cell const &rCell) {
 
 	return result;
 }
+

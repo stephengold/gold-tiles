@@ -1,9 +1,10 @@
 #ifndef PARMBOX2_HPP_INCLUDED
 #define PARMBOX2_HPP_INCLUDED
 
-// File:    parmbox2.hpp
-// Purpose: ParmBox2 class
-// Author:  Stephen Gold sgold@sonic.net
+// File:     parmbox2.hpp
+// Location: src/gui
+// Purpose:  ParmBox2 class
+// Author:   Stephen Gold sgold@sonic.net
 // (c) Copyright 2012 Stephen Gold
 // Distributed under the terms of the GNU General Public License
 
@@ -33,6 +34,7 @@ The ParmBox2 class extends the Dialog class.
 
 #include "gameopt.hpp"     // HASA GameOpt
 #include "gui/dialog.hpp"  // ISA Dialog
+
 
 class ParmBox2: public Dialog {
 public:
@@ -68,3 +70,4 @@ private:
 	void      UpdateCellCnt(void);
 };
 #endif // !defined(PARMBOX2_CPP_INCLUDED)
+

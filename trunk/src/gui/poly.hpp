@@ -1,9 +1,10 @@
 #ifndef POLY_HPP_INCLUDED
 #define POLY_HPP_INCLUDED
 
-// File:    poly.hpp
-// Purpose: Poly class
-// Author:  Stephen Gold sgold@sonic.net
+// File:     poly.hpp
+// Location: src/gui
+// Purpose:  Poly class
+// Author:   Stephen Gold sgold@sonic.net
 // (c) Copyright 2012 Stephen Gold
 // Distributed under the terms of the GNU General Public License
 
@@ -38,6 +39,7 @@ The Poly class is implemented as a list of FractionPair objects.
 
 class Poly: public std::vector<FractionPair> {
 public:
+    // public types
 	typedef std::vector<FractionPair>::const_iterator ConstIterator;
 	typedef std::vector<FractionPair>::iterator       Iterator;
 
@@ -47,5 +49,5 @@ public:
     void     GetPoints(Win::POINT points[], unsigned numPoints, 
                         Rect const &rBounds, bool invert) const;    
 };
+#endif // !defined(POLY_HPP_INCLUDED)
 
-#endif

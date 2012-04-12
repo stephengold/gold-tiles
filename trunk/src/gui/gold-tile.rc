@@ -245,9 +245,9 @@ FONT 10, "Microsoft Sans Serif"
     LTEXT           "Board height:", IDC_STATIC, 124, 85, 41, 8, SS_LEFT
     EDITTEXT        IDC_EDITHEIGHT, 168, 84, 40, 12, ES_RIGHT | ES_AUTOHSCROLL
     LTEXT           "rows", IDC_STATIC, 211, 85, 15, 8, SS_LEFT
-    RTEXT           "endless", IDC_CELLCNT, 129, 105, 24, 8, SS_RIGHT
-    LTEXT           "cells", IDC_STATIC, 156, 105, 15, 8, SS_LEFT
-    PUSHBUTTON      "Recalculate", IDC_RECALC, 173, 102, 40, 14
+    RTEXT           "endless", IDC_CELLCNT, 147, 106, 24, 8, SS_RIGHT
+    LTEXT           "cells", IDC_STATIC, 173, 106, 15, 8, SS_LEFT
+    PUSHBUTTON      "Recalculate", IDC_RECALC, 192, 104, 40, 14
 }
 
 

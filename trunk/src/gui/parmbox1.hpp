@@ -1,9 +1,10 @@
 #ifndef PARMBOX1_HPP_INCLUDED
 #define PARMBOX1_HPP_INCLUDED
 
-// File:    parmbox1.hpp
-// Purpose: ParmBox1 class
-// Author:  Stephen Gold sgold@sonic.net
+// File:     parmbox1.hpp
+// Location: src/gui
+// Purpose:  ParmBox1 class
+// Author:   Stephen Gold sgold@sonic.net
 // (c) Copyright 2012 Stephen Gold
 // Distributed under the terms of the GNU General Public License
 
@@ -32,6 +33,7 @@ The ParmBox1 class is an extension of the Dialog class.
 
 #include "gameopt.hpp"     // HASA GameOpt
 #include "gui/dialog.hpp"  // ISA Dialog
+
 
 class ParmBox1: public Dialog {
 public:

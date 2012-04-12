@@ -1,6 +1,7 @@
-// File:    game.cpp
-// Purpose: Game class
-// Author:  Stephen Gold sgold@sonic.net
+// File:     game.cpp
+// Location: src
+// Purpose:  Game class
+// Author:   Stephen Gold sgold@sonic.net
 // (c) Copyright 2012 Stephen Gold
 // Distributed under the terms of the GNU General Public License
 
@@ -161,10 +162,6 @@ void Game::AddTurn(Turn const &rTurn) {
 	mUnsavedChanges = true;
 }
 
-unsigned Game::BestRunLength(void) const {
-	return mBestRunLength;
-}
-
 String Game::BestRunReport(void) const {
 	return mBestRunReport;
 }
@@ -255,7 +252,7 @@ String Game::EndBonus(void) {
 }
 
 void Game::FindBestRun(void) {
-    mBestRunLength = 0;
+    mMustPlay = 0;
 	mBestRunReport = "";
     Hands::Iterator i_hand;
     for (i_hand = mHands.begin(); i_hand < mHands.end(); i_hand++) {
@@ -267,16 +264,21 @@ void Game::FindBestRun(void) {
 		mBestRunReport += plural(run_length, "tile");
 		mBestRunReport += ".\n";
 
-	    if (run_length > mBestRunLength) {
-	   	    mBestRunLength = run_length;
+	    if (run_length > mMustPlay) {
+	   	    mMustPlay = run_length;
 		    miActiveHand = i_hand;
 	    }
     }
 	mBestRunReport += "\n";
 
+	DirectionType const axis = Cell::LongestAxis();
+	unsigned const axis_length = Cell::AxisLength(axis);
+	if (mMustPlay > axis_length) {
+		mMustPlay = axis_length;
+	}
 	mFirstTurnMessage = miActiveHand->Name();
 	mFirstTurnMessage += " plays first and must place "; 
-	mFirstTurnMessage += plural(mBestRunLength, "tile");
+	mFirstTurnMessage += plural(mMustPlay, "tile");
 	mFirstTurnMessage += " on the (empty) board.\n";
 
 	mBestRunReport += mFirstTurnMessage;
@@ -290,7 +292,7 @@ void Game::FinishTurn(Move const &rMove) {
     StopClock();
     
     String const hand_name = miActiveHand->Name();
-    Turn turn(rMove, hand_name, mBestRunLength);
+    Turn turn(rMove, hand_name, mMustPlay);
 
 	if (rMove.IsResign()) {
 		miActiveHand->Resign(mStockBag);
@@ -328,7 +330,7 @@ void Game::FinishTurn(Move const &rMove) {
 	AddTurn(turn);
 	
 	//  If it was the first turn, it no longer is.
-    mBestRunLength = 0;
+    mMustPlay = 0;
 
 	// There are now unsaved changes.
 	mUnsavedChanges = true;
@@ -384,6 +386,10 @@ Hands Game::InactiveHands(void) const {
     }
     
     return result;
+}
+
+unsigned Game::MustPlay(void) const {
+	return mMustPlay;
 }
 
 void Game::NextTurn(void) {
@@ -476,7 +482,7 @@ void Game::Redo(void) {
 	}
 
 	//  If it was the first turn, it no longer is.
-    mBestRunLength = 0;
+    mMustPlay = 0;
 
 	ActivateNextHand();
 
@@ -584,8 +590,8 @@ void Game::Undo(void) {
 	String const hand_name = turn.HandName();
 	miActiveHand = mHands.Find(hand_name);
 
-	//  Roll back the first-move info.
-    mBestRunLength = turn.BestRun();
+	//  Roll back the must-play info.
+    mMustPlay = turn.MustPlay();
 
 	Move const move = turn;
     Tiles const tiles = move;
@@ -700,13 +706,13 @@ bool Game::IsOutOfTime(void) const {
 }
 
 bool Game::IsLegalMove(Move const &rMove) const {
-    char const *reason;
+    TextType reason;
 	bool const result = IsLegalMove(rMove, reason);
 
 	return result;
 }
 
-bool Game::IsLegalMove(Move const &rMove, char const *&rReason) const {
+bool Game::IsLegalMove(Move const &rMove, TextType &rReason) const {
     unsigned const stock = CountStock();
     bool result = true;
 	unsigned const tiles_played = rMove.CountTilesPlayed();
@@ -714,12 +720,12 @@ bool Game::IsLegalMove(Move const &rMove, char const *&rReason) const {
 	if (!mBoard.IsValidMove(rMove, rReason)) {
 	    result = false;
 
-	} else if (mBestRunLength > 0
+	} else if (mMustPlay > 0
 		    && !rMove.IsResign()
-		    && tiles_played != mBestRunLength)
+		    && tiles_played != mMustPlay)
 	{
-		// first turn but didn't resign, nor play the longest run
-		ASSERT(tiles_played < mBestRunLength);
+		// first turn but didn't resign, nor play the correct number of tiles
+		ASSERT(tiles_played < mMustPlay);
 	    rReason = "FIRST";
         result = false;
 

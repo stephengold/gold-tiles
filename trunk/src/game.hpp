@@ -1,9 +1,10 @@
 #ifndef GAME_HPP_INCLUDED
 #define GAME_HPP_INCLUDED
 
-// File:    game.hpp
-// Purpose: Game class
-// Author:  Stephen Gold sgold@sonic.net
+// File:     game.hpp
+// Location: src
+// Purpose:  Game class
+// Author:   Stephen Gold sgold@sonic.net
 // (c) Copyright 2012 Stephen Gold
 // Distributed under the terms of the GNU General Public License
 
@@ -45,13 +46,13 @@ public:
 	// misc public methods
     void          ActivateNextHand(void);
     Tiles         ActiveTiles(void) const;
-	unsigned      BestRunLength(void) const;
 	String        BestRunReport(void) const;
     unsigned      CountStock(void) const;
 	String        EndBonus(void);
     void          FinishTurn(Move const &);
 	unsigned      HandSize(void) const;
     Hands         InactiveHands(void) const;
+	unsigned      MustPlay(void) const;
     void          PlayGame(void);
 	void          Redo(void);
 	void          Restart(void);
@@ -81,7 +82,6 @@ public:
 private:
 	// private data
     Hands::Iterator miActiveHand;    // whose turn it is
-    unsigned         mBestRunLength; // zero after the first turn
 	String           mBestRunReport;
     Board            mBoard;         // extensible playing surface
 	String           mFilespec;      // associated file for load/save
@@ -89,6 +89,7 @@ private:
     Hands            mHands;         // all hands being played
 	Turns            mHistory;       // history of turns for undo/redo
 	GameOpt const    mOptions;
+    unsigned         mMustPlay;      // min number of tiles, zero after the first turn
 	Turns::Iterator miRedo;          // current position in the history
     Tiles            mStockBag;      // stock bag from which tiles are drawn
 	bool             mUnsavedChanges;

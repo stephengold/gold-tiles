@@ -1,9 +1,10 @@
 #ifndef CELL_HPP_INCLUDED
 #define CELL_HPP_INCLUDED
 
-// File:    cell.hpp
-// Purpose: Cell class
-// Author:  Stephen Gold sgold@sonic.net
+// File:     cell.hpp
+// Location: src
+// Purpose:  Cell class
+// Author:   Stephen Gold sgold@sonic.net
 // (c) Copyright 2012 Stephen Gold
 // Distributed under the terms of the GNU General Public License
 
@@ -83,21 +84,27 @@ public:
 	operator String(void) const;
 
 	// misc public methods
-	IndexType       Column(void) const;
-	static void     GetTopology(bool &wrapFlag, IndexType &height, IndexType &width);
-    bool            GetUserChoice(String const &);
-    static GridType Grid(void);
-	IndexType       Group(DirectionType direction) const;
-	void            Next(DirectionType, IndexType count = 1);
-	IndexType       Ortho(DirectionType direction) const;
-	IndexType       Row(void) const;
-	static void     SetGrid(GridType);
-	static void     SetTopology(bool wrapFlag, IndexType height, IndexType width);
+	static IndexType AxisLength(DirectionType);
+	IndexType        Column(void) const;
+	static void      GetTopology(bool &wrapFlag, IndexType &height, IndexType &width);
+    bool             GetUserChoice(String const &);
+    static GridType  Grid(void);
+	IndexType        Group(DirectionType direction) const;
+	static DirectionType 
+		             LongestAxis(void);
+	void             Next(DirectionType, IndexType count = 1);
+	IndexType        Ortho(DirectionType direction) const;
+	IndexType        Row(void) const;
+	static void      SetGrid(GridType);
+	static void      SetTopology(bool wrapFlag, IndexType height, IndexType width);
 
 	// public inquiry methods
 	bool        HasNeighbor(DirectionType) const;
+	static bool IsAxis(DirectionType);
 	bool        IsOdd(void) const;
 	bool        IsStart(void) const;
+	static bool IsScoringAxis(DirectionType);
+	static bool IsScoringDirection(DirectionType);
 	bool        IsValid(void) const;
 	static bool IsValid(IndexType row, IndexType column);
 
@@ -111,8 +118,9 @@ private:
 	static bool      msWrapFlag; // coordinates wrap around
 
     // misc private methods
+	static DirectionType Axis(DirectionType);
 	static void          NextCellOffsets(DirectionType, IndexType &rowOffset, 
-		                        IndexType &columnOffset);
+		                     IndexType &columnOffset);
     static DirectionType OppositeDirection(DirectionType);
 	static DirectionType OrthoAxis(DirectionType);
 };

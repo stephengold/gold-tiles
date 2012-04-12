@@ -1,6 +1,7 @@
-// File:    gamewindow.cpp
-// Purpose: GameWindow class
-// Author:  Stephen Gold sgold@sonic.net
+// File:     gamewindow.cpp
+// Location: src/gui
+// Purpose:  GameWindow class
+// Author:   Stephen Gold sgold@sonic.net
 // (c) Copyright 2012 Stephen Gold
 // Distributed under the terms of the GNU General Public License
 
@@ -397,7 +398,6 @@ void GameWindow::HandleMenuCommand(IdType command) {
 
 		case IDM_REDO:
 			ASSERT(HasGame());
-		    ASSERT(!IsGameOver());
 			ASSERT(!IsGamePaused());
             ASSERT(mpGame->CanRedo());
 			RedoTurn();
@@ -850,8 +850,11 @@ void GameWindow::RedoTurn(void) {
 	ASSERT(HasGame());
 	ASSERT(mpMenuBar != NULL);
 	ASSERT(!IsGamePaused());
+	ASSERT(mpGame->CanRedo());
 
-	mpGame->StopClock();
+	if (!IsGameOver()) {
+	    mpGame->StopClock();
+	}
 	String const old_player_name = SaveHandOptions();
     mpGame->Redo();
 	ChangeHand(old_player_name);
@@ -917,14 +920,14 @@ void GameWindow::ReleaseActiveTile(Point const &rMouse) {
 		return;
 	}
 
-	// move the active tile back to the active hand
+	// move the active tile back to the playable hand
 	if (from_board) {
         mGameView.BoardToHand();
     } else if (from_swap) {
         mGameView.SwapToHand();
     }
 
-	// move tile from the active hand to its destination
+	// move tile from the playable hand to its destination
     if (to_board) {
         mGameView.HandToCell(to_cell);
     } else if (to_swap) {

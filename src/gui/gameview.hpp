@@ -1,9 +1,10 @@
 #ifndef GAMEVIEW_HPP_INCLUDED
 #define GAMEVIEW_HPP_INCLUDED
 
-// File:    gameview.hpp
-// Purpose: GameView class header file
-// Author:  Stephen Gold sgold@sonic.net
+// File:     gameview.hpp
+// Location: src/gui
+// Purpose:  GameView class header file
+// Author:   Stephen Gold sgold@sonic.net
 // (c) Copyright 2012 Stephen Gold
 // Distributed under the terms of the GNU General Public License
 
@@ -122,19 +123,19 @@ private:
     LogicalYType  CellY(IndexType row) const;
 	String        ClockText(Hand &) const;
 	AttrIndexType ColorAttribute(void) const;
-    void          DrawActiveHand(Canvas &);
 	void          DrawBlankTile(Canvas &, Point const &, bool bonus, bool odd);
     void          DrawBoard(Canvas &, unsigned layer);
     void          DrawCell(Canvas &, Cell const &, unsigned swapCnt);
-	void          DrawPaused(Canvas &);
     Rect          DrawHandHeader(Canvas &, LogicalYType, LogicalXType leftRight, Hand &, 
                                 ColorType, bool leftFlag);
     void          DrawHandTile(Canvas &, Point const &, Tile const &, bool odd);
     void          DrawHandTiles(Canvas &);
-    void          DrawInactiveHands(Canvas &);
+	void          DrawPaused(Canvas &);
+    void          DrawPlayableHand(Canvas &);
 	void          DrawStockArea(Canvas &, LogicalYType, LogicalXType, PixelCntType width);
 	Rect          DrawSwapArea(Canvas &, LogicalYType, LogicalXType, PixelCntType width);
 	Rect          DrawTile(Canvas &, Point const &center, Tile const &, bool odd);
+    void          DrawUnplayableHands(Canvas &);
     PixelCntType  GridUnitX(void) const;
     PixelCntType  GridUnitY(void) const;
 	String        ScoreText(Hand const &, bool playable) const;

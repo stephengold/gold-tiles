@@ -1,6 +1,7 @@
-// File:    parmbox1.cpp
-// Purpose: ParmBox1 class
-// Author:  Stephen Gold sgold@sonic.net
+// File:     parmbox1.cpp
+// Location: src/gui
+// Purpose:  ParmBox1 class
+// Author:   Stephen Gold sgold@sonic.net
 // (c) Copyright 2012 Stephen Gold
 // Distributed under the terms of the GNU General Public License
 
@@ -81,7 +82,7 @@ INT_PTR ParmBox1::HandleMessage(MessageType message, WPARAM wParam, LPARAM lPara
 				 "Standard Rules - 108 square tiles on an endless grid, 2 hands of 6");
 			ASSERT(standard_index == RULES_STANDARD);
 			unsigned const custom_index = AddListboxItem(IDC_LIST1, 
-				 "Custom Rules - you decide what the rules should be");
+				 "Custom Rules - you decide what the rules will be");
 			ASSERT(custom_index == RULES_CUSTOM);
 			if (rules == RULES_REPLAY) {
 			    unsigned const replay_index = AddListboxItem(IDC_LIST1, 

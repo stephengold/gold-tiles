@@ -1,6 +1,7 @@
-// File:    gameview.cpp
-// Purpose: implement GameView class
-// Author:  Stephen Gold sgold@sonic.net
+// File:     gameview.cpp
+// Location: src/gui
+// Purpose:  implement GameView class
+// Author:   Stephen Gold sgold@sonic.net
 // (c) Copyright 2012 Stephen Gold
 // Distributed under the terms of the GNU General Public License
 
@@ -31,8 +32,6 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 #include "gui/resource.hpp"
 #include "gui/gamewindow.hpp"
 
-
-// static data
 
 // lifecycle
 
@@ -131,74 +130,6 @@ String GameView::ClockText(Hand &rHand) const {
 		   + String(tens_of_seconds) + String(seconds);
 
 	return result;
-}
-
-void GameView::DrawActiveHand(Canvas &rCanvas) {
-    // draw header
-	ASSERT(mpGame != NULL);
-
-    LogicalYType top_y = mPadPixels;
-    LogicalXType left_x = mPadPixels;
-    Hand playable_hand = *mpGame;
-    ColorType area_color = COLOR_BLACK;
-    bool const left = true;
-    Rect header_rect = DrawHandHeader(rCanvas, top_y, left_x, playable_hand, area_color, left);
-    left_x = header_rect.LeftX();
-    PixelCntType width = header_rect.Width();
-    
-    // calculate height of hand area (mHandRect)
-    unsigned tile_cnt = CountHand();
-    PixelCntType const cell_height = CellHeight();
-	PixelCntType height = rCanvas.TextHeight() + 2*mPadPixels;
-	if (!playable_hand.HasResigned() && !playable_hand.HasGoneOut()) {
-        height = tile_cnt*cell_height + 2*mPadPixels;
-        if (tile_cnt < CountTiles()) {
-            // show that there's room for more
-            height += cell_height/2;
-	    }
-	}
-
-	// choose colors for hand area (mHandRect)
-	TileIdType const active_tile = GetActive();
-	if (IsInHand(active_tile)) {
-        // The active tile started from this hand.
-		ASSERT(tile_cnt > 0);
-		--tile_cnt;
-	}
-
-	if (!IsLocalUsersTurn()) {
-	    area_color = COLOR_DARK_BLUE;
-	} else if (tile_cnt < CountTiles()) {
-        area_color = COLOR_DARK_GREEN;
-    } else { // hand is full
-        area_color = COLOR_BROWN;
-    }
-    ColorType const edge_color = COLOR_WHITE;
-    rCanvas.UseColors(area_color, edge_color);
-
-    // draw hand area (mHandRect)
-	top_y = header_rect.BottomY() - 1;
-    mHandRect = rCanvas.DrawRectangle(top_y, left_x, width, height);
-    left_x = mHandRect.LeftX();
-    width = mHandRect.Width();
-
-    if (playable_hand.HasResigned()) {
-		rCanvas.DrawText(mHandRect, "resigned");
-	} else if (playable_hand.HasGoneOut()) {
-		rCanvas.DrawText(mHandRect, "went out");
-	}
-
-    // draw swap area (mSwapRect)
-    top_y = mHandRect.BottomY() - 1;
-	if (playable_hand.HasGoneOut() || playable_hand.HasResigned()) {
-        mSwapRect = Rect(top_y, left_x, width, 0);
-	} else {
-		mSwapRect = DrawSwapArea(rCanvas, top_y, left_x, width);
-	}
-
-    // draw stock area (mSwapRect)
-    top_y = mSwapRect.BottomY() - 1;
-	DrawStockArea(rCanvas, top_y, left_x, width);
 }
 
 void GameView::DrawBlankTile(
@@ -496,73 +427,6 @@ void GameView::DrawHandTiles(Canvas &rCanvas) {
 	ASSERT(!IsLocalUsersTurn() || mTileMap.size() == CountTiles());
 }
 
-void GameView::DrawInactiveHands(Canvas &rCanvas) {
-	ASSERT(mpGame != NULL);
-
-    PixelCntType const cell_height = CellHeight();
-    ColorType area_color = COLOR_DARK_BLUE;
-    ColorType const edge_color = COLOR_LIGHT_GRAY;
-
-    Hands other_hands = mpGame->InactiveHands();
-    Hands::Iterator i_hand;
-    LogicalXType right_x = mpWindow->ClientAreaWidth() - mPadPixels;
-    LogicalYType top_y = mPadPixels;
-    for (i_hand = other_hands.begin(); i_hand < other_hands.end(); i_hand++) {
-        // draw header
-        bool const rightFlag = false;
-        ColorType const header_color = COLOR_BLACK;
-        Rect header_rect = DrawHandHeader(rCanvas, top_y, right_x, *i_hand, header_color, rightFlag);
-
-        // draw hand area below the header
-        top_y = header_rect.BottomY() - 1;
-        LogicalXType const left_x = header_rect.LeftX();
-        PixelCntType const width = header_rect.Width();
-        Tiles const hand_tiles = *i_hand;
-        unsigned const tile_count = hand_tiles.Count();
-        area_color = COLOR_DARK_BLUE;
-        rCanvas.UseColors(area_color, edge_color);
-		PixelCntType height = rCanvas.TextHeight() + 2*mPadPixels;
-		if (!i_hand->HasResigned() && !i_hand->HasGoneOut() && mpMenuBar->IsPeeking()) {
-            height = tile_count*cell_height + 2*mPadPixels;
-		}
-        Rect const hand_rect = rCanvas.DrawRectangle(top_y, left_x, width, height);
-
-		if (i_hand->HasResigned()) {
-			rCanvas.DrawText(hand_rect, "resigned");
-		} else if (i_hand->HasGoneOut()) {
-			rCanvas.DrawText(hand_rect, "went out");
-		} else if (!mpMenuBar->IsPeeking()) {
-			String const text = ::plural(tile_count, "tile");
-			rCanvas.DrawText(hand_rect, text);
-		} else { // peeking:  draw tiles
-            LogicalXType const tile_x = hand_rect.CenterX();
-            LogicalYType tile_y = hand_rect.TopY() + mPadPixels + cell_height/2;
-
-            for (unsigned i_tile = 0; i_tile < tile_count; i_tile++) {
-                Tile const tile = hand_tiles[i_tile];
-                Point const center(tile_x, tile_y);
-                if (mpMenuBar->IsPeeking()) {
-                    DrawTile(rCanvas, center, tile, false);
-                } else {
-                    DrawBlankTile(rCanvas, center, tile.HasBonus(), false);
-                } 
-                tile_y += cell_height;
-			}
-		} // if peeking
-
-		// add padding between hands
-		if (mpMenuBar->IsPeeking()) {
-		    // right to left
-            right_x = header_rect.LeftX() - mPadPixels;
-            top_y = mPadPixels;
-		} else {
-		    // top to bottom
-            right_x = mpWindow->ClientAreaWidth() - mPadPixels;
-            top_y += height + mPadPixels;
-		}
-    }
-}
-
 void GameView::DrawPaused(Canvas &rCanvas) {
 	ASSERT(IsGamePaused());
 	ASSERT(!IsGameOver());
@@ -583,6 +447,74 @@ void GameView::DrawPaused(Canvas &rCanvas) {
         bool const left = true;
         DrawHandHeader(rCanvas, top_y, left_x, playable_hand, bg_color, left);
 	}
+}
+
+void GameView::DrawPlayableHand(Canvas &rCanvas) {
+    // draw header
+	ASSERT(mpGame != NULL);
+
+    LogicalYType top_y = mPadPixels;
+    LogicalXType left_x = mPadPixels;
+    Hand playable_hand = *mpGame;
+    ColorType area_color = COLOR_BLACK;
+    bool const left = true;
+    Rect header_rect = DrawHandHeader(rCanvas, top_y, left_x, playable_hand, area_color, left);
+    left_x = header_rect.LeftX();
+    PixelCntType width = header_rect.Width();
+    
+    // calculate height of hand area (mHandRect)
+    unsigned tile_cnt = CountHand();
+    PixelCntType const cell_height = CellHeight();
+	PixelCntType height = rCanvas.TextHeight() + 2*mPadPixels;
+	if (!playable_hand.HasResigned() && !playable_hand.HasGoneOut()) {
+        height = tile_cnt*cell_height + 2*mPadPixels;
+        if (tile_cnt < CountTiles()) {
+            // show that there's room for more
+            height += cell_height/2;
+	    }
+	}
+
+	// choose colors for hand area (mHandRect)
+	TileIdType const active_tile = GetActive();
+	if (IsInHand(active_tile)) {
+        // The active tile started from this hand.
+		ASSERT(tile_cnt > 0);
+		--tile_cnt;
+	}
+
+	if (!IsLocalUsersTurn()) {
+	    area_color = COLOR_DARK_BLUE;
+	} else if (tile_cnt < CountTiles()) {
+        area_color = COLOR_DARK_GREEN;
+    } else { // hand is full
+        area_color = COLOR_BROWN;
+    }
+    ColorType const edge_color = COLOR_WHITE;
+    rCanvas.UseColors(area_color, edge_color);
+
+    // draw hand area (mHandRect)
+	top_y = header_rect.BottomY() - 1;
+    mHandRect = rCanvas.DrawRectangle(top_y, left_x, width, height);
+    left_x = mHandRect.LeftX();
+    width = mHandRect.Width();
+
+    if (playable_hand.HasResigned()) {
+		rCanvas.DrawText(mHandRect, "resigned");
+	} else if (playable_hand.HasGoneOut()) {
+		rCanvas.DrawText(mHandRect, "went out");
+	}
+
+    // draw swap area (mSwapRect)
+    top_y = mHandRect.BottomY() - 1;
+	if (playable_hand.HasGoneOut() || playable_hand.HasResigned()) {
+        mSwapRect = Rect(top_y, left_x, width, 0);
+	} else {
+		mSwapRect = DrawSwapArea(rCanvas, top_y, left_x, width);
+	}
+
+    // draw stock area (mSwapRect)
+    top_y = mSwapRect.BottomY() - 1;
+	DrawStockArea(rCanvas, top_y, left_x, width);
 }
 
 void GameView::DrawStockArea(
@@ -695,6 +627,73 @@ Rect GameView::DrawTile(Canvas &rCanvas, Point const &rCenter, Tile const &rTile
 		tile_height, warm_flag, oddFlag);
     
     return result;
+}
+
+void GameView::DrawUnplayableHands(Canvas &rCanvas) {
+	ASSERT(mpGame != NULL);
+
+    PixelCntType const cell_height = CellHeight();
+    ColorType area_color = COLOR_DARK_BLUE;
+    ColorType const edge_color = COLOR_LIGHT_GRAY;
+
+    Hands hands = mpGame->UnplayableHands();
+    Hands::Iterator i_hand;
+    LogicalXType right_x = mpWindow->ClientAreaWidth() - mPadPixels;
+    LogicalYType top_y = mPadPixels;
+    for (i_hand = hands.begin(); i_hand < hands.end(); i_hand++) {
+        // draw header
+        bool const rightFlag = false;
+        ColorType const header_color = COLOR_BLACK;
+        Rect header_rect = DrawHandHeader(rCanvas, top_y, right_x, *i_hand, header_color, rightFlag);
+
+        // draw hand area below the header
+        top_y = header_rect.BottomY() - 1;
+        LogicalXType const left_x = header_rect.LeftX();
+        PixelCntType const width = header_rect.Width();
+        Tiles const hand_tiles = *i_hand;
+        unsigned const tile_count = hand_tiles.Count();
+        area_color = COLOR_DARK_BLUE;
+        rCanvas.UseColors(area_color, edge_color);
+		PixelCntType height = rCanvas.TextHeight() + 2*mPadPixels;
+		if (!i_hand->HasResigned() && !i_hand->HasGoneOut() && mpMenuBar->IsPeeking()) {
+            height = tile_count*cell_height + 2*mPadPixels;
+		}
+        Rect const hand_rect = rCanvas.DrawRectangle(top_y, left_x, width, height);
+
+		if (i_hand->HasResigned()) {
+			rCanvas.DrawText(hand_rect, "resigned");
+		} else if (i_hand->HasGoneOut()) {
+			rCanvas.DrawText(hand_rect, "went out");
+		} else if (!mpMenuBar->IsPeeking()) {
+			String const text = ::plural(tile_count, "tile");
+			rCanvas.DrawText(hand_rect, text);
+		} else { // peeking:  draw tiles
+            LogicalXType const tile_x = hand_rect.CenterX();
+            LogicalYType tile_y = hand_rect.TopY() + mPadPixels + cell_height/2;
+
+            for (unsigned i_tile = 0; i_tile < tile_count; i_tile++) {
+                Tile const tile = hand_tiles[i_tile];
+                Point const center(tile_x, tile_y);
+                if (mpMenuBar->IsPeeking()) {
+                    DrawTile(rCanvas, center, tile, false);
+                } else {
+                    DrawBlankTile(rCanvas, center, tile.HasBonus(), false);
+                } 
+                tile_y += cell_height;
+			}
+		} // if peeking
+
+		// add padding between hands
+		if (mpMenuBar->IsPeeking()) {
+		    // right to left
+            right_x = header_rect.LeftX() - mPadPixels;
+            top_y = mPadPixels;
+		} else {
+		    // top to bottom
+            right_x = mpWindow->ClientAreaWidth() - mPadPixels;
+            top_y += height + mPadPixels;
+		}
+    }
 }
 
 Cell GameView::GetPointCell(Point const &rPoint) const {
@@ -831,8 +830,8 @@ void GameView::Repaint(Canvas &rCanvas) {
     } else {
         DrawBoard(rCanvas, 0);
         DrawBoard(rCanvas, 1);
-        DrawInactiveHands(rCanvas);
-        DrawActiveHand(rCanvas);
+        DrawUnplayableHands(rCanvas);
+        DrawPlayableHand(rCanvas);
         DrawHandTiles(rCanvas);
     }
 

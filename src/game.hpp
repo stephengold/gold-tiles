@@ -30,6 +30,13 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 #include "hands.hpp"  // HASA Hands
 #include "turns.hpp"  // HASA Turns
 
+enum EndingType {
+	ENDING_NOT_OVER_YET,
+	ENDING_WENT_OUT,
+	ENDING_ALL_RESIGNED,
+	ENDING_STUCK
+};
+
 class Game {
 public:
 	// public lifecycle
@@ -51,7 +58,6 @@ public:
 	String        EndBonus(void);
     void          FinishTurn(Move const &);
 	unsigned      HandSize(void) const;
-    Hands         InactiveHands(void) const;
 	unsigned      MustPlay(void) const;
     void          PlayGame(void);
 	void          Redo(void);
@@ -64,6 +70,7 @@ public:
 	void          TogglePause(void);
 	void          Undo(void);
 	Indices       UndoTiles(void) const;
+    Hands         UnplayableHands(void) const;
 
 	// public inquiry methods
 	bool CanRedo(void) const;
@@ -80,16 +87,19 @@ public:
 	bool IsStockEmpty(void) const;
 
 private:
+	// private constants
+	static const unsigned STUCK_THRESHOLD = 7;  // turns before game is declared "stuck" 
+
 	// private data
-    Hands::Iterator miActiveHand;    // whose turn it is
 	String           mBestRunReport;
     Board            mBoard;         // extensible playing surface
 	String           mFilespec;      // associated file for load/save
 	String           mFirstTurnMessage;
     Hands            mHands;         // all hands being played
 	Turns            mHistory;       // history of turns for undo/redo
-	GameOpt const    mOptions;
     unsigned         mMustPlay;      // min number of tiles, zero after the first turn
+	GameOpt const    mOptions;
+    Hands::Iterator miPlayableHand;    // whose turn it is
 	Turns::Iterator miRedo;          // current position in the history
     Tiles            mStockBag;      // stock bag from which tiles are drawn
 	bool             mUnsavedChanges;
@@ -101,13 +111,14 @@ private:
 	Game &operator=(Game const &);  // not assignable
 
 	// misc private methods
-    void     AddTurn(Turn const &);
-    void     DisplayScores(void) const;
-    void     DisplayStatus(void) const;
-	void     FindBestRun(void);
-    void     FirstTurn(void);
-    void     NextTurn(void);
-	Strings  WinningHands(void) const;
-	unsigned WinningScore(void) const;
+    void       AddTurn(Turn const &);
+    void       DisplayScores(void) const;
+    void       DisplayStatus(void) const;
+	EndingType Ending(void) const;
+	void       FindBestRun(void);
+    void       FirstTurn(void);
+    void       NextTurn(void);
+	Strings    WinningHands(void) const;
+	unsigned   WinningScore(void) const;
 };
 #endif // !defined(GAME_HPP_INCLUDED)

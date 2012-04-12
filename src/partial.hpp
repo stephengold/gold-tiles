@@ -1,9 +1,10 @@
 #ifndef PARTIAL_HPP_INCLUDED
 #define PARTIAL_HPP_INCLUDED
 
-// File:    partial.hpp
-// Purpose: Partial class
-// Author:  Stephen Gold sgold@sonic.net
+// File:     partial.hpp
+// Location: src
+// Purpose:  Partial class
+// Author:   Stephen Gold sgold@sonic.net
 // (c) Copyright 2012 Stephen Gold
 // Distributed under the terms of the GNU General Public License
 
@@ -25,12 +26,12 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 /*
-A Partial object represents the active hand's move in progress, including
+A Partial object represents the playable hand's move in progress, including
 the location of every tile in the hand.  It also decides which cells should
 be "hinted" (that is to say highlighted) for the player's benefit.  It also
 implements a Suggest() method for user assistance and automatic play.
 
-The tiles may be located in the active hand, in the swap area, or on the board.
+The tiles may be located in the playable hand, in the swap area, or on the board.
 At any instant, only one tile may be active (in motion).
 
 The Partial class is ...

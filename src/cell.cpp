@@ -1,6 +1,6 @@
 // File:     cell.cpp
 // Location: src
-// Purpose:  Cell class
+// Purpose:  implement Cell class
 // Author:   Stephen Gold sgold@sonic.net
 // (c) Copyright 2012 Stephen Gold
 // Distributed under the terms of the GNU General Public License
@@ -24,6 +24,7 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <iostream>    // cin
 #include "cell.hpp"
+#include "direction.hpp"
 #include "project.hpp" // ASSERT
 
 // static data
@@ -51,45 +52,30 @@ Cell::Cell(IndexType row, IndexType column) {
 // The compiler-generated copy constructor is fine.
 
 // construct the next valid cell (not necessarily a neighbor) in direction "dir" from "base"
-Cell::Cell(Cell const &rBase, DirectionType direction, IndexType count) {
+Cell::Cell(Cell const &rBase, Direction const &rDirection, IndexType count) {
 	ASSERT(rBase.IsValid());
 	ASSERT(count == 1 || count == -1);
 
-	DirectionType old_direction = direction;
-	IndexType const old_group = rBase.Group(old_direction);
-	IndexType const old_ortho = rBase.Ortho(old_direction);
+	Direction const old_direction = rDirection;
+	IndexType const old_group = rBase.Group(rDirection);
+	IndexType const old_ortho = rBase.Ortho(rDirection);
 
+	Direction direction = rDirection;
 	if (count < 0) {
-		direction = OppositeDirection(direction);
+		direction = direction.Opposite();
 		count = -count;
 	}
 
-    IndexType row_offset, column_offset;
+    IndexType row_offset;
+	IndexType column_offset;
 
 	if (Grid() == GRID_TRIANGLE) {
-		bool odd = ::is_odd(rBase.Row() + rBase.Column());
-		switch (direction) {
-		    case DIRECTION_NORTHEAST:
-				direction = odd ? DIRECTION_NORTH : DIRECTION_EAST;
-				break;
-		    case DIRECTION_SOUTHEAST:
-				direction = odd ? DIRECTION_EAST : DIRECTION_SOUTH;
-				break;
-		    case DIRECTION_NORTHWEST:
-				direction = odd ? DIRECTION_NORTH : DIRECTION_WEST;
-				break;
-		    case DIRECTION_SOUTHWEST:
-				direction = odd ? DIRECTION_WEST : DIRECTION_SOUTH;
-				break;
-		}
-	    NextCellOffsets(direction, row_offset, column_offset);
-	    mRow = rBase.mRow + count*row_offset;
-	    mColumn = rBase.mColumn + count*column_offset;
-	} else {
-	    NextCellOffsets(direction, row_offset, column_offset);
-	    mRow = rBase.mRow + count*row_offset;
-	    mColumn = rBase.mColumn + count*column_offset;
+		bool const odd = ::is_odd(rBase.Row() + rBase.Column());
+		direction = direction.TriangleNeighbor(odd);
 	}
+    NextCellOffsets(direction, row_offset, column_offset);
+    mRow = rBase.mRow + count*row_offset;
+    mColumn = rBase.mColumn + count*column_offset;
 
 	if (msWrapFlag) {
         while (mRow >= msHeight/2) {
@@ -165,50 +151,26 @@ Cell::operator String(void) const {
 
 // misc methods
 
-/* static */ DirectionType Cell::Axis(DirectionType direction) {
-	DirectionType result = direction;
-
-	switch (direction) {
-	    case DIRECTION_NORTH:
-	    case DIRECTION_NORTHEAST:
-	    case DIRECTION_EAST:
-	    case DIRECTION_SOUTHEAST:
-			result = direction;
-			break;
-	    case DIRECTION_SOUTH:
-	    case DIRECTION_SOUTHWEST:
-	    case DIRECTION_WEST:
-	    case DIRECTION_NORTHWEST:
-			result = OppositeDirection(direction);
-			break;
-		default:
-			FAIL();
-			break;
-	}
-
-	return result;
-}
-
-
-/* static */ IndexType Cell::AxisLength(DirectionType axis) {
-	ASSERT(IsScoringAxis(axis));
+/* static */ IndexType Cell::AxisLength(Direction const &rAxis) {
+	ASSERT(IsScoringAxis(rAxis));
 
 	IndexType result = HEIGHT_MAX;
-	switch (axis) {
-	    case DIRECTION_NORTH:
-		    result = msHeight;
-			break;
-	    case DIRECTION_EAST:
-		    result = msWidth;
-			break;
-	    case DIRECTION_NORTHEAST:
-	    case DIRECTION_SOUTHEAST:
-			// TODO
-		default:
-			FAIL();
-			break;
+	if (msHeight == HEIGHT_MAX && msWidth == WIDTH_MAX) {
+		result = HEIGHT_MAX;
+	} else if (rAxis.IsVertical()) {
+		result = msHeight;
+	} else if (rAxis.IsHorizontal()) {
+		if (msGrid == GRID_HEX) {
+	       result = msWidth/2;
+		} else {
+	       result = msWidth;
+		}
+	} else {
+		// TODO
+		FAIL();
 	}
 
+	ASSERT(result >= HEIGHT_MIN);
 	return result;
 }
 
@@ -272,90 +234,82 @@ bool Cell::GetUserChoice(String const &alt) {
     return msGrid;
 }
 
-IndexType Cell::Group(DirectionType direction) const {
+IndexType Cell::Group(Direction const &rDirection) const {
 	IndexType result = 0;
 
 	if (Grid() != GRID_TRIANGLE) {
-        IndexType row_offset, column_offset;
-        NextCellOffsets(direction, row_offset, column_offset);
+		IndexType column_offset;
+        IndexType row_offset;
+        NextCellOffsets(rDirection, row_offset, column_offset);
         result = row_offset*mRow + column_offset*mColumn;
 
-	} else switch (direction) {
-		case DIRECTION_NORTH:
-		    result = mRow;
-			break;
-	    case DIRECTION_EAST:
-		    result = mColumn;
-			break;
-		case DIRECTION_SOUTH:
-		    result = -mRow;
-			break;
-	    case DIRECTION_WEST:
-		    result = -mColumn;
-			break;
-		case DIRECTION_NORTHEAST: {
-		    long row_pair = (mRow + (::is_odd(mRow) ? 1 : 0))/2;
-		    long column_pair = (mColumn + (::is_odd(mColumn) ? 1 : 0))/2;
-		    result = column_pair + 3*row_pair;
-		    if (::is_odd(mRow) && ::is_even(mColumn)) {
-			    result -= 1;
-		    } else if (::is_odd(mRow) && ::is_odd(mColumn)) {
-			    result -= 2;
-		    }
-			break;
-        }
-		case DIRECTION_SOUTHEAST: {
-		    long const row_pair = (mRow + (::is_odd(mRow) ? 1 : 0))/2;
-		    long const column_pair = (mColumn + (::is_odd(mColumn) ? 1 : 0))/2;
-		    result = column_pair - 3*row_pair;
-		    if (::is_even(mRow) && ::is_odd(mColumn)) {
-			    result -= 1;
-		    } else if (::is_odd(mRow)) {
-			    result += 1;
-		    }
-			break;
-	    }
-		case DIRECTION_NORTHWEST: {
-		    long const row_pair = (mRow + (::is_odd(mRow) ? 1 : 0))/2;
-		    long const column_pair = (mColumn + (::is_odd(mColumn) ? 1 : 0))/2;
-		    result = - column_pair + 3*row_pair;
-		    if (::is_odd(mRow) && ::is_even(mColumn)) {
-			    result -= 1;
-		    } else if (::is_odd(mRow) && ::is_odd(mColumn)) {
-			    result -= 1;
-		    } else if (::is_even(mRow) && ::is_odd(mColumn)) {
-			    result += 1;
-		    }
-			break;
-        }
-		case DIRECTION_SOUTHWEST: {
-		    long row_pair = (mRow + (::is_odd(mRow) ? 1 : 0))/2;
-		    long column_pair = (mColumn + (::is_odd(mColumn) ? 1 : 0))/2;
-		    result = - column_pair - 3*row_pair;
-		    if (::is_odd(mRow) && ::is_odd(mColumn)) {
-			    result += 2;
-		    } else if (::is_odd(mRow) && ::is_even(mColumn)) {
-			    result += 1;
-		    }
-			break;
+	} else if (rDirection.IsNorth()) {
+	    result = mRow;
+
+	} else if (rDirection.IsEast()) {
+	    result = mColumn;
+
+	} else if (rDirection.IsSouth()) {
+	    result = -mRow;
+
+	} else if (rDirection.IsWest()) {
+	    result = -mColumn;
+
+	} else if (rDirection.IsNortheast()) {
+		long const row_pair = (mRow + (::is_odd(mRow) ? 1 : 0))/2;
+		long const column_pair = (mColumn + (::is_odd(mColumn) ? 1 : 0))/2;
+		result = column_pair + 3*row_pair;
+		if (::is_odd(mRow) && ::is_even(mColumn)) {
+		    result -= 1;
+		} else if (::is_odd(mRow) && ::is_odd(mColumn)) {
+		    result -= 2;
+		}
+
+	} else if (rDirection.IsSoutheast()) {
+	    long const row_pair = (mRow + (::is_odd(mRow) ? 1 : 0))/2;
+	    long const column_pair = (mColumn + (::is_odd(mColumn) ? 1 : 0))/2;
+	    result = column_pair - 3*row_pair;
+	    if (::is_even(mRow) && ::is_odd(mColumn)) {
+		    result -= 1;
+	    } else if (::is_odd(mRow)) {
+		    result += 1;
 	    }
 
-		default:
-			FAIL();
+	} else if (rDirection.IsNorthwest()) {
+	    long const row_pair = (mRow + (::is_odd(mRow) ? 1 : 0))/2;
+	    long const column_pair = (mColumn + (::is_odd(mColumn) ? 1 : 0))/2;
+	    result = - column_pair + 3*row_pair;
+	    if (::is_odd(mRow) && ::is_even(mColumn)) {
+		    result -= 1;
+	    } else if (::is_odd(mRow) && ::is_odd(mColumn)) {
+		    result -= 1;
+	    } else if (::is_even(mRow) && ::is_odd(mColumn)) {
+		    result += 1;
+	    }
+
+	} else if (rDirection.IsSouthwest()) {
+	    long const row_pair = (mRow + (::is_odd(mRow) ? 1 : 0))/2;
+	    long const column_pair = (mColumn + (::is_odd(mColumn) ? 1 : 0))/2;
+	    result = - column_pair - 3*row_pair;
+	    if (::is_odd(mRow) && ::is_odd(mColumn)) {
+		    result += 2;
+	    } else if (::is_odd(mRow) && ::is_even(mColumn)) {
+		    result += 1;
+	    }
+
+	} else {
+		FAIL();
 	}
 
     return result;        
 }
 
-/* static */ DirectionType Cell::LongestAxis(void) {
-	DirectionType result = DIRECTION_UNKNOWN;
+/* static */ Direction Cell::LongestAxis(void) {
+	Direction result;
 	IndexType max_length = 0;
 
-	for (int dir = DIRECTION_FIRST; 
-             dir <= DIRECTION_LAST_POSITIVE;
-             dir++)
-    {
-        DirectionType const axis = DirectionType(dir);
+	Direction axis;
+	for (axis.SetFirst(); axis.IsAxis(); axis++) {
         if (IsScoringAxis(axis)) {
 			IndexType const length = AxisLength(axis);
 			if (length > max_length) {
@@ -368,161 +322,86 @@ IndexType Cell::Group(DirectionType direction) const {
 	return result;
 }
 
-void Cell::Next(DirectionType direction, IndexType count) {
+void Cell::Next(Direction const &rDirection, IndexType count) {
 	ASSERT(count == 1 || count == -1);
 
-    Cell const next(*this, direction, count);
+    Cell const next(*this, rDirection, count);
     *this = next;
 }
 
 /* static */ void Cell::NextCellOffsets(
-	DirectionType direction,
+	Direction const &rDirection,
 	IndexType &rowOffset,
 	IndexType &columnOffset)
 {
-	switch (direction) {
-		case DIRECTION_NORTH:
-			rowOffset = (msGrid == GRID_HEX) ? +2 : +1;
-            columnOffset = 0;
-            break;
-        case DIRECTION_SOUTH:
-			rowOffset = (msGrid == GRID_HEX) ? -2 : -1;
-            columnOffset = 0;
-            break;
-		case DIRECTION_EAST:
-			rowOffset = 0;
-			columnOffset = (msGrid == GRID_HEX) ? +2 : +1;
-            break;
-		case DIRECTION_WEST:
-			rowOffset = 0;
-			columnOffset = (msGrid == GRID_HEX) ? -2 : -1;
-            break;
-		case DIRECTION_NORTHEAST:
-			rowOffset = +1;
-            columnOffset = +1;
-            break;
-		case DIRECTION_NORTHWEST:
-			rowOffset = +1;
-            columnOffset = -1;
-            break;
-		case DIRECTION_SOUTHEAST:
-			rowOffset = -1;
-            columnOffset = +1;
-            break;
-		case DIRECTION_SOUTHWEST:
-			rowOffset = -1;
-            columnOffset = -1;
-            break;
-        default:
-            FAIL();
-            break;
+	if (rDirection.IsNorth()) {
+		rowOffset = (msGrid == GRID_HEX) ? +2 : +1;
+        columnOffset = 0;
+	} else if (rDirection.IsSouth()) {
+		rowOffset = (msGrid == GRID_HEX) ? -2 : -1;
+        columnOffset = 0;
+	} else if (rDirection.IsEast()) {
+		rowOffset = 0;
+		columnOffset = (msGrid == GRID_HEX) ? +2 : +1;
+	} else if (rDirection.IsWest()) {
+		rowOffset = 0;
+		columnOffset = (msGrid == GRID_HEX) ? -2 : -1;
+	} else if (rDirection.IsNortheast()) {
+		rowOffset = +1;
+        columnOffset = +1;
+	} else if (rDirection.IsNorthwest()) {
+		rowOffset = +1;
+        columnOffset = -1;
+	} else if (rDirection.IsSoutheast()) {
+		rowOffset = -1;
+        columnOffset = +1;
+	} else if (rDirection.IsSouthwest()) {
+		rowOffset = -1;
+        columnOffset = -1;
+	} else {
+        FAIL();
     }
 }
 
-/* static */ DirectionType Cell::OppositeDirection(DirectionType direction) {
-    DirectionType result = DIRECTION_UNKNOWN;
-    
-    switch (direction) {
-        case DIRECTION_NORTH:
-			result = DIRECTION_SOUTH;
-			break;
-        case DIRECTION_SOUTH:
-            result = DIRECTION_NORTH;
-            break;
-        case DIRECTION_NORTHEAST:
-			result = DIRECTION_SOUTHWEST;
-			break;
-        case DIRECTION_SOUTHWEST:
-            result = DIRECTION_NORTHEAST;
-            break;
-        case DIRECTION_EAST:
-			result = DIRECTION_WEST;
-			break;
-        case DIRECTION_WEST:
-            result = DIRECTION_EAST;
-            break;
-        case DIRECTION_NORTHWEST:
-			result = DIRECTION_SOUTHEAST;
-			break;
-        case DIRECTION_SOUTHEAST:
-            result = DIRECTION_NORTHWEST;
-            break;
-		default:
-			FAIL();
-    }
-    
-    return result;
-}
-
-IndexType Cell::Ortho(DirectionType direction) const {
-    DirectionType const axis = OrthoAxis(direction);
-	ASSERT(IsAxis(axis));
+IndexType Cell::Ortho(Direction const &rDirection) const {
+    Direction const axis = rDirection.OrthogonalAxis();
+	ASSERT(axis.IsAxis());
 
 	IndexType result = 0;
 
 	if (Grid() != GRID_TRIANGLE) {
-        IndexType row_offset, column_offset;
+		IndexType column_offset;
+        IndexType row_offset;
         NextCellOffsets(axis, row_offset, column_offset);
         result = row_offset*mRow + column_offset*mColumn;
 
-	} else switch (axis) {
-	    case DIRECTION_NORTH:
-		    result = mRow;
-			break;
-		case DIRECTION_EAST:
-		    result = mColumn;
-			break;
-		case DIRECTION_SOUTHEAST: {
-		    long const row_pair = (mRow + (::is_odd(mRow) ? 1 : 0))/2;
-		    long const column_pair = (mColumn + (::is_odd(mColumn) ? 1 : 0))/2;
-		    result = column_pair - row_pair;
-		    if (::is_even(mRow) && ::is_odd(mColumn)) {
-			    result -= 1;
-		    }
-			break;
-		}
-		case DIRECTION_NORTHEAST: {
-		    long const row_pair = (mRow + (::is_odd(mRow) ? 1 : 0))/2;
-		    long const column_pair = (mColumn + (::is_odd(mColumn) ? 1 : 0))/2;
-            result = column_pair + row_pair;
-		    if (::is_odd(mRow) && ::is_odd(mColumn)) {
-			    result -= 1;
-		    }
-			break;
-		}
-		default:
-			FAIL();
+	} else if (axis.IsNorth()) {
+	    result = mRow;
+
+	} else if (axis.IsEast()) {
+	    result = mColumn;
+
+	} else if (axis.IsSoutheast()) {
+	    long const row_pair = (mRow + (::is_odd(mRow) ? 1 : 0))/2;
+	    long const column_pair = (mColumn + (::is_odd(mColumn) ? 1 : 0))/2;
+	    result = column_pair - row_pair;
+	    if (::is_even(mRow) && ::is_odd(mColumn)) {
+		    result -= 1;
+	    }
+
+	} else if (axis.IsNortheast()) {
+	    long const row_pair = (mRow + (::is_odd(mRow) ? 1 : 0))/2;
+	    long const column_pair = (mColumn + (::is_odd(mColumn) ? 1 : 0))/2;
+        result = column_pair + row_pair;
+	    if (::is_odd(mRow) && ::is_odd(mColumn)) {
+		    result -= 1;
+	    }
+
+	} else {
+		FAIL();
 	} 
 
     return result;        
-}
-
-/* static */ DirectionType Cell::OrthoAxis(DirectionType direction) {
-    DirectionType result = DIRECTION_UNKNOWN;
-    
-    switch(direction) {
-        case DIRECTION_NORTH:
-        case DIRECTION_SOUTH:
-            result = DIRECTION_EAST;
-            break;
-        case DIRECTION_NORTHEAST:
-        case DIRECTION_SOUTHWEST:
-            result = DIRECTION_SOUTHEAST;
-            break;
-        case DIRECTION_EAST:
-        case DIRECTION_WEST:
-            result = DIRECTION_NORTH;
-            break;
-        case DIRECTION_NORTHWEST:
-        case DIRECTION_SOUTHEAST:
-            result = DIRECTION_NORTHEAST;
-            break;
-		default:
-			FAIL();
-    }
-    
-    // always return one of the four "positive" directions
-    return result;
 }
 
 IndexType Cell::Row(void) const {
@@ -564,39 +443,31 @@ IndexType Cell::Row(void) const {
 
 // inquiry methods
 
-bool Cell::HasNeighbor(DirectionType direction) const {
-	ASSERT(direction != DIRECTION_UNKNOWN);
-
+bool Cell::HasNeighbor(Direction const &rDirection) const {
 	bool result = true;
 
 	switch (msGrid) {
 		case GRID_HEX:
-			if (direction == DIRECTION_EAST 
-			 || direction == DIRECTION_WEST)
-			{
-				result = false;
-			}
+			result = !(rDirection.IsHorizontal());
 			break;
 
 	    case GRID_TRIANGLE:
-			if (direction == DIRECTION_NORTH && !::is_odd(mRow + mColumn)
-			 || direction == DIRECTION_SOUTH && ::is_odd(mRow + mColumn))
+			if (rDirection.IsNorth() && !::is_odd(mRow + mColumn)
+			 || rDirection.IsSouth() && ::is_odd(mRow + mColumn)
+			 || rDirection.IsDiagonal())
 			{
 				result = false;
-			}
-			// fall through
-		case GRID_4WAY:
-			if (direction == DIRECTION_NORTHEAST
-			 || direction == DIRECTION_NORTHWEST
-			 || direction == DIRECTION_SOUTHEAST
-			 || direction == DIRECTION_SOUTHWEST)
-			{
-				result = false;
+			} else {
+				result = true;
 			}
 			break;
 
+		case GRID_4WAY:
+			result = !(rDirection.IsDiagonal());
+			break;
+
 		case GRID_8WAY:
-			// has neighbors in all eight directions
+			result = true; // has neighbors in all eight directions
 			break;
 
 		default:
@@ -604,8 +475,9 @@ bool Cell::HasNeighbor(DirectionType direction) const {
 	}
 
 	// check for edges
-	IndexType row, column;
-	NextCellOffsets(direction, row, column);
+	IndexType column;
+	IndexType row;
+	NextCellOffsets(rDirection, row, column);
 	row += mRow;
 	column += mColumn;
 	if (!msWrapFlag) {
@@ -620,60 +492,34 @@ bool Cell::HasNeighbor(DirectionType direction) const {
 	return result;
 }
 
-/* static */ bool Cell::IsAxis(DirectionType direction) {
-	bool result = false;
-
-	switch (direction) {
-	    case DIRECTION_NORTH:
-	    case DIRECTION_NORTHEAST:
-	    case DIRECTION_EAST:
-	    case DIRECTION_SOUTHEAST:
-			result = true;
-			break;
-		default:
-			result = false;
-			break;
-	}
-
-	return result;
-}
-
 bool Cell::IsOdd(void) const {
     bool result = (::is_odd(mRow) != ::is_odd(mColumn));
 
 	return result;
 }
 
-/* static */ bool Cell::IsScoringAxis(DirectionType axis) {
-	ASSERT(IsAxis(axis));
+/* static */ bool Cell::IsScoringAxis(Direction const &rAxis) {
+	ASSERT(rAxis.IsAxis());
 
     bool result = false;
     switch (Cell::Grid()) {
         case GRID_TRIANGLE:
-            result = (axis != DIRECTION_NORTH); 
+            result = !(rAxis.IsVertical()); 
             break;
         case GRID_4WAY:
-            result = (axis == DIRECTION_NORTH 
-                   || axis == DIRECTION_EAST);
+            result = !(rAxis.IsDiagonal());
             break;
         case GRID_HEX:
-            result = (axis != DIRECTION_EAST);
+            result = !(rAxis.IsHorizontal());
             break;
         case GRID_8WAY:
-            result = true;
+            result = true; // all four axes are for scoring
             break;
         default:
             FAIL();
     }
      
     return result;
-}
-
-/* static */ bool Cell::IsScoringDirection(DirectionType direction) {
-	 DirectionType const axis = Axis(direction);
-     bool const result = IsScoringAxis(axis);
-
-	 return result;
 }
 
 bool Cell::IsStart(void) const {
@@ -701,7 +547,7 @@ bool Cell::IsValid(void) const {
 		case GRID_4WAY:
 		case GRID_8WAY:
 	    case GRID_TRIANGLE:
-			// all coordinates are valid cells
+			// all coordinates correspond to valid cells
 			break;
 		default:
 			FAIL();

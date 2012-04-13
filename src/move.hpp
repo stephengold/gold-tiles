@@ -1,9 +1,10 @@
 #ifndef MOVE_HPP_INCLUDED
 #define MOVE_HPP_INCLUDED
 
-// File:    move.hpp
-// Purpose: Move class
-// Author:  Stephen Gold sgold@sonic.net
+// File:     move.hpp
+// Location: src
+// Purpose:  declare Move class
+// Author:   Stephen Gold sgold@sonic.net
 // (c) Copyright 2012 Stephen Gold
 // Distributed under the terms of the GNU General Public License
 
@@ -41,27 +42,28 @@ public:
 	// public types
     typedef std::set<TileCell>::const_iterator ConstIterator;
 
-	// lifecycle
+	// public lifecycle
 	Move(void);
-	Move(Tiles const &);
+	// Move(Move const&);  compiler-generated copy constructor is OK
 	// ~Move(void);  compiler-generated destructor is OK
 
 	// public operators
+	// Move &operator=(Move const&);  compiler-generated assigment operator is OK
     operator Cells(void) const;
     operator String(void) const;
     operator Tiles(void) const;
 
 	// misc public methods
-    void     Add(Tile const &);
-    void     Add(Tile const &, Cell const &);
+    void     Add(Tile const&);
+    void     Add(Tile const&, Cell const&);
 	ConstIterator
 		     Begin(void) const;
     unsigned Count(void) const;
     unsigned CountTilesPlayed(void) const;
 	ConstIterator
 		     End(void) const;
-    void     GetUserChoice(Tiles const &);
-	void     MakeResign(Tiles const &);
+    void     GetUserChoice(Tiles const&);
+	void     MakeResign(Tiles const&);
  
 	// public inquiry methods
 	bool InvolvesSwap(void) const;

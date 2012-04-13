@@ -3,7 +3,7 @@
 
 // File:     cell.hpp
 // Location: src
-// Purpose:  Cell class
+// Purpose:  declare Cell class
 // Author:   Stephen Gold sgold@sonic.net
 // (c) Copyright 2012 Stephen Gold
 // Distributed under the terms of the GNU General Public License
@@ -39,20 +39,6 @@ for the row (or northing) and another for the column (or easting).
 #include "indices.hpp"  // HASA IndexType
 #include "string.hpp"   // USES String
 
-enum DirectionType {
-    // positive directions
-    DIRECTION_NORTH = 0, DIRECTION_FIRST = 0,
-	DIRECTION_NORTHEAST = 1,
-    DIRECTION_EAST = 2,
-	DIRECTION_SOUTHEAST = 3, DIRECTION_LAST_POSITIVE = 3,
-	// negative directions
-    DIRECTION_SOUTH = 4, DIRECTION_FIRST_NEGATIVE = 4,
-	DIRECTION_SOUTHWEST = 5,
-    DIRECTION_WEST = 6,
-	DIRECTION_NORTHWEST = 7, DIRECTION_LAST = 7,
-	DIRECTION_UNKNOWN = 66
-};
-
 enum GridType {
 	GRID_TRIANGLE = 3,
 	GRID_4WAY = 4,
@@ -72,39 +58,36 @@ public:
 	// public lifecycle
     Cell(void);
     Cell(IndexType row, IndexType column);
-	Cell(Cell const &, DirectionType, IndexType count = 1);
-    // Cell(Cell const &);  compiler-generated copy constructor is OK
+	Cell(Cell const&, Direction const&, IndexType count = 1);
+    // Cell(Cell const&);  compiler-generated copy constructor is OK
     // ~Cell(void);  compiler-generated destructor is OK
 
 	// public operators
-	bool operator!=(Cell const &) const;
-	bool operator<(Cell const &) const;
-	// Cell &operator=(Cell const &);  compiler-generated assignment method is OK
-	bool operator==(Cell const &) const;
+	bool operator!=(Cell const&) const;
+	bool operator<(Cell const&) const;
+	// Cell &operator=(Cell const&);  compiler-generated assignment method is OK
+	bool operator==(Cell const&) const;
 	operator String(void) const;
 
 	// misc public methods
-	static IndexType AxisLength(DirectionType);
+	static IndexType AxisLength(Direction const&);
 	IndexType        Column(void) const;
 	static void      GetTopology(bool &wrapFlag, IndexType &height, IndexType &width);
-    bool             GetUserChoice(String const &);
+    bool             GetUserChoice(String const&);
     static GridType  Grid(void);
-	IndexType        Group(DirectionType direction) const;
-	static DirectionType 
-		             LongestAxis(void);
-	void             Next(DirectionType, IndexType count = 1);
-	IndexType        Ortho(DirectionType direction) const;
+	IndexType        Group(Direction const&) const;
+	static Direction LongestAxis(void);
+	void             Next(Direction const&, IndexType count = 1);
+	IndexType        Ortho(Direction const&) const;
 	IndexType        Row(void) const;
 	static void      SetGrid(GridType);
 	static void      SetTopology(bool wrapFlag, IndexType height, IndexType width);
 
 	// public inquiry methods
-	bool        HasNeighbor(DirectionType) const;
-	static bool IsAxis(DirectionType);
+	bool        HasNeighbor(Direction const&) const;
 	bool        IsOdd(void) const;
 	bool        IsStart(void) const;
-	static bool IsScoringAxis(DirectionType);
-	static bool IsScoringDirection(DirectionType);
+	static bool IsScoringAxis(Direction const&);
 	bool        IsValid(void) const;
 	static bool IsValid(IndexType row, IndexType column);
 
@@ -118,10 +101,7 @@ private:
 	static bool      msWrapFlag; // coordinates wrap around
 
     // misc private methods
-	static DirectionType Axis(DirectionType);
-	static void          NextCellOffsets(DirectionType, IndexType &rowOffset, 
-		                     IndexType &columnOffset);
-    static DirectionType OppositeDirection(DirectionType);
-	static DirectionType OrthoAxis(DirectionType);
+	static void NextCellOffsets(Direction const&, IndexType &rowOffset, 
+		            IndexType &columnOffset);
 };
 #endif // !defined(CELL_HPP_INCLUDED)

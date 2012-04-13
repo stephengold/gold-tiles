@@ -1,6 +1,7 @@
-// File:    sample.cpp
-// Purpose: Sample class
-// Author:  Stephen Gold sgold@sonic.net
+// File:     sample.cpp
+// Location: src/templates
+// Purpose:  implement Sample class
+// Author:   Stephen Gold sgold@sonic.net
 // (c) Copyright 2012 Stephen Gold
 // Distributed under the terms of the GNU General Public License
 
@@ -22,6 +23,7 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "sample.hpp"
+
 
 // lifecycle
 

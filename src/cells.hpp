@@ -1,9 +1,10 @@
 #ifndef CELLS_HPP_INCLUDED
 #define CELLS_HPP_INCLUDED
 
-// File:    cells.hpp
-// Purpose: Cells class
-// Author:  Stephen Gold sgold@sonic.net
+// File:     cells.hpp
+// Location: src
+// Purpose:  declare Cells class
+// Author:   Stephen Gold sgold@sonic.net
 // (c) Copyright 2012 Stephen Gold
 // Distributed under the terms of the GNU General Public License
 
@@ -43,13 +44,13 @@ public:
     operator String(void) const;
 
 	// misc public methods
-	void     Add(Cell const &);
+	void     Add(Cell const&);
 	unsigned Count(void) const;
 	void     MakeEmpty(void);
 
 	// public inquiry methods
-	bool AreAllInSameOrtho(DirectionType) const;
-    bool Contains(Cell const &) const;
+	bool AreAllInSameOrtho(Direction const&) const;
+    bool Contains(Cell const&) const;
     bool IsAnyStart(void) const;
 	bool IsEmpty(void) const;
 };

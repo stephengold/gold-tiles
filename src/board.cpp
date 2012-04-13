@@ -1,6 +1,6 @@
 // File:     board.cpp
 // Location: src
-// Purpose:  Board class
+// Purpose:  implement Board class
 // Author:   Stephen Gold sgold@sonic.net
 // (c) Copyright 2012 Stephen Gold
 // Distributed under the terms of the GNU General Public License
@@ -23,14 +23,12 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include <iostream>
-#include <sstream>
 #include "board.hpp"
 #include "cells.hpp"
-#include "indices.hpp"
+#include "direction.hpp"
 #include "move.hpp"
-#include "string.hpp"
-#include "tilecell.hpp"
 #include "tiles.hpp"
+
 
 // lifecycle
 
@@ -47,7 +45,7 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 // misc methods
 
 TileIdType Board::GetId(Cell const &rCell) const {
-    TileIdType result = 0;
+    TileIdType result = Tile::ID_NONE;
     Tile const *const p_tile = GetCell(rCell);
 	if (p_tile != NULL) {
 		result = p_tile->Id();
@@ -58,11 +56,11 @@ TileIdType Board::GetId(Cell const &rCell) const {
 
 long Board::GetLimits(
 	Cell const &rCell,
-	DirectionType direction,
+	Direction const &rDirection,
 	Cell &rFirst,
 	Cell &rLast) const
 {
-	ASSERT(Cell::IsScoringAxis(direction));
+	ASSERT(Cell::IsScoringAxis(rDirection));
 	ASSERT(rCell.IsValid());
     ASSERT(!HasEmptyCell(rCell));
 	long result = 1;
@@ -70,7 +68,7 @@ long Board::GetLimits(
 	// look in the negative direction; stop at first invalid or empty cell
     rFirst = rCell;
     for (;;) {
-        Cell const previous(rFirst, direction, -1);
+        Cell const previous(rFirst, rDirection, -1);
         if (!previous.IsValid() || HasEmptyCell(previous)) {
 			break;
 		}
@@ -81,7 +79,7 @@ long Board::GetLimits(
 	// look in the positive direction; stop at first invalid or empty cell
     rLast = rCell;
 	for (;;) {
-        Cell const next(rLast, direction);
+        Cell const next(rLast, rDirection);
         if (!next.IsValid() || HasEmptyCell(next)) {
 			break;
 		}
@@ -139,13 +137,14 @@ void Board::PlayTile(TileCell const &rTileCell) {
 }
 
 unsigned Board::ScoreDirection(
-	Cell const &rCell,
-	DirectionType direction) const
+    Cell const &rCell,
+   Direction const &rDirection) const
 {
     ASSERT(!HasEmptyCell(rCell));
     
-    Cell first_cell, last_cell;
-    unsigned const length = GetLimits(rCell, direction, first_cell, last_cell);
+    Cell first_cell;
+	Cell last_cell;
+    unsigned const length = GetLimits(rCell, rDirection, first_cell, last_cell);
 
 	unsigned result = 0;
     if (length > 1) {
@@ -159,7 +158,7 @@ unsigned Board::ScoreDirection(
 			if (tile.HasBonus()) {
 				result *= 2;
 			}
-            i_cell.Next(direction);
+            i_cell.Next(rDirection);
 		}
 
 		// special bonus for two-attribute games
@@ -259,11 +258,8 @@ unsigned Board::ScoreMove(Move const &rMove) const {
     
     Cells const cells = Cells(rMove);
     
-    for (int dir = DIRECTION_FIRST; 
-             dir <= DIRECTION_LAST_POSITIVE;
-             dir++)
-    {
-        DirectionType const axis = DirectionType(dir);
+	Direction axis;
+    for (axis.SetFirst(); axis.IsAxis(); axis++) {
         if (Cell::IsScoringAxis(axis)) {
             Indices done_ortho;
 
@@ -293,8 +289,8 @@ void Board::UnplayMove(Move const &rMove) {
 
 // inquiry methods
 
-bool Board::AreAllCompatible(Cells const &rCells, DirectionType axis) const {
-	ASSERT(Cell::IsScoringAxis(axis));
+bool Board::AreAllCompatible(Cells const &rCells, Direction const &rAxis) const {
+	ASSERT(Cell::IsScoringAxis(rAxis));
 
     bool result = true;
     
@@ -302,9 +298,9 @@ bool Board::AreAllCompatible(Cells const &rCells, DirectionType axis) const {
         
     Cells::ConstIterator i_cell;
     for (i_cell = rCells.begin(); i_cell != rCells.end(); i_cell++) {
-        IndexType const ortho = i_cell->Ortho(axis);
+        IndexType const ortho = i_cell->Ortho(rAxis);
         if (!done_orthos.Contains(ortho)) {
-            if (!IsAxisCompatible(*i_cell, axis)) {
+            if (!IsAxisCompatible(*i_cell, rAxis)) {
                 result = false;
                 break;
             }
@@ -383,8 +379,8 @@ bool Board::HasEmptyCell(Cell const &rCell) const {
 bool Board::HasNeighbor(Cell const &rCell) const {
     bool result = false;
     
-    for (int i_dir = DIRECTION_FIRST; i_dir <= DIRECTION_LAST; i_dir++) {
-	    DirectionType direction = DirectionType(i_dir);
+	Direction direction;
+    for (direction.SetFirst(); direction.IsValid(); direction++) {
 		if (rCell.HasNeighbor(direction)) {
             Cell const look(rCell, direction);
 			ASSERT(look.IsValid());
@@ -398,20 +394,20 @@ bool Board::HasNeighbor(Cell const &rCell) const {
     return result;
 }
 
-bool Board::IsAxisCompatible(Cell const &rCell, DirectionType axis) const {
+bool Board::IsAxisCompatible(Cell const &rCell, Direction const &rAxis) const {
     ASSERT(!HasEmptyCell(rCell));
 	ASSERT(rCell.IsValid());
-	ASSERT(Cell::IsScoringAxis(axis));
+	ASSERT(Cell::IsScoringAxis(rAxis));
     
     Cell first_cell;
 	Cell last_cell;
-    GetLimits(rCell, axis, first_cell, last_cell);
+    GetLimits(rCell, rAxis, first_cell, last_cell);
 
     bool result = true;
     
-    for (Cell cell1 = first_cell; result && cell1 != last_cell; cell1.Next(axis)) {
+    for (Cell cell1 = first_cell; result && cell1 != last_cell; cell1.Next(rAxis)) {
         Tile const tile1 = GetTile(cell1);
-        for (Cell cell2(cell1, axis); cell2 != last_cell; cell2.Next(axis)) {
+        for (Cell cell2(cell1, rAxis); cell2 != last_cell; cell2.Next(rAxis)) {
             Tile const tile2 = GetTile(cell2);
             if (!tile1.IsCompatibleWith(&tile2)) {
                 result = false;
@@ -429,8 +425,8 @@ bool Board::IsAxisCompatible(Cell const &rCell, DirectionType axis) const {
     return result;
 }
 
-bool Board::IsConnectedDirection(Cells const &rCells, DirectionType direction) const {
-	 ASSERT(Cell::IsScoringDirection(direction));
+bool Board::IsConnectedAxis(Cells const &rCells, Direction const &rAxis) const {
+	 ASSERT(Cell::IsScoringAxis(rAxis));
      bool result = true;
     
     if (rCells.Count() > 1) {
@@ -440,23 +436,23 @@ bool Board::IsConnectedDirection(Cells const &rCells, DirectionType direction) c
         for (i_cell++ ; i_cell != rCells.end(); i_cell++) {
 			Cell const cell = *i_cell;
 			ASSERT(cell != first_cell);
-            if (first_cell.Ortho(direction) != cell.Ortho(direction)) {
+            if (first_cell.Ortho(rAxis) != cell.Ortho(rAxis)) {
                 return false;
 			}
-			ASSERT(cell.Group(direction) != first_cell.Group(direction));
-            if (cell.Group(direction) < first_cell.Group(direction)) {
+			ASSERT(cell.Group(rAxis) != first_cell.Group(rAxis));
+            if (cell.Group(rAxis) < first_cell.Group(rAxis)) {
                 first_cell = *i_cell;
             }
 
 			ASSERT(cell != last_cell);
-            ASSERT(last_cell.Ortho(direction) == cell.Ortho(direction));
-			ASSERT(cell.Group(direction) != last_cell.Group(direction));
-            if (cell.Group(direction) > last_cell.Group(direction)) {
+            ASSERT(last_cell.Ortho(rAxis) == cell.Ortho(rAxis));
+			ASSERT(cell.Group(rAxis) != last_cell.Group(rAxis));
+            if (cell.Group(rAxis) > last_cell.Group(rAxis)) {
                 last_cell = *i_cell;
             }
         }
         
-        for (Cell cell = first_cell; cell != last_cell; cell.Next(direction)) {
+        for (Cell cell = first_cell; cell != last_cell; cell.Next(rAxis)) {
             if (HasEmptyCell(cell)) {
                 result = false;
                 break;
@@ -521,22 +517,18 @@ bool Board::IsValidMove(Move const &rMove, TextType &rReason) const {
         return false;
     }
 
-    DirectionType axis_of_play = DIRECTION_UNKNOWN;
+    Direction axis_of_play;
     if (cells.Count() > 1) {
         // make sure the cells lie in a single ortho
-        for (int dir = DIRECTION_FIRST; 
-             dir <= DIRECTION_LAST_POSITIVE;
-             dir++)
-        {
-            DirectionType const axis = DirectionType(dir);
-			ASSERT(Cell::IsAxis(axis));
+		Direction axis;
+        for (axis.SetFirst(); axis.IsAxis(); axis++) {
 			if (Cell::IsScoringAxis(axis)) {
                 if (cells.AreAllInSameOrtho(axis)) {
                     axis_of_play = axis;
                 }
 			}
         }
-        if (axis_of_play == DIRECTION_UNKNOWN) {
+        if (!axis_of_play.IsValid()) {
 		    rReason = "ROWCOLUMN";
             return false;
         }
@@ -558,36 +550,28 @@ bool Board::IsValidMove(Move const &rMove, TextType &rReason) const {
 
     if (cells.Count() > 1) {
         // make sure there are no empty squares between played tiles
-        if (!after.IsConnectedDirection(cells, axis_of_play)) {
+        if (!after.IsConnectedAxis(cells, axis_of_play)) {
      		rReason = "GAP";
             return false;
         }
     }
     
     // check compatibility of connected tiles in each group
-    for (int dir = DIRECTION_FIRST;
-             dir <= DIRECTION_LAST_POSITIVE;
-             dir++)
-    {
-        DirectionType const axis = DirectionType(dir);
+	Direction axis;
+    for (axis.SetFirst(); axis.IsAxis(); axis++) {
         if (Cell::IsScoringAxis(axis)) {
             if (!after.AreAllCompatible(cells, axis)) {
-                switch (axis) {
-                    case DIRECTION_NORTH:
-		                rReason = "COLUMNCOMPAT";
-                        return false;
-
-                    case DIRECTION_EAST:
-		                rReason = "ROWCOMPAT";
-                        return false;
-
-                    case DIRECTION_NORTHEAST:
-                    case DIRECTION_SOUTHEAST:
-		                rReason = "DIAGCOMPAT";
-                        return false;
-
-                    default:
-                        FAIL();
+                if (axis.IsVertical()) {
+	                rReason = "COLUMNCOMPAT";
+                    return false;
+				} else if (axis.IsHorizontal()) {
+	                rReason = "ROWCOMPAT";
+                    return false;
+				} else if (axis.IsDiagonal()) {
+	                rReason = "DIAGCOMPAT";
+                    return false;
+				} else {
+                    FAIL();
                 }
             }
         }

@@ -44,6 +44,7 @@ class BaseBoard;
 class Board;
 class Cell;
 class Cells;
+class Direction;
 class Game;
 class GameOpt;
 class Hand;

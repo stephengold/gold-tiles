@@ -1,6 +1,7 @@
-// File:    cells.cpp
-// Purpose: Cells class
-// Author:  Stephen Gold sgold@sonic.net
+// File:     cells.cpp
+// Location: src
+// Purpose:  implement Cells class
+// Author:   Stephen Gold sgold@sonic.net
 // (c) Copyright 2012 Stephen Gold
 // Distributed under the terms of the GNU General Public License
 
@@ -22,6 +23,7 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "cells.hpp"
+#include "direction.hpp"
 
 
 // lifecycle
@@ -78,14 +80,14 @@ void Cells::MakeEmpty(void) {
 
 // inquiry methods
 
-bool Cells::AreAllInSameOrtho(DirectionType direction) const {
+bool Cells::AreAllInSameOrtho(Direction const &rDirection) const {
     bool result = true;
     
     if (Count() > 1) {
         ConstIterator i_cell = begin();
-        IndexType const ortho = i_cell->Ortho(direction);
+        IndexType const ortho = i_cell->Ortho(rDirection);
         for (i_cell++; i_cell != end(); i_cell++) {
-            if (i_cell->Ortho(direction) != ortho) {
+            if (i_cell->Ortho(rDirection) != ortho) {
                 result = false;
                 break;
             }     

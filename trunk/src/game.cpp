@@ -1,6 +1,6 @@
 // File:     game.cpp
 // Location: src
-// Purpose:  Game class
+// Purpose:  implement Game class
 // Author:   Stephen Gold sgold@sonic.net
 // (c) Copyright 2012 Stephen Gold
 // Distributed under the terms of the GNU General Public License
@@ -23,6 +23,7 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include <iostream>
+#include "direction.hpp"
 #include "game.hpp"
 #include "handopts.hpp"
 #include "partial.hpp"
@@ -290,7 +291,7 @@ void Game::FindBestRun(void) {
     }
 	mBestRunReport += "\n";
 
-	DirectionType const axis = Cell::LongestAxis();
+	Direction const axis = Cell::LongestAxis();
 	unsigned const axis_length = Cell::AxisLength(axis);
 	if (mMustPlay > axis_length) {
 		mMustPlay = axis_length;
@@ -363,8 +364,11 @@ void Game::FirstTurn(void) {
     Move move;
     StartClock();
     if (miPlayableHand->IsAutomatic()) {
-	    Tiles const run = miPlayableHand->LongestRun();
-        move = Move(run);
+		ASSERT(!CanRedo());
+		double const skip_probability = 0.0;
+        Partial partial(this, HINT_NONE, skip_probability);
+        partial.Suggest();
+        move = partial.GetMove(false);
 		std::cout << miPlayableHand->Name() << " played " << String(move) << std::endl;
 	} else {
         for (;;) {

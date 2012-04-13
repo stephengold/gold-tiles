@@ -24,13 +24,9 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 
 #ifdef _WINDOWS
 #include "gui/canvas.hpp"
-#include "gui/color.hpp"
-#include "gui/gameview.hpp"
+#include "gui/gamewindow.hpp"
 #include "gui/menubar.hpp"
 #include "gui/player.hpp"
-#include "gui/rect.hpp"
-#include "gui/resource.hpp"
-#include "gui/gamewindow.hpp"
 
 
 // lifecycle

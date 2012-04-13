@@ -3,7 +3,7 @@
 
 // File:     board.hpp
 // Location: src
-// Purpose:  Board class
+// Purpose:  declare Board class
 // Author:   Stephen Gold sgold@sonic.net
 // (c) Copyright 2012 Stephen Gold
 // Distributed under the terms of the GNU General Public License
@@ -52,30 +52,30 @@ public:
     void	   UnplayMove(Move const &);
 
 	// public inquiry methods
-	bool Contains(Tile const &) const;
+	bool Contains(Tile const&) const;
 	bool ContainsId(TileIdType) const;
-    bool HasEmptyCell(Cell const &) const;
-    bool HasNeighbor(Cell const &) const;
+    bool HasEmptyCell(Cell const&) const;
+    bool HasNeighbor(Cell const&) const;
 	bool IsEmpty(void) const;
-    bool IsValidMove(Move const &) const;
-    bool IsValidMove(Move const &, TextType &rReason) const;
+    bool IsValidMove(Move const&) const;
+    bool IsValidMove(Move const&, TextType &rReason) const;
 
 private:
 	// misc private methods
-	long    	 GetLimits(Cell const &, DirectionType, Cell &rFirst, Cell &rLast) const;
+	long    	 GetLimits(Cell const&, Direction const&, Cell &rFirst, Cell &rLast) const;
 	Tile const * GetPtr(IndexType northing, IndexType easting) const;
 	Tile		 GetTile(IndexType northing, IndexType easting) const;
-	Tile         GetTile(Cell const &) const;
-	Tiles		 GetTiles(Cells const &) const;
-    void		 PlayTile(TileCell const &);
-    unsigned	 ScoreDirection(Cell const &, DirectionType) const;
+	Tile         GetTile(Cell const&) const;
+	Tiles		 GetTiles(Cells const&) const;
+    void		 PlayTile(TileCell const&);
+    unsigned	 ScoreDirection(Cell const&, Direction const&) const;
 
 	// private inquiry methods
-    bool AreAllCompatible(Cells const &, DirectionType) const;
-    bool AreAllCompatible(Cells const &) const;
-    bool AreAllEmpty(Cells const &) const;
-    bool DoesAnyHaveNeighbor(Cells const &) const;
-    bool IsAxisCompatible(Cell const &, DirectionType) const;
-    bool IsConnectedDirection(Cells const &, DirectionType) const;
+    bool AreAllCompatible(Cells const&, Direction const&) const;
+    bool AreAllCompatible(Cells const&) const;
+    bool AreAllEmpty(Cells const&) const;
+    bool DoesAnyHaveNeighbor(Cells const&) const;
+    bool IsAxisCompatible(Cell const&, Direction const&) const;
+    bool IsConnectedAxis(Cells const&, Direction const&) const;
 };
 #endif // !defined(BOARD_HPP_INCLUDED)

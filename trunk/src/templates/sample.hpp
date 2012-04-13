@@ -1,9 +1,10 @@
 #ifndef SAMPLE_HPP_INCLUDED
 #define SAMPLE_HPP_INCLUDED
 
-// File:    sample.hpp
-// Purpose: sample class header file
-// Author:  Stephen Gold sgold@sonic.net
+// File:     sample.hpp
+// Location: src/templates
+// Purpose:  declare sample class
+// Author:   Stephen Gold sgold@sonic.net
 // (c) Copyright 2012 Stephen Gold
 // Distributed under the terms of the GNU General Public License
 
@@ -32,6 +33,7 @@ The Sample class extends/encapsulates the SampleBase class.
 
 #include "basesample.hpp"
 
+
 class Sample: public BaseSample {
 public:
 	// public types
@@ -40,11 +42,11 @@ public:
 
 	// public lifecycle
 	// Sample(void);  compiler-generated default constructor is OK
-    // Sample(Sample const &);  compiler-generated copy constructor is OK
+    // Sample(Sample const&);  compiler-generated copy constructor is OK
     // ~Sample(void);  compiler-generated destructor is OK
 
 	// public operators
-    // Sample &operator=(Sample const &);  compiler-generated assignment operator is OK
+    // Sample &operator=(Sample const&);  compiler-generated assignment operator is OK
 
 	// misc public methods
 
@@ -66,7 +68,4 @@ private:
 	// private inquiry methods
 
 };
-
-// global utility functions
-
-#endif
+#endif // !defined(SAMPLE_HPP_INCLUDED)

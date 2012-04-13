@@ -1,5 +1,6 @@
-// File:    move.cpp
-// Purpose: Move class
+// File:     move.cpp
+// Location: src
+// Purpose:  implement Move class
 // Author:  Stephen Gold sgold@sonic.net
 // (c) Copyright 2012 Stephen Gold
 // Distributed under the terms of the GNU General Public License
@@ -34,16 +35,6 @@ Move::Move(void):
     mSet()
 {
 	mResignFlag = false;
-}
-
-Move::Move(Tiles const &rTiles) {
-	mResignFlag = false;
-	Cell cell;
-	for (unsigned i = 0; i < rTiles.Count(); i++) {
-		Tile const tile = rTiles[i];
-		Add(tile, cell);
-		cell = Cell(cell, DIRECTION_NORTH);
-	}
 }
 
 // The compiler-generated copy constructor is fine.

@@ -1,5 +1,6 @@
-// File:    hand.cpp
-// Purpose: Hand class
+// File:     hand.cpp
+// Location: src
+// Purpose:  implement Hand class
 // Author:  Stephen Gold sgold@sonic.net
 // (c) Copyright 2012 Stephen Gold
 // Distributed under the terms of theGNU General Public License
@@ -100,11 +101,13 @@ void Hand::DisplayName(void) const {
 }
 
 void Hand::DisplayScore(void) const {
-    std::cout << Name() << " has " << plural(mScore, "point") << "." << std::endl;
+    std::cout << Name() << " has " << ::plural(mScore, "point") << "." << std::endl;
 }
 
 void Hand::DisplayTiles(void) const {
-	std::cout << Name() << " is holding: " << String(mTiles) << "." << std::endl;
+	unsigned const count = mTiles.Count();
+	std::cout << Name() << " is holding " << ::plural(count, "tile") << ": " 
+		      << String(mTiles) << "." << std::endl;
 }
 
 Tiles Hand::DrawTiles(unsigned tileCount, Tiles &rBag) {

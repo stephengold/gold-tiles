@@ -1,9 +1,10 @@
 #ifndef PARMBOX3_HPP_INCLUDED
 #define PARMBOX3_HPP_INCLUDED
 
-// File:    parmbox3.hpp
-// Purpose: ParmBox3 class
-// Author:  Stephen Gold sgold@sonic.net
+// File:     parmbox3.hpp
+// Location: src/gui
+// Purpose:  declare ParmBox3 class
+// Author:   Stephen Gold sgold@sonic.net
 // (c) Copyright 2012 Stephen Gold
 // Distributed under the terms of the GNU General Public License
 
@@ -37,7 +38,7 @@ The ParmBox3 class is an extension of the Dialog class.
 class ParmBox3: public Dialog {
 public:
     // lifecycle
-	ParmBox3(GameOpt &);
+	ParmBox3(GameOpt&);
 	// no default constructor
 	// ~ParmBox3(void);  compiler-generated destructor is OK
 
@@ -52,18 +53,18 @@ private:
 	static const ValueType HANDS_DEALT_MAX = 10;
 
 	// private data
-	GameOpt &mrGameOpt;
+	GameOpt& mrGameOpt;
 
 	// private lifecycle
-    ParmBox3(ParmBox3 const &);  // not copyable
+    ParmBox3(ParmBox3 const&);  // not copyable
 
 	// private operators
-    ParmBox3 &operator=(ParmBox3 const &);  // not assignable
+    ParmBox3& operator=(ParmBox3 const&);  // not assignable
 
 	// misc private methods
     static IdType EditboxId(IdType slider);
     void          InitControl(IdType slider, ValueType value, 
-		                  ValueType min, ValueType max);
+		              ValueType min, ValueType max);
     static IdType MaxId(IdType slider);
     static IdType MinId(IdType slider);
     static IdType SliderId(IdType editbox);

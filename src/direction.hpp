@@ -40,7 +40,7 @@ public:
     // ~Direction(void);  compiler-generated destructor is OK
 
 	// public operators
-    // Direction &operator=(Direction const&);  compiler-generated assignment operator is OK
+    // Direction& operator=(Direction const&);  compiler-generated assignment operator is OK
 	operator int(void) const;
 	Direction operator++(int);
 

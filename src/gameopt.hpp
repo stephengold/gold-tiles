@@ -1,9 +1,10 @@
 #ifndef GAMEOPT_HPP_INCLUDED
 #define GAMEOPT_HPP_INCLUDED
 
-// File:    gameopt.hpp
-// Purpose: GameOpt class header file
-// Author:  Stephen Gold sgold@sonic.net
+// File:     gameopt.hpp
+// Location: src
+// Purpose:  declare GameOpt class
+// Author:   Stephen Gold sgold@sonic.net
 // (c) Copyright 2012 Stephen Gold
 // Distributed under the terms of the GNU General Public License
 
@@ -57,11 +58,11 @@ public:
 	// public lifecycle
 	GameOpt(void);
 	GameOpt(GameStyleType, unsigned clones, unsigned handSize, unsigned minutes);
-    // GameOpt(GameOpt const &);  compiler-generated copy constructor is OK
+    // GameOpt(GameOpt const&);  compiler-generated copy constructor is OK
     // ~GameOpt(void);  compiler-generated destructor is OK
 
 	// public operators
-    // GameOpt &operator=(GameOpt const &);  compiler-generated assignment operator is OK
+    // GameOpt& operator=(GameOpt const&);  compiler-generated assignment operator is OK
 	operator GameStyleType(void) const;
 	operator GridType(void) const;
 	operator RulesType(void) const;

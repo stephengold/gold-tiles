@@ -49,7 +49,7 @@ void Window::Initialize(CREATESTRUCT const &rCreateStruct) {
     ASSERT(success != 0);
     SetClientArea(client_area_size.cx, client_area_size.cy);
 
-	char const *const icon_resource_name = "GAMEICON";
+	TextType const icon_resource_name = "GAMEICON";
 	SetIcons(icon_resource_name);
 }
 
@@ -152,7 +152,7 @@ void Window::EndPaint(void) {
 }
 
 // display a simple dialog box with a pilot error message and an OK button
-void Window::ErrorBox(char const *message, char const *title) {
+void Window::ErrorBox(TextType message, TextType title) {
 	UINT const options = MB_OK | MB_ICONERROR | MB_DEFBUTTON1 | MB_APPLMODAL;
     int const success = Win::MessageBox(HWND(*this), message, title, options);
 	ASSERT(success == IDOK);
@@ -224,7 +224,7 @@ LRESULT Window::HandleMessage(MessageType message, WPARAM wParameter, LPARAM lPa
 }
 
 // display a simple dialog box with a informational message and an OK button
-void Window::InfoBox(char const *message, char const *title) {
+void Window::InfoBox(TextType message, TextType title) {
 	HWND const this_window = *this;
 	UINT const options = MB_OK | MB_ICONINFORMATION | MB_DEFBUTTON1 | MB_APPLMODAL;
     int const success = Win::MessageBox(this_window, message, title, options);
@@ -261,7 +261,7 @@ void Window::SelfDestruct(void) {
     Win::PostQuitMessage(application_exit_code);
 }
 
-void Window::SetAcceleratorTable(char const *resourceName) {
+void Window::SetAcceleratorTable(TextType resourceName) {
 	HINSTANCE const module = CopyModule(*this);
 	mAcceleratorTable = Win::LoadAccelerators(module, resourceName);
 	ASSERT(mAcceleratorTable != NULL);
@@ -297,7 +297,7 @@ void Window::SetCursorSelect(void) {
 }
 
 // set large and small icons for a window
-void Window::SetIcons(char const *resourceName) {
+void Window::SetIcons(TextType resourceName) {
 	HWND const this_window = *this;
 	ASSERT(this_window != 0);
 
@@ -340,7 +340,7 @@ void Window::Show(int how) {
     Win::ShowWindow(this_window, how);
 }
 
-void Window::TranslateAndDispatch(MSG &rMessage) {
+void Window::TranslateAndDispatch(MSG& rMessage) {
 	HWND const this_window = *this;
 	if (mAcceleratorTable != 0) {
 	    int const translated = Win::TranslateAccelerator(this_window, mAcceleratorTable, &rMessage);
@@ -366,7 +366,7 @@ void Window::UseFibers(void) {
 }
 
 // display a simple dialog box with a warning message and buttons for Cancel, Try Again, and Continue
-int Window::WarnBox(char const *message, char const *title) {
+int Window::WarnBox(TextType message, TextType title) {
 	HWND const this_window = *this;
 	UINT const options = MB_CANCELTRYCONTINUE | MB_ICONERROR | MB_DEFBUTTON2 | MB_APPLMODAL;
     int const result = Win::MessageBox(this_window, message, title, options);

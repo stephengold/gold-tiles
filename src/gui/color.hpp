@@ -1,9 +1,10 @@
 #ifndef COLOR_HPP_INCLUDED
 #define COLOR_HPP_INCLUDED
 
-// File:    color.hpp
-// Purpose: ColorType enum
-// Author:  Stephen Gold sgold@sonic.net
+// File:     color.hpp
+// Location: src/gui
+// Purpose:  define ColorType enum
+// Author:   Stephen Gold sgold@sonic.net
 // (c) Copyright 2012 Stephen Gold
 // Distributed under the terms of the GNU General Public License
 

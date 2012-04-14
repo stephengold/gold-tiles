@@ -1,9 +1,10 @@
 #ifndef SUBMENU_HPP_INCLUDED
 #define SUBMENU_HPP_INCLUDED
 
-// File:    submenu.hpp
-// Purpose: SubMenu class
-// Author:  Stephen Gold sgold@sonic.net
+// File:     submenu.hpp
+// Location: src/gui
+// Purpose:  declare SubMenu class
+// Author:   Stephen Gold sgold@sonic.net
 // (c) Copyright 2012 Stephen Gold
 // Distributed under the terms of the GNU General Public License
 
@@ -49,16 +50,16 @@ class SubMenu {
 public:
     // public lifecycle
 #ifdef _QT
-    SubMenu(QString const &label);
+    SubMenu(QString const& label);
 #elif defined(_WINDOWS)
-    SubMenu(Menu const &, unsigned position);
+    SubMenu(Menu const&, unsigned position);
 #endif // defined(_WINDOWS)
     // no default constructor
     // ~SubMenu(void);  compiler-generated destructor is OK
 
     // misc public methods
 #ifdef _QT
-    void   Add(MenuItem &);
+    void   Add(MenuItem&);
     void   AddSeparator(void);
 #endif // !defined(_QT)
     void   Enable(bool);
@@ -69,16 +70,16 @@ public:
 private:
     // private data
 #ifdef _QT
-    QMenu *mpQMenu;
+    QMenu* mpQMenu;
 #elif defined(_WINDOWS)
-    Menu const &mrMenu;
+    Menu const& mrMenu;
     unsigned     mPosition;
 #endif
 
     // private lifecycle
-    SubMenu(SubMenu const &);  // not copyable
+    SubMenu(SubMenu const&);  // not copyable
 
     // private operators
-    SubMenu &operator=(SubMenu const &);  // not assignable
+    SubMenu& operator=(SubMenu const&);  // not assignable
 };
 #endif // !defined(SUBMENU_HPP_INCLUDED)

@@ -1,9 +1,10 @@
 #ifndef WINDOW_HPP_INCLUDED
 #define WINDOW_HPP_INCLUDED
 
-// File:    window.hpp
-// Purpose: Window class
-// Author:  Stephen Gold sgold@sonic.net
+// File:     window.hpp
+// Location: src/gui
+// Purpose:  declare Window class
+// Author:   Stephen Gold sgold@sonic.net
 // (c) Copyright 2012 Stephen Gold
 // Distributed under the terms of the GNU General Public License
 
@@ -49,62 +50,62 @@ public:
     operator Rect(void) const;
 
 	// misc public methods
-	PixelCntType    ClientAreaHeight(void) const;
-	PixelCntType    ClientAreaWidth(void) const;
-	Win::LRESULT    HandleMessage(MessageType, Win::WPARAM, Win::LPARAM); 
-    int             MessageDispatchLoop(void);
-	Win::HDC        PaintDevice(void) const;
-	void            Show(int showHow);
-	void            Yields(void);
+	PixelCntType ClientAreaHeight(void) const;
+	PixelCntType ClientAreaWidth(void) const;
+	Win::LRESULT HandleMessage(MessageType, Win::WPARAM, Win::LPARAM); 
+    int          MessageDispatchLoop(void);
+	Win::HDC     PaintDevice(void) const;
+	void         Show(int showHow);
+	void         Yields(void);
 
 protected:
 	// protected lifecycle
-    void Initialize(Win::CREATESTRUCT const &);
+    void Initialize(Win::CREATESTRUCT const&);
 
 	// misc protected methods
-	void * AddFiber(void (CALLBACK &routine)(void *));
-	void   BeginPaint(void);
-	void   CaptureMouse(void);
-	void   Close(void);
-	void   Create(String const &rClassName, Rect const &, 
-		                  BaseWindow *pParent, Win::HINSTANCE);
-	void   EndPaint(void);
-	void   ErrorBox(char const *message, char const *title);
-	void   ForceRepaint(void);
-	void   InfoBox(char const *message, char const *title);
-	bool   IsMouseCaptured(void) const;
-	void   ReleaseMouse(void);
-	void   SelfDestruct(void);
-	void   SetAcceleratorTable(char const *resourceName);
-	void   SetClientArea(PixelCntType width, PixelCntType height);
-	void   SetCursorBusy(void);
-	void   SetCursorDrag(void);
-	void   SetCursorSelect(void);
-	void   SetIcons(char const *resourceName);
-	void   SetTimer(unsigned msecs, unsigned id);
-	void   UpdateMenuBar(void);
-	void   UseFibers(void);
-	int    WarnBox(char const *message, char const *title);
-	void   WarpCursor(Point const &);
+	void* AddFiber(void (CALLBACK& routine)(void*));
+	void  BeginPaint(void);
+	void  CaptureMouse(void);
+	void  Close(void);
+	void  Create(String const& className, Rect const&, 
+		      BaseWindow* parent, Win::HINSTANCE);
+	void  EndPaint(void);
+	void  ErrorBox(TextType message, TextType title);
+	void  ForceRepaint(void);
+	void  InfoBox(TextType message, TextType title);
+	bool  IsMouseCaptured(void) const;
+	void  ReleaseMouse(void);
+	void  SelfDestruct(void);
+	void  SetAcceleratorTable(TextType resourceName);
+	void  SetClientArea(PixelCntType width, PixelCntType height);
+	void  SetCursorBusy(void);
+	void  SetCursorDrag(void);
+	void  SetCursorSelect(void);
+	void  SetIcons(TextType resourceName);
+	void  SetTimer(unsigned msecs, unsigned id);
+	void  UpdateMenuBar(void);
+	void  UseFibers(void);
+	int   WarnBox(TextType message, TextType title);
+	void  WarpCursor(Point const&);
 
 private:
 	Win::HACCEL      mAcceleratorTable;
 	PixelCntType     mClientAreaHeight;
     PixelCntType     mClientAreaWidth;
-	void *           mMainFiber;
+	void*            mMainFiber;
 	Win::HDC         mPaintDevice;
 	Win::PAINTSTRUCT mPaintStruct;
 
 	// private lifecycle
-    Window(Window const &); // not copyable
+    Window(Window const&); // not copyable
 
 	// private operators
-    Window &operator=(Window const &); // not assignable
+    Window& operator=(Window const&); // not assignable
 
 	// misc private methods
-	bool GetAMessage(Win::MSG &, int &exitCode);
+	bool GetAMessage(Win::MSG&, int& exitCode);
 	void SetCursor(Win::LPSTR);
-	void TranslateAndDispatch(Win::MSG &);
+	void TranslateAndDispatch(Win::MSG&);
 
 	// private inquiry methods
 	bool HasAMessage(void) const;

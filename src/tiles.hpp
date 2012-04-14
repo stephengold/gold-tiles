@@ -1,9 +1,10 @@
 #ifndef TILES_HPP_INCLUDED
 #define TILES_HPP_INCLUDED
 
-// File:    tiles.hpp
-// Purpose: Tiles class
-// Author:  Stephen Gold sgold@sonic.net
+// File:     tiles.hpp
+// Location: src
+// Purpose:  declare Tiles class
+// Author:   Stephen Gold sgold@sonic.net
 // (c) Copyright 2012 Stephen Gold
 // Distributed under the terms of the GNU General Public License
 
@@ -27,46 +28,47 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 #include <map>       // HASA std::map
 #include "tile.hpp"  // HASA Tile
 
+
 class Tiles {
 public:
     // public lifecycle
     Tiles(void);
-	Tiles(Tile const &);
-    // Tiles(Tiles const &);  compiler-generated copy constructor is OK
+	Tiles(Tile const&);
+    // Tiles(Tiles const&);  compiler-generated copy constructor is OK
     // ~Tiles(void);  compiler-generated destructor is OK
 
 	// public operators
-    // Tiles &operator=(Tiles const &);  compiler-generated assignment method is OK
-	bool operator==(Tiles const &) const;
+    // Tiles& operator=(Tiles const&);  compiler-generated assignment method is OK
+	bool operator==(Tiles const&) const;
 	Tile operator[](unsigned) const;
 	operator Indices(void) const;
 	operator String(void) const;
 
 	// misc public methods
-	void     Add(Tile const &);
-	void     AddTiles(Tiles const &);
-	void     AddAllTiles(AttrIndexType, Tile &);
-    bool     CopyIds(Tiles const &);
+	void     Add(Tile const&);
+	void     AddTiles(Tiles const&);
+	void     AddAllTiles(AttrIndexType, Tile&);
+    bool     CopyIds(Tiles const&);
 	unsigned Count(void) const;
 	Tile     DrawFirstTile(void);
     Tile     DrawRandomTile(void);
-	void     DrawTiles(unsigned, Tiles &rBag);
+	void     DrawTiles(unsigned, Tiles& bag);
 	Tile     FindTile(TileIdType) const;
-    void     GetUserChoice(Tiles const &);
+    void     GetUserChoice(Tiles const&);
 	Tiles    LongestRun(void) const;
 	void     MakeEmpty(void);
-	void     RemoveTile(Tile const &);
+	void     RemoveTile(Tile const&);
 	void     RemoveTileId(TileIdType);
-	void     RemoveTiles(Tiles const &);
+	void     RemoveTiles(Tiles const&);
 	void     Restock(void);
-    void     UnClone(Tile &) const;
+    void     UnClone(Tile&) const;
     Tiles    UniqueTiles(void) const;
 
 	// public inquiry methods
     bool AreAllCompatible(void) const;
-    bool AreAllCompatibleWith(Tile const &) const;
-    bool Contains(Tile const &) const;
-	bool ContainsClone(Tile const &) const;
+    bool AreAllCompatibleWith(Tile const&) const;
+    bool Contains(Tile const&) const;
+	bool ContainsClone(Tile const&) const;
     bool ContainsId(TileIdType) const;
 	bool IsEmpty(void) const;
     bool IsValid(void) const;
@@ -80,7 +82,6 @@ private:
 	std::map<TileIdType,Tile> mMap;
 
 	// private methods
-	void BuildRuns(Tiles const &runSoFar, Tiles &bestRun) const;
+	void BuildRuns(Tiles const& runSoFar, Tiles& bestRun) const;
 };
-
 #endif // !defined(TILES_HPP_INCLUDED)

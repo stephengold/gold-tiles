@@ -1,9 +1,10 @@
 #ifndef MENUITEM_HPP_INCLUDED
 #define MENUITEM_HPP_INCLUDED
 
-// File:    menuitem.hpp
-// Purpose: MenuItem class
-// Author:  Stephen Gold sgold@sonic.net
+// File:     menuitem.hpp
+// Location: src/gui
+// Purpose:  declare MenuItem class
+// Author:   Stephen Gold sgold@sonic.net
 // (c) Copyright 2012 Stephen Gold
 // Distributed under the terms of the GNU General Public License
 
@@ -48,41 +49,41 @@ class MenuItem {
 public:
     // public lifecycle
 #ifdef _QT
-    MenuItem(QObject *pParent, QString const &label);
+    MenuItem(QObject* parent, QString const& label);
 #elif defined(_WINDOWS)
-    MenuItem(Menu const &, IdType);
-    MenuItem(Menu const &, IdType first, IdType last, IdType item);
+    MenuItem(Menu const&, IdType);
+    MenuItem(Menu const&, IdType first, IdType last, IdType item);
 #endif // defined(_WINDOWS)
     // no default constructor
     // ~MenuItem(void);  compiler-generated destructor is OK
 
     // misc public methods
 #ifdef _QT
-    QAction *pAction(void);
+    QAction* pAction(void);
 #endif // defined(_QT)
     void      Check(bool);
     void      CheckRadio(bool);
     void      Enable(bool);
 #ifdef _QT
-    void      SetShortcut(QString const &);
+    void      SetShortcut(QString const&);
 #endif // defined(_QT)
 
 private:
     // private data
 #ifdef _QT
-    QAction *mpAction;
+    QAction* mpAction;
 #elif defined(_WINDOWS)
     IdType    mFirstItemId;
     IdType    mItemId;
     IdType    mLastItemId;
-    Menu const &
+    Menu const&
 		     mrMenu;
 #endif // defined(_WINDOWS)
 
     // private lifecycle
-    MenuItem(MenuItem const &);   // not copyable
+    MenuItem(MenuItem const&);   // not copyable
 
     // private operators
-    MenuItem &operator=(MenuItem const &);   // not assignable
+    MenuItem& operator=(MenuItem const&);   // not assignable
 };
 #endif // !defined(MENUITEM_HPP_INCLUDED)

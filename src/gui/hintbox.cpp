@@ -108,7 +108,7 @@ INT_PTR HintBox::HandleMessage(MessageType message, WPARAM wParam) {
     return result;
 }
 
-char const *HintBox::Name(void) const {
+TextType HintBox::Name(void) const {
 	return "Hint Controls - Gold Tile";
 }
 

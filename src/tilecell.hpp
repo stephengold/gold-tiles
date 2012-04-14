@@ -1,9 +1,10 @@
 #ifndef TILECELL_HPP_INCLUDED
 #define TILECELL_HPP_INCLUDED
 
-// File:    tilecell.hpp
-// Purpose: TileCell class
-// Author:  Stephen Gold sgold@sonic.net
+// File:     tilecell.hpp
+// Location: src
+// Purpose:  declare TileCell class
+// Author:   Stephen Gold sgold@sonic.net
 // (c) Copyright 2012 Stephen Gold
 // Distributed under the terms of the GNU General Public License
 
@@ -32,32 +33,32 @@ where it is to be played.
 #include "cell.hpp"  // HASA Cell
 #include "tile.hpp"  // HASA Tile
 
+
 class TileCell {
 public:
-	// lifecycle
+	// public lifecycle
 	TileCell(void);
-    TileCell(Tile const &);  // swap to swap area
-    TileCell(Tile const &, Cell const &);  // place on a cell
-	// TileCell(TileCell const &);  compiler-generated copy constructor is OK
+    TileCell(Tile const&);  // swap to swap area
+    TileCell(Tile const&, Cell const&);  // place on a cell
+	// TileCell(TileCell const&);  compiler-generated copy constructor is OK
     // ~TileCell(void);  compiler-generated destructor is OK
 
-	// operators
-    bool   operator<(TileCell const &) const;
-    // TileCell &operator=(TileCell const &);  compiler-generated assignment method is OK
+	// public operators
+    bool operator<(TileCell const&) const;
+    // TileCell& operator=(TileCell const&);  compiler-generated assignment method is OK
 	operator Cell(void) const;
     operator String(void) const;
 	operator Tile(void) const;
 
 	// misc public methods
-    String GetUserChoice(Tiles const &, Strings const &);
+    String GetUserChoice(Tiles const&, Strings const&);
 
 	// public inquiry methods
-	bool   IsSwap(void) const;
+	bool IsSwap(void) const;
 
 private:
     Cell mCell;  // ignored if mSwapFlag is true
 	bool mSwapFlag;
     Tile mTile;
 };
-
-#endif
+#endif // !defined(TILECELL_HPP_INCLUDED)

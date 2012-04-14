@@ -1,9 +1,10 @@
 #ifndef STRINGS_HPP_INCLUDED
 #define STRINGS_HPP_INCLUDED
 
-// File:    strings.hpp
-// Purpose: Strings class
-// Author:  Stephen Gold sgold@sonic.net
+// File:     strings.hpp
+// Location: src
+// Purpose:  declare Strings class
+// Author:   Stephen Gold sgold@sonic.net
 // (c) Copyright 2012 Stephen Gold
 // Distributed under the terms of the GNU General Public License
 
@@ -40,28 +41,27 @@ public:
     typedef std::list<String>::iterator       Iterator;
 
 	// misc public methods
-	void          Append(String const &);
+	void          Append(String const&);
 	ConstIterator Begin(void) const;
 	Iterator      Begin(void);
 	unsigned      Count(void) const;
-	unsigned      Count(String const &) const;
+	unsigned      Count(String const&) const;
 	ConstIterator End(void) const;
 	Iterator      End(void);
-	ConstIterator Find(String const &) const;
+	ConstIterator Find(String const&) const;
 	String        First() const;
-	String        InventUnique(String const &prefix) const;
-	String        InventUnique(String const &prefix, String const &infix, 
-		                           String const &suffix) const;
+	String        InventUnique(String const& prefix) const;
+	String        InventUnique(String const& prefix, String const& infix, 
+		                           String const& suffix) const;
 	void          MakeEmpty(void);
 	Strings       Unique(void) const;
 	void          Unappend(void);
 
 	// public inquiry methods
-	bool Contains(String const &) const;
+	bool Contains(String const&) const;
 	bool IsEmpty(void) const;
 
 private:
 	std::list<String> mList;
 };
-
 #endif // !defined(STRINGS_HPP_INCLUDED)

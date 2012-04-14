@@ -3,7 +3,7 @@
 
 // File:     parmbox2.hpp
 // Location: src/gui
-// Purpose:  ParmBox2 class
+// Purpose:  declare ParmBox2 class
 // Author:   Stephen Gold sgold@sonic.net
 // (c) Copyright 2012 Stephen Gold
 // Distributed under the terms of the GNU General Public License
@@ -43,7 +43,7 @@ public:
 	static const IndexType WIDTH_DEFAULT = 32;
 
     // lifecycle
-	ParmBox2(GameOpt &);
+	ParmBox2(GameOpt&);
 	// no default constructor
 	// ~ParmBox2(void);  compiler-generated destructor is OK
 
@@ -52,13 +52,13 @@ public:
 
 private:
 	// private data
-	GameOpt &mrGameOpt;
+	GameOpt& mrGameOpt;
 
 	// private lifecycle
-    ParmBox2(ParmBox2 const &);  // not copyable
+    ParmBox2(ParmBox2 const&);  // not copyable
 
 	// private operators
-    ParmBox2 &operator=(ParmBox2 const &);  // not assignable
+    ParmBox2& operator=(ParmBox2 const&);  // not assignable
 
 	// misc private methods
 	ValueType GetTextIndex(IdType);
@@ -70,4 +70,3 @@ private:
 	void      UpdateCellCnt(void);
 };
 #endif // !defined(PARMBOX2_CPP_INCLUDED)
-

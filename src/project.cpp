@@ -32,7 +32,7 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 #endif // !defined(WIN32)
 
 
-void assertion_failed(const char *file, unsigned line) {
+void assertion_failed(TextType file, unsigned line) {
     std::cout << "Assertion failed at line " << line << " in " << file << std::endl;
 
 	// A pause is needed when running in a console window because the windown will
@@ -113,8 +113,8 @@ void pause(void) {
     ::system("PAUSE");
 }
 
-const char *plural(unsigned n) {
-    char *result = "s";
+TextType plural(unsigned n) {
+    TextType result = "s";
     if (n == 1) {
         result = "";
     }
@@ -122,7 +122,7 @@ const char *plural(unsigned n) {
     return result; 
 }
 
-String plural(unsigned n, const char *noun) {
+String plural(unsigned n, TextType noun) {
     String result = String(n);
 	result += " ";
 	result += noun;
@@ -149,7 +149,7 @@ bool random_bool(double probability) {
 	return result;
 }
 
-bool str_eq(char const *string1, char const *string2) {
+bool str_eq(TextType string1, TextType string2) {
 	bool const result = (::strcmp(string1, string2) == 0);
 
 	return result;

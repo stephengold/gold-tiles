@@ -1,9 +1,10 @@
 #ifndef SIZEMENU_HPP_INCLUDED
 #define SIZEMENU_HPP_INCLUDED
 
-// File:    sizemenu.hpp
-// Purpose: SizeMenu class
-// Author:  Stephen Gold sgold@sonic.net
+// File:     sizemenu.hpp
+// Location: src/gui
+// Purpose:  declare SizeMenu class
+// Author:   Stephen Gold sgold@sonic.net
 // (c) Copyright 2012 Stephen Gold
 // Distributed under the terms of the GNU General Public License
 
@@ -35,13 +36,12 @@ The SizeMenu class extends the SubMenu class.
 
 class SizeMenu: public SubMenu {
     Q_OBJECT
-
 public:
     // public lifecycle
 #ifdef _QT
     SizeMenu(void);
 #elif defined(_WINDOWS)
-    SizeMenu(Menu const &, unsigned position);
+    SizeMenu(Menu const&, unsigned position);
     // no default constructor
 #endif // defined(_WINDOWS)
     // ~SizeMenu(void);  compiler-generated destructor is OK
@@ -60,9 +60,9 @@ private:
     MenuItem mSize7;
 
     // private lifecycle
-    SizeMenu(SizeMenu const &);   // not copyable
+    SizeMenu(SizeMenu const&);   // not copyable
 
     // private operators
-    SizeMenu &operator=(SizeMenu const &);  // not assignable
+    SizeMenu& operator=(SizeMenu const&);  // not assignable
 };
 #endif // !defined(SIZEMENU_HPP_INCLUDED)

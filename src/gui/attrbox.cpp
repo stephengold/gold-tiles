@@ -1,6 +1,7 @@
-// File:    attrbox.cpp
-// Purpose: AttrBox class
-// Author:  Stephen Gold sgold@sonic.net
+// File:     attrbox.cpp
+// Location: src/gui
+// Purpose:  implement AttrBox class
+// Author:   Stephen Gold sgold@sonic.net
 // (c) Copyright 2012 Stephen Gold
 // Distributed under the terms of the GNU General Public License
 
@@ -45,7 +46,7 @@ static INT_PTR CALLBACK message_handler(
 
 // lifecycle
 
-AttrBox::AttrBox(DisplayModes const &rDisplayModes):
+AttrBox::AttrBox(DisplayModes const& rDisplayModes):
     Dialog("ATTRBOX", &message_handler),
 	mDisplayModes(rDisplayModes)
 {}
@@ -112,8 +113,8 @@ void AttrBox::BumpDisplayMode(AttrIndexType ind) {
 	SetListboxSelection(listbox_id, mode); // relies on assertion in HandleMessage()
 }
 
-/* static */ char const * AttrBox::DisplayModeText(AttrModeType disp) {
-	char const * result = "";
+/* static */ TextType AttrBox::DisplayModeText(AttrModeType disp) {
+	TextType result = "";
 
 	switch (disp) {
 	    case ATTR_MODE_COLOR:
@@ -153,7 +154,7 @@ INT_PTR AttrBox::HandleMessage(MessageType message, WPARAM wParam, LPARAM lParam
 
 				for (unsigned i_mode = ATTR_MODE_MIN; i_mode <= ATTR_MODE_MAX; i_mode++) {
 					AttrModeType const mode = AttrModeType(i_mode);
-				    char const * const text = DisplayModeText(mode);
+				    TextType  const text = DisplayModeText(mode);
 					unsigned const item_index = AddListboxItem(listbox_id, text);
 					ASSERT(item_index == i_mode); // BumpDisplayMode() relies on this
 				}

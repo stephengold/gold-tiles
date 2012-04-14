@@ -1,9 +1,10 @@
 #ifndef FILEMENU_HPP_INCLUDED
 #define FILEMENU_HPP_INCLUDED
 
-// File:    filemenu.hpp
-// Purpose: FileMenu class
-// Author:  Stephen Gold sgold@sonic.net
+// File:     filemenu.hpp
+// Location: src
+// Purpose:  declare FileMenu class
+// Author:   Stephen Gold sgold@sonic.net
 // (c) Copyright 2012 Stephen Gold
 // Distributed under the terms of the GNU General Public License
 
@@ -41,7 +42,7 @@ public:
 #ifdef _QT
     FileMenu(void);
 #elif defined(_WINDOWS)
-    FileMenu(Menu const &, unsigned position);
+    FileMenu(Menu const&, unsigned position);
     // no default constructor
 #endif // defined(_WINDOWS)
     // ~FileMenu();  compiler-generated destructor is OK
@@ -62,9 +63,9 @@ private:
 	MenuItem mExit;
 
     // private lifecycle
-    FileMenu(FileMenu const &);   // not copyable
+    FileMenu(FileMenu const&);   // not copyable
 
     // private operators
-    FileMenu &operator=(FileMenu const &);  // not assignable
+    FileMenu& operator=(FileMenu const&);  // not assignable
 };
 #endif // !defined(FILEMENU_HPP_INCLUDED)

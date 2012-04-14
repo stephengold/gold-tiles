@@ -40,7 +40,7 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 
 #ifdef _GUI
 #include "gui/gamewindow.hpp"
-GameWindow *gGameWindow = NULL;
+GameWindow* gGameWindow = NULL;
 #endif // defined(_GUI)
 
 #ifdef _WINDOWS
@@ -49,7 +49,7 @@ GameWindow *gGameWindow = NULL;
 int CALLBACK Win::WinMain(
 	HINSTANCE applicationInstance, 
 	HINSTANCE previousInstance, // always NULL and ignored
-	char *commandLine, // TODO
+	char* commandLine, // TODO
 	int showHow) 
 {
 	previousInstance;

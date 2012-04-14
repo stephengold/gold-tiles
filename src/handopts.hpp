@@ -1,9 +1,10 @@
 #ifndef HANDOPTS_HPP_INCLUDED
 #define HANDOPTS_HPP_INCLUDED
 
-// File:    handopts.hpp
-// Purpose: HandOpts class
-// Author:  Stephen Gold sgold@sonic.net
+// File:     handopts.hpp
+// Location: src
+// Purpose:  declare HandOpts class
+// Author:   Stephen Gold sgold@sonic.net
 // (c) Copyright 2012 Stephen Gold
 // Distributed under the terms of the GNU General Public License
 
@@ -36,12 +37,12 @@ The HandsOpt class encapsulates a vector of HandOpt objects.
 class HandOpts {
 public:
 	// public operators
-	HandOpt &operator[](unsigned);
-    HandOpt const &operator[](unsigned) const;
+	HandOpt& operator[](unsigned);
+    HandOpt const& operator[](unsigned) const;
 
 	// misc public methods
 	Strings  AllPlayerNames(void) const;
-	void     Append(HandOpt const &);
+	void     Append(HandOpt const&);
     unsigned Count(void) const;
 	void     GetUserChoice(unsigned hand_cnt);
 	void     MakeEmpty(void);

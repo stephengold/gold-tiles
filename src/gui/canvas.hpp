@@ -3,7 +3,7 @@
 
 // File:     canvas.hpp
 // Location: src/gui
-// Purpose:  Canvas class
+// Purpose:  declare Canvas class
 // Author:   Stephen Gold sgold@sonic.net
 // (c) Copyright 2012 Stephen Gold
 // Distributed under the terms of the GNU General Public License
@@ -40,20 +40,20 @@ Gold Tile Game.
 class Canvas: public Graphics {
 public:
 	// public lifecycle
-    Canvas(Window &);
+    Canvas(Window&);
     // no default constructor
     // ~Canvas(void);  compiler-generated destructor is OK
         
 	// misc public methods
-    void DrawBlankTile(Point const &, PixelCntType width, PixelCntType height, 
+    void DrawBlankTile(Point const&, PixelCntType width, PixelCntType height, 
 		     ColorType, bool odd);
-	Rect DrawCell(Point const &, PixelCntType width, PixelCntType height,
+	Rect DrawCell(Point const&, PixelCntType width, PixelCntType height,
              ColorType cellColor, ColorType gridColor, bool odd);
-    void DrawTargetArrow(Rect const &);
-    Rect DrawTile(Markings const &, ColorType tileColor, Point const &center, 
+    void DrawTargetArrow(Rect const&);
+    Rect DrawTile(Markings const&, ColorType tileColor, Point const& center, 
 		     PixelCntType width, PixelCntType height, bool border, bool odd);
 	static Rect 
-		 InteriorGridShape(Point const &rCenter, PixelCntType width, 
+		 InteriorGridShape(Point const& center, PixelCntType width, 
 		     PixelCntType height, bool odd);
 
 private:
@@ -65,15 +65,15 @@ private:
 	static Poly msTargetArrow;
     
 	// private lifecycle
-    Canvas(Canvas const &);  // not copyable
+    Canvas(Canvas const&);  // not copyable
 
 	// private operators
-    Canvas &operator=(Canvas const &);  // not assignable
+    Canvas& operator=(Canvas const&);  // not assignable
 
 	// misc private methods
-	void        DrawGridShape(Point const &rCenter, PixelCntType width, 
+	void        DrawGridShape(Point const& center, PixelCntType width, 
 		            PixelCntType height, bool oddFlag);
-    void        DrawMarking(Rect const &bounds, AttrModeType, AttrType, ColorType bg,
+    void        DrawMarking(Rect const& bounds, AttrModeType, AttrType, ColorType bg,
                     ColorType fg);
     static void	InitializeShapes(void);         
     static void	InitializeTargetArrow(void);            

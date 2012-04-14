@@ -3,7 +3,7 @@
 
 // File:     partial.hpp
 // Location: src
-// Purpose:  Partial class
+// Purpose:  declare Partial class
 // Author:   Stephen Gold sgold@sonic.net
 // (c) Copyright 2012 Stephen Gold
 // Distributed under the terms of the GNU General Public License
@@ -56,19 +56,19 @@ enum HintType {
 class Partial {
 public:
 	// public types
-	typedef void YieldFunctionType(void *, bool &cancel);
+	typedef void YieldFunctionType(void*, bool& cancel);
 
 	// public lifecycle
-	Partial(Game const *, HintType, double skipProb);
+	Partial(Game const*, HintType, double skipProb);
 	// no default constructor
-    // Partial(Partial const &);  compiler-generated copy constructor is OK
+    // Partial(Partial const&);  compiler-generated copy constructor is OK
     // ~Partial(void);
 	void Reset(void);
 	void Reset(double skipProb);
-	void Reset(Game const *, HintType, double skipProb);
+	void Reset(Game const*, HintType, double skipProb);
 
-	// operators
-    //Partial &operator=(Partial const &);  compiler-generated assignment operator is OK
+	// public operators
+    //Partial& operator=(Partial const&);  compiler-generated assignment operator is OK
 	operator Board(void) const;
 	operator HintType(void) const;
 	operator Tiles(void) const;
@@ -85,65 +85,65 @@ public:
 	Cell          FirstHinted(void);
 	GameStyleType GameStyle(void) const;
 	TileIdType    GetActive(void) const;
-	TileIdType    GetCellTile(Cell const &) const;
+	TileIdType    GetCellTile(Cell const&) const;
 	Move          GetMove(bool includeActive) const;
 	Tile          GetTileById(TileIdType) const;
 	Tile          GetTileByIndex(unsigned) const;
-	void          HandToCell(Cell const &);       // move the active tile
+	void          HandToCell(Cell const&);        // move the active tile
 	void          HandToSwap(void);               // move the active tile
 	Cell          LocateTile(void) const;
 	Cell          LocateTile(TileIdType) const;
 	unsigned      Points(void) const;             // points scored so far this turn
 	void          SetHintStrength(HintType);
-	static void   SetYield(YieldFunctionType *, void *arg);
+	static void   SetYield(YieldFunctionType*, void* arg);
 	void          Suggest(void);
 	void          SwapAll(void);
 	void          SwapToHand(void);               // move the active tile
 	
-	// inquiry methods
+	// public inquiry methods
 	bool CanRedo(void) const;
 	bool CanSwapAll(void) const;
 	bool CanUndo(void) const;
 	bool Contains(TileIdType) const;
     bool HasGame(void) const;
 	bool IsActive(TileIdType) const;
-	bool IsEmpty(Cell const &) const;
+	bool IsEmpty(Cell const&) const;
     bool IsGameOver(void) const;
     bool IsGamePaused(void) const;
-	bool IsHinted(Cell const &);
+	bool IsHinted(Cell const&);
 	bool IsInHand(TileIdType) const;
 	bool IsInSwap(TileIdType) const;
 	bool IsLocalUsersTurn(void) const;
 	bool IsOnBoard(TileIdType) const;
 	bool IsPass(void) const;
-	bool IsVisible(Cell const &);
+	bool IsVisible(Cell const&);
 
 protected:
 	// protected data
-	Game const *mpGame;
+	Game const* mpGame;
 
 private:
 	// private data
-	TileIdType      mActiveId;        // tile actively being dragged (or else Tile::ID_NONE)
-    Board           mBoard;
-	Cells           mHintedCells;     // cached choice of cells
-	bool            mHintedCellsValid;
-	HintType        mHintStrength;
-	unsigned        mPlayedTileCnt;   // number of tiles played to the board
-	double          mSkipProbability; // reduces thoroughness of Suggest() method
-	Indices         mSwapIds;         // indices of all tiles in the swap area
-	Tiles           mTiles;           // the set of all available tiles
-	static void * mspYieldArgument;
-	static YieldFunctionType *
-		          mspYieldFunction;
+	TileIdType     mActiveId;        // tile actively being dragged (or else Tile::ID_NONE)
+    Board          mBoard;
+	Cells          mHintedCells;     // cached choice of cells
+	bool           mHintedCellsValid;
+	HintType       mHintStrength;
+	unsigned       mPlayedTileCnt;   // number of tiles played to the board
+	double         mSkipProbability; // reduces thoroughness of Suggest() method
+	Indices        mSwapIds;         // indices of all tiles in the swap area
+	Tiles          mTiles;           // the set of all available tiles
+	static void* mspYieldArgument;
+	static YieldFunctionType*
+		         mspYieldFunction;
 
 	// misc private methods
-	void        AddValidNextUses(Move const &, Tile const &, Cells const &);
-	void        FindBestMove(Partial &, unsigned &) const;
+	void        AddValidNextUses(Move const&, Tile const&, Cells const&);
+	void        FindBestMove(Partial&, unsigned&) const;
 	void        SetHintedCells(void);
-	static void Yields(bool &cancel);
+	static void Yields(bool& cancel);
 
 	// private inquiry methods
-	bool IsValidNextStep(Move const &, Cell const &, Tile const &) const;
+	bool IsValidNextStep(Move const&, Cell const&, Tile const&) const;
 };
 #endif // !defined(PARTIAL_HPP_INCLUDED)

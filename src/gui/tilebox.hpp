@@ -1,9 +1,10 @@
 #ifndef TILEBOX_HPP_INCLUDED
 #define TILEBOX_HPP_INCLUDED
 
-// File:    tilebox.hpp
-// Purpose: TileBox class
-// Author:  Stephen Gold sgold@sonic.net
+// File:     tilebox.hpp
+// Location: src/gui
+// Purpose:  declare TileBox class
+// Author:   Stephen Gold sgold@sonic.net
 // (c) Copyright 2012 Stephen Gold
 // Distributed under the terms of the GNU General Public License
 
@@ -37,7 +38,7 @@ The TileBox class is an extension of the Dialog class.
 class TileBox: public Dialog {
 public:
     // public lifecycle
-	TileBox(GameOpt &);
+	TileBox(GameOpt&);
 	// no default constructor
 	// ~TileBox(void);  compiler-generated destructor is OK
 
@@ -46,13 +47,13 @@ public:
 
 private:
 	// private data
-	GameOpt &mrGameOpt;
+	GameOpt& mrGameOpt;
 
 	// private lifecycle
-    TileBox(TileBox const &);  // not copyable
+    TileBox(TileBox const&);  // not copyable
 
 	// private operators
-    TileBox &operator=(TileBox const &); // not assignable
+    TileBox& operator=(TileBox const&); // not assignable
 
 	// misc private methods
     IdType EditboxId(IdType slider) const;

@@ -31,8 +31,8 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 WindowClass::WindowClass(
     HINSTANCE applicationInstance,
     WNDPROC messageHandler,
-    char const *className,
-	char const *menuName)
+    TextType className,
+	TextType menuName)
 {
 	cbClsExtra = 0;
 	cbWndExtra = 0;
@@ -58,7 +58,7 @@ HINSTANCE WindowClass::Module(void) const {
     return hInstance;
 }
 
-char const *WindowClass::Name(void) const {
+TextType WindowClass::Name(void) const {
     return lpszClassName;
 }
 

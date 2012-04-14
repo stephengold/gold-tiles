@@ -1,9 +1,10 @@
 #ifndef DIALOG_HPP_INCLUDED
 #define DIALOG_HPP_INCLUDED
 
-// File:    dialog.hpp
-// Purpose: Dialog class
-// Author:  Stephen Gold sgold@sonic.net
+// File:     dialog.hpp
+// Location: src/gui
+// Purpose:  declare Dialog class
+// Author:   Stephen Gold sgold@sonic.net
 // (c) Copyright 2012 Stephen Gold
 // Distributed under the terms of the GNU General Public License
 
@@ -47,8 +48,8 @@ public:
 	static const ValueType VALUE_INVALID = LONG_MAX;
 
 	// public lifecycle
-	Dialog(char const *templateName);
-	Dialog(char const *templateName, Win::DLGPROC);
+	Dialog(TextType templateName);
+	Dialog(TextType templateName, Win::DLGPROC);
 	// no default constructor
     // ~Dialog(void);  compiler-generated destructor is OK
 	int Run(BaseWindow *pParent);
@@ -58,7 +59,7 @@ public:
 
 protected:
 	// misc protected methods
-	ValueType AddListboxItem(IdType, char const *);
+	ValueType AddListboxItem(IdType, TextType);
     void      Close(int);
 	void      EnableControl(IdType, bool);
 	Win::HWND GetControlHandle(IdType) const;
@@ -70,21 +71,21 @@ protected:
 	void      SetListboxSelection(IdType, ValueType);
     ValueType SetSliderValue(IdType, ValueType);
 	void      SetSliderRange(IdType, ValueType min, ValueType max);
-	void      SetTextString(IdType, String const &);
+	void      SetTextString(IdType, String const&);
     void      SetTextValue(IdType, ValueType);
 
 private:
 	// private data
 	Win::DLGPROC mpMessageHandler;
-	char const *  mTemplateName;
+	TextType      mTemplateName;
 
 	// private lifecycle
-    Dialog(Dialog const &);  // not copyable
+    Dialog(Dialog const&);  // not copyable
 
 	// private operators
-    Dialog &operator=(Dialog const &);  // not assignable
+    Dialog& operator=(Dialog const&);  // not assignable
 
 	// private methods
-	char const *Name(void) const;
+	TextType Name(void) const;
 };
 #endif // !defined(DIALOG_HPP_INCLUDED)

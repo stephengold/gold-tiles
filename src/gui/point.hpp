@@ -1,9 +1,10 @@
 #ifndef POINT_HPP_INCLUDED
 #define POINT_HPP_INCLUDED
 
-// File:    point.hpp
-// Purpose: Point class
-// Author:  Stephen Gold sgold@sonic.net
+// File:     point.hpp
+// Location: src/gui
+// Purpose:  declare Point class
+// Author:   Stephen Gold sgold@sonic.net
 // (c) Copyright 2012 Stephen Gold
 // Distributed under the terms of the GNU General Public License
 
@@ -33,21 +34,22 @@ The Point class is encapsulates a logical X coordinate and a logical Y coordinat
 
 #include "gui/win.hpp"  //  Win::POINT
 
-typedef long LogicalXType, LogicalYType;
+typedef long LogicalXType;
+typedef long LogicalYType;
 
 class Point {
 public:
 	// public lifecycle
     Point(LogicalXType, LogicalYType);
-    Point(Win::POINT const &);
-    Point(Win::POINTS const &);
+    Point(Win::POINT const&);
+    Point(Win::POINTS const&);
 	// no default constructor
-    // Point(Point const &);  compiler-generated copy constructor is OK
+    // Point(Point const&);  compiler-generated copy constructor is OK
     // ~Point(void);
 
 	// public operators
-	//Point &operator=(Point const &);  compiler-generated assignment operator is OK
-	bool operator==(Point const &) const;
+	//Point& operator=(Point const&);  compiler-generated assignment operator is OK
+	bool operator==(Point const&) const;
     operator Win::POINT(void) const;
     operator Win::POINTS(void) const;
 
@@ -60,5 +62,4 @@ private:
 	LogicalXType mX;
 	LogicalYType mY;
 };
-
-#endif
+#endif // !defined(POINT_HPP_INCLUDED)

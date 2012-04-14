@@ -1,9 +1,10 @@
 #ifndef WIN_HPP_INCLUDED
 #define WIN_HPP_INCLUDED
 
-// File:    win.hpp
-// Purpose: Win namespace
-// Author:  Stephen Gold sgold@sonic.net
+// File:     win.hpp
+// Location: src/gui
+// Purpose:  Win namespace
+// Author:   Stephen Gold sgold@sonic.net
 // (c) Copyright 2012 Stephen Gold
 // Distributed under the terms of the GNU General Public License
 

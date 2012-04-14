@@ -1,9 +1,10 @@
 #ifndef RECT_HPP_INCLUDED
 #define RECT_HPP_INCLUDED
 
-// File:    rect.hpp
-// Purpose: Rect class
-// Author:  Stephen Gold sgold@sonic.net
+// File:     rect.hpp
+// Location: src/gui
+// Purpose:  declare Rect class
+// Author:   Stephen Gold sgold@sonic.net
 // (c) Copyright 2012 Stephen Gold
 // Distributed under the terms of the GNU General Public License
 
@@ -36,16 +37,16 @@ typedef unsigned long PixelCntType;
 class Rect {
 public:
 	// public lifecycle
-    Rect(Win::RECT const &);
-    Rect(Point const &ulc, Point const &lrc);
-    Rect(Point const &ulc, PixelCntType width, PixelCntType height);
+    Rect(Win::RECT const&);
+    Rect(Point const& ulc, Point const& lrc);
+    Rect(Point const& ulc, PixelCntType width, PixelCntType height);
     Rect(LogicalYType, LogicalXType, PixelCntType width, PixelCntType height);
 	// no default constructor
-    // Rect(Rect const &);  compiler-generated copy constructor is OK
+    // Rect(Rect const&);  compiler-generated copy constructor is OK
     // ~Rect(void);
 
 	// public operators
-	// Rect &operator=(Rect const &);  compiler-generated assignment method is OK
+	// Rect& operator=(Rect const&);  compiler-generated assignment method is OK
     operator Win::RECT(void) const;
 
 	// misc public methods
@@ -58,7 +59,7 @@ public:
     LogicalXType CenterX(void) const;
     LogicalYType CenterY(void) const;
     PixelCntType Height(void) const;
-    Point        Interpolate(FractionPair const &, bool invert = false) const;
+    Point        Interpolate(FractionPair const&, bool invert = false) const;
     LogicalXType LeftX(void) const;
     LogicalXType RightX(void) const;
     LogicalYType TopY(void) const;
@@ -66,14 +67,14 @@ public:
     PixelCntType Width(void) const;
 
 	// public inquiry methods
-    bool Contains(Point const &) const;
+    bool Contains(Point const&) const;
     bool Contains(LogicalXType, LogicalYType) const;
-    bool Contains(Rect const &) const;
+    bool Contains(Rect const&) const;
 
 private:
-	LogicalXType mLeft, mRight;
-    LogicalYType mBottom, mTop;
+    LogicalYType mBottom;
+	LogicalXType mLeft;
+	LogicalXType mRight;
+	LogicalYType mTop;
 };
-
-#endif
-
+#endif // !defined(RECT_HPP_INCLUDED)

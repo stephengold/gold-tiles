@@ -37,7 +37,7 @@ DisplayModes::DisplayModes(void) {
 	}
 }
 
-DisplayModes::DisplayModes(DisplayModes const &rOther) {
+DisplayModes::DisplayModes(DisplayModes const& rOther) {
 	for (AttrIndexType i_attr = 0; i_attr < Tile::ATTRIBUTE_CNT_MAX; i_attr++) {
 		AttrModeType const mode = rOther.mArray[i_attr];
 		ASSERT(mode >= ATTR_MODE_MIN);
@@ -52,7 +52,7 @@ DisplayModes::DisplayModes(DisplayModes const &rOther) {
 
 // operators
 
-DisplayModes &DisplayModes::operator=(DisplayModes const &rOther) {
+DisplayModes& DisplayModes::operator=(DisplayModes const& rOther) {
 	for (AttrIndexType i_attr = 0; i_attr < Tile::ATTRIBUTE_CNT_MAX; i_attr++) {
 		AttrModeType const mode = rOther.mArray[i_attr];
 		ASSERT(mode >= ATTR_MODE_MIN);

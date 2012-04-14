@@ -3,7 +3,7 @@
 
 // File:     win_types.hpp
 // Location: src/gui
-// Purpose:  types needed to access Microsoft Windows APIs
+// Purpose:  types needed to utilize Microsoft Windows APIs
 // Author:   Stephen Gold sgold@sonic.net
 // (c) Copyright 2012 Stephen Gold
 // Distributed under the terms of the GNU General Public License

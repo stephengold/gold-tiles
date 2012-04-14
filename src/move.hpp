@@ -48,7 +48,7 @@ public:
 	// ~Move(void);  compiler-generated destructor is OK
 
 	// public operators
-	// Move &operator=(Move const&);  compiler-generated assigment operator is OK
+	// Move& operator=(Move const&);  compiler-generated assigment operator is OK
     operator Cells(void) const;
     operator String(void) const;
     operator Tiles(void) const;

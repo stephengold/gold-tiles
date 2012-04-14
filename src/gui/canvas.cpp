@@ -38,7 +38,7 @@ Poly Canvas::msTargetArrow;         // polygon for target cell arrow
 
 // lifecycle
 
-Canvas::Canvas(Window &rWindow):
+Canvas::Canvas(Window& rWindow):
     Graphics(rWindow.PaintDevice(), rWindow, false, true)
 {
 	// static polygons initialized on first instantiation of this class
@@ -54,7 +54,7 @@ Canvas::Canvas(Window &rWindow):
 // misc methods
 
 void Canvas::DrawBlankTile(
-    Point const &rCenter,
+    Point const& rCenter,
     PixelCntType width,
 	PixelCntType height,
     ColorType tileColor,
@@ -83,7 +83,7 @@ void Canvas::DrawBlankTile(
 }
 
 Rect Canvas::DrawCell(
-    Point const &rCenter,
+    Point const& rCenter,
     PixelCntType width,
 	PixelCntType height,
     ColorType cellColor,
@@ -100,7 +100,7 @@ Rect Canvas::DrawCell(
 }
 
 void Canvas::DrawGridShape(
-    Point const &rCenter,
+    Point const& rCenter,
     PixelCntType width,
 	PixelCntType height,
 	bool oddFlag)
@@ -131,7 +131,7 @@ void Canvas::DrawGridShape(
 }
 
 void Canvas::DrawMarking(
-    Rect const &rBounds, 
+    Rect const& rBounds, 
     AttrModeType displayMode,
     AttrType marking,
     ColorType backgroundColor,
@@ -165,14 +165,14 @@ void Canvas::DrawMarking(
     }
 }
 
-void Canvas::DrawTargetArrow(Rect const &rBounds) {
+void Canvas::DrawTargetArrow(Rect const& rBounds) {
     DrawPolygon(msTargetArrow, rBounds);
 }
 
 Rect Canvas::DrawTile(
-	Markings const &rMarkings,
+	Markings const& rMarkings,
 	ColorType tileColor,
-	Point const &rCenter,
+	Point const& rCenter,
 	PixelCntType width,
     PixelCntType height,
 	bool borderFlag,
@@ -406,7 +406,7 @@ Rect Canvas::DrawTile(
 }
 
 /* static */ Rect Canvas::InteriorGridShape(
-    Point const &rCenter,
+    Point const& rCenter,
     PixelCntType width,
 	PixelCntType height,
 	bool oddFlag)

@@ -82,15 +82,15 @@ String::String(Strings const &rList, String const &rSeparator) {
 
 // operators
 
-String::operator char const *(void) const {
-	char const *result = c_str();
+String::operator TextType(void) const {
+	TextType const result = c_str();
 
 	return result;
 }
 
 String::operator int(void) const {
-    char const *text = c_str();
-    int result = ::atoi(text);
+    TextType const text = c_str();
+    int const result = ::atoi(text);
 
 	return result;
 }

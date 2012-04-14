@@ -1,6 +1,7 @@
-// File:    poly.cpp
-// Purpose: Poly class
-// Author:  Stephen Gold sgold@sonic.net
+// File:     poly.cpp
+// Location: src/gui
+// Purpose:  implement Poly class
+// Author:   Stephen Gold sgold@sonic.net
 // (c) Copyright 2012 Stephen Gold
 // Distributed under the terms of the GNU General Public License
 
@@ -46,7 +47,7 @@ unsigned Poly::Count(void) const {
 void Poly::GetPoints(
     POINT points[], 
     unsigned numPoints, 
-    Rect const &rBounds,
+    Rect const& rBounds,
 	bool invertFlag) const
 {
     ASSERT(numPoints <= Count());

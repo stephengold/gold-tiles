@@ -52,7 +52,7 @@ public:
 	Dialog(TextType templateName, Win::DLGPROC);
 	// no default constructor
     // ~Dialog(void);  compiler-generated destructor is OK
-	int Run(BaseWindow *pParent);
+	int Run(BaseWindow* pParent);
 
 	// misc public methods
 	int HandleMessage(MessageType, Win::WPARAM);

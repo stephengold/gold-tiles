@@ -1,6 +1,7 @@
-// File:    fractionpair.cpp
-// Purpose: FractionPair class
-// Author:  Stephen Gold sgold@sonic.net
+// File:     fractionpair.cpp
+// Location: src
+// Purpose:  implement FractionPair class
+// Author:   Stephen Gold sgold@sonic.net
 // (c) Copyright 2012 Stephen Gold
 // Distributed under the terms of the GNU General Public License
 

@@ -1,6 +1,7 @@
-// File:    tilebox.cpp
-// Purpose: TileBox class
-// Author:  Stephen Gold sgold@sonic.net
+// File:     tilebox.cpp
+// Location: src/gui
+// Purpose:  implement TileBox class
+// Author:   Stephen Gold sgold@sonic.net
 // (c) Copyright 2012 Stephen Gold
 // Distributed under the terms of the GNU General Public License
 
@@ -45,7 +46,7 @@ static INT_PTR CALLBACK message_handler(
 
 // lifecycle
 
-TileBox::TileBox(GameOpt &rGameOpt):
+TileBox::TileBox(GameOpt& rGameOpt):
     Dialog("TILEBOX", &message_handler),
 	mrGameOpt(rGameOpt)
 {

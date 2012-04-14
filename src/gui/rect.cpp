@@ -1,6 +1,7 @@
-// File:    rect.cpp
-// Purpose: Rect class
-// Author:  Stephen Gold sgold@sonic.net
+// File:     rect.cpp
+// Location: src/gui
+// Purpose:  implement Rect class
+// Author:   Stephen Gold sgold@sonic.net
 // (c) Copyright 2012 Stephen Gold
 // Distributed under the terms of the GNU General Public License
 
@@ -29,14 +30,14 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 
 // lifecycle
 
-Rect::Rect(RECT const &rStruct) {
+Rect::Rect(RECT const& rStruct) {
     mTop = rStruct.top;
     mLeft = rStruct.left;
     mRight = rStruct.right;
     mBottom = rStruct.bottom;
 }
 
-Rect::Rect(Point const &rUlc, Point const &rBrc) {
+Rect::Rect(Point const& rUlc, Point const& rBrc) {
     mTop = rUlc.Y();
     mLeft = rUlc.X();
     mRight = rBrc.X();
@@ -45,7 +46,7 @@ Rect::Rect(Point const &rUlc, Point const &rBrc) {
     ASSERT(Brc() == rBrc);
 }
 
-Rect::Rect(Point const &rUlc, PixelCntType width, PixelCntType height) {
+Rect::Rect(Point const& rUlc, PixelCntType width, PixelCntType height) {
     mTop = rUlc.Y();
     mLeft = rUlc.X();
     mRight = mLeft + width;
@@ -182,7 +183,7 @@ PixelCntType Rect::Height(void) const {
     return result;
 }
 
-Point Rect::Interpolate(FractionPair const &rPair, bool invertFlag) const {
+Point Rect::Interpolate(FractionPair const& rPair, bool invertFlag) const {
     double const height = double(Height() - 1);
     double const width = double(Width() - 1);
 
@@ -233,7 +234,7 @@ PixelCntType Rect::Width(void) const {
 
 // inquiry methods 
 
-bool Rect::Contains(Point const &rPoint) const {
+bool Rect::Contains(Point const& rPoint) const {
     LogicalXType const x = rPoint.X();
     LogicalYType const y = rPoint.Y();
     bool const result = Contains(x, y);
@@ -249,7 +250,7 @@ bool Rect::Contains(LogicalXType x, LogicalYType y) const {
     return result; 
 }
 
-bool Rect::Contains(Rect const &rOther) const {
+bool Rect::Contains(Rect const& rOther) const {
     Point const ulc = rOther.Ulc();
     bool result = Contains(ulc);
     

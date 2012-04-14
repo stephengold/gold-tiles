@@ -1,6 +1,7 @@
-// File:    tilecell.cpp
-// Purpose: TileCell class
-// Author:  Stephen Gold sgold@sonic.net
+// File:     tilecell.cpp
+// Location: src
+// Purpose:  implement TileCell class
+// Author:   Stephen Gold sgold@sonic.net
 // (c) Copyright 2012 Stephen Gold
 // Distributed under the terms of the GNU General Public License
 
@@ -30,13 +31,13 @@ TileCell::TileCell(void) {
 	mSwapFlag = true;
 }
 
-TileCell::TileCell(Tile const &rTile):
+TileCell::TileCell(Tile const& rTile):
     mTile(rTile)
 {
 	mSwapFlag = true;
 }
 
-TileCell::TileCell(Tile const &rTile, Cell const &rCell):
+TileCell::TileCell(Tile const& rTile, Cell const& rCell):
     mTile(rTile), 
 	mCell(rCell)
 {
@@ -49,7 +50,7 @@ TileCell::TileCell(Tile const &rTile, Cell const &rCell):
 
 // operators
 
-bool TileCell::operator<(TileCell const &rOther) const {
+bool TileCell::operator<(TileCell const& rOther) const {
      bool result;
      
      if (mTile == rOther.mTile) {
@@ -98,8 +99,8 @@ TileCell::operator Tile(void) const {
 
 // misc methods
 
-String TileCell::GetUserChoice(Tiles const &rAvailableTiles, Strings const &rAlts) {
-    String const result = mTile.GetUserChoice(rAvailableTiles, rAlts);
+String TileCell::GetUserChoice(Tiles const& rAvailableTiles, Strings const& rAlternatives) {
+    String const result = mTile.GetUserChoice(rAvailableTiles, rAlternatives);
 	if (mTile.MatchesString(result)) {
         mSwapFlag = mCell.GetUserChoice("swap");
 	}

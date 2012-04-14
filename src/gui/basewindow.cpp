@@ -31,7 +31,7 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 // static data
 
 /* static */ BaseWindow::Map BaseWindow::msMap;
-/* static */ BaseWindow * BaseWindow::mspNewlyCreatedWindow = NULL;
+/* static */ BaseWindow* BaseWindow::mspNewlyCreatedWindow = NULL;
 
 
 // lifecycle
@@ -107,11 +107,11 @@ void BaseWindow::Create(void) {
 	return result;
 }
 
-/* static */ BaseWindow * BaseWindow::Lookup(HWND handle) {
+/* static */ BaseWindow* BaseWindow::Lookup(HWND handle) {
     KeyType const key = KeyType(handle);
     ConstIterator const i_window = msMap.find(key);
 
-	BaseWindow * result = NULL;
+	BaseWindow* result = NULL;
     if (i_window != msMap.end()) {
         result = i_window->second;
         ASSERT(result != NULL);

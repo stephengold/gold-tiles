@@ -1,7 +1,7 @@
 // File:     move.cpp
 // Location: src
 // Purpose:  implement Move class
-// Author:  Stephen Gold sgold@sonic.net
+// Author:   Stephen Gold sgold@sonic.net
 // (c) Copyright 2012 Stephen Gold
 // Distributed under the terms of the GNU General Public License
 
@@ -94,13 +94,13 @@ Move::operator Tiles(void) const {
 
 // misc methods
 
-void Move::Add(Tile const &rTile) {
+void Move::Add(Tile const& rTile) {
 	// add a tile swap
     TileCell const tile_cell(rTile);
     mSet.insert(tile_cell);
 }
 
-void Move::Add(Tile const &rTile, Cell const &rCell) {
+void Move::Add(Tile const& rTile, Cell const& rCell) {
 	// add a tile played to the board
     TileCell const tile_cell(rTile, rCell);
     mSet.insert(tile_cell);
@@ -134,7 +134,7 @@ Move::ConstIterator Move::End(void) const {
 	return result;
 }
 
-void Move::GetUserChoice(Tiles const &rAvailableTiles) {
+void Move::GetUserChoice(Tiles const& rAvailableTiles) {
     MakePass();
 
     for (;;) {
@@ -164,7 +164,7 @@ void Move::MakePass(void) {
 	mResignFlag = false;
 }
 
-void Move::MakeResign(Tiles const &rTiles) {
+void Move::MakeResign(Tiles const& rTiles) {
 	mSet.clear();
 	for (unsigned i_tile = 0; i_tile < rTiles.Count(); i_tile++) {
 		Tile const tile = rTiles[i_tile];

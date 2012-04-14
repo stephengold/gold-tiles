@@ -1,6 +1,7 @@
-// File:    parmbox3.cpp
-// Purpose: ParmBox3 class
-// Author:  Stephen Gold sgold@sonic.net
+// File:     parmbox3.cpp
+// Location: src/gui
+// Purpose:  implement ParmBox3 class
+// Author:   Stephen Gold sgold@sonic.net
 // (c) Copyright 2012 Stephen Gold
 // Distributed under the terms of the GNU General Public License
 
@@ -34,7 +35,7 @@ static int CALLBACK message_handler3(
 	LPARAM lParameter)
 {
 	ASSERT(windowHandle != NULL);
-    ParmBox3 * const p_box = (ParmBox3 *)BaseWindow::Lookup(windowHandle);
+    ParmBox3* const p_box = (ParmBox3*)BaseWindow::Lookup(windowHandle);
     ASSERT(HWND(*p_box) == windowHandle);
 	int const result = p_box->HandleMessage(message, wParameter, lParameter);
 
@@ -44,7 +45,7 @@ static int CALLBACK message_handler3(
 
 // lifecycle
 
-ParmBox3::ParmBox3(GameOpt &rGameOpt):
+ParmBox3::ParmBox3(GameOpt& rGameOpt):
     Dialog("PARMBOX3", &message_handler3),
 	mrGameOpt(rGameOpt)
 {

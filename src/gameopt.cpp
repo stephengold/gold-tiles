@@ -1,6 +1,7 @@
-// File:    gameopt.cpp
-// Purpose: GameOpt class
-// Author:  Stephen Gold sgold@sonic.net
+// File:     gameopt.cpp
+// Location: src
+// Purpose:  implement GameOpt class
+// Author:   Stephen Gold sgold@sonic.net
 // (c) Copyright 2012 Stephen Gold
 // Distributed under the terms of the GNU General Public License
 

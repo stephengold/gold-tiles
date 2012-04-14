@@ -1,6 +1,7 @@
-// File:    string.cpp
-// Purpose: String class
-// Author:  Stephen Gold sgold@sonic.net
+// File:     string.cpp
+// Location: src
+// Purpose:  implement String class
+// Author:   Stephen Gold sgold@sonic.net
 // (c) Copyright 2012 Stephen Gold
 // Distributed under the terms of the GNU General Public License
 
@@ -69,7 +70,7 @@ String::String(long integer):
 String::String(unsigned long integer):
 	std::string(::ultos(integer)) {}
 
-String::String(Strings const &rList, String const &rSeparator) {
+String::String(Strings const& rList, String const& rSeparator) {
 	Strings::ConstIterator i_string;
 	for (i_string = rList.Begin(); i_string != rList.End(); i_string++) {
 		if (i_string != rList.Begin()) {

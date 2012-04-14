@@ -1,6 +1,7 @@
-// File:    tiles.cpp
-// Purpose: Tiles class
-// Author:  Stephen Gold sgold@sonic.net
+// File:     tiles.cpp
+// Location: src
+// Purpose:  implement Tiles class
+// Author:   Stephen Gold sgold@sonic.net
 // (c) Copyright 2012 Stephen Gold
 // Distributed under the terms of the GNU General Public License
 
@@ -33,7 +34,7 @@ Tiles::Tiles(void)
 {}
 
 // construct a container for a single Tile
-Tiles::Tiles(Tile const &rTile) {
+Tiles::Tiles(Tile const& rTile) {
     Add(rTile);
 }
 
@@ -103,7 +104,7 @@ void Tiles::Add(Tile const &tile) {
 }
 
 // generate tiles for the stock bag - RECURSIVE
-void Tiles::AddAllTiles(AttrIndexType attributeIndex, Tile &rModelTile) {
+void Tiles::AddAllTiles(AttrIndexType attributeIndex, Tile& rModelTile) {
     AttrCntType const na = Tile::AttributeCnt();
 	if (attributeIndex < na) {
 		AttrType const max = Tile::ValueMax(attributeIndex);
@@ -128,7 +129,7 @@ void Tiles::AddTiles(Tiles const &tiles) {
 }
 
 // build runs of mutually-compatible tiles - RECURSIVE
-void Tiles::BuildRuns(Tiles const &rRunSoFar, Tiles &rLongestRun) const {
+void Tiles::BuildRuns(Tiles const& rRunSoFar, Tiles& rLongestRun) const {
 	if (IsEmpty()) {
 		if (rRunSoFar.Count() > rLongestRun.Count()) {
 			rLongestRun = rRunSoFar;
@@ -188,7 +189,7 @@ Tile Tiles::DrawRandomTile(void) {
     return result;
 }
 
-void Tiles::DrawTiles(unsigned tileCnt, Tiles &rBag) {
+void Tiles::DrawTiles(unsigned tileCnt, Tiles& rBag) {
     for (unsigned draw_cnt = 0; draw_cnt < tileCnt; ++draw_cnt) {
         if (rBag.IsEmpty()) {
             break;
@@ -210,7 +211,7 @@ Tile Tiles::FindTile(TileIdType id) const {
     return result; 
 }
 
-void Tiles::GetUserChoice(Tiles const &rAvailableTiles) {
+void Tiles::GetUserChoice(Tiles const& rAvailableTiles) {
     MakeEmpty();
 
     for (;;) {
@@ -255,7 +256,7 @@ void Tiles::MakeEmpty(void) {
 	ASSERT(IsEmpty());
 }
 
-void Tiles::RemoveTile(Tile const &rTile) {
+void Tiles::RemoveTile(Tile const& rTile) {
 	ASSERT(Contains(rTile));
 
 	TileIdType const id = rTile.Id();
@@ -276,7 +277,7 @@ void Tiles::RemoveTileId(TileIdType id) {
 	ASSERT(!ContainsId(id));
 }
 
-void Tiles::RemoveTiles(Tiles const &rTiles) {
+void Tiles::RemoveTiles(Tiles const& rTiles) {
 	ASSERT(Count() >= rTiles.Count());
 
 	ConstIterator i_tile;
@@ -294,7 +295,7 @@ void Tiles::Restock(void) {
     AddAllTiles(attribute_index, model_tile);
 }
 
-void Tiles::UnClone(Tile &rClone) const {
+void Tiles::UnClone(Tile& rClone) const {
 	ASSERT(ContainsClone(rClone));
 
     ConstIterator i_tile;
@@ -343,7 +344,7 @@ bool Tiles::AreAllCompatible(void) const {
     return true; 
 }
 
-bool Tiles::AreAllCompatibleWith(Tile const &rTile) const {
+bool Tiles::AreAllCompatibleWith(Tile const& rTile) const {
 	bool result = true;
 
     ConstIterator i_tile;
@@ -357,7 +358,7 @@ bool Tiles::AreAllCompatibleWith(Tile const &rTile) const {
 	return result;
 }
 
-bool Tiles::Contains(Tile const &rTile) const {
+bool Tiles::Contains(Tile const& rTile) const {
 	TileIdType const id = rTile.Id();
     bool const result = ContainsId(id);
     
@@ -371,7 +372,7 @@ bool Tiles::ContainsId(TileIdType id) const {
     return result;
 }
 
-bool Tiles::ContainsClone(Tile const &rTile) const {
+bool Tiles::ContainsClone(Tile const& rTile) const {
     bool result = false;
     
     ConstIterator i_tile;

@@ -1,6 +1,6 @@
 // File:     main.cpp
-// Purpose:  main entry points for the Gold Tile Game.
 // Location: src
+// Purpose:  main entry points for the Gold Tile Game.
 // Author:   Stephen Gold sgold@sonic.net
 // (c) Copyright 2012 Stephen Gold
 // Distributed under the terms of the GNU General Public License

@@ -1,6 +1,6 @@
 // File:     parmbox1.cpp
 // Location: src/gui
-// Purpose:  ParmBox1 class
+// Purpose:  implement ParmBox1 class
 // Author:   Stephen Gold sgold@sonic.net
 // (c) Copyright 2012 Stephen Gold
 // Distributed under the terms of the GNU General Public License
@@ -37,7 +37,7 @@ static INT_PTR CALLBACK message_handler(
 	LPARAM lParameter)
 {
 	ASSERT(windowHandle != NULL);
-	ParmBox1 * const p_box = (ParmBox1 *)BaseWindow::Lookup(windowHandle);
+	ParmBox1* const p_box = (ParmBox1*)BaseWindow::Lookup(windowHandle);
     ASSERT(HWND(*p_box) == windowHandle);
 	INT_PTR const result = p_box->HandleMessage(message, wParameter, lParameter);
 
@@ -47,7 +47,7 @@ static INT_PTR CALLBACK message_handler(
 
 // lifecycle
 
-ParmBox1::ParmBox1(GameOpt &rGameOpt):
+ParmBox1::ParmBox1(GameOpt& rGameOpt):
     Dialog("PARMBOX1", &message_handler),
 	mrGameOpt(rGameOpt)
 {

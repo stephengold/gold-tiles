@@ -1,6 +1,7 @@
-// File:    point.cpp
-// Purpose: Point class
-// Author:  Stephen Gold sgold@sonic.net
+// File:     point.cpp
+// Location: src/gui
+// Purpose:  implement Point class
+// Author:   Stephen Gold sgold@sonic.net
 // (c) Copyright 2012 Stephen Gold
 // Distributed under the terms of the GNU General Public License
 
@@ -45,7 +46,7 @@ Point::Point(POINTS const &pt) {
 
 // operators
 
-bool Point::operator== (Point const &rOther) const {
+bool Point::operator==(Point const& rOther) const {
     bool const result = (mX == rOther.mX && mY == rOther.mY);
 
 	return result;

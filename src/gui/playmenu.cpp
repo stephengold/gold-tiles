@@ -1,6 +1,7 @@
-// File:    playmenu.cpp
-// Purpose: PlayMenu class
-// Author:  Stephen Gold sgold@sonic.net
+// File:     playmenu.cpp
+// Location: src/gui
+// Purpose:  implement PlayMenu class
+// Author:   Stephen Gold sgold@sonic.net
 // (c) Copyright 2012 Stephen Gold
 // Distributed under the terms of the GNU General Public License
 
@@ -69,7 +70,7 @@ PlayMenu::PlayMenu(void):
 
 #elif defined(_WINDOWS)
 
-PlayMenu::PlayMenu(Menu const &rRootMenu, unsigned position):	
+PlayMenu::PlayMenu(Menu const& rRootMenu, unsigned position):	
 	SubMenu(rRootMenu, position),
     mPlay(rRootMenu, IDM_PLAY_PLAY),
     mTakeBack(rRootMenu, IDM_TAKE_BACK),
@@ -99,7 +100,7 @@ void PlayMenu::Pause(bool paused) {
 	mPause.Check(paused);
 }
 
-void PlayMenu::EnableItems(Partial const &rPartial, ThinkModeType thinkMode) {
+void PlayMenu::EnableItems(Partial const& rPartial, ThinkModeType thinkMode) {
 	bool const is_local = rPartial.IsLocalUsersTurn() && (thinkMode != THINK_SUGGEST);
 	bool const is_over = rPartial.IsGameOver();
     bool const is_pass = rPartial.IsPass();

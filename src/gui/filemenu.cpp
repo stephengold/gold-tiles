@@ -1,6 +1,7 @@
-// File:    filemenu.cpp
-// Purpose: FileMenu class
-// Author:  Stephen Gold sgold@sonic.net
+// File:     filemenu.cpp
+// Location: src/gui
+// Purpose:  implement FileMenu class
+// Author:   Stephen Gold sgold@sonic.net
 // (c) Copyright 2012 Stephen Gold
 // Distributed under the terms of the GNU General Public License
 

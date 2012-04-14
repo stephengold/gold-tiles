@@ -1,6 +1,6 @@
 // File:     turn.cpp
 // Location: src
-// Purpose:  Turn class
+// Purpose:  implement Turn class
 // Author:   Stephen Gold sgold@sonic.net
 // (c) Copyright 2012 Stephen Gold
 // Distributed under the terms of the GNU General Public License
@@ -27,7 +27,7 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 
 // lifecycle
 
-Turn::Turn(Tiles const &rTiles, String const &rHandName):
+Turn::Turn(Tiles const& rTiles, String const& rHandName):
     mDraw(rTiles),
 	mHandName(rHandName)
 {
@@ -36,7 +36,7 @@ Turn::Turn(Tiles const &rTiles, String const &rHandName):
 	mPoints = 0;
 }
 
-Turn::Turn(Move const &rMove, String const &rHandName, unsigned mustPlay):
+Turn::Turn(Move const& rMove, String const& rHandName, unsigned mustPlay):
     mHandName(rHandName),
 	mMove(rMove)
 {
@@ -72,7 +72,7 @@ unsigned Turn::Points(void) const {
 	return mPoints;
 }
 
-void Turn::SetDraw(Tiles const &rDraw) {
+void Turn::SetDraw(Tiles const& rDraw) {
      mDraw = rDraw;
 }
 

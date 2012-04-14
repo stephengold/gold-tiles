@@ -20,15 +20,14 @@ Source files needed only for GUI builds belong in src/gui.
 
 Every header file should use #ifndef to guard against multiple inclusions.
 
-For every class Foo there should ideally be a header file "foo.hpp" and a code file "foo.cpp".
+For every class Foo there should ideally be a declaration header file "foo.hpp" and an implementation file "foo.cpp".
 
 Project-wide definitions belong in "project.hpp"
 
 === Indentation ===
 
  * Indent the contents of each block by four spaces.
- * Use Unix-style indentation when the open brace fits on the same line with the preceding keyword.
- * If it doesn't fit, align the open brace with the keyword.
+ * Use Unix-style indentation when the open brace fits on the same line with the preceding keyword. If it doesn't fit, align the open brace with the keyword.
 
 === Identifiers ===
 
@@ -78,3 +77,4 @@ Abbreviations in identifiers are used sparingly.
  * poly = polygon
  * rect = rectangle
  * ulc = upper left corner
+ * um = user message

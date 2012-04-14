@@ -1,6 +1,7 @@
-// File:    menu.cpp
-// Purpose: Menu class
-// Author:  Stephen Gold sgold@sonic.net
+// File:     menu.cpp
+// Location: src/gui
+// Purpose:  implement Menu class
+// Author:   Stephen Gold sgold@sonic.net
 // (c) Copyright 2012 Stephen Gold
 // Distributed under the terms of the GNU General Public License
 

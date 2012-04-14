@@ -1,6 +1,7 @@
-// File:    sizemenu.cpp
-// Purpose: SizeMenu class
-// Author:  Stephen Gold sgold@sonic.net
+// File:     sizemenu.cpp
+// Location: src/gui
+// Purpose:  implement SizeMenu class
+// Author:   Stephen Gold sgold@sonic.net
 // (c) Copyright 2012 Stephen Gold
 // Distributed under the terms of the GNU General Public License
 
@@ -52,7 +53,7 @@ SizeMenu::SizeMenu(void):
 
 #elif defined(_WINDOWS)
 
-SizeMenu::SizeMenu(Menu const &rRootMenu, unsigned position):
+SizeMenu::SizeMenu(Menu const& rRootMenu, unsigned position):
 	SubMenu(rRootMenu, position),
     mSize1(rRootMenu, IDM_TS1, IDM_TS7, IDM_TS1),
     mSize2(rRootMenu, IDM_TS1, IDM_TS7, IDM_TS2),

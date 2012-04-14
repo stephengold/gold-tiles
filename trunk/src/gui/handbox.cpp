@@ -1,6 +1,7 @@
-// File:    handbox.cpp
-// Purpose: HandBox class
-// Author:  Stephen Gold sgold@sonic.net
+// File:     handbox.cpp
+// Location: src/gui
+// Purpose:  implement HandBox class
+// Author:   Stephen Gold sgold@sonic.net
 // (c) Copyright 2012 Stephen Gold
 // Distributed under the terms of the GNU General Public License
 
@@ -36,7 +37,7 @@ static INT_PTR CALLBACK message_handler(
 {
 	lParameter;  // unused parameter
 	ASSERT(windowHandle != NULL);
-    HandBox * p_box = (HandBox *)BaseWindow::Lookup(windowHandle);
+    HandBox* p_box = (HandBox*)BaseWindow::Lookup(windowHandle);
     ASSERT(HWND(*p_box) == windowHandle);
 	INT_PTR const result = p_box->HandleMessage(message, wParameter);
 
@@ -46,7 +47,7 @@ static INT_PTR CALLBACK message_handler(
 
 // lifecycle
 
-HandBox::HandBox(unsigned handIndex, unsigned handCnt, HandOpt const &rOptions):
+HandBox::HandBox(unsigned handIndex, unsigned handCnt, HandOpt const& rOptions):
     Dialog("HANDBOX", &message_handler),
 	mOptions(rOptions)
 {
@@ -179,7 +180,7 @@ void HandBox::UpdateButtons(void) {
 	EnableControl(IDC_SLIDER1, mOptions.IsAutomatic());
 }
 
-void HandBox::UpdateNameBox(String const &rName) {
+void HandBox::UpdateNameBox(String const& rName) {
 	mOptions.SetPlayerName(rName);
     SetTextString(IDC_EDITNAME, rName);
 

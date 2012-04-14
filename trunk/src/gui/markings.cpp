@@ -1,6 +1,7 @@
-// File:    markings.cpp
-// Purpose: Markings class
-// Author:  Stephen Gold sgold@sonic.net
+// File:     markings.cpp
+// Location: src/gui
+// Purpose:  implement Markings class
+// Author:   Stephen Gold sgold@sonic.net
 // (c) Copyright 2012 Stephen Gold
 // Distributed under the terms of the GNU General Public License
 
@@ -37,7 +38,7 @@ const ColorType Markings::msColors[Tile::VALUE_CNT_MAX] = {
 
 // lifecycle
 
-Markings::Markings(Tile const &rTile, DisplayModes const &rDisplayModes) {
+Markings::Markings(Tile const& rTile, DisplayModes const& rDisplayModes) {
 	mMarkingColor = msColors[0];
 	AttrIndexType i_marking = 0;
 

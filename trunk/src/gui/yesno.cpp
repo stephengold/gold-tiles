@@ -1,6 +1,7 @@
-// File:    yesno.cpp
-// Purpose: YesNo class
-// Author:  Stephen Gold sgold@sonic.net
+// File:     yesno.cpp
+// Location: src/gui
+// Purpose:  implement YesNo class
+// Author:   Stephen Gold sgold@sonic.net
 // (c) Copyright 2012 Stephen Gold
 // Distributed under the terms of the GNU General Public License
 
@@ -35,7 +36,7 @@ static INT_PTR CALLBACK yesNoMessageHandler(
 {
 	lParameter;  // unused parameter
 	ASSERT(windowHandle != NULL);
-    YesNo *p_box = (YesNo *)BaseWindow::Lookup(windowHandle);
+    YesNo* p_box = (YesNo*)BaseWindow::Lookup(windowHandle);
     ASSERT(HWND(*p_box) == windowHandle);
 	int result = p_box->HandleMessage(message, wParameter);
 

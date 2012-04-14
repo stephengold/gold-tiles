@@ -1,6 +1,7 @@
-// File:    hands.cpp
-// Purpose: Hands class
-// Author:  Stephen Gold sgold@sonic.net
+// File:     hands.cpp
+// Location: src
+// Purpose:  implement Hands class
+// Author:   Stephen Gold sgold@sonic.net
 // (c) Copyright 2012 Stephen Gold
 // Distributed under the terms of the GNU General Public License
 
@@ -26,7 +27,7 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 
 // misc methods
 
-void Hands::Append(Hand const &rHand) {
+void Hands::Append(Hand const& rHand) {
 	push_back(rHand);
 
 	ASSERT(!IsEmpty());
@@ -38,7 +39,7 @@ unsigned Hands::Count(void) const {
 	return result;
 }
 
-Hands::Iterator Hands::Find(String const &rName) {
+Hands::Iterator Hands::Find(String const& rName) {
 	ASSERT(!rName.IsEmpty());
 
 	Iterator i_hand;
@@ -68,7 +69,7 @@ unsigned Hands::MaxScore(void) const {
 	return result;
 }
 
-void Hands::Next(ConstIterator &riCurrent) const {
+void Hands::Next(ConstIterator& riCurrent) const {
 	// advance const iterator to next hand
 	riCurrent++;
     if (riCurrent >= end()) {
@@ -76,7 +77,7 @@ void Hands::Next(ConstIterator &riCurrent) const {
     }
 }
 
-void Hands::Next(Iterator &riCurrent) {
+void Hands::Next(Iterator& riCurrent) {
 	// advance iterator to next hand
 	riCurrent++;
     if (riCurrent >= end()) {
@@ -84,7 +85,7 @@ void Hands::Next(Iterator &riCurrent) {
     }
 }
 
-void Hands::NextWorking(Iterator &riCurrent) {
+void Hands::NextWorking(Iterator& riCurrent) {
 	// advance iterator to next hand which has not resigned
 	Iterator const start = riCurrent;
 	Next(riCurrent);
@@ -94,7 +95,7 @@ void Hands::NextWorking(Iterator &riCurrent) {
 	}
 }
 
-void Hands::Previous(ConstIterator &riCurrent) const {
+void Hands::Previous(ConstIterator& riCurrent) const {
 	// advance const iterator to next hand
     if (riCurrent == begin()) {
         riCurrent = end();
@@ -102,7 +103,7 @@ void Hands::Previous(ConstIterator &riCurrent) const {
 	riCurrent--;
 }
 
-void Hands::Previous(Iterator &riCurrent) {
+void Hands::Previous(Iterator& riCurrent) {
 	// advance iterator to next hand
     if (riCurrent == begin()) {
         riCurrent = end();

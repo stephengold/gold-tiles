@@ -1,6 +1,7 @@
-// File:    windowclass.cpp
-// Purpose: WindowClass class
-// Author:  Stephen Gold sgold@sonic.net
+// File:     windowclass.cpp
+// Location: src/gui
+// Purpose:  implement WindowClass class
+// Author:   Stephen Gold sgold@sonic.net
 // (c) Copyright 2012 Stephen Gold
 // Distributed under the terms of the GNU General Public License
 

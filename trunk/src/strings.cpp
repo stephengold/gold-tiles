@@ -1,6 +1,7 @@
-// File:    strings.cpp
-// Purpose: Strings class
-// Author:  Stephen Gold sgold@sonic.net
+// File:     strings.cpp
+// Location: src
+// Purpose:  implement Strings class
+// Author:   Stephen Gold sgold@sonic.net
 // (c) Copyright 2012 Stephen Gold
 // Distributed under the terms of the GNU General Public License
 
@@ -38,7 +39,7 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 
 // misc methods
 
-void Strings::Append(String const &rString) {
+void Strings::Append(String const& rString) {
     mList.push_back(rString);
 }
 
@@ -60,7 +61,7 @@ unsigned Strings::Count(void) const {
 	return result;
 }
 
-unsigned Strings::Count(String const &rString) const {
+unsigned Strings::Count(String const& rString) const {
 	unsigned result = 0;
 	ConstIterator i_string;
 	for (i_string = Begin(); i_string != End(); i_string++) {
@@ -94,7 +95,7 @@ String Strings::First(void) const {
 }
 
 // create unique name using numeric suffix
-String Strings::InventUnique(String const &rPrefix) const {
+String Strings::InventUnique(String const& rPrefix) const {
 	String result = rPrefix;
 
 	unsigned i = 2;
@@ -108,9 +109,9 @@ String Strings::InventUnique(String const &rPrefix) const {
 
 // create unique name using ordinals
 String Strings::InventUnique(
-	String const &rPrefix,
-	String const &rInfix,
-	String const &rSuffix) const
+	String const& rPrefix,
+	String const& rInfix,
+	String const& rSuffix) const
 {
 	String result = rPrefix;
 	unsigned i = 1;
@@ -122,7 +123,7 @@ String Strings::InventUnique(
 	return result;
 }
 
-Strings::ConstIterator Strings::Find(String const &rString) const {
+Strings::ConstIterator Strings::Find(String const& rString) const {
     ConstIterator i_string;
 	for (i_string = Begin(); i_string != End(); i_string++) {
 		if (*i_string == rString) {
@@ -162,7 +163,7 @@ Strings Strings::Unique(void) const {
 
 // inquiry methods
 
-bool Strings::Contains(String const &rString) const {
+bool Strings::Contains(String const& rString) const {
 	bool const result = (Find(rString) != End());
 
 	return result;

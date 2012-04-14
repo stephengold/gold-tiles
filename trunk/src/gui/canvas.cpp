@@ -1,6 +1,6 @@
 // File:     canvas.cpp
 // Location: src/gui
-// Purpose:  Canvas class
+// Purpose:  implement Canvas class
 // Author:   Stephen Gold sgold@sonic.net
 // (c) Copyright 2012 Stephen Gold
 // Distributed under the terms of the GNU General Public License

@@ -1,6 +1,7 @@
-// File:    hintbox.cpp
-// Purpose: HintBox class
-// Author:  Stephen Gold sgold@sonic.net
+// File:     hintbox.cpp
+// Location: src/gui
+// Purpose:  implement HintBox class
+// Author:   Stephen Gold sgold@sonic.net
 // (c) Copyright 2012 Stephen Gold
 // Distributed under the terms of the GNU General Public License
 

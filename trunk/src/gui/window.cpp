@@ -1,6 +1,7 @@
-// File:    window.cpp
-// Purpose: Window class
-// Author:  Stephen Gold sgold@sonic.net
+// File:     window.cpp
+// Location: src/gui
+// Purpose:  implement Window class
+// Author:   Stephen Gold sgold@sonic.net
 // (c) Copyright 2012 Stephen Gold
 // Distributed under the terms of the GNU General Public License
 
@@ -34,7 +35,7 @@ Window::Window(void) {
 	mPaintDevice = 0;
 }
 
-void Window::Initialize(CREATESTRUCT const &rCreateStruct) {
+void Window::Initialize(CREATESTRUCT const& rCreateStruct) {
 	BaseWindow::Initialize(rCreateStruct);
 
 	HWND const this_window = *this;
@@ -66,7 +67,7 @@ Window::operator Rect(void) const {
 
 // misc methods
 
-void * Window::AddFiber(void (__stdcall &rStartRoutine)(void *)) {
+void * Window::AddFiber(void (__stdcall & rStartRoutine)(void *)) {
 	Win::SIZE_T const default_stack_size = 0;
 	void * const result = Win::CreateFiber(default_stack_size, &rStartRoutine, LPVOID(this));
 	ASSERT(result != NULL);
@@ -108,9 +109,9 @@ void Window::Close(void) {
 }
 
 void Window::Create(
-	String const &rClassName,
-	Rect const &rRect,
-	BaseWindow *pParent,
+	String const& rClassName,
+	Rect const& rRect,
+	BaseWindow* pParent,
 	HINSTANCE applicationInstance)
 {
 	BaseWindow::Create();
@@ -168,7 +169,7 @@ void Window::ForceRepaint(void) {
     ASSERT(success != 0);
 }
 
-bool Window::GetAMessage(MSG &rMessage, int &rExitCode) {
+bool Window::GetAMessage(MSG& rMessage, int& rExitCode) {
     HWND const any_window = NULL;
 	UINT const no_filtering = 0;
     BOOL const success = Win::GetMessage(&rMessage, any_window, no_filtering, no_filtering);
@@ -375,7 +376,7 @@ int Window::WarnBox(TextType message, TextType title) {
     return result;
 }
 
-void Window::WarpCursor(Point const &rDestination) {
+void Window::WarpCursor(Point const& rDestination) {
     // convert to screen coordinates
 	HWND const this_window = *this;
     POINT point = POINT(rDestination);

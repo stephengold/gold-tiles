@@ -1,6 +1,7 @@
-// File:    menubar.cpp
-// Purpose: MenuBar class
-// Author:  Stephen Gold sgold@sonic.net
+// File:     menubar.cpp
+// Location: src/gui
+// Purpose:  implement MenuBar class
+// Author:   Stephen Gold sgold@sonic.net
 // (c) Copyright 2012 Stephen Gold
 // Distributed under the terms of the GNU General Public License
 
@@ -34,7 +35,7 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 
 #ifdef _QT
 
-MenuBar::MenuBar(Partial const &rPartial):
+MenuBar::MenuBar(Partial const& rPartial):
     mrPartial(rPartial),
     mHelpMenu(tr("&Help"))
 {
@@ -52,7 +53,7 @@ MenuBar::MenuBar(Partial const &rPartial):
 
 #elif defined(_WINDOWS)
 
-MenuBar::MenuBar(CREATESTRUCT const &rCreateStruct, Partial const &rPartial):
+MenuBar::MenuBar(CREATESTRUCT const& rCreateStruct, Partial const& rPartial):
     mrPartial(rPartial),
     mMenu(rCreateStruct.hMenu),
     mFileMenu(mMenu, 1),
@@ -114,7 +115,7 @@ void MenuBar::HandleMenuCommand(IdType command) {
 }
 #endif // defined(_WINDOWS)
 
-void MenuBar::LoadPlayerOptions(Player const &rPlayer) {
+void MenuBar::LoadPlayerOptions(Player const& rPlayer) {
 	mAutopauseFlag = rPlayer.Autopause();
     mPeekFlag = rPlayer.Peek();
 	mShowClocksFlag = rPlayer.ShowClocks();
@@ -135,7 +136,7 @@ void MenuBar::NewGame(GameStyleType oldStyle) {
 	}
 }
 
-void MenuBar::SavePlayerOptions(Player &rPlayer) const {
+void MenuBar::SavePlayerOptions(Player& rPlayer) const {
 	rPlayer.SetAutopause(mAutopauseFlag);
     rPlayer.SetPeek(mPeekFlag);
 	rPlayer.SetShowClocks(mShowClocksFlag);

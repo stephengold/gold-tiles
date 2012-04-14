@@ -1,6 +1,7 @@
-// File:    handopt.cpp
-// Purpose: HandOpt class
-// Author:  Stephen Gold sgold@sonic.net
+// File:     handopt.cpp
+// Location: src
+// Purpose:  implement HandOpt class
+// Author:   Stephen Gold sgold@sonic.net
 // (c) Copyright 2012 Stephen Gold
 // Distributed under the terms of the GNU General Public License
 
@@ -27,7 +28,7 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 
 // lifecycle
 
-HandOpt::HandOpt(GameStyleType gameStyle, Strings const &rPlayerNames) {
+HandOpt::HandOpt(GameStyleType gameStyle, Strings const& rPlayerNames) {
 	switch (gameStyle) {
 		case GAME_STYLE_PRACTICE:
 			SetPlayerName("Player");
@@ -51,7 +52,7 @@ HandOpt::HandOpt(GameStyleType gameStyle, Strings const &rPlayerNames) {
 	mSkipProbability = 0.0;
 }
 
-HandOpt::HandOpt(String const &rPlayerName) {
+HandOpt::HandOpt(String const& rPlayerName) {
 	mAutomaticFlag = false;
 	mIpAddress = 0;
 	SetPlayerName(rPlayerName);
@@ -60,7 +61,7 @@ HandOpt::HandOpt(String const &rPlayerName) {
 }
 
 HandOpt::HandOpt(
-	String const &rPlayerName,
+	String const& rPlayerName,
 	bool isAutomatic,
 	double skipProbability,
 	bool isRemote,
@@ -109,7 +110,7 @@ void HandOpt::SetRemote(void) {
 	ASSERT(IsRemote());
 }
 
-void HandOpt::SetPlayerName(String const &rPlayerName) {
+void HandOpt::SetPlayerName(String const& rPlayerName) {
 	mPlayerName = rPlayerName;
 	mPlayerName.Capitalize();
 }

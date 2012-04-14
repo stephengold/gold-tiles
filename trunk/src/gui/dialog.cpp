@@ -1,6 +1,7 @@
-// File:    dialog.cpp
-// Purpose: Dialog class
-// Author:  Stephen Gold sgold@sonic.net
+// File:     dialog.cpp
+// Location: src/gui
+// Purpose:  implement Dialog class
+// Author:   Stephen Gold sgold@sonic.net
 // (c) Copyright 2012 Stephen Gold
 // Distributed under the terms of the GNU General Public License
 
@@ -42,7 +43,7 @@ static INT_PTR CALLBACK message_handler(
 {
 	lParameter; // unused parameter
 	ASSERT(windowHandle != NULL);
-    Dialog *p_dialog = (Dialog *)BaseWindow::Lookup(windowHandle);
+    Dialog* p_dialog = (Dialog*)BaseWindow::Lookup(windowHandle);
 
 	INT_PTR result;
     ASSERT(HWND(*p_dialog) == windowHandle);
@@ -63,7 +64,7 @@ Dialog::Dialog(TextType templateName, DLGPROC messageHandler) {
 	mpMessageHandler = messageHandler;
 }
 
-int Dialog::Run(BaseWindow *pParent) {
+int Dialog::Run(BaseWindow* pParent) {
 	ASSERT(pParent != NULL);
 	mspNewlyCreatedWindow = this;
 

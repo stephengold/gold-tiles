@@ -1,6 +1,7 @@
-// File:    submenu.cpp
-// Purpose: SubMenu class
-// Author:  Stephen Gold sgold@sonic.net
+// File:     submenu.cpp
+// Location: src/gui
+// Purpose:  implement SubMenu class
+// Author:   Stephen Gold sgold@sonic.net
 // (c) Copyright 2012 Stephen Gold
 // Distributed under the terms of the GNU General Public License
 
@@ -42,7 +43,7 @@ SubMenu::SubMenu(QString const &label) {
 
 #elif defined(_WINDOWS)
 
-SubMenu::SubMenu(Menu const &rMenu, unsigned position):
+SubMenu::SubMenu(Menu const& rMenu, unsigned position):
     mrMenu(rMenu)
 {
     mPosition = position;
@@ -57,8 +58,8 @@ SubMenu::SubMenu(Menu const &rMenu, unsigned position):
 
 #ifdef _QT
 
-void SubMenu::Add(MenuItem &rItem) {
-    QAction *p_action = rItem.pAction();
+void SubMenu::Add(MenuItem& rItem) {
+    QAction* p_action = rItem.pAction();
     mpQMenu->addAction(p_action);
 }
 

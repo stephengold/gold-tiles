@@ -1,6 +1,7 @@
-// File:    project.cpp
-// Purpose: project-wide utility functions for the Gold Tile Game
-// Author:  Stephen Gold sgold@sonic.net
+// File:     project.cpp
+// Location: src
+// Purpose:  project-wide utility functions for the Gold Tile Game
+// Author:   Stephen Gold sgold@sonic.net
 // (c) Copyright 2012 Stephen Gold
 // Distributed under the terms of the GNU General Public License
 

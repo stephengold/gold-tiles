@@ -1,6 +1,6 @@
 // File:     turns.cpp
 // Location: src
-// Purpose:  Turns class
+// Purpose:  implement Turns class
 // Author:   Stephen Gold sgold@sonic.net
 // (c) Copyright 2012 Stephen Gold
 // Distributed under the terms of the GNU General Public License
@@ -46,7 +46,7 @@ unsigned Turns::Count(void) const {
 }
 
 // convert an iterator to an index
-unsigned Turns::Index(Iterator const &rIterator) const {
+unsigned Turns::Index(Iterator const& rIterator) const {
 
 	// count the number of iterator values preceding the argument
 	unsigned result = 0;

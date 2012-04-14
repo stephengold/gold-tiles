@@ -1,6 +1,7 @@
-// File:    viewmenu.cpp
-// Purpose: ViewMenu class
-// Author:  Stephen Gold sgold@sonic.net
+// File:     viewmenu.cpp
+// Location: src/gui
+// Purpose:  implement ViewMenu class
+// Author:   Stephen Gold sgold@sonic.net
 // (c) Copyright 2012 Stephen Gold
 // Distributed under the terms of the GNU General Public License
 
@@ -62,7 +63,7 @@ ViewMenu::ViewMenu(void):
 
 #elif defined(_WINDOWS)
 
-ViewMenu::ViewMenu(Menu const &rRootMenu, unsigned position):
+ViewMenu::ViewMenu(Menu const& rRootMenu, unsigned position):
 	SubMenu(rRootMenu, position),
 	mTileSize(rRootMenu, 0),
     mRecenter(rRootMenu, IDM_RECENTER),
@@ -82,7 +83,7 @@ ViewMenu::ViewMenu(Menu const &rRootMenu, unsigned position):
 
 // misc methods
 
-void ViewMenu::EnableItems(Partial const &rPartial, ThinkModeType thinkMode) {
+void ViewMenu::EnableItems(Partial const& rPartial, ThinkModeType thinkMode) {
 	bool const is_over = rPartial.IsGameOver();
 	bool const is_local = rPartial.IsLocalUsersTurn() && (thinkMode != THINK_SUGGEST);
     GameStyleType const game_style = rPartial.GameStyle();

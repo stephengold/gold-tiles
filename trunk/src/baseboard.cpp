@@ -126,14 +126,14 @@ BaseBoard::CellConstIterator BaseBoard::Find(IndexType northing, IndexType easti
 }
 BaseBoard::CellIterator BaseBoard::Find(IndexType northing, IndexType easting) {
     Cell const cell(northing, easting);
-    CellIterator result = mCells.find(cell);
+    CellIterator const result = mCells.find(cell);
 
     return result;
 }
 
 // get a pointer to the Tile (if any) in a specific cell
-Tile const *BaseBoard::GetCell(Cell const& rSquare) const {
-    Tile const *p_result = NULL;
+Tile const* BaseBoard::GetCell(Cell const& rSquare) const {
+    Tile const* p_result = NULL;
 
     CellConstIterator i_cell = mCells.find(rSquare);
     if (i_cell != mCells.end()) {

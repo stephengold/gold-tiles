@@ -1,6 +1,7 @@
-// File:    menuitem.cpp
-// Purpose: MenuItem class
-// Author:  Stephen Gold sgold@sonic.net
+// File:     menuitem.cpp
+// Location: src/gui
+// Purpose:  implement MenuItem class
+// Author:   Stephen Gold sgold@sonic.net
 // (c) Copyright 2012 Stephen Gold
 // Distributed under the terms of the GNU General Public License
 
@@ -33,14 +34,14 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 
 #ifdef _QT
 
-MenuItem::MenuItem(QObject *pParent, QString const &label) {
-    mpAction = new QAction(label, pParent);
+MenuItem::MenuItem(QObject* pParent, QString const& rLabel) {
+    mpAction = new QAction(rLabel, pParent);
     ASSERT(mpAction != NULL);
 }
 
 #elif defined(_WINDOWS)
 
-MenuItem::MenuItem(Menu const &rMenu, IdType itemId):
+MenuItem::MenuItem(Menu const& rMenu, IdType itemId):
     mrMenu(rMenu)
 {
     mFirstItemId = itemId;
@@ -49,7 +50,7 @@ MenuItem::MenuItem(Menu const &rMenu, IdType itemId):
 }
 
 // a menu item that's part of a group
-MenuItem::MenuItem(Menu const &rMenu, IdType firstId, IdType lastId, IdType itemId):
+MenuItem::MenuItem(Menu const& rMenu, IdType firstId, IdType lastId, IdType itemId):
     mrMenu(rMenu)
 {
     mFirstItemId = firstId;

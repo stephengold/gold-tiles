@@ -1,6 +1,7 @@
-// File:    player.cpp
-// Purpose: Player class
-// Author:  Stephen Gold sgold@sonic.net
+// File:     player.cpp
+// Location: src/gui
+// Purpose:  implement Player class
+// Author:   Stephen Gold sgold@sonic.net
 // (c) Copyright 2012 Stephen Gold
 // Distributed under the terms of the GNU General Public License
 
@@ -33,7 +34,7 @@ Player::Map Player::msMap;
 
 // lifecycle
 
-Player::Player(String const &rName):
+Player::Player(String const& rName):
     mName(rName),
 	mStartCellPosition(0, 0)
 {
@@ -61,10 +62,10 @@ Player::operator Point(void) const {
 
 // misc methods
 
-/* static */ Player &Player::rLookup(String const &rName) {
+/* static */ Player& Player::rLookup(String const& rName) {
     ConstIterator const i_player = msMap.find(rName);
 
-	Player *p_result = NULL;
+	Player* p_result = NULL;
     if (i_player != msMap.end()) {
         p_result = i_player->second;
     } else {
@@ -85,7 +86,7 @@ void Player::SetAutopause(bool value) {
 	mAutopause = value;
 }
 
-void Player::SetDisplayModes(DisplayModes const &rDisplayModes) {
+void Player::SetDisplayModes(DisplayModes const& rDisplayModes) {
 	mDisplayModes = rDisplayModes;
 }
 
@@ -105,7 +106,7 @@ void Player::SetShowScores(bool value) {
     mShowScores = value;
 }
 
-void Player::SetStartCellPosition(Point const &rPoint) {
+void Player::SetStartCellPosition(Point const& rPoint) {
 	mStartCellPosition = rPoint;
 }
 

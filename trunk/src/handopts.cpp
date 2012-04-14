@@ -1,6 +1,7 @@
-// File:    handopts.cpp
-// Purpose: HandOpts class
-// Author:  Stephen Gold sgold@sonic.net
+// File:     handopts.cpp
+// Location: src
+// Purpose:  implement HandOpts class
+// Author:   Stephen Gold sgold@sonic.net
 // (c) Copyright 2012 Stephen Gold
 // Distributed under the terms of the GNU General Public License
 
@@ -28,13 +29,13 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 
 // operators
 
-HandOpt &HandOpts::operator[](unsigned ind) {
+HandOpt& HandOpts::operator[](unsigned ind) {
 	ASSERT(ind < Count());
 
 	return mList[ind];
 }
 
-HandOpt const &HandOpts::operator[](unsigned ind) const {
+HandOpt const& HandOpts::operator[](unsigned ind) const {
 	ASSERT(ind < Count());
 
 	return mList[ind];
@@ -43,7 +44,7 @@ HandOpt const &HandOpts::operator[](unsigned ind) const {
 
 // misc methods
 
-void HandOpts::Append(HandOpt const &rHandOpt) {
+void HandOpts::Append(HandOpt const& rHandOpt) {
 	mList.push_back(rHandOpt);
 
 	ASSERT(!IsEmpty());

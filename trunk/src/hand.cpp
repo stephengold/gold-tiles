@@ -1,7 +1,7 @@
 // File:     hand.cpp
 // Location: src
 // Purpose:  implement Hand class
-// Author:  Stephen Gold sgold@sonic.net
+// Author:   Stephen Gold sgold@sonic.net
 // (c) Copyright 2012 Stephen Gold
 // Distributed under the terms of theGNU General Public License
 
@@ -29,7 +29,7 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 
 // lifecycle
 
-Hand::Hand(const String &rHandName, HandOpt const &rOptions):
+Hand::Hand(const String& rHandName, HandOpt const& rOptions):
     mName(rHandName),
 	mOptions(rOptions)
 {
@@ -56,7 +56,7 @@ void Hand::Restart(void) {
 
 // The compiler-generated assignment method is fine.
 
-bool Hand::operator ==(Hand const &rOther) const {
+bool Hand::operator==(Hand const& rOther) const {
 	bool const result = (Name() == rOther.Name());
 
 	return result;
@@ -81,7 +81,7 @@ void Hand::AddScore(unsigned points) {
 	mScore = new_score;
 }
 
-void Hand::AddTiles(Tiles const &rTiles) {
+void Hand::AddTiles(Tiles const& rTiles) {
     mTiles.AddTiles(rTiles);
 }
 
@@ -110,7 +110,7 @@ void Hand::DisplayTiles(void) const {
 		      << String(mTiles) << "." << std::endl;
 }
 
-Tiles Hand::DrawTiles(unsigned tileCount, Tiles &rBag) {
+Tiles Hand::DrawTiles(unsigned tileCount, Tiles& rBag) {
     Tiles result;
     result.DrawTiles(tileCount, rBag);
 
@@ -158,15 +158,15 @@ String Hand::PlayerName(void) const {
 	return result;
 }
 
-void Hand::RemoveTile(Tile const &rTile) {
+void Hand::RemoveTile(Tile const& rTile) {
 	mTiles.RemoveTile(rTile);
 }
 
-void Hand::RemoveTiles(Tiles const &rTiles) {
+void Hand::RemoveTiles(Tiles const& rTiles) {
 	mTiles.RemoveTiles(rTiles);
 }
 
-void Hand::Resign(Tiles &rBag) {
+void Hand::Resign(Tiles& rBag) {
     ASSERT(!IsClockRunning());
 	ASSERT(!HasResigned());
 
@@ -224,7 +224,7 @@ void Hand::SubtractScore(unsigned points) {
 	mScore = new_score;
 }
 
-void Hand::Unresign(Tiles &rBag, Tiles const &rHand) {
+void Hand::Unresign(Tiles& rBag, Tiles const& rHand) {
 	ASSERT(HasResigned());
     ASSERT(!IsClockRunning());
 

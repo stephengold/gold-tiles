@@ -36,20 +36,37 @@ The Board class extends the BaseBoard class.  The implementation of
 BaseBoard is hidden from these extensions.
 */
 
-#include "baseboard.hpp"   // ISA BaseBoard
-#include "move.hpp"        // USES Move
+#include "baseboard.hpp" // ISA BaseBoard
+#include "move.hpp"      // USES Move
 
+enum UmType { // user message handles
+	UM_COLUMNCOMPAT,
+	UM_DIAGCOMPAT,
+	UM_EMPTY,
+	UM_FIRST,
+	UM_GAP,
+	UM_NEIGHBOR,
+	UM_REPEATCELL,
+	UM_REPEATTILE,
+	UM_ROWCOLUMN,
+	UM_ROWCOMPAT,
+	UM_RULES,
+	UM_START,
+	UM_STARTSIMPLE,
+	UM_STOCK,
+	UM_SWAP
+};
 
 class Board: public BaseBoard {
 public:
 	// misc public methods
-	TileIdType GetId(Cell const &) const;
-    bool       LocateTile(Tile const &, Cell &) const;
-    void	   PlayMove(Move const &);
+	TileIdType GetId(Cell const&) const;
+    bool       LocateTile(Tile const&, Cell&) const;
+    void	   PlayMove(Move const&);
     static String 
-		       ReasonMessage(TextType reason, String &title);
-    unsigned   ScoreMove(Move const &) const;
-    void	   UnplayMove(Move const &);
+		       ReasonMessage(UmType, String& title);
+    unsigned   ScoreMove(Move const&) const;
+    void	   UnplayMove(Move const&);
 
 	// public inquiry methods
 	bool Contains(Tile const&) const;
@@ -58,17 +75,17 @@ public:
     bool HasNeighbor(Cell const&) const;
 	bool IsEmpty(void) const;
     bool IsValidMove(Move const&) const;
-    bool IsValidMove(Move const&, TextType &rReason) const;
+    bool IsValidMove(Move const&, UmType& reason) const;
 
 private:
 	// misc private methods
-	long    	 GetLimits(Cell const&, Direction const&, Cell &rFirst, Cell &rLast) const;
-	Tile const * GetPtr(IndexType northing, IndexType easting) const;
-	Tile		 GetTile(IndexType northing, IndexType easting) const;
-	Tile         GetTile(Cell const&) const;
-	Tiles		 GetTiles(Cells const&) const;
-    void		 PlayTile(TileCell const&);
-    unsigned	 ScoreDirection(Cell const&, Direction const&) const;
+	long    	GetLimits(Cell const&, Direction const&, Cell& rFirst, Cell& rLast) const;
+	Tile const* GetPtr(IndexType northing, IndexType easting) const;
+	Tile	    GetTile(IndexType northing, IndexType easting) const;
+	Tile        GetTile(Cell const&) const;
+	Tiles		GetTiles(Cells const&) const;
+    void		PlayTile(TileCell const&);
+    unsigned	ScoreDirection(Cell const&, Direction const&) const;
 
 	// private inquiry methods
     bool AreAllCompatible(Cells const&, Direction const&) const;

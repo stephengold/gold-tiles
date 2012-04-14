@@ -1,9 +1,10 @@
 #ifndef TILE_HPP_INCLUDED
 #define TILE_HPP_INCLUDED
 
-// File:    tile.hpp
-// Purpose: Tile class
-// Author:  Stephen Gold sgold@sonic.net
+// File:     tile.hpp
+// Location: src
+// Purpose:  declare Tile class
+// Author:   Stephen Gold sgold@sonic.net
 // (c) Copyright 2012 Stephen Gold
 // Distributed under the terms of theGNU General Public License
 
@@ -87,14 +88,14 @@ public:
 
     // public lifecycle
 	Tile(void);
-	Tile(String const &);
-	Tile(Tile const &);
+	Tile(String const&);
+	Tile(Tile const&);
 	~Tile(void);
 
     // public operators
-	bool     operator<(Tile const &) const;
-	Tile &   operator=(Tile const &);
-	bool     operator==(Tile const &) const;
+	bool     operator<(Tile const&) const;
+	Tile&    operator=(Tile const&);
+	bool     operator==(Tile const&) const;
 	operator String(void) const;
 
 	// misc public methods
@@ -104,16 +105,16 @@ public:
 	static double      BonusProbability(void);
 	Tile               CloneAndSetBonus(void) const;
 	static long        CombinationCnt(void);
-	AttrIndexType      CommonAttribute(Tile const &) const;
-	AttrCntType        CountMatchingAttributes(Tile const &) const;
+	AttrIndexType      CommonAttribute(Tile const&) const;
+	AttrCntType        CountMatchingAttributes(Tile const&) const;
 	static AttrModeType 
 		               DefaultDisplayMode(AttrIndexType);
 	void               Display(void) const;
     static void        DisplayEmpty(void);
-	String             GetUserChoice(Tiles const &, Strings const &);
+	String             GetUserChoice(Tiles const&, Strings const&);
 	TileIdType         Id(void) const;
 	void               SetAttribute(AttrIndexType, AttrType);
-	static void        SetStatic(AttrCntType, AttrType const maxes[], double bonusProb);
+	static void        SetStatic(GameOpt const&);
     static String      StringEmpty(void);
     static AttrType    ValueCnt(AttrIndexType);
     static AttrType    ValueMax(AttrIndexType);
@@ -122,22 +123,22 @@ public:
 	bool HasAttribute(AttrIndexType, AttrType) const;
 	bool HasBonus(void) const;
 	bool HasId(TileIdType) const;
-	bool IsClone(Tile const &) const;
-	bool IsCloneAny(Tiles const &) const;
-	bool IsCompatibleWith(Tile const *) const;
+	bool IsClone(Tile const&) const;
+	bool IsCloneAny(Tiles const&) const;
+	bool IsCompatibleWith(Tile const*) const;
 	bool IsValid(void) const;
-	bool MatchesString(String const &) const;
+	bool MatchesString(String const&) const;
 
 private:
 	// private data
-	AttrType *mpArray;     // array of attributes
+	AttrType* mpArray;     // array of attributes
 	TileIdType mId;        // to distinguish clones
 	unsigned   mBonusValue;
 
 	static AttrIndexType msAttributeCnt;  // number of attributes per tile
 	static double        msBonusProbability;
 	static TileIdType    msNextId;
-	static AttrType *    mspValueMax;      // max value for each tile attribute
+	static AttrType*     mspValueMax;      // max value for each tile attribute
 
 	// misc private methods
 	static AttrType   CharToAttribute(AttrModeType, char);

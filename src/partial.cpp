@@ -1,6 +1,6 @@
 // File:     partial.cpp
 // Location: src
-// Purpose:  Partial class
+// Purpose:  implement Partial class
 // Author:   Stephen Gold sgold@sonic.net
 // (c) Copyright 2012 Stephen Gold
 // Distributed under the terms of the GNU General Public License
@@ -34,14 +34,14 @@ Partial::YieldFunctionType * Partial::mspYieldFunction = NULL;
 
 // lifecycle
 
-Partial::Partial(Game const *pGame, HintType strength, double skipProbability) {
+Partial::Partial(Game const* pGame, HintType strength, double skipProbability) {
     Reset(pGame, strength, skipProbability);
 }
 
 // Partial(Partial const &);  compiler-generated copy constructor is OK
 // ~Partial(void);  compiler-generated destructor is OK
 
-void Partial::Reset(Game const *pGame, HintType strength, double skipProbability) {
+void Partial::Reset(Game const* pGame, HintType strength, double skipProbability) {
 	mpGame = pGame;
     mHintStrength = strength;
     Reset(skipProbability);
@@ -103,9 +103,9 @@ void Partial::Activate(TileIdType id) {
 // Add cells from rBasis to the hint-set if they are valid next
 // steps for the given Tile.
 void Partial::AddValidNextUses(
-    Move const &rMove, 
-    Tile const &rTile, 
-    Cells const &rBasis)
+    Move const& rMove, 
+    Tile const& rTile, 
+    Cells const& rBasis)
 {
     Cells::ConstIterator i_cell;
     for (i_cell = rBasis.begin(); i_cell != rBasis.end(); i_cell++) {
@@ -179,7 +179,7 @@ void Partial::Deactivate(void) {
 }
 
 // RECURSIVE
-void Partial::FindBestMove(Partial &rBest, unsigned &rBestPoints) const {
+void Partial::FindBestMove(Partial& rBest, unsigned& rBestPoints) const {
     ASSERT(HasGame());
 
 	Partial temp = *this; // make a temporary copy
@@ -248,10 +248,10 @@ TileIdType Partial::GetActive(void) const {
     return mActiveId;
 }
 
-TileIdType Partial::GetCellTile(Cell const &rCell) const {
+TileIdType Partial::GetCellTile(Cell const& rCell) const {
     TileIdType result = Tile::ID_NONE;
     
-    Tile const *const p_tile = mBoard.GetCell(rCell);
+    Tile const* const p_tile = mBoard.GetCell(rCell);
     if (p_tile != NULL) {
         result = p_tile->Id();
     }
@@ -452,8 +452,8 @@ void Partial::SetHintStrength(HintType strength) {
 }
 
 /* static */ void Partial::SetYield(
-	YieldFunctionType *pFunction,
-	void *pArgument)
+	YieldFunctionType* pFunction,
+	void* pArgument)
 {
 	// set up a callback to be invoked periodically during long-running operations --
 	// currently used only in FindBestMove(), by way of Yields()
@@ -504,7 +504,7 @@ void Partial::SwapToHand(void) {
 	ASSERT(!mSwapIds.Contains(mActiveId));
 }
 
-/* static */ void Partial::Yields(bool &rCanceled) {
+/* static */ void Partial::Yields(bool& rCanceled) {
 	if (mspYieldFunction != NULL) {
         (*mspYieldFunction)(mspYieldArgument, rCanceled);
     }
@@ -559,7 +559,7 @@ bool Partial::IsActive(TileIdType id) const {
     return result;
 }
 
-bool Partial::IsEmpty(Cell const &rCell) const {
+bool Partial::IsEmpty(Cell const& rCell) const {
     Tile const *const p_tile = mBoard.GetCell(rCell);
     bool const result = (p_tile == NULL);
 
@@ -584,7 +584,7 @@ bool Partial::IsGamePaused(void) const {
 	return result;
 }
 
-bool Partial::IsHinted(Cell const &rCell) {
+bool Partial::IsHinted(Cell const& rCell) {
 	bool result = false;
 
 	if (IsLocalUsersTurn()) {
@@ -641,19 +641,19 @@ bool Partial::IsPass(void) const {
 }
 
 bool Partial::IsValidNextStep(
-	Move const &rBase,
-	Cell const &rCell,
-	Tile const &rTile) const
+	Move const& rBase,
+	Cell const& rCell,
+	Tile const& rTile) const
 {
 	// Check whether a hypothetical next step would be legal.
 	ASSERT(HasGame());
 
 	Move move = rBase;
 	move.Add(rTile, rCell);
-    char const *reason;
+    UmType reason;
 	bool result = mpGame->IsLegalMove(move, reason);
 
-	if (!result && ::str_eq(reason, "FIRST")) {  
+	if (!result && reason == UM_FIRST) {  
 		// legal as a partial move.
 	    result = true;
 	}
@@ -661,7 +661,7 @@ bool Partial::IsValidNextStep(
 	return result;
 }
 
-bool Partial::IsVisible(Cell const &rCell) {
+bool Partial::IsVisible(Cell const& rCell) {
 	int row_fringe = 1;
 	int const column_fringe = 1;
 	if (Cell::Grid() == GRID_HEX) {

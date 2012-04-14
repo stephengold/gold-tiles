@@ -1,6 +1,7 @@
-// File:    tile.cpp
-// Purpose: Tile class
-// Author:  Stephen Gold sgold@sonic.net
+// File:     tile.cpp
+// Location: src
+// Purpose:  implement Tile class
+// Author:   Stephen Gold sgold@sonic.net
 // (c) Copyright 2012 Stephen Gold
 // Distributed under the terms of the GNU General Public License
 
@@ -22,6 +23,7 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include <iostream> // std::cout
+#include "gameopt.hpp"
 #include "strings.hpp"
 #include "tiles.hpp"
 
@@ -47,7 +49,7 @@ Tile::Tile(void) {
 }
 
 // Mint a new tile based on a string.
-Tile::Tile(String const &rString) {
+Tile::Tile(String const& rString) {
     ASSERT(msAttributeCnt >= ATTRIBUTE_CNT_MIN);
 
     mpArray = new AttrType[msAttributeCnt];
@@ -82,7 +84,7 @@ Tile::Tile(String const &rString) {
 }
 
 // construct a copy (with the same id)
-Tile::Tile(Tile const &rBase) {
+Tile::Tile(Tile const& rBase) {
     ASSERT(msAttributeCnt >= ATTRIBUTE_CNT_MIN);
 
     mpArray = new AttrType[msAttributeCnt];
@@ -103,7 +105,7 @@ Tile::~Tile(void) {
 
 // operators
 
-bool Tile::operator<(Tile const &rOther) const {
+bool Tile::operator<(Tile const& rOther) const {
     ASSERT(IsValid());
     ASSERT(rOther.IsValid());
 
@@ -112,7 +114,7 @@ bool Tile::operator<(Tile const &rOther) const {
     return result;
 }
 
-Tile &Tile::operator=(Tile const &rOther) {
+Tile& Tile::operator=(Tile const& rOther) {
     ASSERT(IsValid());
 	ASSERT(rOther.IsValid());
 
@@ -129,7 +131,7 @@ Tile &Tile::operator=(Tile const &rOther) {
     return *this;
 }
 
-bool Tile::operator==(Tile const &rOther) const {
+bool Tile::operator==(Tile const& rOther) const {
 	ASSERT(IsValid());
 	ASSERT(rOther.IsValid());
 
@@ -269,7 +271,7 @@ Tile Tile::CloneAndSetBonus(void) const {
 }
 
 // identify the common attribute of a compatible tile
-AttrIndexType Tile::CommonAttribute(Tile const &rOther) const {
+AttrIndexType Tile::CommonAttribute(Tile const& rOther) const {
 	ASSERT(IsValid());
 	ASSERT(rOther.IsValid());
     ASSERT(CountMatchingAttributes(rOther) == 1);
@@ -286,7 +288,7 @@ AttrIndexType Tile::CommonAttribute(Tile const &rOther) const {
     return result;
 }
 
-AttrCntType Tile::CountMatchingAttributes(Tile const &rOther) const {
+AttrCntType Tile::CountMatchingAttributes(Tile const& rOther) const {
 	ASSERT(IsValid());
 	ASSERT(rOther.IsValid());
 
@@ -350,7 +352,7 @@ void Tile::Display(void) const {
     std::cout << " ." << StringEmpty() << ".";
 }
 
-String Tile::GetUserChoice(Tiles const &rAvailableTiles, Strings const &rAlternatives) {
+String Tile::GetUserChoice(Tiles const& rAvailableTiles, Strings const& rAlternatives) {
 	String result;
 
     for (;;) {
@@ -403,35 +405,34 @@ void Tile::SetAttribute(AttrIndexType ind, AttrType value) {
 	ASSERT(IsValid());
 }
 
-/* static */ void Tile::SetStatic(
-	AttrCntType attributeCnt,
-	AttrType const pValueMax[],
-	double bonusProbability)
-{
-    ASSERT(attributeCnt >= ATTRIBUTE_CNT_MIN);
-#ifdef _GUI
-    ASSERT(attributeCnt <= ATTRIBUTE_CNT_MAX);
-#endif
-    ASSERT(bonusProbability >= 0.0);
-    ASSERT(bonusProbability <= 1.0);
+/* static */ void Tile::SetStatic(GameOpt const& rGameOpt) {
+	AttrCntType const attr_cnt = rGameOpt.AttrCnt();
+	double const bonus_probability = rGameOpt.BonusPercent()/100.0;
 
-	msAttributeCnt = attributeCnt;
-	msBonusProbability = bonusProbability;
+    ASSERT(attr_cnt >= ATTRIBUTE_CNT_MIN);
+#ifdef _GUI
+    ASSERT(attr_cnt <= ATTRIBUTE_CNT_MAX);
+#endif
+    ASSERT(bonus_probability >= 0.0);
+    ASSERT(bonus_probability <= 1.0);
+
+	msAttributeCnt = attr_cnt;
+	msBonusProbability = bonus_probability;
 
 	delete[] mspValueMax;
-    mspValueMax = new AttrType[attributeCnt];
+    mspValueMax = new AttrType[attr_cnt];
 	ASSERT(mspValueMax != NULL);
 
-    for (AttrIndexType i_attr = 0; i_attr < attributeCnt; i_attr++) {
-		unsigned const value_cnt = pValueMax[i_attr] + 1;
+    for (AttrIndexType i_attr = 0; i_attr < attr_cnt; i_attr++) {
+		AttrType const value_cnt = rGameOpt.CountAttrValues(i_attr);
         ASSERT(value_cnt >= VALUE_CNT_MIN);
         ASSERT(value_cnt <= VALUE_CNT_MAX);
-        mspValueMax[i_attr] = pValueMax[i_attr];
+        mspValueMax[i_attr] = value_cnt - 1;
     }
 }
 
 /* static */ String Tile::StringEmpty(void) {
-    String const result(msAttributeCnt + 1, '.');
+    String const result(msAttributeCnt + 1, '.'); // +1 for bonus indication
 
 	// result length should agree with String() operator
 	ASSERT(result.Length() == unsigned(msAttributeCnt + 1));
@@ -476,7 +477,7 @@ bool Tile::HasId(TileIdType id) const {
 	return result;
 }
 
-bool Tile::IsClone(Tile const &rOther) const {
+bool Tile::IsClone(Tile const& rOther) const {
 	ASSERT(IsValid());
 	ASSERT(rOther.IsValid());
 
@@ -492,13 +493,13 @@ bool Tile::IsClone(Tile const &rOther) const {
     return result;
 }
 
-bool Tile::IsCloneAny(Tiles const &rSet) const {
+bool Tile::IsCloneAny(Tiles const& rSet) const {
     bool const result = rSet.ContainsClone(*this);
 
 	return result;
 }
 
-bool Tile::IsCompatibleWith(Tile const *pOther) const {
+bool Tile::IsCompatibleWith(Tile const* pOther) const {
     bool result = true;
     
     if (pOther != NULL) {
@@ -530,12 +531,12 @@ bool Tile::IsValid(void) const {
     return result;
 }
 
-bool Tile::MatchesString(String const &rMatch) const {
+bool Tile::MatchesString(String const& rMatch) const {
 	String string_form = String(*this);
 	string_form = string_form.Purge();
 	String const match = rMatch.Purge();
 
-	bool result = (string_form == match);
+	bool const result = (string_form == match);
 
 	return result;
 }

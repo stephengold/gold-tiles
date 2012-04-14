@@ -23,8 +23,8 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include <iostream>    // cin
-#include "cell.hpp"
 #include "direction.hpp"
+#include "gameopt.hpp"
 #include "project.hpp" // ASSERT
 
 // static data
@@ -52,7 +52,7 @@ Cell::Cell(IndexType row, IndexType column) {
 // The compiler-generated copy constructor is fine.
 
 // construct the next valid cell (not necessarily a neighbor) in direction "dir" from "base"
-Cell::Cell(Cell const &rBase, Direction const &rDirection, IndexType count) {
+Cell::Cell(Cell const& rBase, Direction const& rDirection, IndexType count) {
 	ASSERT(rBase.IsValid());
 	ASSERT(count == 1 || count == -1);
 
@@ -106,7 +106,7 @@ Cell::Cell(Cell const &rBase, Direction const &rDirection, IndexType count) {
 
 // operators
 
-bool Cell::operator!=(const Cell &rOther) const {
+bool Cell::operator!=(Cell const& rOther) const {
 	ASSERT(IsValid());
 	ASSERT(rOther.IsValid());
 
@@ -116,7 +116,7 @@ bool Cell::operator!=(const Cell &rOther) const {
     return result;
 }
 
-bool Cell::operator<(Cell const &rOther) const {
+bool Cell::operator<(Cell const& rOther) const {
 	bool result = false;
 	bool const same_row = (mRow == rOther.mRow);
      
@@ -131,7 +131,7 @@ bool Cell::operator<(Cell const &rOther) const {
 
 // The compiler-generated assignment operator is fine.
 
-bool Cell::operator==(const Cell &rOther) const {
+bool Cell::operator==(Cell const& rOther) const {
 	bool const same_row = (mRow == rOther.mRow);
     bool const result = (same_row && mColumn == rOther.mColumn);
     
@@ -151,7 +151,7 @@ Cell::operator String(void) const {
 
 // misc methods
 
-/* static */ IndexType Cell::AxisLength(Direction const &rAxis) {
+/* static */ IndexType Cell::AxisLength(Direction const& rAxis) {
 	ASSERT(IsScoringAxis(rAxis));
 
 	IndexType result = HEIGHT_MAX;
@@ -181,9 +181,9 @@ IndexType Cell::Column(void) const {
 }
 
 /* static */ void Cell::GetTopology(
-	bool &wrapFlag, 
-	IndexType &width, 
-	IndexType &height)
+	bool& wrapFlag, 
+	IndexType& width, 
+	IndexType& height)
 {
 	ASSERT(msHeight <= HEIGHT_MAX);
 	ASSERT(msHeight >= HEIGHT_MIN);
@@ -198,17 +198,17 @@ IndexType Cell::Column(void) const {
     wrapFlag = msWrapFlag;
 }
 
-bool Cell::GetUserChoice(String const &alt) {
+bool Cell::GetUserChoice(String const& rAlternate) {
     String input;
 
     for (;;) {
         std::cout << "Enter a row number";
-		if (alt != "") {
-			std::cout << " or '" << alt << "'";
+		if (rAlternate != "") {
+			std::cout << " or '" << rAlternate << "'";
 		}
 		std::cout << ": ";
         std::cin >> input;
-		if (input == alt) {
+		if (input == rAlternate) {
 			return true;
 		}
         mRow = input;
@@ -234,7 +234,7 @@ bool Cell::GetUserChoice(String const &alt) {
     return msGrid;
 }
 
-IndexType Cell::Group(Direction const &rDirection) const {
+IndexType Cell::Group(Direction const& rDirection) const {
 	IndexType result = 0;
 
 	if (Grid() != GRID_TRIANGLE) {
@@ -322,7 +322,7 @@ IndexType Cell::Group(Direction const &rDirection) const {
 	return result;
 }
 
-void Cell::Next(Direction const &rDirection, IndexType count) {
+void Cell::Next(Direction const& rDirection, IndexType count) {
 	ASSERT(count == 1 || count == -1);
 
     Cell const next(*this, rDirection, count);
@@ -330,40 +330,40 @@ void Cell::Next(Direction const &rDirection, IndexType count) {
 }
 
 /* static */ void Cell::NextCellOffsets(
-	Direction const &rDirection,
-	IndexType &rowOffset,
-	IndexType &columnOffset)
+	Direction const& rDirection,
+	IndexType& rRowOffset,
+	IndexType& rColumnOffset)
 {
 	if (rDirection.IsNorth()) {
-		rowOffset = (msGrid == GRID_HEX) ? +2 : +1;
-        columnOffset = 0;
+		rRowOffset = (msGrid == GRID_HEX) ? +2 : +1;
+        rColumnOffset = 0;
 	} else if (rDirection.IsSouth()) {
-		rowOffset = (msGrid == GRID_HEX) ? -2 : -1;
-        columnOffset = 0;
+		rRowOffset = (msGrid == GRID_HEX) ? -2 : -1;
+        rColumnOffset = 0;
 	} else if (rDirection.IsEast()) {
-		rowOffset = 0;
-		columnOffset = (msGrid == GRID_HEX) ? +2 : +1;
+		rRowOffset = 0;
+		rColumnOffset = (msGrid == GRID_HEX) ? +2 : +1;
 	} else if (rDirection.IsWest()) {
-		rowOffset = 0;
-		columnOffset = (msGrid == GRID_HEX) ? -2 : -1;
+		rRowOffset = 0;
+		rColumnOffset = (msGrid == GRID_HEX) ? -2 : -1;
 	} else if (rDirection.IsNortheast()) {
-		rowOffset = +1;
-        columnOffset = +1;
+		rRowOffset = +1;
+        rColumnOffset = +1;
 	} else if (rDirection.IsNorthwest()) {
-		rowOffset = +1;
-        columnOffset = -1;
+		rRowOffset = +1;
+        rColumnOffset = -1;
 	} else if (rDirection.IsSoutheast()) {
-		rowOffset = -1;
-        columnOffset = +1;
+		rRowOffset = -1;
+        rColumnOffset = +1;
 	} else if (rDirection.IsSouthwest()) {
-		rowOffset = -1;
-        columnOffset = -1;
+		rRowOffset = -1;
+        rColumnOffset = -1;
 	} else {
         FAIL();
     }
 }
 
-IndexType Cell::Ortho(Direction const &rDirection) const {
+IndexType Cell::Ortho(Direction const& rDirection) const {
     Direction const axis = rDirection.OrthogonalAxis();
 	ASSERT(axis.IsAxis());
 
@@ -410,8 +410,32 @@ IndexType Cell::Row(void) const {
 	return mRow;
 }
 
-/* static */ void Cell::SetGrid(GridType grid) {
+/* static */ String Cell::ScoringAxes(void) {
+	String result;
+
 	switch (msGrid) {
+		case GRID_TRIANGLE:
+			result = "row or diagonal";
+			break;
+		case GRID_4WAY:
+			result = "row or column";
+			break;
+		case GRID_HEX:
+			result = "column or diagonal";
+			break;
+		case GRID_8WAY:
+		    result = "row, column, or diagonal";
+			break;
+		default:
+			FAIL();
+	}
+
+	return result;
+}
+
+/* static */ void Cell::SetStatic(GameOpt const& rGameOpt) {
+    GridType const grid = rGameOpt;
+	switch (grid) {
 		case GRID_HEX:
 	    case GRID_TRIANGLE:
 		case GRID_4WAY:
@@ -421,29 +445,26 @@ IndexType Cell::Row(void) const {
 			FAIL();
 	}
     msGrid = grid;
-}
 
-/* static */ void Cell::SetTopology(
-	bool wrapFlag, 
-	IndexType width, 
-	IndexType height)
-{
+	IndexType const height = rGameOpt.BoardHeight();
 	ASSERT(height <= HEIGHT_MAX);
 	ASSERT(height >= HEIGHT_MIN);
 	ASSERT(!::is_odd(height));
+	msHeight = height;
 
+	IndexType const width = rGameOpt.BoardWidth(); 
 	ASSERT(width <= WIDTH_MAX);
 	ASSERT(width >= WIDTH_MIN);
 	ASSERT(!::is_odd(width));
-
-	msHeight = height;
 	msWidth = width;
-    msWrapFlag = wrapFlag;
+
+    msWrapFlag = rGameOpt.DoesBoardWrap();
 }
+
 
 // inquiry methods
 
-bool Cell::HasNeighbor(Direction const &rDirection) const {
+bool Cell::HasNeighbor(Direction const& rDirection) const {
 	bool result = true;
 
 	switch (msGrid) {
@@ -498,7 +519,7 @@ bool Cell::IsOdd(void) const {
 	return result;
 }
 
-/* static */ bool Cell::IsScoringAxis(Direction const &rAxis) {
+/* static */ bool Cell::IsScoringAxis(Direction const& rAxis) {
 	ASSERT(rAxis.IsAxis());
 
     bool result = false;

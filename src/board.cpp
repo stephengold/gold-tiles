@@ -44,9 +44,9 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 
 // misc methods
 
-TileIdType Board::GetId(Cell const &rCell) const {
+TileIdType Board::GetId(Cell const& rCell) const {
     TileIdType result = Tile::ID_NONE;
-    Tile const *const p_tile = GetCell(rCell);
+    Tile const* const p_tile = GetCell(rCell);
 	if (p_tile != NULL) {
 		result = p_tile->Id();
 	}
@@ -55,10 +55,10 @@ TileIdType Board::GetId(Cell const &rCell) const {
 }
 
 long Board::GetLimits(
-	Cell const &rCell,
-	Direction const &rDirection,
-	Cell &rFirst,
-	Cell &rLast) const
+	Cell const& rCell,
+	Direction const& rDirection,
+	Cell& rFirst,
+	Cell& rLast) const
 {
 	ASSERT(Cell::IsScoringAxis(rDirection));
 	ASSERT(rCell.IsValid());
@@ -90,23 +90,23 @@ long Board::GetLimits(
 	return result;
 }
 
-Tile Board::GetTile(Cell const &rCell) const {
+Tile Board::GetTile(Cell const& rCell) const {
 	ASSERT(rCell.IsValid());
 
-    Tile const *p_tile = GetCell(rCell);
+    Tile const* p_tile = GetCell(rCell);
     ASSERT(p_tile != NULL);
 
-    Tile result = *p_tile;
+    Tile const result = *p_tile;
 
     return result;
 }
 
-Tiles Board::GetTiles(Cells const &rCells) const {
+Tiles Board::GetTiles(Cells const& rCells) const {
     Tiles result;
     
     Cells::const_iterator i_cell;
     for (i_cell = rCells.begin(); i_cell != rCells.end(); i_cell++) {    
-        Tile const *p_tile = GetCell(*i_cell);
+        Tile const* p_tile = GetCell(*i_cell);
         if (p_tile != NULL) {
             result.Add(*p_tile);
         }
@@ -115,21 +115,21 @@ Tiles Board::GetTiles(Cells const &rCells) const {
     return result;
 }
 
-bool Board::LocateTile(Tile const &rTile, Cell &rCell) const {
+bool Board::LocateTile(Tile const& rTile, Cell& rCell) const {
 	TileIdType const id = rTile.Id();
 	bool const result = BaseBoard::LocateTileId(id, rCell);
 
 	return result;
 }
 
-void Board::PlayMove(Move const &rMove) {
+void Board::PlayMove(Move const& rMove) {
     Move::ConstIterator i_place;
     for (i_place = rMove.Begin(); i_place != rMove.End(); i_place++) {
         PlayTile(*i_place);
     }
 }
 
-void Board::PlayTile(TileCell const &rTileCell) {
+void Board::PlayTile(TileCell const& rTileCell) {
     Cell const cell = Cell(rTileCell);
     Tile const tile = rTileCell.operator Tile();
     ASSERT(HasEmptyCell(cell));
@@ -137,8 +137,8 @@ void Board::PlayTile(TileCell const &rTileCell) {
 }
 
 unsigned Board::ScoreDirection(
-    Cell const &rCell,
-   Direction const &rDirection) const
+    Cell const& rCell,
+   Direction const& rDirection) const
 {
     ASSERT(!HasEmptyCell(rCell));
     
@@ -181,79 +181,81 @@ unsigned Board::ScoreDirection(
     return result;
 }
 
-/* static */ String Board::ReasonMessage(char const *reason, String &rTitle) {
-	String message = reason;
+/* static */ String Board::ReasonMessage(UmType reason, String& rTitle) {
+	String message;
 	rTitle = "Information";
 
-	// expand shortcuts
-	if (::str_eq(message, "COLUMNCOMPAT")) {
-		message = "Tiles in a column (with no intervening empty cells) must all be mutually compatible.";
-		rTitle = "Column Compatibility Rule";
-	} else if (::str_eq(message, "DIAGCOMPAT")) {
-		message = "Tiles on a diagonal (with no intervening empty cells) must all be mutually compatible.";
-		rTitle = "Diagonal Compatibility Rule";
-	} else if (::str_eq(message, "EMPTY")) {
-		message = "That cell has already been used.";
-		rTitle = "Empty Cell Rule";
-	} else if (::str_eq(message, "FIRST")) {
-		message = "On the first turn, you must play as many tiles as possible.  Keep looking!";
-		rTitle = "First Turn Rule";
-	} else if (::str_eq(message, "GAP")) {
-		message = "You can't leave any empty cells between the tiles you play.";
-		rTitle = "Gap Rule";
-	} else if (::str_eq(message, "NEIGHBOR")) {
-		message = "Each cell you use must be a neighbor of a used cell.";
-		rTitle = "Neighbor Rule";
-	} else if (::str_eq(message, "REPEATCELL")) {
-		message = "You can't use the same cell twice.";
-		rTitle = "Repeated Cell Rule";
-	} else if (::str_eq(message, "REPEATTILE")) {
-		message = "You can't use the same tile twice.";
-		rTitle = "Repeated Tile Rule";
-	} else if (::str_eq(message, "ROWCOLUMN")) {
-		String dirs;
-		switch (Cell::Grid()) {
-		case GRID_TRIANGLE:
-			dirs = "row or diagonal";
+	switch(reason) {
+	    case UM_COLUMNCOMPAT:
+		    message = "Tiles in a column (with no intervening empty cells) must all be mutually compatible.";
+		    rTitle = "Column Compatibility Rule";
 			break;
-		case GRID_4WAY:
-			dirs = "row or column";
+		case UM_DIAGCOMPAT:
+		    message = "Tiles on a diagonal (with no intervening empty cells) must all be mutually compatible.";
+		    rTitle = "Diagonal Compatibility Rule";
 			break;
-		case GRID_HEX:
-			dirs = "column or diagonal";
+		case UM_EMPTY:
+		    message = "That cell has already been used.";
+		    rTitle = "Empty Cell Rule";
 			break;
-		case GRID_8WAY:
-		    dirs = "row, column, or diagonal";
+		case UM_FIRST:
+		    message = "On the first turn, you must play as many tiles as possible.  Keep looking!";
+		    rTitle = "First Turn Rule";
 			break;
+		case UM_GAP:
+		    message = "You can't leave any empty cells between the tiles you play.";
+		    rTitle = "Gap Rule";
+			break;
+		case UM_NEIGHBOR:
+		    message = "Each cell you use must be a neighbor of a used cell.";
+		    rTitle = "Neighbor Rule";
+			break;
+		case UM_REPEATCELL:
+		    message = "You can't use the same cell twice.";
+		    rTitle = "Repeated Cell Rule";
+			break;
+		case UM_REPEATTILE:
+		    message = "You can't use the same tile twice.";
+		    rTitle = "Repeated Tile Rule";
+			break;
+		case UM_ROWCOLUMN: {
+		    String const dirs = Cell::ScoringAxes();
+		    message = String("The cells you use must all lie in a single ") + dirs + ".";
+		    rTitle = "Row/Column Rule";
+			break;
+		}
+		case UM_ROWCOMPAT:
+		    message = "Tiles in a row (with no intervening empty cells) must all be mutually compatible.";
+		    rTitle = "Row Compatibility Rule";
+			break;
+		case UM_RULES:
+		    message = "The rules of Gold Tile are available online at http://code.google.com/p/gold-tiles/wiki/Playing";
+		    rTitle = "Rules";
+			break;
+		case UM_START:
+		    message = "Your first tile must use the start cell. To change this tile, you must take back ALL your tiles.";
+		    rTitle = "Start Rule";
+	        break;
+		case UM_STARTSIMPLE:
+		    message = "Your first tile must use the start cell.";
+		    rTitle = "Start Rule";
+			break;
+		case UM_STOCK:
+		    message = "You can't swap more tiles than the number remaining in the stock bag.";
+		    rTitle = "Stock Rule";
+		    break;
+		case UM_SWAP:
+		    message = "You can play tiles or swap them, but you can't do both in the same turn.";
+		    rTitle = "Swap Rule";
+		    break;
 		default:
 			FAIL();
-		}
-		message = String("The cells you use must all lie in a single ") + dirs + String(".");
-		rTitle = "Row/Column Rule";
-	} else if (::str_eq(message, "ROWCOMPAT")) {
-		message = "Tiles in a row (with no intervening empty cells) must all be mutually compatible.";
-		rTitle = "Row Compatibility Rule";
-	} else if (::str_eq(message, "RULES")) {
-		message = "The rules of Gold Tile are available online at http://code.google.com/p/gold-tiles/wiki/Playing";
-		rTitle = "Rules";
-	} else if (::str_eq(message, "START")) {
-		message = "Your first tile must use the start cell. To change this tile, you must take back ALL your tiles.";
-		rTitle = "Start Rule";
-	} else if (::str_eq(message, "STARTSIMPLE")) {
-		message = "Your first tile must use the start cell.";
-		rTitle = "Start Rule";
-	} else if (::str_eq(message, "STOCK")) {
-		message = "You can't swap more tiles than the number remaining in the stock bag.";
-		rTitle = "Stock Rule";
-	} else if (::str_eq(message, "SWAP")) {
-		message = "You can play tiles or swap them, but you can't do both in the same turn.";
-		rTitle = "Swap Rule";
 	}
 
     return message;
 }
 
-unsigned Board::ScoreMove(Move const &rMove) const {
+unsigned Board::ScoreMove(Move const& rMove) const {
     unsigned result = 0;
     
     Cells const cells = Cells(rMove);
@@ -277,7 +279,7 @@ unsigned Board::ScoreMove(Move const &rMove) const {
     return result;
 }
 
-void Board::UnplayMove(Move const &rMove) {
+void Board::UnplayMove(Move const& rMove) {
     Move::ConstIterator i_place;
     for (i_place = rMove.Begin(); i_place != rMove.End(); i_place++) {
 		ASSERT(!i_place->IsSwap());
@@ -289,7 +291,7 @@ void Board::UnplayMove(Move const &rMove) {
 
 // inquiry methods
 
-bool Board::AreAllCompatible(Cells const &rCells, Direction const &rAxis) const {
+bool Board::AreAllCompatible(Cells const& rCells, Direction const& rAxis) const {
 	ASSERT(Cell::IsScoringAxis(rAxis));
 
     bool result = true;
@@ -312,7 +314,7 @@ bool Board::AreAllCompatible(Cells const &rCells, Direction const &rAxis) const 
 }
 
 
-bool Board::AreAllCompatible(Cells const &rCells) const {
+bool Board::AreAllCompatible(Cells const& rCells) const {
     bool result = true;
 
     if (rCells.Count() > 1) {
@@ -325,7 +327,7 @@ bool Board::AreAllCompatible(Cells const &rCells) const {
     return result;
 }
 
-bool Board::AreAllEmpty(Cells const &rCells) const {
+bool Board::AreAllEmpty(Cells const& rCells) const {
     bool result = true;
     
     Cells::const_iterator i_cell;
@@ -339,7 +341,7 @@ bool Board::AreAllEmpty(Cells const &rCells) const {
     return result;
 }
 
-bool Board::Contains(Tile const &rTile) const {
+bool Board::Contains(Tile const& rTile) const {
 	Cell cell;
 	TileIdType const id = rTile.Id();
 	bool const result = LocateTileId(id, cell);
@@ -354,7 +356,7 @@ bool Board::ContainsId(TileIdType id) const {
 	return result;
 }
 
-bool Board::DoesAnyHaveNeighbor(Cells const &rCells) const {
+bool Board::DoesAnyHaveNeighbor(Cells const& rCells) const {
     bool result = false;
     
     Cells::ConstIterator i_cell;
@@ -369,14 +371,14 @@ bool Board::DoesAnyHaveNeighbor(Cells const &rCells) const {
     return result;
 }
 
-bool Board::HasEmptyCell(Cell const &rCell) const {
-    Tile const *const p_tile = GetCell(rCell);
+bool Board::HasEmptyCell(Cell const& rCell) const {
+    Tile const* const p_tile = GetCell(rCell);
     bool const result = (p_tile == NULL);
 
     return result;
 }
 
-bool Board::HasNeighbor(Cell const &rCell) const {
+bool Board::HasNeighbor(Cell const& rCell) const {
     bool result = false;
     
 	Direction direction;
@@ -394,7 +396,7 @@ bool Board::HasNeighbor(Cell const &rCell) const {
     return result;
 }
 
-bool Board::IsAxisCompatible(Cell const &rCell, Direction const &rAxis) const {
+bool Board::IsAxisCompatible(Cell const& rCell, Direction const& rAxis) const {
     ASSERT(!HasEmptyCell(rCell));
 	ASSERT(rCell.IsValid());
 	ASSERT(Cell::IsScoringAxis(rAxis));
@@ -425,7 +427,7 @@ bool Board::IsAxisCompatible(Cell const &rCell, Direction const &rAxis) const {
     return result;
 }
 
-bool Board::IsConnectedAxis(Cells const &rCells, Direction const &rAxis) const {
+bool Board::IsConnectedAxis(Cells const& rCells, Direction const& rAxis) const {
 	 ASSERT(Cell::IsScoringAxis(rAxis));
      bool result = true;
     
@@ -470,15 +472,15 @@ bool Board::IsEmpty(void) const {
 	return result;
 }
 
-bool Board::IsValidMove(Move const &rMove) const {
-	char const *reason;
+bool Board::IsValidMove(Move const& rMove) const {
+	UmType reason;
 	bool const result = IsValidMove(rMove, reason);
 	// forget the reason
 
 	return result;
 }
 
-bool Board::IsValidMove(Move const &rMove, TextType &rReason) const {
+bool Board::IsValidMove(Move const& rMove, UmType& rReason) const {
     // a pass (no tiles played or swapped) is always valid
     if (rMove.IsPass()) {
         return true;
@@ -486,7 +488,7 @@ bool Board::IsValidMove(Move const &rMove, TextType &rReason) const {
 
     // check for repeated tiles
     if (rMove.RepeatsTile()) {
-		rReason = "REPEATTILE";
+		rReason = UM_REPEATTILE;
         return false;
     }
 
@@ -495,7 +497,7 @@ bool Board::IsValidMove(Move const &rMove, TextType &rReason) const {
             // a valid resignation
             return true;
 		} else if (!rMove.IsPureSwap()) {
-   		    rReason = "SWAP";
+   		    rReason = UM_SWAP;
             return false;
 		}
         // a valid swap
@@ -504,7 +506,7 @@ bool Board::IsValidMove(Move const &rMove, TextType &rReason) const {
 
 	// check for repeated cells
     if (rMove.RepeatsCell()) {
-		rReason = "REPEATCELL";
+		rReason = UM_REPEATCELL;
         return false;
     }
 
@@ -513,7 +515,7 @@ bool Board::IsValidMove(Move const &rMove, TextType &rReason) const {
 
     // make sure all those cells are empty
     if (!AreAllEmpty(cells)) {
-		rReason = "EMPTY";
+		rReason = UM_EMPTY;
         return false;
     }
 
@@ -529,18 +531,18 @@ bool Board::IsValidMove(Move const &rMove, TextType &rReason) const {
 			}
         }
         if (!axis_of_play.IsValid()) {
-		    rReason = "ROWCOLUMN";
+		    rReason = UM_ROWCOLUMN;
             return false;
         }
     }
 
 	if (IsEmpty()) {
         if (!cells.IsAnyStart()) {
-	        rReason = "START";
+	        rReason = UM_START;
 	        return false;
         }
     } else if (!DoesAnyHaveNeighbor(cells)) {
-		rReason = "NEIGHBOR";
+		rReason = UM_NEIGHBOR;
         return false;   
     }
 
@@ -551,7 +553,7 @@ bool Board::IsValidMove(Move const &rMove, TextType &rReason) const {
     if (cells.Count() > 1) {
         // make sure there are no empty squares between played tiles
         if (!after.IsConnectedAxis(cells, axis_of_play)) {
-     		rReason = "GAP";
+     		rReason = UM_GAP;
             return false;
         }
     }
@@ -562,13 +564,13 @@ bool Board::IsValidMove(Move const &rMove, TextType &rReason) const {
         if (Cell::IsScoringAxis(axis)) {
             if (!after.AreAllCompatible(cells, axis)) {
                 if (axis.IsVertical()) {
-	                rReason = "COLUMNCOMPAT";
+	                rReason = UM_COLUMNCOMPAT;
                     return false;
 				} else if (axis.IsHorizontal()) {
-	                rReason = "ROWCOMPAT";
+	                rReason = UM_ROWCOMPAT;
                     return false;
 				} else if (axis.IsDiagonal()) {
-	                rReason = "DIAGCOMPAT";
+	                rReason = UM_DIAGCOMPAT;
                     return false;
 				} else {
                     FAIL();

@@ -1,6 +1,6 @@
 // File:     gamewindow.cpp
 // Location: src/gui
-// Purpose:  GameWindow class
+// Purpose:  implement GameWindow class
 // Author:   Stephen Gold sgold@sonic.net
 // (c) Copyright 2012 Stephen Gold
 // Distributed under the terms of the GNU General Public License
@@ -30,7 +30,7 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 #ifdef _QT
 #include "ui_gamewindow.h"
 
-GameWindow::GameWindow(Game *pGame):
+GameWindow::GameWindow(Game* pGame):
     QMainWindow(NULL),  // the top window has no parent
     mMouseLast(0, 0),
     mGameView(*pGame)
@@ -61,7 +61,7 @@ GameWindow::GameWindow(Game *pGame):
 
 // static data of the class
 
-WindowClass *GameWindow::mspClass = NULL;
+WindowClass* GameWindow::mspClass = NULL;
 
 
 // static callback functions
@@ -74,7 +74,7 @@ static LRESULT CALLBACK message_handler(
 	LPARAM lParam)
 {
 	ASSERT(windowHandle != NULL);
-    GameWindow * const window = (GameWindow *)Window::Lookup(windowHandle);
+    GameWindow* const window = (GameWindow*)Window::Lookup(windowHandle);
 
 	LRESULT result;
 	if (window == NULL) { // unknown window
@@ -89,14 +89,14 @@ static LRESULT CALLBACK message_handler(
 }
 
 // callback for Think fiber
-static void CALLBACK think(void *pArgument) {
-	GameWindow * const window = (GameWindow *)pArgument;
+static void CALLBACK think(void* pArgument) {
+	GameWindow* const window = (GameWindow*)pArgument;
 
     window->Think();
 }
 
-static void yield(void *pArgument, bool &rCancel) {
-	GameWindow * const window = (GameWindow *)pArgument;
+static void yield(void* pArgument, bool& rCancel) {
+	GameWindow* const window = (GameWindow*)pArgument;
 
 	window->Yields();
 	rCancel = window->IsThinkCanceled();
@@ -105,15 +105,15 @@ static void yield(void *pArgument, bool &rCancel) {
 
 // lifecycle
 
-GameWindow::GameWindow(HINSTANCE applicationInstance, Game *pGame):
+GameWindow::GameWindow(HINSTANCE applicationInstance, Game* pGame):
     mMouseLast(0, 0),
 	mGameView(*pGame)
 {
 	ASSERT(HWND(*this) == 0);
 	ASSERT(applicationInstance != NULL);
 
-	char const *class_name = "GAMEWINDOW";
-	char const *menubar_name = "MENUBAR";
+	TextType class_name = "GAMEWINDOW";
+	TextType menubar_name = "MENUBAR";
     if (mspClass == NULL) {
 		// for first instance:  create a Microsoft Windows window class
 		mspClass = new WindowClass(applicationInstance, &message_handler, class_name, menubar_name);
@@ -144,7 +144,7 @@ GameWindow::GameWindow(HINSTANCE applicationInstance, Game *pGame):
 
 	// create Microsoft Windows window
 	String const class_string(class_name);
-	Window * const p_parent = NULL;
+	Window* const p_parent = NULL;
 	Create(class_string, rect, p_parent, applicationInstance);
 
 	// wait for message_handler() to receive a message with this handle
@@ -154,7 +154,7 @@ GameWindow::~GameWindow(void) {
     delete mpMenuBar;
 }
 
-void GameWindow::Initialize(CREATESTRUCT const &rCreateStruct) {
+void GameWindow::Initialize(CREATESTRUCT const& rCreateStruct) {
     // Initialization which takes place after the Microsoft Windows window
     // has received its WM_CREATE message.
 
@@ -168,7 +168,7 @@ void GameWindow::Initialize(CREATESTRUCT const &rCreateStruct) {
 	mGameView.SetWindow(this, mpMenuBar);
    	SetCursorSelect();
 
-    Partial::SetYield(&yield, (void *)this);
+    Partial::SetYield(&yield, (void*)this);
 
     SetTileSize(GameView::TILE_SIZE_DEFAULT);
 	if (HasGame()) {
@@ -189,7 +189,7 @@ void GameWindow::Initialize(CREATESTRUCT const &rCreateStruct) {
 
 // misc methods
 
-void GameWindow::ChangeHand(String const &rOldPlayerName) {
+void GameWindow::ChangeHand(String const& rOldPlayerName) {
 	ASSERT(HasGame());
 	ASSERT(IsGamePaused() || IsGameOver());
 	ASSERT(mpMenuBar != NULL);
@@ -242,7 +242,7 @@ void GameWindow::GameOver(void) {
     mGameView.Reset();
 }
 
-int GameWindow::GameWarnBox(char const *messageText) {
+int GameWindow::GameWarnBox(TextType messageText) {
 	String message(messageText);
 	String title = "Information";
 
@@ -258,7 +258,7 @@ int GameWindow::GameWarnBox(char const *messageText) {
 	return result;
 }
 
-void GameWindow::HandleButtonDown(Point const &rMouse) {
+void GameWindow::HandleButtonDown(Point const& rMouse) {
 	ASSERT(HasGame());
 	ASSERT(!IsGamePaused());
 	ASSERT(!mGameView.IsDragging());
@@ -287,7 +287,7 @@ void GameWindow::HandleButtonDown(Point const &rMouse) {
     }
 }
 
-void GameWindow::HandleButtonUp(Point const &rMouse) {
+void GameWindow::HandleButtonUp(Point const& rMouse) {
 	ASSERT(HasGame());
 
 	HandleMouseMove(rMouse);
@@ -513,7 +513,7 @@ LRESULT GameWindow::HandleMessage(MessageType message, WPARAM wParam, LPARAM lPa
   	    }
 
         case WM_CREATE: { // initialize window
-		    CREATESTRUCT * const p_create_struct = (CREATESTRUCT *)lParam;
+		    CREATESTRUCT* const p_create_struct = (CREATESTRUCT*)lParam;
 			ASSERT(p_create_struct != NULL);
             Initialize(*p_create_struct);
             break;
@@ -605,7 +605,7 @@ LRESULT GameWindow::HandleMessage(MessageType message, WPARAM wParam, LPARAM lPa
 	return result;
 }
 
-void GameWindow::HandleMouseMove(Point const &rMouse) {
+void GameWindow::HandleMouseMove(Point const& rMouse) {
     long const drag_x = rMouse.X() - mMouseLast.X();
     long const drag_y = rMouse.Y() - mMouseLast.Y();
     mMouseLast = rMouse;
@@ -621,7 +621,7 @@ void GameWindow::HandleMouseMove(Point const &rMouse) {
     }
 }
 
-void GameWindow::InfoBox(char const *messageText) {
+void GameWindow::InfoBox(TextType messageText) {
 	String message = messageText;
 	String title = "Information";
 
@@ -646,15 +646,15 @@ void GameWindow::InfoBox(char const *messageText) {
 	Window::InfoBox(message, title);
 }
 
-void GameWindow::LoadPlayerOptions(Hand const &rHand) {
+void GameWindow::LoadPlayerOptions(Hand const& rHand) {
 	String const player_name = rHand.PlayerName();
-	Player const &r_player = Player::rLookup(player_name);
+	Player const& r_player = Player::rLookup(player_name);
 
 	mpMenuBar->LoadPlayerOptions(r_player);
 	mGameView.LoadPlayerOptions(r_player);
 }
 
-char const *GameWindow::Name(void) const {
+TextType GameWindow::Name(void) const {
 	return "Gold Tile - a game by Stephen Gold";
 }
 
@@ -789,7 +789,7 @@ STEP4:
 	hand_options.Truncate(hand_cnt);
 
 	SetCursorBusy(); // constructing tiles may cause a noticeable delay
-	Game *const p_new_game = new Game(game_options, hand_options);
+	Game* const p_new_game = new Game(game_options, hand_options);
 	ASSERT(p_new_game != NULL);
 	SetCursorSelect();
 
@@ -823,7 +823,7 @@ void GameWindow::Play(bool passFlag) {
 	}
 
 	// check whether the move is a legal one
-	char const *reason;
+	UmType reason;
 	bool const is_legal = mpGame->IsLegalMove(move, reason);
     if (is_legal && move.IsPass() == passFlag) {
         mpGame->FinishTurn(move);
@@ -840,7 +840,7 @@ void GameWindow::Play(bool passFlag) {
 
     } else if (!is_legal) { // explain the issue
         RuleBox(reason);
-		if (::str_eq(reason, "FIRST")) {
+		if (reason == UM_FIRST) {
 			mGameView.Reset();
 		}
 	}
@@ -860,7 +860,7 @@ void GameWindow::RedoTurn(void) {
 	ChangeHand(old_player_name);
 }
 
-void GameWindow::ReleaseActiveTile(Point const &rMouse) {
+void GameWindow::ReleaseActiveTile(Point const& rMouse) {
 	ASSERT(HasGame());
 
     TileIdType const id = mGameView.GetActive(); 
@@ -915,7 +915,7 @@ void GameWindow::ReleaseActiveTile(Point const &rMouse) {
 
 	if (to_board && (!to_cell.IsValid() || mGameView.GetCellTile(to_cell) != Tile::ID_NONE)) {
 		// cell conflict - can't construct a move in the usual way
-	    RuleBox("EMPTY");
+	    RuleBox(UM_EMPTY);
     	StopDragging();
 		return;
 	}
@@ -937,10 +937,10 @@ void GameWindow::ReleaseActiveTile(Point const &rMouse) {
 
 	// Check whether the new partial move is legal.
     Move const move_so_far = mGameView.GetMove(true);
-    char const *reason;
+    UmType reason;
 	bool const legal = mpGame->IsLegalMove(move_so_far, reason);
 
-	if (!legal && (to_swap || !::str_eq(reason, "FIRST"))) {  
+	if (!legal && (to_swap || reason != UM_FIRST)) {  
 		// It's illegal, even as a partial move:  reverse it.
         if (to_board) {
             mGameView.BoardToHand();
@@ -954,8 +954,8 @@ void GameWindow::ReleaseActiveTile(Point const &rMouse) {
         }
 
 		// Explain to the player why it was illegal.
-		if (::str_eq(reason, "START") && !from_board) {
-			reason = "STARTSIMPLE";
+		if (reason == UM_START && !from_board) {
+			reason = UM_STARTSIMPLE;
 	    }
 	    RuleBox(reason);
 	}
@@ -1024,7 +1024,7 @@ void GameWindow::RestartGame(void) {
 	ChangeHand(old_player_name);
 }
 
-void GameWindow::RuleBox(char const *reason) {
+void GameWindow::RuleBox(UmType reason) {
 	// expand reason shortcuts
 	String title;
 	String const message = Board::ReasonMessage(reason, title);
@@ -1043,17 +1043,17 @@ String GameWindow::SaveHandOptions(void) const {
 	return result;
 }
 
-void GameWindow::SavePlayerOptions(Hand const &rHand) const {
+void GameWindow::SavePlayerOptions(Hand const& rHand) const {
 	ASSERT(mpMenuBar != NULL);
 
 	String const player_name = rHand.PlayerName();
-	Player &r_player = Player::rLookup(player_name);
+	Player& r_player = Player::rLookup(player_name);
 
 	mpMenuBar->SavePlayerOptions(r_player);
 	mGameView.SavePlayerOptions(r_player);
 }
 
-void GameWindow::SetGame(Game *pGame) {
+void GameWindow::SetGame(Game* pGame) {
 	ASSERT(mpMenuBar != NULL);
 
 	GameStyleType old_style = GAME_STYLE_NONE;

@@ -32,28 +32,13 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 
 // lifecycle
 
-Game::Game(GameOpt const &rGameOpt, HandOpts const &rHandOptions):
+Game::Game(GameOpt const& rGameOpt, HandOpts const& rHandOptions):
 	mOptions(rGameOpt)
 {
 	ASSERT(!rHandOptions.IsEmpty());
 
-	GridType const grid = GridType(mOptions);
-	Cell::SetGrid(grid);
-
-	bool const does_board_wrap = mOptions.DoesBoardWrap();
-	IndexType const board_height = mOptions.BoardHeight();
-	IndexType const board_width = mOptions.BoardWidth();
-	Cell::SetTopology(does_board_wrap, board_height, board_width);
-
-	AttrCntType const attr_cnt = mOptions.AttrCnt();
-	AttrType *maxes = new AttrType[attr_cnt];
-	for (AttrIndexType i_attr = 0; i_attr < attr_cnt; i_attr++) {
-		maxes[i_attr] = mOptions.MaxAttrValue(i_attr);
-	}
-	unsigned const bonus_percent = mOptions.BonusPercent();
-	double const bonus_fraction = double(bonus_percent)/100.0;
-	Tile::SetStatic(attr_cnt, maxes, bonus_fraction);
-	delete maxes;
+	Cell::SetStatic(mOptions);
+	Tile::SetStatic(mOptions);
 
 	// add tiles to the stock bag
 	for (unsigned i = 0; i < mOptions.TilesPerCombo(); i++) {
@@ -150,7 +135,7 @@ Tiles Game::ActiveTiles(void) const {
     return result;
 }
 
-void Game::AddTurn(Turn const &rTurn) {
+void Game::AddTurn(Turn const& rTurn) {
     ASSERT(!IsClockRunning());
 
 	while (miRedo != mHistory.end()) {
@@ -305,7 +290,7 @@ void Game::FindBestRun(void) {
 	std::cout << mBestRunReport;
 }
 
-void Game::FinishTurn(Move const &rMove) {
+void Game::FinishTurn(Move const& rMove) {
     ASSERT(mBoard.IsValidMove(rMove));
     ASSERT(IsClockRunning());
     
@@ -373,7 +358,7 @@ void Game::FirstTurn(void) {
 	} else {
         for (;;) {
 		    move = miPlayableHand->ChooseMove();
-			char const *reason;
+			UmType reason;
     	    if (IsLegalMove(move, reason)) {
                 break;
             }
@@ -419,7 +404,7 @@ void Game::NextTurn(void) {
 		ASSERT(miPlayableHand->IsLocalUser());
 	    for (;;) {
 		    move = miPlayableHand->ChooseMove();
-			char const *reason;
+			UmType reason;
     	    if (IsLegalMove(move, reason)) {
                 break;
             }
@@ -540,7 +525,7 @@ void Game::Restart(void) {
 	ASSERT(!CanUndo());
 }
 
-int Game::Seconds(Hand &rHand) const {
+int Game::Seconds(Hand& rHand) const {
 	// read the clock of a particular hand
 	int result = rHand.Seconds();
 
@@ -699,7 +684,7 @@ bool Game::CanUndo(void) const {
 	return result;
 }
 
-bool Game::HasEmptyCell(Cell const &rCell) const {
+bool Game::HasEmptyCell(Cell const& rCell) const {
     bool const result = mBoard.HasEmptyCell(rCell);
     
     return result; 
@@ -715,14 +700,14 @@ bool Game::IsClockRunning(void) const {
     return result;
 }
 
-bool Game::IsLegalMove(Move const &rMove) const {
-    TextType reason;
+bool Game::IsLegalMove(Move const& rMove) const {
+    UmType reason;
 	bool const result = IsLegalMove(rMove, reason);
 
 	return result;
 }
 
-bool Game::IsLegalMove(Move const &rMove, TextType &rReason) const {
+bool Game::IsLegalMove(Move const& rMove, UmType& rReason) const {
     unsigned const stock = CountStock();
     bool result = true;
 	unsigned const tiles_played = rMove.CountTilesPlayed();
@@ -736,12 +721,12 @@ bool Game::IsLegalMove(Move const &rMove, TextType &rReason) const {
 	{
 		// first turn but didn't resign, nor play the correct number of tiles
 		ASSERT(tiles_played < mMustPlay);
-	    rReason = "FIRST";
+	    rReason = UM_FIRST;
         result = false;
 
     } else if (rMove.IsPureSwap() && rMove.Count() > stock) {
 		// swap but not enough tiles in stock
-	    rReason = "STOCK";
+	    rReason = UM_STOCK;
         result = false;
     }
 

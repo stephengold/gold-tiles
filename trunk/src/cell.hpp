@@ -65,14 +65,14 @@ public:
 	// public operators
 	bool operator!=(Cell const&) const;
 	bool operator<(Cell const&) const;
-	// Cell &operator=(Cell const&);  compiler-generated assignment method is OK
+	// Cell& operator=(Cell const&);  compiler-generated assignment method is OK
 	bool operator==(Cell const&) const;
 	operator String(void) const;
 
 	// misc public methods
 	static IndexType AxisLength(Direction const&);
 	IndexType        Column(void) const;
-	static void      GetTopology(bool &wrapFlag, IndexType &height, IndexType &width);
+	static void      GetTopology(bool& wrapFlag, IndexType& height, IndexType& width);
     bool             GetUserChoice(String const&);
     static GridType  Grid(void);
 	IndexType        Group(Direction const&) const;
@@ -80,8 +80,8 @@ public:
 	void             Next(Direction const&, IndexType count = 1);
 	IndexType        Ortho(Direction const&) const;
 	IndexType        Row(void) const;
-	static void      SetGrid(GridType);
-	static void      SetTopology(bool wrapFlag, IndexType height, IndexType width);
+	static String    ScoringAxes(void);
+	static void      SetStatic(GameOpt const&);
 
 	// public inquiry methods
 	bool        HasNeighbor(Direction const&) const;
@@ -101,7 +101,7 @@ private:
 	static bool      msWrapFlag; // coordinates wrap around
 
     // misc private methods
-	static void NextCellOffsets(Direction const&, IndexType &rowOffset, 
-		            IndexType &columnOffset);
+	static void NextCellOffsets(Direction const&, IndexType& rowOffset, 
+		            IndexType& columnOffset);
 };
 #endif // !defined(CELL_HPP_INCLUDED)

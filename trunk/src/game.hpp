@@ -3,7 +3,7 @@
 
 // File:     game.hpp
 // Location: src
-// Purpose:  Game class
+// Purpose:  declare Game class
 // Author:   Stephen Gold sgold@sonic.net
 // (c) Copyright 2012 Stephen Gold
 // Distributed under the terms of the GNU General Public License
@@ -40,7 +40,7 @@ enum EndingType {
 class Game {
 public:
 	// public lifecycle
-    Game(GameOpt const &, HandOpts const &);
+    Game(GameOpt const&, HandOpts const&);
 	// no default constructor
     // ~Game(void);  compiler-generated destructor is OK
 
@@ -56,13 +56,13 @@ public:
 	String        BestRunReport(void) const;
     unsigned      CountStock(void) const;
 	String        EndBonus(void);
-    void          FinishTurn(Move const &);
+    void          FinishTurn(Move const&);
 	unsigned      HandSize(void) const;
 	unsigned      MustPlay(void) const;
     void          PlayGame(void);
 	void          Redo(void);
 	void          Restart(void);
-	int           Seconds(Hand &) const;
+	int           Seconds(Hand&) const;
 	unsigned      SecondsPerHand(void) const;
 	void          StartClock(void);
 	void          StopClock(void);
@@ -75,12 +75,12 @@ public:
 	// public inquiry methods
 	bool CanRedo(void) const;
 	bool CanUndo(void) const;
-	bool HasEmptyCell(Cell const &) const;
+	bool HasEmptyCell(Cell const&) const;
 	bool HasUnsavedChanges(void) const;
 	bool IsClockRunning(void) const;
-    bool IsLegalMove(Move const &) const;
-    bool IsLegalMove(Move const &, char const *&rReason) const;
-    bool IsLegalPartial(Partial const &) const;
+    bool IsLegalMove(Move const&) const;
+    bool IsLegalMove(Move const&, UmType& reason) const;
+    bool IsLegalPartial(Partial const&) const;
 	bool IsOutOfTime(void) const;
     bool IsOver(void) const;
 	bool IsPaused(void) const;
@@ -105,13 +105,13 @@ private:
 	bool             mUnsavedChanges;
 
 	// private lifecycle
-	Game(Game const &);  // not copyable
+	Game(Game const&);  // not copyable
 
 	// private operators
-	Game &operator=(Game const &);  // not assignable
+	Game& operator=(Game const&);  // not assignable
 
 	// misc private methods
-    void       AddTurn(Turn const &);
+    void       AddTurn(Turn const&);
     void       DisplayScores(void) const;
     void       DisplayStatus(void) const;
 	EndingType Ending(void) const;

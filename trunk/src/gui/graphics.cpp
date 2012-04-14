@@ -1,6 +1,6 @@
 // File:     graphics.cpp
 // Location: src/gui
-// Purpose:  Graphics class
+// Purpose:  implement Graphics class
 // Author:   Stephen Gold sgold@sonic.net
 // (c) Copyright 2012 Stephen Gold
 // Distributed under the terms of the GNU General Public License
@@ -38,7 +38,7 @@ Poly Graphics::msHexagon;      // polygon for hexagonal cells and tiles
 
 // lifecycle
 
-Graphics::Graphics(HDC device, Window &rWindow, bool releaseMe, bool bufferFlag):
+Graphics::Graphics(HDC device, Window& rWindow, bool releaseMe, bool bufferFlag):
     mRect(Rect(rWindow))
 {
     mDevice = device;
@@ -179,19 +179,19 @@ void Graphics::CreateFonts(void) {
 	}
 }
 
-void Graphics::DrawEquilateral(Rect const &rBounds, bool pointDownFlag) {
+void Graphics::DrawEquilateral(Rect const& rBounds, bool pointDownFlag) {
     ASSERT(msEquilateral.Count() == 3);
 
 	DrawPolygon(msEquilateral, rBounds, pointDownFlag, true);
 }
 
-void Graphics::DrawHexagon(Rect const &rBounds) {
+void Graphics::DrawHexagon(Rect const& rBounds) {
     ASSERT(msHexagon.Count() == 6);
 
 	DrawPolygon(msHexagon, rBounds);
 }
 
-void Graphics::DrawLine(Point const &rPoint1, Point const &rPoint2) {
+void Graphics::DrawLine(Point const& rPoint1, Point const& rPoint2) {
     LogicalXType const x1 = rPoint1.X();
     LogicalYType const y1 = rPoint1.Y();
     LogicalXType const x2 = rPoint2.X();
@@ -213,9 +213,9 @@ void Graphics::DrawLine(
 	ASSERT(success);
 }
 
-void Graphics::DrawPolygon(Poly const &rPolygon, Rect const &rBounds, bool invertFlag, bool fillFlag) {
+void Graphics::DrawPolygon(Poly const& rPolygon, Rect const& rBounds, bool invertFlag, bool fillFlag) {
     unsigned const pointCnt = rPolygon.Count();
-    POINT *const points = new POINT[pointCnt];
+    POINT* const points = new POINT[pointCnt];
     ASSERT(points != NULL);
     rPolygon.GetPoints(points, pointCnt, rBounds, invertFlag);
 
@@ -226,9 +226,11 @@ void Graphics::DrawPolygon(Poly const &rPolygon, Rect const &rBounds, bool inver
 		success = Win::Polyline(mDraw, points, pointCnt);
 	}
     ASSERT(success);
+
+	delete[] points;
 } 
 
-Rect Graphics::DrawRectangle(Rect const &rRect) {
+Rect Graphics::DrawRectangle(Rect const& rRect) {
 	LogicalXType const left = rRect.LeftX();
 	LogicalYType const top = rRect.TopY();
 	LogicalXType const right = rRect.RightX();
@@ -256,7 +258,7 @@ Rect Graphics::DrawRectangle(
 }
 
 void Graphics::DrawRoundedSquare(
-    Point const &rCenter,
+    Point const& rCenter,
     PixelCntType edge,
     PixelCntType circleDiameter)
 {
@@ -273,7 +275,7 @@ void Graphics::DrawRoundedSquare(
     ASSERT(success);
 }
 
-void Graphics::DrawText(Rect const &rRect, TextType text, TextType altText) {
+void Graphics::DrawText(Rect const& rRect, TextType text, TextType altText) {
 	ASSERT(text != NULL);
 
 	TextType str = "";
@@ -346,7 +348,7 @@ Graphics::TextSizeType Graphics::FindTextSize(
     ASSERT(msHexagon.Count() == 6);
 }
 
-Rect Graphics::InteriorEquilateral(Rect const &rBounds, bool pointDownFlag) {
+Rect Graphics::InteriorEquilateral(Rect const& rBounds, bool pointDownFlag) {
 	FractionPair pair_ulc(0,0);
 	FractionPair pair_brc(0,0);
 	if (pointDownFlag) {
@@ -365,7 +367,7 @@ Rect Graphics::InteriorEquilateral(Rect const &rBounds, bool pointDownFlag) {
 	return result;
 }
 
-Rect Graphics::InteriorHexagon(Rect const &rBounds) {
+Rect Graphics::InteriorHexagon(Rect const& rBounds) {
 	double const den = 4 + 4*SQRT_3;
     FractionPair const pair_ulc(2/den, (6 + 2*SQRT_3)/den);
     Point const ulc = rBounds.Interpolate(pair_ulc);
@@ -379,7 +381,7 @@ Rect Graphics::InteriorHexagon(Rect const &rBounds) {
 }
 
 Rect Graphics::InteriorRoundedSquare(
-    Point const &rCenter,
+    Point const& rCenter,
     PixelCntType edge,
     PixelCntType circleDiameter)
 {

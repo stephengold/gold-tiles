@@ -1,9 +1,10 @@
 #ifndef HANDBOX_HPP_INCLUDED
 #define HANDBOX_HPP_INCLUDED
 
-// File:    handbox.hpp
-// Purpose: HandBox class
-// Author:  Stephen Gold sgold@sonic.net
+// File:     handbox.hpp
+// Location: src/gui
+// Purpose:  declare HandBox class
+// Author:   Stephen Gold sgold@sonic.net
 // (c) Copyright 2012 Stephen Gold
 // Distributed under the terms of the GNU General Public License
 
@@ -37,7 +38,7 @@ The HandBox class is an extension of the Dialog class.
 class HandBox: public Dialog {
 public:
     // public lifecycle
-	HandBox(unsigned handIndex, unsigned handCnt, HandOpt const &); 
+	HandBox(unsigned handIndex, unsigned handCnt, HandOpt const&); 
 	// no default constructor
 	// ~HandBox(void);  compiler-generated destructor is OK
 
@@ -58,15 +59,15 @@ private:
 	HandOpt  mOptions;
 
 	// private lifecycle
-    HandBox(HandBox const &);  // not copyable
+    HandBox(HandBox const&);  // not copyable
 
 	// private operators
-    HandBox &operator=(HandBox const &);  // not assignable
+    HandBox& operator=(HandBox const&);  // not assignable
 
 	// private misc methods
 	void HandleButtonClick(IdType);
 	void UpdateButtons(void);
-	void UpdateNameBox(String const &);
+	void UpdateNameBox(String const&);
 	void UpdateSlider(void);
 };
-#endif
+#endif // !defined(HANDBOX_HPP_INCLUDED)

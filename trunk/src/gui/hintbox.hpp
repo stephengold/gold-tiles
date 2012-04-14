@@ -1,9 +1,10 @@
 #ifndef HINTBOX_HPP_INCLUDED
 #define HINTBOX_HPP_INCLUDED
 
-// File:    hintbox.hpp
-// Purpose: HintBox class
-// Author:  Stephen Gold sgold@sonic.net
+// File:     hintbox.hpp
+// Location: src/gui
+// Purpose:  declare HintBox class
+// Author:   Stephen Gold sgold@sonic.net
 // (c) Copyright 2012 Stephen Gold
 // Distributed under the terms of the GNU General Public License
 
@@ -53,15 +54,15 @@ private:
 	HintType      mStrength;
 
 	// private lifecycle
-    HintBox (HintBox const &); // not copyable
+    HintBox (HintBox const&); // not copyable
 
 	// private operators
-    HintBox &operator=(HintBox const &); // not assignable
+    HintBox& operator=(HintBox const&); // not assignable
 
 	// misc private methods
-	char const * Name(void) const;
+	TextType 
+		 Name(void) const;
 	void SetHintStrength(void);
 	void SetHintStrength(IdType buttonId);
 };
-
-#endif
+#endif // !defined(HINTBOX_HPP_INCLUDED)

@@ -1,9 +1,10 @@
 #ifndef VIEWMENU_HPP_INCLUDED
 #define VIEWMENU_HPP_INCLUDED
 
-// File:    viewmenu.hpp
-// Purpose: ViewMenu class
-// Author:  Stephen Gold sgold@sonic.net
+// File:     viewmenu.hpp
+// Location: src/gui
+// Purpose:  declare ViewMenu class
+// Author:   Stephen Gold sgold@sonic.net
 // (c) Copyright 2012 Stephen Gold
 // Distributed under the terms of the GNU General Public License
 
@@ -43,14 +44,14 @@ public:
 #ifdef _QT
     ViewMenu(void);
 #elif defined(_WINDOWS)
-    ViewMenu(Menu const &, unsigned position);
+    ViewMenu(Menu const&, unsigned position);
     // no default constructor
 #endif // defined(_WINDOWS)
     // ~ViewMenu(void);  compiler-generated destructor is OK
 
     // misc public methods
     void Animation(bool);
-    void EnableItems(Partial const &, ThinkModeType);
+    void EnableItems(Partial const&, ThinkModeType);
     void ShowClocks(bool);
     void ShowGrid(bool);
     void ShowHints(bool);
@@ -70,9 +71,9 @@ private:
 	MenuItem mShowTiles;
 
     // private lifecycle
-    ViewMenu(ViewMenu const &);   // not copyable
+    ViewMenu(ViewMenu const&);   // not copyable
 
     // private operators
-    ViewMenu &operator=(ViewMenu const &);  // not assignable
+    ViewMenu& operator=(ViewMenu const&);  // not assignable
 };
 #endif // !defined(VIEWMENU_HPP_INCLUDED)

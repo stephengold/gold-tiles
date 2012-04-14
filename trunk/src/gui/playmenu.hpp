@@ -1,9 +1,10 @@
 #ifndef PLAYMENU_HPP_INCLUDED
 #define PLAYMENU_HPP_INCLUDED
 
-// File:    playmenu.hpp
-// Purpose: PlayMenu class
-// Author:  Stephen Gold sgold@sonic.net
+// File:     playmenu.hpp
+// Location: src/gui
+// Purpose:  declare PlayMenu class
+// Author:   Stephen Gold sgold@sonic.net
 // (c) Copyright 2012 Stephen Gold
 // Distributed under the terms of the GNU General Public License
 
@@ -34,6 +35,7 @@ The PlayMenu class extends the SubMenu class.
 #include "gui/menuitem.hpp"  // HASA MenuItem
 #include "gui/submenu.hpp"   // ISA SubMenu
 
+
 class PlayMenu: public SubMenu {
     Q_OBJECT
 
@@ -42,25 +44,34 @@ public:
 #ifdef _QT
     PlayMenu(void);
 #elif defined(_WINDOWS)
-    PlayMenu(Menu const &, unsigned position);
+    PlayMenu(Menu const&, unsigned position);
     // no default constructor
 #endif // defined(_WINDOWS)
     // ~PlayMenu(void);  compiler-generated destructor is fine
 
     // misc public methods
     void Autopause(bool);
-    void EnableItems(Partial const &, ThinkModeType);
+    void EnableItems(Partial const&, ThinkModeType);
     void Pause(bool);
 
 private:
     // private data
-    MenuItem mPlay, mTakeBack, mSuggest, mPause, mSwapAll, mPass, mResign;
-    MenuItem mRestart, mUndo, mRedo, mAutopause;
+    MenuItem mPlay;
+	MenuItem mTakeBack;
+	MenuItem mSuggest;
+	MenuItem mPause;
+	MenuItem mSwapAll;
+	MenuItem mPass;
+	MenuItem mResign;
+    MenuItem mRestart;
+	MenuItem mUndo;
+	MenuItem mRedo;
+	MenuItem mAutopause;
 
     // private lifecycle
-    PlayMenu(PlayMenu const &); // not copyable
+    PlayMenu(PlayMenu const&); // not copyable
 
     // private operators
-    PlayMenu &operator=(PlayMenu const &); // not assignable
+    PlayMenu& operator=(PlayMenu const&); // not assignable
 };
 #endif // !defined(PLAYMENU_HPP_INCLUDED)

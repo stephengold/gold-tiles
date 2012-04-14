@@ -100,7 +100,8 @@ class WindowClass;
 // project-wide typedefs
 
 typedef unsigned long MsecIntervalType;
-typedef char const *  TextType;   // read-only, NUL-terminated char[]
+typedef char const*   TextType;   // read-only, NUL-terminated char[]
+
 
 // project-wide constants
 
@@ -115,16 +116,16 @@ const double           SQRT_3 = 1.732050807568877;
 
 // project-wide utility functions
 
-void        assertion_failed(TextType, unsigned);
-bool        is_even(long);
-bool        is_odd(long);
+void     assertion_failed(TextType, unsigned);
+bool     is_even(long);
+bool     is_odd(long);
 MsecIntervalType
-	        milliseconds(void);  // read clock
-String      ordinal(unsigned);
-void        pause(void);
-const char *plural(unsigned);
-String      plural(unsigned, TextType);
-bool        random_bool(double probability);
-bool        str_eq(TextType, TextType);  // compare text strings
+	     milliseconds(void);  // read clock
+String   ordinal(unsigned);
+void     pause(void);
+TextType plural(unsigned);
+String   plural(unsigned, TextType);
+bool     random_bool(double probability);
+bool     str_eq(TextType, TextType);  // compare text strings
 
 #endif // !defined(PROJECT_HPP_INCLUDED)

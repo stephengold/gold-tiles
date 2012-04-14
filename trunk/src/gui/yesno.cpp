@@ -45,8 +45,8 @@ static INT_PTR CALLBACK yesNoMessageHandler(
 
 // lifecycle
 
-YesNo::YesNo(char const *templateName):
-    Dialog(templateName, &yesNoMessageHandler)
+YesNo::YesNo(TextType templateName):
+    Dialog(templateName,& yesNoMessageHandler)
 {}
 
 

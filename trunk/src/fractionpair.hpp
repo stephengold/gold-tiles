@@ -1,9 +1,10 @@
 #ifndef FRACTIONPAIR_HPP_INCLUDED
 #define FRACTIONPAIR_HPP_INCLUDED
 
-// File:    fractionpair.hpp
-// Purpose: FractionPair class
-// Author:  Stephen Gold sgold@sonic.net
+// File:     fractionpair.hpp
+// Location: src
+// Purpose:  declare FractionPair class
+// Author:   Stephen Gold sgold@sonic.net
 // (c) Copyright 2012 Stephen Gold
 // Distributed under the terms of the GNU General Public License
 
@@ -34,11 +35,11 @@ public:
 	// lifecycle
     FractionPair(double x, double y);
 	// no default constructor
-    // FractionPair(FractionPair const &); compiler-generated copy constructor is OK
+    // FractionPair(FractionPair const&); compiler-generated copy constructor is OK
     // ~FractionPair(void); compiler-generated destructor is OK
 
 	// public operators
-	// FractionPair &operator=(FractionPair const &); compiler-generated assignment method is OK
+	// FractionPair& operator=(FractionPair const&); compiler-generated assignment method is OK
      
 	// misc public methods
     float X(void) const;
@@ -48,5 +49,4 @@ private:
 	// private data
     float mX, mY;
 };
-
-#endif
+#endif // !defined(FRACTIONPAIR_HPP_INCLUDED)

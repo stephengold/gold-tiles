@@ -1,9 +1,10 @@
 #ifndef MENUBAR_HPP_INCLUDED
 #define MENUBAR_HPP_INCLUDED
 
-// File:    menubar.hpp
-// Purpose: MenuBar class
-// Author:  Stephen Gold sgold@sonic.net
+// File:     menubar.hpp
+// Location: src/gui
+// Purpose:  declare MenuBar class
+// Author:   Stephen Gold sgold@sonic.net
 // (c) Copyright 2012 Stephen Gold
 // Distributed under the terms of the GNU General Public License
 
@@ -51,9 +52,9 @@ class MenuBar {
 public:
     // public lifecycle
 #ifdef _QT
-    MenuBar(Partial const &rPartial);
+    MenuBar(Partial const& rPartial);
 #elif defined(_WINDOWS)
-    MenuBar(Win::CREATESTRUCT const &, Partial const &);
+    MenuBar(Win::CREATESTRUCT const&, Partial const&);
 #endif // defined(_WINDOWS)
     // no default constructor
     // ~MenuBar(void);
@@ -61,9 +62,9 @@ public:
     // misc public methods
     void     GameOver(void);
     void     HandleMenuCommand(IdType);
-    void     LoadPlayerOptions(Player const &);
+    void     LoadPlayerOptions(Player const&);
     void     NewGame(GameStyleType old);
-    void     SavePlayerOptions(Player &) const;
+    void     SavePlayerOptions(Player&) const;
     void     SetTileSize(unsigned);
     unsigned TileSize(void) const;
     void     Update(ThinkModeType);
@@ -81,9 +82,9 @@ private:
     FileMenu mFileMenu;
     SubMenu  mHelpMenu;
 #ifdef _WINDOWS
-    Menu             mMenu;
+    Menu     mMenu;
 #endif // defined(_WINDOWS)
-    Partial const &
+    Partial const&
 		    mrPartial;
     bool     mPeekFlag;
     PlayMenu mPlayMenu;
@@ -95,10 +96,10 @@ private:
     ViewMenu mViewMenu;
 
     // private lifecycle
-	MenuBar(MenuBar const &);  // not copyable
+	MenuBar(MenuBar const&);  // not copyable
 	void Initialize(GameStyleType);
 
     // private operators
-	MenuBar &operator=(MenuBar const &);  // not assignable
+	MenuBar& operator=(MenuBar const&);  // not assignable
 };
 #endif // !defined(MENUBAR_HPP_INCLUDED)

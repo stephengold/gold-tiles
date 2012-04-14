@@ -3,7 +3,7 @@
 
 // File:     turns.hpp
 // Location: src
-// Purpose:  Turns class
+// Purpose:  declare Turns class
 // Author:   Stephen Gold sgold@sonic.net
 // (c) Copyright 2012 Stephen Gold
 // Distributed under the terms of the GNU General Public License
@@ -43,7 +43,7 @@ public:
 
 	// misc public methods
     unsigned Count(void) const;
-	unsigned Index(Iterator const &) const;
+	unsigned Index(Iterator const&) const;
 	unsigned IndexLastPlay(void) const;
 };
 #endif // !defined(TURNS_HPP_INCLUDED)

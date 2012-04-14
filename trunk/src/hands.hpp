@@ -1,9 +1,10 @@
 #ifndef HANDS_HPP_INCLUDED
 #define HANDS_HPP_INCLUDED
 
-// File:    hands.hpp
-// Purpose: Hands class
-// Author:  Stephen Gold sgold@sonic.net
+// File:     hands.hpp
+// Location: src
+// Purpose:  declare Hands class
+// Author:   Stephen Gold sgold@sonic.net
 // (c) Copyright 2012 Stephen Gold
 // Distributed under the terms of the GNU General Public License
 
@@ -38,17 +39,17 @@ public:
     typedef std::vector<Hand>::iterator       Iterator;
 
 	// misc public methods
-	void     Append(Hand const &);
+	void     Append(Hand const&);
     unsigned Count(void) const;
 	ConstIterator 
-		     Find(String const &) const;
-	Iterator Find(String const &);
+		     Find(String const&) const;
+	Iterator Find(String const&);
 	unsigned MaxScore(void) const;
-    void     Next(ConstIterator &) const;
-    void     Next(Iterator &);
-	void     NextWorking(Iterator &);
-    void     Previous(ConstIterator &) const;
-    void     Previous(Iterator &);
+    void     Next(ConstIterator&) const;
+    void     Next(Iterator&);
+	void     NextWorking(Iterator&);
+    void     Previous(ConstIterator&) const;
+    void     Previous(Iterator&);
 
 	// public inquiry method
 	bool HasAnyGoneOut(void) const;

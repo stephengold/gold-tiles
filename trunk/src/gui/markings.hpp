@@ -1,9 +1,10 @@
 #ifndef MARKINGS_HPP_INCLUDED
 #define MARKINGS_HPP_INCLUDED
 
-// File:    markings.hpp
-// Purpose: Markings class header file
-// Author:  Stephen Gold sgold@sonic.net
+// File:     markings.hpp
+// Location: src/gui
+// Purpose:  declare Markings class
+// Author:   Stephen Gold sgold@sonic.net
 // (c) Copyright 2012 Stephen Gold
 // Distributed under the terms of the GNU General Public License
 
@@ -41,12 +42,12 @@ public:
 	static const AttrCntType MARKING_CNT_MAX = 4;
 
 	// public lifecycle
-	Markings(Tile const &, DisplayModes const &);  
-    // Markings(Markings const &); compiler-generated copy constructor is OK
+	Markings(Tile const&, DisplayModes const&);  
+    // Markings(Markings const&); compiler-generated copy constructor is OK
     // ~Markings(void);  compiler-generated destructor is OK
 
 	// public operators
-    // Markings &operator=(Markings const &);  compiler-generated assignment method is OK
+    // Markings& operator=(Markings const&);  compiler-generated assignment method is OK
 
 	// misc public methods
 	AttrType     Marking(AttrIndexType) const;

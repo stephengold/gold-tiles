@@ -53,12 +53,12 @@ static INT_PTR CALLBACK message_handler(
 
 // lifecycle
 
-Dialog::Dialog(char const *templateName) {
+Dialog::Dialog(TextType templateName) {
 	mTemplateName = templateName;
 	mpMessageHandler = &message_handler;
 }
 
-Dialog::Dialog(char const *templateName, DLGPROC messageHandler) {
+Dialog::Dialog(TextType templateName, DLGPROC messageHandler) {
 	mTemplateName = templateName;
 	mpMessageHandler = messageHandler;
 }
@@ -79,7 +79,7 @@ int Dialog::Run(BaseWindow *pParent) {
 
 // misc methods
 
-Dialog::ValueType Dialog::AddListboxItem(IdType listboxId, char const *text) {
+Dialog::ValueType Dialog::AddListboxItem(IdType listboxId, TextType text) {
 	HWND const listbox_handle = GetControlHandle(listboxId);
 
 	WPARAM const unused = 0;
@@ -195,7 +195,7 @@ INT_PTR Dialog::HandleMessage(UINT message, WPARAM wParam) {
     return result;
 }
 
-char const *Dialog::Name(void) const {
+TextType Dialog::Name(void) const {
 	return "Dialog Box - Gold Tile";
 }
 
@@ -246,11 +246,11 @@ Dialog::ValueType Dialog::SetSliderValue(IdType id, ValueType value) {
 }
 
 // set the text value of a label or editbox control
-void Dialog::SetTextString(IdType controlId, String const &rString) {
+void Dialog::SetTextString(IdType controlId, String const& rString) {
 	HWND const window_handle = HWND(*this);
 
 	unsigned const length = rString.Length();
-    char *copy_text = new char[length + 1];
+    char* copy_text = new char[length + 1];
     ::strcpy_s(copy_text, length + 1, rString.c_str());
 
     UINT const success = Win::SetDlgItemText(window_handle, controlId, copy_text);

@@ -1,9 +1,10 @@
 #ifndef YESNO_HPP_INCLUDED
 #define YESNO_HPP_INCLUDED
 
-// File:    yesno.hpp
-// Purpose: YesNo class
-// Author:  Stephen Gold sgold@sonic.net
+// File:     yesno.hpp
+// Location: src/gui
+// Purpose:  declare YesNo class
+// Author:   Stephen Gold sgold@sonic.net
 // (c) Copyright 2012 Stephen Gold
 // Distributed under the terms of the GNU General Public License
 
@@ -38,7 +39,7 @@ public:
 	static const int RESULT_NO = 4;
 
     // public lifecycle
-	YesNo(char const *templateName); 
+	YesNo(TextType templateName); 
 	// no default constructor
 	// ~YesNo(void);  compiler-generated destructor is OK
 
@@ -47,10 +48,9 @@ public:
 
 private:
 	// private lifecycle
-	YesNo(YesNo const &);  // not copyable
+	YesNo(YesNo const&);  // not copyable
 
 	// private operators
-    YesNo &operator=(YesNo const &);  // not assignable
+    YesNo& operator=(YesNo const&);  // not assignable
 };
-
-#endif
+#endif // !defined(YESNO_HPP_INCLUDED)

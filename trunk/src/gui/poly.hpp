@@ -3,7 +3,7 @@
 
 // File:     poly.hpp
 // Location: src/gui
-// Purpose:  Poly class
+// Purpose:  declare Poly class
 // Author:   Stephen Gold sgold@sonic.net
 // (c) Copyright 2012 Stephen Gold
 // Distributed under the terms of the GNU General Public License
@@ -37,6 +37,7 @@ The Poly class is implemented as a list of FractionPair objects.
 #include "gui/win.hpp"       // Win::POINT
 #include "project.hpp"       // Rect
 
+
 class Poly: public std::vector<FractionPair> {
 public:
     // public types
@@ -47,7 +48,7 @@ public:
     void     Add(double x, double y);
 	unsigned Count(void) const;
     void     GetPoints(Win::POINT points[], unsigned numPoints, 
-                        Rect const &rBounds, bool invert) const;    
+                 Rect const& bounds, bool invert) const;    
 };
 #endif // !defined(POLY_HPP_INCLUDED)
 

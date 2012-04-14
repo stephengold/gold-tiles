@@ -3,7 +3,7 @@
 
 // File:     graphics.hpp
 // Location: src/gui
-// Purpose:  Graphics class
+// Purpose:  declare Graphics class
 // Author:   Stephen Gold sgold@sonic.net
 // (c) Copyright 2012 Stephen Gold
 // Distributed under the terms of the GNU General Public License
@@ -43,24 +43,24 @@ public:
 	static const PixelCntType FONT_HEIGHT_DEFAULT = 24;
 
 	// public lifecycle
-    Graphics(Win::HDC, Window &, bool releaseMe, bool doubleBufferingOption);
+    Graphics(Win::HDC, Window&, bool releaseMe, bool doubleBufferingOption);
 	// no default constructor
 	virtual ~Graphics(void);
 
 	// misc public methods
     void         Close(void);
-	void         DrawEquilateral(Rect const &, bool invert);
-	void         DrawHexagon(Rect const &);
-	void         DrawLine(Point const &, Point const &);
+	void         DrawEquilateral(Rect const&, bool invert);
+	void         DrawHexagon(Rect const&);
+	void         DrawLine(Point const&, Point const&);
 	void         DrawLine(LogicalXType, LogicalYType, LogicalXType, LogicalYType);
-    void         DrawPolygon(Poly const &, Rect const &, bool invert = false, bool fill = true);
-    Rect         DrawRectangle(Rect const &);
+    void         DrawPolygon(Poly const&, Rect const&, bool invert = false, bool fill = true);
+    Rect         DrawRectangle(Rect const&);
     Rect         DrawRectangle(LogicalYType, LogicalXType, PixelCntType width, PixelCntType height);
-    void         DrawRoundedSquare(Point const &, PixelCntType edge, PixelCntType diameter);
-    void         DrawText(Rect const &, TextType, TextType alt = NULL);
-	static Rect  InteriorEquilateral(Rect const &, bool invert);
-	static Rect  InteriorHexagon(Rect const &);
-    static Rect  InteriorRoundedSquare(Point const &, PixelCntType edge, PixelCntType diameter);
+    void         DrawRoundedSquare(Point const&, PixelCntType edge, PixelCntType diameter);
+    void         DrawText(Rect const&, TextType, TextType alt = NULL);
+	static Rect  InteriorEquilateral(Rect const&, bool invert);
+	static Rect  InteriorHexagon(Rect const&);
+    static Rect  InteriorRoundedSquare(Point const&, PixelCntType edge, PixelCntType diameter);
     PixelCntType TextHeight(void) const;
     PixelCntType TextWidth(TextType) const;
     void         UseColors(ColorType brushBk, ColorType penText);
@@ -108,10 +108,10 @@ private:
     Win::HWND mWindow;
 
 	// private lifecycle
-	Graphics(Graphics const &);  // not copyable
+	Graphics(Graphics const&);  // not copyable
 
 	// private operators
-    Graphics &operator=(Graphics const &);  // not assignable
+    Graphics& operator=(Graphics const&);  // not assignable
 
 	// misc private methods
 	void CreateFonts(void);

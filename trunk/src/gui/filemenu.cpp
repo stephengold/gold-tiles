@@ -65,7 +65,7 @@ FileMenu::FileMenu(void):
 
 #elif defined(_WINDOWS)
 
-FileMenu::FileMenu(Menu const &rRootMenu, unsigned position):
+FileMenu::FileMenu(Menu const& rRootMenu, unsigned position):
     SubMenu(rRootMenu, position),
     mNew(rRootMenu, IDM_NEW),
     mOpen(rRootMenu, IDM_OPEN),

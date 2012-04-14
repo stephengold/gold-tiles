@@ -1,9 +1,10 @@
 #ifndef HANDOPT_HPP_INCLUDED
 #define HANDOPT_HPP_INCLUDED
 
-// File:    handopt.hpp
-// Purpose: HandOpt class header file
-// Author:  Stephen Gold sgold@sonic.net
+// File:     handopt.hpp
+// Location: src
+// Purpose:  declare HandOpt class
+// Author:   Stephen Gold sgold@sonic.net
 // (c) Copyright 2012 Stephen Gold
 // Distributed under the terms of the GNU General Public License
 
@@ -51,22 +52,22 @@ typedef unsigned long IpAddressType;
 class HandOpt {
 public:
 	// public lifecycle
-	HandOpt(GameStyleType, Strings const &playerNames);
-	HandOpt(String const &playerName);
-	HandOpt(String const &playerName, bool autop, double skipProb, bool rem, IpAddressType);
+	HandOpt(GameStyleType, Strings const& playerNames);
+	HandOpt(String const& playerName);
+	HandOpt(String const& playerName, bool autop, double skipProb, bool rem, IpAddressType);
 	// no default constructor
-    // HandOpt(HandOpt const &);  compiler-generated copy constructor is OK
+    // HandOpt(HandOpt const&);  compiler-generated copy constructor is OK
     // ~HandOpt(void);  compiler-generated destructor is OK
 
 	// public operators
-    // HandOpt &operator=(HandOpt const &);  compiler-generated assignment operator is OK
+    // HandOpt& operator=(HandOpt const&);  compiler-generated assignment operator is OK
 	operator IpAddressType(void) const;
 
 	// misc public methods
 	String PlayerName(void) const;
 	void   SetAutomatic(void);
 	void   SetLocalUser(void);
-	void   SetPlayerName(String const &);
+	void   SetPlayerName(String const&);
 	void   SetRemote(void);
 	void   SetSkipProbability(double);
 	double SkipProbability(void) const;

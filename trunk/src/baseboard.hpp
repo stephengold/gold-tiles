@@ -1,9 +1,10 @@
 #ifndef BASEBOARD_HPP_INCLUDED
 #define BASEBOARD_HPP_INCLUDED
 
-// File:    baseboard.hpp
-// Purpose: BaseBoard class
-// Author:  Stephen Gold sgold@sonic.net
+// File:     baseboard.hpp
+// Location: src
+// Purpose:  declare BaseBoard class
+// Author:   Stephen Gold sgold@sonic.net
 // (c) Copyright 2012 Stephen Gold
 // Distributed under the terms of the GNU General Public License
 
@@ -26,11 +27,11 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 
 /*
 A BaseBoard object represents a two-dimensional playing grid
-which grows automatically in four directions.  The grid is
+which grows automatically in all directions.  The grid is
 composed of cells on which Tile objects may be played.
-Cells may be referenced by means of Cell objects.
+Cells are referenced by means of Cell objects.
  
-The Basboard class implements minimal functionality using two maps:
+The Baseboard class implements minimal functionality using two maps:
 one to map cells to tiles and a reverse map to get cells from tile IDs.
 The Board class extends BaseBoard to add functionality.
 */
@@ -43,25 +44,25 @@ class BaseBoard {
 public:
 	// public lifecycle
     BaseBoard(void);
-	void         MakeEmpty(void);
-    // BaseBoard(BaseBoard const &);  compiler-generated copy constructor is OK
+	void MakeEmpty(void);
+    // BaseBoard(BaseBoard const&);  compiler-generated copy constructor is OK
     // ~BaseBoard(void);  compiler-generated destructor is OK
 
 	// public operators
-    // BaseBoard &operator=(BaseBoard const &);  compiler-generated assignment operator is OK
+    // BaseBoard& operator=(BaseBoard const&);  compiler-generated assignment operator is OK
 	operator String(void) const;
 	operator Tiles(void) const;
 
 	// misc public methods
-	unsigned     Count(void) const;
-	IndexType    EastMax(void) const;
-    Tile const * GetCell(Cell const &) const;
-    bool         LocateTileId(TileIdType, Cell &) const;
-    void         MakeEmpty(Cell const &);
-    IndexType    NorthMax(void) const;
-	void         PlayOnCell(Cell const &, Tile const &);
-    IndexType    SouthMax(void) const;
-    IndexType	 WestMax(void) const;
+	unsigned    Count(void) const;
+	IndexType   EastMax(void) const;
+    Tile const* GetCell(Cell const&) const;
+    bool        LocateTileId(TileIdType, Cell&) const;
+    void        MakeEmpty(Cell const&);
+    IndexType   NorthMax(void) const;
+	void        PlayOnCell(Cell const&, Tile const&);
+    IndexType   SouthMax(void) const;
+    IndexType	WestMax(void) const;
 
 private:
 	// private types
@@ -81,9 +82,8 @@ private:
     CellConstIterator Find(IndexType northing, IndexType easting) const;
     CellIterator	  Find(IndexType northing, IndexType easting);
     
-    // misc inquiry methods
+    // private inquiry methods
     bool IsEmptyColumn(IndexType) const;
     bool IsEmptyRow(IndexType) const;
 };
-
-#endif
+#endif // !defined(BASEBOARD_HPP_INCLUDED)

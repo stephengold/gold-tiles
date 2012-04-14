@@ -1,6 +1,7 @@
-// File:    baseboard.cpp
-// Purpose: BaseBoard class
-// Author:  Stephen Gold sgold@sonic.net
+// File:     baseboard.cpp
+// Location: src
+// Purpose:  implement BaseBoard class
+// Author:   Stephen Gold sgold@sonic.net
 // (c) Copyright 2012 Stephen Gold
 // Distributed under the terms of the GNU General Public License
 
@@ -131,7 +132,7 @@ BaseBoard::CellIterator BaseBoard::Find(IndexType northing, IndexType easting) {
 }
 
 // get a pointer to the Tile (if any) in a specific cell
-Tile const *BaseBoard::GetCell(Cell const &rSquare) const {
+Tile const *BaseBoard::GetCell(Cell const& rSquare) const {
     Tile const *p_result = NULL;
 
     CellConstIterator i_cell = mCells.find(rSquare);
@@ -143,7 +144,7 @@ Tile const *BaseBoard::GetCell(Cell const &rSquare) const {
 }
 
 // locate the Cell which contains a specific Tile
-bool BaseBoard::LocateTileId(TileIdType id, Cell &rCell) const {
+bool BaseBoard::LocateTileId(TileIdType id, Cell& rCell) const {
     TileConstIterator i_tile = mTiles.find(id);
     bool const result = (i_tile != mTiles.end());
     if (result) {
@@ -154,7 +155,7 @@ bool BaseBoard::LocateTileId(TileIdType id, Cell &rCell) const {
 }
 
 // make a specific cell empty
-void BaseBoard::MakeEmpty(Cell const &rCell) {
+void BaseBoard::MakeEmpty(Cell const& rCell) {
     IndexType const row = rCell.Row();
     IndexType const column = rCell.Column();
     
@@ -195,7 +196,7 @@ IndexType BaseBoard::NorthMax(void) const {
 }
 
 // play a Tile on a specific cell
-void BaseBoard::PlayOnCell(Cell const &rCell, Tile const &rTile) {
+void BaseBoard::PlayOnCell(Cell const& rCell, Tile const& rTile) {
     ASSERT(GetCell(rCell) == NULL);
     TileIdType const id = rTile.Id();
     ASSERT(mTiles.find(id) == mTiles.end());

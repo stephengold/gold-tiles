@@ -1,9 +1,10 @@
 #ifndef ATTRBOX_HPP_INCLUDED
 #define ATTRBOX_HPP_INCLUDED
 
-// File:    attrbox.hpp
-// Purpose: AttrBox class
-// Author:  Stephen Gold sgold@sonic.net
+// File:     attrbox.hpp
+// Location: src/gui
+// Purpose:  declare AttrBox class
+// Author:   Stephen Gold sgold@sonic.net
 // (c) Copyright 2012 Stephen Gold
 // Distributed under the terms of the GNU General Public License
 
@@ -38,7 +39,7 @@ The AttrBox class is an extension of the Dialog class.
 class AttrBox: public Dialog {
 public:
     // public lifecycle
-	AttrBox(DisplayModes const &);
+	AttrBox(DisplayModes const&);
 	// no default constructor
 	// ~AttrBox(void);  compiler-generated destructor is OK
 
@@ -53,16 +54,17 @@ private:
     DisplayModes mDisplayModes;
 
 	// private lifecycle
-    AttrBox(AttrBox const &);  // not copyable
+    AttrBox(AttrBox const&);  // not copyable
 
 	// private operators
-    AttrBox &operator=(AttrBox const &); // not assignable
+    AttrBox& operator=(AttrBox const&); // not assignable
 
 	// misc private methods
-	static AttrIndexType AttrIndex(IdType);
-	void                 BumpDisplayMode(AttrIndexType);
-	static char const *  DisplayModeText(AttrModeType);
-	static IdType        ListboxId(AttrIndexType);
-	void                 UpdateValue(IdType, AttrModeType);
+	static AttrIndexType 
+		            AttrIndex(IdType);
+	void            BumpDisplayMode(AttrIndexType);
+	static TextType DisplayModeText(AttrModeType);
+	static IdType   ListboxId(AttrIndexType);
+	void            UpdateValue(IdType, AttrModeType);
 };
-#endif
+#endif // !defined(ATTRBOX_HPP_INCLUDED)

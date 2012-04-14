@@ -1,6 +1,7 @@
-// File:    basewindow.cpp
-// Purpose: BaseWindow class
-// Author:  Stephen Gold sgold@sonic.net
+// File:     basewindow.cpp
+// Location: src/gui
+// Purpose:  implement BaseWindow class
+// Author:   Stephen Gold sgold@sonic.net
 // (c) Copyright 2012 Stephen Gold
 // Distributed under the terms of the GNU General Public License
 
@@ -42,7 +43,7 @@ BaseWindow::BaseWindow(void) {
 
 // The compiler-generated destructor is fine.
 
-void BaseWindow::Initialize(CREATESTRUCT const &rCreateStruct) {
+void BaseWindow::Initialize(CREATESTRUCT const& rCreateStruct) {
 	ASSERT(mHandle != 0);
 	ASSERT(mModule == 0);
 
@@ -84,7 +85,7 @@ void BaseWindow::Center(void) {
     Win::SetWindowPos(this_window, HWND_TOP, x, y, 0, 0, SWP_NOSIZE); 
 }
 
-HINSTANCE BaseWindow::CopyModule(BaseWindow const &rOther) {
+HINSTANCE BaseWindow::CopyModule(BaseWindow const& rOther) {
 	mModule = rOther.mModule;
     HINSTANCE const result = mModule;
 

@@ -1,9 +1,10 @@
 #ifndef MENU_HPP_INCLUDED
 #define MENU_HPP_INCLUDED
 
-// File:    menu.hpp
-// Purpose: Menu class
-// Author:  Stephen Gold sgold@sonic.net
+// File:     menu.hpp
+// Location: src/gui
+// Purpose:  declare Menu class
+// Author:   Stephen Gold sgold@sonic.net
 // (c) Copyright 2012 Stephen Gold
 // Distributed under the terms of the GNU General Public License
 
@@ -32,6 +33,7 @@ The Menu class is implemented by encapsulating a menu handle (Win::HMENU).
 
 #include "gui/win.hpp"   // HASA Win::HMENU
 
+
 class Menu {
 public:
 	// public lifecycle
@@ -46,9 +48,9 @@ private:
     Win::HMENU mHandle;
 
 	// private lifecycle
-	Menu(Menu const &);   // not copyable
+	Menu(Menu const&);   // not copyable
 
 	// private operators
-	Menu &operator=(Menu const &);  // not copyable
+	Menu& operator=(Menu const&);  // not copyable
 };
 #endif // !defined(MENU_HPP_INCLUDED)

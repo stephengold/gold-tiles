@@ -1,9 +1,10 @@
 #ifndef INDICES_HPP_INCLUDED
 #define INDICES_HPP_INCLUDED
 
-// File:    indices.hpp
-// Purpose: Indexes class
-// Author:  Stephen Gold sgold@sonic.net
+// File:     indices.hpp
+// Location: src
+// Purpose:  declare Indexes class
+// Author:   Stephen Gold sgold@sonic.net
 // (c) Copyright 2012 Stephen Gold
 // Distributed under the terms of the GNU General Public License
 
@@ -58,5 +59,4 @@ public:
     bool Contains(IndexType) const;
 	bool IsEmpty(void) const;
 };
-
 #endif // !defined(INDICES_HPP_INCLUDED)

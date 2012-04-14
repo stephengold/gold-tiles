@@ -3,7 +3,7 @@
 
 // File:     turn.hpp
 // Location: src
-// Purpose:  Turn class
+// Purpose:  declare Turn class
 // Author:   Stephen Gold sgold@sonic.net
 // (c) Copyright 2012 Stephen Gold
 // Distributed under the terms of the GNU General Public License
@@ -39,15 +39,15 @@ about the play.
 class Turn {
 public:
 	// lifecycle
-	Turn(Tiles const &, String const &handName);
-	Turn(Move const &, String const &handName, unsigned mustPlay);
+	Turn(Tiles const&, String const& handName);
+	Turn(Move const&, String const& handName, unsigned mustPlay);
 	// no default constructor
-	// Turn(Turn const &);  compiler-generated copy constructor is OK
+	// Turn(Turn const&);  compiler-generated copy constructor is OK
 	// ~Turn(void);  compiler-generated destructor is OK
 
 	// public operators
-	// Turn const &operator=(Turn const &);  compiler-generated assignment operator is OK
-	bool operator==(Turn const &) const;
+	// Turn const& operator=(Turn const&);  compiler-generated assignment operator is OK
+	bool operator==(Turn const&) const;
     operator Move(void) const;
     operator String(void) const;
     
@@ -56,15 +56,15 @@ public:
 	String   HandName(void) const;
 	unsigned MustPlay(void) const;
 	unsigned Points(void) const;
-    void     SetDraw(Tiles const &);
+    void     SetDraw(Tiles const&);
     void     SetPoints(unsigned);
 
 private:
 	// private data
-	Tiles    mDraw;         // move first, then draw
+	Tiles    mDraw;      // move first, then draw
 	String   mHandName;
-	Move     mMove;         // move first, then draw
-	unsigned mMustPlay;     // set for first turn, otherwise zero
-	unsigned mPoints;       // from start of turn
+	Move     mMove;      // move first, then draw
+	unsigned mMustPlay;  // set for first turn, otherwise zero
+	unsigned mPoints;    // from start of turn
 };
 #endif // !defined(TURN_HPP_INCLUDED)

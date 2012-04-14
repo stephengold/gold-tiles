@@ -1,9 +1,10 @@
 #ifndef BASEWINDOW_HPP_INCLUDED
 #define BASEWINDOW_HPP_INCLUDED
 
-// File:    basewindow.hpp
-// Purpose: BaseWindow class
-// Author:  Stephen Gold sgold@sonic.net
+// File:     basewindow.hpp
+// Location: src/gui
+// Purpose:  declare BaseWindow class
+// Author:   Stephen Gold sgold@sonic.net
 // (c) Copyright 2012 Stephen Gold
 // Distributed under the terms of the GNU General Public License
 
@@ -31,7 +32,7 @@ The BaseWindow class encapsulates an HWND (window handle) and implements
 a static map for translating handles to BaseWindow objects. 
 */
 
-#include <map>            // HASA std::map
+#include <map>          // HASA std::map
 #include "project.hpp"
 #include "gui/win.hpp"
 
@@ -47,21 +48,21 @@ public:
 	operator Win::HWND(void) const;
 
 	// misc public methods
-    static BaseWindow * Lookup(Win::HWND);
+    static BaseWindow* Lookup(Win::HWND);
 
 protected:
 	// protected data
-	static BaseWindow * mspNewlyCreatedWindow;
+	static BaseWindow* mspNewlyCreatedWindow;
 
 	// protected lifecycle
-    void Initialize(Win::CREATESTRUCT const &);
+    void Initialize(Win::CREATESTRUCT const&);
 
 	// misc protected methods
 	void           Center(void);
-	Win::HINSTANCE CopyModule(BaseWindow const &);
+	Win::HINSTANCE CopyModule(BaseWindow const&);
 	void           Create(void);
 	static Rect    DesktopBounds(void);
-	virtual char const * 
+	virtual TextType  
 		           Name(void) const = 0;
 	void           SetHandle(Win::HWND);
 
@@ -80,9 +81,9 @@ private:
     Win::HINSTANCE mModule; // the module/instance which owns this window  TODO static?
 
 	// private lifecycle
-    BaseWindow(BaseWindow const &); // not copyable
+    BaseWindow(BaseWindow const&); // not copyable
 
 	// private operators
-    BaseWindow &operator=(BaseWindow const &); // not assignable
+    BaseWindow& operator=(BaseWindow const&); // not assignable
 };
 #endif // !defined(BASEWINDOW_HPP_INCLUDED)

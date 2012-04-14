@@ -1,9 +1,10 @@
 #ifndef HAND_HPP_INCLUDED
 #define HAND_HPP_INCLUDED
 
-// File:    hand.hpp
-// Purpose: Hand class
-// Author:  Stephen Gold sgold@sonic.net
+// File:     hand.hpp
+// Location: src
+// Purpose:  declare Hand class
+// Author:   Stephen Gold sgold@sonic.net
 // (c) Copyright 2012 Stephen Gold
 // Distributed under the terms of the GNU General Public License
 
@@ -31,42 +32,42 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 class Hand {
 public:
 	// public lifecycle
-    Hand(String const &handName, HandOpt const &);
+    Hand(String const& handName, HandOpt const&);
 	void Restart(void);
 	// no default constructor
-    // Hand(Hand const &); The compiler-generated copy constructor is fine.
+    // Hand(Hand const&); The compiler-generated copy constructor is fine.
     // ~Hand(void); The compiler-generated destructor is fine.
 
 	// public operators
-    // Hand &operator=(Hand const &); The compiler-generated assignment method is fine.
-	bool operator==(Hand const &) const;
+    // Hand& operator=(Hand const&); The compiler-generated assignment method is fine.
+	bool operator==(Hand const&) const;
 	operator HandOpt(void) const;
 	operator Tiles(void) const;
 
 	// misc public methods
 	void     AddScore(unsigned);
-	void     AddTiles(Tiles const &);
+	void     AddTiles(Tiles const&);
 	Move     ChooseMove(void) const;
 	void     Display(void) const;
 	void     DisplayName(void) const;
 	void     DisplayScore(void) const;
 	void     DisplayTiles(void) const;
-	Tiles    DrawTiles(unsigned, Tiles &bag);
+	Tiles    DrawTiles(unsigned, Tiles& bag);
 	Tiles    LongestRun(void) const;
 	MsecIntervalType
 		     Milliseconds(void) const;
 	String   Name(void) const;
 	String   PlayerName(void) const;
-	void     RemoveTile(Tile const &);
-	void     RemoveTiles(Tiles const &);
-	void     Resign(Tiles &bag);
+	void     RemoveTile(Tile const&);
+	void     RemoveTiles(Tiles const&);
+	void     Resign(Tiles& bag);
 	unsigned Score(void) const;
 	unsigned Seconds(void) const;
 	double   SkipProbability(void) const;
 	void     StartClock(void);
 	unsigned StopClock(void);
 	void     SubtractScore(unsigned);
-	void     Unresign(Tiles &bag, Tiles const &hand);
+	void     Unresign(Tiles& bag, Tiles const& hand);
 
 	// public inquiry methods
 	bool HasGoneOut(void) const;
@@ -92,4 +93,4 @@ private:
 	// private inquiry methods
 	bool IsEmpty(void) const;
 };
-#endif
+#endif // !defined(HAND_HPP_INCLUDED)

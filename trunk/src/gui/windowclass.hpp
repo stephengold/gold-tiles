@@ -1,9 +1,10 @@
 #ifndef WINDOW_CLASS_HPP_INCLUDED
 #define WINDOW_CLASS_HPP_INCLUDED
 
-// File:    windowclass.hpp
-// Purpose: WindowClass class
-// Author:  Stephen Gold sgold@sonic.net
+// File:     windowclass.hpp
+// Location: src/gui
+// Purpose:  declare WindowClass class
+// Author:   Stephen Gold sgold@sonic.net
 // (c) Copyright 2012 Stephen Gold
 // Distributed under the terms of the GNU General Public License
 
@@ -30,28 +31,29 @@ A WindowClass object represents a Microsoft Windows "window class".
 The WindowClass class extends the Win::WNDCLASSEX structure.
 */
 
+#include "project.hpp"
 #ifdef _WINDOWS
 #include "gui/win.hpp"  // ISA Win::WNDCLASSEX
 
 class WindowClass: public Win::WNDCLASSEX {
 public:
 	// public lifecycle
-    WindowClass(Win::HINSTANCE, Win::WNDPROC, char const *className, 
-		char const *menuName);
+    WindowClass(Win::HINSTANCE, Win::WNDPROC, TextType className, TextType menuName);
 	// no default constructor
     // ~WindowClass(void);  compiler-generated destructor is fine
 
 	// misc public methods
-    Win::HINSTANCE Module(void) const;
-	char const *   Name(void) const;
-    void           RegisterClass(void);
+    Win::HINSTANCE 
+		     Module(void) const;
+	TextType Name(void) const;
+    void     RegisterClass(void);
 
 private:
 	// private lifecycle
-	WindowClass(WindowClass const &); // not copyable
+	WindowClass(WindowClass const&); // not copyable
 
 	// private operators
-    WindowClass &operator=(WindowClass const &); // not assignable
+    WindowClass& operator=(WindowClass const&); // not assignable
 };
 #endif // defined(_WINDOWS)
 #endif // !defined(WINDOWCLASS_HPP_INCLUDED)

@@ -1,9 +1,10 @@
 #ifndef STRING_HPP_INCLUDED
 #define STRING_HPP_INCLUDED
 
-// File:    string.hpp
-// Purpose: String class
-// Author:  Stephen Gold sgold@sonic.net
+// File:     string.hpp
+// Location: src
+// Purpose:  declare String class
+// Author:   Stephen Gold sgold@sonic.net
 // (c) Copyright 2012 Stephen Gold
 // Distributed under the terms of the GNU General Public License
 
@@ -41,26 +42,26 @@ class String: public std::string {
 public:
 	// public types
 	typedef const_iterator ConstIterator;
-	typedef iterator Iterator;
+	typedef iterator       Iterator;
 
 	// public lifecycle
     String(void);
 	String(char);
 	String(unsigned, char);
 	String(char const []);
-	String(std::string const &);
+	String(std::string const&);
 	String(int); // itoa
 	String(unsigned); // utoa
 	String(long); // ltoa
 	String(unsigned long); // ultoa
-	String(Strings const &, String const &separator);
-	// String(String const &);  compiler-generated copy constructor is OK
+	String(Strings const&, String const& separator); // join
+	// String(String const&);  compiler-generated copy constructor is OK
     // ~String(void);  compiler-generated destructor is OK
 
 	// public operators
-    // String &operator=(String const &);  compiler-generated assignment method is OK
-	operator char const*(void) const;
+    // String& operator=(String const&);  compiler-generated assignment method is OK
 	operator int(void) const; // atoi
+	operator TextType(void) const;
 
 	// misc public methods
 	void     Capitalize(void);

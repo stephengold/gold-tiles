@@ -57,12 +57,12 @@ Cells::operator String(void) const {
 
 // misc methods
 
-void Cells::Add(Cell const &cell) {
-	ASSERT(!Contains(cell));
+void Cells::Add(Cell const& rCell) {
+	ASSERT(!Contains(rCell));
 
-	insert(cell);
+	insert(rCell);
 
-	ASSERT(Contains(cell));
+	ASSERT(Contains(rCell));
 }
 
 unsigned Cells::Count(void) const {
@@ -80,7 +80,7 @@ void Cells::MakeEmpty(void) {
 
 // inquiry methods
 
-bool Cells::AreAllInSameOrtho(Direction const &rDirection) const {
+bool Cells::AreAllInSameOrtho(Direction const& rDirection) const {
     bool result = true;
     
     if (Count() > 1) {
@@ -97,7 +97,7 @@ bool Cells::AreAllInSameOrtho(Direction const &rDirection) const {
     return result;
 }
 
-bool Cells::Contains(Cell const &rCell) const {
+bool Cells::Contains(Cell const& rCell) const {
 	ConstIterator const i_cell = find(rCell);
     bool const result = (i_cell != end());
     

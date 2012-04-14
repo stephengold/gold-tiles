@@ -3,7 +3,7 @@
 
 // File:     gameview.hpp
 // Location: src/gui
-// Purpose:  GameView class header file
+// Purpose:  declare GameView class
 // Author:   Stephen Gold sgold@sonic.net
 // (c) Copyright 2012 Stephen Gold
 // Distributed under the terms of the GNU General Public License
@@ -51,39 +51,39 @@ public:
 	static const PixelCntType WIDTH_TINY_TRIANGLE = 16;
 
 	// public lifecycle
-	GameView::GameView(Game const &rGame);
+	GameView::GameView(Game const& game);
 	// no default constructor
     // ~GameView(void);  compiler-generated destructor is OK
-	void SetWindow(GameWindow *, MenuBar *);
+	void SetWindow(GameWindow*, MenuBar*);
 
 	// public operators
-    // GameView &operator=(GameView const &);  compiler-generated assignment operator is OK
+    // GameView& operator=(GameView const&);  compiler-generated assignment operator is OK
 	operator DisplayModes(void) const;
 
 	// misc public methods
-	Cell       GetPointCell(Point const &) const;
-    TileIdType GetTileId(Point const &) const;
-	void       LoadPlayerOptions(Player const &);
+	Cell       GetPointCell(Point const&) const;
+    TileIdType GetTileId(Point const&) const;
+	void       LoadPlayerOptions(Player const&);
 	void       Recenter(PixelCntType oldWidth, PixelCntType oldHeight);
-    void       Repaint(Canvas &);
+    void       Repaint(Canvas&);
 	void       ResetTargetCell(void);
-	void       SavePlayerOptions(Player &) const;
-	void       SetDisplayModes(DisplayModes const &);
-	void       SetWarmTiles(Indices const &);
-	void       SetGame(Game *);
+	void       SavePlayerOptions(Player&) const;
+	void       SetDisplayModes(DisplayModes const&);
+	void       SetWarmTiles(Indices const&);
+	void       SetGame(Game*);
 	void       SetTileSize(unsigned);
 	void       StartCellOffset(long dx, long dy);
 	Cell       TargetCell(void) const;
 	Point      TileCenter(TileIdType) const;
-	void       ToggleTargetCell(Point const &);
+	void       ToggleTargetCell(Point const&);
 
 	// public inquiry methods
 	bool IsDragging(void) const;
-    bool IsInBounds(Cell const &) const;
-	bool IsInCellArea(Point const &, Cell const &) const;
-	bool IsInHandArea(Point const &) const;
-	bool IsInSwapArea(Point const &) const;
-	bool IsInTile(Point const &) const;
+    bool IsInBounds(Cell const&) const;
+	bool IsInCellArea(Point const&, Cell const&) const;
+	bool IsInHandArea(Point const&) const;
+	bool IsInSwapArea(Point const&) const;
+	bool IsInTile(Point const&) const;
 	bool IsTargetSet(void) const;
 	bool IsTargetUsed(void) const;
 
@@ -111,34 +111,34 @@ private:
 	GameWindow* mpWindow;
 
 	// private lifecycle
-	GameView(GameView const &);  // not copyable
+	GameView(GameView const&);  // not copyable
 
 	// private operators
-    GameView &operator=(GameView const &);  // not assignable
+    GameView& operator=(GameView const&);  // not assignable
 
 	// misc private methods
     PixelCntType  CellHeight(void) const;
     PixelCntType  CellWidth(void) const;
     LogicalXType  CellX(IndexType column) const;
     LogicalYType  CellY(IndexType row) const;
-	String        ClockText(Hand &) const;
+	String        ClockText(Hand&) const;
 	AttrIndexType ColorAttribute(void) const;
-	void          DrawBlankTile(Canvas &, Point const &, bool bonus, bool odd);
-    void          DrawBoard(Canvas &, unsigned layer);
-    void          DrawCell(Canvas &, Cell const &, unsigned swapCnt);
-    Rect          DrawHandHeader(Canvas &, LogicalYType, LogicalXType leftRight, Hand &, 
+	void          DrawBlankTile(Canvas&, Point const&, bool bonus, bool odd);
+    void          DrawBoard(Canvas&, unsigned layer);
+    void          DrawCell(Canvas&, Cell const&, unsigned swapCnt);
+    Rect          DrawHandHeader(Canvas&, LogicalYType, LogicalXType leftRight, Hand&, 
                                 ColorType, bool leftFlag);
-    void          DrawHandTile(Canvas &, Point const &, Tile const &, bool odd);
-    void          DrawHandTiles(Canvas &);
-	void          DrawPaused(Canvas &);
-    void          DrawPlayableHand(Canvas &);
-	void          DrawStockArea(Canvas &, LogicalYType, LogicalXType, PixelCntType width);
-	Rect          DrawSwapArea(Canvas &, LogicalYType, LogicalXType, PixelCntType width);
-	Rect          DrawTile(Canvas &, Point const &center, Tile const &, bool odd);
-    void          DrawUnplayableHands(Canvas &);
+    void          DrawHandTile(Canvas&, Point const&, Tile const&, bool odd);
+    void          DrawHandTiles(Canvas&);
+	void          DrawPaused(Canvas&);
+    void          DrawPlayableHand(Canvas&);
+	void          DrawStockArea(Canvas&, LogicalYType, LogicalXType, PixelCntType width);
+	Rect          DrawSwapArea(Canvas&, LogicalYType, LogicalXType, PixelCntType width);
+	Rect          DrawTile(Canvas&, Point const& center, Tile const&, bool odd);
+    void          DrawUnplayableHands(Canvas&);
     PixelCntType  GridUnitX(void) const;
     PixelCntType  GridUnitY(void) const;
-	String        ScoreText(Hand const &, bool playable) const;
+	String        ScoreText(Hand const&, bool playable) const;
 	PixelCntType  TileHeight(void) const;
 
 	// private inquiry methods

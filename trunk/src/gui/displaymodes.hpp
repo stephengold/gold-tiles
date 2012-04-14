@@ -3,7 +3,7 @@
 
 // File:     displaymodes.hpp
 // Location: src/gui
-// Purpose:  DisplayModes class header file
+// Purpose:  declare DisplayModes class
 // Author:   Stephen Gold sgold@sonic.net
 // (c) Copyright 2012 Stephen Gold
 // Distributed under the terms of the GNU General Public License
@@ -37,11 +37,11 @@ class DisplayModes {
 public:
 	// public lifecycle
 	DisplayModes(void);
-    DisplayModes(DisplayModes const &);
+    DisplayModes(DisplayModes const&);
     // ~DisplayModes(void);  compiler-generated destructor is OK
 
 	// public operators
-    DisplayModes &operator=(DisplayModes const &);
+    DisplayModes& operator=(DisplayModes const&);
 
 	// misc public methods
 	void          Cleanup(void);

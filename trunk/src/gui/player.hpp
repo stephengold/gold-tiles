@@ -1,9 +1,10 @@
 #ifndef PLAYER_HPP_INCLUDED
 #define PLAYER_HPP_INCLUDED
 
-// File:    player.hpp
-// Purpose: Player class header file
-// Author:  Stephen Gold sgold@sonic.net
+// File:     player.hpp
+// Location: src/gui
+// Purpose:  declare Player class
+// Author:   Stephen Gold sgold@sonic.net
 // (c) Copyright 2012 Stephen Gold
 // Distributed under the terms of the GNU General Public License
 
@@ -41,7 +42,7 @@ class Player {
 public:
 	// public lifecycle
 	// Player(void); no default constructor
-	Player(String const &rName);
+	Player(String const& name);
     // ~Player(void);  compiler-generated destructor is OK
 
 	// public operators
@@ -49,15 +50,15 @@ public:
 	operator Point(void) const;    // get logical coordinates of Start cell
 
 	// misc public methods
-    static Player & 
-		  rLookup(String const &);
+    static Player& 
+		    rLookup(String const&);
 	void     SetAutopause(bool);
-	void     SetDisplayModes(DisplayModes const &);
+	void     SetDisplayModes(DisplayModes const&);
     void     SetPeek(bool);
 	void     SetShowClocks(bool);
     void     SetShowGrid(bool);
 	void     SetShowScores(bool);
-	void     SetStartCellPosition(Point const &);
+	void     SetStartCellPosition(Point const&);
 	void     SetTileSize(unsigned);
 	unsigned TileSize(void) const;
 
@@ -89,9 +90,9 @@ private:
 	unsigned     mTileSize;
 
 	// private lifecycle
-	Player(Player const &);  // not copyable
+	Player(Player const&);  // not copyable
 
 	// private operators
-	Player &operator=(Player const &);  // not assignable
+	Player& operator=(Player const&);  // not assignable
 };
 #endif // !defined(PLAYER_HPP_INCLUDED)

@@ -3,7 +3,7 @@
 
 // File:     parmbox1.hpp
 // Location: src/gui
-// Purpose:  ParmBox1 class
+// Purpose:  declare ParmBox1 class
 // Author:   Stephen Gold sgold@sonic.net
 // (c) Copyright 2012 Stephen Gold
 // Distributed under the terms of the GNU General Public License
@@ -38,25 +38,25 @@ The ParmBox1 class is an extension of the Dialog class.
 class ParmBox1: public Dialog {
 public:
     // lifecycle
-	ParmBox1(GameOpt &);
+	ParmBox1(GameOpt&);
 	// no default constructor
 	// ~ParmBox1(void);  compiler-generated destructor is OK
 
 	// misc public methods
-	Win::INT_PTR  HandleMessage(MessageType, Win::WPARAM, Win::LPARAM);
+	Win::INT_PTR HandleMessage(MessageType, Win::WPARAM, Win::LPARAM);
 
 private:
 	// private constants
 	static const ValueType MINUTES_PER_HAND_MAX = 120;
 
 	// private data
-	GameOpt &mrGameOpt;
+	GameOpt& mrGameOpt;
 
 	// private lifecycle
-	ParmBox1(ParmBox1 const &);    // not copyable
+	ParmBox1(ParmBox1 const&);    // not copyable
 
 	// private operators
-    ParmBox1 &operator=(ParmBox1 const &);   // not assignable
+    ParmBox1& operator=(ParmBox1 const&);   // not assignable
 
 	// misc private methods
     void SetStyle(void);

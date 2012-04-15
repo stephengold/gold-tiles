@@ -293,10 +293,13 @@ void GameWindow::HandleButtonUp(Point const& rMouse) {
 	HandleMouseMove(rMouse);
 
 	if (mDragBoardFlag) {
-		if (mDragBoardPixelCnt < 5 && mGameView.IsLocalUsersTurn()) {
-		    // Drags shorter than five pixels 
-			// are treated as normal mouse-clicks 
-			// which change or deactivate the target cell.
+		if (mDragBoardPixelCnt < DRAG_THRESHOLD 
+		 && mGameView.IsLocalUsersTurn()) {
+		    /*
+			Drags shorter than six pixels 
+			are treated as normal mouse-clicks 
+			which change or deactivate the target cell.
+		     */
 			mGameView.ToggleTargetCell(rMouse);
 		}
    		StopDragging();

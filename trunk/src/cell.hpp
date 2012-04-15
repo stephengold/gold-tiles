@@ -56,7 +56,7 @@ public:
 	static const IndexType WIDTH_MIN = 4;
 
 	// public lifecycle
-    Cell(void);
+    Cell(void);   // the start cell
     Cell(IndexType row, IndexType column);
 	Cell(Cell const&, Direction const&, IndexType count = 1);
     // Cell(Cell const&);  compiler-generated copy constructor is OK
@@ -70,18 +70,16 @@ public:
 	operator String(void) const;
 
 	// misc public methods
-	static IndexType AxisLength(Direction const&);
-	IndexType        Column(void) const;
-	static void      GetTopology(bool& wrapFlag, IndexType& height, IndexType& width);
-    bool             GetUserChoice(String const&);
-    static GridType  Grid(void);
-	IndexType        Group(Direction const&) const;
-	static Direction LongestAxis(void);
-	void             Next(Direction const&, IndexType count = 1);
-	IndexType        Ortho(Direction const&) const;
-	IndexType        Row(void) const;
-	static String    ScoringAxes(void);
-	static void      SetStatic(GameOpt const&);
+	IndexType       Column(void) const;
+    bool            GetUserChoice(String const&);
+    static GridType Grid(void);
+	IndexType       Group(Direction const&) const;
+	static void     LimitPlay(unsigned&);
+	void            Next(Direction const&, IndexType count = 1);
+	IndexType       Ortho(Direction const&) const;
+	IndexType       Row(void) const;
+	static String   ScoringAxes(void);
+	static void     SetStatic(GameOpt const&);
 
 	// public inquiry methods
 	bool        HasNeighbor(Direction const&) const;
@@ -89,7 +87,6 @@ public:
 	bool        IsStart(void) const;
 	static bool IsScoringAxis(Direction const&);
 	bool        IsValid(void) const;
-	static bool IsValid(IndexType row, IndexType column);
 
 private:
 	// private data

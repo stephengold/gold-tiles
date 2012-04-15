@@ -70,7 +70,7 @@ Cell::Cell(Cell const& rBase, Direction const& rDirection, IndexType count) {
 	IndexType column_offset;
 
 	if (Grid() == GRID_TRIANGLE) {
-		bool const odd = ::is_odd(rBase.Row() + rBase.Column());
+		bool const odd = rBase.IsOdd();
 		direction = direction.TriangleNeighbor(odd);
 	}
     NextCellOffsets(direction, row_offset, column_offset);
@@ -151,51 +151,10 @@ Cell::operator String(void) const {
 
 // misc methods
 
-/* static */ IndexType Cell::AxisLength(Direction const& rAxis) {
-	ASSERT(IsScoringAxis(rAxis));
-
-	IndexType result = HEIGHT_MAX;
-	if (msHeight == HEIGHT_MAX && msWidth == WIDTH_MAX) {
-		result = HEIGHT_MAX;
-	} else if (rAxis.IsVertical()) {
-		result = msHeight;
-	} else if (rAxis.IsHorizontal()) {
-		if (msGrid == GRID_HEX) {
-	       result = msWidth/2;
-		} else {
-	       result = msWidth;
-		}
-	} else {
-		// TODO
-		FAIL();
-	}
-
-	ASSERT(result >= HEIGHT_MIN);
-	return result;
-}
-
 IndexType Cell::Column(void) const {
 	ASSERT(IsValid());
 
 	return mColumn;
-}
-
-/* static */ void Cell::GetTopology(
-	bool& wrapFlag, 
-	IndexType& width, 
-	IndexType& height)
-{
-	ASSERT(msHeight <= HEIGHT_MAX);
-	ASSERT(msHeight >= HEIGHT_MIN);
-	ASSERT(!::is_odd(msHeight));
-
-	ASSERT(msWidth <= WIDTH_MAX);
-	ASSERT(msWidth >= WIDTH_MIN);
-	ASSERT(!::is_odd(msWidth));
-
-	height = msHeight;
-	width = msWidth;
-    wrapFlag = msWrapFlag;
 }
 
 bool Cell::GetUserChoice(String const& rAlternate) {
@@ -301,25 +260,57 @@ IndexType Cell::Group(Direction const& rDirection) const {
 		FAIL();
 	}
 
-    return result;        
+    return result;
 }
 
-/* static */ Direction Cell::LongestAxis(void) {
-	Direction result;
-	IndexType max_length = 0;
+/* static */ void Cell::LimitPlay(unsigned& rCellCnt) {
+	ASSERT(rCellCnt > 0);
+
+	IndexType const cells_needed = rCellCnt;
+	IndexType most_found = 1;
 
 	Direction axis;
-	for (axis.SetFirst(); axis.IsAxis(); axis++) {
-        if (IsScoringAxis(axis)) {
-			IndexType const length = AxisLength(axis);
-			if (length > max_length) {
-				max_length = length;
-				result = axis;
+    for (axis.SetFirst(); axis.IsAxis(); axis++) {
+	    if (Cell::IsScoringAxis(axis)) {
+	        IndexType cells_found = 1;
+
+			Cell current; // start cell
+			ASSERT(current.IsValid());
+
+			// look in the negative direction; stop at first invalid cell
+            while (cells_found < cells_needed) {
+                Cell const previous(current, axis, -1);
+                if (!previous.IsValid()) {
+			        break;
+		        }
+		        ++cells_found;
+				current = previous;
+	        }
+    
+			current = Cell(); // start cell
+			ASSERT(current.IsValid());
+
+			// look in the positive direction; stop at first invalid cell
+			while (cells_found < cells_needed) {
+                Cell const next(current, axis);
+                if (!next.IsValid()) {
+			        break;
+		        }
+				++cells_found;
+				current = next;
+			}
+
+			if (cells_found >= cells_needed) {
+				return;
+			}
+			if (cells_found > most_found) {
+				most_found = cells_found;
 			}
 		}
 	}
 
-	return result;
+	ASSERT(most_found < cells_needed);
+	rCellCnt = most_found;
 }
 
 void Cell::Next(Direction const& rDirection, IndexType count) {
@@ -473,8 +464,8 @@ bool Cell::HasNeighbor(Direction const& rDirection) const {
 			break;
 
 	    case GRID_TRIANGLE:
-			if (rDirection.IsNorth() && !::is_odd(mRow + mColumn)
-			 || rDirection.IsSouth() && ::is_odd(mRow + mColumn)
+			if (rDirection.IsNorth() && !IsOdd()
+			 || rDirection.IsSouth() && IsOdd()
 			 || rDirection.IsDiagonal())
 			{
 				result = false;
@@ -514,7 +505,7 @@ bool Cell::HasNeighbor(Direction const& rDirection) const {
 }
 
 bool Cell::IsOdd(void) const {
-    bool result = (::is_odd(mRow) != ::is_odd(mColumn));
+    bool const result = ::is_odd(mRow + mColumn);
 
 	return result;
 }
@@ -551,36 +542,18 @@ bool Cell::IsStart(void) const {
 }
 
 bool Cell::IsValid(void) const {
-	bool result = IsValid(mRow, mColumn);
-
-	return result;
-}
-
-/* static */ bool Cell::IsValid(IndexType row, IndexType column) {
     bool result = true;
 
-	switch (msGrid) {
-		case GRID_HEX:
-			if (::is_odd(row + column)) {
-				result = false;
-			}
-			break;
-		case GRID_4WAY:
-		case GRID_8WAY:
-	    case GRID_TRIANGLE:
-			// all coordinates correspond to valid cells
-			break;
-		default:
-			FAIL();
-	}
-
-	if (row < -msHeight/2 || row >= msHeight/2) {
+	if (msGrid == GRID_HEX && IsOdd()) {
 		result = false;
 	}
-	if (column < -msWidth/2 || column >= msWidth/2) {
+
+	if (mRow < -msHeight/2 || mRow >= msHeight/2) {
+		result = false;
+	}
+	if (mColumn < -msWidth/2 || mColumn >= msWidth/2) {
 		result = false;
 	}
 
 	return result;
 }
-

@@ -172,7 +172,7 @@ void GameView::DrawBoard(Canvas& rCanvas, unsigned showLayer){
 	}
 
     for (IndexType row = top_row; row >= bottom_row; row--) {
-        if (CellY(row) > LogicalYType(mpWindow->ClientAreaHeight())) {
+        if (CellY(row + 1) > LogicalYType(mpWindow->ClientAreaHeight())) {
             break;
         }
         for (IndexType column = left_column; column <= right_column; column++) {

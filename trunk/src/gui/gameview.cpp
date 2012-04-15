@@ -177,7 +177,7 @@ void GameView::DrawBoard(Canvas& rCanvas, unsigned showLayer){
         }
         for (IndexType column = left_column; column <= right_column; column++) {
             Cell const cell(row, column);
-            if (CellX(column) > LogicalXType(mpWindow->ClientAreaWidth())) {
+            if (CellX(column + 1) > LogicalXType(mpWindow->ClientAreaWidth())) {
                 break;
             } else if (cell.IsValid()) {
 				bool const hinted = IsHinted(cell);

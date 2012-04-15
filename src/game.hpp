@@ -25,6 +25,17 @@ You should have received a copy of the GNU General Public License
 along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+/*
+ A Game object represents the state of a game in progress.
+
+ The Game class owns various Tile objects, which are stored in three
+ places:  a Board object, a Hands object, and a Tiles object (for the stock bag).
+ The game history is stored using a Turns object and an iterator to
+ indicate the current position therein.  The options used to create
+ the game are saved in a GameOpt object.
+
+*/
+
 #include "board.hpp"  // HASA Board
 #include "gameopt.hpp"// HASA GameOpt
 #include "hands.hpp"  // HASA Hands
@@ -97,9 +108,9 @@ private:
 	String           mFirstTurnMessage;
     Hands            mHands;         // all hands being played
 	Turns            mHistory;       // history of turns for undo/redo
-    unsigned         mMustPlay;      // min number of tiles, zero after the first turn
+    unsigned         mMustPlay;      // min number of tiles to play, zero after the first turn
 	GameOpt const    mOptions;
-    Hands::Iterator miPlayableHand;    // whose turn it is
+    Hands::Iterator miPlayableHand;  // whose turn it is
 	Turns::Iterator miRedo;          // current position in the history
     Tiles            mStockBag;      // stock bag from which tiles are drawn
 	bool             mUnsavedChanges;

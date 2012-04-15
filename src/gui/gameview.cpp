@@ -176,10 +176,10 @@ void GameView::DrawBoard(Canvas& rCanvas, unsigned showLayer){
             break;
         }
         for (IndexType column = left_column; column <= right_column; column++) {
+            Cell const cell(row, column);
             if (CellX(column) > LogicalXType(mpWindow->ClientAreaWidth())) {
                 break;
-            } else if (Cell::IsValid(row, column)) {
-                Cell const cell(row, column);
+            } else if (cell.IsValid()) {
 				bool const hinted = IsHinted(cell);
 				bool const empty = IsEmpty(cell);
 				unsigned layer = 0;

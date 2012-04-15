@@ -37,6 +37,7 @@ Game::Game(GameOpt const& rGameOpt, HandOpts const& rHandOptions):
 {
 	ASSERT(!rHandOptions.IsEmpty());
 
+	// intialize static data of the Cell class and the Tile class
 	Cell::SetStatic(mOptions);
 	Tile::SetStatic(mOptions);
 
@@ -75,7 +76,7 @@ Game::Game(GameOpt const& rGameOpt, HandOpts const& rHandOptions):
 
 		// record the deal in mHistory
 		String const name = i_hand->Name();
-		Turn turn(tiles, name);
+		Turn const turn(tiles, name);
 		mHistory.push_back(turn);
     }
     std::cout << std::endl;
@@ -276,11 +277,9 @@ void Game::FindBestRun(void) {
     }
 	mBestRunReport += "\n";
 
-	Direction const axis = Cell::LongestAxis();
-	unsigned const axis_length = Cell::AxisLength(axis);
-	if (mMustPlay > axis_length) {
-		mMustPlay = axis_length;
-	}
+	// make sure the tiles to be played will fit on the board
+	Cell::LimitPlay(mMustPlay);
+
 	mFirstTurnMessage = miPlayableHand->Name();
 	mFirstTurnMessage += " plays first and must place "; 
 	mFirstTurnMessage += plural(mMustPlay, "tile");

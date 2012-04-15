@@ -377,11 +377,9 @@ void Partial::SetHintedCells(void) {
     ASSERT(left_column <= right_column);
     for (IndexType row = top_row; row >= bottom_row; row--) {
         for (IndexType column = left_column; column <= right_column; column++) {
-			if (Cell::IsValid(row, column)) {
-                Cell const cell(row, column);
-                if (mpGame->HasEmptyCell(cell)) {
-                    mHintedCells.Add(cell);
-                }
+            Cell const cell(row, column);
+			if (cell.IsValid() && mpGame->HasEmptyCell(cell)) {
+                mHintedCells.Add(cell);
 			}
         }
     }
@@ -560,7 +558,7 @@ bool Partial::IsActive(TileIdType id) const {
 }
 
 bool Partial::IsEmpty(Cell const& rCell) const {
-    Tile const *const p_tile = mBoard.GetCell(rCell);
+    Tile const* const p_tile = mBoard.GetCell(rCell);
     bool const result = (p_tile == NULL);
 
     return result;
@@ -599,11 +597,9 @@ bool Partial::IsHinted(Cell const& rCell) {
 }
 
 bool Partial::IsInHand(TileIdType id) const {
-    bool result = true;
+    bool result = mTiles.ContainsId(id);
     
-    if (!mTiles.ContainsId(id)) {
-        result = false;
-    } else if (IsOnBoard(id)) {
+    if (IsOnBoard(id)) {
         result = false;
     } else if (IsInSwap(id)) {
         result = false;

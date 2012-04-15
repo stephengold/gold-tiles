@@ -76,7 +76,8 @@ public:
 
 private:
     // private constants
-    static const unsigned         ID_CLOCK_TIMER = 1;
+	static const PixelCntType DRAG_THRESHOLD = 6;
+    static const unsigned ID_CLOCK_TIMER = 1;
     static const MsecIntervalType TIMEOUT_MSEC = 500;
 
 	// private data
@@ -96,7 +97,7 @@ private:
 	void*         mThinkFiber;
 	ThinkModeType mThinkMode;
 #ifdef _QT
-    Ui::GameWindow * mpUi;
+    Ui::GameWindow* mpUi;
 #endif // defined(_QT)
 
 	// private lifecycle

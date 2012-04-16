@@ -22,9 +22,9 @@ You should have received a copy of the GNU General Public License
 along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <iostream>
 #include "baseboard.hpp"
 #include "tiles.hpp"
+
 
 // lifecycle
 
@@ -53,40 +53,6 @@ void BaseBoard::MakeEmpty(void) {
 // operators
 
 // The compiler-generated assignment operator is OK.
-
-// convert the entire board to a string
-BaseBoard::operator String(void) const {
-	unsigned const width = Tile::AttributeCnt() + 4;
-
-    String result(width, ' ');
-    for (int column = -int(mWestMax); column <= int(mEastMax); column++) {
-       String const column_tag(column);
-       result += String(width - column_tag.Length(), ' ');
-       result += column_tag;
-    }
-    result += "\n";
-    for (int row = int(mNorthMax); row >= -int(mSouthMax); row--) {
-        String const row_tag(row);
-        result += String(width - row_tag.Length(), ' ');
-        result += row_tag;
-	    for (int column = -int(mWestMax); column <= int(mEastMax); column++) {
-            CellConstIterator i_cell = Find(row, column);
-			if (i_cell == mCells.end()) {
-				result += " .";
-                result += Tile::StringEmpty();
-                result += ".";
-			} else {
-                Tile tile = i_cell->second;
-				result += " [";
-                result += String(tile);
-                result += "]";
-			}
-		}
-		result += "\n";
-	}
-
-	return result;
-}
 
 // get a list of all tiles played
 BaseBoard::operator Tiles(void) const {
@@ -195,7 +161,7 @@ IndexType BaseBoard::NorthMax(void) const {
     return mNorthMax;
 }
 
-// play a Tile on a specific cell
+// play a Tile on a specific Cell
 void BaseBoard::PlayOnCell(Cell const& rCell, Tile const& rTile) {
     ASSERT(GetCell(rCell) == NULL);
     TileIdType const id = rTile.Id();

@@ -41,8 +41,52 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 
 // The compiler-generated assignment method is OK.
 
+// convert the entire board to a string
+Board::operator String(void) const {
+	unsigned const width = Tile::AttributeCnt() + 4;
+
+    String result(width, ' ');
+    for (IndexType column = -WestMax(); column <= EastMax(); column++) {
+       String const column_tag(column);
+       result += String(width - column_tag.Length(), ' ');
+       result += column_tag;
+    }
+    result += "\n";
+    for (IndexType row = NorthMax(); row >= -SouthMax(); row--) {
+        String const row_tag(row);
+        result += String(width - row_tag.Length(), ' ');
+        result += row_tag;
+	    for (IndexType column = -WestMax(); column <= EastMax(); column++) {
+			Cell const cell(row, column);
+			if (HasEmptyCell(cell)) {
+				result += " .";
+                result += Tile::StringEmpty();
+                result += ".";
+			} else {
+                Tile const tile = GetTile(cell);
+				result += " [";
+                result += String(tile);
+                result += "]";
+			}
+		}
+		result += "\n";
+	}
+
+	return result;
+}
+
 
 // misc methods
+
+Cell Board::FirstCell(void) const {
+	int const column_fringe = 1;
+	int const row_fringe = Cell::RowFringe();
+    IndexType const top_row = row_fringe + NorthMax();
+    IndexType const left_column = -column_fringe - WestMax();
+	Cell const result(top_row, left_column);
+
+	return result;
+}
 
 TileIdType Board::GetId(Cell const& rCell) const {
     TileIdType result = Tile::ID_NONE;
@@ -122,6 +166,22 @@ bool Board::LocateTile(Tile const& rTile, Cell& rCell) const {
 	return result;
 }
 
+void Board::Next(Cell& rCell) const {
+	int const column_fringe = 1;
+    IndexType const right_column = column_fringe + EastMax();
+
+	IndexType row = rCell.Row();
+	IndexType column = rCell.Column();
+	if (column < right_column) {
+		column++;
+	} else {
+        IndexType const left_column = -column_fringe - WestMax();
+		column = left_column;
+		row--;
+	}
+	rCell = Cell(row, column);
+}
+
 void Board::PlayMove(Move const& rMove) {
     Move::ConstIterator i_place;
     for (i_place = rMove.Begin(); i_place != rMove.End(); i_place++) {
@@ -138,7 +198,7 @@ void Board::PlayTile(TileCell const& rTileCell) {
 
 unsigned Board::ScoreDirection(
     Cell const& rCell,
-   Direction const& rDirection) const
+    Direction const& rDirection) const
 {
     ASSERT(!HasEmptyCell(rCell));
     
@@ -511,7 +571,7 @@ bool Board::IsValidMove(Move const& rMove, UmType& rReason) const {
     }
 
     // get the set of board cells to be played
-    Cells cells = Cells(rMove);
+    Cells const cells = Cells(rMove);
 
     // make sure all those cells are empty
     if (!AreAllEmpty(cells)) {
@@ -580,4 +640,25 @@ bool Board::IsValidMove(Move const& rMove, UmType& rReason) const {
     }
 
     return true;
+}
+
+bool Board::MightUse(Cell const& rCell) const {
+	int const column_fringe = 1;
+	int const row_fringe = Cell::RowFringe();
+    IndexType const top_row = row_fringe + NorthMax();
+    IndexType const bottom_row = -row_fringe - SouthMax();
+    IndexType const right_column = column_fringe + EastMax();
+    IndexType const left_column = -column_fringe - WestMax();
+    ASSERT(bottom_row <= top_row);
+    ASSERT(left_column <= right_column);
+
+	IndexType const row = rCell.Row();
+	IndexType const column = rCell.Column();
+
+	bool const result = (row >= bottom_row 
+		              && row <= top_row
+					  && column >= left_column 
+					  && column <= right_column);
+
+	return result;
 }

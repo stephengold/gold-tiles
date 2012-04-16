@@ -59,9 +59,14 @@ enum UmType { // user message handles
 
 class Board: public BaseBoard {
 public:
+	// public operators
+	operator String(void) const;
+
 	// misc public methods
+	Cell       FirstCell(void) const;
 	TileIdType GetId(Cell const&) const;
     bool       LocateTile(Tile const&, Cell&) const;
+	void       Next(Cell&) const;
     void	   PlayMove(Move const&);
     static String 
 		       ReasonMessage(UmType, String& title);
@@ -76,6 +81,7 @@ public:
 	bool IsEmpty(void) const;
     bool IsValidMove(Move const&) const;
     bool IsValidMove(Move const&, UmType& reason) const;
+	bool MightUse(Cell const&) const;
 
 private:
 	// misc private methods

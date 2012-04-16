@@ -50,7 +50,6 @@ public:
 
 	// public operators
     // BaseBoard& operator=(BaseBoard const&);  compiler-generated assignment operator is OK
-	operator String(void) const;
 	operator Tiles(void) const;
 
 	// misc public methods

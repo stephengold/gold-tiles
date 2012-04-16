@@ -29,7 +29,7 @@ helped me create this application:
  + my sweetie Gale for her encouragement and understanding
  + Noah Picard for his advice on the user interface design
  + Skyler Burwell for testing Release 0.6
- + Julian Gold for testing various beta released and for his
+ + Julian Gold for testing various beta releases and for his
    advice on game features
  + the creators of the ResEdit free resource editor (www.resedit.net)
  + Microsoft Corporation for creating and distributing Microsoft

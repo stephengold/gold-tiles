@@ -264,12 +264,12 @@ void GameWindow::HandleButtonDown(Point const& rMouse) {
 	ASSERT(!mGameView.IsDragging());
     mMouseLast = rMouse;
 
-	TileIdType id = mGameView.GetTileId(rMouse);
+	TileIdType const id = mGameView.GetTileId(rMouse);
     if (id != Tile::ID_NONE) {
         if (!IsMouseCaptured()) {
             // Capture mouse to drag the tile
             CaptureMouse();
-			Point const point = mGameView.TileCenter(id);
+			Point const point = mGameView.TileCenter(id, rMouse);
             WarpCursor(point);
             mMouseLast = point;
             mGameView.Activate(id);
@@ -887,6 +887,9 @@ void GameWindow::ReleaseActiveTile(Point const& rMouse) {
 		to_cell = mGameView.GetPointCell(rMouse);
 		if (!mGameView.IsInCellArea(rMouse, to_cell)) {
 			return;
+		}
+		if (Cell::DoesBoardWrap()) {
+		    to_cell.Wrap();
 		}
 	}
 

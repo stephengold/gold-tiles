@@ -28,8 +28,8 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 
 // static data
 
-void *                       Partial::mspYieldArgument = NULL;
-Partial::YieldFunctionType * Partial::mspYieldFunction = NULL;
+void*                       Partial::mspYieldArgument = NULL;
+Partial::YieldFunctionType* Partial::mspYieldFunction = NULL;
 
 
 // lifecycle
@@ -63,7 +63,7 @@ void Partial::Reset(void) {
     mPlayedTileCnt = 0;
 	mSwapIds.MakeEmpty();
 	if (HasGame()) {
-        mBoard = Board(*mpGame);
+        mBoard = *mpGame;
         mTiles = mpGame->ActiveTiles();
     } else {
 	    mBoard.MakeEmpty();
@@ -364,23 +364,15 @@ void Partial::SetHintedCells(void) {
 	}
 
     // hint all valid empty cells (from start of turn)
-	int row_fringe = 1;
-	int const column_fringe = 1;
-	if (Cell::Grid() == GRID_HEX) {
-		row_fringe = 2;
-	}
-    IndexType const top_row = row_fringe + mBoard.NorthMax();
-    IndexType const bottom_row = -row_fringe - mBoard.SouthMax();
-    IndexType const right_column = column_fringe + mBoard.EastMax();
-    IndexType const left_column = -column_fringe - mBoard.WestMax();
-    ASSERT(bottom_row <= top_row);
-    ASSERT(left_column <= right_column);
-    for (IndexType row = top_row; row >= bottom_row; row--) {
-        for (IndexType column = left_column; column <= right_column; column++) {
-            Cell const cell(row, column);
-			if (cell.IsValid() && mpGame->HasEmptyCell(cell)) {
-                mHintedCells.Add(cell);
-			}
+    for (Cell cell = mBoard.FirstCell(); mBoard.MightUse(cell); mBoard.Next(cell)) {
+		Cell wrap_cell = cell;
+		if (Cell::DoesBoardWrap()) {
+			wrap_cell.Wrap();
+		}
+		if (wrap_cell.IsValid() 
+		 && mpGame->HasEmptyCell(wrap_cell)
+		 && !mHintedCells.Contains(wrap_cell)) {
+            mHintedCells.Add(wrap_cell);
         }
     }
 	if (mHintStrength == HINT_EMPTY) {
@@ -414,15 +406,17 @@ void Partial::SetHintedCells(void) {
 
     base = mHintedCells;
     mHintedCells.MakeEmpty();
-    Move move = GetMove(false);
+    Move const move = GetMove(false);
 
 	for (unsigned i = 0; i < CountTiles(); i++) {
         Tile const tile = mTiles[i];
 	    TileIdType const id = tile.Id();
-        bool include_tile = (!mBoard.ContainsId(id) || id == mActiveId);
+        bool include_tile;
         if (mHintStrength == HINT_USABLE_SELECTED && mActiveId != Tile::ID_NONE) {
-            include_tile = (mActiveId == id);
-        }
+            include_tile = (id == mActiveId);
+        } else {
+			include_tile = (!mBoard.ContainsId(id) || id == mActiveId);
+		}
 		if (include_tile) {
             AddValidNextUses(move, tile, base);
         }
@@ -551,13 +545,14 @@ bool Partial::HasGame(void) const {
 }
 
 bool Partial::IsActive(TileIdType id) const {
-    ASSERT(id != Tile::ID_NONE);
     bool const result = (mActiveId == id);
     
     return result;
 }
 
 bool Partial::IsEmpty(Cell const& rCell) const {
+	ASSERT(rCell.IsValid());
+
     Tile const* const p_tile = mBoard.GetCell(rCell);
     bool const result = (p_tile == NULL);
 
@@ -583,6 +578,8 @@ bool Partial::IsGamePaused(void) const {
 }
 
 bool Partial::IsHinted(Cell const& rCell) {
+	ASSERT(rCell.IsValid());
+
 	bool result = false;
 
 	if (IsLocalUsersTurn()) {
@@ -657,27 +654,8 @@ bool Partial::IsValidNextStep(
 	return result;
 }
 
-bool Partial::IsVisible(Cell const& rCell) {
-	int row_fringe = 1;
-	int const column_fringe = 1;
-	if (Cell::Grid() == GRID_HEX) {
-		row_fringe = 2;
-	}
-
-    IndexType const top_row = row_fringe + mBoard.NorthMax();
-    IndexType const bottom_row = -row_fringe - mBoard.SouthMax();
-    IndexType const right_column = column_fringe + mBoard.EastMax();
-    IndexType const left_column = -column_fringe - mBoard.WestMax();
-    ASSERT(bottom_row <= top_row);
-    ASSERT(left_column <= right_column);
-
-	IndexType const row = rCell.Row();
-	IndexType const column = rCell.Column();
-
-	bool const result = (row >= bottom_row) 
-		             && (row <= top_row)
-			         && (column >= left_column)
-			         && (column <= right_column);
+bool Partial::MightUse(Cell const& rCell) {
+	bool const result = mBoard.MightUse(rCell);
 
 	return result;
 }

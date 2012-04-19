@@ -120,12 +120,30 @@ void Tiles::AddAllTiles(AttrIndexType attributeIndex, Tile& rModelTile) {
 }
 
 // merge with another Tiles object
-void Tiles::AddTiles(Tiles const &tiles) {
+void Tiles::AddTiles(Tiles const& rTiles) {
     ConstIterator i_tile;
-    for (i_tile = tiles.mMap.begin(); i_tile != tiles.mMap.end(); i_tile++) {
+    for (i_tile = rTiles.mMap.begin(); i_tile != rTiles.mMap.end(); i_tile++) {
 		Tile const tile = i_tile->second;
 		Add(tile);
 	}
+}
+
+unsigned Tiles::BonusFactor(void) const {
+	unsigned long factor = 1;
+
+    ConstIterator i_tile;
+    for (i_tile = mMap.begin(); i_tile != mMap.end(); i_tile++) {
+		Tile const tile = i_tile->second;
+		if (tile.HasBonus()) {
+			factor *= 2;
+		}
+	}
+
+	ASSERT(factor > 0);
+	ASSERT(factor <= UINT_MAX);
+	unsigned result = unsigned(factor);
+
+	return result;
 }
 
 // build runs of mutually-compatible tiles - RECURSIVE
@@ -148,6 +166,22 @@ void Tiles::BuildRuns(Tiles const& rRunSoFar, Tiles& rLongestRun) const {
 	       remainder.BuildRuns(run, rLongestRun);
 		}
 	}
+}
+
+AttrIndexType Tiles::CommonAttribute(void) const {
+	ASSERT(Count() > 1);
+
+    ConstIterator i_tile = mMap.begin();
+    ASSERT(i_tile != mMap.end());
+    Tile const first_tile = i_tile->second;
+
+	i_tile++;
+    ASSERT(i_tile != mMap.end());
+    Tile const second_tile = i_tile->second;
+
+	AttrIndexType const result = first_tile.CommonAttribute(second_tile);
+
+	return result;
 }
 
 unsigned Tiles::Count(void) const {

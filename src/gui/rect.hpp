@@ -32,8 +32,6 @@ A Rect object represents a rectangular region in the client area of a window.
 #include "gui/point.hpp"  // USES Point
 #include "project.hpp"    // USES FractionPair
 
-typedef unsigned long PixelCntType;
-
 class Rect {
 public:
 	// public lifecycle

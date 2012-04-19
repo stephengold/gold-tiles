@@ -36,6 +36,7 @@ The Point class is encapsulates a logical X coordinate and a logical Y coordinat
 
 typedef long LogicalXType;
 typedef long LogicalYType;
+typedef unsigned long PixelCntType;
 
 class Point {
 public:
@@ -54,6 +55,7 @@ public:
     operator Win::POINTS(void) const;
 
 	// misc public methods
+	PixelCntType Distance(Point const&) const;
     void         Offset(long dx, long dy);   // add offsets
     LogicalXType X(void) const;
     LogicalYType Y(void) const;

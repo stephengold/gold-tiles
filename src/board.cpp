@@ -98,39 +98,47 @@ TileIdType Board::GetId(Cell const& rCell) const {
 	return result;
 }
 
-long Board::GetLimits(
+Cells Board::GetRun(
 	Cell const& rCell,
-	Direction const& rDirection,
-	Cell& rFirst,
-	Cell& rLast) const
+	Direction const& rDirection) const
 {
 	ASSERT(Cell::IsScoringAxis(rDirection));
 	ASSERT(rCell.IsValid());
     ASSERT(!HasEmptyCell(rCell));
-	long result = 1;
 
-	// look in the negative direction; stop at first invalid or empty cell
-    rFirst = rCell;
+	Cells result(rCell);
+
+	// look both ways along the axis
+
+	// look in the negative direction; stop at first invalid/empty/duplicate cell
+    Cell current = rCell;
     for (;;) {
-        Cell const previous(rFirst, rDirection, -1);
-        if (!previous.IsValid() || HasEmptyCell(previous)) {
+        Cell const previous(current, rDirection, -1);
+        if (!previous.IsValid() 
+		  || HasEmptyCell(previous) 
+		  || result.Contains(previous))
+		{
 			break;
 		}
-		rFirst = previous;
-		++result;
+		result.Add(previous);
+		current = previous;
 	}
     
-	// look in the positive direction; stop at first invalid or empty cell
-    rLast = rCell;
+	// look in the positive direction; stop at first invalid/empty/duplicate cell
+    current = rCell;
 	for (;;) {
-        Cell const next(rLast, rDirection);
-        if (!next.IsValid() || HasEmptyCell(next)) {
+        Cell const next(current, rDirection);
+        if (!next.IsValid()
+		 || HasEmptyCell(next) 
+		 || result.Contains(next)) 
+		{
 			break;
 		}
-		rLast = next;
-		++result;
+		result.Add(next);
+		current = next;
 	}
 
+	ASSERT(result.Count() > 0);
 	return result;
 }
 
@@ -202,31 +210,21 @@ unsigned Board::ScoreDirection(
 {
     ASSERT(!HasEmptyCell(rCell));
     
-    Cell first_cell;
-	Cell last_cell;
-    unsigned const length = GetLimits(rCell, rDirection, first_cell, last_cell);
+    Cells const cells = GetRun(rCell, rDirection);
+	unsigned const length = cells.Count();
 
 	unsigned result = 0;
     if (length > 1) {
 		result = length; // base score
 
-		// examine each tiles in the group
-        Cell i_cell(first_cell);
-		for (unsigned i = 0; i < length; i++) {
-            Tile const tile = GetTile(i_cell);
-	        // double the score for each bonus tile
-			if (tile.HasBonus()) {
-				result *= 2;
-			}
-            i_cell.Next(rDirection);
-		}
+		Tiles const tiles = GetTiles(cells);
+		unsigned const bonus_factor = tiles.BonusFactor();
+        result *= bonus_factor;
 
 		// special bonus for two-attribute games
 		if (Tile::AttributeCnt() == 2) {
 		    // determine the common attribute
-            Tile const first_tile = GetTile(first_cell);
-            Tile const last_tile = GetTile(last_cell);
-            AttrIndexType const common_attr = first_tile.CommonAttribute(last_tile);
+            AttrIndexType const common_attr = tiles.CommonAttribute();
 			AttrIndexType const other_attr = 1 - common_attr;
             unsigned const max_length = Tile::ValueCnt(other_attr);
 
@@ -262,10 +260,6 @@ unsigned Board::ScoreDirection(
 		    message = "On the first turn, you must play as many tiles as possible.  Keep looking!";
 		    rTitle = "First Turn Rule";
 			break;
-		case UM_GAP:
-		    message = "You can't leave any empty cells between the tiles you play.";
-		    rTitle = "Gap Rule";
-			break;
 		case UM_NEIGHBOR:
 		    message = "Each cell you use must be a neighbor of a used cell.";
 		    rTitle = "Neighbor Rule";
@@ -280,7 +274,8 @@ unsigned Board::ScoreDirection(
 			break;
 		case UM_ROWCOLUMN: {
 		    String const dirs = Cell::ScoringAxes();
-		    message = String("The cells you use must all lie in a single ") + dirs + ".";
+		    message = String("The cells you use must all lie in a single ") 
+				    + dirs + " with no empty cells between them.";
 		    rTitle = "Row/Column Rule";
 			break;
 		}
@@ -318,19 +313,20 @@ unsigned Board::ScoreDirection(
 unsigned Board::ScoreMove(Move const& rMove) const {
     unsigned result = 0;
     
-    Cells const cells = Cells(rMove);
+    Cells const cells = rMove;
     
 	Direction axis;
     for (axis.SetFirst(); axis.IsAxis(); axis++) {
         if (Cell::IsScoringAxis(axis)) {
-            Indices done_ortho;
+            Cells done_cells;
 
             Cells::ConstIterator i_cell;
             for (i_cell = cells.begin(); i_cell != cells.end(); i_cell++) {
-                IndexType const ortho = i_cell->Ortho(axis);
-                if (!done_ortho.Contains(ortho)) {
-                    result += ScoreDirection(*i_cell, axis);        
-                    done_ortho.Add(ortho);
+				Cell const cell = *i_cell;
+                if (!done_cells.Contains(cell)) {
+                    result += ScoreDirection(cell, axis);
+				    Cells const run_cells = GetRun(cell, axis);
+                    done_cells.AddCells(run_cells);
                 }
             }
         }
@@ -351,29 +347,6 @@ void Board::UnplayMove(Move const& rMove) {
 
 // inquiry methods
 
-bool Board::AreAllCompatible(Cells const& rCells, Direction const& rAxis) const {
-	ASSERT(Cell::IsScoringAxis(rAxis));
-
-    bool result = true;
-    
-    Indices done_orthos;
-        
-    Cells::ConstIterator i_cell;
-    for (i_cell = rCells.begin(); i_cell != rCells.end(); i_cell++) {
-        IndexType const ortho = i_cell->Ortho(rAxis);
-        if (!done_orthos.Contains(ortho)) {
-            if (!IsAxisCompatible(*i_cell, rAxis)) {
-                result = false;
-                break;
-            }
-            done_orthos.Add(ortho);
-        }
-    }
-    
-    return result; 
-}
-
-
 bool Board::AreAllCompatible(Cells const& rCells) const {
     bool result = true;
 
@@ -387,6 +360,28 @@ bool Board::AreAllCompatible(Cells const& rCells) const {
     return result;
 }
 
+bool Board::AreAllRunsCompatible(Cells const& rCells, Direction const& rAxis) const {
+	ASSERT(Cell::IsScoringAxis(rAxis));
+
+    bool result = true;    
+    Cells done_cells;
+        
+    Cells::ConstIterator i_cell;
+    for (i_cell = rCells.begin(); i_cell != rCells.end(); i_cell++) {
+        Cell const cell = *i_cell;
+        if (!done_cells.Contains(cell)) {
+            if (!IsRunCompatible(*i_cell, rAxis)) {
+                result = false;
+                break;
+            }
+			Cells const run_cells = GetRun(cell, rAxis);
+            done_cells.AddCells(run_cells);
+        }
+    }
+    
+    return result; 
+}
+
 bool Board::AreAllEmpty(Cells const& rCells) const {
     bool result = true;
     
@@ -398,6 +393,20 @@ bool Board::AreAllEmpty(Cells const& rCells) const {
         }
     }
     
+    return result;
+}
+
+bool Board::AreSingleConnectedRun(Cells const& rCells, Direction const& rAxis) const {
+	ASSERT(Cell::IsScoringAxis(rAxis));
+
+    bool result = true;
+    
+    if (rCells.Count() > 1) {
+		Cell const sample = rCells.First();
+		Cells const run = GetRun(sample, rAxis);
+		result = run.ContainsAll(rCells);
+    }
+
     return result;
 }
 
@@ -456,80 +465,21 @@ bool Board::HasNeighbor(Cell const& rCell) const {
     return result;
 }
 
-bool Board::IsAxisCompatible(Cell const& rCell, Direction const& rAxis) const {
-    ASSERT(!HasEmptyCell(rCell));
-	ASSERT(rCell.IsValid());
-	ASSERT(Cell::IsScoringAxis(rAxis));
-    
-    Cell first_cell;
-	Cell last_cell;
-    GetLimits(rCell, rAxis, first_cell, last_cell);
-
-    bool result = true;
-    
-    for (Cell cell1 = first_cell; result && cell1 != last_cell; cell1.Next(rAxis)) {
-        Tile const tile1 = GetTile(cell1);
-        for (Cell cell2(cell1, rAxis); cell2 != last_cell; cell2.Next(rAxis)) {
-            Tile const tile2 = GetTile(cell2);
-            if (!tile1.IsCompatibleWith(&tile2)) {
-                result = false;
-                break;
-            }
-        }
-		if (result) {
-            Tile const last_tile = GetTile(last_cell);
-            if (!tile1.IsCompatibleWith(&last_tile)) {
-                result = false;
-            }
-		}
-    }
-    
-    return result;
-}
-
-bool Board::IsConnectedAxis(Cells const& rCells, Direction const& rAxis) const {
-	 ASSERT(Cell::IsScoringAxis(rAxis));
-     bool result = true;
-    
-    if (rCells.Count() > 1) {
-        Cells::ConstIterator i_cell = rCells.begin();
-        Cell first_cell = *i_cell;
-        Cell last_cell = *i_cell;
-        for (i_cell++ ; i_cell != rCells.end(); i_cell++) {
-			Cell const cell = *i_cell;
-			ASSERT(cell != first_cell);
-            if (first_cell.Ortho(rAxis) != cell.Ortho(rAxis)) {
-                return false;
-			}
-			ASSERT(cell.Group(rAxis) != first_cell.Group(rAxis));
-            if (cell.Group(rAxis) < first_cell.Group(rAxis)) {
-                first_cell = *i_cell;
-            }
-
-			ASSERT(cell != last_cell);
-            ASSERT(last_cell.Ortho(rAxis) == cell.Ortho(rAxis));
-			ASSERT(cell.Group(rAxis) != last_cell.Group(rAxis));
-            if (cell.Group(rAxis) > last_cell.Group(rAxis)) {
-                last_cell = *i_cell;
-            }
-        }
-        
-        for (Cell cell = first_cell; cell != last_cell; cell.Next(rAxis)) {
-            if (HasEmptyCell(cell)) {
-                result = false;
-                break;
-            }
-        }
-    }
-
-    return result;
-}
-
-
 bool Board::IsEmpty(void) const {
 	bool const result = (Count() == 0);
 
 	return result;
+}
+
+bool Board::IsRunCompatible(Cell const& rCell, Direction const& rAxis) const {
+    ASSERT(!HasEmptyCell(rCell));
+	ASSERT(rCell.IsValid());
+	ASSERT(Cell::IsScoringAxis(rAxis));
+    
+    Cells const run_cells = GetRun(rCell, rAxis);
+    bool const result = AreAllCompatible(run_cells);
+    
+    return result;
 }
 
 bool Board::IsValidMove(Move const& rMove) const {
@@ -579,23 +529,6 @@ bool Board::IsValidMove(Move const& rMove, UmType& rReason) const {
         return false;
     }
 
-    Direction axis_of_play;
-    if (cells.Count() > 1) {
-        // make sure the cells lie in a single ortho
-		Direction axis;
-        for (axis.SetFirst(); axis.IsAxis(); axis++) {
-			if (Cell::IsScoringAxis(axis)) {
-                if (cells.AreAllInSameOrtho(axis)) {
-                    axis_of_play = axis;
-                }
-			}
-        }
-        if (!axis_of_play.IsValid()) {
-		    rReason = UM_ROWCOLUMN;
-            return false;
-        }
-    }
-
 	if (IsEmpty()) {
         if (!cells.IsAnyStart()) {
 	        rReason = UM_START;
@@ -610,19 +543,28 @@ bool Board::IsValidMove(Move const& rMove, UmType& rReason) const {
     Board after(*this);
     after.PlayMove(rMove);
 
+    Direction axis_of_play;
     if (cells.Count() > 1) {
-        // make sure there are no empty squares between played tiles
-        if (!after.IsConnectedAxis(cells, axis_of_play)) {
-     		rReason = UM_GAP;
+        // make sure all the cell used lie in a single connected run
+		Direction axis;
+        for (axis.SetFirst(); axis.IsAxis(); axis++) {
+			if (Cell::IsScoringAxis(axis)) {
+                if (after.AreSingleConnectedRun(cells, axis)) {
+                    axis_of_play = axis;
+                }
+			}
+        }
+        if (!axis_of_play.IsValid()) {
+		    rReason = UM_ROWCOLUMN;
             return false;
         }
     }
     
-    // check compatibility of connected tiles in each group
+    // check compatibility of all runs involving these tiles
 	Direction axis;
     for (axis.SetFirst(); axis.IsAxis(); axis++) {
         if (Cell::IsScoringAxis(axis)) {
-            if (!after.AreAllCompatible(cells, axis)) {
+            if (!after.AreAllRunsCompatible(cells, axis)) {
                 if (axis.IsVertical()) {
 	                rReason = UM_COLUMNCOMPAT;
                     return false;

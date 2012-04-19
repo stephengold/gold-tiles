@@ -74,7 +74,7 @@ public:
 	void       SetTileSize(unsigned);
 	void       StartCellOffset(long dx, long dy);
 	Cell       TargetCell(void) const;
-	Point      TileCenter(TileIdType) const;
+	Point      TileCenter(TileIdType, Point const&) const;
 	void       ToggleTargetCell(Point const&);
 
 	// public inquiry methods
@@ -89,11 +89,12 @@ public:
 
 private:
 	// private types
-    typedef std::map<TileIdType,Rect>  TileMap;
-    typedef std::pair<TileIdType,Rect> TilePair;
-    typedef TileMap::iterator          TileIter;
-    typedef TileMap::const_iterator    TileConstIter;
-    typedef std::pair<TileIter,bool>   TileInsertResult;
+    typedef std::multimap<TileIdType,Rect> TileMap;
+    typedef std::pair<TileIdType,Rect>     TilePair;
+    typedef TileMap::iterator              TileIterator;
+    typedef TileMap::const_iterator        TileConstIterator;
+    typedef std::pair<TileConstIterator,TileConstIterator> 
+		                                   TileConstIteratorPair;
 
 	// private data
 	DisplayModes mDisplayModes;
@@ -125,16 +126,16 @@ private:
 	AttrIndexType ColorAttribute(void) const;
 	void          DrawBlankTile(Canvas&, Point const&, bool bonus, bool odd);
     void          DrawBoard(Canvas&, unsigned layer);
-    void          DrawCell(Canvas&, Cell const&, unsigned swapCnt);
+    void          DrawCell(Canvas&, Cell const&, Point const&, unsigned swapCnt);
     Rect          DrawHandHeader(Canvas&, LogicalYType, LogicalXType leftRight, Hand&, 
-                                ColorType, bool leftFlag);
+                      ColorType, bool leftFlag);
     void          DrawHandTile(Canvas&, Point const&, Tile const&, bool odd);
     void          DrawHandTiles(Canvas&);
 	void          DrawPaused(Canvas&);
     void          DrawPlayableHand(Canvas&);
 	void          DrawStockArea(Canvas&, LogicalYType, LogicalXType, PixelCntType width);
 	Rect          DrawSwapArea(Canvas&, LogicalYType, LogicalXType, PixelCntType width);
-	Rect          DrawTile(Canvas&, Point const& center, Tile const&, bool odd);
+	void          DrawTile(Canvas&, Point const& center, Tile const&, bool odd);
     void          DrawUnplayableHands(Canvas&);
     PixelCntType  GridUnitX(void) const;
     PixelCntType  GridUnitY(void) const;

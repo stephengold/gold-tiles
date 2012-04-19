@@ -44,7 +44,6 @@ enum UmType { // user message handles
 	UM_DIAGCOMPAT,
 	UM_EMPTY,
 	UM_FIRST,
-	UM_GAP,
 	UM_NEIGHBOR,
 	UM_REPEATCELL,
 	UM_REPEATTILE,
@@ -85,8 +84,8 @@ public:
 
 private:
 	// misc private methods
-	long    	GetLimits(Cell const&, Direction const&, Cell& rFirst, Cell& rLast) const;
 	Tile const* GetPtr(IndexType northing, IndexType easting) const;
+	Cells    	GetRun(Cell const&, Direction const&) const;
 	Tile	    GetTile(IndexType northing, IndexType easting) const;
 	Tile        GetTile(Cell const&) const;
 	Tiles		GetTiles(Cells const&) const;
@@ -94,11 +93,11 @@ private:
     unsigned	ScoreDirection(Cell const&, Direction const&) const;
 
 	// private inquiry methods
-    bool AreAllCompatible(Cells const&, Direction const&) const;
     bool AreAllCompatible(Cells const&) const;
     bool AreAllEmpty(Cells const&) const;
+    bool AreAllRunsCompatible(Cells const&, Direction const&) const;
+    bool AreSingleConnectedRun(Cells const&, Direction const&) const;
     bool DoesAnyHaveNeighbor(Cells const&) const;
-    bool IsAxisCompatible(Cell const&, Direction const&) const;
-    bool IsConnectedAxis(Cells const&, Direction const&) const;
+    bool IsRunCompatible(Cell const&, Direction const&) const;
 };
 #endif // !defined(BOARD_HPP_INCLUDED)

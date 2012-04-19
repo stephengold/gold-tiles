@@ -50,6 +50,7 @@ public:
     operator Rect(void) const;
 
 	// misc public methods
+	Point        Brc(void) const;
 	PixelCntType ClientAreaHeight(void) const;
 	PixelCntType ClientAreaWidth(void) const;
 	Win::LRESULT HandleMessage(MessageType, Win::WPARAM, Win::LPARAM); 

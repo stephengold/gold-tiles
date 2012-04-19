@@ -104,23 +104,25 @@ public:
 	bool CanRedo(void) const;
 	bool CanSwapAll(void) const;
 	bool CanUndo(void) const;
-	bool Contains(TileIdType) const;
     bool HasGame(void) const;
 	bool IsActive(TileIdType) const;
-	bool IsEmpty(Cell const&) const;
     bool IsGameOver(void) const;
     bool IsGamePaused(void) const;
 	bool IsHinted(Cell const&);
 	bool IsInHand(TileIdType) const;
 	bool IsInSwap(TileIdType) const;
 	bool IsLocalUsersTurn(void) const;
-	bool IsOnBoard(TileIdType) const;
 	bool IsPass(void) const;
-	bool IsVisible(Cell const&);
 
 protected:
 	// protected data
 	Game const* mpGame;
+
+	// protected inquiry methods
+	bool Contains(TileIdType) const;
+	bool IsEmpty(Cell const&) const;
+	bool IsOnBoard(TileIdType) const;
+	bool MightUse(Cell const&);
 
 private:
 	// private data

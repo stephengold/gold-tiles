@@ -86,6 +86,15 @@ void Window::BeginPaint(void) {
     ASSERT(mPaintDevice != NULL);
 }
 
+Point Window::Brc(void) const {
+	LogicalXType const x = mClientAreaWidth - 1;
+	LogicalYType const y = mClientAreaHeight - 1;
+
+	Point const result(x, y);
+
+	return result;
+}
+
 void Window::CaptureMouse(void) {
 	HWND const this_window = *this;
     Win::SetCapture(this_window);

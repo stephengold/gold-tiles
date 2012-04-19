@@ -23,8 +23,9 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include <climits>      // SHRT_MAX
+#include <cstdlib>      // abs()
 #include "point.hpp"
-#include "project.hpp" // ASSERT
+#include "project.hpp"  // ASSERT
 #include "win_types.hpp"
 
 // lifecycle
@@ -43,6 +44,7 @@ Point::Point(POINTS const &pt) {
     mX = pt.x;
     mY = pt.y;
 }
+
 
 // operators
 
@@ -74,7 +76,16 @@ Point::operator POINTS(void) const {
     return result;
 }
 
+
 // misc methods
+
+PixelCntType Point::Distance(Point const& rOther) const {
+	PixelCntType const dx = ::abs(mX - rOther.mX);
+	PixelCntType const dy = ::abs(mY - rOther.mY);
+	PixelCntType const result = max(dx, dy);
+
+	return result;
+}
 
 void Point::Offset(long dx, long dy) {
     mX += dx;

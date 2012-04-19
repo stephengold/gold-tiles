@@ -46,8 +46,11 @@ public:
 
 	// misc public methods
 	void     Add(Tile const&);
-	void     AddTiles(Tiles const&);
 	void     AddAllTiles(AttrIndexType, Tile&);
+	void     AddTiles(Tiles const&);
+	unsigned BonusFactor(void) const;
+	AttrIndexType
+		     CommonAttribute(void) const;
     bool     CopyIds(Tiles const&);
 	unsigned Count(void) const;
 	Tile     DrawFirstTile(void);

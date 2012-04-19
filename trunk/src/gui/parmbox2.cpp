@@ -210,12 +210,9 @@ void ParmBox2::SetTopology(void) {
 	EnableControl(IDC_RECT, true);
 	EnableControl(IDC_HSTRIP, true);
 	EnableControl(IDC_VSTRIP, true);
-#if 1
-	// TODO
-	EnableControl(IDC_TORUS, false);
-	EnableControl(IDC_VCYLINDER, false);
-	EnableControl(IDC_HCYLINDER, false);
-#endif
+	EnableControl(IDC_TORUS, true);
+	EnableControl(IDC_VCYLINDER, true);
+	EnableControl(IDC_HCYLINDER, true);
 
 	bool const wrap = mrGameOpt.DoesBoardWrap();
 	bool const finite_height = mrGameOpt.HasFiniteHeight();

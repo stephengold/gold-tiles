@@ -73,19 +73,20 @@ public:
 	IndexType       Column(void) const;
     bool            GetUserChoice(String const&);
     static GridType Grid(void);
-	IndexType       Group(Direction const&) const;
 	static void     LimitPlay(unsigned&);
 	void            Next(Direction const&, IndexType count = 1);
-	IndexType       Ortho(Direction const&) const;
 	IndexType       Row(void) const;
+	static int      RowFringe(void);
 	static String   ScoringAxes(void);
 	static void     SetStatic(GameOpt const&);
+	void            Wrap(void);
 
 	// public inquiry methods
+	static bool DoesBoardWrap(void);
 	bool        HasNeighbor(Direction const&) const;
 	bool        IsOdd(void) const;
-	bool        IsStart(void) const;
 	static bool IsScoringAxis(Direction const&);
+	bool        IsStart(void) const;
 	bool        IsValid(void) const;
 
 private:

@@ -54,11 +54,8 @@ Cell::Cell(IndexType row, IndexType column) {
 // construct the next valid cell (not necessarily a neighbor) in direction "dir" from "base"
 Cell::Cell(Cell const& rBase, Direction const& rDirection, IndexType count) {
 	ASSERT(rBase.IsValid());
+	ASSERT(rDirection.IsValid());
 	ASSERT(count == 1 || count == -1);
-
-	Direction const old_direction = rDirection;
-	IndexType const old_group = rBase.Group(rDirection);
-	IndexType const old_ortho = rBase.Ortho(rDirection);
 
 	Direction direction = rDirection;
 	if (count < 0) {
@@ -66,39 +63,19 @@ Cell::Cell(Cell const& rBase, Direction const& rDirection, IndexType count) {
 		count = -count;
 	}
 
-    IndexType row_offset;
-	IndexType column_offset;
-
 	if (Grid() == GRID_TRIANGLE) {
 		bool const odd = rBase.IsOdd();
 		direction = direction.TriangleNeighbor(odd);
 	}
+    IndexType row_offset;
+	IndexType column_offset;
     NextCellOffsets(direction, row_offset, column_offset);
     mRow = rBase.mRow + count*row_offset;
     mColumn = rBase.mColumn + count*column_offset;
 
 	if (msWrapFlag) {
-        while (mRow >= msHeight/2) {
-		    mRow -= msHeight;
-	    }
-        while (mRow < -msHeight/2) {
-		    mRow += msHeight;
-	    }
+        Wrap();
 	}
-
-	if (msWrapFlag) {
-        while (mColumn >= msWidth/2) {
-		    mColumn -= msWidth;
-	    }
-        while (mRow < -msWidth/2) {
-		    mColumn += msWidth;
-	    }
-	}
-
-	IndexType const new_ortho = Ortho(old_direction);
-	ASSERT(old_ortho == new_ortho);
-	IndexType const new_group = Group(old_direction);
-	ASSERT(old_group != new_group);
 }
 
 // The compiler-generated destructor is fine.
@@ -152,8 +129,6 @@ Cell::operator String(void) const {
 // misc methods
 
 IndexType Cell::Column(void) const {
-	ASSERT(IsValid());
-
 	return mColumn;
 }
 
@@ -191,76 +166,6 @@ bool Cell::GetUserChoice(String const& rAlternate) {
 
 /* static */ GridType Cell::Grid(void) {
     return msGrid;
-}
-
-IndexType Cell::Group(Direction const& rDirection) const {
-	IndexType result = 0;
-
-	if (Grid() != GRID_TRIANGLE) {
-		IndexType column_offset;
-        IndexType row_offset;
-        NextCellOffsets(rDirection, row_offset, column_offset);
-        result = row_offset*mRow + column_offset*mColumn;
-
-	} else if (rDirection.IsNorth()) {
-	    result = mRow;
-
-	} else if (rDirection.IsEast()) {
-	    result = mColumn;
-
-	} else if (rDirection.IsSouth()) {
-	    result = -mRow;
-
-	} else if (rDirection.IsWest()) {
-	    result = -mColumn;
-
-	} else if (rDirection.IsNortheast()) {
-		long const row_pair = (mRow + (::is_odd(mRow) ? 1 : 0))/2;
-		long const column_pair = (mColumn + (::is_odd(mColumn) ? 1 : 0))/2;
-		result = column_pair + 3*row_pair;
-		if (::is_odd(mRow) && ::is_even(mColumn)) {
-		    result -= 1;
-		} else if (::is_odd(mRow) && ::is_odd(mColumn)) {
-		    result -= 2;
-		}
-
-	} else if (rDirection.IsSoutheast()) {
-	    long const row_pair = (mRow + (::is_odd(mRow) ? 1 : 0))/2;
-	    long const column_pair = (mColumn + (::is_odd(mColumn) ? 1 : 0))/2;
-	    result = column_pair - 3*row_pair;
-	    if (::is_even(mRow) && ::is_odd(mColumn)) {
-		    result -= 1;
-	    } else if (::is_odd(mRow)) {
-		    result += 1;
-	    }
-
-	} else if (rDirection.IsNorthwest()) {
-	    long const row_pair = (mRow + (::is_odd(mRow) ? 1 : 0))/2;
-	    long const column_pair = (mColumn + (::is_odd(mColumn) ? 1 : 0))/2;
-	    result = - column_pair + 3*row_pair;
-	    if (::is_odd(mRow) && ::is_even(mColumn)) {
-		    result -= 1;
-	    } else if (::is_odd(mRow) && ::is_odd(mColumn)) {
-		    result -= 1;
-	    } else if (::is_even(mRow) && ::is_odd(mColumn)) {
-		    result += 1;
-	    }
-
-	} else if (rDirection.IsSouthwest()) {
-	    long const row_pair = (mRow + (::is_odd(mRow) ? 1 : 0))/2;
-	    long const column_pair = (mColumn + (::is_odd(mColumn) ? 1 : 0))/2;
-	    result = - column_pair - 3*row_pair;
-	    if (::is_odd(mRow) && ::is_odd(mColumn)) {
-		    result += 2;
-	    } else if (::is_odd(mRow) && ::is_even(mColumn)) {
-		    result += 1;
-	    }
-
-	} else {
-		FAIL();
-	}
-
-    return result;
 }
 
 /* static */ void Cell::LimitPlay(unsigned& rCellCnt) {
@@ -354,51 +259,15 @@ void Cell::Next(Direction const& rDirection, IndexType count) {
     }
 }
 
-IndexType Cell::Ortho(Direction const& rDirection) const {
-    Direction const axis = rDirection.OrthogonalAxis();
-	ASSERT(axis.IsAxis());
-
-	IndexType result = 0;
-
-	if (Grid() != GRID_TRIANGLE) {
-		IndexType column_offset;
-        IndexType row_offset;
-        NextCellOffsets(axis, row_offset, column_offset);
-        result = row_offset*mRow + column_offset*mColumn;
-
-	} else if (axis.IsNorth()) {
-	    result = mRow;
-
-	} else if (axis.IsEast()) {
-	    result = mColumn;
-
-	} else if (axis.IsSoutheast()) {
-	    long const row_pair = (mRow + (::is_odd(mRow) ? 1 : 0))/2;
-	    long const column_pair = (mColumn + (::is_odd(mColumn) ? 1 : 0))/2;
-	    result = column_pair - row_pair;
-	    if (::is_even(mRow) && ::is_odd(mColumn)) {
-		    result -= 1;
-	    }
-
-	} else if (axis.IsNortheast()) {
-	    long const row_pair = (mRow + (::is_odd(mRow) ? 1 : 0))/2;
-	    long const column_pair = (mColumn + (::is_odd(mColumn) ? 1 : 0))/2;
-        result = column_pair + row_pair;
-	    if (::is_odd(mRow) && ::is_odd(mColumn)) {
-		    result -= 1;
-	    }
-
-	} else {
-		FAIL();
-	} 
-
-    return result;        
+IndexType Cell::Row(void) const {
+	return mRow;
 }
 
-IndexType Cell::Row(void) const {
-	ASSERT(IsValid());
+// number of rows above (or below) used cells which might be usable
+/* static */ int Cell::RowFringe(void) {
+	int const result = (msGrid == GRID_HEX) ? 2 : 1;
 
-	return mRow;
+	return result;
 }
 
 /* static */ String Cell::ScoringAxes(void) {
@@ -452,12 +321,46 @@ IndexType Cell::Row(void) const {
     msWrapFlag = rGameOpt.DoesBoardWrap();
 }
 
+void Cell::Wrap(void) {
+	ASSERT(msWrapFlag);
+
+    if (mColumn >= 0) {
+		IndexType const num_wraps = (mColumn + msWidth/2) / msWidth;
+		ASSERT(num_wraps >= 0);
+		mColumn -= num_wraps * msWidth;
+    } else {
+		IndexType const num_wraps = (msWidth/2 - mColumn - 1) / msWidth;
+		ASSERT(num_wraps >= 0);
+		mColumn += num_wraps * msWidth;
+	}
+
+	if (mRow >= 0) {
+		IndexType const num_wraps = (mRow + msHeight/2) / msHeight;
+		ASSERT(num_wraps >= 0);
+		mRow -= num_wraps * msHeight;
+    } else {
+		IndexType const num_wraps = (msHeight/2 - mRow - 1) / msHeight;
+		ASSERT(num_wraps >= 0);
+		mRow += num_wraps * msHeight;
+	}
+
+	ASSERT(mColumn >= -msWidth/2);
+	ASSERT(mColumn < msWidth/2);
+	ASSERT(mRow >= -msHeight/2);
+	ASSERT(mRow < msHeight/2);
+}
+
 
 // inquiry methods
 
-bool Cell::HasNeighbor(Direction const& rDirection) const {
-	bool result = true;
+/* static */ bool Cell::DoesBoardWrap(void) {
+	return msWrapFlag;
+}
 
+bool Cell::HasNeighbor(Direction const& rDirection) const {
+	ASSERT(rDirection.IsValid());
+
+	bool result = true;
 	switch (msGrid) {
 		case GRID_HEX:
 			result = !(rDirection.IsHorizontal());
@@ -536,7 +439,7 @@ bool Cell::IsOdd(void) const {
 
 bool Cell::IsStart(void) const {
 	ASSERT(IsValid());
-    bool result = (mRow == 0) && (mColumn == 0);
+    bool const result = (mRow == 0) && (mColumn == 0);
 
     return result;
 }

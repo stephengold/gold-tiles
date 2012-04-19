@@ -34,23 +34,31 @@ The Cells class is implemented using the std::set container template.
 #include <set>       // ISA std::set
 #include "cell.hpp"  // HASA Cell
 
+
 class Cells: public std::set<Cell> {
 public:
 	// public types
 	typedef std::set<Cell>::const_iterator ConstIterator;
 	typedef std::set<Cell>::iterator       Iterator;
 
+	// public lifecycle
+	Cells(void);
+	Cells(Cell const&);
+
 	// public operators
     operator String(void) const;
 
 	// misc public methods
 	void     Add(Cell const&);
+	void     AddCells(Cells const&);
 	unsigned Count(void) const;
+	Cell     First(void) const;
 	void     MakeEmpty(void);
+	void     Remove(Cell const&);
 
 	// public inquiry methods
-	bool AreAllInSameOrtho(Direction const&) const;
     bool Contains(Cell const&) const;
+	bool ContainsAll(Cells const&) const;
     bool IsAnyStart(void) const;
 	bool IsEmpty(void) const;
 };

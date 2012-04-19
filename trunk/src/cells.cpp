@@ -28,9 +28,15 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 
 // lifecycle
 
-// The compiler.generated default constructor is fine.
+Cells::Cells(void) {
+}
+
 // The compiler-generated copy constructor is fine.
 // The compiler-generated destructor is fine.
+
+Cells::Cells(Cell const& rCell) {
+	Add(rCell);
+}
 
 
 // operators
@@ -39,12 +45,12 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 Cells::operator String(void) const {
     String result("{");
 
-	ConstIterator gr;
-    for (gr = begin(); gr != end(); gr++) {
-        if (gr != begin()) {
+	ConstIterator i_cell;
+    for (i_cell = begin(); i_cell != end(); i_cell++) {
+        if (i_cell != begin()) {
             result += ", ";
         }
-        result += String(*gr);
+        result += String(*i_cell);
     }
     result += "}";
 
@@ -65,10 +71,28 @@ void Cells::Add(Cell const& rCell) {
 	ASSERT(Contains(rCell));
 }
 
+void Cells::AddCells(Cells const& rCells) {
+    ConstIterator i_cell;
+    for (i_cell = rCells.begin(); i_cell != rCells.end(); i_cell++) {
+		Cell const cell = *i_cell;
+		Add(cell);
+	}
+}
+
 unsigned Cells::Count(void) const {
 	unsigned const result = size();
 
 	return result;
+}
+
+Cell Cells::First(void) const {
+	ASSERT(!IsEmpty());
+
+    ConstIterator const i_cell = begin();
+    ASSERT(i_cell != end());
+    Cell const result = *i_cell;
+
+    return result;
 }
 
 void Cells::MakeEmpty(void) {
@@ -80,28 +104,25 @@ void Cells::MakeEmpty(void) {
 
 // inquiry methods
 
-bool Cells::AreAllInSameOrtho(Direction const& rDirection) const {
-    bool result = true;
-    
-    if (Count() > 1) {
-        ConstIterator i_cell = begin();
-        IndexType const ortho = i_cell->Ortho(rDirection);
-        for (i_cell++; i_cell != end(); i_cell++) {
-            if (i_cell->Ortho(rDirection) != ortho) {
-                result = false;
-                break;
-            }     
-        }
-    }
-
-    return result;
-}
-
 bool Cells::Contains(Cell const& rCell) const {
 	ConstIterator const i_cell = find(rCell);
     bool const result = (i_cell != end());
     
     return result;
+}
+
+bool Cells::ContainsAll(Cells const& rCells) const {
+	bool result = true;
+
+    for (ConstIterator i_cell = rCells.begin(); i_cell != rCells.end(); i_cell++) {
+		Cell const cell = *i_cell;
+        if (!Contains(cell)) {
+            result = false;
+            break;
+        }
+    }
+
+	return result;
 }
 
 bool Cells::IsAnyStart(void) const {

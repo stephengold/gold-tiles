@@ -39,8 +39,8 @@ The ParmBox2 class extends the Dialog class.
 class ParmBox2: public Dialog {
 public:
 	// public constants
-	static const IndexType HEIGHT_DEFAULT = 32;
-	static const IndexType WIDTH_DEFAULT = 32;
+	static const IndexType HEIGHT_DEFAULT = 12;
+	static const IndexType WIDTH_DEFAULT = 12;
 
     // lifecycle
 	ParmBox2(GameOpt&);

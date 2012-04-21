@@ -32,6 +32,7 @@ A Hands object represents a circular sequence of zero or more hands of tiles.
 #include <vector>    // ISA std::vector
 #include "hand.hpp"  // HASA Hand
 
+
 class Hands: public std::vector<Hand> {
 public:
 	// public types
@@ -39,17 +40,17 @@ public:
     typedef std::vector<Hand>::iterator       Iterator;
 
 	// misc public methods
-	void     Append(Hand const&);
-    unsigned Count(void) const;
+	void      Append(Hand const&);
+    unsigned  Count(void) const;
 	ConstIterator 
-		     Find(String const&) const;
-	Iterator Find(String const&);
-	unsigned MaxScore(void) const;
-    void     Next(ConstIterator&) const;
-    void     Next(Iterator&);
-	void     NextWorking(Iterator&);
-    void     Previous(ConstIterator&) const;
-    void     Previous(Iterator&);
+		      Find(String const&) const;
+	Iterator  Find(String const&);
+	ScoreType MaxScore(void) const;
+    void      Next(ConstIterator&) const;
+    void      Next(Iterator&);
+	void      NextWorking(Iterator&);
+    void      Previous(ConstIterator&) const;
+    void      Previous(Iterator&);
 
 	// public inquiry method
 	bool HasAnyGoneOut(void) const;

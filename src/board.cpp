@@ -204,7 +204,7 @@ void Board::PlayTile(TileCell const& rTileCell) {
     PlayOnCell(cell, tile);
 }
 
-unsigned Board::ScoreDirection(
+ScoreType Board::ScoreDirection(
     Cell const& rCell,
     Direction const& rDirection) const
 {
@@ -213,9 +213,9 @@ unsigned Board::ScoreDirection(
     Cells const cells = GetRun(rCell, rDirection);
 	unsigned const length = cells.Count();
 
-	unsigned result = 0;
+	ScoreType result = 0;
     if (length > 1) {
-		result = length; // base score
+		result = ScoreType(length); // base score
 
 		Tiles const tiles = GetTiles(cells);
 		unsigned const bonus_factor = tiles.BonusFactor();
@@ -310,8 +310,8 @@ unsigned Board::ScoreDirection(
     return message;
 }
 
-unsigned Board::ScoreMove(Move const& rMove) const {
-    unsigned result = 0;
+ScoreType Board::ScoreMove(Move const& rMove) const {
+    ScoreType result = 0;
     
     Cells const cells = rMove;
     

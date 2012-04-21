@@ -130,6 +130,6 @@ private:
     void       FirstTurn(void);
     void       NextTurn(void);
 	Strings    WinningHands(void) const;
-	unsigned   WinningScore(void) const;
+	ScoreType  WinningScore(void) const;
 };
 #endif // !defined(GAME_HPP_INCLUDED)

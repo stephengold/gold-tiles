@@ -100,18 +100,18 @@ class WindowClass;
 // project-wide typedefs
 
 typedef unsigned long MsecIntervalType;
+typedef unsigned      ScoreType;
 typedef char const*   TextType;   // read-only, NUL-terminated char[]
-
 
 // project-wide constants
 
 #ifndef M_PI
 const double   M_PI = 3.14159265358979323846;
 #endif // !defined(M_PI)
-
-const MsecIntervalType MSECS_PER_SECOND = 1000;
-const unsigned         SECONDS_PER_MINUTE = 60;
-const double           SQRT_3 = 1.732050807568877;
+const MsecIntervalType 
+	           MSECS_PER_SECOND = 1000;
+const unsigned SECONDS_PER_MINUTE = 60;
+const double   SQRT_3 = 1.732050807568877;
 
 
 // project-wide utility functions

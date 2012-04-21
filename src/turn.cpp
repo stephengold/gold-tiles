@@ -68,7 +68,7 @@ String Turn::HandName(void) const {
 	return mHandName;
 }
 
-unsigned Turn::Points(void) const {
+ScoreType Turn::Points(void) const {
 	return mPoints;
 }
 
@@ -76,7 +76,7 @@ void Turn::SetDraw(Tiles const& rDraw) {
      mDraw = rDraw;
 }
 
-void Turn::SetPoints(unsigned points) {
+void Turn::SetPoints(ScoreType points) {
      mPoints = points;
 }
 

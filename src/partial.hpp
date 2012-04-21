@@ -93,7 +93,7 @@ public:
 	void          HandToSwap(void);               // move the active tile
 	Cell          LocateTile(void) const;
 	Cell          LocateTile(TileIdType) const;
-	unsigned      Points(void) const;             // points scored so far this turn
+	ScoreType     Points(void) const;             // points scored so far this turn
 	void          SetHintStrength(HintType);
 	static void   SetYield(YieldFunctionType*, void* arg);
 	void          Suggest(void);
@@ -141,7 +141,7 @@ private:
 
 	// misc private methods
 	void        AddValidNextUses(Move const&, Tile const&, Cells const&);
-	void        FindBestMove(Partial&, unsigned&) const;
+	void        FindBestMove(Partial&, ScoreType&) const;
 	void        SetHintedCells(void);
 	static void Yields(bool& cancel);
 

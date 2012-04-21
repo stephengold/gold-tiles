@@ -90,7 +90,7 @@ INT_PTR ParmBox2::HandleMessage(MessageType message, WPARAM wParam) {
 			int const notification_code = HIWORD(wParam);
             switch (id) {
                 case IDC_EDITHEIGHT: {
-                    ValueType height = GetTextIndex(id);
+                    RowType height = RowType(GetTextIndex(id));
 					if (::is_odd(height)) { // make even
 						height++;
 					}
@@ -103,7 +103,7 @@ INT_PTR ParmBox2::HandleMessage(MessageType message, WPARAM wParam) {
                     break;
                 }
                 case IDC_EDITWIDTH: {
-                    ValueType width = GetTextIndex(id);
+                    ColumnType width = GetTextIndex(id);
 					if (::is_odd(width)) { // make even
 						width++;
 					}
@@ -231,8 +231,8 @@ void ParmBox2::SetTopology(void) {
 
 void ParmBox2::SetTopology(IdType buttonId) {
 	// update board height and width
-	IndexType height = mrGameOpt.BoardHeight();
-	IndexType width = mrGameOpt.BoardWidth();
+	RowType height = mrGameOpt.BoardHeight();
+	ColumnType width = mrGameOpt.BoardWidth();
 
 	switch (buttonId) {
 		case IDC_ENDLESS:
@@ -302,8 +302,8 @@ void ParmBox2::UpdateCellCnt(void) {
 	IndexType cell_cnt = Cell::HEIGHT_MAX;
 
 	if (mrGameOpt.HasFiniteHeight() && mrGameOpt.HasFiniteWidth()) {
-	    IndexType const height = mrGameOpt.BoardHeight();
-	    IndexType const width = mrGameOpt.BoardWidth();
+	    RowType const height = mrGameOpt.BoardHeight();
+	    ColumnType const width = mrGameOpt.BoardWidth();
 		if (GridType(mrGameOpt) == GRID_HEX) { // hex grids have half as many cells
 		    cell_cnt = (height/2) * width;
 		} else {

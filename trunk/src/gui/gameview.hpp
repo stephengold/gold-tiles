@@ -120,8 +120,8 @@ private:
 	// misc private methods
     PixelCntType  CellHeight(void) const;
     PixelCntType  CellWidth(void) const;
-    LogicalXType  CellX(IndexType column) const;
-    LogicalYType  CellY(IndexType row) const;
+    LogicalXType  CellX(ColumnType) const;
+    LogicalYType  CellY(RowType) const;
 	String        ClockText(Hand&) const;
 	AttrIndexType ColorAttribute(void) const;
 	void          DrawBlankTile(Canvas&, Point const&, bool bonus, bool odd);

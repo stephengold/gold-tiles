@@ -47,18 +47,21 @@ enum GridType {
 	GRID_DEFAULT = GRID_4WAY
 };
 
+typedef IndexType ColumnType;
+typedef IndexType RowType;
+
 class Cell {
 public:
 	// public constants
-	static const IndexType HEIGHT_MAX = 0x40000000L;
-	static const IndexType HEIGHT_MIN = 4;
-	static const IndexType WIDTH_MAX  = 0x40000000L;
-	static const IndexType WIDTH_MIN = 4;
+	static const RowType    HEIGHT_MAX = 0x40000000L;
+	static const RowType    HEIGHT_MIN = 4;
+	static const ColumnType WIDTH_MAX  = 0x40000000L;
+	static const ColumnType WIDTH_MIN = 4;
 
 	// public lifecycle
     Cell(void);   // the start cell
-    Cell(IndexType row, IndexType column);
-	Cell(Cell const&, Direction const&, IndexType count = 1);
+    Cell(RowType, ColumnType);
+	Cell(Cell const&, Direction const&, int count = 1);
     // Cell(Cell const&);  compiler-generated copy constructor is OK
     // ~Cell(void);  compiler-generated destructor is OK
 
@@ -70,12 +73,12 @@ public:
 	operator String(void) const;
 
 	// misc public methods
-	IndexType       Column(void) const;
+	ColumnType      Column(void) const;
     bool            GetUserChoice(String const&);
     static GridType Grid(void);
 	static void     LimitPlay(unsigned&);
-	void            Next(Direction const&, IndexType count = 1);
-	IndexType       Row(void) const;
+	void            Next(Direction const&, int count = 1);
+	RowType         Row(void) const;
 	static int      RowFringe(void);
 	static String   ScoringAxes(void);
 	static void     SetStatic(GameOpt const&);
@@ -91,15 +94,15 @@ public:
 
 private:
 	// private data
-	IndexType         mColumn;
-	static GridType  msGrid;
-	static IndexType msHeight;   // must be even and <= HEIGHT_MAX
-	IndexType         mRow;
-	static IndexType msWidth;    // must be even and <= WIDTH_MAX
-	static bool      msWrapFlag; // coordinates wrap around
+	ColumnType         mColumn;
+	static GridType   msGrid;
+	static RowType    msHeight;   // must be even and <= HEIGHT_MAX
+	RowType            mRow;
+	static ColumnType msWidth;    // must be even and <= WIDTH_MAX
+	static bool       msWrapFlag; // coordinates wrap around
 
     // misc private methods
-	static void NextCellOffsets(Direction const&, IndexType& rowOffset, 
-		            IndexType& columnOffset);
+	static void NextCellOffsets(Direction const&, RowType&, 
+		            ColumnType&);
 };
 #endif // !defined(CELL_HPP_INCLUDED)

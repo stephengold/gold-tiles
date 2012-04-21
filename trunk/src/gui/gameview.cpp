@@ -81,14 +81,14 @@ PixelCntType GameView::CellWidth(void) const {
     return result;
 }
 
-LogicalXType GameView::CellX(IndexType column) const {
+LogicalXType GameView::CellX(ColumnType column) const {
     PixelCntType const grid_unit = GridUnitX();
     LogicalXType result = mStartCell.X() + grid_unit*column;
 
     return result;
 }
 
-LogicalYType GameView::CellY(IndexType row) const {
+LogicalYType GameView::CellY(RowType row) const {
     PixelCntType const grid_unit = GridUnitY();
     LogicalYType result = mStartCell.Y() - grid_unit*row;
 
@@ -151,23 +151,23 @@ void GameView::DrawBoard(Canvas& rCanvas, unsigned showLayer) {
 	// determine which cells are visible in the client area
     Point const ulc(0,0);
     Cell const ulc_cell = GetPointCell(ulc);
-	IndexType top_see_row = ulc_cell.Row() + row_fringe - 1;
-	IndexType left_see_column = ulc_cell.Column();
+	RowType top_see_row = ulc_cell.Row() + row_fringe - 1;
+	ColumnType left_see_column = ulc_cell.Column();
 
 	Point const brc = mpWindow->Brc();
 	Cell const brc_cell = GetPointCell(brc);
-	IndexType bottom_see_row = brc_cell.Row() - row_fringe + 1;
-	IndexType right_see_column = brc_cell.Column();
+	RowType bottom_see_row = brc_cell.Row() - row_fringe + 1;
+	ColumnType right_see_column = brc_cell.Column();
 
 	if (!Cell::DoesBoardWrap()) {
 	    ASSERT(bottom_see_row <= top_see_row);
         ASSERT(left_see_column <= right_see_column);
 
 	    // get the range of "might use" cells
-        IndexType const top_use_row = row_fringe + board.NorthMax();
-        IndexType const bottom_use_row = -row_fringe - board.SouthMax();
-        IndexType const right_use_column = column_fringe + board.EastMax();
-        IndexType const left_use_column = -column_fringe - board.WestMax();
+        RowType const top_use_row = row_fringe + board.NorthMax();
+        RowType const bottom_use_row = -row_fringe - board.SouthMax();
+        ColumnType const right_use_column = column_fringe + board.EastMax();
+        ColumnType const left_use_column = -column_fringe - board.WestMax();
 
 	    ASSERT(bottom_use_row <= top_use_row);
         ASSERT(left_use_column <= right_use_column);
@@ -202,9 +202,9 @@ void GameView::DrawBoard(Canvas& rCanvas, unsigned showLayer) {
 		mTargetCellFlag = true;
 	}
 
-    for (IndexType row = top_see_row; row >= bottom_see_row; row--) {
+    for (RowType row = top_see_row; row >= bottom_see_row; row--) {
         LogicalYType const center_y = CellY(row);
-        for (IndexType column = left_see_column; column <= right_see_column; column++) {
+        for (ColumnType column = left_see_column; column <= right_see_column; column++) {
             Cell const cell(row, column);
 			Cell wrap_cell = cell;
 			if (Cell::DoesBoardWrap()) {
@@ -423,10 +423,10 @@ void GameView::DrawHandTiles(Canvas& rCanvas) {
         LogicalYType y;
         if (IsOnBoard(id)) {
             Cell const cell = LocateTile(id);
-			IndexType const row = cell.Row();
-			IndexType const column = cell.Column();
 			odd_flag = cell.IsOdd();
+			ColumnType const column = cell.Column();
             x = CellX(column);
+			RowType const row = cell.Row();
             y = CellY(row);
         } else if (IsInSwap(id)) {
             x = mSwapRect.CenterX();
@@ -725,27 +725,27 @@ Cell GameView::GetPointCell(Point const& rPoint) const {
     PixelCntType const grid_unit_x = GridUnitX();
 	PixelCntType const offset_x = grid_unit_x/2;
 	LogicalXType const dx = rPoint.X() - mStartCell.X() + offset_x;
-	IndexType column;
+	ColumnType column;
     if (dx >= 0) {
-		column = dx / grid_unit_x;
+		column = ColumnType(dx / grid_unit_x);
 	} else {
 		// integer division is not defined for negative numerator
 		LogicalXType const abs_num = grid_unit_x - dx - 1;
 		ASSERT(abs_num > 1);
-		column = -long(abs_num / grid_unit_x);
+		column = -ColumnType(abs_num / grid_unit_x);
 	}
 
     PixelCntType const grid_unit_y = GridUnitY();
 	PixelCntType const offset_y = grid_unit_y/2;
 	LogicalYType const dy = rPoint.Y() - mStartCell.Y() + offset_y;
-	IndexType row;
+	RowType row;
     if (dy >= 0) {
-		row = -long(dy / grid_unit_y);
+		row = -RowType(dy / grid_unit_y);
 	} else {
 		// integer division is not defined for negative numerator
 		LogicalYType const abs_num = grid_unit_y - dy - 1;
 		ASSERT(abs_num > 1);
-		row = abs_num / grid_unit_y;
+		row = RowType(abs_num / grid_unit_y);
 	}
 
     Cell const result(row, column);
@@ -1036,8 +1036,8 @@ bool GameView::IsGridVisible(void) const {
 }
 
 bool GameView::IsInCellArea(Point const& rPoint, Cell const& rCell) const {
-	IndexType const row = rCell.Row();
-    IndexType const column = rCell.Column();
+	RowType const row = rCell.Row();
+    ColumnType const column = rCell.Column();
 	LogicalXType const center_x = CellX(column);
     LogicalYType const center_y = CellY(row);
     Point const center(center_x, center_y);

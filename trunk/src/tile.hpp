@@ -62,7 +62,6 @@ enum AttrModeType {                   // display mode type
 #endif // !defined(_GUI)
 };
 
-
 class Tile {
 public:
 	// public constants

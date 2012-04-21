@@ -79,18 +79,25 @@ unsigned BaseBoard::Count(void) const {
 }
 
 // get the eastern limit of the board
-IndexType BaseBoard::EastMax(void) const {
+ColumnType BaseBoard::EastMax(void) const {
     return mEastMax;
 }
 
 // get iterators to specific cells
-BaseBoard::CellConstIterator BaseBoard::Find(IndexType northing, IndexType easting) const {
+BaseBoard::CellConstIterator BaseBoard::Find(
+	RowType northing, 
+	ColumnType easting) const
+{
     Cell const cell(northing, easting);
     CellConstIterator result = mCells.find(cell);
 
     return result;
 }
-BaseBoard::CellIterator BaseBoard::Find(IndexType northing, IndexType easting) {
+
+BaseBoard::CellIterator BaseBoard::Find(
+	RowType northing, 
+	ColumnType easting)
+{
     Cell const cell(northing, easting);
     CellIterator const result = mCells.find(cell);
 
@@ -98,10 +105,10 @@ BaseBoard::CellIterator BaseBoard::Find(IndexType northing, IndexType easting) {
 }
 
 // get a pointer to the Tile (if any) in a specific cell
-Tile const* BaseBoard::GetCell(Cell const& rSquare) const {
+Tile const* BaseBoard::GetCell(Cell const& rCell) const {
     Tile const* p_result = NULL;
 
-    CellConstIterator i_cell = mCells.find(rSquare);
+    CellConstIterator const i_cell = mCells.find(rCell);
     if (i_cell != mCells.end()) {
         p_result = &(i_cell->second);
     }
@@ -122,8 +129,8 @@ bool BaseBoard::LocateTileId(TileIdType id, Cell& rCell) const {
 
 // make a specific cell empty
 void BaseBoard::MakeEmpty(Cell const& rCell) {
-    IndexType const row = rCell.Row();
-    IndexType const column = rCell.Column();
+    RowType const row = rCell.Row();
+    ColumnType const column = rCell.Column();
     
     CellIterator i_cell = Find(row, column);
     Tile const tile = i_cell->second;
@@ -157,7 +164,7 @@ void BaseBoard::MakeEmpty(Cell const& rCell) {
 }
 
 // get the northern limit of the board
-IndexType BaseBoard::NorthMax(void) const {
+RowType BaseBoard::NorthMax(void) const {
     return mNorthMax;
 }
 
@@ -168,20 +175,20 @@ void BaseBoard::PlayOnCell(Cell const& rCell, Tile const& rTile) {
     ASSERT(mTiles.find(id) == mTiles.end());
 
     // expand the limits as needed
-    IndexType n = rCell.Row();
-    if (n > mNorthMax) {
-        mNorthMax = n;
+    RowType const row = rCell.Row();
+    if (row > mNorthMax) {
+        mNorthMax = row;
     }
-    if (n < -mSouthMax) {
-        mSouthMax = -n;
+    if (row < -mSouthMax) {
+        mSouthMax = -row;
     }
 
-    IndexType e = rCell.Column();
-    if (e > mEastMax) {
-        mEastMax = e;
+    ColumnType const column = rCell.Column();
+    if (column > mEastMax) {
+        mEastMax = column;
     }
-    if (e < -mWestMax) {
-        mWestMax = -e;
+    if (column < -mWestMax) {
+        mWestMax = -column;
     }
 
     mCells[rCell] = rTile;
@@ -192,22 +199,22 @@ void BaseBoard::PlayOnCell(Cell const& rCell, Tile const& rTile) {
 }
 
 // get the southern limit of the board
-IndexType BaseBoard::SouthMax(void) const {
+RowType BaseBoard::SouthMax(void) const {
 	return mSouthMax;
 }
 
 // get the western limit of the board
-IndexType BaseBoard::WestMax(void) const {
+ColumnType BaseBoard::WestMax(void) const {
 	return mWestMax;
 }
 
 
 // inquiry methods
 
-bool BaseBoard::IsEmptyColumn(IndexType column) const {
+bool BaseBoard::IsEmptyColumn(ColumnType column) const {
     bool result = true;
     
-    for (IndexType row = -mWestMax; row <= mEastMax; row++) {
+    for (RowType row = -mSouthMax; row <= mNorthMax; row++) {
         CellConstIterator const i_cell = Find(row, column);
         if (i_cell != mCells.end()) {
             result = false;
@@ -218,10 +225,10 @@ bool BaseBoard::IsEmptyColumn(IndexType column) const {
     return result;
 }
 
-bool BaseBoard::IsEmptyRow(IndexType row) const {
+bool BaseBoard::IsEmptyRow(RowType row) const {
     bool result = true;
     
-    for (IndexType column = -mSouthMax; column <= mNorthMax; column++) {
+    for (ColumnType column = -mWestMax; column <= mEastMax; column++) {
         CellConstIterator const i_cell = Find(row, column);
         if (i_cell != mCells.end()) {
             result = false;

@@ -54,14 +54,14 @@ public:
 
 	// misc public methods
 	unsigned    Count(void) const;
-	IndexType   EastMax(void) const;
+	ColumnType  EastMax(void) const;
     Tile const* GetCell(Cell const&) const;
     bool        LocateTileId(TileIdType, Cell&) const;
     void        MakeEmpty(Cell const&);
-    IndexType   NorthMax(void) const;
+    RowType     NorthMax(void) const;
 	void        PlayOnCell(Cell const&, Tile const&);
-    IndexType   SouthMax(void) const;
-    IndexType	WestMax(void) const;
+    RowType     SouthMax(void) const;
+    ColumnType  WestMax(void) const;
 
 private:
 	// private types
@@ -73,16 +73,17 @@ private:
     typedef TileMap::iterator		  TileIterator;
 
 	// private data
-    CellMap   mCells;
-	IndexType mNorthMax, mSouthMax, mEastMax, mWestMax; // extent of the played area
-    TileMap   mTiles;
+    CellMap    mCells;
+	RowType    mNorthMax, mSouthMax; // extent of the played area
+	ColumnType mEastMax, mWestMax; // extent of the played area
+    TileMap    mTiles;
 
 	// misc private methods
-    CellConstIterator Find(IndexType northing, IndexType easting) const;
-    CellIterator	  Find(IndexType northing, IndexType easting);
+    CellConstIterator Find(RowType, ColumnType) const;
+    CellIterator	  Find(RowType, ColumnType);
     
     // private inquiry methods
-    bool IsEmptyColumn(IndexType) const;
-    bool IsEmptyRow(IndexType) const;
+    bool IsEmptyColumn(ColumnType) const;
+    bool IsEmptyRow(RowType) const;
 };
 #endif // !defined(BASEBOARD_HPP_INCLUDED)

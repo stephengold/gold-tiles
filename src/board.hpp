@@ -84,9 +84,9 @@ public:
 
 private:
 	// misc private methods
-	Tile const* GetPtr(IndexType northing, IndexType easting) const;
+	Tile const* GetPtr(RowType, ColumnType) const;
 	Cells    	GetRun(Cell const&, Direction const&) const;
-	Tile	    GetTile(IndexType northing, IndexType easting) const;
+	Tile	    GetTile(RowType, ColumnType) const;
 	Tile        GetTile(Cell const&) const;
 	Tiles		GetTiles(Cells const&) const;
     void		PlayTile(TileCell const&);

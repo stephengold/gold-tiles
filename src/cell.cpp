@@ -29,10 +29,10 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 
 // static data
 
-GridType  Cell::msGrid     = GRID_4WAY;
-IndexType Cell::msHeight   = HEIGHT_MAX;
-IndexType Cell::msWidth    = WIDTH_MAX;
-bool      Cell::msWrapFlag = false;
+GridType   Cell::msGrid     = GRID_4WAY;
+RowType    Cell::msHeight   = HEIGHT_MAX;
+ColumnType Cell::msWidth    = WIDTH_MAX;
+bool       Cell::msWrapFlag = false;
 
 
 // lifecycle
@@ -44,7 +44,7 @@ Cell::Cell(void) {
 	ASSERT(IsValid());
 }
 
-Cell::Cell(IndexType row, IndexType column) {
+Cell::Cell(RowType row, ColumnType column) {
 	mColumn = column;
 	mRow = row;
 }
@@ -52,7 +52,7 @@ Cell::Cell(IndexType row, IndexType column) {
 // The compiler-generated copy constructor is fine.
 
 // construct the next valid cell (not necessarily a neighbor) in direction "dir" from "base"
-Cell::Cell(Cell const& rBase, Direction const& rDirection, IndexType count) {
+Cell::Cell(Cell const& rBase, Direction const& rDirection, int count) {
 	ASSERT(rBase.IsValid());
 	ASSERT(rDirection.IsValid());
 	ASSERT(count == 1 || count == -1);
@@ -67,8 +67,8 @@ Cell::Cell(Cell const& rBase, Direction const& rDirection, IndexType count) {
 		bool const odd = rBase.IsOdd();
 		direction = direction.TriangleNeighbor(odd);
 	}
-    IndexType row_offset;
-	IndexType column_offset;
+    RowType row_offset;
+	ColumnType column_offset;
     NextCellOffsets(direction, row_offset, column_offset);
     mRow = rBase.mRow + count*row_offset;
     mColumn = rBase.mColumn + count*column_offset;
@@ -128,7 +128,7 @@ Cell::operator String(void) const {
 
 // misc methods
 
-IndexType Cell::Column(void) const {
+ColumnType Cell::Column(void) const {
 	return mColumn;
 }
 
@@ -218,7 +218,7 @@ bool Cell::GetUserChoice(String const& rAlternate) {
 	rCellCnt = most_found;
 }
 
-void Cell::Next(Direction const& rDirection, IndexType count) {
+void Cell::Next(Direction const& rDirection, int count) {
 	ASSERT(count == 1 || count == -1);
 
     Cell const next(*this, rDirection, count);
@@ -227,8 +227,8 @@ void Cell::Next(Direction const& rDirection, IndexType count) {
 
 /* static */ void Cell::NextCellOffsets(
 	Direction const& rDirection,
-	IndexType& rRowOffset,
-	IndexType& rColumnOffset)
+	RowType& rRowOffset,
+	ColumnType& rColumnOffset)
 {
 	if (rDirection.IsNorth()) {
 		rRowOffset = (msGrid == GRID_HEX) ? +2 : +1;
@@ -259,7 +259,7 @@ void Cell::Next(Direction const& rDirection, IndexType count) {
     }
 }
 
-IndexType Cell::Row(void) const {
+RowType Cell::Row(void) const {
 	return mRow;
 }
 
@@ -306,13 +306,13 @@ IndexType Cell::Row(void) const {
 	}
     msGrid = grid;
 
-	IndexType const height = rGameOpt.BoardHeight();
+	RowType const height = rGameOpt.BoardHeight();
 	ASSERT(height <= HEIGHT_MAX);
 	ASSERT(height >= HEIGHT_MIN);
 	ASSERT(!::is_odd(height));
 	msHeight = height;
 
-	IndexType const width = rGameOpt.BoardWidth(); 
+	ColumnType const width = rGameOpt.BoardWidth(); 
 	ASSERT(width <= WIDTH_MAX);
 	ASSERT(width >= WIDTH_MIN);
 	ASSERT(!::is_odd(width));
@@ -390,8 +390,8 @@ bool Cell::HasNeighbor(Direction const& rDirection) const {
 	}
 
 	// check for edges
-	IndexType column;
-	IndexType row;
+	ColumnType column;
+	RowType row;
 	NextCellOffsets(rDirection, row, column);
 	row += mRow;
 	column += mColumn;

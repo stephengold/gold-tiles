@@ -83,7 +83,7 @@ String GameOpt::AttrReport(void) const {
 	return result;
 }
 
-IndexType GameOpt::BoardHeight(void) const {
+RowType GameOpt::BoardHeight(void) const {
 	ASSERT(::is_even(mBoardHeight));
 	ASSERT(mBoardHeight >= Cell::HEIGHT_MIN);
 	ASSERT(mBoardHeight <= Cell::HEIGHT_MAX);
@@ -91,7 +91,7 @@ IndexType GameOpt::BoardHeight(void) const {
 	return mBoardHeight;
 }
 
-IndexType GameOpt::BoardWidth(void) const {
+ColumnType GameOpt::BoardWidth(void) const {
 	ASSERT(::is_even(mBoardWidth));
 	ASSERT(mBoardWidth >= Cell::WIDTH_MIN);
 	ASSERT(mBoardWidth <= Cell::WIDTH_MAX);
@@ -212,7 +212,7 @@ void GameOpt::SetAttrCnt(AttrCntType attrCnt) {
 	mAttrCnt = attrCnt;
 }
 
-void GameOpt::SetBoardHeight(IndexType height) {
+void GameOpt::SetBoardHeight(RowType height) {
 	ASSERT(::is_even(height));
 	ASSERT(height >= Cell::HEIGHT_MIN);
 	ASSERT(height <= Cell::HEIGHT_MAX);
@@ -220,7 +220,7 @@ void GameOpt::SetBoardHeight(IndexType height) {
 	mBoardHeight = height;
 }
 
-void GameOpt::SetBoardWidth(IndexType width) {
+void GameOpt::SetBoardWidth(ColumnType width) {
 	ASSERT(::is_even(width));
 	ASSERT(width >= Cell::WIDTH_MIN);
 	ASSERT(width <= Cell::WIDTH_MAX);

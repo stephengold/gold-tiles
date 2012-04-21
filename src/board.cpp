@@ -46,17 +46,17 @@ Board::operator String(void) const {
 	unsigned const width = Tile::AttributeCnt() + 4;
 
     String result(width, ' ');
-    for (IndexType column = -WestMax(); column <= EastMax(); column++) {
+    for (ColumnType column = -WestMax(); column <= EastMax(); column++) {
        String const column_tag(column);
        result += String(width - column_tag.Length(), ' ');
        result += column_tag;
     }
     result += "\n";
-    for (IndexType row = NorthMax(); row >= -SouthMax(); row--) {
+    for (RowType row = NorthMax(); row >= -SouthMax(); row--) {
         String const row_tag(row);
         result += String(width - row_tag.Length(), ' ');
         result += row_tag;
-	    for (IndexType column = -WestMax(); column <= EastMax(); column++) {
+	    for (ColumnType column = -WestMax(); column <= EastMax(); column++) {
 			Cell const cell(row, column);
 			if (HasEmptyCell(cell)) {
 				result += " .";
@@ -81,8 +81,8 @@ Board::operator String(void) const {
 Cell Board::FirstCell(void) const {
 	int const column_fringe = 1;
 	int const row_fringe = Cell::RowFringe();
-    IndexType const top_row = row_fringe + NorthMax();
-    IndexType const left_column = -column_fringe - WestMax();
+    RowType const top_row = row_fringe + NorthMax();
+    ColumnType const left_column = -column_fringe - WestMax();
 	Cell const result(top_row, left_column);
 
 	return result;
@@ -176,14 +176,14 @@ bool Board::LocateTile(Tile const& rTile, Cell& rCell) const {
 
 void Board::Next(Cell& rCell) const {
 	int const column_fringe = 1;
-    IndexType const right_column = column_fringe + EastMax();
+    ColumnType const right_column = column_fringe + EastMax();
 
-	IndexType row = rCell.Row();
-	IndexType column = rCell.Column();
+	RowType row = rCell.Row();
+	ColumnType column = rCell.Column();
 	if (column < right_column) {
 		column++;
 	} else {
-        IndexType const left_column = -column_fringe - WestMax();
+        ColumnType const left_column = -column_fringe - WestMax();
 		column = left_column;
 		row--;
 	}
@@ -587,15 +587,15 @@ bool Board::IsValidMove(Move const& rMove, UmType& rReason) const {
 bool Board::MightUse(Cell const& rCell) const {
 	int const column_fringe = 1;
 	int const row_fringe = Cell::RowFringe();
-    IndexType const top_row = row_fringe + NorthMax();
-    IndexType const bottom_row = -row_fringe - SouthMax();
-    IndexType const right_column = column_fringe + EastMax();
-    IndexType const left_column = -column_fringe - WestMax();
+    RowType const top_row = row_fringe + NorthMax();
+    RowType const bottom_row = -row_fringe - SouthMax();
+    ColumnType const right_column = column_fringe + EastMax();
+    ColumnType const left_column = -column_fringe - WestMax();
     ASSERT(bottom_row <= top_row);
     ASSERT(left_column <= right_column);
 
-	IndexType const row = rCell.Row();
-	IndexType const column = rCell.Column();
+	RowType const row = rCell.Row();
+	ColumnType const column = rCell.Column();
 
 	bool const result = (row >= bottom_row 
 		              && row <= top_row

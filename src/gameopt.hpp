@@ -68,44 +68,44 @@ public:
 	operator RulesType(void) const;
 
 	// misc public methods
-	AttrCntType AttrCnt(void) const;
-	void        AttrCntChange(void);
-	String      AttrReport(void) const;
-	IndexType   BoardHeight(void) const;
-	IndexType   BoardWidth(void) const;
-	unsigned    BonusPercent(void) const;
-	long        CloneCnt(void) const;
-	unsigned    ClonesPerCombo(void) const;
-	long        ComboCnt(void) const;
-	AttrType    CountAttrValues(AttrIndexType) const;
-	void        GetUserChoice(void);
-	unsigned    HandsDealt(void) const;
-	unsigned    HandSize(void) const;
-	AttrType    MaxAttrValue(AttrIndexType) const;
-	unsigned    MinutesPerHand(void) const;
-	unsigned    SecondsPerHand(void) const;
-	void        SetAttrCnt(AttrCntType);
-	void        SetBoardHeight(IndexType);
-	void        SetBoardWidth(IndexType);
-	void        SetBoardWrap(bool);
-	void        SetBonusPercent(unsigned);
-	void        SetChallenge(void);
-	void        SetClonesPerCombo(unsigned);
-	void        SetDebug(void);
-	void        SetDoesBoardWrap(bool);
-	void        SetFriendly(void);
-	void        SetGrid(GridType);
-	void        SetHandsDealt(unsigned);
-	void        SetHandSize(unsigned);
-	void        SetMaxAttrValue(AttrIndexType, AttrType);
-	void        SetMinutesPerHand(unsigned);
-	void        SetNumAttrValues(AttrIndexType, AttrType);
-	void        SetPractice(void);
-	void        SetRules(RulesType);
-	void        Standardize(void);
-	void        StyleChange(void);
-	unsigned    TilesPerCombo(void) const;
-	long        TotalTileCnt(void) const;
+	AttrCntType  AttrCnt(void) const;
+	void         AttrCntChange(void);
+	String       AttrReport(void) const;
+	RowType      BoardHeight(void) const;
+	ColumnType   BoardWidth(void) const;
+	unsigned     BonusPercent(void) const;
+	long         CloneCnt(void) const;
+	unsigned     ClonesPerCombo(void) const;
+	long         ComboCnt(void) const;
+	AttrType     CountAttrValues(AttrIndexType) const;
+	void         GetUserChoice(void);
+	unsigned     HandsDealt(void) const;
+	unsigned     HandSize(void) const;
+	AttrType     MaxAttrValue(AttrIndexType) const;
+	unsigned     MinutesPerHand(void) const;
+	unsigned     SecondsPerHand(void) const;
+	void         SetAttrCnt(AttrCntType);
+	void         SetBoardHeight(RowType);
+	void         SetBoardWidth(ColumnType);
+	void         SetBoardWrap(bool);
+	void         SetBonusPercent(unsigned);
+	void         SetChallenge(void);
+	void         SetClonesPerCombo(unsigned);
+	void         SetDebug(void);
+	void         SetDoesBoardWrap(bool);
+	void         SetFriendly(void);
+	void         SetGrid(GridType);
+	void         SetHandsDealt(unsigned);
+	void         SetHandSize(unsigned);
+	void         SetMaxAttrValue(AttrIndexType, AttrType);
+	void         SetMinutesPerHand(unsigned);
+	void         SetNumAttrValues(AttrIndexType, AttrType);
+	void         SetPractice(void);
+	void         SetRules(RulesType);
+	void         Standardize(void);
+	void         StyleChange(void);
+	unsigned     TilesPerCombo(void) const;
+	long         TotalTileCnt(void) const;
 
 	// public inquiry methods
 	bool DoesBoardWrap(void) const;
@@ -120,8 +120,8 @@ public:
 private:
 	// private data
     AttrCntType   mAttrCnt;
-    IndexType     mBoardHeight;
-	IndexType     mBoardWidth;
+    RowType       mBoardHeight;
+	ColumnType    mBoardWidth;
 	unsigned      mBonusPercent;    // bonus tile percentage
 	unsigned      mClonesPerCombo;
 	bool          mDoesBoardWrap;

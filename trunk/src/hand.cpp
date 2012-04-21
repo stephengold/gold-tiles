@@ -73,10 +73,10 @@ Hand::operator Tiles(void) const {
 
 // misc methods
 
-void Hand::AddScore(unsigned points) {
+void Hand::AddScore(ScoreType points) {
     ASSERT(!IsClockRunning());
 
-	unsigned const new_score = mScore + points;
+	ScoreType const new_score = mScore + points;
 	ASSERT(new_score >= mScore); // check for wraparound
 	mScore = new_score;
 }
@@ -178,7 +178,7 @@ void Hand::Resign(Tiles& rBag) {
 }
 
 // total points this hand has scored
-unsigned Hand::Score(void) const {
+ScoreType Hand::Score(void) const {
     return mScore;
 }
 
@@ -215,11 +215,11 @@ unsigned Hand::StopClock(void) {
 	return result;
 }
 
-void Hand::SubtractScore(unsigned points) {
+void Hand::SubtractScore(ScoreType points) {
 	ASSERT(!HasResigned());
     ASSERT(!IsClockRunning());
 
-	unsigned const new_score = mScore - points;
+	ScoreType const new_score = mScore - points;
 	ASSERT(new_score <= mScore); // check for wraparound
 	mScore = new_score;
 }

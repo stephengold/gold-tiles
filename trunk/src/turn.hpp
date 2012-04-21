@@ -36,6 +36,7 @@ about the play.
 #include "move.hpp"  // HASA Move
 #include "tiles.hpp" // HASA Tiles
 
+
 class Turn {
 public:
 	// lifecycle
@@ -52,19 +53,19 @@ public:
     operator String(void) const;
     
     // misc methods
-	Tiles    Draw(void) const;
-	String   HandName(void) const;
-	unsigned MustPlay(void) const;
-	unsigned Points(void) const;
-    void     SetDraw(Tiles const&);
-    void     SetPoints(unsigned);
+	Tiles     Draw(void) const;
+	String    HandName(void) const;
+	unsigned  MustPlay(void) const;
+	ScoreType Points(void) const;
+    void      SetDraw(Tiles const&);
+    void      SetPoints(ScoreType);
 
 private:
 	// private data
-	Tiles    mDraw;      // move first, then draw
-	String   mHandName;
-	Move     mMove;      // move first, then draw
-	unsigned mMustPlay;  // set for first turn, otherwise zero
-	unsigned mPoints;    // from start of turn
+	Tiles     mDraw;      // move first, then draw
+	String    mHandName;
+	Move      mMove;      // move first, then draw
+	unsigned  mMustPlay;  // set for first turn, otherwise zero
+	ScoreType mPoints;    // from start of turn
 };
 #endif // !defined(TURN_HPP_INCLUDED)

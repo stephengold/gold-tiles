@@ -29,6 +29,7 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 #include "project.hpp"
 #include "tiles.hpp"   // HASA Tiles
 
+
 class Hand {
 public:
 	// public lifecycle
@@ -45,29 +46,29 @@ public:
 	operator Tiles(void) const;
 
 	// misc public methods
-	void     AddScore(unsigned);
-	void     AddTiles(Tiles const&);
-	Move     ChooseMove(void) const;
-	void     Display(void) const;
-	void     DisplayName(void) const;
-	void     DisplayScore(void) const;
-	void     DisplayTiles(void) const;
-	Tiles    DrawTiles(unsigned, Tiles& bag);
-	Tiles    LongestRun(void) const;
+	void      AddScore(ScoreType);
+	void      AddTiles(Tiles const&);
+	Move      ChooseMove(void) const;
+	void      Display(void) const;
+	void      DisplayName(void) const;
+	void      DisplayScore(void) const;
+	void      DisplayTiles(void) const;
+	Tiles     DrawTiles(unsigned, Tiles& bag);
+	Tiles     LongestRun(void) const;
 	MsecIntervalType
-		     Milliseconds(void) const;
-	String   Name(void) const;
-	String   PlayerName(void) const;
-	void     RemoveTile(Tile const&);
-	void     RemoveTiles(Tiles const&);
-	void     Resign(Tiles& bag);
-	unsigned Score(void) const;
-	unsigned Seconds(void) const;
-	double   SkipProbability(void) const;
-	void     StartClock(void);
-	unsigned StopClock(void);
-	void     SubtractScore(unsigned);
-	void     Unresign(Tiles& bag, Tiles const& hand);
+		      Milliseconds(void) const;
+	String    Name(void) const;
+	String    PlayerName(void) const;
+	void      RemoveTile(Tile const&);
+	void      RemoveTiles(Tiles const&);
+	void      Resign(Tiles& bag);
+	ScoreType Score(void) const;
+	unsigned  Seconds(void) const;
+	double    SkipProbability(void) const;
+	void      StartClock(void);
+	unsigned  StopClock(void);
+	void      SubtractScore(ScoreType);
+	void      Unresign(Tiles& bag, Tiles const& hand);
 
 	// public inquiry methods
 	bool HasGoneOut(void) const;
@@ -85,7 +86,7 @@ private:
 	String    mName;           // the "name" of the hand
 	HandOpt   mOptions;
 	bool      mResignedFlag;
-	unsigned  mScore;
+	ScoreType mScore;
 	MsecIntervalType
 		      mStartTime;
 	Tiles     mTiles;

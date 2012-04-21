@@ -195,7 +195,7 @@ String Game::EndBonus(void) {
         while (i_hand != miPlayableHand) {
             Tiles hand = Tiles(*i_hand);
             unsigned const tiles_in_hand = hand.Count();
-		    unsigned const points_in_hand = tiles_in_hand;  // TODO
+		    ScoreType const points_in_hand = ScoreType(tiles_in_hand);  // TODO?
 
 		    if (points_in_hand > 0) {
                 miPlayableHand->AddScore(points_in_hand);
@@ -325,7 +325,7 @@ void Game::FinishTurn(Move const& rMove) {
             mBoard.PlayMove(rMove);
     
             // update the hand's score    
-  	        unsigned const points = mBoard.ScoreMove(rMove);
+  	        ScoreType const points = mBoard.ScoreMove(rMove);
 	        miPlayableHand->AddScore(points);
 	        turn.SetPoints(points);
 		}
@@ -467,7 +467,7 @@ void Game::Redo(void) {
             mBoard.PlayMove(move);
     
             // update the hand's score
-			unsigned const points = turn.Points();
+			ScoreType const points = turn.Points();
 			ASSERT(points == mBoard.ScoreMove(move));
 	        miPlayableHand->AddScore(points);
 		}
@@ -608,7 +608,7 @@ void Game::Undo(void) {
             mBoard.UnplayMove(move);
     
             // update the hand's score
-			unsigned const points = turn.Points();
+			ScoreType const points = turn.Points();
 	        miPlayableHand->SubtractScore(points);
 		}
 	}
@@ -661,8 +661,8 @@ Strings Game::WinningHands(void) const {
 	return result;
 }
 
-unsigned Game::WinningScore(void) const {
-	unsigned const result = mHands.MaxScore();
+ScoreType Game::WinningScore(void) const {
+	ScoreType const result = mHands.MaxScore();
 
 	return result;
 }

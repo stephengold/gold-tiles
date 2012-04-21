@@ -69,7 +69,7 @@ public:
     void	   PlayMove(Move const&);
     static String 
 		       ReasonMessage(UmType, String& title);
-    unsigned   ScoreMove(Move const&) const;
+    ScoreType  ScoreMove(Move const&) const;
     void	   UnplayMove(Move const&);
 
 	// public inquiry methods
@@ -90,7 +90,7 @@ private:
 	Tile        GetTile(Cell const&) const;
 	Tiles		GetTiles(Cells const&) const;
     void		PlayTile(TileCell const&);
-    unsigned	ScoreDirection(Cell const&, Direction const&) const;
+    ScoreType   ScoreDirection(Cell const&, Direction const&) const;
 
 	// private inquiry methods
     bool AreAllCompatible(Cells const&) const;

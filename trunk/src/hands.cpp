@@ -53,14 +53,14 @@ Hands::Iterator Hands::Find(String const& rName) {
 	return i_hand;
 }
 
-unsigned Hands::MaxScore(void) const {
+ScoreType Hands::MaxScore(void) const {
 	ASSERT(!IsEmpty());
 
-	unsigned result = 0;
+	ScoreType result = 0;
 
 	ConstIterator i_hand;
 	for (i_hand = begin(); i_hand != end(); i_hand++) {
-		unsigned const score = i_hand->Score();
+		ScoreType const score = i_hand->Score();
 		if (score > result) {
 			result = score;
 		}

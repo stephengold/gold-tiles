@@ -31,7 +31,8 @@ A DisplayModes object represents the parameters used to display tiles in the GUI
 The DisplayModes class encapsulates an array of five AttrModeType values.
 */
 
-#include "tile.hpp"  // HASA AttrModeType 
+#include "combo.hpp"  // HASA AttrModeType 
+
 
 class DisplayModes {
 public:
@@ -56,6 +57,6 @@ public:
 
 private:
 	// private data
-	AttrModeType mArray[Tile::ATTRIBUTE_CNT_MAX];
+	AttrModeType mArray[Combo::ATTRIBUTE_CNT_MAX];
 };
 #endif // !defined(DISPLAYMODES_HPP_INCLUDED)

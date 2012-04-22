@@ -35,51 +35,15 @@ same number of attributes.  Distinct tiles with identical attributes
 In addition, some randomly-selected tiles are bonus tiles with extra value.
 */
 
-#include "indices.hpp"  // USES IndexType
-#include "project.hpp"  // USES Tiles
+#include "combo.hpp"    // HASA Combo
+#include "indices.hpp"  // HASA IndexType
 
 // tile identifier type
 typedef IndexType TileIdType;
 
-// attribute types
-typedef unsigned short AttrCntType;   // an attribute count
-typedef unsigned short AttrIndexType; // an index into an array of attributes
-typedef unsigned short AttrType;      // an attribute value
-
-enum AttrModeType {                   // display mode type
-	ATTR_MODE_MIN = 0,
-	ATTR_MODE_ABC = 0,
-	ATTR_MODE_RST = 1,
-	ATTR_MODE_123 = 2,
-#ifdef _GUI
-	ATTR_MODE_COLOR = 3,
-	ATTR_MODE_SHAPE = 4,
-	ATTR_MODE_MAX = 4,
-	ATTR_MODE_CNT = 5
-#else // !defined(_GUI)
-	ATTR_MODE_MAX = 2,
-	ATTR_MODE_CNT = 3
-#endif // !defined(_GUI)
-};
-
 class Tile {
 public:
 	// public constants
-	static const AttrCntType ATTRIBUTE_CNT_MIN = 2;
-	static const AttrCntType ATTRIBUTE_CNT_DEFAULT = 2;
-#ifdef _GUI
-	static const AttrCntType ATTRIBUTE_CNT_MAX = 5;
-#endif // defined(_GUI)
-
-	static const AttrType VALUE_CNT_MIN = 2;
-	static const AttrType VALUE_CNT_DEFAULT = 6;
-	static const AttrType VALUE_CNT_MAX = 9;
-
-	static const long COMBINATION_CNT_MIN = 4L;
-#ifdef _GUI
-	static const long COMBINATION_CNT_MAX = 59049L; // 9^5
-#endif // defined(_GUI)
-
 	static const TileIdType ID_NONE = 0;
 	static const TileIdType ID_DEFAULT = 1; // generated only by default constructor
 	static const TileIdType ID_FIRST = 2;
@@ -88,26 +52,21 @@ public:
     // public lifecycle
 	Tile(void);
 	Tile(String const&);
-	Tile(Tile const&);
-	~Tile(void);
+	// Tile(Tile const&);  compiler-generated copy constructor is OK
+	// ~Tile(void);  compiler-generated destructor is OK
 
     // public operators
 	bool     operator<(Tile const&) const;
 	Tile&    operator=(Tile const&);
 	bool     operator==(Tile const&) const;
+	operator Combo(void) const;
 	operator String(void) const;
 
 	// misc public methods
 	AttrType           Attribute(AttrIndexType) const;
-    static AttrCntType AttributeCnt(void);
-	static String      AttributeToString(AttrModeType, AttrType);
 	static double      BonusProbability(void);
 	Tile               CloneAndSetBonus(void) const;
-	static long        CombinationCnt(void);
 	AttrIndexType      CommonAttribute(Tile const&) const;
-	AttrCntType        CountMatchingAttributes(Tile const&) const;
-	static AttrModeType 
-		               DefaultDisplayMode(AttrIndexType);
 	void               Display(void) const;
     static void        DisplayEmpty(void);
 	String             GetUserChoice(Tiles const&, Strings const&);
@@ -115,8 +74,6 @@ public:
 	void               SetAttribute(AttrIndexType, AttrType);
 	static void        SetStatic(GameOpt const&);
     static String      StringEmpty(void);
-    static AttrType    ValueCnt(AttrIndexType);
-    static AttrType    ValueMax(AttrIndexType);
 
 	// public inquiry methods
 	bool HasAttribute(AttrIndexType, AttrType) const;
@@ -130,17 +87,14 @@ public:
 
 private:
 	// private data
-	AttrType* mpArray;     // array of attributes
-	TileIdType mId;        // to distinguish clones
 	unsigned   mBonusValue;
+	Combo      mCombo;     // all attributes
+	TileIdType mId;        // to distinguish clones
 
-	static AttrIndexType msAttributeCnt;  // number of attributes per tile
 	static double        msBonusProbability;
 	static TileIdType    msNextId;
-	static AttrType*     mspValueMax;      // max value for each tile attribute
 
 	// misc private methods
-	static AttrType   CharToAttribute(AttrModeType, char);
 	static TileIdType NextId(void);
 };
 #endif // !defined(TILE_HPP_INCLUDED)

@@ -32,7 +32,6 @@ A String object represents a text string (sequence of characters).
 #include <string>      // ISA std::string
 #include "project.hpp"
 
-
 #ifndef __STDC_WANT_SECURE_LIB__
 // for envs that don't provide strcpy_s()
 #define strcpy_s(a, sz, b) strcpy(a, b)
@@ -48,13 +47,13 @@ public:
     String(void);
 	String(char);
 	String(unsigned, char);
-	String(char const []);
+	String(TextType);
 	String(std::string const&);
 	String(int); // itoa
 	String(unsigned); // utoa
 	String(long); // ltoa
 	String(unsigned long); // ultoa
-	String(Strings const&, String const& separator); // join
+	String(Strings const&, String const& separator); // join strings
 	// String(String const&);  compiler-generated copy constructor is OK
     // ~String(void);  compiler-generated destructor is OK
 
@@ -65,9 +64,11 @@ public:
 
 	// misc public methods
 	void     Capitalize(void);
+	char     Last(void) const;
 	unsigned Length(void) const;
 	String   Purge(void) const;
 	String   Quote(void) const;
+	void     Shorten(unsigned);
 
 	// public inquiry methods
 	bool IsBlank(void) const;

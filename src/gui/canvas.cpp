@@ -153,7 +153,7 @@ void Canvas::DrawMarking(
 		case ATTR_MODE_123: {
             UseColors(backgroundColor, markingColor);
 
-            String const ch = Tile::AttributeToString(displayMode, marking);
+            String const ch = Combo::AttributeToString(displayMode, marking);
 			UseFont(rBounds.Height(), rBounds.Width());
             DrawText(rBounds, ch);
 			UseFont(FONT_HEIGHT_DEFAULT);
@@ -386,7 +386,7 @@ Rect Canvas::DrawTile(
         msShapes.push_back(spade);
     }
 
-    ASSERT(msShapes.size() >= Tile::VALUE_CNT_MAX);
+    ASSERT(msShapes.size() >= Combo::VALUE_CNT_MAX);
 }
 
 /* static */ void Canvas::InitializeTargetArrow(void) {

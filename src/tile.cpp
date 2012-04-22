@@ -27,80 +27,39 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 #include "strings.hpp"
 #include "tiles.hpp"
 
+
 // static data
 
-AttrCntType Tile:: msAttributeCnt = 0;    // configured by SetStatic()
-double      Tile:: msBonusProbability = 0.0; // configured by SetStatic()
-TileIdType  Tile:: msNextId = ID_FIRST;
-AttrType *  Tile::mspValueMax = NULL;     // allocated by SetStatic()
+double     Tile::msBonusProbability = 0.0; // configured by SetStatic()
+TileIdType Tile::msNextId = ID_FIRST;
 
 
 // lifecycle
 
 Tile::Tile(void) {
-    ASSERT(msAttributeCnt >= ATTRIBUTE_CNT_MIN);
-
-    mpArray = new AttrType[msAttributeCnt];
-    for (AttrIndexType i_attr = 0; i_attr < msAttributeCnt; i_attr++) {
-        mpArray[i_attr] = 0;
-    }
 	mBonusValue = 0;
     mId = ID_DEFAULT; // an ID used only by the default constructor
 }
 
 // Mint a new tile based on a string.
 Tile::Tile(String const& rString) {
-    ASSERT(msAttributeCnt >= ATTRIBUTE_CNT_MIN);
-
-    mpArray = new AttrType[msAttributeCnt];
 	mBonusValue = 0;
+	String combo_string = rString;
+	combo_string.Purge();
 
-    AttrIndexType i_attr = 0;
-    String::ConstIterator i_char;
-    for (i_char = rString.begin() ; i_char != rString.end(); i_char++) {
-        char const ch = *i_char;
-        if (i_attr < msAttributeCnt) {
-			AttrModeType const display_mode = DefaultDisplayMode(i_attr);
-			AttrType value = CharToAttribute(display_mode, ch);
-			if (value > ValueMax(i_attr)) {
-				value = 0; // so resulting object can be valid
-			}
-            mpArray[i_attr] = value;
-            i_attr++;
-        } else if (i_attr == msAttributeCnt && ch == '+') {
-            mBonusValue = 1;
-		}
+	char const last_char = combo_string.Last();
+    if (last_char == '+') {
+        mBonusValue = 1;
+		combo_string.Shorten(1);
     }
-
-    while (i_attr < msAttributeCnt) {
-		// not enough characters in the string -- pad the attribute array with zeroes
-        mpArray[i_attr] = 0;
-        i_attr++;
-    }
-    
+	mCombo = Combo(combo_string);
     mId = NextId();
 
     ASSERT(IsValid());
 }
 
-// construct a copy (with the same id)
-Tile::Tile(Tile const& rBase) {
-    ASSERT(msAttributeCnt >= ATTRIBUTE_CNT_MIN);
-
-    mpArray = new AttrType[msAttributeCnt];
-	ASSERT(mpArray != NULL);
-    for (AttrIndexType i_attr = 0; i_attr < msAttributeCnt; i_attr++) {
-        AttrType const value = rBase.mpArray[i_attr];
-        mpArray[i_attr] = value;
-    }
-	mBonusValue = rBase.mBonusValue;
-    mId = rBase.mId;
-}
-
-Tile::~Tile(void) {
-    delete[] mpArray;
-	mpArray = NULL;
-}
+// The compiler-generated copy constructor is fine.
+// The compiler-generated destructor is fine.
 
 
 // operators
@@ -118,13 +77,7 @@ Tile& Tile::operator=(Tile const& rOther) {
     ASSERT(IsValid());
 	ASSERT(rOther.IsValid());
 
-    mpArray = new AttrType[msAttributeCnt];
-	ASSERT(mpArray != NULL);
-    for (AttrIndexType i_attr = 0; i_attr < msAttributeCnt; i_attr++) {
-        AttrType const value = rOther.mpArray[i_attr];
-        ASSERT(value <= mspValueMax[i_attr]);
-        mpArray[i_attr] = value;
-    }
+	mCombo = rOther.mCombo;
 	mBonusValue = rOther.mBonusValue;
     mId = rOther.mId;
      
@@ -137,7 +90,7 @@ bool Tile::operator==(Tile const& rOther) const {
 
 	bool const result = (mId == rOther.mId);
 
-	ASSERT(!result || CountMatchingAttributes(rOther) == msAttributeCnt);
+	ASSERT(!result || mCombo == rOther.mCombo);
 
     return result;
 }
@@ -145,15 +98,8 @@ bool Tile::operator==(Tile const& rOther) const {
 Tile::operator String(void) const {
 	ASSERT(IsValid());
 
-	String result;
+	String result = mCombo;
 
-    for (AttrIndexType i_attr = 0; i_attr < msAttributeCnt; i_attr++) {
-        AttrType const value = mpArray[i_attr];
-        ASSERT(value <= mspValueMax[i_attr]);
-
-		AttrModeType const display_mode = DefaultDisplayMode(i_attr);
-        result += AttributeToString(display_mode, value);
-    }
 	if (mBonusValue > 0) {
 		result += '+';
 	} else {
@@ -161,7 +107,7 @@ Tile::operator String(void) const {
 	}
 
 	// result length should match that of the StringEmpty() method
-	ASSERT(result.Length() == unsigned(msAttributeCnt + 1));
+	ASSERT(result.Length() == unsigned(Combo::AttributeCnt() + 1));
 
 	return result;
 }
@@ -169,72 +115,14 @@ Tile::operator String(void) const {
 
 // misc methods
 
-AttrType Tile::Attribute(AttrIndexType ind) const {
-	ASSERT(IsValid());
-    ASSERT(ind < msAttributeCnt);
-
-    AttrType const result = mpArray[ind];
+AttrType Tile::Attribute(AttrIndexType index) const {
+    AttrType const result = mCombo.Attribute(index);
     
     return result;
 }
 
-/* static */ AttrCntType Tile::AttributeCnt(void) {
-    ASSERT(msAttributeCnt >= ATTRIBUTE_CNT_MIN);
-
-	return msAttributeCnt;
-}
-
-/* static */ String Tile::AttributeToString(AttrModeType display_mode, AttrType value) {
-    char ch = '?'; // invalid
-
-    switch (display_mode) {
-        case ATTR_MODE_ABC:
-            ch = char('A' + value);
-            break;
-        case ATTR_MODE_RST:
-            ch = char('R' + value);
-            break;
-        case ATTR_MODE_123:
-            ch = char('1' + value);
-            break;
-		default:
-			FAIL();
-    }
-
-    String const result(ch);
-	ASSERT(result.Length() == 1);
-
-	return result;
-}
-
 /* static */ double Tile::BonusProbability(void) {
-    ASSERT(msAttributeCnt >= ATTRIBUTE_CNT_MIN);
-
 	return msBonusProbability;
-}
-
-/* static */ AttrType Tile::CharToAttribute(AttrModeType display_mode, char ch) {
-    AttrType result = 0;
-
-    switch (display_mode) {
-        case ATTR_MODE_ABC:
-            result = AttrType(ch - 'A');
-            break;
-        case ATTR_MODE_RST:
-            result = AttrType(ch - 'R');
-            break;
-        case ATTR_MODE_123:
-            result = AttrType(ch - '1');
-            break;
-		default:
-			FAIL();
-    }
-
-	if (result >= VALUE_CNT_MAX) {
-		result = 0;
-	}
-
-    return result;
 }
 
 // create a clone (with a new id) and randomize its bonus value
@@ -252,91 +140,11 @@ Tile Tile::CloneAndSetBonus(void) const {
     return result;
 }
 
-// calculate the number of possible combinations of attributes
-/* static */ long Tile::CombinationCnt(void) {
-    ASSERT(msAttributeCnt >= ATTRIBUTE_CNT_MIN);
-
-	long result = 1L;
-    for (AttrIndexType i_attr = 0; i_attr < msAttributeCnt; i_attr++) {
-		AttrType const max_value = mspValueMax[i_attr];
-		AttrType const possible_values = max_value + 1;  // zero is a possible value
-		result *= possible_values;
-	}
-
-	ASSERT(result >= COMBINATION_CNT_MIN);
-#ifdef _GUI
-	ASSERT(result <= COMBINATION_CNT_MAX);
-#endif // defined(_GUI)
-	return result;
-}
-
 // identify the common attribute of a compatible tile
 AttrIndexType Tile::CommonAttribute(Tile const& rOther) const {
-	ASSERT(IsValid());
-	ASSERT(rOther.IsValid());
-    ASSERT(CountMatchingAttributes(rOther) == 1);
-    
-    AttrIndexType result = msAttributeCnt;
-    for (AttrIndexType i_attr = 0; i_attr < msAttributeCnt; i_attr++) {
-        if (mpArray[i_attr] == rOther.mpArray[i_attr]) {
-            result = i_attr;
-            break;
-        }
-    }
+    AttrIndexType const result = mCombo.CommonAttribute(rOther.mCombo);
 
-	ASSERT(result < msAttributeCnt);
     return result;
-}
-
-AttrCntType Tile::CountMatchingAttributes(Tile const& rOther) const {
-	ASSERT(IsValid());
-	ASSERT(rOther.IsValid());
-
-	AttrCntType result = 0;
-    for (AttrIndexType i_attr = 0; i_attr < msAttributeCnt; i_attr++) {
-		AttrType const attr_value = rOther.mpArray[i_attr];
-        if (HasAttribute(i_attr, attr_value)) {
-             ++result;
-        }
-    }
-    
-    return result;
-}
-
-/* static */ AttrModeType Tile::DefaultDisplayMode(AttrIndexType ind) {
-	AttrModeType result = ATTR_MODE_123;
-
-	switch (ind) {
-#ifdef _GUI
-	    case 0:
-			result = ATTR_MODE_SHAPE;
-			break;
-		case 1:
-			result = ATTR_MODE_COLOR;
-			break;
-		case 2:
-			result = ATTR_MODE_ABC;
-			break;
-		case 3:
-			result = ATTR_MODE_RST;
-			break;
-		case 4:
-			result = ATTR_MODE_123;
-			break;
-#else // !defined(_GUI)
-	    case 0:
-			result = ATTR_MODE_ABC;
-			break;
-		case 1:
-			result = ATTR_MODE_RST;
-			break;
-#endif // !defined(_GUI)
-		default:
-			result = ATTR_MODE_123;
-			break;
-	}
-
-	return result;
 }
 
 void Tile::Display(void) const {
@@ -396,71 +204,35 @@ TileIdType Tile::Id(void) const {
 	return result;
 }
 
-void Tile::SetAttribute(AttrIndexType ind, AttrType value) {
-    ASSERT(ind < msAttributeCnt);
-    ASSERT(value <= mspValueMax[ind]);
-
-    mpArray[ind] = value;
+void Tile::SetAttribute(AttrIndexType index, AttrType value) {
+	mCombo.SetAttribute(index, value);
 
 	ASSERT(IsValid());
 }
 
 /* static */ void Tile::SetStatic(GameOpt const& rGameOpt) {
-	AttrCntType const attr_cnt = rGameOpt.AttrCnt();
 	double const bonus_probability = rGameOpt.BonusPercent()/100.0;
 
-    ASSERT(attr_cnt >= ATTRIBUTE_CNT_MIN);
-#ifdef _GUI
-    ASSERT(attr_cnt <= ATTRIBUTE_CNT_MAX);
-#endif
     ASSERT(bonus_probability >= 0.0);
     ASSERT(bonus_probability <= 1.0);
 
-	msAttributeCnt = attr_cnt;
 	msBonusProbability = bonus_probability;
-
-	delete[] mspValueMax;
-    mspValueMax = new AttrType[attr_cnt];
-	ASSERT(mspValueMax != NULL);
-
-    for (AttrIndexType i_attr = 0; i_attr < attr_cnt; i_attr++) {
-		AttrType const value_cnt = rGameOpt.CountAttrValues(i_attr);
-        ASSERT(value_cnt >= VALUE_CNT_MIN);
-        ASSERT(value_cnt <= VALUE_CNT_MAX);
-        mspValueMax[i_attr] = value_cnt - 1;
-    }
 }
 
 /* static */ String Tile::StringEmpty(void) {
-    String const result(msAttributeCnt + 1, '.'); // +1 for bonus indication
+    String const result(Combo::AttributeCnt() + 1, '.'); // +1 for bonus indication
 
 	// result length should agree with String() operator
-	ASSERT(result.Length() == unsigned(msAttributeCnt + 1));
+	ASSERT(result.Length() == unsigned(Combo::AttributeCnt() + 1));
 
-    return result;
-}
-
-/* static */ AttrType Tile::ValueCnt(AttrIndexType attrIndex) {
-    AttrType const result = ValueMax(attrIndex) + 1;
-    
-    return result;
-}
-
-/* static */ AttrType Tile::ValueMax(AttrIndexType attrIndex) {
-    ASSERT(attrIndex < msAttributeCnt);
-    AttrType const result = mspValueMax[attrIndex];
-    
     return result;
 }
 
 
 // inquiry methods
 
-bool Tile::HasAttribute(AttrIndexType ind, AttrType value) const {
-    ASSERT(ind < msAttributeCnt);
-
-    AttrType const attrib = mpArray[ind];
-    bool const result = (attrib == value);
+bool Tile::HasAttribute(AttrIndexType index, AttrType value) const {
+	bool const result = mCombo.HasAttribute(index, value);
     
     return result;
 }
@@ -486,8 +258,8 @@ bool Tile::IsClone(Tile const& rOther) const {
 	// copies (with the same ID) do not count as clones
     if (mId != rOther.mId) {
 		// the bonus value and all attributes match
-		AttrCntType const cnt = CountMatchingAttributes(rOther);
-        result = (cnt == msAttributeCnt && mBonusValue == rOther.mBonusValue);
+        result = (mCombo == rOther.mCombo 
+			   && mBonusValue == rOther.mBonusValue);
     }
 
     return result;
@@ -503,8 +275,7 @@ bool Tile::IsCompatibleWith(Tile const* pOther) const {
     bool result = true;
     
     if (pOther != NULL) {
-        AttrCntType const matchCnt = CountMatchingAttributes(*pOther);
-        result = (matchCnt == 1);
+        result = mCombo.IsCompatibleWith(pOther->mCombo);
     }
     
     return result;
@@ -513,19 +284,10 @@ bool Tile::IsCompatibleWith(Tile const* pOther) const {
 bool Tile::IsValid(void) const {
     bool result = false;
     
-    if (mpArray != NULL
-	 && (mBonusValue == 0 || mBonusValue == 1)
+    if ((mBonusValue == 0 || mBonusValue == 1)
 	 && (mId == ID_DEFAULT || mId >= ID_FIRST && mId < msNextId))
 	{
         result = true;
-#if 0
-        for (AttrIndexType i_attr = 0; i_attr < msAttributeCnt; i_attr++) {
-            if (mpArray[i_attr] > mspValueMax[i_attr]) {
-                result = false;
-                break;
-            }
-        }
-#endif
     }
     
     return result;
@@ -540,5 +302,3 @@ bool Tile::MatchesString(String const& rMatch) const {
 
 	return result;
 }
-
-

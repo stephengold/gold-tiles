@@ -87,8 +87,8 @@ AttrBox::operator DisplayModes(void) const {
 	return result;
 }
 
-void AttrBox::BumpDisplayMode(AttrIndexType ind) {
-	ASSERT(ind < Tile::AttributeCnt());
+void AttrBox::BumpDisplayMode(AttrIndexType index) {
+	ASSERT(index < Combo::AttributeCnt());
 
 	// list all available modes
 	Indices unused_modes;
@@ -97,9 +97,9 @@ void AttrBox::BumpDisplayMode(AttrIndexType ind) {
 	}
 
 	// remove modes used for other attributes
-	for (AttrIndexType i_attr = 0; i_attr < Tile::AttributeCnt(); i_attr++) {
-		if (i_attr != ind) {
-			ValueType mode = mDisplayModes.Mode(i_attr);
+	for (AttrIndexType i_attr = 0; i_attr < Combo::AttributeCnt(); i_attr++) {
+		if (i_attr != index) {
+			ValueType const mode = mDisplayModes.Mode(i_attr);
 			if (unused_modes.Contains(mode)) {
 			    unused_modes.Remove(mode);
 			}
@@ -107,9 +107,9 @@ void AttrBox::BumpDisplayMode(AttrIndexType ind) {
 	}
 	IndexType const i_mode = unused_modes.First();
 	AttrModeType const mode = AttrModeType(i_mode);
-	mDisplayModes.SetMode(ind, mode);
+	mDisplayModes.SetMode(index, mode);
 
-	IdType const listbox_id = ListboxId(ind);
+	IdType const listbox_id = ListboxId(index);
 	SetListboxSelection(listbox_id, mode); // relies on assertion in HandleMessage()
 }
 
@@ -147,8 +147,8 @@ INT_PTR AttrBox::HandleMessage(MessageType message, WPARAM wParam, LPARAM lParam
         case WM_INITDIALOG: {
 		    Dialog::HandleMessage(message, wParam);
 
-			for (AttrIndexType i_attr = 0; i_attr < Tile::ATTRIBUTE_CNT_MAX; i_attr++) {
-				bool const enable_flag = (i_attr < Tile::AttributeCnt());
+			for (AttrIndexType i_attr = 0; i_attr < Combo::ATTRIBUTE_CNT_MAX; i_attr++) {
+				bool const enable_flag = (i_attr < Combo::AttributeCnt());
 				IdType const listbox_id = ListboxId(i_attr);
 				EnableControl(listbox_id, enable_flag);
 
@@ -231,7 +231,7 @@ void AttrBox::UpdateValue(IdType listboxId, AttrModeType value) {
 	// only one attribute can use color
 	if (value == ValueType(ATTR_MODE_COLOR)) {
 		// check whether another attribute is already using color
-		for (AttrIndexType i_attr = 0; i_attr < Tile::AttributeCnt(); i_attr++) {
+		for (AttrIndexType i_attr = 0; i_attr < Combo::AttributeCnt(); i_attr++) {
 			if (i_attr != ind && mDisplayModes.IsColor(i_attr)) {
 				BumpDisplayMode(i_attr);
 				break;

@@ -57,7 +57,7 @@ public:
 
 private:
     // private constants
-	static const ColorType msColors[Tile::VALUE_CNT_MAX];
+	static const ColorType msColors[Combo::VALUE_CNT_MAX];
 
 	// private data
 	AttrCntType  mMarkingCnt;

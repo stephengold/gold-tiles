@@ -29,7 +29,7 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 
 // static data
 
-const ColorType Markings::msColors[Tile::VALUE_CNT_MAX] = {
+const ColorType Markings::msColors[Combo::VALUE_CNT_MAX] = {
     COLOR_BLACK,      COLOR_RED,       COLOR_DARK_BLUE, 
     COLOR_DARK_GREEN, COLOR_PURPLE,    COLOR_BROWN, 
     COLOR_DARK_GRAY,  COLOR_PINK,      COLOR_LIGHT_BLUE
@@ -42,10 +42,10 @@ Markings::Markings(Tile const& rTile, DisplayModes const& rDisplayModes) {
 	mMarkingColor = msColors[0];
 	AttrIndexType i_marking = 0;
 
-    for (AttrIndexType i_attr = 0; i_attr < Tile::AttributeCnt(); i_attr++) {
+    for (AttrIndexType i_attr = 0; i_attr < Combo::AttributeCnt(); i_attr++) {
 		 AttrModeType const display_mode = rDisplayModes.Mode(i_attr);
 		 AttrType const attr_value = rTile.Attribute(i_attr);
-		 ASSERT(attr_value < Tile::VALUE_CNT_MAX);
+		 ASSERT(attr_value < Combo::VALUE_CNT_MAX);
 
 		 if (display_mode == ATTR_MODE_COLOR) {
 	         mMarkingColor = msColors[attr_value];
@@ -78,7 +78,7 @@ AttrType Markings::Marking(AttrIndexType ind) const {
 
 	AttrType const result = mMarkings[ind];
 
-	ASSERT(result < Tile::VALUE_CNT_MAX);
+	ASSERT(result < Combo::VALUE_CNT_MAX);
 	return result;
 }
 

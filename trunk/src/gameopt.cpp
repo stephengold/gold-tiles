@@ -61,9 +61,9 @@ GameOpt::operator RulesType(void) const {
 // misc methods
 
 AttrCntType GameOpt::AttrCnt(void) const {
-	ASSERT(mAttrCnt >= Tile::ATTRIBUTE_CNT_MIN);
+	ASSERT(mAttrCnt >= Combo::ATTRIBUTE_CNT_MIN);
 #ifdef _GUI
-	ASSERT(mAttrCnt <= Tile::ATTRIBUTE_CNT_MAX);
+	ASSERT(mAttrCnt <= Combo::ATTRIBUTE_CNT_MAX);
 #endif // defined(_GUI)
 
 	return mAttrCnt;
@@ -72,11 +72,12 @@ AttrCntType GameOpt::AttrCnt(void) const {
 String GameOpt::AttrReport(void) const {
 	String result = ::plural(AttrCnt(), "attribute") + ":\n";
 	for (AttrIndexType i_attr = 0; i_attr < AttrCnt(); i_attr++) {
-		AttrModeType const display_mode = Tile::DefaultDisplayMode(i_attr);
 		AttrType const value_max = MaxAttrValue(i_attr);
 		result += " " + ::ordinal(i_attr + 1) + " attribute ranges from ";
-		result += Tile::AttributeToString(display_mode, 0) + " to ";
-		result += Tile::AttributeToString(display_mode, value_max) + "\n";
+
+		AttrModeType const display_mode = Combo::DefaultDisplayMode(i_attr);
+		result += Combo::AttributeToString(display_mode, 0) + " to ";
+		result += Combo::AttributeToString(display_mode, value_max) + "\n";
 	}
 	result += "\n";
 
@@ -122,23 +123,23 @@ long GameOpt::ComboCnt(void) const {
 	    AttrType const possible_values = CountAttrValues(i_attr);
 		result *= possible_values;
 	}
-	ASSERT(result >= Tile::COMBINATION_CNT_MIN);
+	ASSERT(result >= Combo::COMBINATION_CNT_MIN);
 #ifdef _GUI
-    ASSERT(result <= Tile::COMBINATION_CNT_MAX);
+    ASSERT(result <= Combo::COMBINATION_CNT_MAX);
 #endif // defined(_GUI)
 
 	return result;
 }
 
 AttrType GameOpt::CountAttrValues(AttrIndexType ind) const {
-	AttrType result = Tile::VALUE_CNT_DEFAULT;
+	AttrType result = Combo::VALUE_CNT_DEFAULT;
 
 	if (ind < mMaxAttrValues.size()) {
 		result = mMaxAttrValues[ind] + 1;  // including zero
 	}
 
-	ASSERT(result >= Tile::VALUE_CNT_MIN);
-	ASSERT(result <= Tile::VALUE_CNT_MAX);
+	ASSERT(result >= Combo::VALUE_CNT_MIN);
+	ASSERT(result <= Combo::VALUE_CNT_MAX);
 	return result;
 }
 
@@ -204,9 +205,9 @@ unsigned GameOpt::SecondsPerHand(void) const {
 }
 
 void GameOpt::SetAttrCnt(AttrCntType attrCnt) {
-	ASSERT(attrCnt >= Tile::ATTRIBUTE_CNT_MIN);
+	ASSERT(attrCnt >= Combo::ATTRIBUTE_CNT_MIN);
 #ifdef _GUI
-	ASSERT(attrCnt <= Tile::ATTRIBUTE_CNT_MAX);
+	ASSERT(attrCnt <= Combo::ATTRIBUTE_CNT_MAX);
 #endif // defined(_GUI)
 
 	mAttrCnt = attrCnt;
@@ -277,11 +278,11 @@ void GameOpt::SetMinutesPerHand(unsigned minutes) {
 }
 
 void GameOpt::SetNumAttrValues(AttrIndexType ind, AttrType numValues) {
-	ASSERT(numValues >= Tile::VALUE_CNT_MIN);
-	ASSERT(numValues <= Tile::VALUE_CNT_MAX);
+	ASSERT(numValues >= Combo::VALUE_CNT_MIN);
+	ASSERT(numValues <= Combo::VALUE_CNT_MAX);
 
 	AttrCntType const original_count = AttrCntType(mMaxAttrValues.size());
-	AttrType const max_value = Tile::VALUE_CNT_DEFAULT - 1; // excluding zero
+	AttrType const max_value = Combo::VALUE_CNT_DEFAULT - 1; // excluding zero
 	for (AttrIndexType i_attr = original_count; i_attr <= ind; i_attr++) {
         mMaxAttrValues.push_back(max_value);
 	}
@@ -298,10 +299,10 @@ void GameOpt::SetRules(RulesType rules) {
 }
 
 void GameOpt::Standardize(void) {
-    mAttrCnt = Tile::ATTRIBUTE_CNT_DEFAULT;
+    mAttrCnt = Combo::ATTRIBUTE_CNT_DEFAULT;
 	mMaxAttrValues.clear();
 	for (unsigned i_attr = 0; i_attr < mAttrCnt; i_attr++) {
-	    mMaxAttrValues.push_back(Tile::VALUE_CNT_DEFAULT - 1);
+	    mMaxAttrValues.push_back(Combo::VALUE_CNT_DEFAULT - 1);
 	}
 
     mBoardHeight = Cell::HEIGHT_MAX;
@@ -344,9 +345,9 @@ long GameOpt::TotalTileCnt(void) const {
 }
 
 void GameOpt::Validate(void) const {
-	ASSERT(mAttrCnt >= Tile::ATTRIBUTE_CNT_MIN);
+	ASSERT(mAttrCnt >= Combo::ATTRIBUTE_CNT_MIN);
 #ifdef _GUI
-	ASSERT(mAttrCnt <= Tile::ATTRIBUTE_CNT_MAX);
+	ASSERT(mAttrCnt <= Combo::ATTRIBUTE_CNT_MAX);
 #endif // defined(_GUI)
 	ASSERT(::is_even(mBoardHeight));
 	ASSERT(mBoardHeight >= Cell::HEIGHT_MIN);

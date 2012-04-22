@@ -37,8 +37,9 @@ Game::Game(GameOpt const& rGameOpt, HandOpts const& rHandOptions):
 {
 	ASSERT(!rHandOptions.IsEmpty());
 
-	// intialize static data of the Cell class and the Tile class
+	// intialize static data of the Cell, Combo, and Tile classes
 	Cell::SetStatic(mOptions);
+	Combo::SetStatic(mOptions);
 	Tile::SetStatic(mOptions);
 
 	// add tiles to the stock bag

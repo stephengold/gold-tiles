@@ -147,8 +147,8 @@ void TileBox::InitControl(
 	ValueType value,
 	bool enableFlag)
 {
-	AttrType const min_value = Tile::VALUE_CNT_MIN;
-	AttrType const max_value = Tile::VALUE_CNT_MAX;
+	AttrType const min_value = Combo::VALUE_CNT_MIN;
+	AttrType const max_value = Combo::VALUE_CNT_MAX;
     ASSERT(value <= max_value);
     ASSERT(value >= min_value);
 	

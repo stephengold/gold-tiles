@@ -58,8 +58,8 @@ String::String(unsigned repeat, char ch):
 	std::string(repeat, ch) {}
 String::String(std::string const &str):
 	std::string(str) {}
-String::String(char const p_ch[]):
-	std::string(p_ch) {}
+String::String(TextType text):
+	std::string(text) {}
 
 String::String(int integer):
 	std::string(::itos(integer)) {}
@@ -125,10 +125,20 @@ void String::Capitalize(void) {
 	}
 
 	*this = result;
-	unsigned const len = Length();
-	if (len > 0 && at(len - 1) == space) {  // trailing non-graphic character
-		erase(len - 1, 1);  // trim it
+
+	if (!IsEmpty() && Last() == space) {
+        // remove trailing space, which was originally some non-graphic character
+		Shorten(1);
 	}
+}
+
+char String::Last(void) const {
+	ASSERT(!IsEmpty());
+
+	unsigned const length = Length();
+	char const result = at(length - 1);
+
+	return result;
 }
 
 unsigned String::Length(void) const {
@@ -158,6 +168,15 @@ String String::Quote(void) const {
 	String const result("'" + *this + "'");
 
 	return result;
+}
+
+void String::Shorten(unsigned characterCnt) {
+	unsigned const length = Length();
+	unsigned new_length = length - characterCnt;
+	if (characterCnt >= length) {
+	    new_length = 0;
+	}
+	resize(new_length);
 }
 
 

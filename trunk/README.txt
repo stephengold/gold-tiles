@@ -1,4 +1,4 @@
-README.txt for Release 0.8 of the Gold Tile Game
+README.txt for Release 0.81 of the Gold Tile Game
 programmed by Stephen Gold (sgold@sonic.net)
 
 Gold Tile is a turn-based multi-player game in which tiles 
@@ -16,8 +16,8 @@ Documentation, downloads, and source code are
 online at http://code.google.com/p/gold-tiles
 
 If MSVCP100.dll is missing from your computer, you can 
-download and install the DLL from Microsoft's website
-at http://www.microsoft.com/download/en/details.aspx?displaylang=en&id=5555
+download and install the DLL from Microsoft's website at
+http://www.microsoft.com/download/en/details.aspx?displaylang=en&id=5555
 
 
 ACKNOWLEGMENTS
@@ -26,7 +26,7 @@ With gratitude I acknowledge those whose inspiration and support
 helped me create this application:
  + Susan McKinley Ross for creating Qwirkle(TM) and MindWare
    for publishing it (http://www.mindware.com/p/Qwirkle/32016)
- + my sweetie Gale for her encouragement and understanding
+ + Gale Mead for her encouragement and understanding
  + Noah Picard for his advice on the user interface design
  + Skyler Burwell for testing Release 0.6
  + Julian Gold for testing various beta releases and for his
@@ -54,3 +54,4 @@ RELEASE LOG
   0.62  25 February 2012    remove need for MSVCP100D.dll debug DLL
   0.7    4 March 2012       implemented automatic play and suggestions
   0.8   31 March 2012       add undo/restart/redo, bonus tiles, & adisp modes
+  0.81  24 April 2012       warm tiles, Think menu, more topologies and sizes

@@ -248,6 +248,8 @@ held by any of the remaining hands.
 
 The game window consists of a menu bar and a game view.
 
+http://sgold.members.sonic.net/images/scap1.png
+
 The *menu bar* across the top of the window provides
 pull-down menus of *commands* you can invoke in order 
 to control the game.

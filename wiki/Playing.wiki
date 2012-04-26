@@ -274,4 +274,4 @@ Movable tiles are shown with white (or bright yellow) backgrounds.
 There are several ways to move tiles:
  * You can grab a movable tile and drag it with the mouse.
  * You can click on a movable tile to *activate* it, then click a second time on its destination.
- * You can click on an empty cell to make it the *target*, then click on a tile to place it on the target.  (The target is indicated by a large green X.)
+ * You can click on an empty cell to make it the *target*, then click on a tile to place it on the target.  (The target is indicated by a thick, gray arrow.)

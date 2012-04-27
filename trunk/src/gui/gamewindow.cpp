@@ -792,7 +792,8 @@ STEP4:
 	hand_options.Truncate(hand_cnt);
 
 	SetCursorBusy(); // constructing tiles may cause a noticeable delay
-	Game* const p_new_game = new Game(game_options, hand_options);
+	Socket const no_client;
+	Game* const p_new_game = new Game(game_options, hand_options, no_client);
 	ASSERT(p_new_game != NULL);
 	SetCursorSelect();
 

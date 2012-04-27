@@ -39,8 +39,8 @@ The AttrBox class is an extension of the Dialog class.
 class AttrBox: public Dialog {
 public:
     // public lifecycle
-	AttrBox(DisplayModes const&);
 	// no default constructor
+	AttrBox(DisplayModes const&);
 	// ~AttrBox(void);  compiler-generated destructor is OK
 
 	// public operators

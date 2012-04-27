@@ -48,13 +48,13 @@ class MenuItem {
 #endif // defined(_WINDOWS)
 public:
     // public lifecycle
+    // no default constructor
 #ifdef _QT
     MenuItem(QObject* parent, QString const& label);
 #elif defined(_WINDOWS)
     MenuItem(Menu const&, IdType);
     MenuItem(Menu const&, IdType first, IdType last, IdType item);
 #endif // defined(_WINDOWS)
-    // no default constructor
     // ~MenuItem(void);  compiler-generated destructor is OK
 
     // misc public methods

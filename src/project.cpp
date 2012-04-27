@@ -22,8 +22,7 @@ You should have received a copy of the GNU General Public License
 along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <iostream>
-#include "project.hpp"
+#include <iostream>   // cout
 #include "string.hpp"
 
 #ifdef WIN32
@@ -36,7 +35,7 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 void assertion_failed(TextType file, unsigned line) {
     std::cout << "Assertion failed at line " << line << " in " << file << std::endl;
 
-	// A pause is needed when running in a console window because the windown will
+	// A pause is needed when running in a console window because the window will
 	// be destroyed soon after exit() is called.
     ::pause();
 

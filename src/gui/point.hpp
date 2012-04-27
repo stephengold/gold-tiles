@@ -41,11 +41,11 @@ typedef unsigned long PixelCntType;
 class Point {
 public:
 	// public lifecycle
-    Point(LogicalXType, LogicalYType);
-    Point(Win::POINT const&);
-    Point(Win::POINTS const&);
 	// no default constructor
     // Point(Point const&);  compiler-generated copy constructor is OK
+    explicit Point(Win::POINT const&);
+    explicit Point(Win::POINTS const&);
+    Point(LogicalXType, LogicalYType);
     // ~Point(void);
 
 	// public operators

@@ -34,6 +34,7 @@ The SizeMenu class extends the SubMenu class.
 #include "gui/menuitem.hpp"   // HASA MenuItem
 #include "gui/submenu.hpp"   // ISA SubMenu
 
+
 class SizeMenu: public SubMenu {
     Q_OBJECT
 public:
@@ -41,8 +42,8 @@ public:
 #ifdef _QT
     SizeMenu(void);
 #elif defined(_WINDOWS)
-    SizeMenu(Menu const&, unsigned position);
     // no default constructor
+    SizeMenu(Menu const&, unsigned position);
 #endif // defined(_WINDOWS)
     // ~SizeMenu(void);  compiler-generated destructor is OK
 

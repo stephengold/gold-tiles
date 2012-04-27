@@ -32,14 +32,16 @@ The WindowClass class extends the Win::WNDCLASSEX structure.
 */
 
 #include "project.hpp"
+
 #ifdef _WINDOWS
-#include "gui/win.hpp"  // ISA Win::WNDCLASSEX
+# include "gui/win.hpp"  // ISA Win::WNDCLASSEX
+
 
 class WindowClass: public Win::WNDCLASSEX {
 public:
 	// public lifecycle
-    WindowClass(Win::HINSTANCE, Win::WNDPROC, TextType className, TextType menuName);
 	// no default constructor
+    WindowClass(Win::HINSTANCE, Win::WNDPROC, TextType className, TextType menuName);
     // ~WindowClass(void);  compiler-generated destructor is fine
 
 	// misc public methods

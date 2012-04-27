@@ -44,8 +44,8 @@ public:
 #ifdef _QT
     ViewMenu(void);
 #elif defined(_WINDOWS)
-    ViewMenu(Menu const&, unsigned position);
     // no default constructor
+    ViewMenu(Menu const&, unsigned position);
 #endif // defined(_WINDOWS)
     // ~ViewMenu(void);  compiler-generated destructor is OK
 

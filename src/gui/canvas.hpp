@@ -40,8 +40,8 @@ Gold Tile Game.
 class Canvas: public Graphics {
 public:
 	// public lifecycle
-    Canvas(Window&);
     // no default constructor
+    explicit Canvas(Window&);
     // ~Canvas(void);  compiler-generated destructor is OK
         
 	// misc public methods

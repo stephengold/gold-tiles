@@ -51,12 +51,12 @@ class MenuBar {
 
 public:
     // public lifecycle
+    // no default constructor
 #ifdef _QT
-    MenuBar(Partial const& rPartial);
+    explicit MenuBar(Partial const& rPartial);
 #elif defined(_WINDOWS)
     MenuBar(Win::CREATESTRUCT const&, Partial const&);
 #endif // defined(_WINDOWS)
-    // no default constructor
     // ~MenuBar(void);
 
     // misc public methods

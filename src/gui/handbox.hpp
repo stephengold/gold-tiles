@@ -38,8 +38,8 @@ The HandBox class is an extension of the Dialog class.
 class HandBox: public Dialog {
 public:
     // public lifecycle
-	HandBox(unsigned handIndex, unsigned handCnt, HandOpt const&); 
 	// no default constructor
+	HandBox(unsigned handIndex, unsigned handCnt, HandOpt const&); 
 	// ~HandBox(void);  compiler-generated destructor is OK
 
 	// public operators

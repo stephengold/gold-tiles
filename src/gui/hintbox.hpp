@@ -38,8 +38,8 @@ The HintBox class is an extension of the Dialog class.
 class HintBox: public Dialog {
 public:
     // lifecycle
-	HintBox(HintType, GameStyleType);
 	// no default constructor
+	HintBox(HintType, GameStyleType);
 	// ~HintBox(void);  compiler-generated destructor is OK
 
 	// public operators

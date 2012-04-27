@@ -38,8 +38,8 @@ The ParmBox3 class is an extension of the Dialog class.
 class ParmBox3: public Dialog {
 public:
     // lifecycle
-	ParmBox3(GameOpt&);
 	// no default constructor
+	explicit ParmBox3(GameOpt&);
 	// ~ParmBox3(void);  compiler-generated destructor is OK
 
 	// misc public methods

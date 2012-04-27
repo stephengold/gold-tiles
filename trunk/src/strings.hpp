@@ -28,17 +28,28 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 /*
 A Strings object represents an ordered collection of unique text strings.
 
-The Strings class encapsulates a list of String objects.
+The Strings class encapsulates a list of String objects, implemented
+using the Standard Template Library.
 */
 
 #include <list>        // HASA std::list
 #include "string.hpp"  // HASA String
+
 
 class Strings {
 public:
 	// public types
     typedef std::list<String>::const_iterator ConstIterator;
     typedef std::list<String>::iterator       Iterator;
+
+	// public lifecycle
+	Strings();
+	// Strings(Strings const&);  compiler-generated copy constructor is OK
+	Strings(TextType list, TextType delimiters); // split
+    // ~Strings(void);  compiler-generated destructor is OK
+
+	// public operators
+    // Strings& operator=(Strings const&);  compiler-generated assignment operator is OK
 
 	// misc public methods
 	void          Append(String const&);
@@ -49,11 +60,12 @@ public:
 	ConstIterator End(void) const;
 	Iterator      End(void);
 	ConstIterator Find(String const&) const;
-	String        First() const;
+	String        First(void) const;
 	String        InventUnique(String const& prefix) const;
 	String        InventUnique(String const& prefix, String const& infix, 
 		                           String const& suffix) const;
 	void          MakeEmpty(void);
+	String        Second(void) const;
 	Strings       Unique(void) const;
 	void          Unappend(void);
 

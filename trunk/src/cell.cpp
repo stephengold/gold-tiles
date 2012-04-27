@@ -22,10 +22,18 @@ You should have received a copy of the GNU General Public License
 along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <iostream>    // cin
+#include <iostream>      // cin
 #include "direction.hpp"
 #include "gameopt.hpp"
-#include "project.hpp" // ASSERT
+#include "strings.hpp"
+
+
+// static constants
+
+const String Cell::PREFIX("(");
+const String Cell::SEPARATOR(",");
+const String Cell::SUFFIX(")");
+
 
 // static data
 
@@ -44,12 +52,30 @@ Cell::Cell(void) {
 	ASSERT(IsValid());
 }
 
+// The compiler-generated copy constructor is fine.
+
+Cell::Cell(String const& rString) {
+	bool const has_prefix = rString.HasPrefix(PREFIX);
+	bool const has_suffix = rString.HasSuffix(SUFFIX);
+	if (!has_prefix || !has_suffix) {
+		FAIL(); // TODO recovery
+	}
+	String const body = rString.Suffix(PREFIX).Prefix(SUFFIX);
+
+	Strings const parts(body, SEPARATOR);
+	ASSERT(parts.Count() == 2); // TODO recovery
+
+	String const first = parts.First();
+    mRow = first;
+
+	String const second = parts.Second();
+    mColumn = second;
+}
+
 Cell::Cell(RowType row, ColumnType column) {
 	mColumn = column;
 	mRow = row;
 }
-
-// The compiler-generated copy constructor is fine.
 
 // construct the next valid cell (not necessarily a neighbor) in direction "dir" from "base"
 Cell::Cell(Cell const& rBase, Direction const& rDirection, int count) {
@@ -118,9 +144,7 @@ bool Cell::operator==(Cell const& rOther) const {
 Cell::operator String(void) const {
 	ASSERT(IsValid());
 
-    String result("(");
-	result += String(mRow) + "," + String(mColumn);
-	result += ")";
+    String const result = PREFIX + String(mRow) + SEPARATOR + String(mColumn) + SUFFIX;
 
     return result;
 }
@@ -197,7 +221,7 @@ bool Cell::GetUserChoice(String const& rAlternate) {
 
 			// look in the positive direction; stop at first invalid cell
 			while (cells_found < cells_needed) {
-                Cell const next(current, axis);
+                Cell const next(current, axis, +1);
                 if (!next.IsValid()) {
 			        break;
 		        }
@@ -456,6 +480,61 @@ bool Cell::IsValid(void) const {
 	}
 	if (mColumn < -msWidth/2 || mColumn >= msWidth/2) {
 		result = false;
+	}
+
+	return result;
+}
+
+
+// global utility functions
+
+String grid_to_string(GridType grid) {
+	String result;
+	switch (grid) {
+	    case GRID_TRIANGLE:
+		case GRID_4WAY:
+		case GRID_HEX:
+		case GRID_8WAY:
+			result = String(unsigned(grid));
+			break;
+		default:
+			FAIL();
+	}
+
+	return result;
+}
+
+String index_to_string(IndexType index) {
+	String result("endless");
+
+	if (index < Cell::HEIGHT_MAX) {
+		result = String(index);
+	}
+
+	return result;
+}
+
+GridType string_to_grid(String const& rString) {
+	long const value = long(rString);
+	GridType const result = GridType(value);
+	switch (result) {
+	    case GRID_TRIANGLE:
+		case GRID_4WAY:
+		case GRID_HEX:
+		case GRID_8WAY:
+			break;
+		default:
+			FAIL();
+	}
+
+	return result;
+}
+
+IndexType string_to_index(String const& rString) {
+	IndexType result = Cell::HEIGHT_MAX;
+	
+	if (rString != "endless") {
+		result = long(rString);
 	}
 
 	return result;

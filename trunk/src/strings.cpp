@@ -22,12 +22,31 @@ You should have received a copy of the GNU General Public License
 along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "project.hpp"  // ASSERT
 #include "strings.hpp"
+
 
 // lifecycle
 
-// The compiler.generated default constructor is OK.
+Strings::Strings(void) {
+}
+
+Strings::Strings(TextType list, TextType separators) {
+	// create a writable copy of the list
+	unsigned const length = strlen(list);
+    char* copy_list = new char[length + 1];
+    ::strcpy_s(copy_list, length + 1, list);
+
+	// parse the list into tokens
+	char* next_token = NULL;
+	TextType token = ::strtok_s(copy_list, separators, &next_token);
+	while (token != NULL) {
+	    Append(token);
+		token = ::strtok_s(NULL, separators, &next_token);
+	}
+
+	delete[] copy_list;
+}
+
 // The compiler-generated copy constructor is OK.
 // The compiler-generated destructor is OK.
 
@@ -85,10 +104,21 @@ Strings::Iterator Strings::End(void) {
 	return result;
 }
 
+Strings::ConstIterator Strings::Find(String const& rString) const {
+    ConstIterator i_string;
+	for (i_string = Begin(); i_string != End(); i_string++) {
+		if (*i_string == rString) {
+			break;
+		}
+	}
+
+	return i_string;
+}
+
 String Strings::First(void) const {
 	ASSERT(!IsEmpty());
 
-	ConstIterator i = Begin();
+	ConstIterator const i = Begin();
 	String const result = *i;
 
 	return result;
@@ -123,21 +153,20 @@ String Strings::InventUnique(
 	return result;
 }
 
-Strings::ConstIterator Strings::Find(String const& rString) const {
-    ConstIterator i_string;
-	for (i_string = Begin(); i_string != End(); i_string++) {
-		if (*i_string == rString) {
-			break;
-		}
-	}
-
-	return i_string;
-}
-
 void Strings::MakeEmpty(void) {
 	mList.clear();
 
 	ASSERT(IsEmpty());
+}
+
+String Strings::Second(void) const {
+	ASSERT(Count() > 1);
+
+	ConstIterator i = Begin();
+	i++;
+	String const result = *i;
+
+	return result;
 }
 
 void Strings::Unappend(void) {

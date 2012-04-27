@@ -82,7 +82,7 @@ void Hand::AddScore(ScoreType points) {
 }
 
 void Hand::AddTiles(Tiles const& rTiles) {
-    mTiles.AddTiles(rTiles);
+    mTiles.Merge(rTiles);
 }
 
 Move Hand::ChooseMove(void) const {
@@ -91,7 +91,7 @@ Move Hand::ChooseMove(void) const {
     
     DisplayTiles();
 	Move result;
-    result.GetUserChoice(mTiles);
+    result.GetUserChoice(mTiles, 0);
     
 	return result;
 }
@@ -112,7 +112,7 @@ void Hand::DisplayTiles(void) const {
 
 Tiles Hand::DrawTiles(unsigned tileCount, Tiles& rBag) {
     Tiles result;
-    result.DrawTiles(tileCount, rBag);
+    result.PullRandomTiles(tileCount, rBag);
 
 	unsigned const count = result.Count();
 	if (count > 0) {
@@ -120,7 +120,7 @@ Tiles Hand::DrawTiles(unsigned tileCount, Tiles& rBag) {
 		     << " from the stock bag." << std::endl;
 	}
 
-    mTiles.AddTiles(result);
+    mTiles.Merge(result);
 
 	return result;
 }
@@ -159,18 +159,18 @@ String Hand::PlayerName(void) const {
 }
 
 void Hand::RemoveTile(Tile const& rTile) {
-	mTiles.RemoveTile(rTile);
+	mTiles.Remove(rTile);
 }
 
 void Hand::RemoveTiles(Tiles const& rTiles) {
-	mTiles.RemoveTiles(rTiles);
+	mTiles.Purge(rTiles);
 }
 
 void Hand::Resign(Tiles& rBag) {
     ASSERT(!IsClockRunning());
 	ASSERT(!HasResigned());
 
-	rBag.AddTiles(mTiles);
+	rBag.Merge(mTiles);
 	mTiles.MakeEmpty();
 	mResignedFlag = true;
 
@@ -228,7 +228,7 @@ void Hand::Unresign(Tiles& rBag, Tiles const& rHand) {
 	ASSERT(HasResigned());
     ASSERT(!IsClockRunning());
 
-	rBag.RemoveTiles(rHand);
+	rBag.Purge(rHand);
 	mTiles = rHand;
 	mResignedFlag = false;
 
@@ -254,14 +254,14 @@ bool Hand::IsAutomatic(void) const {
 	return result;
 }
 
+bool Hand::IsClockRunning(void) const {
+	return mClockRunningFlag;
+}
+
 bool Hand::IsEmpty(void) const {
      bool const result = mTiles.IsEmpty();
      
      return result;
-}
-
-bool Hand::IsClockRunning(void) const {
-	return mClockRunningFlag;
 }
 
 bool Hand::IsLocalUser(void) const {

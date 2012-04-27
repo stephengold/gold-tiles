@@ -59,13 +59,10 @@ public:
 	typedef void YieldFunctionType(void*, bool& cancel);
 
 	// public lifecycle
-	Partial(Game const*, HintType, double skipProb);
 	// no default constructor
     // Partial(Partial const&);  compiler-generated copy constructor is OK
+	Partial(Game const*, HintType, double skipProb);
     // ~Partial(void);
-	void Reset(void);
-	void Reset(double skipProb);
-	void Reset(Game const*, HintType, double skipProb);
 
 	// public operators
     //Partial& operator=(Partial const&);  compiler-generated assignment operator is OK
@@ -74,7 +71,7 @@ public:
 	operator Tiles(void) const;
 
 	// misc public methods
-	void          Activate(TileIdType);
+	void          Activate(Tile::IdType);
 	void          BoardToHand(void);             // move the active tile
 	unsigned      CountHand(void) const;
 	unsigned      CountHinted(void);
@@ -84,16 +81,17 @@ public:
 	void          Deactivate(void);
 	Cell          FirstHinted(void);
 	GameStyleType GameStyle(void) const;
-	TileIdType    GetActive(void) const;
-	TileIdType    GetCellTile(Cell const&) const;
+	Tile::IdType  GetActive(void) const;
+	Tile::IdType  GetCellTile(Cell const&) const;
 	Move          GetMove(bool includeActive) const;
-	Tile          GetTileById(TileIdType) const;
-	Tile          GetTileByIndex(unsigned) const;
 	void          HandToCell(Cell const&);        // move the active tile
 	void          HandToSwap(void);               // move the active tile
 	Cell          LocateTile(void) const;
-	Cell          LocateTile(TileIdType) const;
+	Cell          LocateTile(Tile::IdType) const;
 	ScoreType     Points(void) const;             // points scored so far this turn
+	void          Reset(void);
+	void          Reset(double skipProb);
+	void          Reset(Game const*, HintType, double skipProb);
 	void          SetHintStrength(HintType);
 	static void   SetYield(YieldFunctionType*, void* arg);
 	void          Suggest(void);
@@ -105,28 +103,29 @@ public:
 	bool CanSwapAll(void) const;
 	bool CanUndo(void) const;
     bool HasGame(void) const;
-	bool IsActive(TileIdType) const;
+	bool IsActive(Tile::IdType) const;
     bool IsGameOver(void) const;
     bool IsGamePaused(void) const;
 	bool IsHinted(Cell const&);
-	bool IsInHand(TileIdType) const;
-	bool IsInSwap(TileIdType) const;
+	bool IsInHand(Tile::IdType) const;
+	bool IsInSwap(Tile::IdType) const;
 	bool IsLocalUsersTurn(void) const;
 	bool IsPass(void) const;
 
 protected:
 	// protected data
 	Game const* mpGame;
+	Tiles        mTiles; // the set of all available tiles
 
 	// protected inquiry methods
-	bool Contains(TileIdType) const;
+	bool Contains(Tile::IdType) const;
 	bool IsEmpty(Cell const&) const;
-	bool IsOnBoard(TileIdType) const;
+	bool IsOnBoard(Tile::IdType) const;
 	bool MightUse(Cell const&);
 
 private:
 	// private data
-	TileIdType     mActiveId;        // tile actively being dragged (or else Tile::ID_NONE)
+    Tile::IdType   mActiveId;        // tile actively being dragged (or else Tile::ID_NONE)
     Board          mBoard;
 	Cells          mHintedCells;     // cached choice of cells
 	bool           mHintedCellsValid;
@@ -134,7 +133,6 @@ private:
 	unsigned       mPlayedTileCnt;   // number of tiles played to the board
 	double         mSkipProbability; // reduces thoroughness of Suggest() method
 	Indices        mSwapIds;         // indices of all tiles in the swap area
-	Tiles          mTiles;           // the set of all available tiles
 	static void* mspYieldArgument;
 	static YieldFunctionType*
 		         mspYieldFunction;

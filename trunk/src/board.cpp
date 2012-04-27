@@ -22,11 +22,9 @@ You should have received a copy of the GNU General Public License
 along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <iostream>
 #include "board.hpp"
 #include "cells.hpp"
 #include "direction.hpp"
-#include "move.hpp"
 #include "tiles.hpp"
 
 
@@ -41,8 +39,11 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 
 // The compiler-generated assignment method is OK.
 
-// convert the entire board to a string
-Board::operator String(void) const {
+
+// misc methods
+
+// Convert the entire board to a string for console output.
+String Board::Description(void) const {
 	unsigned const width = Combo::AttributeCnt() + 4;
 
     String result(width, ' ');
@@ -59,14 +60,16 @@ Board::operator String(void) const {
 	    for (ColumnType column = -WestMax(); column <= EastMax(); column++) {
 			Cell const cell(row, column);
 			if (HasEmptyCell(cell)) {
-				result += " .";
-                result += Tile::StringEmpty();
-                result += ".";
+                // fill with dots
+                result += " " + String(width - 1, '.');
 			} else {
                 Tile const tile = GetTile(cell);
-				result += " [";
-                result += String(tile);
-                result += "]";
+                String string = tile.Description();
+                // pad with blanks
+                if (string.Length() < width - 3) {
+                    string += String(width - 3 - string.Length(), ' ');
+                }
+                result += " [" + string + "]";
 			}
 		}
 		result += "\n";
@@ -75,25 +78,12 @@ Board::operator String(void) const {
 	return result;
 }
 
-
-// misc methods
-
 Cell Board::FirstCell(void) const {
 	int const column_fringe = 1;
 	int const row_fringe = Cell::RowFringe();
     RowType const top_row = row_fringe + NorthMax();
     ColumnType const left_column = -column_fringe - WestMax();
 	Cell const result(top_row, left_column);
-
-	return result;
-}
-
-TileIdType Board::GetId(Cell const& rCell) const {
-    TileIdType result = Tile::ID_NONE;
-    Tile const* const p_tile = GetCell(rCell);
-	if (p_tile != NULL) {
-		result = p_tile->Id();
-	}
 
 	return result;
 }
@@ -145,10 +135,11 @@ Cells Board::GetRun(
 Tile Board::GetTile(Cell const& rCell) const {
 	ASSERT(rCell.IsValid());
 
-    Tile const* p_tile = GetCell(rCell);
-    ASSERT(p_tile != NULL);
-
-    Tile const result = *p_tile;
+    Tile::IdType result = Tile::ID_NONE;
+    Tile const* const p_tile = GetCell(rCell);
+    if (p_tile != NULL) {
+        result = p_tile->Id();
+    }
 
     return result;
 }
@@ -165,13 +156,6 @@ Tiles Board::GetTiles(Cells const& rCells) const {
     }
 
     return result;
-}
-
-bool Board::LocateTile(Tile const& rTile, Cell& rCell) const {
-	TileIdType const id = rTile.Id();
-	bool const result = BaseBoard::LocateTileId(id, rCell);
-
-	return result;
 }
 
 void Board::Next(Cell& rCell) const {
@@ -410,17 +394,9 @@ bool Board::AreSingleConnectedRun(Cells const& rCells, Direction const& rAxis) c
     return result;
 }
 
-bool Board::Contains(Tile const& rTile) const {
+bool Board::Contains(Tile::IdType id) const {
 	Cell cell;
-	TileIdType const id = rTile.Id();
-	bool const result = LocateTileId(id, cell);
-
-	return result;
-}
-
-bool Board::ContainsId(TileIdType id) const {
-	Cell cell;
-	bool const result = LocateTileId(id, cell);
+    bool const result = LocateTile(id, cell);
 
 	return result;
 }

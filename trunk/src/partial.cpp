@@ -41,36 +41,6 @@ Partial::Partial(Game const* pGame, HintType strength, double skipProbability) {
 // Partial(Partial const &);  compiler-generated copy constructor is OK
 // ~Partial(void);  compiler-generated destructor is OK
 
-void Partial::Reset(Game const* pGame, HintType strength, double skipProbability) {
-	mpGame = pGame;
-    mHintStrength = strength;
-    Reset(skipProbability);
-}
-
-// method invoked at the start of a turn
-void Partial::Reset(double skipProbability) {
-	ASSERT(skipProbability >= 0.0);
-	ASSERT(skipProbability < 1.0);
-
-	mSkipProbability = skipProbability;
-	Reset();
-}
-
-// method invoked by takeback
-void Partial::Reset(void) {
-    mActiveId = Tile::ID_NONE;
-    mHintedCellsValid = false;
-    mPlayedTileCnt = 0;
-	mSwapIds.MakeEmpty();
-	if (HasGame()) {
-        mBoard = *mpGame;
-        mTiles = mpGame->ActiveTiles();
-    } else {
-	    mBoard.MakeEmpty();
-		mTiles.MakeEmpty();
-	}
-}
-
 
 // operators
 
@@ -91,7 +61,7 @@ Partial::operator Tiles(void) const {
 
 // misc methods
 
-void Partial::Activate(TileIdType id) {
+void Partial::Activate(Tile::IdType id) {
     ASSERT(id != Tile::ID_NONE);
     ASSERT(mActiveId == Tile::ID_NONE);
     ASSERT(Contains(id));
@@ -192,9 +162,10 @@ void Partial::FindBestMove(Partial& rBest, ScoreType& rBestPoints) const {
         rBestPoints = points;
     }
 
-	for (unsigned i = 0; i < CountTiles(); i++) {
-        Tile const tile = mTiles[i];
-	    TileIdType const id = tile.Id();
+	Tiles::ConstIterator i_tile;
+	for (i_tile = mTiles.begin(); i_tile != mTiles.end(); i_tile++) {
+        Tile const tile = *i_tile;
+	    Tile::IdType const id = tile.Id();
 	    if (temp.IsInHand(id) && !::random_bool(mSkipProbability)) {
 			bool canceled = false;
 
@@ -244,12 +215,12 @@ GameStyleType Partial::GameStyle(void) const {
     return result;
 }
 
-TileIdType Partial::GetActive(void) const {
+Tile::IdType Partial::GetActive(void) const {
     return mActiveId;
 }
 
-TileIdType Partial::GetCellTile(Cell const& rCell) const {
-    TileIdType result = Tile::ID_NONE;
+Tile::IdType Partial::GetCellTile(Cell const& rCell) const {
+    Tile::IdType result = Tile::ID_NONE;
     
     Tile const* const p_tile = mBoard.GetCell(rCell);
     if (p_tile != NULL) {
@@ -262,15 +233,16 @@ TileIdType Partial::GetCellTile(Cell const& rCell) const {
 Move Partial::GetMove(bool includeActiveFlag) const {
     Move result;
     
-    for (unsigned i_tile = 0; i_tile < CountTiles(); i_tile++) {
-        Tile const tile = GetTileByIndex(i_tile);
-        TileIdType const id = tile.Id();
+	Tiles::ConstIterator i_tile;
+    for (i_tile = mTiles.begin(); i_tile != mTiles.end(); i_tile++) {
+        Tile const tile = *i_tile;
+        Tile::IdType const id = tile.Id();
 		if (includeActiveFlag || !IsActive(id)) {
             Cell cell;
-            if (mBoard.LocateTileId(id, cell)) {
+            if (mBoard.LocateTile(id, cell)) {
                 result.Add(tile, cell);
             } else if (IsInSwap(id)) {
-                result.Add(tile);
+                result.AddSwapTile(tile);
 			}
         }
     }
@@ -278,33 +250,6 @@ Move Partial::GetMove(bool includeActiveFlag) const {
 	return result;
 }
 
-Tile Partial::GetTileById(TileIdType id) const {
-    ASSERT(id != Tile::ID_NONE);
-
-    Tile result;
-     
-    if (Contains(id)) {
-        result = mTiles.FindTile(id);
-    } else {
-        Cell cell;
-        bool found = mBoard.LocateTileId(id, cell);
-        ASSERT(found);
-        Tile const *const p_tile = mBoard.GetCell(cell);
-        ASSERT(p_tile != NULL);
-        result = *p_tile;
-    }
-    
-    ASSERT(result.Id() == id); 
-    return result;                       
-}
-
-Tile Partial::GetTileByIndex(unsigned i) const {
-    ASSERT(i < mTiles.Count());
-
-    Tile const result = mTiles[i];
-    
-    return result;                       
-}
 
 void Partial::HandToCell(Cell const &cell) {
     ASSERT(mActiveId != Tile::ID_NONE);
@@ -312,7 +257,7 @@ void Partial::HandToCell(Cell const &cell) {
 	ASSERT(mBoard.HasEmptyCell(cell));
 	ASSERT(!IsOnBoard(mActiveId));
 
-    Tile const tile = mTiles.FindTile(mActiveId);
+    Tile const tile(mActiveId);
     mBoard.PlayOnCell(cell, tile);
     ++mPlayedTileCnt;
     mHintedCellsValid = false;
@@ -332,9 +277,9 @@ void Partial::HandToSwap(void) {
 	ASSERT(mSwapIds.Contains(mActiveId));
 }
 
-Cell Partial::LocateTile(TileIdType id) const {
+Cell Partial::LocateTile(Tile::IdType id) const {
     Cell result;
-    bool const success = mBoard.LocateTileId(id, result);
+    bool const success = mBoard.LocateTile(id, result);
     ASSERT(success);
     
     return result;
@@ -350,6 +295,36 @@ ScoreType Partial::Points(void) const {
 	}
     
     return result;
+}
+
+void Partial::Reset(Game const* pGame, HintType strength, double skipProbability) {
+	mpGame = pGame;
+    mHintStrength = strength;
+    Reset(skipProbability);
+}
+
+// method invoked at the start of a turn
+void Partial::Reset(double skipProbability) {
+	ASSERT(skipProbability >= 0.0);
+	ASSERT(skipProbability < 1.0);
+
+	mSkipProbability = skipProbability;
+	Reset();
+}
+
+// method invoked by takeback
+void Partial::Reset(void) {
+    mActiveId = Tile::ID_NONE;
+    mHintedCellsValid = false;
+    mPlayedTileCnt = 0;
+	mSwapIds.MakeEmpty();
+	if (HasGame()) {
+        mBoard = *mpGame;
+        mTiles = mpGame->ActiveTiles();
+    } else {
+	    mBoard.MakeEmpty();
+		mTiles.MakeEmpty();
+	}
 }
 
 void Partial::SetHintedCells(void) {
@@ -408,14 +383,15 @@ void Partial::SetHintedCells(void) {
     mHintedCells.MakeEmpty();
     Move const move = GetMove(false);
 
-	for (unsigned i = 0; i < CountTiles(); i++) {
-        Tile const tile = mTiles[i];
-	    TileIdType const id = tile.Id();
+	Tiles::ConstIterator i_tile;
+	for (i_tile = mTiles.begin(); i_tile != mTiles.end(); i_tile++) {
+        Tile const tile = *i_tile;
+	    Tile::IdType const id = tile.Id();
         bool include_tile;
         if (mHintStrength == HINT_USABLE_SELECTED && mActiveId != Tile::ID_NONE) {
             include_tile = (id == mActiveId);
         } else {
-			include_tile = (!mBoard.ContainsId(id) || id == mActiveId);
+			include_tile = (!mBoard.Contains(id) || id == mActiveId);
 		}
 		if (include_tile) {
             AddValidNextUses(move, tile, base);
@@ -475,9 +451,10 @@ void Partial::SwapAll(void) {
     ASSERT(mActiveId == Tile::ID_NONE);
     ASSERT(CanSwapAll());
 
-	for (unsigned i = 0; i < CountTiles(); i++) {
-        Tile const tile = mTiles[i];
-	    TileIdType const id = tile.Id();
+	Tiles::ConstIterator i_tile;
+	for (i_tile = mTiles.begin(); i_tile != mTiles.end(); i_tile++) {
+        Tile const tile = *i_tile;
+	    Tile::IdType const id = tile.Id();
 		if (!mSwapIds.Contains(id)) {
 	        mSwapIds.Add(id);
 		}
@@ -532,8 +509,8 @@ bool Partial::CanUndo(void) const {
 	return result;
 }
 
-bool Partial::Contains(TileIdType id) const {
-     bool const result = mTiles.ContainsId(id);     
+bool Partial::Contains(Tile::IdType id) const {
+     bool const result = mTiles.Contains(id);     
 
      return result;
 }
@@ -544,7 +521,7 @@ bool Partial::HasGame(void) const {
      return result;
 }
 
-bool Partial::IsActive(TileIdType id) const {
+bool Partial::IsActive(Tile::IdType id) const {
     bool const result = (mActiveId == id);
     
     return result;
@@ -593,8 +570,8 @@ bool Partial::IsHinted(Cell const& rCell) {
 	return result;
 }
 
-bool Partial::IsInHand(TileIdType id) const {
-    bool result = mTiles.ContainsId(id);
+bool Partial::IsInHand(Tile::IdType id) const {
+    bool result = mTiles.Contains(id);
     
     if (IsOnBoard(id)) {
         result = false;
@@ -605,7 +582,7 @@ bool Partial::IsInHand(TileIdType id) const {
     return result;
 }
 
-bool Partial::IsInSwap(TileIdType id) const {
+bool Partial::IsInSwap(Tile::IdType id) const {
     bool const result = mSwapIds.Contains(id);
     
     return result;
@@ -621,8 +598,8 @@ bool Partial::IsLocalUsersTurn(void) const {
 	return result;
 }
 
-bool Partial::IsOnBoard(TileIdType id) const {
-    bool const result = mBoard.ContainsId(id);
+bool Partial::IsOnBoard(Tile::IdType id) const {
+    bool const result = mBoard.Contains(id);
     
     return result;
 }

@@ -36,16 +36,6 @@ BaseBoard::BaseBoard(void) {
     mWestMax = 0;
 }
 
-// reset the board
-void BaseBoard::MakeEmpty(void) {
-	mNorthMax = 0;
-	mSouthMax = 0;
-	mEastMax = 0;
-	mWestMax = 0;
-    mCells.clear();
-    mTiles.clear();
-}
-
 // The compiler-generated copy constructor is OK.
 // The compiler-generated destructor is OK.
 
@@ -116,33 +106,46 @@ Tile const* BaseBoard::GetCell(Cell const& rCell) const {
     return p_result;
 }
 
-// locate the Cell which contains a specific Tile
-bool BaseBoard::LocateTileId(TileIdType id, Cell& rCell) const {
-    TileConstIterator i_tile = mTiles.find(id);
-    bool const result = (i_tile != mTiles.end());
-    if (result) {
-        rCell = i_tile->second;
-    }
+// Locate the Cell (if any) which contains a specific Tile.
+bool BaseBoard::LocateTile(Tile::IdType id, Cell& rCell) const {
+    bool result = false;
+	if (Tile::IsValid(id)) {
+		Tile const tile(id, false);
+        TileConstIterator const i_tile = mTiles.find(tile);
+        if (i_tile != mTiles.end()) {
+            rCell = i_tile->second;
+			result = true;
+        }
+	}
 
     return result;
 }
 
-// make a specific cell empty
+// Reset the board.
+void BaseBoard::MakeEmpty(void) {
+	mNorthMax = 0;
+	mSouthMax = 0;
+	mEastMax = 0;
+	mWestMax = 0;
+    mCells.clear();
+    mTiles.clear();
+}
+
+// Make a specific cell empty.
 void BaseBoard::MakeEmpty(Cell const& rCell) {
     RowType const row = rCell.Row();
     ColumnType const column = rCell.Column();
     
     CellIterator i_cell = Find(row, column);
     Tile const tile = i_cell->second;
-    TileIdType const id = tile.Id();
     ASSERT(i_cell != mCells.end());
     mCells.erase(i_cell);
     
-    TileIterator const i_tile = mTiles.find(id);
+    TileIterator const i_tile = mTiles.find(tile);
     ASSERT(i_tile != mTiles.end());
     mTiles.erase(i_tile);
 
-    // shrink the limits as needed    
+    // Shrink the limits as needed.
     while (row != 0 && IsEmptyRow(row)) {
         if (row == mNorthMax) {
             mNorthMax --;
@@ -168,11 +171,10 @@ RowType BaseBoard::NorthMax(void) const {
     return mNorthMax;
 }
 
-// play a Tile on a specific Cell
+// Play a tile on a specific cell.
 void BaseBoard::PlayOnCell(Cell const& rCell, Tile const& rTile) {
     ASSERT(GetCell(rCell) == NULL);
-    TileIdType const id = rTile.Id();
-    ASSERT(mTiles.find(id) == mTiles.end());
+	ASSERT(mTiles.find(rTile) == mTiles.end());
 
     // expand the limits as needed
     RowType const row = rCell.Row();
@@ -192,10 +194,10 @@ void BaseBoard::PlayOnCell(Cell const& rCell, Tile const& rTile) {
     }
 
     mCells[rCell] = rTile;
-    mTiles[id] = rCell;
+    mTiles[rTile] = rCell;
 
     ASSERT(GetCell(rCell) != NULL);
-    ASSERT(mTiles.find(id) != mTiles.end());
+    ASSERT(mTiles.find(rTile) != mTiles.end());
 }
 
 // get the southern limit of the board
@@ -221,7 +223,7 @@ bool BaseBoard::IsEmptyColumn(ColumnType column) const {
             break;
         }
     }
-    
+
     return result;
 }
 
@@ -235,6 +237,6 @@ bool BaseBoard::IsEmptyRow(RowType row) const {
             break;
         }
     }
-    
+
     return result;
 }

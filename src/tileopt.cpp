@@ -40,7 +40,9 @@ TileOpt::TileOpt(String const& rString) {
     if (copy.Last() == BONUS_CHARACTER) {
         mHasBonus = true;
 		copy.Shorten(1);
-    }
+    } else {
+		mHasBonus = false;
+	}
 	mCombo = Combo(copy);
 }
 

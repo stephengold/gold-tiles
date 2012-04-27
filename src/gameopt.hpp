@@ -57,8 +57,10 @@ public:
 
 	// public lifecycle
 	GameOpt(void);
-	GameOpt(GameStyleType, unsigned clones, unsigned handSize, unsigned minutes);
     // GameOpt(GameOpt const&);  compiler-generated copy constructor is OK
+	explicit GameOpt(Socket&);
+	explicit GameOpt(String const&);
+	GameOpt(GameStyleType, unsigned clones, unsigned handSize, unsigned minutes);
     // ~GameOpt(void);  compiler-generated destructor is OK
 
 	// public operators
@@ -66,6 +68,7 @@ public:
 	operator GameStyleType(void) const;
 	operator GridType(void) const;
 	operator RulesType(void) const;
+	operator String(void) const;
 
 	// misc public methods
 	AttrCntType  AttrCnt(void) const;
@@ -106,6 +109,7 @@ public:
 	void         StyleChange(void);
 	unsigned     TilesPerCombo(void) const;
 	long         TotalTileCnt(void) const;
+	void         Validate(void) const;
 
 	// public inquiry methods
 	bool DoesBoardWrap(void) const;
@@ -133,8 +137,5 @@ private:
 	unsigned      mMinutesPerHand;  // used only with GAME_STYLE_CHALLENGE
 	RulesType     mRules;
 	GameStyleType mStyle;
-
-	// private misc methods
-	void Validate(void) const;
 };
 #endif // !defined(GAMEOPT_HPP_INCLUDED)

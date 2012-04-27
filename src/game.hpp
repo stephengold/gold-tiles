@@ -51,8 +51,8 @@ enum EndingType {
 class Game {
 public:
 	// public lifecycle
-    Game(GameOpt const&, HandOpts const&);
 	// no default constructor
+    Game(GameOpt const&, HandOpts const&, Socket const& client);
     // ~Game(void);  compiler-generated destructor is OK
 
 	// public operators
@@ -64,8 +64,11 @@ public:
 	// misc public methods
     void          ActivateNextHand(void);
     Tiles         ActiveTiles(void) const;
+	void          AddServer(Address const&, Socket const&);
 	String        BestRunReport(void) const;
+	static void   ConsoleGame(void);
     unsigned      CountStock(void) const;
+	Tiles         DrawTiles(unsigned cnt, Hand&);
 	String        EndBonus(void);
     void          FinishTurn(Move const&);
 	unsigned      HandSize(void) const;
@@ -76,6 +79,7 @@ public:
 	int           Seconds(Hand&) const;
 	unsigned      SecondsPerHand(void) const;
 	void          StartClock(void);
+	String        StockBagString(void) const;
 	void          StopClock(void);
     GameStyleType Style(void) const;
 	void          TogglePause(void);
@@ -84,11 +88,13 @@ public:
     Hands         UnplayableHands(void) const;
 
 	// public inquiry methods
+	bool AmClient(void) const;
 	bool CanRedo(void) const;
 	bool CanUndo(void) const;
 	bool HasEmptyCell(Cell const&) const;
 	bool HasUnsavedChanges(void) const;
 	bool IsClockRunning(void) const;
+	bool IsConnectedToServer(Address const&) const;
     bool IsLegalMove(Move const&) const;
     bool IsLegalMove(Move const&, UmType& reason) const;
     bool IsLegalPartial(Partial const&) const;
@@ -104,6 +110,7 @@ private:
 	// private data
 	String           mBestRunReport;
     Board            mBoard;         // extensible playing surface
+	Socket           mClient;        // socket for communicating with the client (if a server)
 	String           mFilespec;      // associated file for load/save
 	String           mFirstTurnMessage;
     Hands            mHands;         // all hands being played
@@ -123,13 +130,18 @@ private:
 
 	// misc private methods
     void       AddTurn(Turn const&);
-    void       DisplayScores(void) const;
-    void       DisplayStatus(void) const;
+	void       ConnectToServers(void);
+	static Game* 
+		       ConsiderClientInvitation(Socket&, GameOpt&, HandOpts&);
+    void       DescribeScores(void) const;
+    void       DescribeStatus(void) const;
 	EndingType Ending(void) const;
 	void       FindBestRun(void);
     void       FirstTurn(void);
     void       NextTurn(void);
+	void       PutLineToEachServer(String const&);
 	Strings    WinningHands(void) const;
 	ScoreType  WinningScore(void) const;
 };
+
 #endif // !defined(GAME_HPP_INCLUDED)

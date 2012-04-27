@@ -22,8 +22,10 @@ You should have received a copy of the GNU General Public License
 along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <iostream>
+#include <iostream>    // cin
 #include "gameopt.hpp"
+#include "socket.hpp"
+#include "strings.hpp"
 
 
 // lifecycle
@@ -33,6 +35,54 @@ GameOpt::GameOpt(void) {
 	mStyle = GAME_STYLE_DEFAULT;
 	Standardize();
 	Validate();
+}
+
+GameOpt::GameOpt(Socket& rClient) {
+	String const opt_text = rClient.GetParagraph();
+	*this = GameOpt(opt_text);
+	Validate();
+}
+
+GameOpt::GameOpt(String const& rString) {
+	Strings const lines(rString, "\n");
+	Strings::ConstIterator i_line;
+	for (i_line = lines.Begin(); i_line != lines.End(); i_line++) {
+		String const line = *i_line;
+	    Strings const fields(line, "=");
+		ASSERT(fields.Count() == 2); // TODO recovery
+		String const name = fields.First();
+		String const value = fields.Second();
+		if (name == "AttrCnt") {
+			mAttrCnt = ::string_to_attr_cnt(value);
+			mMaxAttrValues.resize(mAttrCnt);
+		} else if (name == "BoardHeight") {
+			mBoardHeight = ::string_to_index(value);
+		} else if (name == "BoardWidth") {
+			mBoardWidth = ::string_to_index(value);
+		} else if (name == "BonusPercent") {
+			mBonusPercent = long(value);
+		} else if (name == "ClonesPerCombo") {
+			mClonesPerCombo = long(value);
+		} else if (name == "DoesBoardWrap") {
+			mDoesBoardWrap = bool(value);
+		} else if (name == "Grid") {
+			mGrid = ::string_to_grid(value);
+		} else if (name == "HandsDealt") {
+			mHandsDealt = long(value);
+		} else if (name == "HandSize") {
+			mHandSize = long(value);
+		} else if (name.HasPrefix("MaxAttrValue")) {
+			String const suffix = name.Suffix("MaxAttrValue");
+			unsigned const index = long(suffix);
+			mMaxAttrValues[index] = ::string_to_max_attr(value);
+		} else if (name == "MinutesPerHand") {
+			mMinutesPerHand = long(value);
+		} else if (name == "Style") {
+			mStyle = ::string_to_game_style(value);
+		} else {
+			FAIL(); // TODO recovery
+		}
+	}
 }
 
 // The compiler-generated copy constructor is OK.
@@ -57,20 +107,40 @@ GameOpt::operator RulesType(void) const {
 	return mRules;
 }
 
+GameOpt::operator String(void) const {
+    String result;
+
+	result += "AttrCnt=" + String(mAttrCnt) + "\n";
+	result += "BoardHeight=" + ::index_to_string(mBoardHeight) + "\n";
+	result += "BoardWidth=" + ::index_to_string(mBoardWidth) + "\n";
+	result += "BonusPercent=" + String(mBonusPercent) + "\n";
+	result += "ClonesPerCombo=" + String(mClonesPerCombo) + "\n";
+	result += "DoesBoardWrap=" + String(mDoesBoardWrap) + "\n";
+	result += "Grid=" + ::grid_to_string(mGrid) + "\n";
+	result += "HandsDealt=" + String(mHandsDealt) + "\n";
+	result += "HandSize=" + String(mHandSize) + "\n";
+	for (AttrIndexType i_attr = 0; i_attr < mAttrCnt; i_attr++) {
+		result += "MaxAttrValue" + String(i_attr) + "=" + String(mMaxAttrValues[i_attr]) + "\n";
+	}
+	result += "MinutesPerHand=" + String(mMinutesPerHand) + "\n";
+	result += "Style=" + ::game_style_to_string(mStyle) + "\n";
+
+	result += "\n";
+
+	return result;
+}
 
 // misc methods
 
 AttrCntType GameOpt::AttrCnt(void) const {
 	ASSERT(mAttrCnt >= Combo::ATTRIBUTE_CNT_MIN);
-#ifdef _GUI
 	ASSERT(mAttrCnt <= Combo::ATTRIBUTE_CNT_MAX);
-#endif // defined(_GUI)
 
 	return mAttrCnt;
 }
 
 String GameOpt::AttrReport(void) const {
-	String result = ::plural(AttrCnt(), "attribute") + ":\n";
+	String result = "Each tile has " + ::plural(AttrCnt(), "attribute") + ":\n";
 	for (AttrIndexType i_attr = 0; i_attr < AttrCnt(); i_attr++) {
 		AttrType const value_max = MaxAttrValue(i_attr);
 		result += " " + ::ordinal(i_attr + 1) + " attribute ranges from ";
@@ -117,7 +187,7 @@ unsigned GameOpt::ClonesPerCombo(void) const {
 }
 
 long GameOpt::ComboCnt(void) const {
-	// count the possible combinations
+	// Compute the number of possible combinations.
 	long result = 1L;
 	for (AttrIndexType i_attr = 0; i_attr < mAttrCnt; i_attr++) {
 	    AttrType const possible_values = CountAttrValues(i_attr);
@@ -151,8 +221,8 @@ void GameOpt::GetUserChoice(void) {
 	while (hands_dealt < long(HANDS_DEALT_MIN)) {
 	    std::cout << "Deal how many hands? ";
 		String line;
-	    std::cin >> line;
-		hands_dealt = long(line);
+	    std::getline(std::cin, line);
+        hands_dealt = long(line);
 	}
 	SetHandsDealt(hands_dealt);
 	std::cout << std::endl;
@@ -161,8 +231,8 @@ void GameOpt::GetUserChoice(void) {
 	while (hand_size < long(HAND_SIZE_MIN)) {
 	    std::cout << "How many tiles per hand? ";
 		String line;
-	    std::cin >> line;
-		hand_size = long(line);
+	    std::getline(std::cin, line);
+        hand_size = long(line);
 	}
 	SetHandSize(hand_size);
 	std::cout << std::endl;
@@ -206,9 +276,7 @@ unsigned GameOpt::SecondsPerHand(void) const {
 
 void GameOpt::SetAttrCnt(AttrCntType attrCnt) {
 	ASSERT(attrCnt >= Combo::ATTRIBUTE_CNT_MIN);
-#ifdef _GUI
 	ASSERT(attrCnt <= Combo::ATTRIBUTE_CNT_MAX);
-#endif // defined(_GUI)
 
 	mAttrCnt = attrCnt;
 }
@@ -346,9 +414,7 @@ long GameOpt::TotalTileCnt(void) const {
 
 void GameOpt::Validate(void) const {
 	ASSERT(mAttrCnt >= Combo::ATTRIBUTE_CNT_MIN);
-#ifdef _GUI
 	ASSERT(mAttrCnt <= Combo::ATTRIBUTE_CNT_MAX);
-#endif // defined(_GUI)
 	ASSERT(::is_even(mBoardHeight));
 	ASSERT(mBoardHeight >= Cell::HEIGHT_MIN);
 	ASSERT(mBoardHeight <= Cell::HEIGHT_MAX);
@@ -356,6 +422,10 @@ void GameOpt::Validate(void) const {
 	ASSERT(mBoardWidth >= Cell::WIDTH_MIN);
 	ASSERT(mBoardWidth <= Cell::WIDTH_MAX);
 	ASSERT(mBonusPercent < 100);
+#ifdef _CONSOLE
+	ASSERT(!mDoesBoardWrap);
+	ASSERT(mGrid == GRID_4WAY);
+#endif /* _CONSOLE */
 	ASSERT(mHandsDealt >= HANDS_DEALT_MIN);
 	ASSERT(mHandSize >= HAND_SIZE_MIN);
 	ASSERT(mMinutesPerHand >= MINUTES_PER_HAND_MIN);

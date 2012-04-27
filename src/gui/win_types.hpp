@@ -32,6 +32,7 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 
 using Win::ATOM;
 using Win::BOOL;
+using Win::BYTE;
 using Win::CREATESTRUCT;
 using Win::DLGPROC;
 using Win::DWORD;
@@ -55,6 +56,7 @@ using Win::LPVOID;
 using Win::LRESULT;
 using Win::MSG;
 using Win::PAINTSTRUCT;
+using Win::PCSTR;
 using Win::POINT;
 using Win::POINTS;
 using Win::RECT;
@@ -62,6 +64,7 @@ using Win::SHORT;
 using Win::SIZE;
 using Win::TEXTMETRIC;
 using Win::TIMERPROC;
+using Win::UCHAR;
 using Win::UINT;
 using Win::UINT_PTR;
 using Win::ULONG_PTR;

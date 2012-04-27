@@ -26,36 +26,49 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 #include "direction.hpp"
 #include "game.hpp"
 #include "handopts.hpp"
+#include "network.hpp"
 #include "partial.hpp"
 #include "strings.hpp"
 
 
 // lifecycle
 
-Game::Game(GameOpt const& rGameOpt, HandOpts const& rHandOptions):
+Game::Game(
+	GameOpt const& rGameOpt,
+	HandOpts const& rHandOptions, 
+	Socket const& rClientSocket)
+:
+	mClient(rClientSocket),
 	mOptions(rGameOpt)
 {
 	ASSERT(!rHandOptions.IsEmpty());
+	ASSERT(rHandOptions.Count() == rGameOpt.HandsDealt());
 
-	// intialize static data of the Cell, Combo, and Tile classes
+	// Intialize static data of the Cell, Combo, and Tile classes.
 	Cell::SetStatic(mOptions);
 	Combo::SetStatic(mOptions);
 	Tile::SetStatic(mOptions);
 
-	// add tiles to the stock bag
-	for (unsigned i = 0; i < mOptions.TilesPerCombo(); i++) {
-        // generate all possible tiles
-		mStockBag.Restock();
+	// Add tiles to the stock bag.
+	if (AmClient()) {
+	    for (unsigned i = 0; i < mOptions.TilesPerCombo(); i++) {
+            // generate all possible tiles
+		    mStockBag.Restock();
+	    }
+	} else {
+        std::cout << "Getting from client:  stock bag contents." << std::endl;
+		String const text = mClient.GetLine();
+		mStockBag = Tiles(text, true);
 	}
-    std::cout << "Placed " << plural(CountStock(), "tile") << " in the stock bag." << std::endl;
+    std::cout << "\nPlaced " << plural(CountStock(), "tile") << " in the stock bag." 
+		<< std::endl;
     
     // generate list of unique player names
     Strings names = rHandOptions.AllPlayerNames();
 
     // construct hands and generate a unique name for each
-	unsigned i = 0;
 	for (unsigned i_hand = 0; i_hand < rHandOptions.Count(); i_hand++) {
-		HandOpt options = rHandOptions[i_hand];
+		HandOpt const options = rHandOptions[i_hand];
 
 		String hand_name = options.PlayerName();
 		unsigned const cnt = names.Count(hand_name);
@@ -64,25 +77,30 @@ Game::Game(GameOpt const& rGameOpt, HandOpts const& rHandOptions):
 		    names.Append(hand_name);
 		}
 
-		Hand const hand(hand_name, rHandOptions[i]);
+		Hand const hand(hand_name, options, rClientSocket);
 	    mHands.Append(hand);
-		i++;
     }
 
-    // deal tiles to each hand from the stock bag
+	if (AmClient()) {
+        // Contact all the remote players.
+	    ConnectToServers();
+	}
+
+    // Deal tiles to each hand from the stock bag.
 	unsigned const hand_size = mOptions.HandSize();
     Hands::Iterator i_hand;
     for (i_hand = mHands.begin(); i_hand < mHands.end(); i_hand++) {
-        Tiles const tiles = i_hand->DrawTiles(hand_size, mStockBag);
+		Tiles const deal = DrawTiles(hand_size, *i_hand);
+        ASSERT(deal.Count() == hand_size);
 
-		// record the deal in mHistory
+		// Record the deal in mHistory.
 		String const name = i_hand->Name();
-		Turn const turn(tiles, name);
+		Turn const turn(deal, name);
 		mHistory.push_back(turn);
     }
     std::cout << std::endl;
 
-    // the hand with the best "run" gets the first turn
+    // The hand with the best "run" gets to go first.
 	FindBestRun();
 
 	// set iterator to end of history
@@ -137,6 +155,21 @@ Tiles Game::ActiveTiles(void) const {
     return result;
 }
 
+void Game::AddServer(Address const& rAddress, Socket const& rSocket) {
+    ASSERT(AmClient());
+    ASSERT(!IsConnectedToServer(rAddress));
+
+    Hands::Iterator i_hand;
+    for (i_hand = mHands.begin(); i_hand != mHands.end(); i_hand++) {
+        Hand& r_hand = *i_hand;
+        if (r_hand.IsRemote() && Address(r_hand) == rAddress) {
+            r_hand.SetSocket(rSocket);
+        }
+    }
+
+    ASSERT(IsConnectedToServer(rAddress));
+}
+
 void Game::AddTurn(Turn const& rTurn) {
     ASSERT(!IsClockRunning());
 
@@ -153,23 +186,125 @@ String Game::BestRunReport(void) const {
 	return mBestRunReport;
 }
 
+void Game::ConnectToServers(void) {
+    ASSERT(AmClient());
+
+    Hands::Iterator i_hand;
+    for (i_hand = mHands.begin(); i_hand < mHands.end(); i_hand++) {
+        if (i_hand->IsRemote()) {
+            i_hand->ConnectToServer(*this);
+        }
+    }
+}
+
+// SERVER:  Handle an invitation from a client.
+/* static */ Game* Game::ConsiderClientInvitation(
+    Socket& rSocket,
+    GameOpt& rGameOpt,
+    HandOpts& rHandOpts)
+{
+    Address const client_address = rSocket.Peer();
+    String question = String(client_address) + " has invited you to play a game with:\n";
+    question += String(rGameOpt);
+    question += String(rHandOpts);
+    question += "Do you accept?";
+    std::cout << question << " (y/n) ";
+
+    Address const server_address = rSocket.Local();
+    String yesno;
+    Game* p_result = NULL;
+    for (;;) {
+        std::cin >> yesno;
+        yesno.Capitalize();
+        if (yesno.HasPrefix("Y")) {
+            rSocket.PutLine(Network::ACCEPT);
+            HandOpts server_hand_opts = rHandOpts;
+            server_hand_opts.Serverize(client_address, server_address);
+            p_result = new Game(rGameOpt, server_hand_opts, rSocket);
+            ASSERT(p_result != NULL);
+            break;
+
+        } else if (yesno.HasPrefix("N")) {
+            rSocket.PutLine(Network::DECLINE);
+            // TODO close
+            break;
+        }
+    }
+
+    return p_result;
+}
+
+/* static */ void Game::ConsoleGame(void) {
+    // Display legal notice.
+    std::cout
+        << "Gold Tile Game (c) Copyright 2012 Stephen Gold" << std::endl
+        << "This program comes with ABSOLUTELY NO WARRANTY." << std::endl
+        << "This is free software, and you are welcome to redistribute" << std::endl
+        << "it under certain conditions; see LICENSE.txt for details." << std::endl
+        << std::endl;
+
+    GameOpt game_opt;
+    HandOpts hand_opts;
+    Game* p_game = NULL;
+
+#ifdef _SERVER
+
+    while (p_game == NULL) {
+        // Display IP addresses and wait for an invitation.
+        std::cout << Network::AddressReport()
+            << "\n\nListening for a connection on port " 
+            << Network::SERVER_LISTEN_PORT << " ..." << std::endl;
+        Socket data_socket = Network::CheckForConnection();
+        ASSERT(data_socket.IsValid());
+        GameOpt game_opt(data_socket);
+        unsigned const hand_cnt = game_opt.HandsDealt();
+        HandOpts hand_opts(data_socket, hand_cnt);
+
+        // Instantiate the game.
+        p_game = ConsiderClientInvitation(data_socket, game_opt, hand_opts);
+    }
+
+#else // !defined(_SERVER)
+
+    // Let a local user choose game options and hand options.
+    game_opt.GetUserChoice();
+
+    unsigned const hand_cnt = game_opt.HandsDealt();
+    hand_opts.GetUserChoice(hand_cnt);
+
+    // Instantiate the game.
+    Socket const no_client;
+    p_game = new Game(game_opt, hand_opts, no_client);
+
+#endif // !defined(_SERVER)
+
+    ASSERT(p_game != NULL);
+    p_game->PlayGame();
+
+    std::cout << "The game is over." << std::endl;
+
+    // A pause is needed when running in a console window because the window will
+    // be destroyed soon after this function returns. 
+    ::pause();
+}
+
 unsigned Game::CountStock(void) const {
     unsigned const result = mStockBag.Count();
     
     return result;
 }
 
-void Game::DisplayScores(void) const {
+void Game::DescribeScores(void) const {
     Hands::ConstIterator i_hand;
 
 	std::cout << std::endl;
     for (i_hand = mHands.begin(); i_hand < mHands.end(); i_hand++) {
-	    i_hand->DisplayScore();
+	    i_hand->DescribeScore();
     }
 }
 
-void Game::DisplayStatus(void) const {
-    DisplayScores();
+void Game::DescribeStatus(void) const {
+    DescribeScores();
     unsigned const stock = CountStock();
     std::cout << std::endl
         << miPlayableHand->Name() << "'s turn, " 
@@ -177,11 +312,34 @@ void Game::DisplayStatus(void) const {
         << std::endl << std::endl << mBoard.Description() << std::endl;
 }
 
+Tiles Game::DrawTiles(unsigned count, Hand& rHand) {
+	Tiles result;
+	if (AmClient()) {
+        result = rHand.PullRandomTiles(count, mStockBag);
+	    String const draw_string = Indices(result);
+		PutLineToEachServer(draw_string);
+
+	} else { // server
+	    std::cout << "Getting from client:  tiles drawn by "
+			<< rHand.Name() << "." << std::endl;
+		String const draw_string = mClient.GetLine();
+		result = Tiles(Indices(draw_string), true);
+		rHand.AddTiles(result);
+		mStockBag.Purge(result);
+
+		unsigned actual = result.Count();
+	    std::cout << rHand.Name() << " drew " << ::plural(actual, "tile") 
+		     << " from the stock bag." << std::endl;
+	}
+
+	return result;
+}
+
 String Game::EndBonus(void) {
     ASSERT(IsOver());
 
 	String result;
-	EndingType ending = Ending();
+	EndingType const ending = Ending();
 
 	if (ending == ENDING_WENT_OUT) {
 	    // start writing the report
@@ -278,7 +436,7 @@ void Game::FindBestRun(void) {
     }
 	mBestRunReport += "\n";
 
-	// make sure the tiles to be played will fit on the board
+	// Make sure the run will fit on the board.
 	Cell::LimitPlay(mMustPlay);
 
 	mFirstTurnMessage = miPlayableHand->Name();
@@ -291,11 +449,22 @@ void Game::FindBestRun(void) {
 }
 
 void Game::FinishTurn(Move const& rMove) {
-    ASSERT(mBoard.IsValidMove(rMove));
+    ASSERT(IsLegalMove(rMove));
     ASSERT(IsClockRunning());
     
     StopClock();
     
+	String const move_string = rMove;
+	if (AmClient()) {
+		PutLineToEachServer(move_string);
+	} else if (miPlayableHand->IsLocalUser()) {
+		mClient.PutLine(move_string);
+		// Read back server's own move from client.
+		String const junk = mClient.GetLine();
+		Move const junk_move = Move(junk, true);
+		ASSERT(junk_move == rMove);
+	}
+
     String const hand_name = miPlayableHand->Name();
     Turn turn(rMove, hand_name, mMustPlay);
 
@@ -303,16 +472,16 @@ void Game::FinishTurn(Move const& rMove) {
 		miPlayableHand->Resign(mStockBag);
 
 	} else {
-        // remove played/swapped tiles from the hand
+        // Remove played/swapped tiles from the hand.
         Tiles const tiles = Tiles(rMove);
         miPlayableHand->RemoveTiles(tiles);
 
-        // attempt to draw replacement tiles from the stock bag
+        // Attempt to draw replacement tiles from the stock bag.
         unsigned const count = tiles.Count();
 	    if (count > 0) {
-            Tiles draw = miPlayableHand->DrawTiles(count, mStockBag);
+			Tiles const draw = DrawTiles(count, *miPlayableHand);
             ASSERT(draw.Count() == count || !rMove.InvolvesSwap());
-		    turn.SetDraw(draw);
+	        turn.SetDraw(draw);
 	    }
 
 	    if (rMove.InvolvesSwap()) {
@@ -337,7 +506,7 @@ void Game::FinishTurn(Move const& rMove) {
 	//  If it was the first turn, it no longer is.
     mMustPlay = 0;
 
-	// There are now unsaved changes.
+	// There are definitely some unsaved changes now.
 	mUnsavedChanges = true;
     ASSERT(!IsClockRunning());
 }
@@ -349,29 +518,30 @@ void Game::FirstTurn(void) {
     Move move;
     StartClock();
     if (miPlayableHand->IsAutomatic()) {
+		ASSERT(AmClient());
 		ASSERT(!CanRedo());
-		double const skip_probability = 0.0;
-        Partial partial(this, HINT_NONE, skip_probability);
-        partial.Suggest();
-        move = partial.GetMove(false);
-		std::cout << miPlayableHand->Name() << " played " << String(move) << std::endl;
+        move = miPlayableHand->GetAutomaticMove(*this);
+
+	} else if (miPlayableHand->IsRemote()) {
+		move = miPlayableHand->GetRemoteMove();
+
 	} else {
+		ASSERT(miPlayableHand->IsLocalUser());
         for (;;) {
-		    move = miPlayableHand->ChooseMove();
+		    move = miPlayableHand->ChooseMove(mMustPlay);
 			UmType reason;
     	    if (IsLegalMove(move, reason)) {
                 break;
             }
 			String title;
 			String const message = Board::ReasonMessage(reason, title);
-			std::cout << message << std::endl << std::endl;
+			std::cout << "\nThat isn't a legal move:\n" << message 
+				<< "\nTry again ...\n" << std::endl;
 			std::cout << mFirstTurnMessage;
         }
 	}
-    ASSERT(IsLegalMove(move));
-
-    ASSERT(!IsPaused());
     FinishTurn(move);
+
     ASSERT(!IsClockRunning());
 }
 
@@ -389,35 +559,33 @@ void Game::NextTurn(void) {
     ASSERT(IsPaused());
 
 	StartClock();
-    DisplayStatus();
+    DescribeStatus();
 
     Move move;
     if (miPlayableHand->IsAutomatic()) {
 		ASSERT(!CanRedo());
-		double skip_probability = miPlayableHand->SkipProbability();
-        Partial partial(this, HINT_NONE, skip_probability);
-        partial.Suggest();
-        move = partial.GetMove(false);
-		std::cout << miPlayableHand->Name() << " played " << String(move) << std::endl;
+        move = miPlayableHand->GetAutomaticMove(*this);
+
+	} else if (miPlayableHand->IsRemote()) {
+		move = miPlayableHand->GetRemoteMove();
 
 	} else {
 		ASSERT(miPlayableHand->IsLocalUser());
 	    for (;;) {
-		    move = miPlayableHand->ChooseMove();
+		    move = miPlayableHand->ChooseMove(mMustPlay);
 			UmType reason;
     	    if (IsLegalMove(move, reason)) {
                 break;
             }
 			String title;
 			String const message = Board::ReasonMessage(reason, title);
-			std::cout << message << std::endl << std::endl;
-			DisplayStatus();
+			std::cout << "\nThat isn't a legal move:\n" << message 
+				<< "\nTry again ...\n" << std::endl;
+			DescribeStatus();
         }
 	}
-    ASSERT(IsLegalMove(move));
-
-    ASSERT(!IsPaused());
     FinishTurn(move);
+
     ASSERT(!IsClockRunning());
 }
 
@@ -433,7 +601,27 @@ void Game::PlayGame(void) {
 	std::cout << report;
 
     // display final scores
-    DisplayScores();
+    DescribeScores();
+}
+
+// Put a string (once) to each server.
+void Game::PutLineToEachServer(String const& rLine) {
+    ASSERT(AmClient());
+
+    Indices done_addresses;
+    Hands::Iterator i_hand;
+    for (i_hand = mHands.begin(); i_hand != mHands.end(); i_hand++) {
+        Hand& r_hand = *i_hand;
+        if (r_hand.IsRemote()) {
+            Address const address = Address(r_hand);
+            IndexType const key = IndexType(address);
+            if (!done_addresses.Contains(key)) {
+                Socket socket = Socket(r_hand);
+                socket.PutLine(rLine);
+                done_addresses.Add(key);
+            }
+        }
+    }
 }
 
 void Game::Redo(void) {
@@ -549,6 +737,12 @@ void Game::StartClock(void) {
 	ASSERT(!IsClockRunning());
 
 	miPlayableHand->StartClock();
+}
+
+String Game::StockBagString(void) const {
+    String const result = String(mStockBag);
+
+    return result;
 }
 
 void Game::StopClock(void) {
@@ -671,6 +865,12 @@ ScoreType Game::WinningScore(void) const {
 
 // inquiry methods
 
+bool Game::AmClient(void) const {
+    bool const result = !(mClient.IsValid());
+
+    return result;
+}
+
 bool Game::CanRedo(void) const {
 	bool const result = (miRedo != mHistory.end());
 
@@ -697,6 +897,27 @@ bool Game::HasUnsavedChanges(void) const {
 bool Game::IsClockRunning(void) const {
     bool const result = miPlayableHand->IsClockRunning();
      
+    return result;
+}
+
+// Check whether there's a connection to a given server.
+bool Game::IsConnectedToServer(Address const& rServer) const {
+    ASSERT(AmClient());
+
+    bool result = false;
+
+    Hands::ConstIterator i_hand;
+    for (i_hand = mHands.begin(); i_hand != mHands.end(); i_hand++) {
+        Hand const& r_hand = *i_hand;
+        if (r_hand.IsRemote() 
+            && Address(r_hand) == rServer
+            && Socket(r_hand).IsValid())
+        {
+            result = true;
+            break;
+        }
+    }
+
     return result;
 }
 

@@ -264,7 +264,7 @@ void GameWindow::HandleButtonDown(Point const& rMouse) {
 	ASSERT(!mGameView.IsDragging());
     mMouseLast = rMouse;
 
-	TileIdType const id = mGameView.GetTileId(rMouse);
+	Tile::IdType const id = mGameView.GetTileId(rMouse);
     if (id != Tile::ID_NONE) {
         if (!IsMouseCaptured()) {
             // Capture mouse to drag the tile
@@ -866,7 +866,7 @@ void GameWindow::RedoTurn(void) {
 void GameWindow::ReleaseActiveTile(Point const& rMouse) {
 	ASSERT(HasGame());
 
-    TileIdType const id = mGameView.GetActive(); 
+    Tile::IdType const id = mGameView.GetActive(); 
      
 	// Determine where the active tile came from.
     bool const from_hand = mGameView.IsInHand(id);

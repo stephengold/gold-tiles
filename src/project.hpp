@@ -34,7 +34,7 @@
 #define D(debug_only_code) (void(0))
 #endif // !defined(_DEBUG)
 
-#ifdef X_GUI
+#ifdef _GUI
 #include <assert.h>
 #define ASSERT(expression) D(assert(expression))
 #else // !defined(_GUI)

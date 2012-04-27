@@ -40,9 +40,9 @@ about the play.
 class Turn {
 public:
 	// lifecycle
+	// no default constructor
 	Turn(Tiles const&, String const& handName);
 	Turn(Move const&, String const& handName, unsigned mustPlay);
-	// no default constructor
 	// Turn(Turn const&);  compiler-generated copy constructor is OK
 	// ~Turn(void);  compiler-generated destructor is OK
 

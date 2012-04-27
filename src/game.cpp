@@ -174,7 +174,7 @@ void Game::DisplayStatus(void) const {
     std::cout << std::endl
         << miPlayableHand->Name() << "'s turn, " 
 		<< plural(stock, "tile") << " remaining in the stock bag"
-        << std::endl << std::endl << String(mBoard) << std::endl;
+        << std::endl << std::endl << mBoard.Description() << std::endl;
 }
 
 String Game::EndBonus(void) {
@@ -317,7 +317,7 @@ void Game::FinishTurn(Move const& rMove) {
 
 	    if (rMove.InvolvesSwap()) {
 		    // return swapped tiles to the stock bag
-		    mStockBag.AddTiles(tiles);
+		    mStockBag.Merge(tiles);
 		    std::cout << miPlayableHand->Name() << " put " << plural(count, "tile")
 			    << " back into the stock bag." << std::endl;
 
@@ -457,11 +457,11 @@ void Game::Redo(void) {
         // draw replacement tiles from the stock bag
         Tiles const draw = turn.Draw();
 		miPlayableHand->AddTiles(draw);
-		mStockBag.RemoveTiles(draw);
+		mStockBag.Purge(draw);
 
 	    if (move.InvolvesSwap()) {
 		    // return swapped tiles to the stock bag
-		    mStockBag.AddTiles(tiles);
+		    mStockBag.Merge(tiles);
 
 	    } else {
 	        // place played tiles on the board
@@ -487,14 +487,14 @@ void Game::Restart(void) {
 
 	// return all played tiles to the stock bag
 	Tiles played_tiles = Tiles(mBoard);
-	mStockBag.AddTiles(played_tiles);
+	mStockBag.Merge(played_tiles);
 	mBoard.MakeEmpty();
 
 	// return all hand tiles to the stock bag
 	Hands::Iterator i_hand;
 	for (i_hand = mHands.begin(); i_hand != mHands.end(); i_hand++) {
 		Tiles const hand_tiles = Tiles(*i_hand);
-		mStockBag.AddTiles(hand_tiles);
+		mStockBag.Merge(hand_tiles);
 		i_hand->Restart();
 	}
 
@@ -513,7 +513,7 @@ void Game::Restart(void) {
 		ASSERT(draw_tiles.Count() == HandSize());
 
 		miPlayableHand->AddTiles(draw_tiles);
-		mStockBag.RemoveTiles(draw_tiles);
+		mStockBag.Purge(draw_tiles);
 
 		miRedo++;
 	}
@@ -595,14 +595,14 @@ void Game::Undo(void) {
         // return drawn tiles to the stock bag
         Tiles const draw = turn.Draw();
 		miPlayableHand->RemoveTiles(draw);
-		mStockBag.AddTiles(draw);
+		mStockBag.Merge(draw);
 
 		// add played/swapped tiles back into the hand
         miPlayableHand->AddTiles(tiles);
 
 	    if (move.InvolvesSwap()) {
 		    // remove swapped tiles from the stock bag
-		    mStockBag.RemoveTiles(tiles);
+		    mStockBag.Purge(tiles);
 
 	    } else {
 	        // remove played tiles from the board

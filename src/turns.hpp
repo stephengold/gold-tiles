@@ -41,6 +41,11 @@ public:
     typedef std::list<Turn>::const_reverse_iterator ConstReverseIterator;
     typedef std::list<Turn>::iterator Iterator;
 
+	// public lifecycle
+	// Turns(void);  compiler-generated default constructor is OK
+	// Turns(Turns const&);  compiler-generated copy constructor is OK
+	// ~Turns(void);  compiler-generated destructor is OK
+
 	// misc public methods
     unsigned Count(void) const;
 	unsigned Index(Iterator const&) const;

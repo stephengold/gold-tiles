@@ -22,40 +22,62 @@ You should have received a copy of the GNU General Public License
 along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <iostream> // std::cout
+#include <iostream>    // std::cin
 #include "gameopt.hpp"
 #include "strings.hpp"
 #include "tiles.hpp"
 
 
+// static constants
+
+const String Tile::SEPARATOR(":");
+
+
 // static data
 
-double     Tile::msBonusProbability = 0.0; // configured by SetStatic()
-TileIdType Tile::msNextId = ID_FIRST;
+double       Tile::msBonusProbability = 0.0; // configured by SetStatic()
+Tile::IdType Tile::msNextId = ID_FIRST;
+Tile::Map    Tile::msOpts;
 
 
 // lifecycle
 
 Tile::Tile(void) {
-	mBonusValue = 0;
-    mId = ID_DEFAULT; // an ID used only by the default constructor
+    mId = ID_DEFAULT; // special ID generated *only* by this constructor
+	msOpts[mId] = TileOpt();
+
+	ASSERT(!IsValid(mId));
 }
 
-// Mint a new tile based on a string.
-Tile::Tile(String const& rString) {
-	mBonusValue = 0;
-	String combo_string = rString;
-	combo_string.Purge();
+Tile::Tile(String const& rString, bool remoteFlag) {
+	Strings const parts(rString, SEPARATOR);
+	ASSERT(parts.Count() == 2); // TODO recovery
 
-	char const last_char = combo_string.Last();
-    if (last_char == '+') {
-        mBonusValue = 1;
-		combo_string.Shorten(1);
+    String const first = parts.First();
+    IdType id = first;
+    if (remoteFlag) {
+        id = -id; // change sign of remote ID
     }
-	mCombo = Combo(combo_string);
-    mId = NextId();
+    ASSERT(IsValid(id));
+    mId = id;
 
-    ASSERT(IsValid());
+    String const second = parts.Second();
+    TileOpt const opt = TileOpt(second);
+    msOpts[id] = opt;
+}
+
+// Mint a new tile based on a TileOpt.
+Tile::Tile(TileOpt const& rOpt) {
+    mId = NextId();
+    msOpts[mId] = rOpt;
+}
+
+Tile::Tile(IdType id, bool remoteFlag) {
+    if (remoteFlag) {
+        id = -id;
+    }
+    ASSERT(IsValid(id));
+    mId = id;
 }
 
 // The compiler-generated copy constructor is fine.
@@ -65,58 +87,48 @@ Tile::Tile(String const& rString) {
 // operators
 
 bool Tile::operator<(Tile const& rOther) const {
-    ASSERT(IsValid());
-    ASSERT(rOther.IsValid());
-
 	bool const result = (mId < rOther.mId);
      
     return result;
 }
 
-Tile& Tile::operator=(Tile const& rOther) {
-    ASSERT(IsValid());
-	ASSERT(rOther.IsValid());
-
-	mCombo = rOther.mCombo;
-	mBonusValue = rOther.mBonusValue;
-    mId = rOther.mId;
-     
-    return *this;
-}
+// The compiler-generated assignment method is fine.
 
 bool Tile::operator==(Tile const& rOther) const {
-	ASSERT(IsValid());
-	ASSERT(rOther.IsValid());
-
 	bool const result = (mId == rOther.mId);
-
-	ASSERT(!result || mCombo == rOther.mCombo);
 
     return result;
 }
 
+Tile::operator Combo(void) const {
+    TileOpt const& r_opt = msOpts[mId];
+    Combo const result = Combo(r_opt);
+
+    return result;
+}
+
+Tile::operator IndexType(void) const {
+    return mId;
+}
+
 Tile::operator String(void) const {
-	ASSERT(IsValid());
+    String const result = String(mId) + SEPARATOR + Description();
 
-	String result = mCombo;
+    return result;
+}
 
-	if (mBonusValue > 0) {
-		result += '+';
-	} else {
-		result += ' ';
-	}
+Tile::operator TileOpt(void) const {
+    TileOpt const result = msOpts[mId];
 
-	// result length should match that of the StringEmpty() method
-	ASSERT(result.Length() == unsigned(Combo::AttributeCnt() + 1));
-
-	return result;
+    return result;
 }
 
 
 // misc methods
 
 AttrType Tile::Attribute(AttrIndexType index) const {
-    AttrType const result = mCombo.Attribute(index);
+    TileOpt const& r_opt = msOpts[mId];
+    AttrType const result = r_opt.Attribute(index);
     
     return result;
 }
@@ -125,45 +137,45 @@ AttrType Tile::Attribute(AttrIndexType index) const {
 	return msBonusProbability;
 }
 
-// create a clone (with a new id) and randomize its bonus value
+// Create a clone (with a new ID) and randomize its bonus value.
 Tile Tile::CloneAndSetBonus(void) const {
-	ASSERT(IsValid());
-
+	// Create a Tile with a new ID.
 	Tile result(*this);
     result.mId = NextId();
 
-	// randomize bonus value
+	// Copy the visible options.
+	TileOpt& r_result_opt = msOpts[result.mId];
+	r_result_opt = msOpts[mId];
+
+	// Randomize its bonus value.
 	bool const gets_bonus = ::random_bool(msBonusProbability);
-	result.mBonusValue = gets_bonus ? 1 : 0;
+	r_result_opt.SetBonus(gets_bonus);
 
-	ASSERT(result.IsValid());
     return result;
 }
 
-// identify the common attribute of a compatible tile
+// Identify the common attribute of a compatible tile.
 AttrIndexType Tile::CommonAttribute(Tile const& rOther) const {
-    AttrIndexType const result = mCombo.CommonAttribute(rOther.mCombo);
+	TileOpt const& r_opt = msOpts[mId];
+	TileOpt const& r_other = msOpts[rOther.mId];
+    AttrIndexType const result = r_opt.CommonAttribute(r_other);
 
     return result;
 }
 
-void Tile::Display(void) const {
-	ASSERT(IsValid());
+String Tile::Description(void) const {
+	TileOpt const& r_opt = msOpts[mId];
+	String const result = String(r_opt);
 
-	String const str = String(*this);
-
-    std::cout << " [" << str << "]";
-}
-
-// display an empty cell
-/* static */ void Tile::DisplayEmpty(void) {
-    std::cout << " ." << StringEmpty() << ".";
+	return result;
 }
 
 String Tile::GetUserChoice(Tiles const& rAvailableTiles, Strings const& rAlternatives) {
 	String result;
 
-    for (;;) {
+	ASSERT(mId == ID_DEFAULT);
+	TileOpt& r_opt = msOpts[mId];
+	for (;;) {
         std::cout << "Enter a tile name";
     	Strings::ConstIterator i_alt;
 		for (i_alt = rAlternatives.Begin(); i_alt != rAlternatives.End(); i_alt++) {
@@ -176,11 +188,10 @@ String Tile::GetUserChoice(Tiles const& rAvailableTiles, Strings const& rAlterna
 			break;
 		}
 
-        *this = Tile(result);
-        ASSERT(IsValid());
-        if (!MatchesString(result)) {
+        r_opt = TileOpt(result);
+        if (!r_opt.MatchesString(result)) {
            std::cout << result.Quote() << " is invalid." << std::endl;
-        } else if (!IsCloneAny(rAvailableTiles)) {
+        } else if (!rAvailableTiles.ContainsOpt(r_opt)) {
             std::cout << result << " is unavailable." << std::endl;
         } else {
             rAvailableTiles.UnClone(*this);
@@ -191,23 +202,23 @@ String Tile::GetUserChoice(Tiles const& rAvailableTiles, Strings const& rAlterna
 	return result;
 }
 
-TileIdType Tile::Id(void) const {
+Tile::IdType Tile::Id(void) const {
     return mId;
 }
 
-/* static */ TileIdType Tile::NextId(void) {
-    TileIdType const result = msNextId;
+/* static */ Tile::IdType Tile::NextId(void) {
+    ASSERT(msNextId < ID_MAX);
 
-	++msNextId;
-    ASSERT(msNextId < ID_LAST);
+    IdType const result = msNextId;
+    msNextId = result + 1;
 
+    ASSERT(IsValid(result));
 	return result;
 }
 
 void Tile::SetAttribute(AttrIndexType index, AttrType value) {
-	mCombo.SetAttribute(index, value);
-
-	ASSERT(IsValid());
+    TileOpt& r_opt = msOpts[mId];
+    r_opt.SetAttribute(index, value);
 }
 
 /* static */ void Tile::SetStatic(GameOpt const& rGameOpt) {
@@ -219,86 +230,59 @@ void Tile::SetAttribute(AttrIndexType index, AttrType value) {
 	msBonusProbability = bonus_probability;
 }
 
-/* static */ String Tile::StringEmpty(void) {
-    String const result(Combo::AttributeCnt() + 1, '.'); // +1 for bonus indication
-
-	// result length should agree with String() operator
-	ASSERT(result.Length() == unsigned(Combo::AttributeCnt() + 1));
-
-    return result;
-}
-
 
 // inquiry methods
 
 bool Tile::HasAttribute(AttrIndexType index, AttrType value) const {
-	bool const result = mCombo.HasAttribute(index, value);
+    TileOpt const& r_opt = msOpts[mId];
+    bool const result = r_opt.HasAttribute(index, value);
     
     return result;
 }
 
 bool Tile::HasBonus(void) const {
-	bool const result = (mBonusValue > 0);
+    TileOpt const& r_opt = msOpts[mId];
+    bool const result = r_opt.HasBonus();
 
 	return result;
 }
 
-bool Tile::HasId(TileIdType id) const {
+bool Tile::HasId(IdType id) const {
 	bool const result = (mId == id);
 
 	return result;
 }
 
-bool Tile::IsClone(Tile const& rOther) const {
-	ASSERT(IsValid());
-	ASSERT(rOther.IsValid());
-
-    bool result = false;
-
-	// copies (with the same ID) do not count as clones
-    if (mId != rOther.mId) {
-		// the bonus value and all attributes match
-        result = (mCombo == rOther.mCombo 
-			   && mBonusValue == rOther.mBonusValue);
-    }
+// Do the bonus value and all attributes match?
+bool Tile::HasOpt(TileOpt const& rOpt) const {
+    bool const result = (msOpts[mId] == rOpt);
 
     return result;
 }
 
-bool Tile::IsCloneAny(Tiles const& rSet) const {
-    bool const result = rSet.ContainsClone(*this);
+// Same options but different ID?
+bool Tile::IsClone(Tile const& rOther) const {
+    TileOpt& r_other = msOpts[rOther.mId];
+    bool const result = (mId != rOther.mId && HasOpt(r_other));
 
-	return result;
+    return result;
 }
 
 bool Tile::IsCompatibleWith(Tile const* pOther) const {
     bool result = true;
     
     if (pOther != NULL) {
-        result = mCombo.IsCompatibleWith(pOther->mCombo);
+        TileOpt const& r_opt = msOpts[mId];
+        TileOpt const& r_other = msOpts[pOther->mId];
+        result = r_opt.IsCompatibleWith(r_other);
     }
     
     return result;
 }
 
-bool Tile::IsValid(void) const {
-    bool result = false;
-    
-    if ((mBonusValue == 0 || mBonusValue == 1)
-	 && (mId == ID_DEFAULT || mId >= ID_FIRST && mId < msNextId))
-	{
-        result = true;
-    }
-    
-    return result;
-}
-
-bool Tile::MatchesString(String const& rMatch) const {
-	String string_form = String(*this);
-	string_form = string_form.Purge();
-	String const match = rMatch.Purge();
-
-	bool const result = (string_form == match);
+/* static */ bool Tile::IsValid(Tile::IdType id) {
+    bool const result = (id <= -Tile::ID_FIRST
+                      || id >= Tile::ID_FIRST && id < msNextId);
 
 	return result;
 }

@@ -32,6 +32,7 @@ to nine values.  In the context of a particular game, every combo has
 the same number of attributes.
 */
 
+#include <climits>      // USHRT_MAX
 #include "project.hpp"  // USES String
 
 // attribute types
@@ -62,7 +63,9 @@ public:
 	static const AttrCntType ATTRIBUTE_CNT_DEFAULT = 2;
 #ifdef _GUI
 	static const AttrCntType ATTRIBUTE_CNT_MAX = 5;
-#endif // defined(_GUI)
+#else // !defined(_GUI)
+	static const AttrCntType ATTRIBUTE_CNT_MAX = USHRT_MAX;
+#endif // !defined(_GUI)
 
 	static const AttrType VALUE_CNT_MIN = 2;
 	static const AttrType VALUE_CNT_DEFAULT = 6;
@@ -75,8 +78,8 @@ public:
 
     // public lifecycle
 	Combo(void);
-	Combo(String const&);
 	Combo(Combo const&);
+	explicit Combo(String const&);
 	~Combo(void);
 
     // public operators
@@ -94,6 +97,7 @@ public:
 	static AttrModeType DefaultDisplayMode(AttrIndexType);
 	void                SetAttribute(AttrIndexType, AttrType);
 	static void         SetStatic(GameOpt const&);
+	static String       StringEmpty(void);
     static AttrType     ValueCnt(AttrIndexType);
     static AttrType     ValueMax(AttrIndexType);
 
@@ -105,10 +109,15 @@ private:
 	// private data
 	AttrType* mpArray;     // array of attributes
 
-	static AttrIndexType msAttributeCnt;  // number of attributes per tile
+	static AttrIndexType msAttrCnt;  // number of attributes per tile
 	static AttrType*    mspValueMax;     // max value for each tile attribute
 
 	// misc private methods
-	static AttrType   CharToAttribute(AttrModeType, char);
+	static AttrType CharToAttribute(AttrModeType, char);
 };
+
+// global utility functions
+AttrCntType string_to_attr_cnt(String const&);
+AttrCntType string_to_max_attr(String const&);
+
 #endif // !defined(COMBO_HPP_INCLUDED)

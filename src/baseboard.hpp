@@ -29,10 +29,12 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 A BaseBoard object represents a two-dimensional playing grid
 which grows automatically in all directions.  The grid is
 composed of cells on which Tile objects may be played.
-Cells are referenced by means of Cell objects.
+Individual cells may be referenced by means of Cell objects.
  
 The Baseboard class implements minimal functionality using two maps:
-one to map cells to tiles and a reverse map to get cells from tile IDs.
+one to map cells to tiles and a reverse map to which maps tiles to cells.
+Also, the limits of the played area are cached.
+
 The Board class extends BaseBoard to add functionality.
 */
 
@@ -40,11 +42,11 @@ The Board class extends BaseBoard to add functionality.
 #include "cell.hpp"  // HASA Cell
 #include "tile.hpp"  // HASA Tile
 
+
 class BaseBoard {
 public:
 	// public lifecycle
     BaseBoard(void);
-	void MakeEmpty(void);
     // BaseBoard(BaseBoard const&);  compiler-generated copy constructor is OK
     // ~BaseBoard(void);  compiler-generated destructor is OK
 
@@ -56,7 +58,8 @@ public:
 	unsigned    Count(void) const;
 	ColumnType  EastMax(void) const;
     Tile const* GetCell(Cell const&) const;
-    bool        LocateTileId(TileIdType, Cell&) const;
+    bool        LocateTile(Tile::IdType, Cell&) const;
+    void        MakeEmpty(void);
     void        MakeEmpty(Cell const&);
     RowType     NorthMax(void) const;
 	void        PlayOnCell(Cell const&, Tile const&);
@@ -65,22 +68,22 @@ public:
 
 private:
 	// private types
-	typedef std::map<Cell,Tile>       CellMap;
-    typedef CellMap::const_iterator	  CellConstIterator;
-    typedef CellMap::iterator		  CellIterator;
-	typedef std::map<TileIdType,Cell> TileMap;
-	typedef TileMap::const_iterator   TileConstIterator;
-    typedef TileMap::iterator		  TileIterator;
+    typedef std::map<Cell,Tile>     CellMap;
+    typedef CellMap::const_iterator	CellConstIterator;
+    typedef CellMap::iterator		CellIterator;
+    typedef std::map<Tile,Cell>     TileMap;
+    typedef TileMap::const_iterator TileConstIterator;
+    typedef TileMap::iterator		TileIterator;
 
 	// private data
     CellMap    mCells;
-	RowType    mNorthMax, mSouthMax; // extent of the played area
-	ColumnType mEastMax, mWestMax; // extent of the played area
+    RowType    mNorthMax, mSouthMax; // limits of the range of played rows
+    ColumnType mEastMax, mWestMax;   // limits of the range of played columns
     TileMap    mTiles;
 
 	// misc private methods
     CellConstIterator Find(RowType, ColumnType) const;
-    CellIterator	  Find(RowType, ColumnType);
+    CellIterator      Find(RowType, ColumnType);
     
     // private inquiry methods
     bool IsEmptyColumn(ColumnType) const;

@@ -28,35 +28,35 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 
 // static data
 
-AttrCntType Combo:: msAttributeCnt = 0;    // configured by SetStatic()
-AttrType*   Combo::mspValueMax = NULL;     // allocated by SetStatic()
+AttrCntType Combo:: msAttrCnt = 0;     // configured by SetStatic()
+AttrType*   Combo::mspValueMax = NULL; // allocated by SetStatic()
 
 
 // lifecycle
 
 Combo::Combo(void) {
-    ASSERT(msAttributeCnt >= ATTRIBUTE_CNT_MIN);
+    ASSERT(msAttrCnt >= ATTRIBUTE_CNT_MIN);
 
-    mpArray = new AttrType[msAttributeCnt];
+    mpArray = new AttrType[msAttrCnt];
 	ASSERT(mpArray != NULL);
 
-	for (AttrIndexType i_attr = 0; i_attr < msAttributeCnt; i_attr++) {
+	for (AttrIndexType i_attr = 0; i_attr < msAttrCnt; i_attr++) {
         mpArray[i_attr] = 0;
     }
 }
 
 // new Combo from String
 Combo::Combo(String const& rString) {
-    ASSERT(msAttributeCnt >= ATTRIBUTE_CNT_MIN);
+    ASSERT(msAttrCnt >= ATTRIBUTE_CNT_MIN);
 
-    mpArray = new AttrType[msAttributeCnt];
+    mpArray = new AttrType[msAttrCnt];
 	ASSERT(mpArray != NULL);
 
     AttrIndexType i_attr = 0;
     String::ConstIterator i_char;
     for (i_char = rString.begin() ; i_char != rString.end(); i_char++) {
         char const ch = *i_char;
-        if (i_attr < msAttributeCnt) {
+        if (i_attr < msAttrCnt) {
 			AttrModeType const display_mode = DefaultDisplayMode(i_attr);
 			AttrType value = CharToAttribute(display_mode, ch);
 			if (value > ValueMax(i_attr)) {
@@ -67,7 +67,7 @@ Combo::Combo(String const& rString) {
 		}
     }
 
-    while (i_attr < msAttributeCnt) {
+    while (i_attr < msAttrCnt) {
 		// not enough characters in the string -- pad the attribute array with zeroes
         mpArray[i_attr] = 0;
         i_attr++;
@@ -76,12 +76,12 @@ Combo::Combo(String const& rString) {
 
 // construct a copy
 Combo::Combo(Combo const& rBase) {
-    ASSERT(msAttributeCnt >= ATTRIBUTE_CNT_MIN);
+    ASSERT(msAttrCnt >= ATTRIBUTE_CNT_MIN);
 
-    mpArray = new AttrType[msAttributeCnt];
+    mpArray = new AttrType[msAttrCnt];
 	ASSERT(mpArray != NULL);
 
-    for (AttrIndexType i_attr = 0; i_attr < msAttributeCnt; i_attr++) {
+    for (AttrIndexType i_attr = 0; i_attr < msAttrCnt; i_attr++) {
         AttrType const value = rBase.mpArray[i_attr];
         mpArray[i_attr] = value;
     }
@@ -96,9 +96,9 @@ Combo::~Combo(void) {
 // operators
 
 Combo& Combo::operator=(Combo const& rOther) {
-    mpArray = new AttrType[msAttributeCnt];
+    mpArray = new AttrType[msAttrCnt];
 	ASSERT(mpArray != NULL);
-    for (AttrIndexType i_attr = 0; i_attr < msAttributeCnt; i_attr++) {
+    for (AttrIndexType i_attr = 0; i_attr < msAttrCnt; i_attr++) {
         AttrType const value = rOther.mpArray[i_attr];
         ASSERT(value <= mspValueMax[i_attr]);
         mpArray[i_attr] = value;
@@ -108,7 +108,7 @@ Combo& Combo::operator=(Combo const& rOther) {
 }
 
 bool Combo::operator==(Combo const& rOther) const {
-	bool const result = (CountMatchingAttributes(rOther) == msAttributeCnt);
+	bool const result = (CountMatchingAttributes(rOther) == msAttrCnt);
 
     return result;
 }
@@ -116,7 +116,7 @@ bool Combo::operator==(Combo const& rOther) const {
 Combo::operator String(void) const {
 	String result;
 
-    for (AttrIndexType i_attr = 0; i_attr < msAttributeCnt; i_attr++) {
+    for (AttrIndexType i_attr = 0; i_attr < msAttrCnt; i_attr++) {
         AttrType const value = mpArray[i_attr];
         ASSERT(value <= mspValueMax[i_attr]);
 
@@ -131,7 +131,7 @@ Combo::operator String(void) const {
 // misc methods
 
 AttrType Combo::Attribute(AttrIndexType ind) const {
-    ASSERT(ind < msAttributeCnt);
+    ASSERT(ind < msAttrCnt);
 
     AttrType const result = mpArray[ind];
     
@@ -139,9 +139,9 @@ AttrType Combo::Attribute(AttrIndexType ind) const {
 }
 
 /* static */ AttrCntType Combo::AttributeCnt(void) {
-    ASSERT(msAttributeCnt >= ATTRIBUTE_CNT_MIN);
+    ASSERT(msAttrCnt >= ATTRIBUTE_CNT_MIN);
 
-	return msAttributeCnt;
+	return msAttrCnt;
 }
 
 /* static */ String Combo::AttributeToString(AttrModeType displayMode, AttrType value) {
@@ -193,10 +193,10 @@ AttrType Combo::Attribute(AttrIndexType ind) const {
 
 // calculate the number of possible combinations of attributes
 /* static */ long Combo::CombinationCnt(void) {
-    ASSERT(msAttributeCnt >= ATTRIBUTE_CNT_MIN);
+    ASSERT(msAttrCnt >= ATTRIBUTE_CNT_MIN);
 
 	long result = 1L;
-    for (AttrIndexType i_attr = 0; i_attr < msAttributeCnt; i_attr++) {
+    for (AttrIndexType i_attr = 0; i_attr < msAttrCnt; i_attr++) {
 		AttrType const max_value = mspValueMax[i_attr];
 		AttrType const possible_values = max_value + 1;  // zero is a possible value
 		result *= possible_values;
@@ -213,21 +213,21 @@ AttrType Combo::Attribute(AttrIndexType ind) const {
 AttrIndexType Combo::CommonAttribute(Combo const& rOther) const {
     ASSERT(CountMatchingAttributes(rOther) == 1);
     
-    AttrIndexType result = msAttributeCnt;
-    for (AttrIndexType i_attr = 0; i_attr < msAttributeCnt; i_attr++) {
+    AttrIndexType result = msAttrCnt;
+    for (AttrIndexType i_attr = 0; i_attr < msAttrCnt; i_attr++) {
         if (mpArray[i_attr] == rOther.mpArray[i_attr]) {
             result = i_attr;
             break;
         }
     }
 
-	ASSERT(result < msAttributeCnt);
+	ASSERT(result < msAttrCnt);
     return result;
 }
 
 AttrCntType Combo::CountMatchingAttributes(Combo const& rOther) const {
 	AttrCntType result = 0;
-    for (AttrIndexType i_attr = 0; i_attr < msAttributeCnt; i_attr++) {
+    for (AttrIndexType i_attr = 0; i_attr < msAttrCnt; i_attr++) {
 		AttrType const attr_value = rOther.mpArray[i_attr];
         if (HasAttribute(i_attr, attr_value)) {
              ++result;
@@ -274,7 +274,7 @@ AttrCntType Combo::CountMatchingAttributes(Combo const& rOther) const {
 }
 
 void Combo::SetAttribute(AttrIndexType ind, AttrType value) {
-    ASSERT(ind < msAttributeCnt);
+    ASSERT(ind < msAttrCnt);
     ASSERT(value <= mspValueMax[ind]);
 
     mpArray[ind] = value;
@@ -284,11 +284,9 @@ void Combo::SetAttribute(AttrIndexType ind, AttrType value) {
 	AttrCntType const attr_cnt = rGameOpt.AttrCnt();
 
     ASSERT(attr_cnt >= ATTRIBUTE_CNT_MIN);
-#ifdef _GUI
     ASSERT(attr_cnt <= ATTRIBUTE_CNT_MAX);
-#endif
 
-	msAttributeCnt = attr_cnt;
+	msAttrCnt = attr_cnt;
 
 	delete[] mspValueMax;
     mspValueMax = new AttrType[attr_cnt];
@@ -302,6 +300,12 @@ void Combo::SetAttribute(AttrIndexType ind, AttrType value) {
     }
 }
 
+/* static */ String Combo::StringEmpty(void) {
+	String const result(msAttrCnt, '.');
+
+	return result;
+}
+
 /* static */ AttrType Combo::ValueCnt(AttrIndexType attrIndex) {
     AttrType const result = ValueMax(attrIndex) + 1;
     
@@ -309,7 +313,7 @@ void Combo::SetAttribute(AttrIndexType ind, AttrType value) {
 }
 
 /* static */ AttrType Combo::ValueMax(AttrIndexType attrIndex) {
-    ASSERT(attrIndex < msAttributeCnt);
+    ASSERT(attrIndex < msAttrCnt);
     AttrType const result = mspValueMax[attrIndex];
     
     return result;
@@ -319,7 +323,7 @@ void Combo::SetAttribute(AttrIndexType ind, AttrType value) {
 // inquiry methods
 
 bool Combo::HasAttribute(AttrIndexType index, AttrType value) const {
-    ASSERT(index < msAttributeCnt);
+    ASSERT(index < msAttrCnt);
 
     AttrType const attrib = mpArray[index];
     bool const result = (attrib == value);
@@ -330,6 +334,30 @@ bool Combo::HasAttribute(AttrIndexType index, AttrType value) const {
 bool Combo::IsCompatibleWith(Combo const& rOther) const {
     AttrCntType const matchCnt = CountMatchingAttributes(rOther);
     bool const result = (matchCnt == 1);
+
+	return result;
+}
+
+
+// global utility functions
+
+AttrCntType string_to_attr_cnt(String const& rString) {
+	long const attr_cnt = long(rString);
+	ASSERT(attr_cnt >= Combo::ATTRIBUTE_CNT_MIN);
+	ASSERT(attr_cnt <= Combo::ATTRIBUTE_CNT_MAX);
+
+	AttrCntType const result = AttrCntType(attr_cnt);
+
+	return result;
+}
+
+AttrType string_to_max_attr(String const& rString) {
+	long const max_attr = long(rString);
+	long const value_cnt = max_attr + 1;
+	ASSERT(value_cnt >= Combo::VALUE_CNT_MIN);
+	ASSERT(value_cnt <= Combo::VALUE_CNT_MAX);
+
+	AttrType const result = AttrType(value_cnt);
 
 	return result;
 }

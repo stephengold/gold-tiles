@@ -51,10 +51,9 @@ public:
 	static const PixelCntType WIDTH_TINY_TRIANGLE = 16;
 
 	// public lifecycle
-	GameView::GameView(Game const& game);
 	// no default constructor
+	explicit GameView::GameView(Game const& game);
     // ~GameView(void);  compiler-generated destructor is OK
-	void SetWindow(GameWindow*, MenuBar*);
 
 	// public operators
     // GameView& operator=(GameView const&);  compiler-generated assignment operator is OK
@@ -62,7 +61,8 @@ public:
 
 	// misc public methods
 	Cell       GetPointCell(Point const&) const;
-    TileIdType GetTileId(Point const&) const;
+    Tile::IdType 
+		       GetTileId(Point const&) const;
 	void       LoadPlayerOptions(Player const&);
 	void       Recenter(PixelCntType oldWidth, PixelCntType oldHeight);
     void       Repaint(Canvas&);
@@ -72,9 +72,10 @@ public:
 	void       SetWarmTiles(Indices const&);
 	void       SetGame(Game*);
 	void       SetTileSize(unsigned);
+	void       SetWindow(GameWindow*, MenuBar*);
 	void       StartCellOffset(long dx, long dy);
 	Cell       TargetCell(void) const;
-	Point      TileCenter(TileIdType, Point const&) const;
+	Point      TileCenter(Tile::IdType, Point const&) const;
 	void       ToggleTargetCell(Point const&);
 
 	// public inquiry methods
@@ -89,12 +90,12 @@ public:
 
 private:
 	// private types
-    typedef std::multimap<TileIdType,Rect> TileMap;
-    typedef std::pair<TileIdType,Rect>     TilePair;
-    typedef TileMap::iterator              TileIterator;
-    typedef TileMap::const_iterator        TileConstIterator;
+    typedef std::multimap<Tile::IdType,Rect> TileMap;
+    typedef std::pair<Tile::IdType,Rect>     TilePair;
+    typedef TileMap::iterator                TileIterator;
+    typedef TileMap::const_iterator          TileConstIterator;
     typedef std::pair<TileConstIterator,TileConstIterator> 
-		                                   TileConstIteratorPair;
+                                             TileConstIteratorPair;
 
 	// private data
 	DisplayModes mDisplayModes;
@@ -144,6 +145,6 @@ private:
 
 	// private inquiry methods
 	bool IsGridVisible(void) const;
-	bool IsWarmTile(TileIdType) const;
+    bool IsWarmTile(Tile::IdType) const;
 };
 #endif // !defined(GAMEVIEW_HPP_INCLUDED)

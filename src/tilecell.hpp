@@ -38,12 +38,14 @@ class TileCell {
 public:
 	// public lifecycle
 	TileCell(void);
-    TileCell(Tile const&);  // swap to swap area
-    TileCell(Tile const&, Cell const&);  // place on a cell
+    explicit TileCell(Tile const&);  // swap to swap area
 	// TileCell(TileCell const&);  compiler-generated copy constructor is OK
+	TileCell(String const&, bool remote);
+    TileCell(Tile const&, Cell const&);  // place on a cell
     // ~TileCell(void);  compiler-generated destructor is OK
 
 	// public operators
+	bool operator!=(TileCell const&) const;
     bool operator<(TileCell const&) const;
     // TileCell& operator=(TileCell const&);  compiler-generated assignment method is OK
 	operator Cell(void) const;
@@ -51,12 +53,18 @@ public:
 	operator Tile(void) const;
 
 	// misc public methods
+	String Description(void) const;
     String GetUserChoice(Tiles const&, Strings const&);
 
 	// public inquiry methods
 	bool IsSwap(void) const;
 
 private:
+	// private constants
+	static const String SEPARATOR;
+	static const String SWAP;
+
+	// private data
     Cell mCell;  // ignored if mSwapFlag is true
 	bool mSwapFlag;
     Tile mTile;

@@ -47,11 +47,6 @@ GameView::GameView(Game const& rGame):
 
 // The compiler-generated destructor is OK.
 
-void GameView::SetWindow(GameWindow* pWindow, MenuBar* pMenuBar) {
-	mpMenuBar = pMenuBar;
-	mpWindow = pWindow;
-}
-
 
 // operators
 
@@ -190,7 +185,7 @@ void GameView::DrawBoard(Canvas& rCanvas, unsigned showLayer) {
     ASSERT(left_see_column <= right_see_column);
 
 	unsigned swap_cnt = CountSwap();
-	TileIdType const active_tile = GetActive();
+	Tile::IdType const active_tile = GetActive();
 	if (IsInSwap(active_tile)) {
 	    ASSERT(swap_cnt > 0);
 		--swap_cnt;
@@ -215,10 +210,10 @@ void GameView::DrawBoard(Canvas& rCanvas, unsigned showLayer) {
                 LogicalXType const center_x = CellX(column);
                 Point const center(center_x, center_y);
 				if (showLayer == 2) {
-	                TileIdType const id = GetCellTile(wrap_cell);
+	                Tile::IdType const id = GetCellTile(wrap_cell);
                     if (id != Tile::ID_NONE && IsActive(id)) {
 		                // active tile from board -- draw it now
-                        Tile const tile = GetTileById(id);
+                        Tile const tile(id);
                         bool const odd_flag = cell.IsOdd();
                         DrawTile(rCanvas, center, tile, odd_flag);
                     }
@@ -289,10 +284,10 @@ void GameView::DrawCell(
 	
     /*  If the active tile came from the board, draw it later 
         (not now) so it won't get obscured. */
-	TileIdType const id = Partial::GetCellTile(rCell);
+	Tile::IdType const id = Partial::GetCellTile(rCell);
     if (id != Tile::ID_NONE && !IsActive(id)) {
 		// inactive tile -- draw it now
-        Tile const tile = GetTileById(id);
+        Tile const tile(id);
         DrawTile(rCanvas, rCenter, tile, odd_flag);
     }
 }
@@ -391,7 +386,7 @@ void GameView::DrawHandTile(
     Tile const& rTile,
 	bool oddFlag)
 {
-    TileIdType const id = rTile.Id();
+    Tile::IdType const id = rTile.Id();
 
 	if (!IsLocalUsersTurn() && !IsOnBoard(id) && !mpMenuBar->IsPeeking()) {
 		// draw the tile's backside
@@ -415,9 +410,10 @@ void GameView::DrawHandTiles(Canvas& rCanvas) {
         swap_y += cell_height/2;
     }
 
-    for (unsigned i = 0; i < CountTiles(); i++) {
-        Tile const tile = GetTileByIndex(i);
-        TileIdType const id = tile.Id();
+	Tiles::ConstIterator i_tile;
+    for (i_tile = mTiles.begin(); i_tile != mTiles.end(); i_tile++) {
+        Tile const tile = *i_tile;
+        Tile::IdType const id = tile.Id();
 	    bool odd_flag = false;
         LogicalXType x;
         LogicalYType y;
@@ -450,25 +446,24 @@ void GameView::DrawHandTiles(Canvas& rCanvas) {
 }
 
 void GameView::DrawPaused(Canvas& rCanvas) {
+	ASSERT(HasGame());
 	ASSERT(IsGamePaused());
 	ASSERT(!IsGameOver());
 
     ColorType const bg_color = COLOR_BLACK;
-    ColorType const text_color = COLOR_WHITE;
+    ColorType const text_color = COLOR_GREEN;
     rCanvas.UseColors(bg_color, text_color);
 
-    LogicalXType const x = 0;
-    LogicalYType const y = 0;
-    Rect const client_area(y, x, mpWindow->ClientAreaWidth(), mpWindow->ClientAreaHeight());
-    rCanvas.DrawText(client_area, "The game is paused.  Click here to proceed.");
+	Point const ulc(0, 0);
+	Point const brc = mpWindow->Brc(); 
+    Rect const client_area(ulc, brc);
+    rCanvas.DrawText(client_area, "The game is paused.  Click here to resume.");
         
-	if (mpGame != NULL) {
-	    LogicalYType const top_y = mPadPixels;
-        LogicalXType const left_x = mPadPixels;
-        Hand playable_hand = *mpGame;
-        bool const left = true;
-        DrawHandHeader(rCanvas, top_y, left_x, playable_hand, bg_color, left);
-	}
+    LogicalYType const top_y = mPadPixels;
+    LogicalXType const left_x = mPadPixels;
+    Hand playable_hand = *mpGame;
+    bool const left = true;
+    DrawHandHeader(rCanvas, top_y, left_x, playable_hand, bg_color, left);
 }
 
 void GameView::DrawPlayableHand(Canvas& rCanvas) {
@@ -497,7 +492,7 @@ void GameView::DrawPlayableHand(Canvas& rCanvas) {
 	}
 
 	// choose colors for hand area (mHandRect)
-	TileIdType const active_tile = GetActive();
+	Tile::IdType const active_tile = GetActive();
 	if (IsInHand(active_tile)) {
         // The active tile started from this hand.
 		ASSERT(tile_cnt > 0);
@@ -585,7 +580,7 @@ Rect GameView::DrawSwapArea(
     }
 
     // choose color for swap area
-	TileIdType const active_tile = GetActive();
+	Tile::IdType const active_tile = GetActive();
 	if (IsInSwap(active_tile)) {
 		ASSERT(tile_cnt > 0);
 		--tile_cnt;
@@ -621,7 +616,7 @@ Rect GameView::DrawSwapArea(
 }
 
 void GameView::DrawTile(Canvas& rCanvas, Point const& rCenter, Tile const& rTile, bool oddFlag) {
-    TileIdType const id = rTile.Id();
+    Tile::IdType const id = rTile.Id();
 
 	AttrCntType const marking_cnt = mDisplayModes.MarkingCnt();
 	ASSERT(marking_cnt <= Markings::MARKING_CNT_MAX);
@@ -696,8 +691,9 @@ void GameView::DrawUnplayableHands(Canvas& rCanvas) {
             LogicalXType const tile_x = hand_rect.CenterX();
             LogicalYType tile_y = hand_rect.TopY() + mPadPixels + cell_height/2;
 
-            for (unsigned i_tile = 0; i_tile < tile_count; i_tile++) {
-                Tile const tile = hand_tiles[i_tile];
+            Tiles::ConstIterator i_tile;
+            for (i_tile = hand_tiles.begin(); i_tile != hand_tiles.end(); i_tile++) {
+                Tile const tile = *i_tile;
                 Point const center(tile_x, tile_y);
                 if (mpMenuBar->IsPeeking()) {
                     DrawTile(rCanvas, center, tile, false);
@@ -753,12 +749,12 @@ Cell GameView::GetPointCell(Point const& rPoint) const {
     return result;
 }
 
-TileIdType GameView::GetTileId(Point const& rPoint) const {
-	TileIdType result = Tile::ID_NONE;
+Tile::IdType GameView::GetTileId(Point const& rPoint) const {
+	Tile::IdType result = Tile::ID_NONE;
 
 	TileConstIterator i_tile;
     for (i_tile = mTileMap.begin(); i_tile != mTileMap.end(); i_tile++) {
-        TileIdType const id = i_tile->first;
+        Tile::IdType const id = i_tile->first;
         Rect const rect = i_tile->second;
         if (rect.Contains(rPoint)) {
 			// make sure the tile in question is visible
@@ -948,6 +944,11 @@ void GameView::SetWarmTiles(Indices const& rIndices) {
 	mWarmTiles = rIndices;
 }
 
+void GameView::SetWindow(GameWindow* pWindow, MenuBar* pMenuBar) {
+	mpMenuBar = pMenuBar;
+	mpWindow = pWindow;
+}
+
 void GameView::StartCellOffset(long dx, long dy) {
     mStartCell.Offset(dx, dy);
 }
@@ -956,7 +957,7 @@ Cell GameView::TargetCell(void) const {
 	return mTargetCell;
 }
 
-Point GameView::TileCenter(TileIdType id, Point const& rMouse) const {
+Point GameView::TileCenter(Tile::IdType id, Point const& rMouse) const {
 	Point result(0,0);
 	bool found = false;
 	PixelCntType best_distance = 0;
@@ -1066,7 +1067,7 @@ bool GameView::IsInSwapArea(Point const& rPoint) const {
 }
 
 bool GameView::IsInTile(Point const& rPoint) const {
-	TileIdType const id = GetTileId(rPoint);
+	Tile::IdType const id = GetTileId(rPoint);
 	bool const result = (id != Tile::ID_NONE);
 
 	return result;
@@ -1080,14 +1081,14 @@ bool GameView::IsTargetUsed(void) const {
 	bool result = false;
 
 	if (mTargetCellFlag) {
-		TileIdType const id = GetCellTile(mTargetCell);
+		Tile::IdType const id = GetCellTile(mTargetCell);
 		result = (id != Tile::ID_NONE);
 	}
 
 	return result;
 }
 
-bool GameView::IsWarmTile(TileIdType tileId) const {
+bool GameView::IsWarmTile(Tile::IdType tileId) const {
 	bool const result = mWarmTiles.Contains(tileId);
 
 	return result;

@@ -58,23 +58,26 @@ enum UmType { // user message handles
 
 class Board: public BaseBoard {
 public:
-	// public operators
-	operator String(void) const;
+    // public lifecycle
+    // Board(void);  compiler-generated default constructor is OK
+    // Board(Board const&);  compiler-generated copy constructor is OK
+    // ~Board(void);  compiler-generated destructor is OK
+
+    // public operators
+    // Board& operator=(Board const&);  compiler-generated assignment operator is OK 
 
 	// misc public methods
-	Cell       FirstCell(void) const;
-	TileIdType GetId(Cell const&) const;
-    bool       LocateTile(Tile const&, Cell&) const;
-	void       Next(Cell&) const;
-    void	   PlayMove(Move const&);
-    static String 
-		       ReasonMessage(UmType, String& title);
-    ScoreType  ScoreMove(Move const&) const;
-    void	   UnplayMove(Move const&);
+    String        Description(void) const;
+    Cell          FirstCell(void) const;
+    Tile::IdType  GetId(Cell const&) const;
+    void          Next(Cell&) const;
+    void          PlayMove(Move const&);
+    static String ReasonMessage(UmType, String& title);
+    ScoreType     ScoreMove(Move const&) const;
+    void          UnplayMove(Move const&);
 
 	// public inquiry methods
-	bool Contains(Tile const&) const;
-	bool ContainsId(TileIdType) const;
+    bool Contains(Tile::IdType) const;
     bool HasEmptyCell(Cell const&) const;
     bool HasNeighbor(Cell const&) const;
 	bool IsEmpty(void) const;
@@ -84,13 +87,11 @@ public:
 
 private:
 	// misc private methods
-	Tile const* GetPtr(RowType, ColumnType) const;
-	Cells    	GetRun(Cell const&, Direction const&) const;
-	Tile	    GetTile(RowType, ColumnType) const;
-	Tile        GetTile(Cell const&) const;
-	Tiles		GetTiles(Cells const&) const;
-    void		PlayTile(TileCell const&);
-    ScoreType   ScoreDirection(Cell const&, Direction const&) const;
+    Cells     GetRun(Cell const&, Direction const&) const;
+    Tile      GetTile(Cell const&) const;
+	Tiles     GetTiles(Cells const&) const;
+    void      PlayTile(TileCell const&);
+    ScoreType ScoreDirection(Cell const&, Direction const&) const;
 
 	// private inquiry methods
     bool AreAllCompatible(Cells const&) const;

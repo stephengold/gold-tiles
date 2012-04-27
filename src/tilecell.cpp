@@ -22,7 +22,14 @@ You should have received a copy of the GNU General Public License
 along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include "strings.hpp"
 #include "tilecell.hpp"
+
+
+// static constants
+
+const String TileCell::SEPARATOR("@");
+const String TileCell::SWAP("swap");
 
 
 // lifecycle
@@ -35,6 +42,21 @@ TileCell::TileCell(Tile const& rTile):
     mTile(rTile)
 {
 	mSwapFlag = true;
+}
+
+TileCell::TileCell(String const& rString, bool remoteFlag) {
+    Strings const parts(rString, SEPARATOR);
+    ASSERT(parts.Count() == 2); // TODO recovery
+
+    String const first = parts.First();
+    mTile = Tile(IndexType(first), remoteFlag);
+
+    mSwapFlag = true;
+    String const second = parts.Second();
+    if (second != SWAP) {
+        mCell = Cell(second);
+        mSwapFlag = false;
+    }
 }
 
 TileCell::TileCell(Tile const& rTile, Cell const& rCell):
@@ -50,24 +72,36 @@ TileCell::TileCell(Tile const& rTile, Cell const& rCell):
 
 // operators
 
+bool TileCell::operator!=(TileCell const& rOther) const {
+    bool equal = (mTile == rOther.mTile
+               && mSwapFlag == rOther.mSwapFlag);
+
+    if (equal && !mSwapFlag) {
+        equal = (mCell == rOther.mCell);
+    }
+    bool const result = !equal;
+
+    return result;
+}
+
 bool TileCell::operator<(TileCell const& rOther) const {
-     bool result;
+    bool result;
      
-     if (mTile == rOther.mTile) {
-		 if (mSwapFlag == rOther.mSwapFlag) {
-			 if (mSwapFlag) {
-				 result = false;
-			 } else {
-				 result = (mCell < rOther.mCell);
-			 }
-		 } else {
-             result = (mSwapFlag < rOther.mSwapFlag);
-		 }
-     } else {
-         result = (mTile < rOther.mTile);
-     }
+    if (mTile == rOther.mTile) {
+        if (mSwapFlag == rOther.mSwapFlag) {
+            if (mSwapFlag) {
+                result = false;
+            } else {
+                result = (mCell < rOther.mCell);
+            }
+        } else {
+            result = (mSwapFlag < rOther.mSwapFlag);
+        }
+    } else {
+        result = (mTile < rOther.mTile);
+    }
      
-     return result;
+    return result;
 }
 
 // The compiler-generated assignment method is OK.
@@ -79,13 +113,11 @@ TileCell::operator Cell(void) const {
 }
 
 TileCell::operator String(void) const {
-	String result = String(mTile);
-	result = result.Purge();
+	String result = String(mTile.Id()) + SEPARATOR;
 
 	if (IsSwap()) {
-		result += "@swap";
+		result += SWAP;
 	} else {
-		result += "@";
 		result += String(mCell);
 	}
 
@@ -99,9 +131,21 @@ TileCell::operator Tile(void) const {
 
 // misc methods
 
+String TileCell::Description(void) const {
+	String result = mTile.Description();
+
+	if (IsSwap()) {
+		result += " to swap area";
+	} else {
+		result += " on " + String(mCell);
+	}
+
+	return result;
+}
+
 String TileCell::GetUserChoice(Tiles const& rAvailableTiles, Strings const& rAlternatives) {
     String const result = mTile.GetUserChoice(rAvailableTiles, rAlternatives);
-	if (mTile.MatchesString(result)) {
+	if (TileOpt(mTile).MatchesString(result)) {
         mSwapFlag = mCell.GetUserChoice("swap");
 	}
 	

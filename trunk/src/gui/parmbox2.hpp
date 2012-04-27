@@ -43,8 +43,8 @@ public:
 	static const ColumnType WIDTH_DEFAULT = 12;
 
     // lifecycle
-	ParmBox2(GameOpt&);
 	// no default constructor
+	explicit ParmBox2(GameOpt&);
 	// ~ParmBox2(void);  compiler-generated destructor is OK
 
 	// misc public methods

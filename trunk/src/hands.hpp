@@ -39,6 +39,14 @@ public:
     typedef std::vector<Hand>::const_iterator ConstIterator;
     typedef std::vector<Hand>::iterator       Iterator;
 
+	// public lifecycle
+	// Hands(void);  compiler-generated default constructor is OK
+	// Hands(Hands const&);  compiler-generated copy constructor is OK
+	// ~Hands(void);  compiler-generated destructor is OK
+
+    // public operators
+    // Hands& operator=(Hands const&);  compiler-generated assignment operator is OK 
+ 
 	// misc public methods
 	void      Append(Hand const&);
     unsigned  Count(void) const;

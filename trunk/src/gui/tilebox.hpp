@@ -38,8 +38,8 @@ The TileBox class is an extension of the Dialog class.
 class TileBox: public Dialog {
 public:
     // public lifecycle
-	TileBox(GameOpt&);
 	// no default constructor
+	TileBox(GameOpt&);
 	// ~TileBox(void);  compiler-generated destructor is OK
 
 	// misc public methods

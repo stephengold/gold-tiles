@@ -42,6 +42,7 @@ public:
 	static const AttrCntType MARKING_CNT_MAX = 4;
 
 	// public lifecycle
+	// no default constructor
 	Markings(Tile const&, DisplayModes const&);  
     // Markings(Markings const&); compiler-generated copy constructor is OK
     // ~Markings(void);  compiler-generated destructor is OK

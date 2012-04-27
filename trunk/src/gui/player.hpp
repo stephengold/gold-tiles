@@ -26,7 +26,9 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 /*
-A Player object represents a human user of the local computer.
+A Player object represents a (human) user of the local computer.
+
+TODO rename this class!
 
 The Player class implements a static map for translating names to
 user-interface settings.
@@ -42,7 +44,7 @@ class Player {
 public:
 	// public lifecycle
 	// Player(void); no default constructor
-	Player(String const& name);
+	explicit Player(String const& name);
     // ~Player(void);  compiler-generated destructor is OK
 
 	// public operators

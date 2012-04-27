@@ -38,8 +38,8 @@ The ParmBox1 class is an extension of the Dialog class.
 class ParmBox1: public Dialog {
 public:
     // lifecycle
-	ParmBox1(GameOpt&);
 	// no default constructor
+	explicit ParmBox1(GameOpt&);
 	// ~ParmBox1(void);  compiler-generated destructor is OK
 
 	// misc public methods

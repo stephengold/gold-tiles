@@ -41,11 +41,11 @@ class PlayMenu: public SubMenu {
 
 public:
     // public lifecycle
+    // no default constructor
 #ifdef _QT
     PlayMenu(void);
 #elif defined(_WINDOWS)
     PlayMenu(Menu const&, unsigned position);
-    // no default constructor
 #endif // defined(_WINDOWS)
     // ~PlayMenu(void);  compiler-generated destructor is fine
 

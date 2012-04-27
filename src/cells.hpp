@@ -43,9 +43,12 @@ public:
 
 	// public lifecycle
 	Cells(void);
-	Cells(Cell const&);
+	explicit Cells(Cell const&);
+    // Cells(Cells const&);  compiler-generated copy constructor is OK
+    // ~Cells(void);  compiler-generated destructor is OK
 
-	// public operators
+    // public operators
+    // Cell& operator=(Cell const&);  compiler-generated assignment operator is OK 
     operator String(void) const;
 
 	// misc public methods

@@ -147,22 +147,22 @@ void GameOpt::GetUserChoice(void) {
 	String const attr_report = AttrReport();
 	std::cout << attr_report;
 	
-	int hands_dealt = 0;
-	while (hands_dealt < int(HANDS_DEALT_MIN)) {
+	long hands_dealt = 0;
+	while (hands_dealt < long(HANDS_DEALT_MIN)) {
 	    std::cout << "Deal how many hands? ";
 		String line;
 	    std::cin >> line;
-		hands_dealt = int(line);
+		hands_dealt = long(line);
 	}
 	SetHandsDealt(hands_dealt);
 	std::cout << std::endl;
 
-	int hand_size = 0;
-	while (hand_size < int(HAND_SIZE_MIN)) {
+	long hand_size = 0;
+	while (hand_size < long(HAND_SIZE_MIN)) {
 	    std::cout << "How many tiles per hand? ";
 		String line;
 	    std::cin >> line;
-		hand_size = int(line);
+		hand_size = long(line);
 	}
 	SetHandSize(hand_size);
 	std::cout << std::endl;

@@ -60,9 +60,10 @@ public:
 
 	// public lifecycle
     Cell(void);   // the start cell
-    Cell(RowType, ColumnType);
-	Cell(Cell const&, Direction const&, int count = 1);
     // Cell(Cell const&);  compiler-generated copy constructor is OK
+	explicit Cell(String const&);
+    Cell(RowType, ColumnType);
+	Cell(Cell const&, Direction const&, int count);
     // ~Cell(void);  compiler-generated destructor is OK
 
 	// public operators
@@ -93,6 +94,11 @@ public:
 	bool        IsValid(void) const;
 
 private:
+	// private constants
+	static const String PREFIX;
+	static const String SEPARATOR;
+	static const String SUFFIX;
+
 	// private data
 	ColumnType         mColumn;
 	static GridType   msGrid;
@@ -102,7 +108,13 @@ private:
 	static bool       msWrapFlag; // coordinates wrap around
 
     // misc private methods
-	static void NextCellOffsets(Direction const&, RowType&, 
-		            ColumnType&);
+	static void NextCellOffsets(Direction const&, RowType&, ColumnType&);
 };
+
+// global utility functions
+String    grid_to_string(GridType);
+String    index_to_string(IndexType);
+GridType  string_to_grid(String const&);
+IndexType string_to_index(String const&);
+
 #endif // !defined(CELL_HPP_INCLUDED)

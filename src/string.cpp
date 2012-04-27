@@ -46,21 +46,26 @@ static std::string ultos(unsigned long integer) {
    sout << integer;
    return sout.str(); 
 }
+static std::string lftos(double number) {
+	std::ostringstream sout;
+	sout << number;
+	return sout.str();
+}
 
 
 // lifecycle
 
+// construct an empty string
 String::String(void):
     std::string() {}
-String::String(char ch):
-	std::string(1, ch) {}
-String::String(unsigned repeat, char ch):
-	std::string(repeat, ch) {}
-String::String(std::string const &str):
-	std::string(str) {}
-String::String(TextType text):
-	std::string(text) {}
 
+// conversions from base types
+String::String(bool flag):
+	std::string(flag ? "true" : "false") {}
+String::String(char character):
+	std::string(1, character) {}
+String::String(double number):
+	std::string(::lftos(number)) {}
 String::String(int integer):
 	std::string(::itos(integer)) {}
 String::String(unsigned integer):
@@ -70,6 +75,17 @@ String::String(long integer):
 String::String(unsigned long integer):
 	std::string(::ultos(integer)) {}
 
+// repetition
+String::String(unsigned repeatCnt, char character):
+	std::string(repeatCnt, character) {}
+
+// copying
+String::String(std::string const& rString):
+	std::string(rString) {}
+String::String(TextType text):
+	std::string(text) {}
+
+// joining
 String::String(Strings const& rList, String const& rSeparator) {
 	Strings::ConstIterator i_string;
 	for (i_string = rList.Begin(); i_string != rList.End(); i_string++) {
@@ -83,15 +99,36 @@ String::String(Strings const& rList, String const& rSeparator) {
 
 // operators
 
-String::operator TextType(void) const {
-	TextType const result = c_str();
+String::operator bool(void) const {
+	bool result = false;
+
+	if (*this == "true") {
+		result = true;
+	} else if (*this == "false") {
+	    result = false;
+	} else {
+		FAIL();
+	}
 
 	return result;
 }
 
-String::operator int(void) const {
+String::operator double(void) const {
     TextType const text = c_str();
-    int const result = ::atoi(text);
+    double const result = ::atof(text);
+
+	return result;
+}
+
+String::operator long(void) const {
+    TextType const text = c_str();
+    long const result = ::atol(text);
+
+	return result;
+}
+
+String::operator TextType(void) const {
+	TextType const result = c_str();
 
 	return result;
 }
@@ -99,9 +136,10 @@ String::operator int(void) const {
 
 // misc methods
 
-// capitalize the first letter of each word
-// trim leading and trailing non-graphic characters
-// convert adjacent non-graphic characters a single space
+// Capitalize the first letter of each word.
+// Trim leading and trailing non-graphic characters.
+// Convert adjacent non-graphic characters a single space.
+// Equal-signs (=) are treated as non-graphic characters.
 void String::Capitalize(void) {
 	bool after_graphic = false;
 	String result;
@@ -109,7 +147,7 @@ void String::Capitalize(void) {
 
 	for (unsigned i_char = 0; i_char < Length(); i_char++) {
         char ch = at(i_char);
-		bool const is_graphic = (::isgraph(ch) != 0);
+		bool const is_graphic = (::isgraph(ch) != 0 && ch != '=');
 
 		if (!is_graphic) {
 			ch = space;
@@ -147,6 +185,22 @@ unsigned String::Length(void) const {
 	return result;
 }
 
+void String::MakeEmpty(void) {
+	clear();
+}
+
+String String::Prefix(String const& rSuffix) const {
+	String result;
+
+	unsigned const suffix_length = rSuffix.Length();
+	if (Length() >= suffix_length) {
+		unsigned const prefix_length = Length() - suffix_length;
+		result = substr(0, prefix_length);
+	}
+
+	return result;
+}
+
 // purge non-graphic characters
 String String::Purge(void) const {
 	String result;
@@ -170,6 +224,7 @@ String String::Quote(void) const {
 	return result;
 }
 
+// delete characters from the end
 void String::Shorten(unsigned characterCnt) {
 	unsigned const length = Length();
 	unsigned new_length = length - characterCnt;
@@ -179,8 +234,45 @@ void String::Shorten(unsigned characterCnt) {
 	resize(new_length);
 }
 
+String String::Suffix(String const& rPrefix) const {
+	String result;
+
+	unsigned const prefix_length = rPrefix.Length();
+	if (Length() >= prefix_length) {
+		unsigned const suffix_length = Length() - prefix_length;
+		result = substr(prefix_length, suffix_length);
+	}
+
+	return result;
+}
+
 
 // inquiry methods
+
+bool String::HasPrefix(String const& rPrefix) const {
+	bool result = false;
+
+	unsigned const prefix_length = rPrefix.Length();
+	if (Length() >= prefix_length) {
+		String const prefix = substr(0, prefix_length);
+		result = (prefix == rPrefix);
+	}
+
+	return result;
+}
+
+bool String::HasSuffix(String const& rSuffix) const {
+	bool result = false;
+
+	unsigned const suffix_length = rSuffix.Length();
+	if (Length() >= suffix_length) {
+		unsigned const prefix_length = Length() - suffix_length;
+		String const suffix = substr(prefix_length, suffix_length);
+		result = (suffix == rSuffix);
+	}
+
+	return result;
+}
 
 bool String::IsEmpty(void) const {
 	bool const result = (Length() == 0);

@@ -127,7 +127,7 @@ Cells Board::GetRun(
 	// look in the positive direction; stop at first invalid/empty/duplicate cell
     current = rCell;
 	for (;;) {
-        Cell const next(current, rDirection);
+        Cell const next(current, rDirection, +1);
         if (!next.IsValid()
 		 || HasEmptyCell(next) 
 		 || result.Contains(next)) 
@@ -453,7 +453,7 @@ bool Board::HasNeighbor(Cell const& rCell) const {
 	Direction direction;
     for (direction.SetFirst(); direction.IsValid(); direction++) {
 		if (rCell.HasNeighbor(direction)) {
-            Cell const look(rCell, direction);
+            Cell const look(rCell, direction, +1);
 			ASSERT(look.IsValid());
             if (!HasEmptyCell(look)) {
                 result = true;

@@ -29,34 +29,55 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 An Indices object represents a set of indices, which may be rows or 
 columns in a grid or tile IDs.
 
-The Indices class is implemented by applying the standard "set" container 
-template to an IndexType.
+The Indices class is implemented by applying the "set" container 
+template (from the Standard Template Library) to IndexType.
 */
 
-#include <set>  // ISA std::set
+#include <set>        // ISA std::set
+#include "string.hpp" // USES String
 
 typedef long IndexType;
 
 class Indices: public std::set<IndexType> {
 public:
 	// public types
-	typedef std::set<IndexType>::const_iterator ConstIterator;
-	typedef std::set<IndexType>::iterator       Iterator;
+	typedef std::set<IndexType>::const_iterator         ConstIterator;
+	typedef std::set<IndexType>::const_reverse_iterator ConstReverseIterator;
+	typedef std::set<IndexType>::iterator               Iterator;
 
 	// public constants
 	static const IndexType INDEX_MAX = LONG_MAX;
 	static const IndexType INDEX_MIN = LONG_MIN;
 
+	// public lifecycle
+	Indices(void);
+	// Indices(Indices const&);  compiler-generated copy constructor is OK
+	explicit Indices(String const&);
+	virtual ~Indices(void);
+
+	// public operators
+	//Indices& operator=(Indices const&);  compiler-generated assignment method is OK
+	operator String(void) const;
+
 	// misc public methods
 	void      Add(IndexType);
 	void      AddRemove(IndexType, bool);
     unsigned  Count(void) const;
-	IndexType First() const;
+	IndexType First(void) const;
+	IndexType Last(void) const;
 	void      MakeEmpty(void);
+	void      Merge(Indices const&);
+	void      Purge(Indices const&);
 	void      Remove(IndexType);
 
 	// public inquiry methods
     bool Contains(IndexType) const;
 	bool IsEmpty(void) const;
+
+private:
+	// private constants
+	static const String PREFIX;
+	static const String SEPARATOR;
+	static const String SUFFIX;
 };
 #endif // !defined(INDICES_HPP_INCLUDED)

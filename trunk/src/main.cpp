@@ -22,25 +22,22 @@ You should have received a copy of the GNU General Public License
 along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include "network.hpp"
 #include "tile.hpp"
 
 #ifdef _CONSOLE
-#include <iostream>
-#include "game.hpp"
-#include "handopts.hpp"
-#endif // defined(_CONSOLE)
-
-#ifdef _QT
-#include <QtGui/QApplication>
-#endif // defined(_QT)
-
-#ifdef _WINDOWS
-#include "gui/win_types.hpp"
+# include <iostream>
+# include "game.hpp"
+# include "handopts.hpp"
+# include "strings.hpp"
+#elif defined(_QT)
+# include <QtGui/QApplication>
+#elif defined(_WINDOWS)
+# include "gui/win_types.hpp"
 #endif // defined(_WINDOWS)
 
 #ifdef _GUI
-#include "gui/gamewindow.hpp"
-GameWindow* gGameWindow = NULL;
+# include "gui/gamewindow.hpp"
 #endif // defined(_GUI)
 
 #ifdef _WINDOWS
@@ -55,68 +52,51 @@ int CALLBACK Win::WinMain(
 	previousInstance;
 	commandLine;
 
+	GameWindow* p_window = NULL;
+
 #else // !defined(_WINDOWS)
 
 // standard C++ main entry point
-int main(int argCnt, char *argValues[]) {
+int main(int argCnt, char** argValues) {
 
 #endif // !defined(_WINDOWS)
 
-	int exit_code = EXIT_SUCCESS;
-
-	// seed the pseudo-random number generator
-	unsigned const seed = ::milliseconds();
+	// Seed the pseudo-random number generator.
+	unsigned const seed = 61; // ::milliseconds();
     ::srand(seed);
 
+	// Initialize the networking support.
+	Network network;
+
+	int exit_code = EXIT_SUCCESS;
+
 #ifdef _CONSOLE
+
 	argCnt;
 	argValues;
 
-	// display legal notice
-	std::cout
-		<< "Gold Tile Game (c) Copyright 2012 Stephen Gold" << std::endl
-        << "This program comes with ABSOLUTELY NO WARRANTY." << std::endl
-        << "This is free software, and you are welcome to redistribute" << std::endl
-        << "it under certain conditions; see LICENSE.txt for details." << std::endl
-        << std::endl;
+	Game::ConsoleGame();
 
-	GameOpt game_opt;
-	game_opt.GetUserChoice();
+#elif defined(_QT)
 
-	unsigned const hand_cnt = game_opt.HandsDealt();
-	HandOpts hand_opts;
-	hand_opts.GetUserChoice(hand_cnt);
-
-    // Instantiate the game.
-	Game game(game_opt, hand_opts);
-
-	game.PlayGame();
-	std::cout << "The game is over." << std::endl;
-
-	// A pause is needed when running in a console window because the window will
-	// be destroyed soon after this function returns. 
-    ::pause();
-#endif // defined(_CONSOLE)
-
-#ifdef _QT
 	// Instantiate top window and display it.
     QApplication application(argCnt, argValues);
 
-    gGameWindow = new GameWindow(NULL);
-    gGameWindow->show();
+    p_window = new GameWindow(NULL);
+    p_window->show();
     
     exit_code = application.exec();
-#endif // defined(_QT)
 
-#ifdef _WINDOWS
+#elif defined(_WINDOWS)
+
 	// Instantiate top window and display it.
-	gGameWindow = new GameWindow(applicationInstance, NULL);
-	gGameWindow->Show(showHow);
+	p_window = new GameWindow(applicationInstance, NULL);
+	p_window->Show(showHow);
 
     // Retrieve and dispatch messages for this application. 
-	exit_code = gGameWindow->MessageDispatchLoop();
+	exit_code = p_window->MessageDispatchLoop();
+
 #endif // defined(_WINDOWS)
 
 	return exit_code;
 }
-

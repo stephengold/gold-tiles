@@ -32,7 +32,7 @@ The HandOpt class encapsulates the hand's name and type, plus optional
 characteristics such as its IP address.
 */
 
-#include "string.hpp"  // HASA String
+#include "address.hpp" // HASA Address
 
 enum GameStyleType {
     GAME_STYLE_NONE,
@@ -47,24 +47,26 @@ enum GameStyleType {
 #endif // !defined(_DEBUG)
 };
 
-typedef unsigned long IpAddressType;
-
 class HandOpt {
 public:
 	// public lifecycle
-	HandOpt(GameStyleType, Strings const& playerNames);
-	HandOpt(String const& playerName);
-	HandOpt(String const& playerName, bool autop, double skipProb, bool rem, IpAddressType);
-	// no default constructor
+	HandOpt(void);
     // HandOpt(HandOpt const&);  compiler-generated copy constructor is OK
+	explicit HandOpt(String const&);
+	HandOpt(GameStyleType, Strings const& playerNames);
+	HandOpt(String const& playerName, bool autom, double skipProb, 
+		bool rem, Address const&);
     // ~HandOpt(void);  compiler-generated destructor is OK
 
 	// public operators
     // HandOpt& operator=(HandOpt const&);  compiler-generated assignment operator is OK
-	operator IpAddressType(void) const;
+	operator Address(void) const;
+	operator String(void) const;
 
 	// misc public methods
 	String PlayerName(void) const;
+	void   Serverize(Address const& client, Address const& server);
+	void   SetAddress(Address const&);
 	void   SetAutomatic(void);
 	void   SetLocalUser(void);
 	void   SetPlayerName(String const&);
@@ -80,11 +82,15 @@ public:
 
 private:
 	// private data
-	bool   mAutomaticFlag;
-	IpAddressType 
-		   mIpAddress;       // for remote hands only, else ignored
-	String mPlayerName;
-	bool   mRemoteFlag;
-	double mSkipProbability; // for automatic hands only, else 0.0
+	Address mAddress;         // for remote hands only, else ignored
+	bool    mAutomaticFlag;
+	String  mPlayerName;
+	bool    mRemoteFlag;
+	double  mSkipProbability; // for automatic hands only, else 0.0
 };
+
+// global utility functions
+String        game_style_to_string(GameStyleType);
+GameStyleType string_to_game_style(String const&);
+
 #endif  // !defined(HANDOPT_HPP_INCLUDED)

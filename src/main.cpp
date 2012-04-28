@@ -62,7 +62,7 @@ int main(int argCnt, char** argValues) {
 #endif // !defined(_WINDOWS)
 
 	// Seed the pseudo-random number generator.
-	unsigned const seed = 61; // ::milliseconds();
+	unsigned const seed = ::milliseconds();
     ::srand(seed);
 
 	// Initialize the networking support.

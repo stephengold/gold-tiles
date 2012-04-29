@@ -44,15 +44,15 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 
 // Microsoft Windows native application main entry point
 int CALLBACK Win::WinMain(
-	HINSTANCE applicationInstance, 
-	HINSTANCE previousInstance, // always NULL and ignored
-	char* commandLine, // TODO
-	int showHow) 
+    HINSTANCE applicationInstance, 
+    HINSTANCE previousInstance, // always NULL and ignored
+    char* commandLine, // TODO
+    int showHow) 
 {
-	previousInstance;
-	commandLine;
+    previousInstance;
+    commandLine;
 
-	GameWindow* p_window = NULL;
+    GameWindow* p_window = NULL;
 
 #else // !defined(_WINDOWS)
 
@@ -73,42 +73,42 @@ int main(int argCnt, char** argValues) {
 
 #endif // defined(_CONSOLE)
 
-	// Seed the pseudo-random number generator.
-	unsigned const seed = ::milliseconds();
+    // Seed the pseudo-random number generator.
+    unsigned const seed = ::milliseconds();
     ::srand(seed);
 
-	// Initialize the networking support.
-	Network network;
+    // Initialize the networking support.
+    Network network;
 
-	int exit_code = EXIT_SUCCESS;
+    int exit_code = EXIT_SUCCESS;
 
 #ifdef _CONSOLE
 
-	argCnt;
-	argValues;
+    argCnt;
+    argValues;
 
-	Game::ConsoleGame();
+    Game::ConsoleGame();
 
 #elif defined(_QT)
 
-	// Instantiate top window and display it.
+    // Instantiate top window and display it.
     QApplication application(argCnt, argValues);
 
     p_window = new GameWindow(NULL);
     p_window->show();
-    
+
     exit_code = application.exec();
 
 #elif defined(_WINDOWS)
 
-	// Instantiate top window and display it.
-	p_window = new GameWindow(applicationInstance, NULL);
-	p_window->Show(showHow);
+    // Instantiate top window and display it.
+    p_window = new GameWindow(applicationInstance, NULL);
+    p_window->Show(showHow);
 
     // Retrieve and dispatch messages for this application. 
-	exit_code = p_window->MessageDispatchLoop();
+    exit_code = p_window->MessageDispatchLoop();
 
 #endif // defined(_WINDOWS)
 
-	return exit_code;
+    return exit_code;
 }

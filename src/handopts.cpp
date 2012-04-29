@@ -36,148 +36,148 @@ HandOpts::HandOpts(void) {
 // operators
 
 HandOpt& HandOpts::operator[](unsigned ind) {
-	ASSERT(ind < Count());
+    ASSERT(ind < Count());
 
-	return mList[ind];
+    return mList[ind];
 }
 
 HandOpt const& HandOpts::operator[](unsigned ind) const {
-	ASSERT(ind < Count());
+    ASSERT(ind < Count());
 
-	return mList[ind];
+    return mList[ind];
 }
 
 HandOpts::operator String(void) const {
-	String result;
+    String result;
 
-	for (unsigned i_hand = 0; i_hand < Count(); i_hand++) {
-		String const hand_opt_string = (*this)[i_hand];
-		result += hand_opt_string;
-	}
+    for (unsigned i_hand = 0; i_hand < Count(); i_hand++) {
+        String const hand_opt_string = (*this)[i_hand];
+        result += hand_opt_string;
+    }
 
-	return result;
+    return result;
 }
 
 
 // misc methods
 
 void HandOpts::Append(HandOpt const& rHandOpt) {
-	mList.push_back(rHandOpt);
+    mList.push_back(rHandOpt);
 
-	ASSERT(!IsEmpty());
+    ASSERT(!IsEmpty());
 }
 
 Strings HandOpts::AllPlayerNames(void) const {
-	Strings result;
+    Strings result;
 
-	for (unsigned i_hand = 0; i_hand < Count(); i_hand++) {
-		String const player_name = (*this)[i_hand].PlayerName();
-		result.Append(player_name);
-	}
+    for (unsigned i_hand = 0; i_hand < Count(); i_hand++) {
+        String const player_name = (*this)[i_hand].PlayerName();
+        result.Append(player_name);
+    }
 
-	ASSERT(result.Count() <= Count());
-	return result;
+    ASSERT(result.Count() <= Count());
+    return result;
 }
 
 unsigned HandOpts::Count(void) const {
     unsigned const result = mList.size();
 
-	return result;
+    return result;
 }
 
 // Return true if successful, false if canceled.
 bool HandOpts::GetFromClient(Socket& rClient, unsigned handCnt) {
     MakeEmpty();
     bool success = true;
-	for (unsigned i_hand = 0; i_hand < handCnt; i_hand++) {
-	    String hand_opt_string;
+    for (unsigned i_hand = 0; i_hand < handCnt; i_hand++) {
+        String hand_opt_string;
         success = rClient.GetParagraph(hand_opt_string);
         if (!success) {
             break;
         }
-		HandOpt const hand_opt = HandOpt(hand_opt_string);
-		Append(hand_opt);
-	}
+        HandOpt const hand_opt = HandOpt(hand_opt_string);
+        Append(hand_opt);
+    }
 
     return success;
 }
 
 void HandOpts::GetUserChoice(unsigned handCnt) {
-	for (unsigned i_hand = 0; i_hand < handCnt; i_hand++) {
-	    String name;
-		while (name.IsEmpty()) {
-	        std::cout << "Who will play the " 
-				<< ::ordinal(i_hand + 1)
-			    << " hand?\n ('computer' or 'network' or the name of a local user) ";
-			std::getline(std::cin, name);
-			name.Capitalize();
-		}
+    for (unsigned i_hand = 0; i_hand < handCnt; i_hand++) {
+        String name;
+        while (name.IsEmpty()) {
+            std::cout << "Who will play the " 
+                << ::ordinal(i_hand + 1)
+                << " hand?\n ('computer' or 'network' or the name of a local user) ";
+            std::getline(std::cin, name);
+            name.Capitalize();
+        }
 
-		HandOpt opt;
+        HandOpt opt;
 
-	    if (name == "Computer") {
-			// TODO set difficulty
-		    opt.SetPlayerName(name);
-		    opt.SetAutomatic();
+        if (name == "Computer") {
+            // TODO set difficulty
+            opt.SetPlayerName(name);
+            opt.SetAutomatic();
 
-	    } else if (name == "Network") {
-			String remote_name;
+        } else if (name == "Network") {
+            String remote_name;
             while (remote_name.IsEmpty()) {
-	            std::cout << "Name of network player? ";
-			    std::getline(std::cin, remote_name);
-			    remote_name.Capitalize();
-			}
+                std::cout << "Name of network player? ";
+                std::getline(std::cin, remote_name);
+                remote_name.Capitalize();
+            }
 
-			Address address;
-			String address_string;
-			while (address_string != String(address)) {
-	            std::cout << "Network address of " << remote_name << "'s computer? ";
-			    std::cin >> address_string;
-			    address = Address(address_string);
-			}
-			String end_of_line;
-			std::getline(std::cin, end_of_line);
+            Address address;
+            String address_string;
+            while (address_string != String(address)) {
+                std::cout << "Network address of " << remote_name << "'s computer? ";
+                std::cin >> address_string;
+                address = Address(address_string);
+            }
+            String end_of_line;
+            std::getline(std::cin, end_of_line);
 
-			opt.SetRemote();
-			opt.SetAddress(address);
-			opt.SetPlayerName(remote_name);
+            opt.SetRemote();
+            opt.SetAddress(address);
+            opt.SetPlayerName(remote_name);
 
-		} else {
-			opt.SetLocalUser();
-		    opt.SetPlayerName(name);
-		}
-		Append(opt);
-	}
+        } else {
+            opt.SetLocalUser();
+            opt.SetPlayerName(name);
+        }
+        Append(opt);
+    }
 }
 
 void HandOpts::MakeEmpty(void) {
-	mList.clear();
+    mList.clear();
 
-	ASSERT(IsEmpty());
+    ASSERT(IsEmpty());
 }
 
 void HandOpts::Serverize(Address const& rClient, Address const& rServer) {
-	for (unsigned i_hand = 0; i_hand < Count(); i_hand++) {
-		HandOpt &r_hand_opt = (*this)[i_hand];
-		r_hand_opt.Serverize(rClient, rServer);
-	}
+    for (unsigned i_hand = 0; i_hand < Count(); i_hand++) {
+        HandOpt &r_hand_opt = (*this)[i_hand];
+        r_hand_opt.Serverize(rClient, rServer);
+    }
 }
 
 void HandOpts::Truncate(unsigned new_length) {
-	ASSERT(Count() >= new_length);
+    ASSERT(Count() >= new_length);
 
-	while (Count() > new_length) {
+    while (Count() > new_length) {
         mList.pop_back();
-	}
+    }
 
-	ASSERT(Count() == new_length);
+    ASSERT(Count() == new_length);
 }
 
 
 // inquiry methods
 
 bool HandOpts::IsEmpty(void) const {
-	bool result = (Count() == 0);
+    bool result = (Count() == 0);
 
-	return result;
+    return result;
 }

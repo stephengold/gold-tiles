@@ -35,13 +35,13 @@ const String TileCell::SWAP("swap");
 // lifecycle
 
 TileCell::TileCell(void) {
-	mSwapFlag = true;
+    mSwapFlag = true;
 }
 
 TileCell::TileCell(Tile const& rTile):
-    mTile(rTile)
+mTile(rTile)
 {
-	mSwapFlag = true;
+    mSwapFlag = true;
 }
 
 TileCell::TileCell(String const& rString, bool remoteFlag) {
@@ -60,10 +60,10 @@ TileCell::TileCell(String const& rString, bool remoteFlag) {
 }
 
 TileCell::TileCell(Tile const& rTile, Cell const& rCell):
-    mTile(rTile), 
-	mCell(rCell)
+mTile(rTile), 
+    mCell(rCell)
 {
-	mSwapFlag = false;
+    mSwapFlag = false;
 }
 
 // The compiler-generated copy constructor is OK.
@@ -74,7 +74,7 @@ TileCell::TileCell(Tile const& rTile, Cell const& rCell):
 
 bool TileCell::operator!=(TileCell const& rOther) const {
     bool equal = (mTile == rOther.mTile
-               && mSwapFlag == rOther.mSwapFlag);
+        && mSwapFlag == rOther.mSwapFlag);
 
     if (equal && !mSwapFlag) {
         equal = (mCell == rOther.mCell);
@@ -86,7 +86,7 @@ bool TileCell::operator!=(TileCell const& rOther) const {
 
 bool TileCell::operator<(TileCell const& rOther) const {
     bool result;
-     
+
     if (mTile == rOther.mTile) {
         if (mSwapFlag == rOther.mSwapFlag) {
             if (mSwapFlag) {
@@ -100,28 +100,28 @@ bool TileCell::operator<(TileCell const& rOther) const {
     } else {
         result = (mTile < rOther.mTile);
     }
-     
+
     return result;
 }
 
 // The compiler-generated assignment method is OK.
 
 TileCell::operator Cell(void) const {
-	ASSERT(!mSwapFlag);
+    ASSERT(!mSwapFlag);
 
     return mCell;
 }
 
 TileCell::operator String(void) const {
-	String result = String(mTile.Id()) + SEPARATOR;
+    String result = String(mTile.Id()) + SEPARATOR;
 
-	if (IsSwap()) {
-		result += SWAP;
-	} else {
-		result += String(mCell);
-	}
+    if (IsSwap()) {
+        result += SWAP;
+    } else {
+        result += String(mCell);
+    }
 
-	return result;
+    return result;
 }
 
 TileCell::operator Tile(void) const {
@@ -132,30 +132,30 @@ TileCell::operator Tile(void) const {
 // misc methods
 
 String TileCell::Description(void) const {
-	String result = mTile.Description();
+    String result = mTile.Description();
 
-	if (IsSwap()) {
-		result += " to swap area";
-	} else {
-		result += " on " + String(mCell);
-	}
+    if (IsSwap()) {
+        result += " to swap area";
+    } else {
+        result += " on " + String(mCell);
+    }
 
-	return result;
+    return result;
 }
 
 String TileCell::GetUserChoice(Tiles const& rAvailableTiles, Strings const& rAlternatives) {
     String const result = mTile.GetUserChoice(rAvailableTiles, rAlternatives);
-	if (TileOpt(mTile).MatchesDescription(result)) {
+    if (TileOpt(mTile).MatchesDescription(result)) {
         mSwapFlag = mCell.GetUserChoice("swap");
-	}
-	
-	return result;
+    }
+
+    return result;
 }
 
 
 // inquiry methods
 
 bool TileCell::IsSwap(void) const {
-	return mSwapFlag;
+    return mSwapFlag;
 }
 

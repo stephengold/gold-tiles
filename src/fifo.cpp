@@ -30,80 +30,80 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 
 // construct an empty buffer
 Fifo::Fifo(void) {
-	Reset();
+    Reset();
 }
 
 void Fifo::Reset(void) {
-	mConsumedCnt = 0;
-	mValidCnt = 0;
+    mConsumedCnt = 0;
+    mValidCnt = 0;
 
-	ASSERT(IsValid());
-	ASSERT(HasSpace());
+    ASSERT(IsValid());
+    ASSERT(HasSpace());
 }
 
 
 // misc methods
 
 char Fifo::GetByte(void) {
-	ASSERT(IsValid());
-	ASSERT(HasData());
+    ASSERT(IsValid());
+    ASSERT(HasData());
 
-	char const result = mReadBuffer[mConsumedCnt];
-	mConsumedCnt++;
+    char const result = mReadBuffer[mConsumedCnt];
+    mConsumedCnt++;
 
-	ASSERT(IsValid());
-	return result;
+    ASSERT(IsValid());
+    return result;
 }
 
 void Fifo::PostReceive(int byteCnt) {
-	ASSERT(IsValid());
-	ASSERT(byteCnt >= 0);
+    ASSERT(IsValid());
+    ASSERT(byteCnt >= 0);
 
-	mValidCnt += byteCnt;
+    mValidCnt += byteCnt;
 
-	ASSERT(IsValid());
+    ASSERT(IsValid());
 }
 
 void Fifo::PreReceive(char *&rpStart, int &rByteCnt) {
-	ASSERT(IsValid());
-	ASSERT(HasSpace());
+    ASSERT(IsValid());
+    ASSERT(HasSpace());
 
-	if (mConsumedCnt == mValidCnt) {
-		Reset();
-	}
+    if (mConsumedCnt == mValidCnt) {
+        Reset();
+    }
 
-	rpStart = mReadBuffer + mValidCnt;
-	rByteCnt = SIZE - mValidCnt;
+    rpStart = mReadBuffer + mValidCnt;
+    rByteCnt = SIZE - mValidCnt;
 
-	ASSERT(rByteCnt > 0);
-	ASSERT(rpStart != NULL);
+    ASSERT(rByteCnt > 0);
+    ASSERT(rpStart != NULL);
 }
 
 
 // inquiry methods
 
 bool Fifo::HasData(void) const {
-	bool const result = (mConsumedCnt < mValidCnt);
+    bool const result = (mConsumedCnt < mValidCnt);
 
-	return result;
+    return result;
 }
 
 bool Fifo::HasSpace(void) const {
-	bool const result = (mValidCnt < SIZE || mConsumedCnt == mValidCnt);
+    bool const result = (mValidCnt < SIZE || mConsumedCnt == mValidCnt);
 
-	return result;
+    return result;
 }
 
 bool Fifo::IsValid(void) const {
-	bool result = true;
+    bool result = true;
 
-	if (mConsumedCnt < 0
-	 ||	mConsumedCnt > mValidCnt
-	 || mValidCnt < 0
-	 || mValidCnt > SIZE)
-	{
-		result = false;
-	}
+    if (mConsumedCnt < 0
+        || mConsumedCnt > mValidCnt
+        || mValidCnt < 0
+        || mValidCnt > SIZE)
+    {
+        result = false;
+    }
 
-	return result;
+    return result;
 }

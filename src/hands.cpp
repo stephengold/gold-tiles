@@ -28,87 +28,87 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 // misc methods
 
 void Hands::Append(Hand const& rHand) {
-	push_back(rHand);
+    push_back(rHand);
 
-	ASSERT(!IsEmpty());
+    ASSERT(!IsEmpty());
 }
 
 unsigned Hands::Count(void) const {
     unsigned const result = size();
 
-	return result;
+    return result;
 }
 
 Hands::Iterator Hands::Find(String const& rName) {
-	ASSERT(!rName.IsEmpty());
+    ASSERT(!rName.IsEmpty());
 
-	Iterator i_hand;
-	for (i_hand = begin(); i_hand != end(); i_hand++) {
-		if (i_hand->Name() == rName) {
-			return i_hand;
-		}
-	}
+    Iterator i_hand;
+    for (i_hand = begin(); i_hand != end(); i_hand++) {
+        if (i_hand->Name() == rName) {
+            return i_hand;
+        }
+    }
 
     FAIL(); // not found
-	return i_hand;
+    return i_hand;
 }
 
 ScoreType Hands::MaxScore(void) const {
-	ASSERT(!IsEmpty());
+    ASSERT(!IsEmpty());
 
-	ScoreType result = 0;
+    ScoreType result = 0;
 
-	ConstIterator i_hand;
-	for (i_hand = begin(); i_hand != end(); i_hand++) {
-		ScoreType const score = i_hand->Score();
-		if (score > result) {
-			result = score;
-		}
-	}
+    ConstIterator i_hand;
+    for (i_hand = begin(); i_hand != end(); i_hand++) {
+        ScoreType const score = i_hand->Score();
+        if (score > result) {
+            result = score;
+        }
+    }
 
-	return result;
+    return result;
 }
 
 void Hands::Next(ConstIterator& riCurrent) const {
-	// advance const iterator to next hand
-	riCurrent++;
+    // advance const iterator to next hand
+    riCurrent++;
     if (riCurrent >= end()) {
         riCurrent = begin();
     }
 }
 
 void Hands::Next(Iterator& riCurrent) {
-	// advance iterator to next hand
-	riCurrent++;
+    // advance iterator to next hand
+    riCurrent++;
     if (riCurrent >= end()) {
         riCurrent = begin();
     }
 }
 
 void Hands::NextWorking(Iterator& riCurrent) {
-	// advance iterator to next hand which has not resigned
-	Iterator const start = riCurrent;
-	Next(riCurrent);
+    // advance iterator to next hand which has not resigned
+    Iterator const start = riCurrent;
+    Next(riCurrent);
 
-	while (riCurrent->HasResigned() && riCurrent != start) {
-		Next(riCurrent);
-	}
+    while (riCurrent->HasResigned() && riCurrent != start) {
+        Next(riCurrent);
+    }
 }
 
 void Hands::Previous(ConstIterator& riCurrent) const {
-	// advance const iterator to next hand
+    // advance const iterator to next hand
     if (riCurrent == begin()) {
         riCurrent = end();
     }
-	riCurrent--;
+    riCurrent--;
 }
 
 void Hands::Previous(Iterator& riCurrent) {
-	// advance iterator to next hand
+    // advance iterator to next hand
     if (riCurrent == begin()) {
         riCurrent = end();
     }
-	riCurrent--;
+    riCurrent--;
 }
 
 
@@ -119,32 +119,32 @@ bool Hands::HasAnyGoneOut(void) const {
 
     ConstIterator i_hand;
     for (i_hand = begin(); i_hand != end(); i_hand++) {
-	    if (i_hand->HasGoneOut()) {
-	 	    result = true;
-		    break;
-	    }
+        if (i_hand->HasGoneOut()) {
+            result = true;
+            break;
+        }
     }
 
     return result;
 }
 
 bool Hands::HaveAllResigned(void) const {
-	bool result = true;
+    bool result = true;
 
-	ConstIterator i_hand;
+    ConstIterator i_hand;
     for (i_hand = begin(); i_hand != end(); i_hand++) {
-	    if (!i_hand->HasResigned()) {
-		    result = false;
-		    break;
-	    }
+        if (!i_hand->HasResigned()) {
+            result = false;
+            break;
+        }
     }
 
-	return result;
+    return result;
 }
 
 bool Hands::IsEmpty(void) const {
-	bool result = (Count() == 0);
+    bool result = (Count() == 0);
 
-	return result;
+    return result;
 }
 

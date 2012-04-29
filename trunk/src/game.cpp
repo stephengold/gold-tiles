@@ -185,34 +185,24 @@ bool Game::ConnectToServers(void) {
     String question = String(client_address) + " has invited you to play a game with:\n";
     question += String(rGameOpt);  // TODO better description
     question += String(rHandOpts);
-
     question += "Do you accept?";
-    std::cout << question << " (y/n) ";
+    bool const accept = Network::Question(question);
 
-    Address const server_address = rSocket.Local();
-    String yesno;
     Game* p_result = NULL;
-    for (;;) {
-        std::cin >> yesno;
-        yesno.Capitalize();
-        if (yesno.HasPrefix("Y")) {
-            bool const was_successful = rSocket.PutLine(Network::ACCEPT);
-            if (was_successful) {
-                HandOpts server_hand_opts = rHandOpts;
-                server_hand_opts.Serverize(client_address, server_address);
-                p_result = New(rGameOpt, server_hand_opts, rSocket);
-            }
-            break;
-            // The caller should check for NULL and then call p_result->Initialize().
-
-        } else if (yesno.HasPrefix("N")) {
-            rSocket.PutLine(Network::DECLINE);
-
-            rSocket.Close();
-            break;
+    if (!accept) {
+        rSocket.PutLine(Network::DECLINE);
+        rSocket.Close();
+    } else {
+        bool const was_successful = rSocket.PutLine(Network::ACCEPT);
+        if (was_successful) {
+            HandOpts server_hand_opts = rHandOpts;
+            Address const server_address = rSocket.Local();
+            server_hand_opts.Serverize(client_address, server_address);
+            p_result = New(rGameOpt, server_hand_opts, rSocket);
         }
     }
 
+    // The caller should check for NULL and then call p_result->Initialize().
     return p_result;
 }
 
@@ -222,7 +212,6 @@ bool Game::ConnectToServers(void) {
     Game* p_game = NULL;
 
 #ifdef _SERVER
-
     // Act as a server only.
     while (p_game == NULL) {
         std::cout << Network::AddressReport()
@@ -247,8 +236,9 @@ bool Game::ConnectToServers(void) {
         }
     }
 
-#else // !defined(_SERVER)
+#endif // !defined(_SERVER)
 
+#ifdef _CLIENT
     // Act as a client only.
 
     // Let a local user choose game options and hand options.
@@ -261,7 +251,7 @@ bool Game::ConnectToServers(void) {
     Socket const no_client;
     p_game = New(game_opt, hand_opts, no_client);
 
-#endif // !defined(_SERVER)
+#endif // defined(_CLIENT)
 
     ASSERT(p_game != NULL);
     bool const was_successful = p_game->Initialize();
@@ -486,7 +476,6 @@ bool Game::FinishTurn(Move const& rMove) {
         }
         Move const junk_move = Move(junk, true);
         if (junk_move != rMove) {
-            ASSERT(junk_move.IsResign());
             Network::Notice("Game canceled.");
             return false;
         }

@@ -429,11 +429,14 @@ void GameOpt::Validate(void) const {
 #ifdef _CONSOLE
     ASSERT(!mDoesBoardWrap);
     ASSERT(mGrid == GRID_4WAY);
-#endif /* _CONSOLE */
+#endif // defined(_CONSOLE)
     ASSERT(mHandsDealt >= HANDS_DEALT_MIN);
     ASSERT(mHandSize >= HAND_SIZE_MIN);
     ASSERT(mMinutesPerHand >= MINUTES_PER_HAND_MIN);
     ASSERT(mStyle != GAME_STYLE_NONE);
+#ifdef _CONSOLE
+    ASSERT(mStyle != GAME_STYLE_CHALLENGE);
+#endif // defined(_CONSOLE)
 }
 
 

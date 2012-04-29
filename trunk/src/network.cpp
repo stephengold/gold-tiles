@@ -79,13 +79,7 @@ Network::Network(void) {
     while (!success) {
         success = StartServer();
         if (!success) {
-#ifdef _GUI
-            FAIL(); // TODO retry
-#else // !defined(_GUI)
-            std::cout << "Press the Enter key to retry ..." << std::endl;
-            String end_of_line;
-            std::getline(std::cin, end_of_line);
-#endif // !defined(_GUI)
+            Retry("Startup failed.");
         }
     }
 #endif // defined(_SERVER)
@@ -411,6 +405,31 @@ Network::~Network(void) {
     return result;
 }
 
+// Return true if user chooses "yes", false otherwise.
+/* static */ bool Network::Question(String const& rQuestion) {
+#ifdef _GUI
+    ASSERT(mspWindow != NULL);
+    int const accept = mspWindow->QuestionBox(rQuestion, "Gold Tile Game - Network Question");
+    bool const result = (accept == IDYES);
+
+    return result;
+#else // !defined(_GUI)
+    std::cout << rQuestion << " (y/n) ";
+    String yesno;
+    for (;;) {
+        std::cin >> yesno;
+        yesno.Capitalize();
+        if (yesno.HasPrefix("Y")) {
+            break;
+        } else if (yesno.HasPrefix("N")) {
+            return false;
+        }
+    }
+
+    return true;
+#endif // !defined(_GUI)
+}
+
 /* static */ bool Network::Retry(String const& rMessage) {
     bool result = true;
 
@@ -418,6 +437,7 @@ Network::~Network(void) {
     ASSERT(mspWindow != NULL);
     result = mspWindow->RetryBox(rMessage, "Gold Tile Game - Network Retry");
 #else // !defined(_GUI)
+    std::cout << rMessage << std::endl;
     std::cout << "Press the Enter key to retry ..." << std::endl;
     String end_of_line;
     std::getline(std::cin, end_of_line);
@@ -433,3 +453,4 @@ Network::~Network(void) {
     mspWindow = pWindow;
 }
 #endif // defined(_GUI)
+

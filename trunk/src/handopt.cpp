@@ -36,6 +36,8 @@ HandOpt::HandOpt(void) {
 }
 
 HandOpt::HandOpt(String const& rString) {
+    mSkipProbability = 0.0;
+
     Strings const lines(rString, "\n");
     Strings::ConstIterator i_line;
     for (i_line = lines.Begin(); i_line != lines.End(); i_line++) {

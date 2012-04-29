@@ -64,7 +64,7 @@ public:
     Tile::IdType 
                GetTileId(Point const&) const;
     void       LoadPlayerOptions(Player const&);
-    void       Recenter(PixelCntType oldWidth, PixelCntType oldHeight);
+    void       Recenter(void);
     void       Repaint(Canvas&);
     void       ResetTargetCell(void);
     void       SavePlayerOptions(Player&) const;

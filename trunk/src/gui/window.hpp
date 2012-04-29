@@ -57,6 +57,7 @@ public:
     void         InfoBox(TextType message, TextType title);
     int          MessageDispatchLoop(void);
     Win::HDC     PaintDevice(void) const;
+    int          QuestionBox(TextType message, TextType title);
     bool         RetryBox(TextType message, TextType title);
     void         Show(int showHow);
     void         Yields(void);
@@ -76,7 +77,6 @@ protected:
     void  ErrorBox(TextType message, TextType title);
     void  ForceRepaint(void);
     bool  IsMouseCaptured(void) const;
-    int   QuestionBox(TextType message, TextType title);
     void  ReleaseMouse(void);
     void  SelfDestruct(void);
     void  SetAcceleratorTable(TextType resourceName);

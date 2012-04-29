@@ -854,7 +854,7 @@ void GameView::LoadPlayerOptions(Player const& rPlayer) {
     SetTileSize(size);
 }
 
-void GameView::Recenter(PixelCntType oldHeight, PixelCntType oldWidth) {
+void GameView::Recenter(void) {
     if (mpWindow->ClientAreaWidth() > 250 && mpWindow->ClientAreaHeight() > 100) {
         LogicalXType const x = mpWindow->ClientAreaWidth()/2; // TODO
         LogicalYType const y = mpWindow->ClientAreaHeight()/2;

@@ -56,6 +56,7 @@ public:
     static Socket CheckForConnection(void);
     static bool   ConnectToServer(Address const&, Game&);
     static void   Notice(String const&);
+    static bool   Question(String const&);
 #ifdef _GUI
     static void   SetWindow(Window*);
 #endif // defined(_GUI)
@@ -81,3 +82,4 @@ private:
     static bool   StartServer(void);
 };
 #endif // !defined(NETWORK_HPP_INCLUDED)
+

@@ -39,27 +39,27 @@ const ColorType Markings::msColors[Combo::VALUE_CNT_MAX] = {
 // lifecycle
 
 Markings::Markings(Tile const& rTile, DisplayModes const& rDisplayModes) {
-	mMarkingColor = msColors[0];
-	AttrIndexType i_marking = 0;
+    mMarkingColor = msColors[0];
+    AttrIndexType i_marking = 0;
 
     for (AttrIndexType i_attr = 0; i_attr < Combo::AttributeCnt(); i_attr++) {
-		 AttrModeType const display_mode = rDisplayModes.Mode(i_attr);
-		 AttrType const attr_value = rTile.Attribute(i_attr);
-		 ASSERT(attr_value < Combo::VALUE_CNT_MAX);
+        AttrModeType const display_mode = rDisplayModes.Mode(i_attr);
+        AttrType const attr_value = rTile.Attribute(i_attr);
+        ASSERT(attr_value < Combo::VALUE_CNT_MAX);
 
-		 if (display_mode == ATTR_MODE_COLOR) {
-	         mMarkingColor = msColors[attr_value];
-		 } else {
-			 ASSERT(i_marking < MARKING_CNT_MAX);
-			 mModes[i_marking] = display_mode;
-             mMarkings[i_marking] = attr_value;
-			 i_marking++;
-		 }
+        if (display_mode == ATTR_MODE_COLOR) {
+            mMarkingColor = msColors[attr_value];
+        } else {
+            ASSERT(i_marking < MARKING_CNT_MAX);
+            mModes[i_marking] = display_mode;
+            mMarkings[i_marking] = attr_value;
+            i_marking++;
+        }
     }
 
-	mMarkingCnt = i_marking;
-	ASSERT(mMarkingCnt > 0);
-	ASSERT(mMarkingCnt <= MARKING_CNT_MAX);
+    mMarkingCnt = i_marking;
+    ASSERT(mMarkingCnt > 0);
+    ASSERT(mMarkingCnt <= MARKING_CNT_MAX);
 }
 
 // The compiler-generated copy constructor is fine.
@@ -74,12 +74,12 @@ Markings::Markings(Tile const& rTile, DisplayModes const& rDisplayModes) {
 // misc methods
 
 AttrType Markings::Marking(AttrIndexType ind) const {
-	ASSERT(ind < mMarkingCnt);
+    ASSERT(ind < mMarkingCnt);
 
-	AttrType const result = mMarkings[ind];
+    AttrType const result = mMarkings[ind];
 
-	ASSERT(result < Combo::VALUE_CNT_MAX);
-	return result;
+    ASSERT(result < Combo::VALUE_CNT_MAX);
+    return result;
 }
 
 AttrCntType Markings::MarkingCnt(void) const {
@@ -87,13 +87,13 @@ AttrCntType Markings::MarkingCnt(void) const {
 }
 
 ColorType Markings::MarkingColor(void) const {
-	return mMarkingColor;
+    return mMarkingColor;
 }
 
 AttrModeType Markings::Mode(AttrIndexType index) const {
-	ASSERT(index < mMarkingCnt);
+    ASSERT(index < mMarkingCnt);
 
-	AttrModeType const result = mModes[index];
+    AttrModeType const result = mModes[index];
 
-	return result;
+    return result;
 }

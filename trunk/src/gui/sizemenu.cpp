@@ -33,7 +33,7 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 #ifdef _QT
 
 SizeMenu::SizeMenu(void):
-    SubMenu(tr("&Tile Size")),
+SubMenu(tr("&Tile Size")),
     mSize1(Qt(), "&1 Tiny"),
     mSize2(Qt(), "&2 Small"),
     mSize3(Qt(), "&3 Smallish"),
@@ -54,7 +54,7 @@ SizeMenu::SizeMenu(void):
 #elif defined(_WINDOWS)
 
 SizeMenu::SizeMenu(Menu const& rRootMenu, unsigned position):
-	SubMenu(rRootMenu, position),
+SubMenu(rRootMenu, position),
     mSize1(rRootMenu, IDM_TS1, IDM_TS7, IDM_TS1),
     mSize2(rRootMenu, IDM_TS1, IDM_TS7, IDM_TS2),
     mSize3(rRootMenu, IDM_TS1, IDM_TS7, IDM_TS3),
@@ -82,29 +82,29 @@ void SizeMenu::EnableItems(void) {
 }
 
 void SizeMenu::SetSize(unsigned size) {
-	switch (size) {
- 	    case 1:
-	        mSize1.CheckRadio(true);
-			break;
- 	    case 2:
-	        mSize2.CheckRadio(true);
-			break;
- 	    case 3:
-	        mSize3.CheckRadio(true);
-			break;
- 	    case 4:
-	        mSize4.CheckRadio(true);
-			break;
- 	    case 5:
-	        mSize5.CheckRadio(true);
-			break;
- 	    case 6:
-	        mSize6.CheckRadio(true);
-			break;
- 	    case 7:
-	        mSize7.CheckRadio(true);
-			break;
-		default:
-			FAIL();
-	}
+    switch (size) {
+    case 1:
+        mSize1.CheckRadio(true);
+        break;
+    case 2:
+        mSize2.CheckRadio(true);
+        break;
+    case 3:
+        mSize3.CheckRadio(true);
+        break;
+    case 4:
+        mSize4.CheckRadio(true);
+        break;
+    case 5:
+        mSize5.CheckRadio(true);
+        break;
+    case 6:
+        mSize6.CheckRadio(true);
+        break;
+    case 7:
+        mSize7.CheckRadio(true);
+        break;
+    default:
+        FAIL();
+    }
 }

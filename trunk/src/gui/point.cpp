@@ -51,28 +51,28 @@ Point::Point(POINTS const &pt) {
 bool Point::operator==(Point const& rOther) const {
     bool const result = (mX == rOther.mX && mY == rOther.mY);
 
-	return result;
+    return result;
 }
 
 Point::operator POINT(void) const {
     POINT result;
     result.x = mX;
     result.y = mY;
-    
+
     return result;
 }
 
 Point::operator POINTS(void) const {
     POINTS result;
 
-	ASSERT(mX <= SHRT_MAX);
-	ASSERT(mX >= SHRT_MIN);
+    ASSERT(mX <= SHRT_MAX);
+    ASSERT(mX >= SHRT_MIN);
     result.x = SHORT(mX);
 
-	ASSERT(mY <= SHRT_MAX);
-	ASSERT(mY >= SHRT_MIN);
+    ASSERT(mY <= SHRT_MAX);
+    ASSERT(mY >= SHRT_MIN);
     result.y = SHORT(mY);
-    
+
     return result;
 }
 
@@ -80,11 +80,11 @@ Point::operator POINTS(void) const {
 // misc methods
 
 PixelCntType Point::Distance(Point const& rOther) const {
-	PixelCntType const dx = ::abs(mX - rOther.mX);
-	PixelCntType const dy = ::abs(mY - rOther.mY);
-	PixelCntType const result = max(dx, dy);
+    PixelCntType const dx = ::abs(mX - rOther.mX);
+    PixelCntType const dy = ::abs(mY - rOther.mY);
+    PixelCntType const result = max(dx, dy);
 
-	return result;
+    return result;
 }
 
 void Point::Offset(long dx, long dy) {

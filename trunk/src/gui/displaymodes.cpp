@@ -30,23 +30,23 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 // lifecycle
 
 DisplayModes::DisplayModes(void) {
-	for (AttrIndexType i_attr = 0; i_attr < Combo::ATTRIBUTE_CNT_MAX; i_attr++) {
-		AttrModeType const mode = Combo::DefaultDisplayMode(i_attr);
-		ASSERT(mode >= ATTR_MODE_MIN);
-		ASSERT(mode <= ATTR_MODE_MAX);
+    for (AttrIndexType i_attr = 0; i_attr < Combo::ATTRIBUTE_CNT_MAX; i_attr++) {
+        AttrModeType const mode = Combo::DefaultDisplayMode(i_attr);
+        ASSERT(mode >= ATTR_MODE_MIN);
+        ASSERT(mode <= ATTR_MODE_MAX);
 
-		mArray[i_attr] = mode;
-	}
+        mArray[i_attr] = mode;
+    }
 }
 
 DisplayModes::DisplayModes(DisplayModes const& rOther) {
-	for (AttrIndexType i_attr = 0; i_attr < Combo::ATTRIBUTE_CNT_MAX; i_attr++) {
-		AttrModeType const mode = rOther.mArray[i_attr];
-		ASSERT(mode >= ATTR_MODE_MIN);
-		ASSERT(mode <= ATTR_MODE_MAX);
+    for (AttrIndexType i_attr = 0; i_attr < Combo::ATTRIBUTE_CNT_MAX; i_attr++) {
+        AttrModeType const mode = rOther.mArray[i_attr];
+        ASSERT(mode >= ATTR_MODE_MIN);
+        ASSERT(mode <= ATTR_MODE_MAX);
 
-		mArray[i_attr] = mode;
-	}
+        mArray[i_attr] = mode;
+    }
 }
 
 // The compiler-generated destructor is OK.
@@ -55,15 +55,15 @@ DisplayModes::DisplayModes(DisplayModes const& rOther) {
 // operators
 
 DisplayModes& DisplayModes::operator=(DisplayModes const& rOther) {
-	for (AttrIndexType i_attr = 0; i_attr < Combo::ATTRIBUTE_CNT_MAX; i_attr++) {
-		AttrModeType const mode = rOther.mArray[i_attr];
-		ASSERT(mode >= ATTR_MODE_MIN);
-		ASSERT(mode <= ATTR_MODE_MAX);
+    for (AttrIndexType i_attr = 0; i_attr < Combo::ATTRIBUTE_CNT_MAX; i_attr++) {
+        AttrModeType const mode = rOther.mArray[i_attr];
+        ASSERT(mode >= ATTR_MODE_MIN);
+        ASSERT(mode <= ATTR_MODE_MAX);
 
-		mArray[i_attr] = mode;
-	}
+        mArray[i_attr] = mode;
+    }
 
-	return *this;
+    return *this;
 }
 
 
@@ -71,87 +71,87 @@ DisplayModes& DisplayModes::operator=(DisplayModes const& rOther) {
 
 // clean up  display modes for the start of a new game
 void DisplayModes::Cleanup(void) {
-	// can't display more than 4 markings per tile
-	AttrCntType const marking_cnt = MarkingCnt();
-	if (marking_cnt > Markings::MARKING_CNT_MAX) {
-		AttrModeType const mode = ATTR_MODE_COLOR;
-		SetMode(0, mode);
-	}
+    // can't display more than 4 markings per tile
+    AttrCntType const marking_cnt = MarkingCnt();
+    if (marking_cnt > Markings::MARKING_CNT_MAX) {
+        AttrModeType const mode = ATTR_MODE_COLOR;
+        SetMode(0, mode);
+    }
 
-	// only one attribute can use color
-	while (ColorCnt() > 1) {
-		AttrIndexType const ind = SecondColorIndex();
-		AttrModeType const mode = ATTR_MODE_MIN;
-		SetMode(ind, mode);
-	}
+    // only one attribute can use color
+    while (ColorCnt() > 1) {
+        AttrIndexType const ind = SecondColorIndex();
+        AttrModeType const mode = ATTR_MODE_MIN;
+        SetMode(ind, mode);
+    }
 
-	ASSERT(ColorCnt() <= 1);
-	ASSERT(MarkingCnt() <= Markings::MARKING_CNT_MAX);
+    ASSERT(ColorCnt() <= 1);
+    ASSERT(MarkingCnt() <= Markings::MARKING_CNT_MAX);
 }
 
 AttrCntType DisplayModes::ColorCnt(void) const {
-	AttrIndexType result = 0;
-	for (AttrIndexType i_attr = 0; i_attr < Combo::AttributeCnt(); i_attr++) {
-		if (IsColor(i_attr)) {
-			result++;
-		}
-	}
+    AttrIndexType result = 0;
+    for (AttrIndexType i_attr = 0; i_attr < Combo::AttributeCnt(); i_attr++) {
+        if (IsColor(i_attr)) {
+            result++;
+        }
+    }
 
-	return result;
+    return result;
 }
 
 AttrCntType DisplayModes::MarkingCnt(void) const {
-	AttrCntType result = 0;
-	for (AttrIndexType i_attr = 0; i_attr < Combo::AttributeCnt(); i_attr++) {
-		if (!IsColor(i_attr)) {
-			result++;
-		}
-	}
+    AttrCntType result = 0;
+    for (AttrIndexType i_attr = 0; i_attr < Combo::AttributeCnt(); i_attr++) {
+        if (!IsColor(i_attr)) {
+            result++;
+        }
+    }
 
-	return result;
+    return result;
 }
 
 AttrModeType DisplayModes::Mode(AttrIndexType ind) const {
-	ASSERT(ind < Combo::ATTRIBUTE_CNT_MAX);
+    ASSERT(ind < Combo::ATTRIBUTE_CNT_MAX);
 
-	AttrModeType const result = mArray[ind];
+    AttrModeType const result = mArray[ind];
 
-	ASSERT(result >= ATTR_MODE_MIN);
-	ASSERT(result <= ATTR_MODE_MAX);
-	return result;
+    ASSERT(result >= ATTR_MODE_MIN);
+    ASSERT(result <= ATTR_MODE_MAX);
+    return result;
 }
 
 AttrIndexType DisplayModes::SecondColorIndex(void) const {
-	AttrCntType count = 0;
-	for (AttrIndexType i_attr = 0; i_attr < Combo::AttributeCnt(); i_attr++) {
-		AttrModeType const mode = Mode(i_attr);
-		if (mode == ATTR_MODE_COLOR) {
-			count++;
-			if (count == 2) {
-				ASSERT(i_attr > 0);
-				return i_attr;
-			}
-		}
-	}
+    AttrCntType count = 0;
+    for (AttrIndexType i_attr = 0; i_attr < Combo::AttributeCnt(); i_attr++) {
+        AttrModeType const mode = Mode(i_attr);
+        if (mode == ATTR_MODE_COLOR) {
+            count++;
+            if (count == 2) {
+                ASSERT(i_attr > 0);
+                return i_attr;
+            }
+        }
+    }
 
-	FAIL();
-	return 0;
+    FAIL();
+    return 0;
 }
 
 void DisplayModes::SetMode(AttrIndexType ind, AttrModeType mode) {
-	ASSERT(ind < Combo::ATTRIBUTE_CNT_MAX);
-	ASSERT(mode >= ATTR_MODE_MIN);
-	ASSERT(mode <= ATTR_MODE_MAX);
+    ASSERT(ind < Combo::ATTRIBUTE_CNT_MAX);
+    ASSERT(mode >= ATTR_MODE_MIN);
+    ASSERT(mode <= ATTR_MODE_MAX);
 
-	mArray[ind] = mode;
+    mArray[ind] = mode;
 }
 
 
 // inquiry methods
 
 bool DisplayModes::IsColor(AttrIndexType ind) const {
-	AttrModeType const mode = Mode(ind);
-	bool const result = (mode == ATTR_MODE_COLOR);
+    AttrModeType const mode = Mode(ind);
+    bool const result = (mode == ATTR_MODE_COLOR);
 
-	return result;
+    return result;
 }

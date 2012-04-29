@@ -30,149 +30,149 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 
 // message handler (callback) for this dialog
 static INT_PTR CALLBACK message_handler(
-	HWND windowHandle,
-	MessageType message,
-	WPARAM wParameter, 
-	LPARAM lParameter)
+    HWND windowHandle,
+    MessageType message,
+    WPARAM wParameter, 
+    LPARAM lParameter)
 {
-	lParameter;  // unused parameter
-	ASSERT(windowHandle != NULL);
+    lParameter;  // unused parameter
+    ASSERT(windowHandle != NULL);
     HandBox* p_box = (HandBox*)BaseWindow::Lookup(windowHandle);
     ASSERT(HWND(*p_box) == windowHandle);
-	INT_PTR const result = p_box->HandleMessage(message, wParameter);
+    INT_PTR const result = p_box->HandleMessage(message, wParameter);
 
-	return result;
+    return result;
 }
 
 
 // lifecycle
 
 HandBox::HandBox(unsigned handIndex, unsigned handCnt, HandOpt const& rOptions):
-    Dialog("HANDBOX", &message_handler),
-	mOptions(rOptions)
+Dialog("HANDBOX", &message_handler),
+    mOptions(rOptions)
 {
-	mAreMoreHands = (handIndex < handCnt);
-	mHandCnt = handCnt;
-	mHandIndex = handIndex;
+    mAreMoreHands = (handIndex < handCnt);
+    mHandCnt = handCnt;
+    mHandIndex = handIndex;
 }
 
 
 // operators
 
 HandBox::operator HandOpt(void) const {
-	return mOptions;
+    return mOptions;
 }
 
 
 // misc methods
 
 void HandBox::HandleButtonClick(IdType buttonId) {
-	switch (buttonId) {
-		case IDC_RADIOAUTO:
-            mOptions.SetAutomatic();
-			UpdateNameBox("Computer");
-            break;
+    switch (buttonId) {
+    case IDC_RADIOAUTO:
+        mOptions.SetAutomatic();
+        UpdateNameBox("Computer");
+        break;
 
-		case IDC_RADIOLOCAL:
-			mOptions.SetLocalUser();
-		    if (mOptions.PlayerName() == "Computer") {
-				UpdateNameBox("User");
-			}
-            break;
-				
-		case IDC_RADIOREMOTE:
-            mOptions.SetRemote();
-		    if (mOptions.PlayerName() == "Computer") {
-				UpdateNameBox("Remote Player");
-			}
-            break;
-	}
-
-	UpdateButtons();
-}
-				
-INT_PTR HandBox::HandleMessage(MessageType message, WPARAM wParam) {
-	INT_PTR result = FALSE;
-
-    switch (message) {
-        case WM_INITDIALOG: {
-		    Dialog::HandleMessage(message, wParam);
-
-			String message = "Who will play the ";
-			if (mAreMoreHands) {
-				message += ::ordinal(mHandIndex) + " of the ";
-				message += String(mHandCnt) + " hands?";
-			} else if (mHandIndex == 1) {
-				message += "hand?";
-			} else {
-				message += "last of the ";
-				message += String(mHandCnt) + " hands?";
-			}
-			SetTextString(IDC_WHO, message);
-
-			if (!mAreMoreHands) {
-			    SetTextString(IDOK, "Start Game");
-			}
-
-	        EnableControl(IDC_RADIOAUTO, true);
-			EnableControl(IDC_RADIOLOCAL, true);
-	        EnableControl(IDC_RADIOREMOTE, true);
-
-			SetSliderRange(IDC_SLIDER1, 0, LEVEL_MAX);
-			Address const address = mOptions;
-			SetAddress(IDC_IPADDRESS1, address);
-			UpdateButtons();
-			String const name = mOptions.PlayerName();
-			UpdateNameBox(name);
-			UpdateSlider();
-
-			result = TRUE;
-			break;
+    case IDC_RADIOLOCAL:
+        mOptions.SetLocalUser();
+        if (mOptions.PlayerName() == "Computer") {
+            UpdateNameBox("User");
         }
+        break;
 
-        case WM_COMMAND: {
-            IdType const control_id = LOWORD(wParam);
-			int const notification_code = HIWORD(wParam);
-            switch (control_id) {
-			    case IDC_IPADDRESS1:
-					if (notification_code == EN_CHANGE) {
-						Address const address = GetAddress(control_id);
-						mOptions.SetAddress(address);
-					}
-				    break;
-
-                case IDC_EDITNAME:
-					if (notification_code == EN_CHANGE) {
-                        String const name = GetTextString(control_id);
-					    mOptions.SetPlayerName(name);
-					    bool const good_name = mOptions.HasValidName();
-	                    EnableControl(IDOK, good_name);
-					}
- 					break;
-
-				case IDC_RADIOAUTO:
-				case IDC_RADIOLOCAL:
-				case IDC_RADIOREMOTE:
-					if (notification_code == BN_CLICKED) {
-					    HandleButtonClick(control_id);
-					}
-					break;
-            }
-			break;
-		}
-
-		case WM_HSCROLL:
-		case WM_VSCROLL: {
-            ValueType const value = GetSliderValue(IDC_SLIDER1);
-			double const prob = double(LEVEL_MAX - value)/10.0;
-			mOptions.SetSkipProbability(prob);
-			break;
-		}
+    case IDC_RADIOREMOTE:
+        mOptions.SetRemote();
+        if (mOptions.PlayerName() == "Computer") {
+            UpdateNameBox("Remote Player");
+        }
+        break;
     }
 
-	if (result == FALSE) {
-		result = Dialog::HandleMessage(message, wParam);
-	}
+    UpdateButtons();
+}
+
+INT_PTR HandBox::HandleMessage(MessageType message, WPARAM wParam) {
+    INT_PTR result = FALSE;
+
+    switch (message) {
+    case WM_INITDIALOG: {
+        Dialog::HandleMessage(message, wParam);
+
+        String message = "Who will play the ";
+        if (mAreMoreHands) {
+            message += ::ordinal(mHandIndex) + " of the ";
+            message += String(mHandCnt) + " hands?";
+        } else if (mHandIndex == 1) {
+            message += "hand?";
+        } else {
+            message += "last of the ";
+            message += String(mHandCnt) + " hands?";
+        }
+        SetTextString(IDC_WHO, message);
+
+        if (!mAreMoreHands) {
+            SetTextString(IDOK, "Start Game");
+        }
+
+        EnableControl(IDC_RADIOAUTO, true);
+        EnableControl(IDC_RADIOLOCAL, true);
+        EnableControl(IDC_RADIOREMOTE, true);
+
+        SetSliderRange(IDC_SLIDER1, 0, LEVEL_MAX);
+        Address const address = mOptions;
+        SetAddress(IDC_IPADDRESS1, address);
+        UpdateButtons();
+        String const name = mOptions.PlayerName();
+        UpdateNameBox(name);
+        UpdateSlider();
+
+        result = TRUE;
+        break;
+                        }
+
+    case WM_COMMAND: {
+        IdType const control_id = LOWORD(wParam);
+        int const notification_code = HIWORD(wParam);
+        switch (control_id) {
+        case IDC_IPADDRESS1:
+            if (notification_code == EN_CHANGE) {
+                Address const address = GetAddress(control_id);
+                mOptions.SetAddress(address);
+            }
+            break;
+
+        case IDC_EDITNAME:
+            if (notification_code == EN_CHANGE) {
+                String const name = GetTextString(control_id);
+                mOptions.SetPlayerName(name);
+                bool const good_name = mOptions.HasValidName();
+                EnableControl(IDOK, good_name);
+            }
+            break;
+
+        case IDC_RADIOAUTO:
+        case IDC_RADIOLOCAL:
+        case IDC_RADIOREMOTE:
+            if (notification_code == BN_CLICKED) {
+                HandleButtonClick(control_id);
+            }
+            break;
+        }
+        break;
+                     }
+
+    case WM_HSCROLL:
+    case WM_VSCROLL: {
+        ValueType const value = GetSliderValue(IDC_SLIDER1);
+        double const prob = double(LEVEL_MAX - value)/10.0;
+        mOptions.SetSkipProbability(prob);
+        break;
+                     }
+    }
+
+    if (result == FALSE) {
+        result = Dialog::HandleMessage(message, wParam);
+    }
 
     return result;
 }
@@ -182,12 +182,12 @@ void HandBox::UpdateButtons(void) {
     SetButton(IDC_RADIOLOCAL, mOptions.IsLocalUser());
     SetButton(IDC_RADIOREMOTE, mOptions.IsRemote());
 
-	EnableControl(IDC_IPADDRESS1, mOptions.IsRemote());
-	EnableControl(IDC_SLIDER1, mOptions.IsAutomatic());
+    EnableControl(IDC_IPADDRESS1, mOptions.IsRemote());
+    EnableControl(IDC_SLIDER1, mOptions.IsAutomatic());
 }
 
 void HandBox::UpdateNameBox(String const& rName) {
-	mOptions.SetPlayerName(rName);
+    mOptions.SetPlayerName(rName);
     SetTextString(IDC_EDITNAME, rName);
 
     bool const good_name = mOptions.HasValidName();
@@ -195,10 +195,10 @@ void HandBox::UpdateNameBox(String const& rName) {
 }
 
 void HandBox::UpdateSlider(void) {
-	double const prob = mOptions.SkipProbability();
-	ValueType const level = LEVEL_MAX - ValueType(0.5 + 10.0*prob);
-	ValueType const new_level = SetSliderValue(IDC_SLIDER1, level);
-	double const new_prob = double(LEVEL_MAX - new_level)/10.0;
-	mOptions.SetSkipProbability(new_prob);
+    double const prob = mOptions.SkipProbability();
+    ValueType const level = LEVEL_MAX - ValueType(0.5 + 10.0*prob);
+    ValueType const new_level = SetSliderValue(IDC_SLIDER1, level);
+    double const new_prob = double(LEVEL_MAX - new_level)/10.0;
+    mOptions.SetSkipProbability(new_prob);
 }
 #endif // defined(_WINDOWS)

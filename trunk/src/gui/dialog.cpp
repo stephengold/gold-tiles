@@ -36,93 +36,93 @@ namespace Win {
 
 // message handler (callback) for generic dialog
 static INT_PTR CALLBACK message_handler(
-	HWND windowHandle,
-	MessageType message,
-	WPARAM wParameter, 
-	LPARAM lParameter)
+    HWND windowHandle,
+    MessageType message,
+    WPARAM wParameter, 
+    LPARAM lParameter)
 {
-	lParameter; // unused parameter
-	ASSERT(windowHandle != NULL);
+    lParameter; // unused parameter
+    ASSERT(windowHandle != NULL);
     Dialog* p_dialog = (Dialog*)BaseWindow::Lookup(windowHandle);
 
-	INT_PTR result;
+    INT_PTR result;
     ASSERT(HWND(*p_dialog) == windowHandle);
     result = p_dialog->HandleMessage(message, wParameter);
 
-	return result;
+    return result;
 }
 
 
 // lifecycle
 
 Dialog::Dialog(TextType templateName) {
-	mTemplateName = templateName;
-	mpMessageHandler = &message_handler;
+    mTemplateName = templateName;
+    mpMessageHandler = &message_handler;
 }
 
 Dialog::Dialog(TextType templateName, DLGPROC messageHandler) {
-	mTemplateName = templateName;
-	mpMessageHandler = messageHandler;
+    mTemplateName = templateName;
+    mpMessageHandler = messageHandler;
 }
 
 int Dialog::Run(BaseWindow* pParent) {
-	ASSERT(pParent != NULL);
-	mspNewlyCreatedWindow = this;
+    ASSERT(pParent != NULL);
+    mspNewlyCreatedWindow = this;
 
-	// create a modal dialog box
-	HINSTANCE const module = CopyModule(*pParent);
-	HWND const parent_handle = HWND(*pParent);
-	INT_PTR const result = Win::DialogBox(module, mTemplateName, parent_handle, mpMessageHandler);
+    // create a modal dialog box
+    HINSTANCE const module = CopyModule(*pParent);
+    HWND const parent_handle = HWND(*pParent);
+    INT_PTR const result = Win::DialogBox(module, mTemplateName, parent_handle, mpMessageHandler);
 
-	ASSERT(result > 0);
-	return int(result);
+    ASSERT(result > 0);
+    return int(result);
 }
 
 
 // misc methods
 
 Dialog::ValueType Dialog::AddListboxItem(IdType listboxId, TextType text) {
-	HWND const listbox_handle = GetControlHandle(listboxId);
+    HWND const listbox_handle = GetControlHandle(listboxId);
 
-	WPARAM const unused = 0;
-	LRESULT const success = Win::SendMessage(listbox_handle, LB_ADDSTRING, unused, LPARAM(text));
-	ASSERT(success != LB_ERR);
-	ValueType result = success;
+    WPARAM const unused = 0;
+    LRESULT const success = Win::SendMessage(listbox_handle, LB_ADDSTRING, unused, LPARAM(text));
+    ASSERT(success != LB_ERR);
+    ValueType result = success;
 
-	return result;
+    return result;
 }
 
 void Dialog::Close(int dialogResult) {
-	HWND const window = HWND(*this);
+    HWND const window = HWND(*this);
     Win::EndDialog(window, INT_PTR(dialogResult));
 }
 
 void Dialog::EnableControl(IdType controlId, bool enable) {
     HWND const control_handle = GetControlHandle(controlId);
-	BOOL const enable_flag = enable ? TRUE : FALSE;
-	Win::EnableWindow(control_handle, enable_flag);
+    BOOL const enable_flag = enable ? TRUE : FALSE;
+    Win::EnableWindow(control_handle, enable_flag);
 }
 
 // Get the address from an IP address control.
 Address Dialog::GetAddress(IdType ipAddressControlId) {
-	HWND const control_handle = GetControlHandle(ipAddressControlId);
+    HWND const control_handle = GetControlHandle(ipAddressControlId);
 
-	WPARAM const unused = 0;
-	DWORD ipv4_address = 0;
+    WPARAM const unused = 0;
+    DWORD ipv4_address = 0;
     Win::SendMessage(control_handle, IPM_GETADDRESS, unused, LPARAM(&ipv4_address));
     ipv4_address = Win::htonl(ipv4_address); // reverse byte order
-	Address const result(ipv4_address);
-	    
+    Address const result(ipv4_address);
+
     return result;
 }
 
 // Get the window handle for a particular control.
 HWND Dialog::GetControlHandle(IdType controlId) const {
-	HWND const window_handle = HWND(*this);
+    HWND const window_handle = HWND(*this);
     HWND const result = Win::GetDlgItem(window_handle, controlId);
     ASSERT(result != NULL);
 
-	return result;
+    return result;
 }
 
 // fetch the numeric value of a listbox control
@@ -130,31 +130,31 @@ Dialog::ValueType Dialog::GetListboxSelection(IdType sliderId) {
     HWND const listbox_handle = GetControlHandle(sliderId);
 
     // Get selected index.
-	WPARAM const unused_w = 0;
-	LPARAM const unused_l = 0;
+    WPARAM const unused_w = 0;
+    LPARAM const unused_l = 0;
     ValueType const result = Win::SendMessage(listbox_handle, LB_GETCURSEL, unused_w, unused_l);
-	ASSERT(result != LB_ERR);
-    
+    ASSERT(result != LB_ERR);
+
     return result;
 }
 
 // fetch the numeric value of a slider control
 Dialog::ValueType Dialog::GetSliderValue(IdType sliderId) {
     HWND const slider_handle = GetControlHandle(sliderId);
-	WPARAM const unused_w = 0;
-	LPARAM const unused_l = 0;
+    WPARAM const unused_w = 0;
+    LPARAM const unused_l = 0;
     ValueType const result = Win::SendMessage(slider_handle, TBM_GETPOS, unused_w, unused_l);
-    
+
     return result;
 }
 
 // get the text value of a label or editbox control
 String Dialog::GetTextString(IdType controlId) {
-	HWND const window_handle = HWND(*this);
-	char buffer[256];
-	int const buffer_size = 256;
+    HWND const window_handle = HWND(*this);
+    char buffer[256];
+    int const buffer_size = 256;
     UINT success = Win::GetDlgItemText(window_handle, controlId, buffer, buffer_size);
-	ASSERT(success >= 0);
+    ASSERT(success >= 0);
 
     String const result = String(buffer);
 
@@ -163,93 +163,93 @@ String Dialog::GetTextString(IdType controlId) {
 
 // get the numeric value of a label or editbox control
 Dialog::ValueType Dialog::GetTextValue(IdType controlId) {
-	HWND window_handle = HWND(*this);
+    HWND window_handle = HWND(*this);
 
     BOOL success = FALSE;
     BOOL const sign = FALSE;
     ValueType result = Win::GetDlgItemInt(window_handle, controlId, &success, sign);
     if (!success) {
-		result = VALUE_INVALID;
-	}
-    
+        result = VALUE_INVALID;
+    }
+
     return result;
 }
 
 INT_PTR Dialog::HandleMessage(UINT message, WPARAM wParam) {
-	INT_PTR result = FALSE;
+    INT_PTR result = FALSE;
 
     switch (message) {
-        case WM_INITDIALOG:
-		    Center();
+    case WM_INITDIALOG:
+        Center();
+        result = TRUE;
+        break;
+
+    case WM_COMMAND: {
+        IdType const id = LOWORD(wParam);
+        switch (id) {
+        case IDCANCEL:
+            Close(RESULT_CANCEL);
             result = TRUE;
-			break;
-
-        case WM_COMMAND: {
-			IdType const id = LOWORD(wParam);
-            switch (id) {
-                case IDCANCEL:
-                    Close(RESULT_CANCEL);
-                    result = TRUE;
-					break;
-                case IDOK:
-                    Close(RESULT_OK);
-                    result = TRUE;
-					break;
-                case IDC_BACK:
-                    Close(RESULT_BACK);
-                    result = TRUE;
-					break;
-            }
             break;
-		}
+        case IDOK:
+            Close(RESULT_OK);
+            result = TRUE;
+            break;
+        case IDC_BACK:
+            Close(RESULT_BACK);
+            result = TRUE;
+            break;
+        }
+        break;
+                     }
 
-	    default:
-			break;
+    default:
+        break;
     }
 
     return result;
 }
 
 TextType Dialog::Name(void) const {
-	return "Dialog Box - Gold Tile";
+    return "Dialog Box - Gold Tile";
 }
 
 // Set the address of an IP address control.
 void Dialog::SetAddress(IdType ipAddressControlId, Address const& rAddress) {
-	HWND const control_handle = GetControlHandle(ipAddressControlId);
-	DWORD const ipv4_address = Win::ntohl(rAddress); // reverse byte order
+    HWND const control_handle = GetControlHandle(ipAddressControlId);
+    DWORD const ipv4_address = Win::ntohl(rAddress); // reverse byte order
 
-	WPARAM const wparam = 0;
-	LPARAM const lparam = LPARAM(ipv4_address);
+    WPARAM const wparam = 0;
+    LPARAM const lparam = LPARAM(ipv4_address);
     Win::SendMessage(control_handle, IPM_SETADDRESS, wparam, lparam);
 }
 
 void Dialog::SetButton(IdType buttonId, bool value) {
-	HWND const button_handle = GetControlHandle(buttonId);
+    HWND const button_handle = GetControlHandle(buttonId);
 
-	WPARAM const wparam = value ? BST_CHECKED : BST_UNCHECKED;
-	LPARAM const unused = 0;
+    WPARAM const wparam = value ? BST_CHECKED : BST_UNCHECKED;
+    LPARAM const unused = 0;
     Win::SendMessage(button_handle, BM_SETCHECK, wparam, unused);
 }
 
 void Dialog::SetListboxSelection(IdType listboxId, ValueType position) {
-	HWND const listbox_handle = GetControlHandle(listboxId);
+    HWND const listbox_handle = GetControlHandle(listboxId);
 
-	LPARAM unused = 0;
-	WPARAM wparam = WPARAM(-1);
-	if (position != VALUE_INVALID) {
-		wparam = WPARAM(position);
-	}
-	LRESULT const success = Win::SendMessage(listbox_handle, LB_SETCURSEL, wparam, unused);
-	ASSERT(success != LB_ERR || wparam == -1);
+    LPARAM unused = 0;
+    WPARAM wparam = WPARAM(-1);
+    if (position != VALUE_INVALID) {
+        wparam = WPARAM(position);
+    }
+    LRESULT const success = Win::SendMessage(listbox_handle, LB_SETCURSEL, wparam, unused);
+    ASSERT(success != LB_ERR || wparam == -1);
 }
 
 void Dialog::SetSliderRange(IdType sliderId, ValueType minValue, ValueType maxValue) {
     ASSERT(minValue < maxValue);
-	ASSERT(maxValue < VALUE_INVALID);
+    ASSERT(maxValue < VALUE_INVALID);
 
     HWND const slider_handle = GetControlHandle(sliderId);
-    
+
     WPARAM redraw = WPARAM(FALSE);
     Win::SendMessage(slider_handle, TBM_SETRANGEMIN, redraw, LPARAM(minValue));
 
@@ -259,34 +259,34 @@ void Dialog::SetSliderRange(IdType sliderId, ValueType minValue, ValueType maxVa
 
 Dialog::ValueType Dialog::SetSliderValue(IdType id, ValueType value) {
     HWND const slider_handle = GetControlHandle(id);
-    
+
     // set slider value
     WPARAM const redraw = WPARAM(TRUE);
     Win::SendMessage(slider_handle, TBM_SETPOS, redraw, LPARAM(value));
-    
+
     // read it back
     ValueType result = GetSliderValue(id);
 
-	return result;
+    return result;
 }
 
 // set the text value of a label or editbox control
 void Dialog::SetTextString(IdType controlId, String const& rString) {
-	HWND const window_handle = HWND(*this);
+    HWND const window_handle = HWND(*this);
 
-	unsigned const length = rString.Length();
+    unsigned const length = rString.Length();
     char* copy_text = new char[length + 1];
     ::strcpy_s(copy_text, length + 1, rString.c_str());
 
     UINT const success = Win::SetDlgItemText(window_handle, controlId, copy_text);
-	ASSERT(success != 0);
+    ASSERT(success != 0);
 
-	delete[] copy_text;
+    delete[] copy_text;
 }
 
 // change the numeric value displayed by an editbox or static label
 void Dialog::SetTextValue(IdType id, ValueType value) {
-	HWND const window_handle = HWND(*this);
+    HWND const window_handle = HWND(*this);
     BOOL const sign = FALSE;
     BOOL const success = Win::SetDlgItemInt(window_handle, id, value, sign);
     ASSERT(success);

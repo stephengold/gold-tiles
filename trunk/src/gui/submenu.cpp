@@ -44,7 +44,7 @@ SubMenu::SubMenu(QString const &label) {
 #elif defined(_WINDOWS)
 
 SubMenu::SubMenu(Menu const& rMenu, unsigned position):
-    mrMenu(rMenu)
+mrMenu(rMenu)
 {
     mPosition = position;
 }

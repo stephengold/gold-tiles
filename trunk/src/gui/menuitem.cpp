@@ -42,7 +42,7 @@ MenuItem::MenuItem(QObject* pParent, QString const& rLabel) {
 #elif defined(_WINDOWS)
 
 MenuItem::MenuItem(Menu const& rMenu, IdType itemId):
-    mrMenu(rMenu)
+mrMenu(rMenu)
 {
     mFirstItemId = itemId;
     mItemId = itemId;
@@ -51,7 +51,7 @@ MenuItem::MenuItem(Menu const& rMenu, IdType itemId):
 
 // a menu item that's part of a group
 MenuItem::MenuItem(Menu const& rMenu, IdType firstId, IdType lastId, IdType itemId):
-    mrMenu(rMenu)
+mrMenu(rMenu)
 {
     mFirstItemId = firstId;
     mItemId = itemId;

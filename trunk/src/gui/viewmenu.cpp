@@ -35,7 +35,7 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 #ifdef _QT
 
 ViewMenu::ViewMenu(void):
-    SubMenu(tr("&View")),
+SubMenu(tr("&View")),
     mTileSize(Qt(), "&Tile Size"),
     mRecenter(Qt(), "&Re-center\tC"),
     mAttributes(Qt(), "Tile &Attributes..."),
@@ -64,8 +64,8 @@ ViewMenu::ViewMenu(void):
 #elif defined(_WINDOWS)
 
 ViewMenu::ViewMenu(Menu const& rRootMenu, unsigned position):
-	SubMenu(rRootMenu, position),
-	mTileSize(rRootMenu, 0),
+SubMenu(rRootMenu, position),
+    mTileSize(rRootMenu, 0),
     mRecenter(rRootMenu, IDM_RECENTER),
     mAttributes(rRootMenu, IDM_ATTRIBUTES),
     mHints(rRootMenu, IDM_HINTS),
@@ -84,8 +84,8 @@ ViewMenu::ViewMenu(Menu const& rRootMenu, unsigned position):
 // misc methods
 
 void ViewMenu::EnableItems(Partial const& rPartial, ThinkModeType thinkMode) {
-	bool const is_over = rPartial.IsGameOver();
-	bool const is_local = rPartial.IsLocalUsersTurn() && (thinkMode != THINK_SUGGEST);
+    bool const is_over = rPartial.IsGameOver();
+    bool const is_local = rPartial.IsLocalUsersTurn() && (thinkMode != THINK_SUGGEST);
     GameStyleType const game_style = rPartial.GameStyle();
 
     mTileSize.Enable(true);
@@ -100,17 +100,17 @@ void ViewMenu::EnableItems(Partial const& rPartial, ThinkModeType thinkMode) {
 }
 
 void ViewMenu::ShowClocks(bool shown) {
-	mShowClocks.Check(shown);
+    mShowClocks.Check(shown);
 }
 void ViewMenu::ShowGrid(bool shown) {
-	mShowGrid.Check(shown);
+    mShowGrid.Check(shown);
 }
 void ViewMenu::ShowScores(bool shown) {
-	mShowScores.Check(shown);
+    mShowScores.Check(shown);
 }
 void ViewMenu::ShowTiles(bool shown) {
-	mShowTiles.Check(shown);
+    mShowTiles.Check(shown);
 }
 void ViewMenu::TileSize(unsigned size) {
-	mTileSize.SetSize(size);
+    mTileSize.SetSize(size);
 }

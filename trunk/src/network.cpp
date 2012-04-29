@@ -385,17 +385,17 @@ Network::~Network(void) {
         }
         int const error_code = Win::WSAGetLastError();
         if (error_code == WSAECONNREFUSED
-         || error_code == WSAETIMEDOUT) {
-            String const server(rServer);
-            String const server_description = String("port ") + SERVER_LISTEN_PORT 
-                + " on " + server;
-            String const message = String("No response from ")
-                + server_description
-                + "\n\nPlease make sure that a Gold Tile server is running on " 
-                + server;
-            Notice(message);
-            client_send = INVALID_SOCKET;
-            // try next addrinfo
+            || error_code == WSAETIMEDOUT) {
+                String const server(rServer);
+                String const server_description = String("port ") + SERVER_LISTEN_PORT 
+                    + " on " + server;
+                String const message = String("No response from ")
+                    + server_description
+                    + "\n\nPlease make sure that a Gold Tile server is running on " 
+                    + server;
+                Notice(message);
+                client_send = INVALID_SOCKET;
+                // try next addrinfo
         } else {
             std::cout << "Unexpected Winsock error code " << error_code 
                 << " on connect." << std::endl;

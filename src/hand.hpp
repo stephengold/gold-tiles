@@ -50,18 +50,18 @@ public:
 	void      AddScore(ScoreType);
 	void      AddTiles(Tiles const&);
 	Move      ChooseMove(unsigned mustPlay) const;
-	void      ConnectToServer(Game&);
+	bool      ConnectToServer(Game&);
 	void      DescribeName(void) const;
 	void      DescribeScore(void) const;
 	void      DescribeTiles(void) const;
+    void      DisableServer(void);
 	Move      GetAutomaticMove(Game const&) const;
-	Move      GetRemoteMove(void);
+	bool      GetRemoteMove(Move&);
 	Tiles     LongestRun(void) const;
 	MsecIntervalType
 		      Milliseconds(void) const;
 	String    Name(void) const;
 	String    PlayerName(void) const;
-	Tiles     PullRandomTiles(unsigned, Tiles& bag);
 	void      RemoveTile(Tile const&);
 	void      RemoveTiles(Tiles const&);
 	void      Resign(Tiles& bag);

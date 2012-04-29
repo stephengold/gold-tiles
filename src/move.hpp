@@ -51,7 +51,7 @@ public:
 
 	// public operators
 	// Move& operator=(Move const&);  compiler-generated assigment operator is OK
-	bool operator==(Move const&) const;
+	bool operator!=(Move const&) const;
     operator Cells(void) const;
     operator String(void) const;
     operator Tiles(void) const;

@@ -30,8 +30,8 @@ A Window object represents an overlapped GUI window with the following feaures:
  + a menubar
  + a paintable/resizeable client area
  + access to the mouse pointer (cursor)
- + message boxes
- + multiple fibers.
+ + message boxes, and
+ + multiple fibers (optional).
 
 The Window class is implemented by extending the BaseWindow class.
 */
@@ -54,8 +54,10 @@ public:
 	PixelCntType ClientAreaHeight(void) const;
 	PixelCntType ClientAreaWidth(void) const;
 	Win::LRESULT HandleMessage(MessageType, Win::WPARAM, Win::LPARAM); 
+	void         InfoBox(TextType message, TextType title);
     int          MessageDispatchLoop(void);
 	Win::HDC     PaintDevice(void) const;
+    bool         RetryBox(TextType message, TextType title);
 	void         Show(int showHow);
 	void         Yields(void);
 
@@ -73,8 +75,8 @@ protected:
 	void  EndPaint(void);
 	void  ErrorBox(TextType message, TextType title);
 	void  ForceRepaint(void);
-	void  InfoBox(TextType message, TextType title);
 	bool  IsMouseCaptured(void) const;
+	int   QuestionBox(TextType message, TextType title);
 	void  ReleaseMouse(void);
 	void  SelfDestruct(void);
 	void  SetAcceleratorTable(TextType resourceName);

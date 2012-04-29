@@ -67,9 +67,9 @@ Window::operator Rect(void) const {
 
 // misc methods
 
-void * Window::AddFiber(void (__stdcall & rStartRoutine)(void *)) {
+void* Window::AddFiber(void (__stdcall & rStartRoutine)(void *)) {
 	Win::SIZE_T const default_stack_size = 0;
-	void * const result = Win::CreateFiber(default_stack_size, &rStartRoutine, LPVOID(this));
+	void* const result = Win::CreateFiber(default_stack_size, &rStartRoutine, LPVOID(this));
 	ASSERT(result != NULL);
 
 	return result;
@@ -161,7 +161,7 @@ void Window::EndPaint(void) {
 	mPaintDevice = NULL;
 }
 
-// display a simple dialog box with a pilot error message and an OK button
+// Display a simple dialog box with a pilot error message and an OK button.
 void Window::ErrorBox(TextType message, TextType title) {
 	UINT const options = MB_OK | MB_ICONERROR | MB_DEFBUTTON1 | MB_APPLMODAL;
     int const success = Win::MessageBox(HWND(*this), message, title, options);
@@ -262,8 +262,28 @@ HDC Window::PaintDevice(void) const {
 	return mPaintDevice;
 }
 
+// display a simple dialog box with a question and buttons for Yes and No
+int Window::QuestionBox(TextType message, TextType title) {
+	HWND const this_window = *this;
+	UINT const options = MB_YESNO | MB_ICONERROR | MB_DEFBUTTON1 | MB_APPLMODAL;
+    int const result = Win::MessageBox(this_window, message, title, options);
+	ASSERT(result == IDCANCEL || result == IDYES || result == IDNO);
+
+    return result;
+}
+
 void Window::ReleaseMouse(void) {
     Win::ReleaseCapture();
+}
+
+// Display a simple dialog box with a retry button.
+bool Window::RetryBox(TextType message, TextType title) {
+	UINT const options = MB_RETRYCANCEL | MB_ICONWARNING | MB_DEFBUTTON1 | MB_APPLMODAL;
+    int const success = Win::MessageBox(HWND(*this), message, title, options);
+	ASSERT(success == IDRETRY || success == IDCANCEL);
+    bool const result = (success == IDRETRY);
+
+    return result;
 }
 
 void Window::SelfDestruct(void) {

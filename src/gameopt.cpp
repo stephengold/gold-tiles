@@ -37,12 +37,6 @@ GameOpt::GameOpt(void) {
 	Validate();
 }
 
-GameOpt::GameOpt(Socket& rClient) {
-	String const opt_text = rClient.GetParagraph();
-	*this = GameOpt(opt_text);
-	Validate();
-}
-
 GameOpt::GameOpt(String const& rString) {
 	Strings const lines(rString, "\n");
 	Strings::ConstIterator i_line;
@@ -211,6 +205,16 @@ AttrType GameOpt::CountAttrValues(AttrIndexType ind) const {
 	ASSERT(result >= Combo::VALUE_CNT_MIN);
 	ASSERT(result <= Combo::VALUE_CNT_MAX);
 	return result;
+}
+
+// Return true if successful, false if canceled.
+bool GameOpt::GetFromClient(Socket& rClient) {
+    String opt_text;
+    bool const success = rClient.GetParagraph(opt_text);
+	*this = GameOpt(opt_text);
+	Validate();
+
+    return success;
 }
 
 void GameOpt::GetUserChoice(void) {

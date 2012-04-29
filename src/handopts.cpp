@@ -33,15 +33,6 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 HandOpts::HandOpts(void) {
 }
 
-HandOpts::HandOpts(Socket& rClient, unsigned handCnt) {
-	for (unsigned i_hand = 0; i_hand < handCnt; i_hand++) {
-	    String const hand_opt_text = rClient.GetParagraph();
-		HandOpt const hand_opt = HandOpt(hand_opt_text);
-		Append(hand_opt);
-	}
-}
-
-
 // operators
 
 HandOpt& HandOpts::operator[](unsigned ind) {
@@ -94,8 +85,25 @@ unsigned HandOpts::Count(void) const {
 	return result;
 }
 
-void HandOpts::GetUserChoice(unsigned hand_cnt) {
-	for (unsigned i_hand = 0; i_hand < hand_cnt; i_hand++) {
+// Return true if successful, false if canceled.
+bool HandOpts::GetFromClient(Socket& rClient, unsigned handCnt) {
+    MakeEmpty();
+    bool success = true;
+	for (unsigned i_hand = 0; i_hand < handCnt; i_hand++) {
+	    String hand_opt_string;
+        success = rClient.GetParagraph(hand_opt_string);
+        if (!success) {
+            break;
+        }
+		HandOpt const hand_opt = HandOpt(hand_opt_string);
+		Append(hand_opt);
+	}
+
+    return success;
+}
+
+void HandOpts::GetUserChoice(unsigned handCnt) {
+	for (unsigned i_hand = 0; i_hand < handCnt; i_hand++) {
 	    String name;
 		while (name.IsEmpty()) {
 	        std::cout << "Who will play the " 

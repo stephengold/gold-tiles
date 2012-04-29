@@ -58,7 +58,6 @@ public:
 	// public lifecycle
 	GameOpt(void);
     // GameOpt(GameOpt const&);  compiler-generated copy constructor is OK
-	explicit GameOpt(Socket&);
 	explicit GameOpt(String const&);
 	GameOpt(GameStyleType, unsigned clones, unsigned handSize, unsigned minutes);
     // ~GameOpt(void);  compiler-generated destructor is OK
@@ -81,6 +80,7 @@ public:
 	unsigned     ClonesPerCombo(void) const;
 	long         ComboCnt(void) const;
 	AttrType     CountAttrValues(AttrIndexType) const;
+    bool         GetFromClient(Socket&);
 	void         GetUserChoice(void);
 	unsigned     HandsDealt(void) const;
 	unsigned     HandSize(void) const;

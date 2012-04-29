@@ -182,7 +182,7 @@ void MenuBar::Update(ThinkModeType thinkMode) {
 	mViewMenu.Enable(!is_paused);
 
 	// "Thinking" menu
-	mThinking.Enable(thinkMode == THINK_SUGGEST || thinkMode == THINK_AUTOPLAY);
+	mThinking.Enable(thinkMode != THINK_IDLE || thinkMode == THINK_CANCEL);
 	
 	mHelpMenu.Enable(true);
 }

@@ -40,7 +40,6 @@ public:
 	// public lifecycle
 	HandOpts(void);
 	// HandOpts(HandOpts const&);  compiler-generated copy constructor is OK
-	HandOpts(Socket&, unsigned handCnt);
 	// ~HandOpts(void);  compiler-generated destructor is OK
 
 	// public operators
@@ -53,6 +52,7 @@ public:
 	Strings  AllPlayerNames(void) const;
 	void     Append(HandOpt const&);
     unsigned Count(void) const;
+    bool     GetFromClient(Socket&, unsigned handCnt);
 	void     GetUserChoice(unsigned handCnt);
 	void     MakeEmpty(void);
 	void     Serverize(Address const& client, Address const& server);

@@ -61,6 +61,18 @@ int main(int argCnt, char** argValues) {
 
 #endif // !defined(_WINDOWS)
 
+#ifdef _CONSOLE
+
+    // Display legal notice.
+    std::cout
+        << "Gold Tile Game (c) Copyright 2012 Stephen Gold" << std::endl
+        << "This program comes with ABSOLUTELY NO WARRANTY." << std::endl
+        << "This is free software, and you are welcome to redistribute" << std::endl
+        << "it under certain conditions; see LICENSE.txt for details." << std::endl
+        << std::endl;
+
+#endif // defined(_CONSOLE)
+
 	// Seed the pseudo-random number generator.
 	unsigned const seed = ::milliseconds();
     ::srand(seed);

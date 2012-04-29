@@ -55,6 +55,7 @@ Address::Address(String const &rString) {
     mString = String(text);
 }
 
+// Construct from a 32-bit address in network (bigendian) byte order.
 Address::Address(unsigned long address) {
 	IN_ADDR ipv4_address;
     ipv4_address.S_un.S_addr = address;

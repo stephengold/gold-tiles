@@ -523,7 +523,7 @@ LRESULT GameWindow::HandleMessage(MessageType message, WPARAM wParam, LPARAM lPa
   	    }
 
         case WM_CREATE: { // initialize window
-		    CREATESTRUCT* const p_create_struct = (CREATESTRUCT*)lParam;
+		    LPCREATESTRUCT const p_create_struct = LPCREATESTRUCT(lParam);
 			ASSERT(p_create_struct != NULL);
             Initialize(*p_create_struct);
             break;

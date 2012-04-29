@@ -419,12 +419,14 @@ void Partial::SetHintStrength(HintType strength) {
 	}
 }
 
+/*
+Set up a callback to be invoked periodically during long-running operations.
+Currently used only in FindBestMove(), by way of Yields().
+*/
 /* static */ void Partial::SetYield(
 	YieldFunctionType* pFunction,
 	void* pArgument)
 {
-	// set up a callback to be invoked periodically during long-running operations --
-	// currently used only in FindBestMove(), by way of Yields()
 	mspYieldArgument = pArgument;
 	mspYieldFunction = pFunction;
 }

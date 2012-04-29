@@ -204,7 +204,7 @@ bool Socket::Put(String const& rString) {
         if (error_code == WSAECONNRESET) {
             String const peer(Peer());
             String const error_message = String("Lost network connection")
-                + " while sending to " + peer;
+                + " -- discovered while sending to " + peer;
             Network::Notice(error_message);
             return false;
         }

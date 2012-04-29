@@ -25,8 +25,10 @@ You should have received a copy of the GNU General Public License
 along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-// This header file is meant to be #included only in .cpp files, not in
-// other header files.
+/*
+This header file imports Microsoft Windows typenames from the Win:: namespace.
+It is meant to be #included only in .cpp files, not in other header files.
+*/
 
 #include "gui/win.hpp"
 
@@ -49,8 +51,9 @@ using Win::HMENU;
 using Win::HPEN;
 using Win::HWND;
 using Win::INT_PTR;
-using Win::LPCTSTR;
 using Win::LPARAM;
+using Win::LPCREATESTRUCT;
+using Win::LPCTSTR;
 using Win::LPSTR;
 using Win::LPVOID;
 using Win::LRESULT;

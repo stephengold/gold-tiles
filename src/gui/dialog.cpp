@@ -52,6 +52,7 @@ static INT_PTR CALLBACK message_handler(
 	return result;
 }
 
+
 // lifecycle
 
 Dialog::Dialog(TextType templateName) {
@@ -91,9 +92,9 @@ Dialog::ValueType Dialog::AddListboxItem(IdType listboxId, TextType text) {
 	return result;
 }
 
-void Dialog::Close(int result) {
+void Dialog::Close(int dialogResult) {
 	HWND const window = HWND(*this);
-    Win::EndDialog(window, INT_PTR(result));
+    Win::EndDialog(window, INT_PTR(dialogResult));
 }
 
 void Dialog::EnableControl(IdType controlId, bool enable) {
@@ -102,7 +103,20 @@ void Dialog::EnableControl(IdType controlId, bool enable) {
 	Win::EnableWindow(control_handle, enable_flag);
 }
 
-// get the window handle for a particular control
+// Get the address from an IP address control.
+Address Dialog::GetAddress(IdType ipAddressControlId) {
+	HWND const control_handle = GetControlHandle(ipAddressControlId);
+
+	WPARAM const unused = 0;
+	DWORD ipv4_address = 0;
+    Win::SendMessage(control_handle, IPM_GETADDRESS, unused, LPARAM(&ipv4_address));
+    ipv4_address = Win::htonl(ipv4_address); // reverse byte order
+	Address const result(ipv4_address);
+	    
+    return result;
+}
+
+// Get the window handle for a particular control.
 HWND Dialog::GetControlHandle(IdType controlId) const {
 	HWND const window_handle = HWND(*this);
     HWND const result = Win::GetDlgItem(window_handle, controlId);
@@ -198,6 +212,16 @@ INT_PTR Dialog::HandleMessage(UINT message, WPARAM wParam) {
 
 TextType Dialog::Name(void) const {
 	return "Dialog Box - Gold Tile";
+}
+
+// Set the address of an IP address control.
+void Dialog::SetAddress(IdType ipAddressControlId, Address const& rAddress) {
+	HWND const control_handle = GetControlHandle(ipAddressControlId);
+	DWORD const ipv4_address = Win::ntohl(rAddress); // reverse byte order
+
+	WPARAM const wparam = 0;
+	LPARAM const lparam = LPARAM(ipv4_address);
+    Win::SendMessage(control_handle, IPM_SETADDRESS, wparam, lparam);
 }
 
 void Dialog::SetButton(IdType buttonId, bool value) {

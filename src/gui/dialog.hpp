@@ -33,6 +33,7 @@ The Dialog class is implemented as an extension of the BaseWindow class.
 It meant to be futher extended by adding controls.  
 */
 
+#include "address.hpp"
 #include "gui/basewindow.hpp"  // ISA BaseWindow
 
 
@@ -48,25 +49,27 @@ public:
 	static const ValueType VALUE_INVALID = LONG_MAX;
 
 	// public lifecycle
-	Dialog(TextType templateName);
-	Dialog(TextType templateName, Win::DLGPROC);
 	// no default constructor
+	explicit Dialog(TextType templateName);
+	Dialog(TextType templateName, Win::DLGPROC);
     // ~Dialog(void);  compiler-generated destructor is OK
-	int Run(BaseWindow* pParent);
 
 	// misc public methods
 	int HandleMessage(MessageType, Win::WPARAM);
+	int Run(BaseWindow* pParent);
 
 protected:
 	// misc protected methods
 	ValueType AddListboxItem(IdType, TextType);
     void      Close(int);
 	void      EnableControl(IdType, bool);
+	Address   GetAddress(IdType);
 	Win::HWND GetControlHandle(IdType) const;
 	ValueType GetListboxSelection(IdType);
     ValueType GetSliderValue(IdType);
 	String    GetTextString(IdType);
     ValueType GetTextValue(IdType);
+	void      SetAddress(IdType, Address const&);
 	void      SetButton(IdType, bool);
 	void      SetListboxSelection(IdType, ValueType);
     ValueType SetSliderValue(IdType, ValueType);

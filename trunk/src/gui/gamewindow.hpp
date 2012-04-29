@@ -54,12 +54,12 @@ class GameWindow: public Window {
 
 public:
     // public lifecycle
+    // no default constructor
 #ifdef _QT
-    GameWindow(Game* game = NULL);
+    explicit GameWindow(Game* game = NULL);
 #elif defined(_WINDOWS)
     GameWindow(Win::HINSTANCE, Game* game = NULL);
 #endif // defined(_QT)
-    // no default constructor
     ~GameWindow(void);
 
     // misc public methods
@@ -77,25 +77,26 @@ public:
 private:
     // private constants
 	static const PixelCntType DRAG_THRESHOLD = 6;
-    static const unsigned ID_CLOCK_TIMER = 1;
-    static const MsecIntervalType TIMEOUT_MSEC = 500;
+    static const unsigned     ID_CLOCK_TIMER = 1;
+    static const MsecIntervalType 
+                              TIMEOUT_MSEC = 500;
 
 	// private data
 	static WindowClass* 
-		        mspClass;
-	bool          mDragBoardFlag;
-	PixelCntType  mDragBoardPixelCnt;
-	long          mDragTileDeltaX;
-	long          mDragTileDeltaY;
-	Game*        mpGame;
-	GameView      mGameView;  // view of the move in progress
-	bool          mInitialNewGame;
-	bool          mIsStartCentered;
-	MenuBar*     mpMenuBar;
-	Point         mMouseLast; // coordinates of last mouse update
-	unsigned      mMouseUpCnt;
-	void*         mThinkFiber;
-	ThinkModeType mThinkMode;
+		         mspClass;
+	bool           mDragBoardFlag;
+	PixelCntType   mDragBoardPixelCnt;
+	long           mDragTileDeltaX;
+	long           mDragTileDeltaY;
+	Game*         mpGame;
+	GameView       mGameView;  // view of the move in progress
+	bool           mInitialNewGame;
+	bool           mIsStartCentered;
+	MenuBar*      mpMenuBar;
+	Point          mMouseLast; // coordinates of last mouse update
+	unsigned       mMouseUpCnt;
+	void*          mThinkFiber;
+	ThinkModeType  mThinkMode;
 #ifdef _QT
     Ui::GameWindow* mpUi;
 #endif // defined(_QT)
@@ -108,36 +109,37 @@ private:
     GameWindow& operator=(GameWindow const&); // not assignable
 
 	// misc private methods
-	void         ChangeHand(String const& old_player);
-    TextType     ClassName(void) const;
-	int          CreateNewGame(void);
-	void         DiscardGame(void);
-	void         GameOver(void);
-	int          GameWarnBox(TextType message);
-    void         HandleButtonDown(Point const&);
-	void         HandleButtonUp(Point const&);
-    void         HandleMenuCommand(IdType);
-	void         HandleMouseMove(Point const&);
-	void         InfoBox(TextType message);
-	void         LoadPlayerOptions(Hand const&);
-	TextType     Name(void) const;
-	void		 OfferNewGame(void);
-	void		 OfferSaveGame(void);
-    void         Play(bool passFlag);
-	void         RedoTurn(void);
-	void         ReleaseActiveTile(Point const&);
-	void         Repaint(void);
-	void         ResignHand(void);
-    void         Resize(PixelCntType width, PixelCntType height);
-	void         RestartGame(void);
-	void         RuleBox(UmType);
-	String       SaveHandOptions(void) const;
-	void         SavePlayerOptions(Hand const&) const;
-	void         SetGame(Game* pGame);
-	void         SetTileSize(IdType);
-	void         StopDragging(void);
-	void         UndoTurn(void);
-	void         UpdateMenuBar(void);
+	void     ChangeHand(String const& old_player);
+    TextType ClassName(void) const;
+	int      CreateNewGame(void);
+	void     DiscardGame(void);
+	void     GameOver(void);
+	int      GameWarnBox(TextType message);
+    void     HandleButtonDown(Point const&);
+	void     HandleButtonUp(Point const&);
+    void     HandleMenuCommand(IdType);
+	void     HandleMouseMove(Point const&);
+	void     InfoBox(TextType message);
+	void     LoadPlayerOptions(Hand const&);
+	TextType Name(void) const;
+	void	 OfferNewGame(void);
+	void	 OfferSaveGame(void);
+    void     Play(bool passFlag);
+	void     PollForInvitation(void);
+	void     RedoTurn(void);
+	void     ReleaseActiveTile(Point const&);
+	void     Repaint(void);
+	void     ResignHand(void);
+    void     Resize(PixelCntType width, PixelCntType height);
+	void     RestartGame(void);
+	void     RuleBox(UmType);
+	String   SaveHandOptions(void) const;
+	void     SavePlayerOptions(Hand const&) const;
+	void     SetGame(Game* pGame);
+	void     SetTileSize(IdType);
+	void     StopDragging(void);
+	void     UndoTurn(void);
+	void     UpdateMenuBar(void);
 
 	// private inquiry methods
 	bool AreUnsavedChanges(void) const;

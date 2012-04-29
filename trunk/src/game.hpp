@@ -51,8 +51,7 @@ enum EndingType {
 class Game {
 public:
 	// public lifecycle
-	// no default constructor
-    Game(GameOpt const&, HandOpts const&, Socket const& client);
+	// no default constructor -- use Game::New()
     // ~Game(void);  compiler-generated destructor is OK
 
 	// public operators
@@ -68,12 +67,13 @@ public:
 	String        BestRunReport(void) const;
 	static void   ConsoleGame(void);
     unsigned      CountStock(void) const;
-	Tiles         DrawTiles(unsigned cnt, Hand&);
+	bool          DrawTiles(unsigned cnt, Hand&, Tiles&);
 	String        EndBonus(void);
-    void          FinishTurn(Move const&);
+    bool          FinishTurn(Move const&);
 	unsigned      HandSize(void) const;
+    bool          Initialize(void);
 	unsigned      MustPlay(void) const;
-    void          PlayGame(void);
+    static Game*  New(GameOpt const&, HandOpts const&, Socket const& client);
 	void          Redo(void);
 	void          Restart(void);
 	int           Seconds(Hand&) const;
@@ -123,6 +123,7 @@ private:
 	bool             mUnsavedChanges;
 
 	// private lifecycle
+    Game(GameOpt const&, HandOpts const&, Socket const& client);
 	Game(Game const&);  // not copyable
 
 	// private operators
@@ -130,18 +131,19 @@ private:
 
 	// misc private methods
     void       AddTurn(Turn const&);
-	void       ConnectToServers(void);
+	bool       ConnectToServers(void);
 	static Game* 
-		       ConsiderClientInvitation(Socket&, GameOpt&, HandOpts&);
+		       ConsiderConsole(Socket&, GameOpt&, HandOpts&);
     void       DescribeScores(void) const;
     void       DescribeStatus(void) const;
+    void       DisableServers(Address const&);
 	EndingType Ending(void) const;
 	void       FindBestRun(void);
-    void       FirstTurn(void);
-    void       NextTurn(void);
-	void       PutLineToEachServer(String const&);
+    bool       FirstTurnConsole(void);
+    bool       NextTurnConsole(void);
+    void       PlayConsole(void);
+	bool       PutLineToEachServer(String const&);
 	Strings    WinningHands(void) const;
 	ScoreType  WinningScore(void) const;
 };
-
 #endif // !defined(GAME_HPP_INCLUDED)

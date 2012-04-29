@@ -261,14 +261,18 @@ Tile Tiles::PullRandomTile(void) {
     return result;
 }
 
-void Tiles::PullRandomTiles(unsigned tileCnt, Tiles& rBag) {
-    for (unsigned draw_cnt = 0; draw_cnt < tileCnt; ++draw_cnt) {
-        if (rBag.IsEmpty()) {
+Tiles Tiles::PullRandomTiles(unsigned tileCnt) {
+    Tiles result;
+
+    for (unsigned i_tile = 0; i_tile < tileCnt; i_tile++) {
+        if (IsEmpty()) {
             break;
         }
-        Tile const tile = rBag.PullRandomTile();
-		Add(tile);
+        Tile const tile = PullRandomTile();
+		result.Add(tile);
 	}
+
+    return result;
 }
 
 // Add one instance of every possible combination of attributes.

@@ -62,7 +62,7 @@ public:
 	Tiles    LongestRun(void) const;
 	Tile     PullFirstTile(void);
     Tile     PullRandomTile(void);
-	void     PullRandomTiles(unsigned, Tiles& bag);
+	Tiles    PullRandomTiles(unsigned);
 	void     Restock(void);
     Tiles    UniqueTiles(void) const;
 

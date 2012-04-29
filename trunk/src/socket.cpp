@@ -24,7 +24,7 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <iostream>    // cout
 #include "address.hpp"
-#include "socket.hpp"
+#include "network.hpp"
 
 #ifdef _WINSOCK2
 # define WIN32_LEAN_AND_MEAN
@@ -40,29 +40,34 @@ using Win::SOCKET;
 #endif // defined(_WINSOCK2)
 
 
+// static data
+
+void*                      Socket::mspYieldArgument = NULL;
+Socket::YieldFunctionType* Socket::mspYieldFunction = NULL;
+
+
 // lifecycle
 
 // construct an invalid socket
 Socket::Socket(void) {
-	mHandle = HandleType(INVALID_SOCKET);
-	mpReadBuffer = new Fifo;
+	mpReadBuffer = NULL;
+    Invalidate();
 
-	ASSERT(mpReadBuffer != NULL);
+    ASSERT(!IsValid());
 }
 
 // construct a server-side socket based on a Winsock handle
 Socket::Socket(HandleType handle) {
+    ASSERT(handle != HandleType(INVALID_SOCKET));
+
 	mHandle = handle;
 	mpReadBuffer = new Fifo;
 
-	ASSERT(mpReadBuffer != NULL);
+	ASSERT(IsValid());
 }
 
 // The compiler-generated copy constructor is fine.
-
-Socket::~Socket(void) {
-	// TODO cleanup
-}
+// The compiler-generated destructor is fine.
 
 
 // operators
@@ -76,51 +81,80 @@ Socket::operator Socket::HandleType(void) const {
 
 // misc methods
 
-char Socket::GetCharacter(void) {
+void Socket::Close(void) {
+    ASSERT(IsValid());
+
+	SOCKET const socket = SOCKET(mHandle);
+    int failure = Win::closesocket(socket);
+    ASSERT(failure == 0);
+
+    Invalidate();
+
+    ASSERT(!IsValid());
+}
+
+// Return true if successful, false if canceled.
+bool Socket::GetCharacter(char& rCharacter) {
 	ASSERT(IsValid());
 
+    bool was_successful = true;
 	if (!HasBufferedData()) {
-		Read();
+		was_successful = Read();
 	}
-	char const result = mpReadBuffer->GetByte();
+    if (was_successful) {
+	    rCharacter = mpReadBuffer->GetByte();
+    }
 
-	return result;
+	return was_successful;
 }
 
-String Socket::GetLine(void) {
+// Return true if successful, false if canceled.
+bool Socket::GetLine(String& rString) {
 	ASSERT(IsValid());
 
-	String result;
+    rString.MakeEmpty();
+	bool was_successful = true;
 	for (;;) {
-	    char const ch = GetCharacter();
-	    if (ch == '\n') { // end of line
+        char character;
+	    was_successful = GetCharacter(character);
+	    if (!was_successful || character == '\n') { // canceled or end of line
 		    break;
 		}
-		result += ch;
+		rString += character;
 	}
 
-	ASSERT(IsValid());
-	return result;
+	return was_successful;
 }
 
-String Socket::GetParagraph(void) {
+// Return true if successful, false if canceled.
+bool Socket::GetParagraph(String& rString) {
 	ASSERT(IsValid());
 
-	String result;
+    rString.MakeEmpty();
+    bool was_successful = true;
 	for (;;) {
-	    String const line = GetLine();
-	    if (line.IsEmpty()) {
+	    String line;
+        was_successful = GetLine(line);
+        if (!was_successful || line.IsEmpty()) { // canceled or blank line
 		    break;
 		}
-		result += line + "\n";
+		rString += line + "\n";
 	}
 
-	ASSERT(IsValid());
-	return result;
+	return was_successful;
+}
+
+void Socket::Invalidate(void) {
+    // TODO: close? free buffer?
+
+	mHandle = HandleType(INVALID_SOCKET);
+    ASSERT(!IsValid());
 }
 
 // Get the address of socket on the local host.
 Address Socket::Local(void) const {
+	ASSERT(IsValid());
+
 	SOCKET const socket = SOCKET(mHandle);
 	SOCKADDR sockaddr;
 	int length = sizeof(sockaddr);
@@ -139,6 +173,8 @@ Address Socket::Local(void) const {
 
 // Get the address of the peer to which the socket is connected.
 Address Socket::Peer(void) const {
+	ASSERT(IsValid());
+
 	SOCKET const socket = SOCKET(mHandle);
 	SOCKADDR sockaddr;
 	int length = sizeof(sockaddr);
@@ -155,73 +191,120 @@ Address Socket::Peer(void) const {
 	return result;
 }
 
-void Socket::Put(String const& rString) {
+bool Socket::Put(String const& rString) {
 	ASSERT(IsValid());
 
 	SOCKET const socket = SOCKET(mHandle);
-
 	char const* const p_buffer = TextType(rString);
 	int const buffer_size = rString.Length();
-	int const flags = 0;
-    int const bytes_sent = Win::send(socket, p_buffer, buffer_size, flags);
+	int const no_flags = 0;
+    int const bytes_sent = Win::send(socket, p_buffer, buffer_size, no_flags);
+    if (bytes_sent == SOCKET_ERROR) {
+	    int const error_code = Win::WSAGetLastError();
+        if (error_code == WSAECONNRESET) {
+            String const peer(Peer());
+            String const error_message = String("Lost network connection")
+                + " while sending to " + peer;
+            Network::Notice(error_message);
+            return false;
+        }
+        FAIL();
+    }
+
 	ASSERT(bytes_sent == buffer_size);
-
 	ASSERT(IsValid());
+    return true;
 }
 
-void Socket::PutLine(String const& rLine) {
+bool Socket::PutLine(String const& rLine) {
 	String const string = rLine + "\n";
-	Put(string);
+	bool const was_successful = Put(string);
+
+    return was_successful;
 }
 
-// Refill the buffer.
-void Socket::Read(void) {
+// Read some more network data into the FIFO buffer.
+// Return true if successful, false if canceled.
+bool Socket::Read(void) {
 	ASSERT(IsValid());
-	ASSERT(HasBufferSpace());
 
 	SOCKET const socket = SOCKET(mHandle);
 
-	char* p_start = NULL;
+    char* p_start = NULL;
 	int bytes_requested = 0;
 	mpReadBuffer->PreReceive(p_start, bytes_requested);
+    ASSERT(bytes_requested > 0);
 
-	int const flags = 0;
-	int const bytes_received = Win::recv(socket, p_start, bytes_requested, flags);
-	if (bytes_received < 0) {
-		int const error_code = Win::WSAGetLastError();
-		if (error_code == WSAECONNRESET) {
-		    std::cout << "A network connection broke while data was expected." << std::endl;
+    bool canceled = false;
+    int bytes_received = 0;
+    while (!canceled) {
+	    int const flags = 0;
+	    bytes_received = Win::recv(socket, p_start, bytes_requested, flags);
+        if (bytes_received > 0) {
+            break;
+        } 
+	    int const error_code = Win::WSAGetLastError();        
+        if (bytes_received == 0 
+         || error_code == WSAECONNRESET 
+         || error_code == WSAECONNABORTED)
+        {
+            String const peer(Peer());
+            String const error_message = String("Lost network connection")
+                + " -- expected more data from " + peer;
+            Network::Notice(error_message);
+		    canceled = true;
+            continue;
+        } else if (error_code == WSAEWOULDBLOCK) {
+            Yields(canceled);
+            continue;
 		} else {
 		    std::cout << "Winsock error code " << error_code << " on recv." << std::endl;
+            FAIL();
 		}
-		FAIL();
 	}
 
-	mpReadBuffer->PostReceive(bytes_received);
+    bool const was_successful = !canceled;
+    if (was_successful) {
+        ASSERT(bytes_received > 0);
+	    mpReadBuffer->PostReceive(bytes_received);
+	    ASSERT(HasBufferedData());
+        ASSERT(IsValid());
+    } else {
+        Invalidate();
+    }
 
-	ASSERT(IsValid());
-	ASSERT(HasBufferedData());
+    return was_successful;
+}
+
+// Set up a callback to be invoked when waiting for data from the network.
+/* static */ void Socket::SetYield(
+	YieldFunctionType* pFunction,
+	void* pArgument)
+{
+	mspYieldArgument = pArgument;
+	mspYieldFunction = pFunction;
+}
+
+/* static */ void Socket::Yields(bool& rCanceled) {
+	if (mspYieldFunction != NULL) {
+        (*mspYieldFunction)(mspYieldArgument, rCanceled);
+    }
 }
 
 
 // inquiry methods
 
 bool Socket::HasBufferedData(void) const {
+    ASSERT(IsValid());
 	bool const result = mpReadBuffer->HasData();
 
 	return result;
 }
 
-bool Socket::HasBufferSpace(void) const {
-	bool const result = mpReadBuffer->HasSpace();
-
-	return result;
-}
-
 bool Socket::IsValid(void) const {
-	bool const result = (mpReadBuffer != NULL
-		              && mpReadBuffer->IsValid() 
-		              && mHandle != HandleType(INVALID_SOCKET));
+	bool const result = (mHandle != HandleType(INVALID_SOCKET)
+                      && mpReadBuffer != NULL
+		              && mpReadBuffer->IsValid());
 
 	return result;
 }

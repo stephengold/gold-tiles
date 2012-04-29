@@ -104,14 +104,18 @@ Move Hand::ChooseMove(unsigned mustPlay) const {
 	return result;
 }
 
-void Hand::ConnectToServer(Game& rGame) {
+bool Hand::ConnectToServer(Game& rGame) {
 	ASSERT(IsRemote());
 	ASSERT(rGame.AmClient());
 
+    bool result = true;
+
     Address const server_address = *this;
 	if (!rGame.IsConnectedToServer(server_address)) {
-		Network::ConnectToServer(server_address, rGame);
+		result = Network::ConnectToServer(server_address, rGame);
 	}
+
+    return result;
 }
 
 void Hand::DescribeName(void) const {
@@ -130,6 +134,10 @@ void Hand::DescribeTiles(void) const {
 		      << mTiles.Description() << "." << std::endl;
 }
 
+void Hand::DisableServer(void) {
+    mSocket.Invalidate();
+}
+
 Move Hand::GetAutomaticMove(Game const& rGame) const {
 	double skip_probability = SkipProbability();
 	if (rGame.MustPlay() > 0) {
@@ -145,15 +153,25 @@ Move Hand::GetAutomaticMove(Game const& rGame) const {
 	return result;
 }
 
-Move Hand::GetRemoteMove(void) {
-    Address const address = *this;
-	String const move_string = mSocket.GetLine();
-	Move const result = Move(move_string, true);
+// Return true if successful, false if canceled.
+bool Hand::GetRemoteMove(Move& rMove) {
+    ASSERT(IsRemote());
 
-    DescribeName();
-	std::cout << " " << result.Description() << "." << std::endl;
+    if (!mSocket.IsValid()) {
+        return false;
+    }
 
-	return result;
+	String move_string;
+    bool const success = mSocket.GetLine(move_string);
+    if (success) {
+	    rMove = Move(move_string, true);
+#ifdef _CONSOLE
+        DescribeName();
+	    std::cout << " " << rMove.Description() << "." << std::endl;
+#endif // defined(_CONSOLE)
+    }
+
+    return success;
 }
 
 // find the longest run of compatible tiles in the hand
@@ -185,21 +203,6 @@ String Hand::Name(void) const {
 
 String Hand::PlayerName(void) const {
     String result = mOptions.PlayerName();
-
-	return result;
-}
-
-Tiles Hand::PullRandomTiles(unsigned tileCount, Tiles& rBag) {
-    Tiles result;
-    result.PullRandomTiles(tileCount, rBag);
-
-	unsigned const count = result.Count();
-	if (count > 0) {
-	    std::cout << Name() << " drew " << plural(count, "tile") 
-		     << " from the stock bag." << std::endl;
-	}
-
-    mTiles.Merge(result);
 
 	return result;
 }

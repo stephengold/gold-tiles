@@ -33,10 +33,11 @@ or the "Tile Size" submenu.
 #include "project.hpp"  // HASA Menu&
 
 enum ThinkModeType {
-	THINK_IDLE,
-	THINK_SUGGEST,
 	THINK_AUTOPLAY,
-	THINK_CANCEL
+	THINK_CANCEL,
+	THINK_IDLE,
+    THINK_REMOTE,
+	THINK_SUGGEST
 };
 
 #ifdef _QT
@@ -49,12 +50,12 @@ class SubMenu {
 
 public:
     // public lifecycle
+    // no default constructor
 #ifdef _QT
-    SubMenu(QString const& label);
+    explicit SubMenu(QString const& label);
 #elif defined(_WINDOWS)
     SubMenu(Menu const&, unsigned position);
 #endif // defined(_WINDOWS)
-    // no default constructor
     // ~SubMenu(void);  compiler-generated destructor is OK
 
     // misc public methods

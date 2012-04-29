@@ -54,11 +54,18 @@ public:
     // misc public methods
     static String AddressReport(void);
     static Socket CheckForConnection(void);
-    static void   ConnectToServer(Address const&, Game&);
+    static bool   ConnectToServer(Address const&, Game&);
+    static void   Notice(String const&);
+#ifdef _GUI
+    static void   SetWindow(Window*);
+#endif // defined(_GUI)
 
 private:
     // private data
-    static Socket msListen;
+    static Socket   msListen;
+#ifdef _GUI
+    static Window* mspWindow;
+#endif // defined(_GUI)
 
     // private lifecycle
     Network(Network const&); // not copyable
@@ -67,9 +74,10 @@ private:
     Network& operator=(Network const&); // not assignable
 
     // misc private methods
+    static bool   InviteServer(Socket&, Game const&);
     static Socket OpenListen(void* addrinfo_list);
     static Socket OpenServer(void* addrinfo_list, Address const& server);
-    static void   InviteServer(Socket&, Game const&);
+    static bool   Retry(String const&);
     static bool   StartServer(void);
 };
 #endif // !defined(NETWORK_HPP_INCLUDED)

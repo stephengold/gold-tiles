@@ -75,18 +75,18 @@ Move::Move(String const& rString, bool remoteFlag) {
 
 // The compiler-generated assignment operator is fine.
 
-bool Move::operator==(Move const& rOther) const {
-	bool result = (mResignFlag == rOther.mResignFlag);
+bool Move::operator!=(Move const& rOther) const {
+	bool result = (mResignFlag != rOther.mResignFlag);
 
-    if (result) {
-	    result = (Count() == rOther.Count());
+    if (!result) {
+	    result = (Count() != rOther.Count());
     }
-    if (result) {
+    if (!result) {
         ConstIterator i_this;
         ConstIterator i_other = rOther.Begin();
         for (i_this = Begin(); i_this != End(); i_this++) {
             if (*i_this != *i_other) {
-			    result = false;
+			    result = true;
 			    break;
             }
 			i_other++;
@@ -228,7 +228,7 @@ void Move::GetUserChoice(Tiles const& rAvailableTiles, unsigned mustPlay) {
 		}
 
 		TileCell tile_cell;
-		String input = tile_cell.GetUserChoice(rAvailableTiles, alts);
+		String const input = tile_cell.GetUserChoice(rAvailableTiles, alts);
         if (input == "resign") {
 			MakeResign(rAvailableTiles);
             break;

@@ -23,8 +23,9 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "gui/canvas.hpp"
-#include "gui/menubar.hpp"
 #include "gui/gamewindow.hpp"
+#include "gui/menubar.hpp"
+#include "network.hpp"
 #include "strings.hpp"
 
 #ifdef _QT
@@ -106,8 +107,8 @@ static void yield(void* pArgument, bool& rCancel) {
 // lifecycle
 
 GameWindow::GameWindow(HINSTANCE applicationInstance, Game* pGame):
-    mMouseLast(0, 0),
-	mGameView(*pGame)
+	mGameView(*pGame),
+    mMouseLast(0, 0)
 {
 	ASSERT(HWND(*this) == 0);
 	ASSERT(applicationInstance != NULL);
@@ -126,15 +127,15 @@ GameWindow::GameWindow(HINSTANCE applicationInstance, Game* pGame):
 	mInitialNewGame = (pGame == NULL);
     mpMenuBar = NULL;
 	
-	// set up Think fiber for background processing
+	// Set up Think fiber for background processing.
 	UseFibers();
 	mThinkMode = THINK_IDLE;
 	mThinkFiber = AddFiber(think);
 
-	// set up keyboard shortcuts
+	// Set up keyboard shortcuts.
 	SetAcceleratorTable("HOTKEYS");
 
-	// determine initial window size:  to cover 64% of desktop
+	// determine initial window size:  centered and covering 64% of desktop
 	Rect const desktop_bounds = DesktopBounds();
 	PixelCntType const height = PixelCntType(0.8*double(desktop_bounds.Height()));
 	PixelCntType const width = PixelCntType(0.8*double(desktop_bounds.Width()));
@@ -142,12 +143,12 @@ GameWindow::GameWindow(HINSTANCE applicationInstance, Game* pGame):
 	LogicalYType const y = height/8;
 	Rect const rect(y, x, width, height);
 
-	// create Microsoft Windows window
+	// Create a Microsoft Windows window.
 	String const class_string(class_name);
 	Window* const p_parent = NULL;
 	Create(class_string, rect, p_parent, applicationInstance);
 
-	// wait for message_handler() to receive a message with this handle
+	// Wait for message_handler() to receive a message with this handle.
 }
 
 GameWindow::~GameWindow(void) {
@@ -165,10 +166,13 @@ void GameWindow::Initialize(CREATESTRUCT const& rCreateStruct) {
 	mpMenuBar = new MenuBar(rCreateStruct, mGameView);
 	ASSERT(mpMenuBar != NULL);
 
+    Network::SetWindow(this);
+
 	mGameView.SetWindow(this, mpMenuBar);
    	SetCursorSelect();
 
     Partial::SetYield(&yield, (void*)this);
+    Socket::SetYield(&yield, (void*)this);
 
     SetTileSize(GameView::TILE_SIZE_DEFAULT);
 	if (HasGame()) {
@@ -220,6 +224,9 @@ void GameWindow::ChangeHand(String const& rOldPlayerName) {
 		if (playable_hand.IsAutomatic() && !mpGame->CanRedo()) {
 			// launch autoplay
 		    mThinkMode = THINK_AUTOPLAY;
+        } else if (playable_hand.IsRemote() && !mpGame->CanRedo()) {
+			// Expect to get a remote move over the network.
+            mThinkMode = THINK_REMOTE;
 		}
 	}
 }
@@ -469,7 +476,7 @@ void GameWindow::HandleMenuCommand(IdType command) {
 		// Thinking menu options
 		case IDM_CANCEL:
 			if (mThinkMode != THINK_AUTOPLAY) {
-                ASSERT(mThinkMode == THINK_SUGGEST);
+                ASSERT(mThinkMode == THINK_SUGGEST || mThinkMode == THINK_REMOTE);
 			    mThinkMode = THINK_CANCEL;
 			}
 			break;
@@ -604,6 +611,11 @@ LRESULT GameWindow::HandleMessage(MessageType message, WPARAM wParam, LPARAM lPa
 	    ASSERT(mThinkFiber != NULL);
 	    Win::SwitchToFiber(mThinkFiber);
 	}
+
+#ifdef _SERVER
+    // Check for a new invitation from a client.
+	PollForInvitation();
+#endif // defined(_SERVER)
 
 	return result;
 }
@@ -791,13 +803,17 @@ STEP4:
 	// can't cancel now - set up the new game
 	hand_options.Truncate(hand_cnt);
 
-	SetCursorBusy(); // constructing tiles may cause a noticeable delay
+	SetCursorBusy(); // Constructing tiles may take a noticeable amount of time.
 	Socket const no_client;
-	Game* const p_new_game = new Game(game_options, hand_options, no_client);
-	ASSERT(p_new_game != NULL);
+	Game* const p_new_game = Game::New(game_options, hand_options, no_client);
 	SetCursorSelect();
-
-	SetGame(p_new_game);
+	ASSERT(p_new_game != NULL);
+    bool const success = p_new_game->Initialize();
+    if (success) {
+	    SetGame(p_new_game);
+    } else {
+        delete p_new_game;
+    }
 }
 
 void GameWindow::OfferSaveGame(void) {
@@ -817,16 +833,16 @@ void GameWindow::Play(bool passFlag) {
 
     Move move;
 
-	// check whether the player has run out of time
+	// Check whether the playable hand has run out of time.
 	if (!mpGame->IsOutOfTime()) {
 		move = mGameView.GetMove(true);
 	} else {
-		// hand ran out of time:  force resignation
+		// If it has, force a resignation.
 		move.MakeResign(mpGame->ActiveTiles());
 		passFlag = false;
 	}
 
-	// check whether the move is a legal one
+	// Check whether the move is a legal one.
 	UmType reason;
 	bool const is_legal = mpGame->IsLegalMove(move, reason);
     if (is_legal && move.IsPass() == passFlag) {
@@ -848,6 +864,51 @@ void GameWindow::Play(bool passFlag) {
 			mGameView.Reset();
 		}
 	}
+}
+
+void GameWindow::PollForInvitation(void) {
+    // Check for a game invitation from a client.
+	Socket socket = Network::CheckForConnection();
+	if (!socket.IsValid()) {
+        return;
+    }
+
+	Address const address = socket.Peer();
+	String question = "Consider invitation from " + String(address) + "?";
+	int const consider = QuestionBox(question, "Consider Invitation - Gold Tile");
+	if (consider != IDYES) {
+        return;
+    }
+
+    GameOpt game_opt;
+    bool success = game_opt.GetFromClient(socket);
+    if (!success) {
+        return;
+    }
+	unsigned const hand_cnt = game_opt.HandsDealt();
+
+	HandOpts hand_opts;
+    success = hand_opts.GetFromClient(socket, hand_cnt);
+    if (!success) {
+        return;
+    }
+
+	question = "You are invited to play a game with\n";
+	question += String(game_opt) + "Do you accept?";
+	int const accept = QuestionBox(question, "Accept Invitation - Gold Tile");
+	if (accept != IDYES) {
+        return;
+    }
+
+	Game* const p_new_game = Game::New(game_opt, hand_opts, socket);
+    if (p_new_game != NULL) {
+        success = p_new_game->Initialize();
+        if (success) {
+	        SetGame(p_new_game);
+        } else {
+            delete p_new_game;
+	    }
+    }
 }
 
 void GameWindow::RedoTurn(void) {
@@ -1127,20 +1188,42 @@ void GameWindow::Think(void) {
 			Yields();
 		}
 
-		ASSERT(mThinkMode == THINK_AUTOPLAY || mThinkMode == THINK_SUGGEST);
-	    UpdateMenuBar();
-	    mGameView.Suggest();
+        ASSERT(HasGame());
+	    UpdateMenuBar(); // to indicate that the fiber is busy
 
-		if (mThinkMode == THINK_AUTOPLAY) {
-			// must indicate idle before calling Play()
-            mThinkMode = THINK_IDLE;
-
-			// commit the move
+        if (mThinkMode == THINK_AUTOPLAY) {
+            mGameView.Suggest();
 			bool const is_pass = mGameView.IsPass();
+
+			// Commit the move.
+            mThinkMode = THINK_IDLE;
             Play(is_pass);
 
-		} else if (mThinkMode != THINK_CANCEL) {
+        } else if (mThinkMode == THINK_REMOTE) {
+            Hand playable_hand = *mpGame;
+            Move move;
+            bool const success = playable_hand.GetRemoteMove(move);
+            if (!success) {
+                move.MakeResign(Tiles(playable_hand));
+            }
+
+            // Commit the move.
+            mpGame->FinishTurn(move);
+            mThinkMode = THINK_IDLE;
+            if (!mpGame->IsOver()) {
+			    // The game isn't over yet, so proceed to the next hand.
+			    String const old_player_name = SaveHandOptions();
+                mpGame->ActivateNextHand();
+			    ChangeHand(old_player_name);
+            } else {
+                GameOver();
+            }
+
+		} else {
+            ASSERT(mThinkMode == THINK_SUGGEST);
+            mGameView.Suggest();
 		    mGameView.ResetTargetCell();
+
             mThinkMode = THINK_IDLE;
 		}
 

@@ -41,36 +41,49 @@ for incoming data.
 class Socket {
 public:
 	// public types
-	typedef void* HandleType;
+	typedef void* HandleType; // cast to the native socket type
+	typedef void  YieldFunctionType(void*, bool& cancel);
 
 	// public lifecycle
 	Socket(void);
 	explicit Socket(HandleType);
     // Socket(Socket const&);  compiler-generated copy constructor is OK
-    ~Socket(void);
+    // ~Socket(void);  compiler-generated destructor is OK
 
 	// public operators
     // Socket& operator=(Socket const&);  compiler-generated assigment operator is OK
 	operator HandleType(void) const;
 
 	// misc public methods
-	char    GetCharacter(void);
-	String  GetLine(void);
-	String  GetParagraph(void);
+    void    Close(void);
+	bool    GetLine(String&);
+	bool    GetParagraph(String&);
+    void    Invalidate(void);
 	Address Local(void) const;
 	Address Peer(void) const;
-	void    Put(String const&);
-	void    PutLine(String const&);
-	void    Read(void);
+	bool    Put(String const&);
+	bool    PutLine(String const&);
+  	static void
+            SetYield(YieldFunctionType*, void* arg);
 
 	// public inquiry methods
-	bool HasBufferedData(void) const;
-	bool HasBufferSpace(void) const;
 	bool IsValid(void) const;
 
 private:
     // private data
-	HandleType mHandle;
-	Fifo*     mpReadBuffer;
+	HandleType     mHandle;
+	Fifo*         mpReadBuffer;
+   	static void* mspYieldArgument;
+	static YieldFunctionType*
+		         mspYieldFunction;
+
+    // misc private methods
+	bool GetCharacter(char&);
+	bool Read(void);
+    static void 
+         Yields(bool& cancel);
+
+    // private inquiry methods
+	bool HasBufferedData(void) const;
 };
 #endif // !defined(SOCKET_HPP_INCLUDED)

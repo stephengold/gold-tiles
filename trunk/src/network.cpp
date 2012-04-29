@@ -44,6 +44,10 @@ using Win::u_long;
 using Win::WSADATA;
 #endif // defined(_WINSOCK2)
 
+#ifdef _GUI
+# include "gui/window.hpp"
+#endif // defined(_GUI)
+
 
 // static constants
 
@@ -54,7 +58,10 @@ const TextType Network::SERVER_LISTEN_PORT = "27066";
 
 // static data
 
-Socket       Network::msListen;
+Socket   Network::msListen;
+#ifdef _GUI
+Window* Network::mspWindow = NULL;
+#endif // defined(_GUI)
 
 
 // lifecycle
@@ -115,12 +122,12 @@ Network::Network(void) {
     failure = Win::listen(server_listen, max_backlog);
     ASSERT(failure == 0);
 
-#ifndef _CONSOLE
-    // Put socket into non-blocking mode.
+#ifdef _GUI
+    // Put listen socket into non-blocking mode.
     u_long nonblocking = 1;
     failure = Win::ioctlsocket(server_listen, FIONBIO, &nonblocking);
     ASSERT(failure == 0);
-#endif // !defined(_CONSOLE)
+#endif // defined(_GUI)
 
     return true;
 }
@@ -169,10 +176,12 @@ Network::~Network(void) {
         ASSERT(error_code == WSAEWOULDBLOCK);
         // There's no connection yet.
     } else {
-        // Put new data socket into blocking mode.
-        u_long blocking = 0;
-        int const failure = Win::ioctlsocket(data_socket, FIONBIO, &blocking);
+#ifdef _GUI
+        // Put new data socket into non-blocking mode.
+        u_long non_blocking = 1;
+        int const failure = Win::ioctlsocket(data_socket, FIONBIO, &non_blocking);
         ASSERT(failure == 0);
+#endif // defined(_GUI)
         result = Socket(Socket::HandleType(data_socket));
     }
 
@@ -180,7 +189,7 @@ Network::~Network(void) {
 }
 
 // CLIENT:  Open a connection to a particular server.
-/* static */ void Network::ConnectToServer(
+/* static */ bool Network::ConnectToServer(
     Address const& rAddress,
     Game& rGame)
 {
@@ -197,56 +206,118 @@ Network::~Network(void) {
     String const server = rAddress;
     PCSTR const server_name = server;
     PADDRINFOA address_list = NULL;
-    int const failure = Win::getaddrinfo(server_name, SERVER_LISTEN_PORT, 
+    int const get_addr_failure = Win::getaddrinfo(server_name, SERVER_LISTEN_PORT, 
         &address_hints, &address_list);
-    ASSERT(failure == 0);
+    ASSERT(get_addr_failure == 0);
 
-    std::cout << "Connecting to port " << SERVER_LISTEN_PORT 
-        << " on " << server << "." << std::endl;
+    String const server_description = String("port ") + SERVER_LISTEN_PORT 
+        + " on " + server;
+    String const attempt_message = String("Connecting to ") 
+        + server_description;
+    Network::Notice(attempt_message);
 
-    // Open the send socket.
-    SOCKET client_send = INVALID_SOCKET;
-    while (client_send == INVALID_SOCKET) {
+    // Open a data socket to the server.
+    SOCKET data_socket = INVALID_SOCKET;
+    while (data_socket == INVALID_SOCKET) {
         Socket::HandleType const socket = OpenServer(address_list, rAddress);
-        client_send = SOCKET(socket);
-        if (client_send == INVALID_SOCKET) {
-#ifdef _GUI
-            FAIL(); // TODO retry
-#else // !defined(_GUI)
-            std::cout << "Press the Enter key to retry ..." << std::endl;
-            String end_of_line;
-            std::getline(std::cin, end_of_line);
-#endif // !defined(_GUI)
+        data_socket = SOCKET(socket);
+        if (data_socket == INVALID_SOCKET) {
+            String const retry_message = String("Failed to connect to ") 
+                + server_description;
+            bool const retry = Network::Retry(retry_message);
+            if (!retry) {
+                break;
+            }
         }
     }
     Win::freeaddrinfo(address_list);
 
+    if (data_socket == INVALID_SOCKET) {
+        return false;
+    }
+
+#ifdef _GUI
+    // Put listen socket into non-blocking mode.
+    u_long nonblocking = 1;
+    int const ioctl_failure = Win::ioctlsocket(data_socket, FIONBIO, &nonblocking);
+    ASSERT(ioctl_failure == 0);
+#endif // defined(_GUI)
+
     // Save the open socket to all relevant hand objects.
-    Socket socket = Socket(Socket::HandleType(client_send));
+    Socket socket = Socket(Socket::HandleType(data_socket));
     rGame.AddServer(rAddress, socket);
     ASSERT(rGame.IsConnectedToServer(rAddress));
 
     // Invite the server to play.
     InviteServer(socket, rGame);
-    std::cout << "Waiting for " << server << " to accept your invitation ..." << std::endl;
-    String const response = socket.GetLine();
-    if (response == Network::ACCEPT) {
-        std::cout << server << " accepted." << std::endl;
+    String const status = String("Waiting for ") + server 
+        + " to accept your invitation ...";
+    Network::Notice(status);
 
-        // Put the entire stock of tiles.
-        String const stock = rGame.StockBagString();
-        socket.PutLine(stock);
+    String response;
+    bool const success = socket.GetLine(response);
+    if (!success) {
+        return false;
 
     } else if (response == Network::DECLINE) {
-        std::cout << server << " declined." 
-            << std::endl;
-        FAIL(); // TODO recovery
+        String const report = server + " declined.";
+        Network::Notice(report);
+        return false;
 
-    } else {
-        std::cout << "Unexpected response: " << response.Quote() << "." 
-            << std::endl;
-        FAIL(); // TODO recovery
+    } else if (response != Network::ACCEPT) {
+        String const report = server + " sent an unexpected response: " 
+            + response.Quote() + ".";
+        Network::Notice(report);
+        return false;
     }
+
+    // Put the entire stock of tiles.
+    String const stock = rGame.StockBagString();
+    bool const was_successful = socket.PutLine(stock);
+
+    if (was_successful) {
+        // Notify the user(s).
+        String const report = server + " accepted.";
+        Network::Notice(report);
+    }
+
+    return was_successful;
+}
+
+// CLIENT:  Invite a server to participate in the current game.
+/* static */ bool Network::InviteServer(Socket& rSocket, Game const& rGame) {
+    Address const peer = rSocket.Peer();
+    std::cout << "Sending invitation to " << String(peer) << std::endl;
+
+    GameOpt const game_opt = rGame;
+    String const game_opt_string = game_opt;
+    bool was_successful = rSocket.Put(game_opt_string);
+    if (!was_successful) {
+        return false;
+    }
+
+    Hands const hands = rGame;
+    Hands::ConstIterator i_hand;
+    for (i_hand = hands.begin(); i_hand != hands.end(); i_hand++) {
+        HandOpt const hand_opt = *i_hand;
+        String const hand_opt_string = hand_opt;
+        bool was_successful = rSocket.Put(hand_opt_string);
+        if (!was_successful) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+/* static */ void Network::Notice(String const& rMessage) {
+#ifdef _GUI
+    ASSERT(mspWindow != NULL);
+    String const text = rMessage + "\nClick the OK button to continue.";
+    mspWindow->InfoBox(text, "Gold Tile Game - Network Notice");
+#else // !defined(_GUI)
+    std::cout << rMessage << std::endl;
+#endif // !defined(_GUI)
 }
 
 // SERVER:  Attempt to bind to a listen socket.
@@ -259,20 +330,23 @@ Network::~Network(void) {
         ASSERT(p_info->ai_family == AF_INET);
         ASSERT(p_info->ai_socktype == SOCK_STREAM);
         ASSERT(p_info->ai_protocol == IPPROTO_TCP);
-        server_listen = Win::socket(p_info->ai_family, p_info->ai_socktype, p_info->ai_protocol);
+        server_listen = Win::socket(p_info->ai_family, 
+            p_info->ai_socktype, p_info->ai_protocol);
         ASSERT(server_listen != INVALID_SOCKET);
 
         // Attempt to bind to the socket.
-        int const failure = Win::bind(server_listen, p_info->ai_addr, int(p_info->ai_addrlen));
+        int const failure = Win::bind(server_listen, 
+            p_info->ai_addr, int(p_info->ai_addrlen));
         if (failure == 0) {
             // success
             break;
         }
         int const error_code = Win::WSAGetLastError();
         if (error_code == WSAEADDRINUSE) {
-            std::cout << "Port " << SERVER_LISTEN_PORT 
-                << " is busy on this computer.\nIs there a Gold Tile server already running?"
-                << std::endl;
+            String const message = String("Port ")
+                + SERVER_LISTEN_PORT + " on this computer is busy.\n"
+                + "Perhaps there is another Gold Tile server running.";
+            Notice(message);
             server_listen = INVALID_SOCKET;
             // try next addrinfo
         } else {
@@ -282,7 +356,10 @@ Network::~Network(void) {
         }
     }
 
-    Socket const result = Socket(Socket::HandleType(server_listen));
+    Socket result;
+    if (server_listen != INVALID_SOCKET) {
+        result = Socket(Socket::HandleType(server_listen));
+    }
 
     return result;
 }
@@ -307,9 +384,16 @@ Network::~Network(void) {
             break;
         }
         int const error_code = Win::WSAGetLastError();
-        if (error_code == WSAECONNREFUSED) {
-            std::cout << "No response.  Make sure a Gold Tile server is running on " 
-                << String(rServer) << std::endl;
+        if (error_code == WSAECONNREFUSED
+         || error_code == WSAETIMEDOUT) {
+            String const server(rServer);
+            String const server_description = String("port ") + SERVER_LISTEN_PORT 
+                + " on " + server;
+            String const message = String("No response from ")
+                + server_description
+                + "\n\nPlease make sure that a Gold Tile server is running on " 
+                + server;
+            Notice(message);
             client_send = INVALID_SOCKET;
             // try next addrinfo
         } else {
@@ -319,25 +403,33 @@ Network::~Network(void) {
         }
     } 
 
-    Socket const result = Socket(Socket::HandleType(client_send));
+    Socket result;
+    if (client_send != INVALID_SOCKET) {
+        result = Socket(Socket::HandleType(client_send));
+    }
 
     return result;
 }
 
-// CLIENT:  Invite a server to participate in the current game.
-/* static */ void Network::InviteServer(Socket& rSocket, Game const& rGame) {
-    Address const peer = rSocket.Peer();
-    std::cout << "Sending invitation to server at " << String(peer) << std::endl;
+/* static */ bool Network::Retry(String const& rMessage) {
+    bool result = true;
 
-    GameOpt const game_opt = rGame;
-    String const game_opt_string = game_opt;
-    rSocket.Put(game_opt_string);
+#ifdef _GUI
+    ASSERT(mspWindow != NULL);
+    result = mspWindow->RetryBox(rMessage, "Gold Tile Game - Network Retry");
+#else // !defined(_GUI)
+    std::cout << "Press the Enter key to retry ..." << std::endl;
+    String end_of_line;
+    std::getline(std::cin, end_of_line);
+    // The console version retries until something kills the application,
+    // such as a local user pressing Ctrl+C.
+#endif // !defined(_GUI)
 
-    Hands const hands = rGame;
-    Hands::ConstIterator i_hand;
-    for (i_hand = hands.begin(); i_hand != hands.end(); i_hand++) {
-        HandOpt const hand_opt = *i_hand;
-        String const hand_opt_string = hand_opt;
-        rSocket.Put(hand_opt_string);
-    }
+    return result;
 }
+
+#ifdef _GUI
+/* static */ void Network::SetWindow(Window* pWindow) {
+    mspWindow = pWindow;
+}
+#endif // defined(_GUI)

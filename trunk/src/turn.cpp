@@ -28,21 +28,21 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 // lifecycle
 
 Turn::Turn(Tiles const& rTiles, String const& rHandName):
-    mDraw(rTiles),
-	mHandName(rHandName)
+mDraw(rTiles),
+    mHandName(rHandName)
 {
-	// one of the initial draws
-	mMustPlay = 0;
-	mPoints = 0;
+    // one of the initial draws
+    mMustPlay = 0;
+    mPoints = 0;
 }
 
 Turn::Turn(Move const& rMove, String const& rHandName, unsigned mustPlay):
-    mHandName(rHandName),
-	mMove(rMove)
+mHandName(rHandName),
+    mMove(rMove)
 {
-	// an ordinary turn
-	mMustPlay = mustPlay;
-	mPoints = 0;
+    // an ordinary turn
+    mMustPlay = mustPlay;
+    mPoints = 0;
 }
 
 // The compiler-generated copy constructor is OK.
@@ -54,30 +54,30 @@ Turn::Turn(Move const& rMove, String const& rHandName, unsigned mustPlay):
 // The compiler-generated assignment operator is OK.
 
 Turn::operator Move(void) const {
-	return mMove;
+    return mMove;
 }
 
 
 // misc methods
 
 Tiles Turn::Draw(void) const {
-	return mDraw;
+    return mDraw;
 }
 
 String Turn::HandName(void) const {
-	return mHandName;
+    return mHandName;
 }
 
 ScoreType Turn::Points(void) const {
-	return mPoints;
+    return mPoints;
 }
 
 void Turn::SetDraw(Tiles const& rDraw) {
-     mDraw = rDraw;
+    mDraw = rDraw;
 }
 
 void Turn::SetPoints(ScoreType points) {
-     mPoints = points;
+    mPoints = points;
 }
 
 unsigned Turn::MustPlay(void) const {

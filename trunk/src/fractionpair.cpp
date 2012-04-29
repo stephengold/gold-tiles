@@ -30,7 +30,7 @@ FractionPair::FractionPair(double x, double y) {
     ASSERT(y >= 0.0);
     ASSERT(x <= 1.0);
     ASSERT(y <= 1.0);
-    
+
     mX = float(x);
     mY = float(y);
 }

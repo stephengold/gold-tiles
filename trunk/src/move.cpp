@@ -39,33 +39,33 @@ const String Move::SUFFIX("}");
 // lifecycle
 
 Move::Move(void) {
-	mResignFlag = false;
+    mResignFlag = false;
 }
 
 // The compiler-generated copy constructor is fine.
 
 // Parse a save/send string.
 Move::Move(String const& rString, bool remoteFlag) {
-	bool const has_prefix = rString.HasPrefix(PREFIX);
-	bool const has_suffix = rString.HasSuffix(SUFFIX);
-	if (!has_prefix || !has_suffix) {
-		FAIL(); // TODO recovery
-	}
-	String const body = rString.Suffix(PREFIX).Prefix(SUFFIX);
+    bool const has_prefix = rString.HasPrefix(PREFIX);
+    bool const has_suffix = rString.HasSuffix(SUFFIX);
+    if (!has_prefix || !has_suffix) {
+        FAIL(); // TODO recovery
+    }
+    String const body = rString.Suffix(PREFIX).Prefix(SUFFIX);
 
-	Strings const words(body, SEPARATOR);
-	mResignFlag = false;
+    Strings const words(body, SEPARATOR);
+    mResignFlag = false;
 
-	Strings::ConstIterator i_word;
-	for (i_word = words.Begin(); i_word != words.End(); i_word++) {
-		String const word = *i_word;
-		if (word != RESIGN) {
-		    TileCell const tile_cell(word, remoteFlag);
+    Strings::ConstIterator i_word;
+    for (i_word = words.Begin(); i_word != words.End(); i_word++) {
+        String const word = *i_word;
+        if (word != RESIGN) {
+            TileCell const tile_cell(word, remoteFlag);
             Add(tile_cell);
-		} else {
-			mResignFlag = true;
-		}
-	}
+        } else {
+            mResignFlag = true;
+        }
+    }
 }
 
 // The compiler-generated destructor is fine.
@@ -76,46 +76,46 @@ Move::Move(String const& rString, bool remoteFlag) {
 // The compiler-generated assignment operator is fine.
 
 bool Move::operator!=(Move const& rOther) const {
-	bool result = (mResignFlag != rOther.mResignFlag);
+    bool result = (mResignFlag != rOther.mResignFlag);
 
     if (!result) {
-	    result = (Count() != rOther.Count());
+        result = (Count() != rOther.Count());
     }
     if (!result) {
         ConstIterator i_this;
         ConstIterator i_other = rOther.Begin();
         for (i_this = Begin(); i_this != End(); i_this++) {
             if (*i_this != *i_other) {
-			    result = true;
-			    break;
+                result = true;
+                break;
             }
-			i_other++;
-		}
-	}
+            i_other++;
+        }
+    }
 
     return result;
 }
 
 Move::operator Cells(void) const {
     Cells result;
-    
+
     ConstIterator i_tile_cell;
     for (i_tile_cell = Begin(); i_tile_cell != End(); i_tile_cell++) {
-		if (!i_tile_cell->IsSwap()) {
+        if (!i_tile_cell->IsSwap()) {
             Cell const cell = Cell(*i_tile_cell);
             result.insert(cell);
-		}
+        }
     }
 
     return result;
 }
 
 Move::operator String(void) const {
-	String result(PREFIX);
+    String result(PREFIX);
 
-	if (mResignFlag) {
-		result += RESIGN + SEPARATOR;
-	}
+    if (mResignFlag) {
+        result += RESIGN + SEPARATOR;
+    }
 
     ConstIterator i_tile_cell;
     for (i_tile_cell = Begin(); i_tile_cell != End(); i_tile_cell++) {
@@ -123,7 +123,7 @@ Move::operator String(void) const {
             result += SEPARATOR;
         } 
         result += String(*i_tile_cell);
-	}
+    }
     result += SUFFIX;
 
     return result;
@@ -131,7 +131,7 @@ Move::operator String(void) const {
 
 Move::operator Tiles(void) const {
     Tiles result;
-    
+
     ConstIterator i_tile_cell;
     for (i_tile_cell = Begin(); i_tile_cell != End(); i_tile_cell++) {
         TileCell const tc = *i_tile_cell;
@@ -150,7 +150,7 @@ void Move::Add(TileCell const& rTileCell) {
 }
 
 void Move::Add(Tile const& rTile, Cell const& rCell) {
-	// add a tile played to the board
+    // add a tile played to the board
     TileCell const tile_cell(rTile, rCell);
     Add(tile_cell);
 }
@@ -161,76 +161,76 @@ void Move::AddSwapTile(Tile const& rTile) {
 }
 
 Move::ConstIterator Move::Begin(void) const {
-	ConstIterator const result = mSet.begin();
+    ConstIterator const result = mSet.begin();
 
-	return result;
+    return result;
 }
 
 unsigned Move::Count(void) const {
     unsigned const result = mSet.size();
 
-	return result;
+    return result;
 }
 
 unsigned Move::CountTilesPlayed(void) const {
     unsigned result = 0;
 
-	if (!InvolvesSwap()) {
-		result = Count();
-	}
+    if (!InvolvesSwap()) {
+        result = Count();
+    }
 
-	return result;
+    return result;
 }
 
 String Move::Description(void) const {
-	String result;
+    String result;
 
-	if (mResignFlag) {
-		result = "resigned with " + ::plural(Count(), "tile");
-	} else if (InvolvesSwap()) {
-		result = "swapped " + ::plural(Count(), "tile");
-	} else if (IsPass()) {
-		result = "passed";
-	} else {
-		result = "played ";
+    if (mResignFlag) {
+        result = "resigned with " + ::plural(Count(), "tile");
+    } else if (InvolvesSwap()) {
+        result = "swapped " + ::plural(Count(), "tile");
+    } else if (IsPass()) {
+        result = "passed";
+    } else {
+        result = "played ";
 
         ConstIterator i_tile_cell;
         for (i_tile_cell = Begin(); i_tile_cell != End(); i_tile_cell++) {
             if (i_tile_cell != Begin()) {
                 result += ", ";
             }
-			TileCell const tile_cell = *i_tile_cell;
+            TileCell const tile_cell = *i_tile_cell;
             result += tile_cell.Description();
-	    }
-	}
+        }
+    }
 
     return result;
 }
 
 Move::ConstIterator Move::End(void) const {
-	ConstIterator const result = mSet.end();
+    ConstIterator const result = mSet.end();
 
-	return result;
+    return result;
 }
 
 void Move::GetUserChoice(Tiles const& rAvailableTiles, unsigned mustPlay) {
     MakePass();
 
     for (;;) {
-		Strings alts;
-		if (IsPass()) {
-			alts.Append("resign");
-			if (mustPlay == 0) {
-			    alts.Append("pass");
-			}
-		} else if (Count() >= mustPlay) {
-			alts.Append("move");
-		}
+        Strings alts;
+        if (IsPass()) {
+            alts.Append("resign");
+            if (mustPlay == 0) {
+                alts.Append("pass");
+            }
+        } else if (Count() >= mustPlay) {
+            alts.Append("move");
+        }
 
-		TileCell tile_cell;
-		String const input = tile_cell.GetUserChoice(rAvailableTiles, alts);
+        TileCell tile_cell;
+        String const input = tile_cell.GetUserChoice(rAvailableTiles, alts);
         if (input == "resign") {
-			MakeResign(rAvailableTiles);
+            MakeResign(rAvailableTiles);
             break;
         } else if (input == "pass" || input == "move") {
             break;
@@ -241,19 +241,19 @@ void Move::GetUserChoice(Tiles const& rAvailableTiles, unsigned mustPlay) {
 }
 
 void Move::MakePass(void) {
-	mSet.clear();
-	mResignFlag = false;
+    mSet.clear();
+    mResignFlag = false;
 }
 
 void Move::MakeResign(Tiles const& rTiles) {
-	mSet.clear();
-	Tiles::ConstIterator i_tile;
-	for (i_tile = rTiles.begin(); i_tile != rTiles.end(); i_tile++) {
-		Tile const tile = *i_tile;
-	    AddSwapTile(tile);
-	}
+    mSet.clear();
+    Tiles::ConstIterator i_tile;
+    for (i_tile = rTiles.begin(); i_tile != rTiles.end(); i_tile++) {
+        Tile const tile = *i_tile;
+        AddSwapTile(tile);
+    }
 
-	mResignFlag = true;
+    mResignFlag = true;
 }
 
 
@@ -262,60 +262,60 @@ void Move::MakeResign(Tiles const& rTiles) {
 bool Move::InvolvesSwap(void) const {
     bool result = false;
 
-	ConstIterator i_tile_cell;
-	for (i_tile_cell = Begin(); i_tile_cell != End(); i_tile_cell++) {
-		if (i_tile_cell->IsSwap()) {
-			result = true;
-			break;
-		}
-	}
+    ConstIterator i_tile_cell;
+    for (i_tile_cell = Begin(); i_tile_cell != End(); i_tile_cell++) {
+        if (i_tile_cell->IsSwap()) {
+            result = true;
+            break;
+        }
+    }
 
-	return result;
+    return result;
 }
 
 bool Move::IsPass(void) const {
-	bool const result = (Count() == 0) && !mResignFlag;
+    bool const result = (Count() == 0) && !mResignFlag;
 
-	return result;
+    return result;
 }
 
 bool Move::IsPureSwap(void) const {
-	bool result = !mResignFlag;
+    bool result = !mResignFlag;
 
-	if (result) {
-		// every tile in the move must also get swapped
+    if (result) {
+        // every tile in the move must also get swapped
         ConstIterator i_tile_cell;
         for (i_tile_cell = Begin(); i_tile_cell != End(); i_tile_cell++) {
             if (!i_tile_cell->IsSwap()) {
-        	    result = false;
-			    break;
-		    }
-		}
-	}
+                result = false;
+                break;
+            }
+        }
+    }
 
-	return result;
+    return result;
 }
 
 bool Move::IsResign(void) const {
-	return mResignFlag;
+    return mResignFlag;
 }
 
 bool Move::IsPlay(void) const {
-	bool const result = (Count() > 0) && !mResignFlag && !InvolvesSwap();
+    bool const result = (Count() > 0) && !mResignFlag && !InvolvesSwap();
 
-	return result;
+    return result;
 }
 
 bool Move::RepeatsTile(void) const {
     bool result = false;
-    
+
     if (Count() > 1) {
         Indices tiles_seen;
         ConstIterator i_tile_cell;
-        
+
         for (i_tile_cell = Begin(); i_tile_cell != End(); i_tile_cell++) {
             Tile const tile = i_tile_cell->operator Tile();   // TODO
-			Tile::IdType const id = tile.Id();
+            Tile::IdType const id = tile.Id();
             if (tiles_seen.Contains(id)) {
                 result = true;
                 break;
@@ -324,19 +324,19 @@ bool Move::RepeatsTile(void) const {
             }
         }
     }
-    
+
     return result;
 }
 
 bool Move::RepeatsCell(void) const {
     bool result = false;
-    
+
     if (Count() > 1) {
         Cells cells_seen;
         ConstIterator i_tile_cell;
-        
+
         for (i_tile_cell = Begin(); i_tile_cell != End(); i_tile_cell++) {
-    		if (!i_tile_cell->IsSwap()) {
+            if (!i_tile_cell->IsSwap()) {
                 Cell const cell = Cell(*i_tile_cell);
                 if (cells_seen.Contains(cell)) {
                     result = true;
@@ -344,9 +344,10 @@ bool Move::RepeatsCell(void) const {
                 } else {
                     cells_seen.Add(cell);
                 }
-			}
+            }
         }
     }
-     
+
     return result;
 }
+

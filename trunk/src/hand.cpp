@@ -30,20 +30,20 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 // lifecycle
 
 Hand::Hand(
-	String const& rHandName,
-	HandOpt const& rOptions,
-	Socket const& rClientSocket)
-:
-    mName(rHandName),
-	mOptions(rOptions)
+    String const& rHandName,
+    HandOpt const& rOptions,
+    Socket const& rClientSocket)
+    :
+mName(rHandName),
+    mOptions(rOptions)
 {
-	mClockRunningFlag = false;
-	mMilliseconds = 0L;
-	if (rClientSocket.IsValid() && Address(rOptions) == rClientSocket.Peer()) {
-		mSocket = rClientSocket;
-	}
-	// mStartTime gets initialized in StartClock()
-	Restart();
+    mClockRunningFlag = false;
+    mMilliseconds = 0L;
+    if (rClientSocket.IsValid() && Address(rOptions) == rClientSocket.Peer()) {
+        mSocket = rClientSocket;
+    }
+    // mStartTime gets initialized in StartClock()
+    Restart();
 }
 
 // The compiler-generated copy constructor is fine.
@@ -55,23 +55,23 @@ Hand::Hand(
 // The compiler-generated assignment method is fine.
 
 bool Hand::operator==(Hand const& rOther) const {
-	bool const result = (Name() == rOther.Name());
+    bool const result = (Name() == rOther.Name());
 
-	return result;
+    return result;
 }
 
 Hand::operator Address(void) const {
-	Address const result = mOptions;
+    Address const result = mOptions;
 
-	return result;
+    return result;
 }
 
 Hand::operator HandOpt(void) const {
-	return mOptions;
+    return mOptions;
 }
 
 Hand::operator Socket(void) const {
-	return mSocket;
+    return mSocket;
 }
 
 Hand::operator Tiles(void) const {
@@ -84,9 +84,9 @@ Hand::operator Tiles(void) const {
 void Hand::AddScore(ScoreType points) {
     ASSERT(!IsClockRunning());
 
-	ScoreType const new_score = mScore + points;
-	ASSERT(new_score >= mScore); // check for wraparound
-	mScore = new_score;
+    ScoreType const new_score = mScore + points;
+    ASSERT(new_score >= mScore); // check for wraparound
+    mScore = new_score;
 }
 
 void Hand::AddTiles(Tiles const& rTiles) {
@@ -96,24 +96,24 @@ void Hand::AddTiles(Tiles const& rTiles) {
 Move Hand::ChooseMove(unsigned mustPlay) const {
     ASSERT(IsClockRunning());
     ASSERT(IsLocalUser());
-    
+
     DescribeTiles();
-	Move result;
+    Move result;
     result.GetUserChoice(mTiles, mustPlay);
-    
-	return result;
+
+    return result;
 }
 
 bool Hand::ConnectToServer(Game& rGame) {
-	ASSERT(IsRemote());
-	ASSERT(rGame.AmClient());
+    ASSERT(IsRemote());
+    ASSERT(rGame.AmClient());
 
     bool result = true;
 
     Address const server_address = *this;
-	if (!rGame.IsConnectedToServer(server_address)) {
-		result = Network::ConnectToServer(server_address, rGame);
-	}
+    if (!rGame.IsConnectedToServer(server_address)) {
+        result = Network::ConnectToServer(server_address, rGame);
+    }
 
     return result;
 }
@@ -123,15 +123,15 @@ void Hand::DescribeName(void) const {
 }
 
 void Hand::DescribeScore(void) const {
-	DescribeName();
+    DescribeName();
     std::cout << " has " << ::plural(mScore, "point") << "." << std::endl;
 }
 
 void Hand::DescribeTiles(void) const {
-	DescribeName();
-	unsigned const count = mTiles.Count();
-	std::cout << " holds " << ::plural(count, "tile") << ": " 
-		      << mTiles.Description() << "." << std::endl;
+    DescribeName();
+    unsigned const count = mTiles.Count();
+    std::cout << " holds " << ::plural(count, "tile") << ": " 
+        << mTiles.Description() << "." << std::endl;
 }
 
 void Hand::DisableServer(void) {
@@ -139,18 +139,18 @@ void Hand::DisableServer(void) {
 }
 
 Move Hand::GetAutomaticMove(Game const& rGame) const {
-	double skip_probability = SkipProbability();
-	if (rGame.MustPlay() > 0) {
-		skip_probability = 0.0;
-	}
+    double skip_probability = SkipProbability();
+    if (rGame.MustPlay() > 0) {
+        skip_probability = 0.0;
+    }
     Partial partial(&rGame, HINT_NONE, skip_probability);
     partial.Suggest();
     Move result = partial.GetMove(false);
 
     DescribeName();
-	std::cout << " " << result.Description() << "." << std::endl;
+    std::cout << " " << result.Description() << "." << std::endl;
 
-	return result;
+    return result;
 }
 
 // Return true if successful, false if canceled.
@@ -161,13 +161,13 @@ bool Hand::GetRemoteMove(Move& rMove) {
         return false;
     }
 
-	String move_string;
+    String move_string;
     bool const success = mSocket.GetLine(move_string);
     if (success) {
-	    rMove = Move(move_string, true);
+        rMove = Move(move_string, true);
 #ifdef _CONSOLE
         DescribeName();
-	    std::cout << " " << rMove.Description() << "." << std::endl;
+        std::cout << " " << rMove.Description() << "." << std::endl;
 #endif // defined(_CONSOLE)
     }
 
@@ -176,25 +176,25 @@ bool Hand::GetRemoteMove(Move& rMove) {
 
 // find the longest run of compatible tiles in the hand
 Tiles Hand::LongestRun(void) const {
-	Tiles const result = mTiles.LongestRun();
-            
-	return result;
+    Tiles const result = mTiles.LongestRun();
+
+    return result;
 }
 
 // read the hand's elapsed time clock
 // and if the clock is running, update mTurnMilliseconds
 MsecIntervalType Hand::Milliseconds(void) const {
-	MsecIntervalType result = mMilliseconds;
+    MsecIntervalType result = mMilliseconds;
 
     if (mClockRunningFlag) {
-	    MsecIntervalType const now = ::milliseconds();
-		ASSERT(now >= mStartTime);
-		MsecIntervalType const turn_msec = now - mStartTime;
+        MsecIntervalType const now = ::milliseconds();
+        ASSERT(now >= mStartTime);
+        MsecIntervalType const turn_msec = now - mStartTime;
         result += turn_msec;
-		ASSERT(result >= mMilliseconds);
-	}
+        ASSERT(result >= mMilliseconds);
+    }
 
-	return result;
+    return result;
 }
 
 String Hand::Name(void) const {
@@ -204,34 +204,34 @@ String Hand::Name(void) const {
 String Hand::PlayerName(void) const {
     String result = mOptions.PlayerName();
 
-	return result;
+    return result;
 }
 
 void Hand::RemoveTile(Tile const& rTile) {
-	mTiles.Remove(rTile);
+    mTiles.Remove(rTile);
 }
 
 void Hand::RemoveTiles(Tiles const& rTiles) {
-	mTiles.Purge(rTiles);
+    mTiles.Purge(rTiles);
 }
 
 void Hand::Resign(Tiles& rBag) {
     ASSERT(!IsClockRunning());
-	ASSERT(!HasResigned());
+    ASSERT(!HasResigned());
 
-	rBag.Merge(mTiles);
-	mTiles.MakeEmpty();
-	mResignedFlag = true;
+    rBag.Merge(mTiles);
+    mTiles.MakeEmpty();
+    mResignedFlag = true;
 
-	ASSERT(HasResigned());
+    ASSERT(HasResigned());
 }
 
 void Hand::Restart(void) {
-	ASSERT(!IsClockRunning());
+    ASSERT(!IsClockRunning());
 
-	mResignedFlag = false;
-	mScore = 0;
-	mTiles.MakeEmpty();
+    mResignedFlag = false;
+    mScore = 0;
+    mTiles.MakeEmpty();
 }
 
 // total points this hand has scored
@@ -241,64 +241,64 @@ ScoreType Hand::Score(void) const {
 
 // how much time this hand has spent, in seconds
 unsigned Hand::Seconds(void) const {
-	MsecIntervalType const msecs = Milliseconds();
+    MsecIntervalType const msecs = Milliseconds();
     unsigned const result = unsigned(msecs/MSECS_PER_SECOND);
 
-	return result;
+    return result;
 }
 
 void Hand::SetSocket(Socket const& rSocket) {
     ASSERT(!mSocket.IsValid());
     ASSERT(rSocket.IsValid());
 
-	mSocket = rSocket;
+    mSocket = rSocket;
 
     ASSERT(rSocket == mSocket);
 }
 
 double Hand::SkipProbability(void) const {
-	double result = mOptions.SkipProbability();
+    double result = mOptions.SkipProbability();
 
-	return result;
+    return result;
 }
 
 void Hand::StartClock(void) {
-	ASSERT(!mClockRunningFlag);
+    ASSERT(!mClockRunningFlag);
 
-	mStartTime = ::milliseconds();
-	mClockRunningFlag = true;
+    mStartTime = ::milliseconds();
+    mClockRunningFlag = true;
 }
 
 unsigned Hand::StopClock(void) {
-	ASSERT(IsClockRunning());
+    ASSERT(IsClockRunning());
 
-	mMilliseconds = Milliseconds();
-	mClockRunningFlag = false;
+    mMilliseconds = Milliseconds();
+    mClockRunningFlag = false;
 
-	// return the number of elapsed seconds
-	unsigned const result = unsigned(mMilliseconds/MSECS_PER_SECOND);
+    // return the number of elapsed seconds
+    unsigned const result = unsigned(mMilliseconds/MSECS_PER_SECOND);
 
-	return result;
+    return result;
 }
 
 void Hand::SubtractScore(ScoreType points) {
-	ASSERT(!HasResigned());
+    ASSERT(!HasResigned());
     ASSERT(!IsClockRunning());
 
-	ScoreType const new_score = mScore - points;
-	ASSERT(new_score <= mScore); // check for wraparound
-	mScore = new_score;
+    ScoreType const new_score = mScore - points;
+    ASSERT(new_score <= mScore); // check for wraparound
+    mScore = new_score;
 }
 
 void Hand::Unresign(Tiles& rBag, Tiles const& rHand) {
-	ASSERT(HasResigned());
+    ASSERT(HasResigned());
     ASSERT(!IsClockRunning());
 
-	rBag.Purge(rHand);
-	mTiles = rHand;
-	mResignedFlag = false;
+    rBag.Purge(rHand);
+    mTiles = rHand;
+    mResignedFlag = false;
 
-	ASSERT(!HasResigned());
+    ASSERT(!HasResigned());
 }
 
 
@@ -306,8 +306,8 @@ void Hand::Unresign(Tiles& rBag, Tiles const& rHand) {
 
 bool Hand::HasGoneOut(void) const {
     bool const result = IsEmpty() && !HasResigned();
-	
-	return result;
+
+    return result;
 }
 
 bool Hand::HasResigned(void) const {
@@ -317,27 +317,27 @@ bool Hand::HasResigned(void) const {
 bool Hand::IsAutomatic(void) const {
     bool const result = mOptions.IsAutomatic();
 
-	return result;
+    return result;
 }
 
 bool Hand::IsClockRunning(void) const {
-	return mClockRunningFlag;
+    return mClockRunningFlag;
 }
 
 bool Hand::IsEmpty(void) const {
-     bool const result = mTiles.IsEmpty();
-     
-     return result;
+    bool const result = mTiles.IsEmpty();
+
+    return result;
 }
 
 bool Hand::IsLocalUser(void) const {
     bool const result = mOptions.IsLocalUser();
 
-	return result;
+    return result;
 }
 
 bool Hand::IsRemote(void) const {
-	bool const result = mOptions.IsRemote();
+    bool const result = mOptions.IsRemote();
 
-	return result;
+    return result;
 }

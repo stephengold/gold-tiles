@@ -41,25 +41,25 @@ using Win::PMIB_IPADDRTABLE;
 // lifecycle
 
 Address::Address(void):
-    mString("0.0.0.0")
+mString("0.0.0.0")
 {}
 
 // The compiler-generated copy constructor is fine.
 
 Address::Address(String const &rString) {
-	unsigned long const address = Win::inet_addr(rString);
+    unsigned long const address = Win::inet_addr(rString);
 
-	IN_ADDR ipv4_address;
+    IN_ADDR ipv4_address;
     ipv4_address.S_un.S_addr = address;
-	TextType const text = Win::inet_ntoa(ipv4_address);
+    TextType const text = Win::inet_ntoa(ipv4_address);
     mString = String(text);
 }
 
 // Construct from a 32-bit address in network (bigendian) byte order.
 Address::Address(unsigned long address) {
-	IN_ADDR ipv4_address;
+    IN_ADDR ipv4_address;
     ipv4_address.S_un.S_addr = address;
-	TextType const text = Win::inet_ntoa(ipv4_address);
+    TextType const text = Win::inet_ntoa(ipv4_address);
     mString = String(text);
 }
 
@@ -71,13 +71,13 @@ Address::Address(unsigned long address) {
 // The compiler-generated assignment operator is fine.
 
 Address::operator String(void) const {
-	return mString;
+    return mString;
 }
 
 Address::operator unsigned long(void) const {
-	unsigned long const result = Win::inet_addr(mString);
+    unsigned long const result = Win::inet_addr(mString);
 
-	return result;
+    return result;
 }
 
 
@@ -85,50 +85,50 @@ Address::operator unsigned long(void) const {
 
 // List all usable, local IP addresses, excluding localhost.
 /* static */ Strings Address::ListAll(void) {
-	// allocate a too-small buffer for the address table
+    // allocate a too-small buffer for the address table
     PMIB_IPADDRTABLE p_table = new MIB_IPADDRTABLE;
-	ASSERT(p_table != NULL);
+    ASSERT(p_table != NULL);
 
-	// query for table size
+    // query for table size
     DWORD table_bytes = 0;
     DWORD error_code = Win::GetIpAddrTable(p_table, &table_bytes, 0);
-	ASSERT(error_code == ERROR_INSUFFICIENT_BUFFER);
+    ASSERT(error_code == ERROR_INSUFFICIENT_BUFFER);
 
-	// resize the address table
-	delete p_table;
+    // resize the address table
+    delete p_table;
     p_table = PMIB_IPADDRTABLE(new char[table_bytes]);
-	ASSERT(p_table != NULL);
+    ASSERT(p_table != NULL);
     error_code = Win::GetIpAddrTable(p_table, &table_bytes, 0);
     ASSERT(error_code == NO_ERROR);
 
-	Strings result;
+    Strings result;
 
-	// Select rows from the table and append usable IP addresses to the result.
-	unsigned const row_cnt = p_table->dwNumEntries;
+    // Select rows from the table and append usable IP addresses to the result.
+    unsigned const row_cnt = p_table->dwNumEntries;
     for (unsigned i_row = 0; i_row < row_cnt; i_row++) {
-		PMIB_IPADDRROW const p_row = &(p_table->table[i_row]);
-		unsigned short w_type = p_row->wType;
-	    unsigned short mask = (MIB_IPADDR_TRANSIENT | MIB_IPADDR_DISCONNECTED | MIB_IPADDR_DELETED);
-		if ((w_type & mask) == 0x0) {
-		    // The row is neither transient, nor disconnected, nor undergoing deletion.
-			Address const address(p_row->dwAddr);
-			if (address.Net() != LOCALHOST_NET) { // skip localhost
-			    String const address_text = address;
+        PMIB_IPADDRROW const p_row = &(p_table->table[i_row]);
+        unsigned short w_type = p_row->wType;
+        unsigned short mask = (MIB_IPADDR_TRANSIENT | MIB_IPADDR_DISCONNECTED | MIB_IPADDR_DELETED);
+        if ((w_type & mask) == 0x0) {
+            // The row is neither transient, nor disconnected, nor undergoing deletion.
+            Address const address(p_row->dwAddr);
+            if (address.Net() != LOCALHOST_NET) { // skip localhost
+                String const address_text = address;
                 result.Append(address_text);
-			}
-		}
+            }
+        }
     }
     delete p_table;
 
-	return result;
+    return result;
 }
 
 Address::NetType Address::Net(void) const {
-	unsigned long const address = Win::inet_addr(mString);
+    unsigned long const address = Win::inet_addr(mString);
 
-	IN_ADDR ipv4_address;
+    IN_ADDR ipv4_address;
     ipv4_address.S_un.S_addr = address;
     NetType const result = ipv4_address.s_net;
 
-	return result;
+    return result;
 }

@@ -46,26 +46,26 @@ BaseBoard::BaseBoard(void) {
 
 // get a list of all tiles played
 BaseBoard::operator Tiles(void) const {
-	Tiles result;
+    Tiles result;
 
     CellConstIterator i_cell;
-	for (i_cell = mCells.begin(); i_cell != mCells.end(); i_cell++) {
-		Tile const tile = i_cell->second;
-		result.Add(tile);
-	}
+    for (i_cell = mCells.begin(); i_cell != mCells.end(); i_cell++) {
+        Tile const tile = i_cell->second;
+        result.Add(tile);
+    }
 
-	return result;
+    return result;
 }
 
 
 // misc methods
 
 unsigned BaseBoard::Count(void) const {
-	unsigned const result = mCells.size();
+    unsigned const result = mCells.size();
 
-	ASSERT(mTiles.size() == result);
+    ASSERT(mTiles.size() == result);
 
-	return result;
+    return result;
 }
 
 // get the eastern limit of the board
@@ -75,8 +75,8 @@ ColumnType BaseBoard::EastMax(void) const {
 
 // get iterators to specific cells
 BaseBoard::CellConstIterator BaseBoard::Find(
-	RowType northing, 
-	ColumnType easting) const
+    RowType northing, 
+    ColumnType easting) const
 {
     Cell const cell(northing, easting);
     CellConstIterator result = mCells.find(cell);
@@ -85,8 +85,8 @@ BaseBoard::CellConstIterator BaseBoard::Find(
 }
 
 BaseBoard::CellIterator BaseBoard::Find(
-	RowType northing, 
-	ColumnType easting)
+    RowType northing, 
+    ColumnType easting)
 {
     Cell const cell(northing, easting);
     CellIterator const result = mCells.find(cell);
@@ -109,24 +109,24 @@ Tile const* BaseBoard::GetCell(Cell const& rCell) const {
 // Locate the Cell (if any) which contains a specific Tile.
 bool BaseBoard::LocateTile(Tile::IdType id, Cell& rCell) const {
     bool result = false;
-	if (Tile::IsValid(id)) {
-		Tile const tile(id, false);
+    if (Tile::IsValid(id)) {
+        Tile const tile(id, false);
         TileConstIterator const i_tile = mTiles.find(tile);
         if (i_tile != mTiles.end()) {
             rCell = i_tile->second;
-			result = true;
+            result = true;
         }
-	}
+    }
 
     return result;
 }
 
 // Reset the board.
 void BaseBoard::MakeEmpty(void) {
-	mNorthMax = 0;
-	mSouthMax = 0;
-	mEastMax = 0;
-	mWestMax = 0;
+    mNorthMax = 0;
+    mSouthMax = 0;
+    mEastMax = 0;
+    mWestMax = 0;
     mCells.clear();
     mTiles.clear();
 }
@@ -135,12 +135,12 @@ void BaseBoard::MakeEmpty(void) {
 void BaseBoard::MakeEmpty(Cell const& rCell) {
     RowType const row = rCell.Row();
     ColumnType const column = rCell.Column();
-    
+
     CellIterator i_cell = Find(row, column);
     Tile const tile = i_cell->second;
     ASSERT(i_cell != mCells.end());
     mCells.erase(i_cell);
-    
+
     TileIterator const i_tile = mTiles.find(tile);
     ASSERT(i_tile != mTiles.end());
     mTiles.erase(i_tile);
@@ -174,7 +174,7 @@ RowType BaseBoard::NorthMax(void) const {
 // Play a tile on a specific cell.
 void BaseBoard::PlayOnCell(Cell const& rCell, Tile const& rTile) {
     ASSERT(GetCell(rCell) == NULL);
-	ASSERT(mTiles.find(rTile) == mTiles.end());
+    ASSERT(mTiles.find(rTile) == mTiles.end());
 
     // expand the limits as needed
     RowType const row = rCell.Row();
@@ -202,12 +202,12 @@ void BaseBoard::PlayOnCell(Cell const& rCell, Tile const& rTile) {
 
 // get the southern limit of the board
 RowType BaseBoard::SouthMax(void) const {
-	return mSouthMax;
+    return mSouthMax;
 }
 
 // get the western limit of the board
 ColumnType BaseBoard::WestMax(void) const {
-	return mWestMax;
+    return mWestMax;
 }
 
 
@@ -215,7 +215,7 @@ ColumnType BaseBoard::WestMax(void) const {
 
 bool BaseBoard::IsEmptyColumn(ColumnType column) const {
     bool result = true;
-    
+
     for (RowType row = -mSouthMax; row <= mNorthMax; row++) {
         CellConstIterator const i_cell = Find(row, column);
         if (i_cell != mCells.end()) {
@@ -229,7 +229,7 @@ bool BaseBoard::IsEmptyColumn(ColumnType column) const {
 
 bool BaseBoard::IsEmptyRow(RowType row) const {
     bool result = true;
-    
+
     for (ColumnType column = -mWestMax; column <= mEastMax; column++) {
         CellConstIterator const i_cell = Find(row, column);
         if (i_cell != mCells.end()) {

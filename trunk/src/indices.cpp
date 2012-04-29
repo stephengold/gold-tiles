@@ -38,21 +38,21 @@ Indices::Indices(void) {
 }
 
 Indices::Indices(String const& rString) {
-	bool const has_prefix = rString.HasPrefix(PREFIX);
-	bool const has_suffix = rString.HasSuffix(SUFFIX);
-	if (!has_prefix || !has_suffix) {
-		FAIL(); // TODO recovery
-	}
-	String const body = rString.Suffix(PREFIX).Prefix(SUFFIX);
+    bool const has_prefix = rString.HasPrefix(PREFIX);
+    bool const has_suffix = rString.HasSuffix(SUFFIX);
+    if (!has_prefix || !has_suffix) {
+        FAIL(); // TODO recovery
+    }
+    String const body = rString.Suffix(PREFIX).Prefix(SUFFIX);
 
-	Strings const words(body, SEPARATOR);
+    Strings const words(body, SEPARATOR);
 
-	Strings::ConstIterator i_word;
-	for (i_word = words.Begin(); i_word != words.End(); i_word++) {
-		String const word = *i_word;
-		IndexType const tile(word);
+    Strings::ConstIterator i_word;
+    for (i_word = words.Begin(); i_word != words.End(); i_word++) {
+        String const word = *i_word;
+        IndexType const tile(word);
         Add(tile);
-	}
+    }
 }
 
 // The compiler-generated copy constructor is fine.
@@ -74,109 +74,109 @@ Indices::operator String(void) const {
             result += SEPARATOR;
         }
 
-		IndexType const index = *i_index;
+        IndexType const index = *i_index;
         result += String(index);
     }       
     result += SUFFIX;
 
-	return result;
+    return result;
 }
 
 
 // misc methods
 
 void Indices::Add(IndexType index) {
-	ASSERT(!Contains(index));
+    ASSERT(!Contains(index));
 
-	insert(index);
+    insert(index);
 
-	ASSERT(Contains(index));
+    ASSERT(Contains(index));
 }
 
 void Indices::AddRemove(IndexType index, bool addFlag) {
-	bool const have_index = Contains(index);
+    bool const have_index = Contains(index);
 
-	if (have_index && !addFlag) {
-		Remove(index);
-	} else if (!have_index && addFlag) {
-		Add(index);
-	}
+    if (have_index && !addFlag) {
+        Remove(index);
+    } else if (!have_index && addFlag) {
+        Add(index);
+    }
 
-	ASSERT(addFlag == Contains(index));
+    ASSERT(addFlag == Contains(index));
 }
 
 unsigned Indices::Count(void) const {
-	unsigned const result = size();
+    unsigned const result = size();
 
-	return result;
+    return result;
 }
 
 IndexType Indices::First(void) const {
-	ASSERT(!IsEmpty());
+    ASSERT(!IsEmpty());
 
-	ConstIterator const iterator = begin();
-	IndexType const result = *iterator;
+    ConstIterator const iterator = begin();
+    IndexType const result = *iterator;
 
-	ASSERT(Contains(result));
-	return result;
+    ASSERT(Contains(result));
+    return result;
 }
 
 IndexType Indices::Last(void) const {
-	ASSERT(!IsEmpty());
+    ASSERT(!IsEmpty());
 
-	ConstReverseIterator const iterator = rbegin();
-	IndexType const result = *iterator;
+    ConstReverseIterator const iterator = rbegin();
+    IndexType const result = *iterator;
 
-	ASSERT(Contains(result));
-	return result;
+    ASSERT(Contains(result));
+    return result;
 }
 
 void Indices::MakeEmpty(void) {
-	clear();
+    clear();
 
-	ASSERT(IsEmpty());
+    ASSERT(IsEmpty());
 }
 
 void Indices::Merge(Indices const& rIndices) {
-	ConstIterator i_index;
-	for (i_index = rIndices.begin(); i_index != rIndices.end(); i_index++) {
-		IndexType const index = *i_index;
+    ConstIterator i_index;
+    for (i_index = rIndices.begin(); i_index != rIndices.end(); i_index++) {
+        IndexType const index = *i_index;
         Add(index);
     }
 }
 
 void Indices::Purge(Indices const& rIndices) {
-	ASSERT(Count() >= rIndices.Count());
+    ASSERT(Count() >= rIndices.Count());
 
-	ConstIterator i_index;
-	for (i_index = rIndices.begin(); i_index != rIndices.end(); i_index++) {
-		IndexType const index = *i_index;
+    ConstIterator i_index;
+    for (i_index = rIndices.begin(); i_index != rIndices.end(); i_index++) {
+        IndexType const index = *i_index;
         Remove(index);
     }
 }
 
 void Indices::Remove(IndexType index) {
-	ASSERT(Contains(index));
+    ASSERT(Contains(index));
 
-	Iterator const i_index = find(index);
+    Iterator const i_index = find(index);
     ASSERT(i_index != end());
-	ASSERT(*i_index == index);
+    ASSERT(*i_index == index);
 
-	erase(i_index);
+    erase(i_index);
 
-	ASSERT(!Contains(index));
+    ASSERT(!Contains(index));
 }
 
 
 // inquiry methods
 bool Indices::Contains(IndexType index) const {
-	bool const result = (find(index) != end());
+    bool const result = (find(index) != end());
 
-	return result;
+    return result;
 }
 
 bool Indices::IsEmpty(void) const {
-	bool const result = (Count() == 0);
+    bool const result = (Count() == 0);
 
-	return result;
+    return result;
 }

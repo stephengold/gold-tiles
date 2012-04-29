@@ -35,78 +35,78 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 void assertion_failed(TextType file, unsigned line) {
     std::cout << "Assertion failed at line " << line << " in " << file << std::endl;
 
-	// A pause is needed when running in a console window because the window will
-	// be destroyed soon after exit() is called.
+    // A pause is needed when running in a console window because the window will
+    // be destroyed soon after exit() is called.
     ::pause();
 
     ::exit(EXIT_FAILURE);
 }
 
 bool is_even(long number) {
-	bool const result = ((number & 0x1) == 0);
+    bool const result = ((number & 0x1) == 0);
 
-	return result;
+    return result;
 }
 
 bool is_odd(long number) {
-	bool const result = ((number & 0x1) == 0x1);
+    bool const result = ((number & 0x1) == 0x1);
 
-	return result;
+    return result;
 }
 
 MsecIntervalType milliseconds(void) {
-	MsecIntervalType result;
+    MsecIntervalType result;
 #ifdef WIN32
-	Win::DWORD const ticks = Win::GetTickCount();
+    Win::DWORD const ticks = Win::GetTickCount();
     result = MsecIntervalType(ticks);
 #else // !defined(WIN32)
-	time_t const seconds = ::time(NULL);
-	result = MSECS_PER_SECOND*MsecIntervalType(seconds);
+    time_t const seconds = ::time(NULL);
+    result = MSECS_PER_SECOND*MsecIntervalType(seconds);
 #endif // !defined(WIN32)
 
-	return result;
+    return result;
 }
 
 String ordinal(unsigned n) {
     String result(n);
 
-	// tweak a few common cases
-	switch (n) {
-	    case 1: 
-		    result = "fir";
-			break;
-	    case 2:
-		    result = "seco";
-			break;
-	    case 3:
-		    result = "thi";
-			break;
-	    case 4:
-		    result = "four";
-			break;
-	    case 5:
-		    result = "fif";
-		    break;
-		default:
-			break; // digits will suffice
-	}
+    // tweak a few common cases
+    switch (n) {
+    case 1: 
+        result = "fir";
+        break;
+    case 2:
+        result = "seco";
+        break;
+    case 3:
+        result = "thi";
+        break;
+    case 4:
+        result = "four";
+        break;
+    case 5:
+        result = "fif";
+        break;
+    default:
+        break; // digits will suffice
+    }
 
-	unsigned const ones_place = n % 10;
-	unsigned const tens_place = (n / 10) % 10;
+    unsigned const ones_place = n % 10;
+    unsigned const tens_place = (n / 10) % 10;
 
-	if (tens_place == 1) {
-		result += "th";
-	} else if (ones_place == 1) {
-		result += "st";
-	} else if (ones_place == 2) {
-		result += "nd";
-	} else if (ones_place == 3) {
-		result += "rd";
-	} else {
-		result += "th";
-	}
+    if (tens_place == 1) {
+        result += "th";
+    } else if (ones_place == 1) {
+        result += "st";
+    } else if (ones_place == 2) {
+        result += "nd";
+    } else if (ones_place == 3) {
+        result += "rd";
+    } else {
+        result += "th";
+    }
 
-	return result;
+    return result;
 }
 
 void pause(void) {
@@ -118,39 +118,39 @@ TextType plural(unsigned n) {
     if (n == 1) {
         result = "";
     }
-    
+
     return result; 
 }
 
 String plural(unsigned n, TextType noun) {
     String result = String(n);
-	result += " ";
-	result += noun;
-	result += ::plural(n);
+    result += " ";
+    result += noun;
+    result += ::plural(n);
 
     return result;
 }
 
 bool random_bool(double probability) {
-	ASSERT(probability >= 0.0);
-	ASSERT(probability <= 1.0);
+    ASSERT(probability >= 0.0);
+    ASSERT(probability <= 1.0);
     bool result = false;
 
-	if (probability == 1.0) {
-		result = true;
+    if (probability == 1.0) {
+        result = true;
 
-	} else if (probability > 0.0) {
-	    double const r = double(::rand())/RAND_MAX;
-	    ASSERT(r >= 0.0);
-	    ASSERT(r <= 1.0);
-	    result = (r < probability);
-	}
+    } else if (probability > 0.0) {
+        double const r = double(::rand())/RAND_MAX;
+        ASSERT(r >= 0.0);
+        ASSERT(r <= 1.0);
+        result = (r < probability);
+    }
 
-	return result;
+    return result;
 }
 
 bool str_eq(TextType string1, TextType string2) {
-	bool const result = (::strcmp(string1, string2) == 0);
+    bool const result = (::strcmp(string1, string2) == 0);
 
-	return result;
+    return result;
 }

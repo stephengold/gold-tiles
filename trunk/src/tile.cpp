@@ -44,14 +44,14 @@ Tile::Map    Tile::msOpts;
 
 Tile::Tile(void) {
     mId = ID_DEFAULT; // special ID generated *only* by this constructor
-	msOpts[mId] = TileOpt();
+    msOpts[mId] = TileOpt();
 
-	ASSERT(!IsValid(mId));
+    ASSERT(!IsValid(mId));
 }
 
 Tile::Tile(String const& rString, bool remoteFlag) {
-	Strings const parts(rString, SEPARATOR);
-	ASSERT(parts.Count() == 2); // TODO recovery
+    Strings const parts(rString, SEPARATOR);
+    ASSERT(parts.Count() == 2); // TODO recovery
 
     String const first = parts.First();
     IdType id = first;
@@ -87,15 +87,15 @@ Tile::Tile(IdType id, bool remoteFlag) {
 // operators
 
 bool Tile::operator<(Tile const& rOther) const {
-	bool const result = (mId < rOther.mId);
-     
+    bool const result = (mId < rOther.mId);
+
     return result;
 }
 
 // The compiler-generated assignment method is fine.
 
 bool Tile::operator==(Tile const& rOther) const {
-	bool const result = (mId == rOther.mId);
+    bool const result = (mId == rOther.mId);
 
     return result;
 }
@@ -112,7 +112,7 @@ Tile::operator IndexType(void) const {
 }
 
 Tile::operator String(void) const {
-   	TileOpt const& r_opt = msOpts[mId];
+    TileOpt const& r_opt = msOpts[mId];
     String const result = String(mId) + SEPARATOR + String(r_opt);
 
     return result;
@@ -130,63 +130,63 @@ Tile::operator TileOpt(void) const {
 AttrType Tile::Attribute(AttrIndexType index) const {
     TileOpt const& r_opt = msOpts[mId];
     AttrType const result = r_opt.Attribute(index);
-    
+
     return result;
 }
 
 /* static */ double Tile::BonusProbability(void) {
-	return msBonusProbability;
+    return msBonusProbability;
 }
 
 // Create a clone (with a new ID) and randomize its bonus value.
 Tile Tile::CloneAndSetBonus(void) const {
-	// Create a Tile with a new ID.
-	Tile result(*this);
+    // Create a Tile with a new ID.
+    Tile result(*this);
     result.mId = NextId();
 
-	// Copy the visible options.
-	TileOpt& r_result_opt = msOpts[result.mId];
-	r_result_opt = msOpts[mId];
+    // Copy the visible options.
+    TileOpt& r_result_opt = msOpts[result.mId];
+    r_result_opt = msOpts[mId];
 
-	// Randomize its bonus value.
-	bool const gets_bonus = ::random_bool(msBonusProbability);
-	r_result_opt.SetBonus(gets_bonus);
+    // Randomize its bonus value.
+    bool const gets_bonus = ::random_bool(msBonusProbability);
+    r_result_opt.SetBonus(gets_bonus);
 
     return result;
 }
 
 // Identify the common attribute of a compatible tile.
 AttrIndexType Tile::CommonAttribute(Tile const& rOther) const {
-	TileOpt const& r_opt = msOpts[mId];
-	TileOpt const& r_other = msOpts[rOther.mId];
+    TileOpt const& r_opt = msOpts[mId];
+    TileOpt const& r_other = msOpts[rOther.mId];
     AttrIndexType const result = r_opt.CommonAttribute(r_other);
 
     return result;
 }
 
 String Tile::Description(void) const {
-	TileOpt const& r_opt = msOpts[mId];
-	String const result = r_opt.Description();
+    TileOpt const& r_opt = msOpts[mId];
+    String const result = r_opt.Description();
 
-	return result;
+    return result;
 }
 
 String Tile::GetUserChoice(Tiles const& rAvailableTiles, Strings const& rAlternatives) {
-	ASSERT(mId == ID_DEFAULT);
+    ASSERT(mId == ID_DEFAULT);
 
     String result;
-	for (;;) {
+    for (;;) {
         std::cout << "Enter a tile name";
-    	Strings::ConstIterator i_alt;
-		for (i_alt = rAlternatives.Begin(); i_alt != rAlternatives.End(); i_alt++) {
-			std::cout << " or " << i_alt->Quote();
-		}
-		std::cout << ": ";
+        Strings::ConstIterator i_alt;
+        for (i_alt = rAlternatives.Begin(); i_alt != rAlternatives.End(); i_alt++) {
+            std::cout << " or " << i_alt->Quote();
+        }
+        std::cout << ": ";
 
         std::cin >> result;
-		if (rAlternatives.Contains(result)) {
-			break;
-		}
+        if (rAlternatives.Contains(result)) {
+            break;
+        }
 
         TileOpt const opt = TileOpt::FromDescription(result);
         if (!opt.MatchesDescription(result)) {
@@ -202,7 +202,7 @@ String Tile::GetUserChoice(Tiles const& rAvailableTiles, Strings const& rAlterna
         }
     }
 
-	return result;
+    return result;
 }
 
 Tile::IdType Tile::Id(void) const {
@@ -216,7 +216,7 @@ Tile::IdType Tile::Id(void) const {
     msNextId = result + 1;
 
     ASSERT(IsValid(result));
-	return result;
+    return result;
 }
 
 void Tile::SetAttribute(AttrIndexType index, AttrType value) {
@@ -225,12 +225,12 @@ void Tile::SetAttribute(AttrIndexType index, AttrType value) {
 }
 
 /* static */ void Tile::SetStatic(GameOpt const& rGameOpt) {
-	double const bonus_probability = rGameOpt.BonusPercent()/100.0;
+    double const bonus_probability = rGameOpt.BonusPercent()/100.0;
 
     ASSERT(bonus_probability >= 0.0);
     ASSERT(bonus_probability <= 1.0);
 
-	msBonusProbability = bonus_probability;
+    msBonusProbability = bonus_probability;
 }
 
 
@@ -239,7 +239,7 @@ void Tile::SetAttribute(AttrIndexType index, AttrType value) {
 bool Tile::HasAttribute(AttrIndexType index, AttrType value) const {
     TileOpt const& r_opt = msOpts[mId];
     bool const result = r_opt.HasAttribute(index, value);
-    
+
     return result;
 }
 
@@ -247,13 +247,13 @@ bool Tile::HasBonus(void) const {
     TileOpt const& r_opt = msOpts[mId];
     bool const result = r_opt.HasBonus();
 
-	return result;
+    return result;
 }
 
 bool Tile::HasId(IdType id) const {
-	bool const result = (mId == id);
+    bool const result = (mId == id);
 
-	return result;
+    return result;
 }
 
 // Do the bonus value and all attributes match?
@@ -273,19 +273,19 @@ bool Tile::IsClone(Tile const& rOther) const {
 
 bool Tile::IsCompatibleWith(Tile const* pOther) const {
     bool result = true;
-    
+
     if (pOther != NULL) {
         TileOpt const& r_opt = msOpts[mId];
         TileOpt const& r_other = msOpts[pOther->mId];
         result = r_opt.IsCompatibleWith(r_other);
     }
-    
+
     return result;
 }
 
 /* static */ bool Tile::IsValid(Tile::IdType id) {
     bool const result = (id <= -Tile::ID_FIRST
-                      || id >= Tile::ID_FIRST && id < msNextId);
+        || id >= Tile::ID_FIRST && id < msNextId);
 
-	return result;
+    return result;
 }

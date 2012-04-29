@@ -35,7 +35,7 @@ Cells::Cells(void) {
 // The compiler-generated destructor is fine.
 
 Cells::Cells(Cell const& rCell) {
-	Add(rCell);
+    Add(rCell);
 }
 
 
@@ -45,7 +45,7 @@ Cells::Cells(Cell const& rCell) {
 Cells::operator String(void) const {
     String result("{");
 
-	ConstIterator i_cell;
+    ConstIterator i_cell;
     for (i_cell = begin(); i_cell != end(); i_cell++) {
         if (i_cell != begin()) {
             result += ", ";
@@ -64,29 +64,29 @@ Cells::operator String(void) const {
 // misc methods
 
 void Cells::Add(Cell const& rCell) {
-	ASSERT(!Contains(rCell));
+    ASSERT(!Contains(rCell));
 
-	insert(rCell);
+    insert(rCell);
 
-	ASSERT(Contains(rCell));
+    ASSERT(Contains(rCell));
 }
 
 void Cells::AddCells(Cells const& rCells) {
     ConstIterator i_cell;
     for (i_cell = rCells.begin(); i_cell != rCells.end(); i_cell++) {
-		Cell const cell = *i_cell;
-		Add(cell);
-	}
+        Cell const cell = *i_cell;
+        Add(cell);
+    }
 }
 
 unsigned Cells::Count(void) const {
-	unsigned const result = size();
+    unsigned const result = size();
 
-	return result;
+    return result;
 }
 
 Cell Cells::First(void) const {
-	ASSERT(!IsEmpty());
+    ASSERT(!IsEmpty());
 
     ConstIterator const i_cell = begin();
     ASSERT(i_cell != end());
@@ -96,50 +96,50 @@ Cell Cells::First(void) const {
 }
 
 void Cells::MakeEmpty(void) {
-	clear();
-	
-	ASSERT(IsEmpty());
+    clear();
+
+    ASSERT(IsEmpty());
 }
 
 
 // inquiry methods
 
 bool Cells::Contains(Cell const& rCell) const {
-	ConstIterator const i_cell = find(rCell);
+    ConstIterator const i_cell = find(rCell);
     bool const result = (i_cell != end());
-    
+
     return result;
 }
 
 bool Cells::ContainsAll(Cells const& rCells) const {
-	bool result = true;
+    bool result = true;
 
     for (ConstIterator i_cell = rCells.begin(); i_cell != rCells.end(); i_cell++) {
-		Cell const cell = *i_cell;
+        Cell const cell = *i_cell;
         if (!Contains(cell)) {
             result = false;
             break;
         }
     }
 
-	return result;
+    return result;
 }
 
 bool Cells::IsAnyStart(void) const {
     bool result = false;
-    
+
     for (ConstIterator i_cell = begin(); i_cell != end(); i_cell++) {
         if (i_cell->IsStart()) {
             result = true;
             break;
         }
     }
-    
+
     return result;
 }
 
 bool Cells::IsEmpty(void) const {
-	bool const result = (size() == 0);
+    bool const result = (size() == 0);
 
-	return result;
+    return result;
 }

@@ -85,21 +85,21 @@ private:
     Menu     mMenu;
 #endif // defined(_WINDOWS)
     Partial const&
-		    mrPartial;
+            mrPartial;
     bool     mPeekFlag;
     PlayMenu mPlayMenu;
     bool     mShowClocksFlag;
     bool     mShowGridFlag;
     bool     mShowScoresFlag;
-	SubMenu  mThinking;
+    SubMenu  mThinking;
     unsigned mTileSize;
     ViewMenu mViewMenu;
 
     // private lifecycle
-	MenuBar(MenuBar const&);  // not copyable
-	void Initialize(GameStyleType);
+    MenuBar(MenuBar const&);  // not copyable
+    void Initialize(GameStyleType);
 
     // private operators
-	MenuBar& operator=(MenuBar const&);  // not assignable
+    MenuBar& operator=(MenuBar const&);  // not assignable
 };
 #endif // !defined(MENUBAR_HPP_INCLUDED)

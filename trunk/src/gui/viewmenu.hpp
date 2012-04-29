@@ -62,13 +62,13 @@ public:
 private:
     SizeMenu mTileSize;
     MenuItem mRecenter;
-	MenuItem mAnimation;
-	MenuItem mAttributes;
-	MenuItem mHints;
+    MenuItem mAnimation;
+    MenuItem mAttributes;
+    MenuItem mHints;
     MenuItem mShowClocks;
-	MenuItem mShowGrid;
-	MenuItem mShowScores;
-	MenuItem mShowTiles;
+    MenuItem mShowGrid;
+    MenuItem mShowScores;
+    MenuItem mShowTiles;
 
     // private lifecycle
     ViewMenu(ViewMenu const&);   // not copyable

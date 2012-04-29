@@ -36,8 +36,8 @@ The Menu class is implemented by encapsulating a menu handle (Win::HMENU).
 
 class Menu {
 public:
-	// public lifecycle
-	// no default constructor
+    // public lifecycle
+    // no default constructor
     explicit Menu(Win::HMENU);
     // ~Menu(void); The compiler-generated destructor is fine.
 
@@ -45,13 +45,13 @@ public:
     operator Win::HMENU(void) const;
 
 private:
-	// private data
+    // private data
     Win::HMENU mHandle;
 
-	// private lifecycle
-	Menu(Menu const&);   // not copyable
+    // private lifecycle
+    Menu(Menu const&);   // not copyable
 
-	// private operators
-	Menu& operator=(Menu const&);  // not copyable
+    // private operators
+    Menu& operator=(Menu const&);  // not copyable
 };
 #endif // !defined(MENU_HPP_INCLUDED)

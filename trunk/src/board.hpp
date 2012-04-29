@@ -40,20 +40,20 @@ BaseBoard is hidden from these extensions.
 #include "move.hpp"      // USES Move
 
 enum UmType { // user message handles
-	UM_COLUMNCOMPAT,
-	UM_DIAGCOMPAT,
-	UM_EMPTY,
-	UM_FIRST,
-	UM_NEIGHBOR,
-	UM_REPEATCELL,
-	UM_REPEATTILE,
-	UM_ROWCOLUMN,
-	UM_ROWCOMPAT,
-	UM_RULES,
-	UM_START,
-	UM_STARTSIMPLE,
-	UM_STOCK,
-	UM_SWAP
+    UM_COLUMNCOMPAT,
+    UM_DIAGCOMPAT,
+    UM_EMPTY,
+    UM_FIRST,
+    UM_NEIGHBOR,
+    UM_REPEATCELL,
+    UM_REPEATTILE,
+    UM_ROWCOLUMN,
+    UM_ROWCOMPAT,
+    UM_RULES,
+    UM_START,
+    UM_STARTSIMPLE,
+    UM_STOCK,
+    UM_SWAP
 };
 
 class Board: public BaseBoard {
@@ -66,7 +66,7 @@ public:
     // public operators
     // Board& operator=(Board const&);  compiler-generated assignment operator is OK 
 
-	// misc public methods
+    // misc public methods
     String        Description(void) const;
     Cell          FirstCell(void) const;
     Tile::IdType  GetId(Cell const&) const;
@@ -76,24 +76,24 @@ public:
     ScoreType     ScoreMove(Move const&) const;
     void          UnplayMove(Move const&);
 
-	// public inquiry methods
+    // public inquiry methods
     bool Contains(Tile::IdType) const;
     bool HasEmptyCell(Cell const&) const;
     bool HasNeighbor(Cell const&) const;
-	bool IsEmpty(void) const;
+    bool IsEmpty(void) const;
     bool IsValidMove(Move const&) const;
     bool IsValidMove(Move const&, UmType& reason) const;
-	bool MightUse(Cell const&) const;
+    bool MightUse(Cell const&) const;
 
 private:
-	// misc private methods
+    // misc private methods
     Cells     GetRun(Cell const&, Direction const&) const;
     Tile      GetTile(Cell const&) const;
-	Tiles     GetTiles(Cells const&) const;
+    Tiles     GetTiles(Cells const&) const;
     void      PlayTile(TileCell const&);
     ScoreType ScoreDirection(Cell const&, Direction const&) const;
 
-	// private inquiry methods
+    // private inquiry methods
     bool AreAllCompatible(Cells const&) const;
     bool AreAllEmpty(Cells const&) const;
     bool AreAllRunsCompatible(Cells const&, Direction const&) const;

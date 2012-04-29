@@ -26,27 +26,28 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 /*
- A FractionPair object represents a point in a unit square centered
- on (0.5, 0.5).
+A FractionPair object represents a point in a unit square centered
+on (0.5, 0.5).
 */
+
 
 class FractionPair {
 public:
-	// lifecycle
-	// no default constructor
+    // lifecycle
+    // no default constructor
     FractionPair(double x, double y);
     // FractionPair(FractionPair const&); compiler-generated copy constructor is OK
     // ~FractionPair(void); compiler-generated destructor is OK
 
-	// public operators
-	// FractionPair& operator=(FractionPair const&); compiler-generated assignment method is OK
-     
-	// misc public methods
+    // public operators
+    // FractionPair& operator=(FractionPair const&); compiler-generated assignment method is OK
+
+    // misc public methods
     float X(void) const;
     float Y(void) const;
 
 private:
-	// private data
+    // private data
     float mX, mY;
 };
 #endif // !defined(FRACTIONPAIR_HPP_INCLUDED)

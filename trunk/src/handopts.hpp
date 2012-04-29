@@ -37,32 +37,32 @@ The HandsOpt class encapsulates a vector of HandOpt objects.
 
 class HandOpts {
 public:
-	// public lifecycle
-	HandOpts(void);
-	// HandOpts(HandOpts const&);  compiler-generated copy constructor is OK
-	// ~HandOpts(void);  compiler-generated destructor is OK
+    // public lifecycle
+    HandOpts(void);
+    // HandOpts(HandOpts const&);  compiler-generated copy constructor is OK
+    // ~HandOpts(void);  compiler-generated destructor is OK
 
-	// public operators
+    // public operators
     // HandOpts& operator=(HandOpts const&);  compiler-generated assignment operator is OK 
- 	HandOpt& operator[](unsigned);
+    HandOpt& operator[](unsigned);
     HandOpt const& operator[](unsigned) const;
-	operator String(void) const;
+    operator String(void) const;
 
-	// misc public methods
-	Strings  AllPlayerNames(void) const;
-	void     Append(HandOpt const&);
+    // misc public methods
+    Strings  AllPlayerNames(void) const;
+    void     Append(HandOpt const&);
     unsigned Count(void) const;
     bool     GetFromClient(Socket&, unsigned handCnt);
-	void     GetUserChoice(unsigned handCnt);
-	void     MakeEmpty(void);
-	void     Serverize(Address const& client, Address const& server);
-	void     Truncate(unsigned new_length);
+    void     GetUserChoice(unsigned handCnt);
+    void     MakeEmpty(void);
+    void     Serverize(Address const& client, Address const& server);
+    void     Truncate(unsigned new_length);
 
-	// public inquiry method
-	bool IsEmpty(void) const;
+    // public inquiry method
+    bool IsEmpty(void) const;
 
 private:
-	// private data
-	std::vector<HandOpt> mList;
+    // private data
+    std::vector<HandOpt> mList;
 };
 #endif // !defined(HANDOPTS_HPP_INCLUDED)

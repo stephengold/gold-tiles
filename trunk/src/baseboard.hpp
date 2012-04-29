@@ -30,7 +30,7 @@ A BaseBoard object represents a two-dimensional playing grid
 which grows automatically in all directions.  The grid is
 composed of cells on which Tile objects may be played.
 Individual cells may be referenced by means of Cell objects.
- 
+
 The Baseboard class implements minimal functionality using two maps:
 one to map cells to tiles and a reverse map to which maps tiles to cells.
 Also, the limits of the played area are cached.
@@ -45,29 +45,29 @@ The Board class extends BaseBoard to add functionality.
 
 class BaseBoard {
 public:
-	// public lifecycle
+    // public lifecycle
     BaseBoard(void);
     // BaseBoard(BaseBoard const&);  compiler-generated copy constructor is OK
     // ~BaseBoard(void);  compiler-generated destructor is OK
 
-	// public operators
+    // public operators
     // BaseBoard& operator=(BaseBoard const&);  compiler-generated assignment operator is OK
-	operator Tiles(void) const;
+    operator Tiles(void) const;
 
-	// misc public methods
-	unsigned    Count(void) const;
-	ColumnType  EastMax(void) const;
+    // misc public methods
+    unsigned    Count(void) const;
+    ColumnType  EastMax(void) const;
     Tile const* GetCell(Cell const&) const;
     bool        LocateTile(Tile::IdType, Cell&) const;
     void        MakeEmpty(void);
     void        MakeEmpty(Cell const&);
     RowType     NorthMax(void) const;
-	void        PlayOnCell(Cell const&, Tile const&);
+    void        PlayOnCell(Cell const&, Tile const&);
     RowType     SouthMax(void) const;
     ColumnType  WestMax(void) const;
 
 private:
-	// private types
+    // private types
     typedef std::map<Cell,Tile>     CellMap;
     typedef CellMap::const_iterator	CellConstIterator;
     typedef CellMap::iterator		CellIterator;
@@ -75,16 +75,16 @@ private:
     typedef TileMap::const_iterator TileConstIterator;
     typedef TileMap::iterator		TileIterator;
 
-	// private data
+    // private data
     CellMap    mCells;
     RowType    mNorthMax, mSouthMax; // limits of the range of played rows
     ColumnType mEastMax, mWestMax;   // limits of the range of played columns
     TileMap    mTiles;
 
-	// misc private methods
+    // misc private methods
     CellConstIterator Find(RowType, ColumnType) const;
     CellIterator      Find(RowType, ColumnType);
-    
+
     // private inquiry methods
     bool IsEmptyColumn(ColumnType) const;
     bool IsEmptyRow(RowType) const;

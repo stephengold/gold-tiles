@@ -39,32 +39,32 @@ The AttrBox class is an extension of the Dialog class.
 class AttrBox: public Dialog {
 public:
     // public lifecycle
-	// no default constructor
-	AttrBox(DisplayModes const&);
-	// ~AttrBox(void);  compiler-generated destructor is OK
+    // no default constructor
+    AttrBox(DisplayModes const&);
+    // ~AttrBox(void);  compiler-generated destructor is OK
 
-	// public operators
-	operator DisplayModes(void) const;
+    // public operators
+    operator DisplayModes(void) const;
 
-	// misc public methods
-	int HandleMessage(MessageType, Win::WPARAM, Win::LPARAM);
+    // misc public methods
+    int HandleMessage(MessageType, Win::WPARAM, Win::LPARAM);
 
 private:
-	// private data
+    // private data
     DisplayModes mDisplayModes;
 
-	// private lifecycle
+    // private lifecycle
     AttrBox(AttrBox const&);  // not copyable
 
-	// private operators
+    // private operators
     AttrBox& operator=(AttrBox const&); // not assignable
 
-	// misc private methods
-	static AttrIndexType 
-		            AttrIndex(IdType);
-	void            BumpDisplayMode(AttrIndexType);
-	static TextType DisplayModeText(AttrModeType);
-	static IdType   ListboxId(AttrIndexType);
-	void            UpdateValue(IdType, AttrModeType);
+    // misc private methods
+    static AttrIndexType 
+                    AttrIndex(IdType);
+    void            BumpDisplayMode(AttrIndexType);
+    static TextType DisplayModeText(AttrModeType);
+    static IdType   ListboxId(AttrIndexType);
+    void            UpdateValue(IdType, AttrModeType);
 };
 #endif // !defined(ATTRBOX_HPP_INCLUDED)

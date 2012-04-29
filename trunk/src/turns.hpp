@@ -36,19 +36,19 @@ used to record game history.
 
 class Turns: public std::list<Turn> {
 public:
-	// public types
+    // public types
     typedef std::list<Turn>::const_iterator ConstIterator;
     typedef std::list<Turn>::const_reverse_iterator ConstReverseIterator;
     typedef std::list<Turn>::iterator Iterator;
 
-	// public lifecycle
-	// Turns(void);  compiler-generated default constructor is OK
-	// Turns(Turns const&);  compiler-generated copy constructor is OK
-	// ~Turns(void);  compiler-generated destructor is OK
+    // public lifecycle
+    // Turns(void);  compiler-generated default constructor is OK
+    // Turns(Turns const&);  compiler-generated copy constructor is OK
+    // ~Turns(void);  compiler-generated destructor is OK
 
-	// misc public methods
+    // misc public methods
     unsigned Count(void) const;
-	unsigned Index(Iterator const&) const;
-	unsigned IndexLastPlay(void) const;
+    unsigned Index(Iterator const&) const;
+    unsigned IndexLastPlay(void) const;
 };
 #endif // !defined(TURNS_HPP_INCLUDED)

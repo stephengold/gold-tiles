@@ -38,38 +38,38 @@ with Combo (for the attributes).
 class TileOpt {
 public:
     // public lifecycle
-	TileOpt(void);
-	explicit TileOpt(String const&);
-	// TileOpt(TileOpt const&);  compiler-generated copy constructor is OK
-	// ~TileOpt(void);  compiler-generated destructor is OK
+    TileOpt(void);
+    explicit TileOpt(String const&);
+    // TileOpt(TileOpt const&);  compiler-generated copy constructor is OK
+    // ~TileOpt(void);  compiler-generated destructor is OK
 
     // public operators
-	// TileOpt& operator=(TileOpt const&);  compiler-generated assignment operator is OK
-	bool     operator==(TileOpt const&) const;
-	operator Combo(void) const;
-	operator String(void) const;
+    // TileOpt& operator=(TileOpt const&);  compiler-generated assignment operator is OK
+    bool     operator==(TileOpt const&) const;
+    operator Combo(void) const;
+    operator String(void) const;
 
-	// misc public methods
-	AttrType       Attribute(AttrIndexType) const;
-	AttrIndexType  CommonAttribute(TileOpt const&) const;
-	AttrCntType    CountMatchingAttributes(TileOpt const&) const;
+    // misc public methods
+    AttrType       Attribute(AttrIndexType) const;
+    AttrIndexType  CommonAttribute(TileOpt const&) const;
+    AttrCntType    CountMatchingAttributes(TileOpt const&) const;
     String         Description(void) const;
     static TileOpt FromDescription(String const&);
-	void           SetAttribute(AttrIndexType, AttrType);
-	void           SetBonus(bool);
+    void           SetAttribute(AttrIndexType, AttrType);
+    void           SetBonus(bool);
 
-	// public inquiry methods
-	bool HasAttribute(AttrIndexType, AttrType) const;
-	bool HasBonus(void) const;
-	bool IsCompatibleWith(TileOpt const&) const;
-	bool MatchesDescription(String const&) const;
+    // public inquiry methods
+    bool HasAttribute(AttrIndexType, AttrType) const;
+    bool HasBonus(void) const;
+    bool IsCompatibleWith(TileOpt const&) const;
+    bool MatchesDescription(String const&) const;
 
 private:
-	// private constants
-	static const char BONUS_CHARACTER = '+';
+    // private constants
+    static const char BONUS_CHARACTER = '+';
 
-	// private data
-	Combo mCombo;    // all attributes
-	bool  mHasBonus;
+    // private data
+    Combo mCombo;    // all attributes
+    bool  mHasBonus;
 };
 #endif // !defined(TILEOPT_HPP_INCLUDED)

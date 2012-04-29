@@ -77,7 +77,7 @@ private:
     IdType    mItemId;
     IdType    mLastItemId;
     Menu const&
-		     mrMenu;
+             mrMenu;
 #endif // defined(_WINDOWS)
 
     // private lifecycle

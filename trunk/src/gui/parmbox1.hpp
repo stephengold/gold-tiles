@@ -38,28 +38,28 @@ The ParmBox1 class is an extension of the Dialog class.
 class ParmBox1: public Dialog {
 public:
     // lifecycle
-	// no default constructor
-	explicit ParmBox1(GameOpt&);
-	// ~ParmBox1(void);  compiler-generated destructor is OK
+    // no default constructor
+    explicit ParmBox1(GameOpt&);
+    // ~ParmBox1(void);  compiler-generated destructor is OK
 
-	// misc public methods
-	Win::INT_PTR HandleMessage(MessageType, Win::WPARAM, Win::LPARAM);
+    // misc public methods
+    Win::INT_PTR HandleMessage(MessageType, Win::WPARAM, Win::LPARAM);
 
 private:
-	// private constants
-	static const ValueType MINUTES_PER_HAND_MAX = 120;
+    // private constants
+    static const ValueType MINUTES_PER_HAND_MAX = 120;
 
-	// private data
-	GameOpt& mrGameOpt;
+    // private data
+    GameOpt& mrGameOpt;
 
-	// private lifecycle
-	ParmBox1(ParmBox1 const&);    // not copyable
+    // private lifecycle
+    ParmBox1(ParmBox1 const&);    // not copyable
 
-	// private operators
+    // private operators
     ParmBox1& operator=(ParmBox1 const&);   // not assignable
 
-	// misc private methods
+    // misc private methods
     void SetStyle(void);
-	void SetStyle(IdType buttonId);
+    void SetStyle(IdType buttonId);
 };
 #endif // !defined(PARMBOX1_HPP_INCLUDED)

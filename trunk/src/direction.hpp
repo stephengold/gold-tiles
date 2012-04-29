@@ -32,61 +32,62 @@ game board.
 The Direction class encapsulates an enumeration of the eight directions.
 */
 
+
 class Direction {
 public:
-	// public lifecycle
-	Direction(void);
+    // public lifecycle
+    Direction(void);
     // Direction(Direction const&);  compiler-generated copy constructor is OK
     // ~Direction(void);  compiler-generated destructor is OK
 
-	// public operators
+    // public operators
     // Direction& operator=(Direction const&);  compiler-generated assignment operator is OK
-	operator int(void) const;
-	Direction operator++(int);
+    operator int(void) const;
+    Direction operator++(int);
 
-	// misc public methods
-	Direction Axis(void) const;
-	Direction Opposite(void) const;
-	Direction OrthogonalAxis(void) const;
-	void      SetFirst(void);
-	Direction TriangleNeighbor(bool odd) const;
+    // misc public methods
+    Direction Axis(void) const;
+    Direction Opposite(void) const;
+    Direction OrthogonalAxis(void) const;
+    void      SetFirst(void);
+    Direction TriangleNeighbor(bool odd) const;
 
-	// public inquiry methods
-	bool IsAxis(void) const;
-	bool IsDiagonal(void) const;
-	bool IsEast(void) const;
-	bool IsHorizontal(void) const;
-	bool IsNorth(void) const;
-	bool IsNortheast(void) const;
-	bool IsNorthwest(void) const;
-	bool IsSouth(void) const;
-	bool IsSoutheast(void) const;
-	bool IsSouthwest(void) const;
-	bool IsValid(void) const;
-	bool IsVertical(void) const;
-	bool IsWest(void) const;
+    // public inquiry methods
+    bool IsAxis(void) const;
+    bool IsDiagonal(void) const;
+    bool IsEast(void) const;
+    bool IsHorizontal(void) const;
+    bool IsNorth(void) const;
+    bool IsNortheast(void) const;
+    bool IsNorthwest(void) const;
+    bool IsSouth(void) const;
+    bool IsSoutheast(void) const;
+    bool IsSouthwest(void) const;
+    bool IsValid(void) const;
+    bool IsVertical(void) const;
+    bool IsWest(void) const;
 
 private:
-	// private types
-	enum DirectionType {
+    // private types
+    enum DirectionType {
         // axes (positive directions)
         NORTH = 0, FIRST = 0,
-	    NORTHEAST = 1,
+        NORTHEAST = 1,
         EAST = 2,
-	    SOUTHEAST = 3, LAST_POSITIVE = 3,
-	    // negative directions
+        SOUTHEAST = 3, LAST_POSITIVE = 3,
+        // negative directions
         SOUTH = 4, FIRST_NEGATIVE = 4,
-	    SOUTHWEST = 5,
+        SOUTHWEST = 5,
         WEST = 6,
-	    NORTHWEST = 7, LAST = 7,
-		// invalid directions
-	    UNKNOWN = 66
+        NORTHWEST = 7, LAST = 7,
+        // invalid directions
+        UNKNOWN = 66
     };
 
-	// private data
-	DirectionType mValue;
+    // private data
+    DirectionType mValue;
 
-	// private constructor
-	Direction(DirectionType);
+    // private constructor
+    Direction(DirectionType);
 };
 #endif // !defined(DIRECTION_HPP_INCLUDED)

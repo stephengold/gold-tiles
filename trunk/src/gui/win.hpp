@@ -26,7 +26,7 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #ifndef WIN32
-#error  win.hpp should be included only when the target platform is Microsoft Windows
+# error  win.hpp should be included only when the target platform is Microsoft Windows
 #endif // !defined(WIN32)
 
 namespace Win {

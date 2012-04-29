@@ -40,28 +40,28 @@ typedef unsigned long PixelCntType;
 
 class Point {
 public:
-	// public lifecycle
-	// no default constructor
+    // public lifecycle
+    // no default constructor
     // Point(Point const&);  compiler-generated copy constructor is OK
     explicit Point(Win::POINT const&);
     explicit Point(Win::POINTS const&);
     Point(LogicalXType, LogicalYType);
     // ~Point(void);
 
-	// public operators
-	//Point& operator=(Point const&);  compiler-generated assignment operator is OK
-	bool operator==(Point const&) const;
+    // public operators
+    //Point& operator=(Point const&);  compiler-generated assignment operator is OK
+    bool operator==(Point const&) const;
     operator Win::POINT(void) const;
     operator Win::POINTS(void) const;
 
-	// misc public methods
-	PixelCntType Distance(Point const&) const;
+    // misc public methods
+    PixelCntType Distance(Point const&) const;
     void         Offset(long dx, long dy);   // add offsets
     LogicalXType X(void) const;
     LogicalYType Y(void) const;
 
 private:
-	LogicalXType mX;
-	LogicalYType mY;
+    LogicalXType mX;
+    LogicalYType mY;
 };
 #endif // !defined(POINT_HPP_INCLUDED)

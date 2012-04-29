@@ -40,50 +40,50 @@ for incoming data.
 
 class Socket {
 public:
-	// public types
-	typedef void* HandleType; // cast to the native socket type
-	typedef void  YieldFunctionType(void*, bool& cancel);
+    // public types
+    typedef void* HandleType; // cast to the native socket type
+    typedef void  YieldFunctionType(void*, bool& cancel);
 
-	// public lifecycle
-	Socket(void);
-	explicit Socket(HandleType);
+    // public lifecycle
+    Socket(void);
+    explicit Socket(HandleType);
     // Socket(Socket const&);  compiler-generated copy constructor is OK
     // ~Socket(void);  compiler-generated destructor is OK
 
-	// public operators
+    // public operators
     // Socket& operator=(Socket const&);  compiler-generated assigment operator is OK
-	operator HandleType(void) const;
+    operator HandleType(void) const;
 
-	// misc public methods
+    // misc public methods
     void    Close(void);
-	bool    GetLine(String&);
-	bool    GetParagraph(String&);
+    bool    GetLine(String&);
+    bool    GetParagraph(String&);
     void    Invalidate(void);
-	Address Local(void) const;
-	Address Peer(void) const;
-	bool    Put(String const&);
-	bool    PutLine(String const&);
-  	static void
+    Address Local(void) const;
+    Address Peer(void) const;
+    bool    Put(String const&);
+    bool    PutLine(String const&);
+    static void
             SetYield(YieldFunctionType*, void* arg);
 
-	// public inquiry methods
-	bool IsValid(void) const;
+    // public inquiry methods
+    bool IsValid(void) const;
 
 private:
     // private data
-	HandleType     mHandle;
-	Fifo*         mpReadBuffer;
-   	static void* mspYieldArgument;
-	static YieldFunctionType*
-		         mspYieldFunction;
+    HandleType     mHandle;
+    Fifo*         mpReadBuffer;
+    static void* mspYieldArgument;
+    static YieldFunctionType*
+                 mspYieldFunction;
 
     // misc private methods
-	bool GetCharacter(char&);
-	bool Read(void);
+    bool GetCharacter(char&);
+    bool Read(void);
     static void 
          Yields(bool& cancel);
 
     // private inquiry methods
-	bool HasBufferedData(void) const;
+    bool HasBufferedData(void) const;
 };
 #endif // !defined(SOCKET_HPP_INCLUDED)

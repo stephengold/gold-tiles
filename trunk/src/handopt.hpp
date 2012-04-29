@@ -36,57 +36,57 @@ characteristics such as its IP address.
 
 enum GameStyleType {
     GAME_STYLE_NONE,
-	GAME_STYLE_DEBUG,     // allows peeking, undo, all hints; clock is optional
-	GAME_STYLE_PRACTICE,  // no peeking; allows undo, all hints; clock is optional
-	GAME_STYLE_FRIENDLY,  // no peeking, no undo; allows all hints; clock is optional
-	GAME_STYLE_CHALLENGE, // no peeking, no undo, no hints; time limits
+    GAME_STYLE_DEBUG,     // allows peeking, undo, all hints; clock is optional
+    GAME_STYLE_PRACTICE,  // no peeking; allows undo, all hints; clock is optional
+    GAME_STYLE_FRIENDLY,  // no peeking, no undo; allows all hints; clock is optional
+    GAME_STYLE_CHALLENGE, // no peeking, no undo, no hints; time limits
 #ifdef _DEBUG
-	GAME_STYLE_DEFAULT = GAME_STYLE_DEBUG,
+    GAME_STYLE_DEFAULT = GAME_STYLE_DEBUG,
 #else // !defined(_DEBUG)
-	GAME_STYLE_DEFAULT = GAME_STYLE_PRACTICE
+    GAME_STYLE_DEFAULT = GAME_STYLE_PRACTICE
 #endif // !defined(_DEBUG)
 };
 
 class HandOpt {
 public:
-	// public lifecycle
-	HandOpt(void);
+    // public lifecycle
+    HandOpt(void);
     // HandOpt(HandOpt const&);  compiler-generated copy constructor is OK
-	explicit HandOpt(String const&);
-	HandOpt(GameStyleType, Strings const& playerNames);
-	HandOpt(String const& playerName, bool autom, double skipProb, 
-		bool rem, Address const&);
+    explicit HandOpt(String const&);
+    HandOpt(GameStyleType, Strings const& playerNames);
+    HandOpt(String const& playerName, bool autom, double skipProb, 
+        bool rem, Address const&);
     // ~HandOpt(void);  compiler-generated destructor is OK
 
-	// public operators
+    // public operators
     // HandOpt& operator=(HandOpt const&);  compiler-generated assignment operator is OK
-	operator Address(void) const;
-	operator String(void) const;
+    operator Address(void) const;
+    operator String(void) const;
 
-	// misc public methods
-	String PlayerName(void) const;
-	void   Serverize(Address const& client, Address const& server);
-	void   SetAddress(Address const&);
-	void   SetAutomatic(void);
-	void   SetLocalUser(void);
-	void   SetPlayerName(String const&);
-	void   SetRemote(void);
-	void   SetSkipProbability(double);
-	double SkipProbability(void) const;
+    // misc public methods
+    String PlayerName(void) const;
+    void   Serverize(Address const& client, Address const& server);
+    void   SetAddress(Address const&);
+    void   SetAutomatic(void);
+    void   SetLocalUser(void);
+    void   SetPlayerName(String const&);
+    void   SetRemote(void);
+    void   SetSkipProbability(double);
+    double SkipProbability(void) const;
 
-	// public inquiry methods
-	bool HasValidName(void) const;
-	bool IsAutomatic(void) const;
-	bool IsLocalUser(void) const;
-	bool IsRemote(void) const;
+    // public inquiry methods
+    bool HasValidName(void) const;
+    bool IsAutomatic(void) const;
+    bool IsLocalUser(void) const;
+    bool IsRemote(void) const;
 
 private:
-	// private data
-	Address mAddress;         // for remote hands only, else ignored
-	bool    mAutomaticFlag;
-	String  mPlayerName;
-	bool    mRemoteFlag;
-	double  mSkipProbability; // for automatic hands only, else 0.0
+    // private data
+    Address mAddress;         // for remote hands only, else ignored
+    bool    mAutomaticFlag;
+    String  mPlayerName;
+    bool    mRemoteFlag;
+    double  mSkipProbability; // for automatic hands only, else 0.0
 };
 
 // global utility functions

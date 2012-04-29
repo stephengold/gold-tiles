@@ -41,20 +41,20 @@ The Poly class is implemented as a list of FractionPair objects.
 class Poly: public std::vector<FractionPair> {
 public:
     // public types
-	typedef std::vector<FractionPair>::const_iterator ConstIterator;
-	typedef std::vector<FractionPair>::iterator       Iterator;
+    typedef std::vector<FractionPair>::const_iterator ConstIterator;
+    typedef std::vector<FractionPair>::iterator       Iterator;
 
-	// public lifecycle
-	// Poly(void);  compiler-generated default constructor is OK
-	// Poly(Poly const&);  compiler-generated copy constructor is OK
-	// ~Poly(void);  compiler-generated destructor is OK
+    // public lifecycle
+    // Poly(void);  compiler-generated default constructor is OK
+    // Poly(Poly const&);  compiler-generated copy constructor is OK
+    // ~Poly(void);  compiler-generated destructor is OK
 
     // public operators
     // Poly& operator=(Poly const&);  compiler-generated assignment operator is OK 
- 
-	// misc public methods
+
+    // misc public methods
     void     Add(double x, double y);
-	unsigned Count(void) const;
+    unsigned Count(void) const;
     void     GetPoints(Win::POINT points[], unsigned numPoints, 
                  Rect const& bounds, bool invert) const;    
 };

@@ -38,35 +38,35 @@ The ParmBox2 class extends the Dialog class.
 
 class ParmBox2: public Dialog {
 public:
-	// public constants
-	static const RowType    HEIGHT_DEFAULT = 12;
-	static const ColumnType WIDTH_DEFAULT = 12;
+    // public constants
+    static const RowType    HEIGHT_DEFAULT = 12;
+    static const ColumnType WIDTH_DEFAULT = 12;
 
     // lifecycle
-	// no default constructor
-	explicit ParmBox2(GameOpt&);
-	// ~ParmBox2(void);  compiler-generated destructor is OK
+    // no default constructor
+    explicit ParmBox2(GameOpt&);
+    // ~ParmBox2(void);  compiler-generated destructor is OK
 
-	// misc public methods
-	int HandleMessage(MessageType, Win::WPARAM);
+    // misc public methods
+    int HandleMessage(MessageType, Win::WPARAM);
 
 private:
-	// private data
-	GameOpt& mrGameOpt;
+    // private data
+    GameOpt& mrGameOpt;
 
-	// private lifecycle
+    // private lifecycle
     ParmBox2(ParmBox2 const&);  // not copyable
 
-	// private operators
+    // private operators
     ParmBox2& operator=(ParmBox2 const&);  // not assignable
 
-	// misc private methods
-	ValueType GetTextIndex(IdType);
-	void      SetGrid(void);
-	void      SetGrid(IdType);
-	void      SetTextIndex(IdType, ValueType);
-	void      SetTopology(void);
-	void      SetTopology(IdType);
-	void      UpdateCellCnt(void);
+    // misc private methods
+    ValueType GetTextIndex(IdType);
+    void      SetGrid(void);
+    void      SetGrid(IdType);
+    void      SetTextIndex(IdType, ValueType);
+    void      SetTopology(void);
+    void      SetTopology(IdType);
+    void      UpdateCellCnt(void);
 };
 #endif // !defined(PARMBOX2_CPP_INCLUDED)

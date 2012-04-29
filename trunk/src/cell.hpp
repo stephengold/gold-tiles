@@ -40,11 +40,11 @@ for the row (or northing) and another for the column (or easting).
 #include "string.hpp"   // USES String
 
 enum GridType {
-	GRID_TRIANGLE = 3,
-	GRID_4WAY = 4,
-	GRID_HEX = 6,
-	GRID_8WAY = 8,
-	GRID_DEFAULT = GRID_4WAY
+    GRID_TRIANGLE = 3,
+    GRID_4WAY = 4,
+    GRID_HEX = 6,
+    GRID_8WAY = 8,
+    GRID_DEFAULT = GRID_4WAY
 };
 
 typedef IndexType ColumnType;
@@ -52,63 +52,63 @@ typedef IndexType RowType;
 
 class Cell {
 public:
-	// public constants
-	static const RowType    HEIGHT_MAX = 0x40000000L;
-	static const RowType    HEIGHT_MIN = 4;
-	static const ColumnType WIDTH_MAX  = 0x40000000L;
-	static const ColumnType WIDTH_MIN = 4;
+    // public constants
+    static const RowType    HEIGHT_MAX = 0x40000000L;
+    static const RowType    HEIGHT_MIN = 4;
+    static const ColumnType WIDTH_MAX  = 0x40000000L;
+    static const ColumnType WIDTH_MIN = 4;
 
-	// public lifecycle
+    // public lifecycle
     Cell(void);   // the start cell
     // Cell(Cell const&);  compiler-generated copy constructor is OK
-	explicit Cell(String const&);
+    explicit Cell(String const&);
     Cell(RowType, ColumnType);
-	Cell(Cell const&, Direction const&, int count);
+    Cell(Cell const&, Direction const&, int count);
     // ~Cell(void);  compiler-generated destructor is OK
 
-	// public operators
-	bool operator!=(Cell const&) const;
-	bool operator<(Cell const&) const;
-	// Cell& operator=(Cell const&);  compiler-generated assignment method is OK
-	bool operator==(Cell const&) const;
-	operator String(void) const;
+    // public operators
+    bool operator!=(Cell const&) const;
+    bool operator<(Cell const&) const;
+    // Cell& operator=(Cell const&);  compiler-generated assignment method is OK
+    bool operator==(Cell const&) const;
+    operator String(void) const;
 
-	// misc public methods
-	ColumnType      Column(void) const;
+    // misc public methods
+    ColumnType      Column(void) const;
     bool            GetUserChoice(String const&);
     static GridType Grid(void);
-	static void     LimitPlay(unsigned&);
-	void            Next(Direction const&, int count = 1);
-	RowType         Row(void) const;
-	static int      RowFringe(void);
-	static String   ScoringAxes(void);
-	static void     SetStatic(GameOpt const&);
-	void            Wrap(void);
+    static void     LimitPlay(unsigned&);
+    void            Next(Direction const&, int count = 1);
+    RowType         Row(void) const;
+    static int      RowFringe(void);
+    static String   ScoringAxes(void);
+    static void     SetStatic(GameOpt const&);
+    void            Wrap(void);
 
-	// public inquiry methods
-	static bool DoesBoardWrap(void);
-	bool        HasNeighbor(Direction const&) const;
-	bool        IsOdd(void) const;
-	static bool IsScoringAxis(Direction const&);
-	bool        IsStart(void) const;
-	bool        IsValid(void) const;
+    // public inquiry methods
+    static bool DoesBoardWrap(void);
+    bool        HasNeighbor(Direction const&) const;
+    bool        IsOdd(void) const;
+    static bool IsScoringAxis(Direction const&);
+    bool        IsStart(void) const;
+    bool        IsValid(void) const;
 
 private:
-	// private constants
-	static const String PREFIX;
-	static const String SEPARATOR;
-	static const String SUFFIX;
+    // private constants
+    static const String PREFIX;
+    static const String SEPARATOR;
+    static const String SUFFIX;
 
-	// private data
-	ColumnType         mColumn;
-	static GridType   msGrid;
-	static RowType    msHeight;   // must be even and <= HEIGHT_MAX
-	RowType            mRow;
-	static ColumnType msWidth;    // must be even and <= WIDTH_MAX
-	static bool       msWrapFlag; // coordinates wrap around
+    // private data
+    ColumnType         mColumn;
+    static GridType   msGrid;
+    static RowType    msHeight;   // must be even and <= HEIGHT_MAX
+    RowType            mRow;
+    static ColumnType msWidth;    // must be even and <= WIDTH_MAX
+    static bool       msWrapFlag; // coordinates wrap around
 
     // misc private methods
-	static void NextCellOffsets(Direction const&, RowType&, ColumnType&);
+    static void NextCellOffsets(Direction const&, RowType&, ColumnType&);
 };
 
 // global utility functions

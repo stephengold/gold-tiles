@@ -33,11 +33,11 @@ or the "Tile Size" submenu.
 #include "project.hpp"  // HASA Menu&
 
 enum ThinkModeType {
-	THINK_AUTOPLAY,
-	THINK_CANCEL,
-	THINK_IDLE,
+    THINK_AUTOPLAY,
+    THINK_CANCEL,
+    THINK_IDLE,
     THINK_REMOTE,
-	THINK_SUGGEST
+    THINK_SUGGEST
 };
 
 #ifdef _QT

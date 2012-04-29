@@ -27,11 +27,11 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 
 /*
 A Window object represents an overlapped GUI window with the following feaures:
- + a menubar
- + a paintable/resizeable client area
- + access to the mouse pointer (cursor)
- + message boxes, and
- + multiple fibers (optional).
++ a menubar
++ a paintable/resizeable client area
++ access to the mouse pointer (cursor)
++ message boxes, and
++ multiple fibers (optional).
 
 The Window class is implemented by extending the BaseWindow class.
 */
@@ -42,75 +42,75 @@ The Window class is implemented by extending the BaseWindow class.
 
 class Window: public BaseWindow {
 public:
-	// public lifecycle
-	Window(void);
+    // public lifecycle
+    Window(void);
     // ~Window(void);  compiler-generated destructor is OK
 
-	// public operators
+    // public operators
     operator Rect(void) const;
 
-	// misc public methods
-	Point        Brc(void) const;
-	PixelCntType ClientAreaHeight(void) const;
-	PixelCntType ClientAreaWidth(void) const;
-	Win::LRESULT HandleMessage(MessageType, Win::WPARAM, Win::LPARAM); 
-	void         InfoBox(TextType message, TextType title);
+    // misc public methods
+    Point        Brc(void) const;
+    PixelCntType ClientAreaHeight(void) const;
+    PixelCntType ClientAreaWidth(void) const;
+    Win::LRESULT HandleMessage(MessageType, Win::WPARAM, Win::LPARAM); 
+    void         InfoBox(TextType message, TextType title);
     int          MessageDispatchLoop(void);
-	Win::HDC     PaintDevice(void) const;
+    Win::HDC     PaintDevice(void) const;
     bool         RetryBox(TextType message, TextType title);
-	void         Show(int showHow);
-	void         Yields(void);
+    void         Show(int showHow);
+    void         Yields(void);
 
 protected:
-	// protected lifecycle
+    // protected lifecycle
     void Initialize(Win::CREATESTRUCT const&);
 
-	// misc protected methods
-	void* AddFiber(void (CALLBACK& routine)(void*));
-	void  BeginPaint(void);
-	void  CaptureMouse(void);
-	void  Close(void);
-	void  Create(String const& className, Rect const&, 
-		      BaseWindow* parent, Win::HINSTANCE);
-	void  EndPaint(void);
-	void  ErrorBox(TextType message, TextType title);
-	void  ForceRepaint(void);
-	bool  IsMouseCaptured(void) const;
-	int   QuestionBox(TextType message, TextType title);
-	void  ReleaseMouse(void);
-	void  SelfDestruct(void);
-	void  SetAcceleratorTable(TextType resourceName);
-	void  SetClientArea(PixelCntType width, PixelCntType height);
-	void  SetCursorBusy(void);
-	void  SetCursorDrag(void);
-	void  SetCursorSelect(void);
-	void  SetIcons(TextType resourceName);
-	void  SetTimer(unsigned msecs, unsigned id);
-	void  UpdateMenuBar(void);
-	void  UseFibers(void);
-	int   WarnBox(TextType message, TextType title);
-	void  WarpCursor(Point const&);
+    // misc protected methods
+    void* AddFiber(void (CALLBACK& routine)(void*));
+    void  BeginPaint(void);
+    void  CaptureMouse(void);
+    void  Close(void);
+    void  Create(String const& className, Rect const&, 
+              BaseWindow* parent, Win::HINSTANCE);
+    void  EndPaint(void);
+    void  ErrorBox(TextType message, TextType title);
+    void  ForceRepaint(void);
+    bool  IsMouseCaptured(void) const;
+    int   QuestionBox(TextType message, TextType title);
+    void  ReleaseMouse(void);
+    void  SelfDestruct(void);
+    void  SetAcceleratorTable(TextType resourceName);
+    void  SetClientArea(PixelCntType width, PixelCntType height);
+    void  SetCursorBusy(void);
+    void  SetCursorDrag(void);
+    void  SetCursorSelect(void);
+    void  SetIcons(TextType resourceName);
+    void  SetTimer(unsigned msecs, unsigned id);
+    void  UpdateMenuBar(void);
+    void  UseFibers(void);
+    int   WarnBox(TextType message, TextType title);
+    void  WarpCursor(Point const&);
 
 private:
-	Win::HACCEL      mAcceleratorTable;
-	PixelCntType     mClientAreaHeight;
+    Win::HACCEL      mAcceleratorTable;
+    PixelCntType     mClientAreaHeight;
     PixelCntType     mClientAreaWidth;
-	void*            mMainFiber;
-	Win::HDC         mPaintDevice;
-	Win::PAINTSTRUCT mPaintStruct;
+    void*            mMainFiber;
+    Win::HDC         mPaintDevice;
+    Win::PAINTSTRUCT mPaintStruct;
 
-	// private lifecycle
+    // private lifecycle
     Window(Window const&); // not copyable
 
-	// private operators
+    // private operators
     Window& operator=(Window const&); // not assignable
 
-	// misc private methods
-	bool GetAMessage(Win::MSG&, int& exitCode);
-	void SetCursor(Win::LPSTR);
-	void TranslateAndDispatch(Win::MSG&);
+    // misc private methods
+    bool GetAMessage(Win::MSG&, int& exitCode);
+    void SetCursor(Win::LPSTR);
+    void TranslateAndDispatch(Win::MSG&);
 
-	// private inquiry methods
-	bool HasAMessage(void) const;
+    // private inquiry methods
+    bool HasAMessage(void) const;
 };
 #endif // !defined(WINDOW_HPP_INCLUDED)

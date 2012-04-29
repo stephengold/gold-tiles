@@ -118,7 +118,7 @@ typedef char const*   TextType;   // read-only, NUL-terminated string of charact
 const double   M_PI = 3.14159265358979323846;
 #endif // !defined(M_PI)
 const MsecIntervalType 
-	           MSECS_PER_SECOND = 1000;
+               MSECS_PER_SECOND = 1000;
 const unsigned SECONDS_PER_MINUTE = 60;
 const double   SQRT_3 = 1.732050807568877;
 
@@ -127,7 +127,7 @@ void     assertion_failed(TextType, unsigned);
 bool     is_even(long);
 bool     is_odd(long);
 MsecIntervalType
-	     milliseconds(void);  // read real-time clock
+         milliseconds(void);  // read real-time clock
 String   ordinal(unsigned);
 void     pause(void);
 TextType plural(unsigned);

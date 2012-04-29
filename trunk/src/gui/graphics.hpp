@@ -39,100 +39,100 @@ contexts:  mDraw for drawing and mDevice for the physical device.
 
 class Graphics {
 public:
-	// public constants
-	static const PixelCntType FONT_HEIGHT_DEFAULT = 24;
+    // public constants
+    static const PixelCntType FONT_HEIGHT_DEFAULT = 24;
 
-	// public lifecycle
-	// no default constructor
+    // public lifecycle
+    // no default constructor
     Graphics(Win::HDC, Window&, bool releaseMe, bool doubleBufferingOption);
-	virtual ~Graphics(void);
+    virtual ~Graphics(void);
 
-	// misc public methods
+    // misc public methods
     void         Close(void);
-	void         DrawEquilateral(Rect const&, bool invert);
-	void         DrawHexagon(Rect const&);
-	void         DrawLine(Point const&, Point const&);
-	void         DrawLine(LogicalXType, LogicalYType, LogicalXType, LogicalYType);
+    void         DrawEquilateral(Rect const&, bool invert);
+    void         DrawHexagon(Rect const&);
+    void         DrawLine(Point const&, Point const&);
+    void         DrawLine(LogicalXType, LogicalYType, LogicalXType, LogicalYType);
     void         DrawPolygon(Poly const&, Rect const&, bool invert = false, bool fill = true);
     Rect         DrawRectangle(Rect const&);
     Rect         DrawRectangle(LogicalYType, LogicalXType, PixelCntType width, PixelCntType height);
     void         DrawRoundedSquare(Point const&, PixelCntType edge, PixelCntType diameter);
     void         DrawTextLine(Rect const&, TextType, TextType alt = NULL);
     void         DrawTextMultiline(Rect const&, TextType);
-	static Rect  InteriorEquilateral(Rect const&, bool invert);
-	static Rect  InteriorHexagon(Rect const&);
+    static Rect  InteriorEquilateral(Rect const&, bool invert);
+    static Rect  InteriorHexagon(Rect const&);
     static Rect  InteriorRoundedSquare(Point const&, PixelCntType edge, PixelCntType diameter);
     PixelCntType TextHeight(void) const;
     PixelCntType TextWidth(TextType) const;
     void         UseColors(ColorType brushBk, ColorType penText);
-	void         UseFont(PixelCntType height);
-	void         UseFont(PixelCntType height, PixelCntType width);
+    void         UseFont(PixelCntType height);
+    void         UseFont(PixelCntType height, PixelCntType width);
 
 private:
-	// private types
+    // private types
     typedef unsigned short TextSizeType;
 
-	// private constants
-	static const PixelCntType FONT_HEIGHT_MAX = 999;
-	static const PixelCntType FONT_HEIGHT_MIN = 4;
-	static const PixelCntType FONT_WIDTH_MIN = 4;
-	static const TextSizeType TEXT_SIZE_MAX = 13;
-	static const TextSizeType TEXT_SIZE_CNT = TEXT_SIZE_MAX + 1;
+    // private constants
+    static const PixelCntType FONT_HEIGHT_MAX = 999;
+    static const PixelCntType FONT_HEIGHT_MIN = 4;
+    static const PixelCntType FONT_WIDTH_MIN = 4;
+    static const TextSizeType TEXT_SIZE_MAX = 13;
+    static const TextSizeType TEXT_SIZE_CNT = TEXT_SIZE_MAX + 1;
 
-	// private data - saved GDI handles
-	Win::HGDIOBJ mBitmapSave;
-	Win::HGDIOBJ mBrushSave;
-	Win::HGDIOBJ mFontSave;
-	Win::HGDIOBJ mPenSave;
+    // private data - saved GDI handles
+    Win::HGDIOBJ mBitmapSave;
+    Win::HGDIOBJ mBrushSave;
+    Win::HGDIOBJ mFontSave;
+    Win::HGDIOBJ mPenSave;
 
-	// private data - current colors and fonts
+    // private data - current colors and fonts
     ColorType    mBackgroundColor;  // background color and mode for text and broken lines
     ColorType    mBrushColor;	    // brush color for filling shapes
-	ColorType    mPenColor;         // pen color for broken lines
-	ColorType    mTextColor;        // foreground color for text
-	TextSizeType mTextSize;         // size for text
+    ColorType    mPenColor;         // pen color for broken lines
+    ColorType    mTextColor;        // foreground color for text
+    TextSizeType mTextSize;         // size for text
 
-	// private data - preselected fonts
-	Win::HFONT   mFonts[TEXT_SIZE_CNT];
-	PixelCntType mFontHeight[TEXT_SIZE_CNT];
-	PixelCntType mFontWidth[TEXT_SIZE_CNT];
+    // private data - preselected fonts
+    Win::HFONT   mFonts[TEXT_SIZE_CNT];
+    PixelCntType mFontHeight[TEXT_SIZE_CNT];
+    PixelCntType mFontWidth[TEXT_SIZE_CNT];
 
-	// private data - standard shapes
-	static Poly msEquilateral;
-	static Poly msHexagon;
+    // private data - standard shapes
+    static Poly msEquilateral;
+    static Poly msHexagon;
 
-	// private data - misc
+    // private data - misc
     Win::HDC  mDevice;
-	Win::HDC  mDraw;
+    Win::HDC  mDraw;
     Rect      mRect;
     bool      mReleaseMe;
     Win::HWND mWindow;
 
-	// private lifecycle
-	Graphics(Graphics const&);  // not copyable
+    // private lifecycle
+    Graphics(Graphics const&);  // not copyable
 
-	// private operators
+    // private operators
     Graphics& operator=(Graphics const&);  // not assignable
 
-	// misc private methods
-	void CreateFonts(void);
-	TextSizeType 
-		 FindTextSize(PixelCntType height);
-	TextSizeType 
-		 FindTextSize(PixelCntType height, PixelCntType width);
-	static void
-		 InitializeEquilateral(void);
-	static void
-		 InitializeHexagon(void);
-	void MeasureFonts(void);
-	static PixelCntType 
-		 NominalHeight(TextSizeType size);
-	void SetBackgroundColor(ColorType);
-	void SetBrushColor(ColorType);
-	void SetPenColor(ColorType);
-	void SetTextColor(ColorType);
-	void SetTextSize(TextSizeType);
-	void UseBrushBackgroundColors(ColorType);
-	void UsePenTextColors(ColorType);
+    // misc private methods
+    void CreateFonts(void);
+    TextSizeType 
+         FindTextSize(PixelCntType height);
+    TextSizeType 
+         FindTextSize(PixelCntType height, PixelCntType width);
+    static void
+         InitializeEquilateral(void);
+    static void
+         InitializeHexagon(void);
+    void MeasureFonts(void);
+    static PixelCntType 
+         NominalHeight(TextSizeType size);
+    void SetBackgroundColor(ColorType);
+    void SetBrushColor(ColorType);
+    void SetPenColor(ColorType);
+    void SetTextColor(ColorType);
+    void SetTextSize(TextSizeType);
+    void UseBrushBackgroundColors(ColorType);
+    void UsePenTextColors(ColorType);
 };
 #endif // !defined(GRAPHICS_HPP_INCLUDED)

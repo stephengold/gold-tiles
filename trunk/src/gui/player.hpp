@@ -42,59 +42,59 @@ user-interface settings.
 
 class Player {
 public:
-	// public lifecycle
-	// Player(void); no default constructor
-	explicit Player(String const& name);
+    // public lifecycle
+    // Player(void); no default constructor
+    explicit Player(String const& name);
     // ~Player(void);  compiler-generated destructor is OK
 
-	// public operators
-	operator DisplayModes(void) const;
-	operator Point(void) const;    // get logical coordinates of Start cell
+    // public operators
+    operator DisplayModes(void) const;
+    operator Point(void) const;    // get logical coordinates of Start cell
 
-	// misc public methods
+    // misc public methods
     static Player& 
-		    rLookup(String const&);
-	void     SetAutopause(bool);
-	void     SetDisplayModes(DisplayModes const&);
+             rLookup(String const&);
+    void     SetAutopause(bool);
+    void     SetDisplayModes(DisplayModes const&);
     void     SetPeek(bool);
-	void     SetShowClocks(bool);
+    void     SetShowClocks(bool);
     void     SetShowGrid(bool);
-	void     SetShowScores(bool);
-	void     SetStartCellPosition(Point const&);
-	void     SetTileSize(unsigned);
-	unsigned TileSize(void) const;
+    void     SetShowScores(bool);
+    void     SetStartCellPosition(Point const&);
+    void     SetTileSize(unsigned);
+    unsigned TileSize(void) const;
 
-	// public inquiry methods
-	bool Autopause(void) const;
+    // public inquiry methods
+    bool Autopause(void) const;
     bool Peek(void) const;
-	bool ShowClocks(void) const;
+    bool ShowClocks(void) const;
     bool ShowGrid(void) const;
-	bool ShowScores(void) const;
+    bool ShowScores(void) const;
 
 private:
-	// private types
+    // private types
     typedef std::map<String, Player*>  Map;
     typedef std::pair<String, Player*> Pair;
-	typedef Map::const_iterator        ConstIterator;
+    typedef Map::const_iterator        ConstIterator;
     typedef Map::iterator              Iterator;
     typedef std::pair<Iterator, bool>  InsertResult;
 
-	// private data
-	bool         mAutopause;
-	DisplayModes mDisplayModes;
+    // private data
+    bool         mAutopause;
+    DisplayModes mDisplayModes;
     static Map  msMap;
-	String       mName;
-	bool         mPeek;
-	bool         mShowClocks;
-	bool         mShowGrid;
-	bool         mShowScores;
-	Point        mStartCellPosition;  // logical coordinates of the Start cell
-	unsigned     mTileSize;
+    String       mName;
+    bool         mPeek;
+    bool         mShowClocks;
+    bool         mShowGrid;
+    bool         mShowScores;
+    Point        mStartCellPosition;  // logical coordinates of the Start cell
+    unsigned     mTileSize;
 
-	// private lifecycle
-	Player(Player const&);  // not copyable
+    // private lifecycle
+    Player(Player const&);  // not copyable
 
-	// private operators
-	Player& operator=(Player const&);  // not assignable
+    // private operators
+    Player& operator=(Player const&);  // not assignable
 };
 #endif // !defined(PLAYER_HPP_INCLUDED)

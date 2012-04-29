@@ -38,36 +38,36 @@ The HandBox class is an extension of the Dialog class.
 class HandBox: public Dialog {
 public:
     // public lifecycle
-	// no default constructor
-	HandBox(unsigned handIndex, unsigned handCnt, HandOpt const&); 
-	// ~HandBox(void);  compiler-generated destructor is OK
+    // no default constructor
+    HandBox(unsigned handIndex, unsigned handCnt, HandOpt const&); 
+    // ~HandBox(void);  compiler-generated destructor is OK
 
-	// public operators
-	operator HandOpt(void) const;
+    // public operators
+    operator HandOpt(void) const;
 
-	// misc public methods
-	int HandleMessage(MessageType, Win::WPARAM);
+    // misc public methods
+    int HandleMessage(MessageType, Win::WPARAM);
 
 private:
-	// private constants
-	static const ValueType LEVEL_MAX = 8;
+    // private constants
+    static const ValueType LEVEL_MAX = 8;
 
-	// private data
-	bool     mAreMoreHands;
-	unsigned mHandCnt;
-	unsigned mHandIndex;
-	HandOpt  mOptions;
+    // private data
+    bool     mAreMoreHands;
+    unsigned mHandCnt;
+    unsigned mHandIndex;
+    HandOpt  mOptions;
 
-	// private lifecycle
+    // private lifecycle
     HandBox(HandBox const&);  // not copyable
 
-	// private operators
+    // private operators
     HandBox& operator=(HandBox const&);  // not assignable
 
-	// private misc methods
-	void HandleButtonClick(IdType);
-	void UpdateButtons(void);
-	void UpdateNameBox(String const&);
-	void UpdateSlider(void);
+    // private misc methods
+    void HandleButtonClick(IdType);
+    void UpdateButtons(void);
+    void UpdateNameBox(String const&);
+    void UpdateSlider(void);
 };
 #endif // !defined(HANDBOX_HPP_INCLUDED)

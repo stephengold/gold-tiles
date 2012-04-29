@@ -39,33 +39,33 @@ about the play.
 
 class Turn {
 public:
-	// lifecycle
-	// no default constructor
-	Turn(Tiles const&, String const& handName);
-	Turn(Move const&, String const& handName, unsigned mustPlay);
-	// Turn(Turn const&);  compiler-generated copy constructor is OK
-	// ~Turn(void);  compiler-generated destructor is OK
+    // lifecycle
+    // no default constructor
+    Turn(Tiles const&, String const& handName);
+    Turn(Move const&, String const& handName, unsigned mustPlay);
+    // Turn(Turn const&);  compiler-generated copy constructor is OK
+    // ~Turn(void);  compiler-generated destructor is OK
 
-	// public operators
-	// Turn const& operator=(Turn const&);  compiler-generated assignment operator is OK
-	bool operator==(Turn const&) const;
+    // public operators
+    // Turn const& operator=(Turn const&);  compiler-generated assignment operator is OK
+    bool operator==(Turn const&) const;
     operator Move(void) const;
     operator String(void) const;
-    
+
     // misc methods
-	Tiles     Draw(void) const;
-	String    HandName(void) const;
-	unsigned  MustPlay(void) const;
-	ScoreType Points(void) const;
+    Tiles     Draw(void) const;
+    String    HandName(void) const;
+    unsigned  MustPlay(void) const;
+    ScoreType Points(void) const;
     void      SetDraw(Tiles const&);
     void      SetPoints(ScoreType);
 
 private:
-	// private data
-	Tiles     mDraw;      // move first, then draw
-	String    mHandName;
-	Move      mMove;      // move first, then draw
-	unsigned  mMustPlay;  // set for first turn, otherwise zero
-	ScoreType mPoints;    // from start of turn
+    // private data
+    Tiles     mDraw;      // move first, then draw
+    String    mHandName;
+    Move      mMove;      // move first, then draw
+    unsigned  mMustPlay;  // set for first turn, otherwise zero
+    ScoreType mPoints;    // from start of turn
 };
 #endif // !defined(TURN_HPP_INCLUDED)

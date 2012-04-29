@@ -53,14 +53,14 @@ public:
 private:
     // private data
     MenuItem mNew;
-	MenuItem mOpen;
-	MenuItem mReopen;
-	MenuItem mRevert;
+    MenuItem mOpen;
+    MenuItem mReopen;
+    MenuItem mRevert;
     MenuItem mSave;
-	MenuItem mSaveAs;
-	MenuItem mClose;
-	MenuItem mPrint;
-	MenuItem mExit;
+    MenuItem mSaveAs;
+    MenuItem mClose;
+    MenuItem mPrint;
+    MenuItem mExit;
 
     // private lifecycle
     FileMenu(FileMenu const&);   // not copyable

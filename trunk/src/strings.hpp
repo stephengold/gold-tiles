@@ -63,7 +63,7 @@ public:
 	String        First(void) const;
 	String        InventUnique(String const& prefix) const;
 	String        InventUnique(String const& prefix, String const& infix, 
-		                           String const& suffix) const;
+		              String const& suffix) const;
 	void          MakeEmpty(void);
 	String        Second(void) const;
 	Strings       Unique(void) const;

@@ -34,7 +34,7 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 #ifdef _QT
 
 PlayMenu::PlayMenu(void):
-    SubMenu(tr("&Play")),
+SubMenu(tr("&Play")),
     mPlay(Qt(), "&Play\tEnter"),
     mTakeBack(Qt(), "Take &back\tEsc"),
     mSuggest(Qt(), "Su&ggest\tG"),
@@ -71,7 +71,7 @@ PlayMenu::PlayMenu(void):
 #elif defined(_WINDOWS)
 
 PlayMenu::PlayMenu(Menu const& rRootMenu, unsigned position):	
-	SubMenu(rRootMenu, position),
+SubMenu(rRootMenu, position),
     mPlay(rRootMenu, IDM_PLAY_PLAY),
     mTakeBack(rRootMenu, IDM_TAKE_BACK),
     mSuggest(rRootMenu, IDM_SUGGEST),
@@ -83,7 +83,7 @@ PlayMenu::PlayMenu(Menu const& rRootMenu, unsigned position):
     mUndo(rRootMenu, IDM_UNDO),
     mRedo(rRootMenu, IDM_REDO),
     mAutopause(rRootMenu, IDM_AUTOPAUSE)
- {}
+{}
 
 #endif // defined(_WINDOWS)
 
@@ -93,31 +93,31 @@ PlayMenu::PlayMenu(Menu const& rRootMenu, unsigned position):
 // misc methods
 
 void PlayMenu::Autopause(bool active) {
-	mAutopause.Check(active);
+    mAutopause.Check(active);
 }
 
 void PlayMenu::Pause(bool paused) {
-	mPause.Check(paused);
+    mPause.Check(paused);
 }
 
 void PlayMenu::EnableItems(Partial const& rPartial, ThinkModeType thinkMode) {
-	bool const is_local = rPartial.IsLocalUsersTurn() && (thinkMode != THINK_SUGGEST);
-	bool const is_over = rPartial.IsGameOver();
+    bool const is_local = rPartial.IsLocalUsersTurn() && (thinkMode != THINK_SUGGEST);
+    bool const is_over = rPartial.IsGameOver();
     bool const is_pass = rPartial.IsPass();
-	bool const is_paused = rPartial.IsGamePaused();
-	bool const can_swap_all = rPartial.CanSwapAll();
-	bool const can_redo = rPartial.CanRedo();
-	bool const can_undo = rPartial.CanUndo();
+    bool const is_paused = rPartial.IsGamePaused();
+    bool const can_swap_all = rPartial.CanSwapAll();
+    bool const can_redo = rPartial.CanRedo();
+    bool const can_undo = rPartial.CanUndo();
     GameStyleType const game_style = rPartial.GameStyle();
 
-	bool const is_challenge = (game_style == GAME_STYLE_CHALLENGE);
-	bool const is_friendly = (game_style == GAME_STYLE_FRIENDLY);
+    bool const is_challenge = (game_style == GAME_STYLE_CHALLENGE);
+    bool const is_friendly = (game_style == GAME_STYLE_FRIENDLY);
 
     mPlay.Enable(is_local && !is_over && !is_paused && !is_pass);
     mTakeBack.Enable(is_local && !is_over && !is_paused && !is_pass);
     mSuggest.Enable(is_local && !is_over && !is_paused && !is_challenge);
     mPause.Enable(!is_over);
-	mSwapAll.Enable(is_local && !is_over && !is_paused && is_pass && can_swap_all);
+    mSwapAll.Enable(is_local && !is_over && !is_paused && is_pass && can_swap_all);
     mPass.Enable(is_local && !is_over && !is_paused && is_pass);
     mResign.Enable(is_local && !is_over && !is_paused);
     mRestart.Enable(!is_paused && !is_challenge && !is_friendly);

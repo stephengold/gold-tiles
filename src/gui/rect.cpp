@@ -83,7 +83,7 @@ Rect::operator RECT(void) const {
     result.bottom = mBottom;
     result.left = mLeft;
     result.right = mRight;
-    
+
     return result;
 }
 
@@ -97,7 +97,7 @@ float Rect::AspectRatio(void) const {
     ASSERT(height > 0.5);
 
     float const result = width/height;
-    
+
     return result;
 }
 
@@ -107,7 +107,7 @@ LogicalYType Rect::BottomY(void) const {
 
 Point Rect::Brc(void) const {
     Point const result(mRight, mBottom);
-    
+
     return result;
 }
 
@@ -115,22 +115,22 @@ Point Rect::Center(void) const {
     LogicalXType const x = CenterX();
     LogicalYType const y = CenterY();
     Point const result(x, y);
-    
+
     return result;
 }
- 
+
 // construct the largest Rect with a given aspect ratio
 // that is centered and contained within this Rect
 
 Rect Rect::CenterRect(float aspectRatio) const {
     ASSERT(aspectRatio > 0.01);
     ASSERT(aspectRatio < 100.0);
-    
+
     PixelCntType width = Width();
     PixelCntType height = Height();
     LogicalXType left = LeftX();
     LogicalYType top = TopY();
-    
+
     if (width > height*aspectRatio) {
         left += (unsigned)(width - height*aspectRatio)/2;
         width = height;
@@ -139,7 +139,7 @@ Rect Rect::CenterRect(float aspectRatio) const {
         height = width;
     } 
     Rect const result(top, left, width, height);
-    
+
     ASSERT(Contains(result));
     return result;
 }
@@ -151,7 +151,7 @@ Rect Rect::CenterSquare(void) const {
     PixelCntType height = Height();
     LogicalXType left = LeftX();
     LogicalYType top = TopY();
-    
+
     if (width > height) {
         left += (width - height)/2;
         width = height;
@@ -160,27 +160,27 @@ Rect Rect::CenterSquare(void) const {
         height = width;
     } 
     Rect const result(top, left, width, height);
-    
+
     ASSERT(Contains(result));
     return result;
 }
 
 LogicalXType Rect::CenterX(void) const {
-	LogicalXType const result = LeftX() + Width()/2;
+    LogicalXType const result = LeftX() + Width()/2;
 
-	return result;
+    return result;
 }
 
 LogicalYType Rect::CenterY(void) const {
-	LogicalYType const result = TopY() + Height()/2;
+    LogicalYType const result = TopY() + Height()/2;
 
-	return result;
+    return result;
 }
 
 PixelCntType Rect::Height(void) const {
     ASSERT(BottomY() >= TopY());
     PixelCntType const result = BottomY() - TopY();
-    
+
     return result;
 }
 
@@ -191,19 +191,19 @@ Point Rect::Interpolate(FractionPair const& rPair, bool invertFlag) const {
     PixelCntType const dx = PixelCntType(0.5 + rPair.X()*width);
     ASSERT(dx < Width());
     LogicalXType const x = LeftX() + dx;
-    
-	double y_fraction = rPair.Y();
-	if (!invertFlag) {
-		y_fraction = 1.0 - y_fraction;
-	}
+
+    double y_fraction = rPair.Y();
+    if (!invertFlag) {
+        y_fraction = 1.0 - y_fraction;
+    }
     PixelCntType const dy = PixelCntType(0.5 + y_fraction*height);
     ASSERT(dy < Height());
     LogicalYType const y = TopY() + dy;  
 
     ASSERT(Contains(x, y));
-        
+
     Point const result(x, y);
-    
+
     return result;
 }
 
@@ -216,18 +216,18 @@ LogicalXType Rect::RightX(void) const {
 }
 
 Rect Rect::ShrinkHeight(PixelCntType height) const {
-	Rect result(*this);
+    Rect result(*this);
 
-	if (height < result.Height()) {
-		PixelCntType const pixels = result.Height() - height;
-		PixelCntType const shrink_top = pixels/2;
-		PixelCntType const shrink_bottom = pixels - shrink_top;
-		result.mTop += shrink_top;
-		result.mBottom -= shrink_bottom;
-		ASSERT(height == result.Height());
-	}
+    if (height < result.Height()) {
+        PixelCntType const pixels = result.Height() - height;
+        PixelCntType const shrink_top = pixels/2;
+        PixelCntType const shrink_bottom = pixels - shrink_top;
+        result.mTop += shrink_top;
+        result.mBottom -= shrink_bottom;
+        ASSERT(height == result.Height());
+    }
 
-	return result;
+    return result;
 }
 
 LogicalYType Rect::TopY(void) const {
@@ -236,14 +236,14 @@ LogicalYType Rect::TopY(void) const {
 
 Point Rect::Ulc(void) const {
     Point const result(mLeft, mTop);
-    
+
     return result;
 }
 
 PixelCntType Rect::Width(void) const {
     ASSERT(RightX() >= LeftX());
     PixelCntType const result = RightX() - LeftX();
-    
+
     return result;
 }
 
@@ -254,7 +254,7 @@ bool Rect::Contains(Point const& rPoint) const {
     LogicalXType const x = rPoint.X();
     LogicalYType const y = rPoint.Y();
     bool const result = Contains(x, y);
-    
+
     return result; 
 }
 
@@ -262,14 +262,14 @@ bool Rect::Contains(LogicalXType x, LogicalYType y) const {
     PixelCntType const dx = x - mLeft;
     PixelCntType const dy = y - mTop;
     bool const result = (dx < Width() && dy < Height());
-    
+
     return result; 
 }
 
 bool Rect::Contains(Rect const& rOther) const {
     Point const ulc = rOther.Ulc();
     bool result = Contains(ulc);
-    
+
     if (result) {
         LogicalXType const x_max = rOther.RightX() - 1;
         LogicalYType const y_max = rOther.BottomY() - 1;
@@ -277,7 +277,7 @@ bool Rect::Contains(Rect const& rOther) const {
             result = false;
         }
     }
-    
+
     return result; 
 }
 #endif // defined(_WINDOWS)

@@ -35,15 +35,15 @@ Player::Map Player::msMap;
 // lifecycle
 
 Player::Player(String const& rName):
-    mName(rName),
-	mStartCellPosition(0, 0)
+mName(rName),
+    mStartCellPosition(0, 0)
 {
-	mAutopause = false;
-	mPeek = false;
-	mShowClocks = false;
-	mShowGrid = false;
-	mShowScores = false;
-	mTileSize = GameView::TILE_SIZE_DEFAULT;
+    mAutopause = false;
+    mPeek = false;
+    mShowClocks = false;
+    mShowGrid = false;
+    mShowScores = false;
+    mTileSize = GameView::TILE_SIZE_DEFAULT;
 }
 
 // The compiler-generated destructor is OK.
@@ -65,33 +65,33 @@ Player::operator Point(void) const {
 /* static */ Player& Player::rLookup(String const& rName) {
     ConstIterator const i_player = msMap.find(rName);
 
-	Player* p_result = NULL;
+    Player* p_result = NULL;
     if (i_player != msMap.end()) {
         p_result = i_player->second;
     } else {
-		p_result = new Player(rName);
-	    ASSERT(p_result != NULL);
+        p_result = new Player(rName);
+        ASSERT(p_result != NULL);
 
-		Pair const new_mapping(rName, p_result); 
-	    InsertResult const ins_result = msMap.insert(new_mapping);
-	    bool const success = ins_result.second;
-	    ASSERT(success);
-	}
+        Pair const new_mapping(rName, p_result); 
+        InsertResult const ins_result = msMap.insert(new_mapping);
+        bool const success = ins_result.second;
+        ASSERT(success);
+    }
 
-	ASSERT(p_result != NULL);
-	return *p_result;
+    ASSERT(p_result != NULL);
+    return *p_result;
 }
 
 void Player::SetAutopause(bool value) {
-	mAutopause = value;
+    mAutopause = value;
 }
 
 void Player::SetDisplayModes(DisplayModes const& rDisplayModes) {
-	mDisplayModes = rDisplayModes;
+    mDisplayModes = rDisplayModes;
 }
 
 void Player::SetPeek(bool value) {
-	mPeek = value;
+    mPeek = value;
 }
 
 void Player::SetShowClocks(bool value) {
@@ -107,18 +107,18 @@ void Player::SetShowScores(bool value) {
 }
 
 void Player::SetStartCellPosition(Point const& rPoint) {
-	mStartCellPosition = rPoint;
+    mStartCellPosition = rPoint;
 }
 
 void Player::SetTileSize(unsigned size) {
-	ASSERT(size >= GameView::TILE_SIZE_MIN);
-	ASSERT(size <= GameView::TILE_SIZE_MAX);
+    ASSERT(size >= GameView::TILE_SIZE_MIN);
+    ASSERT(size <= GameView::TILE_SIZE_MAX);
 
-	mTileSize = size;
+    mTileSize = size;
 }
 
 unsigned Player::TileSize(void) const {
-	return mTileSize;
+    return mTileSize;
 }
 
 
@@ -133,13 +133,13 @@ bool Player::Peek(void) const {
 }
 
 bool Player::ShowClocks(void) const {
-	return mShowClocks;
+    return mShowClocks;
 }
 
 bool Player::ShowGrid(void) const {
-	return mShowGrid;
+    return mShowGrid;
 }
 
 bool Player::ShowScores(void) const {
-	return mShowScores;
+    return mShowScores;
 }

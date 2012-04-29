@@ -33,23 +33,23 @@ WindowClass::WindowClass(
     HINSTANCE applicationInstance,
     WNDPROC messageHandler,
     TextType className,
-	TextType menuName)
+    TextType menuName)
 {
-	cbClsExtra = 0;
-	cbWndExtra = 0;
+    cbClsExtra = 0;
+    cbWndExtra = 0;
     cbSize = sizeof(WNDCLASSEX);
-	hbrBackground = 0; // using double buffering, so no background brush
+    hbrBackground = 0; // using double buffering, so no background brush
     HINSTANCE nullInstance = NULL;
-	hCursor = Win::LoadCursor(nullInstance, IDC_ARROW);
-	hIcon = 0;
-	hIconSm = 0;
-	hInstance = applicationInstance;
-	lpfnWndProc = messageHandler;  // callback
+    hCursor = Win::LoadCursor(nullInstance, IDC_ARROW);
+    hIcon = 0;
+    hIconSm = 0;
+    hInstance = applicationInstance;
+    lpfnWndProc = messageHandler;  // callback
 
-	lpszClassName = className;
-	lpszMenuName = menuName;
+    lpszClassName = className;
+    lpszMenuName = menuName;
 
-	style = CS_HREDRAW | CS_VREDRAW | CS_OWNDC;
+    style = CS_HREDRAW | CS_VREDRAW | CS_OWNDC;
 }
 
 
@@ -65,7 +65,7 @@ TextType WindowClass::Name(void) const {
 
 void WindowClass::RegisterClass(void) {
     ATOM const classAtom = Win::RegisterClassEx(this);
-	ASSERT(classAtom != 0);
+    ASSERT(classAtom != 0);
 };
 
 #endif // defined(_WINDOWS)

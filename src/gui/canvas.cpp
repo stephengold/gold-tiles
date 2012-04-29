@@ -39,13 +39,13 @@ Poly Canvas::msTargetArrow;         // polygon for target cell arrow
 // lifecycle
 
 Canvas::Canvas(Window& rWindow):
-    Graphics(rWindow.PaintDevice(), rWindow, false, true)
+Graphics(rWindow.PaintDevice(), rWindow, false, true)
 {
-	// static polygons initialized on first instantiation of this class
-	if (msShapes.size() == 0) {
+    // static polygons initialized on first instantiation of this class
+    if (msShapes.size() == 0) {
         InitializeShapes();
     }
-	if (msTargetArrow.Count() == 0) {
+    if (msTargetArrow.Count() == 0) {
         InitializeTargetArrow();
     }
 }
@@ -56,78 +56,78 @@ Canvas::Canvas(Window& rWindow):
 void Canvas::DrawBlankTile(
     Point const& rCenter,
     PixelCntType width,
-	PixelCntType height,
+    PixelCntType height,
     ColorType tileColor,
-	bool oddFlag)
+    bool oddFlag)
 {
-	ASSERT(::is_even(width));
+    ASSERT(::is_even(width));
 
-	ColorType border_color = COLOR_DARK_GRAY;
+    ColorType border_color = COLOR_DARK_GRAY;
     UseColors(tileColor, border_color);
 
-	switch (Cell::Grid()) {
-	    case GRID_4WAY:
-	    case GRID_8WAY: {
-			ASSERT(width == height);
-            PixelCntType circle_diameter = width/TILE_POINTEDNESS;
-	        DrawRoundedSquare(rCenter, width, circle_diameter);
-			break;
-		}
-	    case GRID_HEX:
-	    case GRID_TRIANGLE: 
-			DrawGridShape(rCenter, width, height, oddFlag);
-			break;
-		default:
-			FAIL();
-	}
+    switch (Cell::Grid()) {
+    case GRID_4WAY:
+    case GRID_8WAY: {
+        ASSERT(width == height);
+        PixelCntType circle_diameter = width/TILE_POINTEDNESS;
+        DrawRoundedSquare(rCenter, width, circle_diameter);
+        break;
+                    }
+    case GRID_HEX:
+    case GRID_TRIANGLE: 
+        DrawGridShape(rCenter, width, height, oddFlag);
+        break;
+    default:
+        FAIL();
+    }
 }
 
 Rect Canvas::DrawCell(
     Point const& rCenter,
     PixelCntType width,
-	PixelCntType height,
+    PixelCntType height,
     ColorType cellColor,
     ColorType gridColor,
-	bool oddFlag)
+    bool oddFlag)
 {
-	ASSERT(::is_even(width));
+    ASSERT(::is_even(width));
 
-	UseColors(cellColor, gridColor);
-	DrawGridShape(rCenter, width, height, oddFlag);
-	Rect const interior = InteriorGridShape(rCenter, width, height, oddFlag);
+    UseColors(cellColor, gridColor);
+    DrawGridShape(rCenter, width, height, oddFlag);
+    Rect const interior = InteriorGridShape(rCenter, width, height, oddFlag);
 
-	return interior;
+    return interior;
 }
 
 void Canvas::DrawGridShape(
     Point const& rCenter,
     PixelCntType width,
-	PixelCntType height,
-	bool oddFlag)
+    PixelCntType height,
+    bool oddFlag)
 {
     Point ulc = rCenter;
-	ulc.Offset(-long(width/2), -long(height/2));
-	Rect const rectangle = Rect(ulc, width, height);
+    ulc.Offset(-long(width/2), -long(height/2));
+    Rect const rectangle = Rect(ulc, width, height);
 
-	Rect interior(0,0,0,0);
-	switch (Cell::Grid()) {
-	    case GRID_4WAY:
-	    case GRID_8WAY: // square
-            ASSERT(height == width);
-            DrawRectangle(rectangle);
-			break;
-	    case GRID_HEX:
-			ASSERT(!oddFlag);
-            ASSERT(height < width);
-			DrawHexagon(rectangle);
-			break;
-	    case GRID_TRIANGLE: 
-			ASSERT(height < width);
-			DrawEquilateral(rectangle, oddFlag);
-			break;
-		default:
-			FAIL();
-	}
+    Rect interior(0,0,0,0);
+    switch (Cell::Grid()) {
+    case GRID_4WAY:
+    case GRID_8WAY: // square
+        ASSERT(height == width);
+        DrawRectangle(rectangle);
+        break;
+    case GRID_HEX:
+        ASSERT(!oddFlag);
+        ASSERT(height < width);
+        DrawHexagon(rectangle);
+        break;
+    case GRID_TRIANGLE: 
+        ASSERT(height < width);
+        DrawEquilateral(rectangle, oddFlag);
+        break;
+    default:
+        FAIL();
+    }
 }
 
 void Canvas::DrawMarking(
@@ -137,31 +137,31 @@ void Canvas::DrawMarking(
     ColorType backgroundColor,
     ColorType markingColor)
 {
-	switch (displayMode) {
-	    case ATTR_MODE_SHAPE: {
-            UseColors(markingColor, markingColor);
-        
-            ASSERT(marking < msShapes.size());
-            Poly const polygon = msShapes[marking];
-		    Rect const square = rBounds.CenterSquare();
-            DrawPolygon(polygon, square);
-			break;
-		}
-        
-		case ATTR_MODE_ABC:
-		case ATTR_MODE_RST:
-		case ATTR_MODE_123: {
-            UseColors(backgroundColor, markingColor);
+    switch (displayMode) {
+    case ATTR_MODE_SHAPE: {
+        UseColors(markingColor, markingColor);
 
-            String const ch = Combo::AttributeToString(displayMode, marking);
-			UseFont(rBounds.Height(), rBounds.Width());
-            DrawTextLine(rBounds, ch);
-			UseFont(FONT_HEIGHT_DEFAULT);
-			break;
-		}
+        ASSERT(marking < msShapes.size());
+        Poly const polygon = msShapes[marking];
+        Rect const square = rBounds.CenterSquare();
+        DrawPolygon(polygon, square);
+        break;
+                          }
 
-		default:
-			FAIL();
+    case ATTR_MODE_ABC:
+    case ATTR_MODE_RST:
+    case ATTR_MODE_123: {
+        UseColors(backgroundColor, markingColor);
+
+        String const ch = Combo::AttributeToString(displayMode, marking);
+        UseFont(rBounds.Height(), rBounds.Width());
+        DrawTextLine(rBounds, ch);
+        UseFont(FONT_HEIGHT_DEFAULT);
+        break;
+                        }
+
+    default:
+        FAIL();
     }
 }
 
@@ -170,54 +170,54 @@ void Canvas::DrawTargetArrow(Rect const& rBounds) {
 }
 
 Rect Canvas::DrawTile(
-	Markings const& rMarkings,
-	ColorType tileColor,
-	Point const& rCenter,
-	PixelCntType width,
+    Markings const& rMarkings,
+    ColorType tileColor,
+    Point const& rCenter,
+    PixelCntType width,
     PixelCntType height,
-	bool borderFlag,
-	bool oddFlag)
+    bool borderFlag,
+    bool oddFlag)
 {
-	ASSERT(::is_even(width));
+    ASSERT(::is_even(width));
 
-	if (borderFlag) {
-		ColorType border_color = COLOR_WHITE;
-		if (tileColor == COLOR_DULL_GOLD) {
-			border_color = COLOR_GOLD;
-		}
+    if (borderFlag) {
+        ColorType border_color = COLOR_WHITE;
+        if (tileColor == COLOR_DULL_GOLD) {
+            border_color = COLOR_GOLD;
+        }
         UseColors(border_color, border_color);
-	} else {
+    } else {
         UseColors(tileColor, COLOR_DARK_GRAY);
-	}
+    }
 
-	Rect interior(0,0,0,0);
-	switch (Cell::Grid()) {
-	    case GRID_4WAY:
-	    case GRID_8WAY: {
-			ASSERT(width == height);
-            PixelCntType const circle_diameter = width/TILE_POINTEDNESS;
-	        DrawRoundedSquare(rCenter, width, circle_diameter);
-			if (borderFlag) {
-                UseColors(tileColor, tileColor);
-			    DrawRoundedSquare(rCenter, (width*7)/8, (circle_diameter*7)/8);
-			}
-	        interior = InteriorRoundedSquare(rCenter, width, circle_diameter);
-			break;
-		}
-	    case GRID_HEX:
-	    case GRID_TRIANGLE: 
-			DrawGridShape(rCenter, width, height, oddFlag);
-			if (borderFlag) {
-                UseColors(tileColor, tileColor);
-			    DrawGridShape(rCenter, (width*5)/6, (height*5)/6, oddFlag);
-			}
-			interior = InteriorGridShape(rCenter, width, height, oddFlag);
-			break;
-		default:
-			FAIL();
-	}
+    Rect interior(0,0,0,0);
+    switch (Cell::Grid()) {
+    case GRID_4WAY:
+    case GRID_8WAY: {
+        ASSERT(width == height);
+        PixelCntType const circle_diameter = width/TILE_POINTEDNESS;
+        DrawRoundedSquare(rCenter, width, circle_diameter);
+        if (borderFlag) {
+            UseColors(tileColor, tileColor);
+            DrawRoundedSquare(rCenter, (width*7)/8, (circle_diameter*7)/8);
+        }
+        interior = InteriorRoundedSquare(rCenter, width, circle_diameter);
+        break;
+                    }
+    case GRID_HEX:
+    case GRID_TRIANGLE: 
+        DrawGridShape(rCenter, width, height, oddFlag);
+        if (borderFlag) {
+            UseColors(tileColor, tileColor);
+            DrawGridShape(rCenter, (width*5)/6, (height*5)/6, oddFlag);
+        }
+        interior = InteriorGridShape(rCenter, width, height, oddFlag);
+        break;
+    default:
+        FAIL();
+    }
 
-	unsigned const marking_cnt = rMarkings.MarkingCnt();
+    unsigned const marking_cnt = rMarkings.MarkingCnt();
 
     PixelCntType marking_width = interior.Width();
     PixelCntType marking_height = interior.Height();    
@@ -230,7 +230,7 @@ Rect Canvas::DrawTile(
         ASSERT(marking_cnt == 1);
     }
 
-	ColorType const marking_color = rMarkings.MarkingColor();
+    ColorType const marking_color = rMarkings.MarkingColor();
     for (AttrIndexType ind = 0; ind < marking_cnt; ind++) {
         LogicalXType marking_left = interior.LeftX();
         LogicalYType marking_top = interior.TopY();
@@ -244,18 +244,18 @@ Rect Canvas::DrawTile(
         }
 
         Rect const marking_bounds(marking_top, marking_left, marking_width, marking_height);
-		AttrModeType const mode = rMarkings.Mode(ind);
-		AttrType const marking = rMarkings.Marking(ind);
-		DrawMarking(marking_bounds, mode, marking, tileColor, marking_color); 
+        AttrModeType const mode = rMarkings.Mode(ind);
+        AttrType const marking = rMarkings.Marking(ind);
+        DrawMarking(marking_bounds, mode, marking, tileColor, marking_color); 
     }
-    
+
     return interior;
 }
 
 /* static */ void Canvas::InitializeShapes(void) {
     ASSERT(msShapes.size() == 0);
 
-	// polygons for tile markings
+    // polygons for tile markings
     {
         Poly roundel;
         for (unsigned i = 0; i < 20; i++) {
@@ -375,7 +375,7 @@ Rect Canvas::DrawTile(
         spade.Add(0.4, 0.2);
         spade.Add(0.49, 0.3);
         spade.Add(0.3, 0.0);
-         
+
         spade.Add(0.7, 0.0);
         spade.Add(0.51, 0.3);
         spade.Add(0.6, 0.2);
@@ -391,16 +391,16 @@ Rect Canvas::DrawTile(
 
 /* static */ void Canvas::InitializeTargetArrow(void) {
     ASSERT(msTargetArrow.Count() == 0);
-    
-	// polygon arrow for indicating the target cell
-	msTargetArrow.Add(0.6, 0.4);
-	msTargetArrow.Add(0.5, 0.9);
-	msTargetArrow.Add(0.45, 0.65);
-	msTargetArrow.Add(0.2, 0.95);
-	msTargetArrow.Add(0.05, 0.8);
-	msTargetArrow.Add(0.35, 0.55);
-	msTargetArrow.Add(0.1, 0.5);
-	msTargetArrow.Add(0.6, 0.4);
+
+    // polygon arrow for indicating the target cell
+    msTargetArrow.Add(0.6, 0.4);
+    msTargetArrow.Add(0.5, 0.9);
+    msTargetArrow.Add(0.45, 0.65);
+    msTargetArrow.Add(0.2, 0.95);
+    msTargetArrow.Add(0.05, 0.8);
+    msTargetArrow.Add(0.35, 0.55);
+    msTargetArrow.Add(0.1, 0.5);
+    msTargetArrow.Add(0.6, 0.4);
 
     ASSERT(msTargetArrow.Count() > 0);
 }
@@ -408,33 +408,33 @@ Rect Canvas::DrawTile(
 /* static */ Rect Canvas::InteriorGridShape(
     Point const& rCenter,
     PixelCntType width,
-	PixelCntType height,
-	bool oddFlag)
+    PixelCntType height,
+    bool oddFlag)
 {
     Point ulc = rCenter;
-	ulc.Offset(-long(width/2), -long(height/2));
-	Rect const rectangle = Rect(ulc, width, height);
+    ulc.Offset(-long(width/2), -long(height/2));
+    Rect const rectangle = Rect(ulc, width, height);
 
-	Rect interior(0,0,0,0);
-	switch (Cell::Grid()) {
-	    case GRID_4WAY:
-	    case GRID_8WAY: // square
-            ASSERT(height == width);
-            interior = rectangle;
-			break;
-	    case GRID_HEX:
-            ASSERT(!oddFlag);
-            ASSERT(height < width);
-			interior = InteriorHexagon(rectangle);
-			break;
-	    case GRID_TRIANGLE: 
-			ASSERT(height < width);
-			interior = InteriorEquilateral(rectangle, oddFlag);
-			break;
-		default:
-			FAIL();
-	}
+    Rect interior(0,0,0,0);
+    switch (Cell::Grid()) {
+    case GRID_4WAY:
+    case GRID_8WAY: // square
+        ASSERT(height == width);
+        interior = rectangle;
+        break;
+    case GRID_HEX:
+        ASSERT(!oddFlag);
+        ASSERT(height < width);
+        interior = InteriorHexagon(rectangle);
+        break;
+    case GRID_TRIANGLE: 
+        ASSERT(height < width);
+        interior = InteriorEquilateral(rectangle, oddFlag);
+        break;
+    default:
+        FAIL();
+    }
 
-	return interior;
+    return interior;
 }
 #endif // defined(_WINDOWS)

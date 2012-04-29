@@ -33,7 +33,7 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 
 #ifdef _QT
 FileMenu::FileMenu(void):
-    SubMenu(tr("&File")),
+SubMenu(tr("&File")),
     mNew(Qt(), tr("&New\tCtrl+N")),
     mOpen(Qt(), tr("&Open...\tCtrl+O")),
     mReopen(Qt(), tr("Open &Recent...")),
@@ -67,7 +67,7 @@ FileMenu::FileMenu(void):
 #elif defined(_WINDOWS)
 
 FileMenu::FileMenu(Menu const& rRootMenu, unsigned position):
-    SubMenu(rRootMenu, position),
+SubMenu(rRootMenu, position),
     mNew(rRootMenu, IDM_NEW),
     mOpen(rRootMenu, IDM_OPEN),
     mReopen(rRootMenu, IDM_REOPEN),

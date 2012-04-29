@@ -39,19 +39,19 @@ void Poly::Add(double x, double y) {
 }
 
 unsigned Poly::Count(void) const {
-	unsigned const result = size();
+    unsigned const result = size();
 
-	return result;
+    return result;
 }
 
 void Poly::GetPoints(
     POINT points[], 
     unsigned numPoints, 
     Rect const& rBounds,
-	bool invertFlag) const
+    bool invertFlag) const
 {
     ASSERT(numPoints <= Count());
-    
+
     ConstIterator it = begin();
     for (unsigned i = 0; i < numPoints; i++) {
         ASSERT(it < end());

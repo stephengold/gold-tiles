@@ -275,7 +275,8 @@ void Graphics::DrawRoundedSquare(
     ASSERT(success);
 }
 
-void Graphics::DrawText(Rect const& rRect, TextType text, TextType altText) {
+// Draw a single line of text centered in a rectangle
+void Graphics::DrawTextLine(Rect const& rRect, TextType text, TextType altText) {
 	ASSERT(text != NULL);
 
 	TextType str = "";
@@ -288,9 +289,29 @@ void Graphics::DrawText(Rect const& rRect, TextType text, TextType altText) {
 
     int const str_length = ::strlen(str);
 	UINT const format = DT_CENTER | DT_EXTERNALLEADING | DT_NOPREFIX 
-                | DT_SINGLELINE | DT_VCENTER;
+                  | DT_SINGLELINE | DT_VCENTER;
     RECT bounds = rRect;
     BOOL const success = Win::DrawText(mDraw, str, str_length, &bounds, format);
+    ASSERT(success);
+}
+
+// Draw a multiple lines of text centered in a rectangle
+void Graphics::DrawTextMultiline(Rect const& rRect, TextType text) {
+	ASSERT(text != NULL);
+
+    int const text_length = ::strlen(text);
+	int line_cnt = 1;
+	for (TextType p_char = text; *p_char != '\0'; p_char++) {
+		if (*p_char == '\n') {
+			line_cnt++;
+		}
+	}
+	PixelCntType const text_height = line_cnt * TextHeight();
+	Rect const rect = rRect.ShrinkHeight(text_height);
+
+	UINT const format = DT_CENTER | DT_EXTERNALLEADING | DT_NOPREFIX;
+    RECT bounds = rect;
+    BOOL const success = Win::DrawText(mDraw, text, text_length, &bounds, format);
     ASSERT(success);
 }
 

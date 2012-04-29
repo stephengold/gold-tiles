@@ -90,12 +90,12 @@ public:
 
 private:
 	// private types
-    typedef std::multimap<Tile::IdType,Rect> TileMap;
-    typedef std::pair<Tile::IdType,Rect>     TilePair;
-    typedef TileMap::iterator                TileIterator;
-    typedef TileMap::const_iterator          TileConstIterator;
+    typedef std::multimap<Tile,Rect> TileMap;
+    typedef std::pair<Tile,Rect>     TilePair;
+    typedef TileMap::iterator        TileIterator;
+    typedef TileMap::const_iterator  TileConstIterator;
     typedef std::pair<TileConstIterator,TileConstIterator> 
-                                             TileConstIteratorPair;
+		                             TileConstIteratorPair;
 
 	// private data
 	DisplayModes mDisplayModes;
@@ -132,6 +132,7 @@ private:
                       ColorType, bool leftFlag);
     void          DrawHandTile(Canvas&, Point const&, Tile const&, bool odd);
     void          DrawHandTiles(Canvas&);
+	void          DrawIdle(Canvas&);
 	void          DrawPaused(Canvas&);
     void          DrawPlayableHand(Canvas&);
 	void          DrawStockArea(Canvas&, LogicalYType, LogicalXType, PixelCntType width);

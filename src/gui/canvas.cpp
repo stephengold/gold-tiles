@@ -155,7 +155,7 @@ void Canvas::DrawMarking(
 
             String const ch = Combo::AttributeToString(displayMode, marking);
 			UseFont(rBounds.Height(), rBounds.Width());
-            DrawText(rBounds, ch);
+            DrawTextLine(rBounds, ch);
 			UseFont(FONT_HEIGHT_DEFAULT);
 			break;
 		}

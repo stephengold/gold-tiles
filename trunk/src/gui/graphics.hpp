@@ -43,8 +43,8 @@ public:
 	static const PixelCntType FONT_HEIGHT_DEFAULT = 24;
 
 	// public lifecycle
-    Graphics(Win::HDC, Window&, bool releaseMe, bool doubleBufferingOption);
 	// no default constructor
+    Graphics(Win::HDC, Window&, bool releaseMe, bool doubleBufferingOption);
 	virtual ~Graphics(void);
 
 	// misc public methods
@@ -57,7 +57,8 @@ public:
     Rect         DrawRectangle(Rect const&);
     Rect         DrawRectangle(LogicalYType, LogicalXType, PixelCntType width, PixelCntType height);
     void         DrawRoundedSquare(Point const&, PixelCntType edge, PixelCntType diameter);
-    void         DrawText(Rect const&, TextType, TextType alt = NULL);
+    void         DrawTextLine(Rect const&, TextType, TextType alt = NULL);
+    void         DrawTextMultiline(Rect const&, TextType);
 	static Rect  InteriorEquilateral(Rect const&, bool invert);
 	static Rect  InteriorHexagon(Rect const&);
     static Rect  InteriorRoundedSquare(Point const&, PixelCntType edge, PixelCntType diameter);

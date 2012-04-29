@@ -22,8 +22,9 @@ You should have received a copy of the GNU General Public License
 along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifdef _WINDOWS
 #include "fractionpair.hpp"
+
+#ifdef _WINDOWS
 #include "gui/win.hpp"
 #include "gui/win_types.hpp"
 #include "rect.hpp"
@@ -212,6 +213,21 @@ LogicalXType Rect::LeftX(void) const {
 
 LogicalXType Rect::RightX(void) const {
     return mRight;
+}
+
+Rect Rect::ShrinkHeight(PixelCntType height) const {
+	Rect result(*this);
+
+	if (height < result.Height()) {
+		PixelCntType const pixels = result.Height() - height;
+		PixelCntType const shrink_top = pixels/2;
+		PixelCntType const shrink_bottom = pixels - shrink_top;
+		result.mTop += shrink_top;
+		result.mBottom -= shrink_bottom;
+		ASSERT(height == result.Height());
+	}
+
+	return result;
 }
 
 LogicalYType Rect::TopY(void) const {

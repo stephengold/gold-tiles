@@ -27,6 +27,7 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 #include "gui/gamewindow.hpp"
 #include "gui/menubar.hpp"
 #include "gui/player.hpp"
+#include "network.hpp"
 
 
 // lifecycle
@@ -279,7 +280,7 @@ void GameView::DrawCell(
 	if (rCell.IsStart()) {
 		// it's the start cell
 	    rCanvas.UseColors(COLOR_TRANSPARENT, feature_color);
-	    rCanvas.DrawText(rect, "START", "S");
+	    rCanvas.DrawTextLine(rect, "START", "S");
 	}
 	
     /*  If the active tile came from the board, draw it later 
@@ -363,18 +364,18 @@ Rect GameView::DrawHandHeader(
 
     LogicalYType y = topY + mPadPixels;
     Rect bounds(y, left_x, width, text_height);
-    rCanvas.DrawText(bounds, name_text);
+    rCanvas.DrawTextLine(bounds, name_text);
     y += text_height;
     
     if (mpMenuBar->AreScoresVisible()) {
         Rect score_box(y, left_x, width, score_height);
-        rCanvas.DrawText(score_box, score_text);
+        rCanvas.DrawTextLine(score_box, score_text);
         y += score_height;
     }
 
     if (mpMenuBar->AreClocksVisible()) {
         Rect clock_box(y, left_x, width, text_height);
-        rCanvas.DrawText(clock_box, clock_text);
+        rCanvas.DrawTextLine(clock_box, clock_text);
     }
     
     return result;
@@ -445,6 +446,23 @@ void GameView::DrawHandTiles(Canvas& rCanvas) {
     }
 }
 
+void GameView::DrawIdle(Canvas& rCanvas) {
+	ASSERT(!HasGame());
+
+    ColorType const bg_color = COLOR_BLACK;
+    ColorType const text_color = COLOR_GREEN;
+    rCanvas.UseColors(bg_color, text_color);
+
+	Point const ulc(0, 0);
+	Point const brc = mpWindow->Brc(); 
+    Rect const client_area(ulc, brc);
+	String msg = "Type Ctrl+N to start a new game.";
+#ifdef _SERVER
+    msg = Network::AddressReport() + "\n\n" + msg;
+#endif  // defined(_SERVER)
+    rCanvas.DrawTextMultiline(client_area, msg);
+}
+
 void GameView::DrawPaused(Canvas& rCanvas) {
 	ASSERT(HasGame());
 	ASSERT(IsGamePaused());
@@ -457,7 +475,7 @@ void GameView::DrawPaused(Canvas& rCanvas) {
 	Point const ulc(0, 0);
 	Point const brc = mpWindow->Brc(); 
     Rect const client_area(ulc, brc);
-    rCanvas.DrawText(client_area, "The game is paused.  Click here to resume.");
+    rCanvas.DrawTextLine(client_area, "The game is paused.  Click here to resume.");
         
     LogicalYType const top_y = mPadPixels;
     LogicalXType const left_x = mPadPixels;
@@ -516,9 +534,9 @@ void GameView::DrawPlayableHand(Canvas& rCanvas) {
     width = mHandRect.Width();
 
     if (playable_hand.HasResigned()) {
-		rCanvas.DrawText(mHandRect, "resigned");
+		rCanvas.DrawTextLine(mHandRect, "resigned");
 	} else if (playable_hand.HasGoneOut()) {
-		rCanvas.DrawText(mHandRect, "went out");
+		rCanvas.DrawTextLine(mHandRect, "went out");
 	}
 
     // draw swap area (mSwapRect)
@@ -555,11 +573,11 @@ void GameView::DrawStockArea(
     String const stock_text1 = plural(stock_cnt, "tile");
 	LogicalYType y = top_y + mPadPixels;
     Rect const bounds1(y, left_x, width, rCanvas.TextHeight());
-    rCanvas.DrawText(bounds1, stock_text1);
+    rCanvas.DrawTextLine(bounds1, stock_text1);
 
 	y = bounds1.BottomY();
     Rect const bounds2(y, left_x, width, rCanvas.TextHeight() + mPadPixels);
-    rCanvas.DrawText(bounds2, "in the stock bag");
+    rCanvas.DrawTextLine(bounds2, "in the stock bag");
 }
 
 Rect GameView::DrawSwapArea(
@@ -610,7 +628,7 @@ Rect GameView::DrawSwapArea(
 	// label swap area
     LogicalYType const y = swap_rect.BottomY() - mPadPixels - rCanvas.TextHeight();
     Rect bounds(y, leftX, width, rCanvas.TextHeight());
-    rCanvas.DrawText(bounds, "swap area");
+    rCanvas.DrawTextLine(bounds, "swap area");
 
 	return swap_rect;
 }
@@ -681,18 +699,18 @@ void GameView::DrawUnplayableHands(Canvas& rCanvas) {
         Rect const hand_rect = rCanvas.DrawRectangle(top_y, left_x, width, height);
 
 		if (i_hand->HasResigned()) {
-			rCanvas.DrawText(hand_rect, "resigned");
+			rCanvas.DrawTextLine(hand_rect, "resigned");
 		} else if (i_hand->HasGoneOut()) {
-			rCanvas.DrawText(hand_rect, "went out");
+			rCanvas.DrawTextLine(hand_rect, "went out");
 		} else if (!mpMenuBar->IsPeeking()) {
 			String const text = ::plural(tile_count, "tile");
-			rCanvas.DrawText(hand_rect, text);
+			rCanvas.DrawTextLine(hand_rect, text);
 		} else { // peeking:  draw tiles
             LogicalXType const tile_x = hand_rect.CenterX();
             LogicalYType tile_y = hand_rect.TopY() + mPadPixels + cell_height/2;
 
-            Tiles::ConstIterator i_tile;
-            for (i_tile = hand_tiles.begin(); i_tile != hand_tiles.end(); i_tile++) {
+                Tiles::ConstIterator i_tile;
+	            for (i_tile = hand_tiles.begin(); i_tile != hand_tiles.end(); i_tile++) {
                 Tile const tile = *i_tile;
                 Point const center(tile_x, tile_y);
                 if (mpMenuBar->IsPeeking()) {
@@ -846,7 +864,7 @@ void GameView::Recenter(PixelCntType oldHeight, PixelCntType oldWidth) {
 
 void GameView::Repaint(Canvas& rCanvas) {
 	if (mpGame == NULL) {
-		// TODO
+		DrawIdle(rCanvas);
 
 	} else if (IsGamePaused()) {
 		DrawPaused(rCanvas);

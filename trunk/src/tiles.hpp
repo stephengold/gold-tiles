@@ -47,9 +47,6 @@ public:
 
 	// public operators
     // Tiles& operator=(Tiles const&);  compiler-generated assignment method is OK
-	//bool operator==(Tiles const&) const;
-	//Tile operator[](unsigned) const;
-	//operator Indices(void) const;
 	operator String(void) const; // for display/debug only, not for save/send
 
 	// misc public methods
@@ -60,12 +57,13 @@ public:
 		     CommonAttribute(void) const;
     bool     CopyIds(Tiles const&);
 	String   Description(void) const;
+    Tile::IdType
+             FindFirst(TileOpt const&) const;
 	Tiles    LongestRun(void) const;
 	Tile     PullFirstTile(void);
     Tile     PullRandomTile(void);
 	void     PullRandomTiles(unsigned, Tiles& bag);
 	void     Restock(void);
-    void     UnClone(Tile&) const;
     Tiles    UniqueTiles(void) const;
 
 	// public inquiry methods

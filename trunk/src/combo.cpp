@@ -45,7 +45,7 @@ Combo::Combo(void) {
     }
 }
 
-// new Combo from String
+// Construct a new Combo from a save/send string.
 Combo::Combo(String const& rString) {
     ASSERT(msAttrCnt >= ATTRIBUTE_CNT_MIN);
 
@@ -57,7 +57,7 @@ Combo::Combo(String const& rString) {
     for (i_char = rString.begin() ; i_char != rString.end(); i_char++) {
         char const ch = *i_char;
         if (i_attr < msAttrCnt) {
-			AttrModeType const display_mode = DefaultDisplayMode(i_attr);
+			AttrModeType const display_mode = ATTR_MODE_ABC;
 			AttrType value = CharToAttribute(display_mode, ch);
 			if (value > ValueMax(i_attr)) {
 				value = 0; // so resulting object can be valid
@@ -119,8 +119,7 @@ Combo::operator String(void) const {
     for (AttrIndexType i_attr = 0; i_attr < msAttrCnt; i_attr++) {
         AttrType const value = mpArray[i_attr];
         ASSERT(value <= mspValueMax[i_attr]);
-
-		AttrModeType const display_mode = DefaultDisplayMode(i_attr);
+		AttrModeType const display_mode = ATTR_MODE_ABC;
         result += AttributeToString(display_mode, value);
     }
 
@@ -271,6 +270,51 @@ AttrCntType Combo::CountMatchingAttributes(Combo const& rOther) const {
 	}
 
 	return result;
+}
+
+String Combo::Description(void) const {
+	String result;
+
+    for (AttrIndexType i_attr = 0; i_attr < msAttrCnt; i_attr++) {
+        AttrType const value = mpArray[i_attr];
+        ASSERT(value <= mspValueMax[i_attr]);
+		AttrModeType const display_mode = DefaultDisplayMode(i_attr);
+        result += AttributeToString(display_mode, value);
+    }
+
+	return result;
+}
+
+// Construct a new Combo from a description.
+/* static */ Combo Combo::FromDescription(String const& rDescription) {
+    ASSERT(msAttrCnt >= ATTRIBUTE_CNT_MIN);
+
+    Combo result;
+    result.mpArray = new AttrType[msAttrCnt];
+	ASSERT(result.mpArray != NULL);
+
+    AttrIndexType i_attr = 0;
+    String::ConstIterator i_char;
+    for (i_char = rDescription.begin() ; i_char != rDescription.end(); i_char++) {
+        char const ch = *i_char;
+        if (i_attr < msAttrCnt) {
+			AttrModeType const display_mode = DefaultDisplayMode(i_attr);
+			AttrType value = CharToAttribute(display_mode, ch);
+			if (value > ValueMax(i_attr)) {
+				value = 0; // so resulting object can be valid
+			}
+            result.mpArray[i_attr] = value;
+            i_attr++;
+		}
+    }
+
+    while (i_attr < msAttrCnt) {
+		// Not enough characters in the string -- pad the attribute array with zeroes.
+        result.mpArray[i_attr] = 0;
+        i_attr++;
+    }
+
+    return result;
 }
 
 void Combo::SetAttribute(AttrIndexType ind, AttrType value) {

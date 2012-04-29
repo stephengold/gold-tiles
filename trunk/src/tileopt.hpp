@@ -50,17 +50,19 @@ public:
 	operator String(void) const;
 
 	// misc public methods
-	AttrType      Attribute(AttrIndexType) const;
-	AttrIndexType CommonAttribute(TileOpt const&) const;
-	AttrCntType   CountMatchingAttributes(TileOpt const&) const;
-	void          SetAttribute(AttrIndexType, AttrType);
-	void          SetBonus(bool);
+	AttrType       Attribute(AttrIndexType) const;
+	AttrIndexType  CommonAttribute(TileOpt const&) const;
+	AttrCntType    CountMatchingAttributes(TileOpt const&) const;
+    String         Description(void) const;
+    static TileOpt FromDescription(String const&);
+	void           SetAttribute(AttrIndexType, AttrType);
+	void           SetBonus(bool);
 
 	// public inquiry methods
 	bool HasAttribute(AttrIndexType, AttrType) const;
 	bool HasBonus(void) const;
 	bool IsCompatibleWith(TileOpt const&) const;
-	bool MatchesString(String const&) const;
+	bool MatchesDescription(String const&) const;
 
 private:
 	// private constants

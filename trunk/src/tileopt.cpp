@@ -35,14 +35,12 @@ TileOpt::TileOpt(void) {
 // new TileOpt from String
 TileOpt::TileOpt(String const& rString) {
 	String copy = rString;
-	copy.Purge();
 
+    mHasBonus = false;
     if (copy.Last() == BONUS_CHARACTER) {
         mHasBonus = true;
 		copy.Shorten(1);
-    } else {
-		mHasBonus = false;
-	}
+    }
 	mCombo = Combo(copy);
 }
 
@@ -82,16 +80,42 @@ AttrType TileOpt::Attribute(AttrIndexType index) const {
 
 	return result;
 }
+
 AttrIndexType TileOpt::CommonAttribute(TileOpt const& rOther) const {
 	AttrIndexType const result = mCombo.CommonAttribute(rOther.mCombo);
 
 	return result;
 }
+
 AttrCntType TileOpt::CountMatchingAttributes(TileOpt const& rOther) const {
 	AttrCntType const result = mCombo.CountMatchingAttributes(rOther.mCombo);
 
 	return result;
 }
+
+String TileOpt::Description(void) const {
+	String result = mCombo.Description();
+	if (mHasBonus) {
+		result += String('+');
+	}
+
+	return result;
+}
+
+/* static */ TileOpt TileOpt::FromDescription(String const& rDescription) {
+	String copy = rDescription;
+	copy.Purge();
+
+    TileOpt result;
+    if (copy.Last() == '+') {
+        result.mHasBonus = true;
+		copy.Shorten(1);
+    }
+	result.mCombo = Combo::FromDescription(copy);
+
+    return result;
+}
+
 void TileOpt::SetAttribute(AttrIndexType index, AttrType value) {
     mCombo.SetAttribute(index, value);
 }
@@ -119,12 +143,14 @@ bool TileOpt::IsCompatibleWith(TileOpt const& rOther) const {
 	return result;
 }
 
-bool TileOpt::MatchesString(String const& rMatch) const {
-	String string_form = String(*this);
-	string_form = string_form.Purge();
+bool TileOpt::MatchesDescription(String const& rMatch) const {
+	String description = Description();
+
+    // Purge both strings, so that only graphic characters are compared.
+	description = description.Purge();
 	String const match = rMatch.Purge();
 
-	bool const result = (string_form == match);
+	bool const result = (description == match);
 
 	return result;
 }

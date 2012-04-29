@@ -145,7 +145,7 @@ String TileCell::Description(void) const {
 
 String TileCell::GetUserChoice(Tiles const& rAvailableTiles, Strings const& rAlternatives) {
     String const result = mTile.GetUserChoice(rAvailableTiles, rAlternatives);
-	if (TileOpt(mTile).MatchesString(result)) {
+	if (TileOpt(mTile).MatchesDescription(result)) {
         mSwapFlag = mCell.GetUserChoice("swap");
 	}
 	

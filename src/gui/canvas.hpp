@@ -39,43 +39,45 @@ Gold Tile Game.
 
 class Canvas: public Graphics {
 public:
-	// public lifecycle
+    // public lifecycle
     // no default constructor
     explicit Canvas(Window&);
     // ~Canvas(void);  compiler-generated destructor is OK
-        
-	// misc public methods
+
+    // misc public methods
     void DrawBlankTile(Point const&, PixelCntType width, PixelCntType height, 
-		     ColorType, bool odd);
-	Rect DrawCell(Point const&, PixelCntType width, PixelCntType height,
+             ColorType, bool odd);
+    Rect DrawCell(Point const&, PixelCntType width, PixelCntType height,
              ColorType cellColor, ColorType gridColor, bool odd);
     void DrawTargetArrow(Rect const&);
     Rect DrawTile(Markings const&, ColorType tileColor, Point const& center, 
-		     PixelCntType width, PixelCntType height, bool border, bool odd);
-	static Rect 
-		 InteriorGridShape(Point const& center, PixelCntType width, 
-		     PixelCntType height, bool odd);
+             PixelCntType width, PixelCntType height, bool border, bool odd);
+    static Rect 
+         InteriorGridShape(Point const& center, PixelCntType width, 
+             PixelCntType height, bool odd);
 
 private:
-	// private constants
-	static const unsigned TILE_POINTEDNESS = 3; // corners of square tiles
+    // private constants
+    static const unsigned TILE_POINTEDNESS = 3; // corners of square tiles
 
-	// private data
+    // private data
     static std::vector<Poly> msShapes; // TODO more choices
-	static Poly msTargetArrow;
-    
-	// private lifecycle
+    static Poly msTargetArrow;
+
+    // private lifecycle
     Canvas(Canvas const&);  // not copyable
 
-	// private operators
+    // private operators
     Canvas& operator=(Canvas const&);  // not assignable
 
-	// misc private methods
-	void        DrawGridShape(Point const& center, PixelCntType width, 
-		            PixelCntType height, bool oddFlag);
-    void        DrawMarking(Rect const& bounds, AttrModeType, AttrType, ColorType bg,
-                    ColorType fg);
-    static void	InitializeShapes(void);         
-    static void	InitializeTargetArrow(void);            
+    // misc private methods
+    void DrawGridShape(Point const& center, PixelCntType width, 
+             PixelCntType height, bool oddFlag);
+    void DrawMarking(Rect const& bounds, AttrModeType, AttrType, ColorType bg,
+             ColorType fg);
+    static void	
+         InitializeShapes(void);         
+    static void	
+         InitializeTargetArrow(void);            
 };
 #endif // !defined(CANVAS_HPP_INCLUDED)

@@ -35,40 +35,41 @@ The ParmBox3 class is an extension of the Dialog class.
 #include "gui/dialog.hpp"   // ISA Dialog
 #include "gameopt.hpp"      // HASA GameOpt
 
+
 class ParmBox3: public Dialog {
 public:
     // lifecycle
-	// no default constructor
-	explicit ParmBox3(GameOpt&);
-	// ~ParmBox3(void);  compiler-generated destructor is OK
+    // no default constructor
+    explicit ParmBox3(GameOpt&);
+    // ~ParmBox3(void);  compiler-generated destructor is OK
 
-	// misc public methods
-	int HandleMessage(MessageType, Win::WPARAM, Win::LPARAM);
+    // misc public methods
+    int HandleMessage(MessageType, Win::WPARAM, Win::LPARAM);
 
 private:
-	// private constants
-	static const ValueType BONUS_PERCENT_MAX = 25;
-	static const ValueType CLONES_PER_COMBO_MAX = 10;
-	static const ValueType HAND_SIZE_MAX = 12;
-	static const ValueType HANDS_DEALT_MAX = 10;
+    // private constants
+    static const ValueType BONUS_PERCENT_MAX = 25;
+    static const ValueType CLONES_PER_COMBO_MAX = 10;
+    static const ValueType HAND_SIZE_MAX = 12;
+    static const ValueType HANDS_DEALT_MAX = 10;
 
-	// private data
-	GameOpt& mrGameOpt;
+    // private data
+    GameOpt& mrGameOpt;
 
-	// private lifecycle
+    // private lifecycle
     ParmBox3(ParmBox3 const&);  // not copyable
 
-	// private operators
+    // private operators
     ParmBox3& operator=(ParmBox3 const&);  // not assignable
 
-	// misc private methods
+    // misc private methods
     static IdType EditboxId(IdType slider);
     void          InitControl(IdType slider, ValueType value, 
-		              ValueType min, ValueType max);
+                      ValueType min, ValueType max);
     static IdType MaxId(IdType slider);
     static IdType MinId(IdType slider);
     static IdType SliderId(IdType editbox);
-	IdType        SliderId(Win::HWND) const;
-	void          UpdateValue(IdType slider, ValueType);
+    IdType        SliderId(Win::HWND) const;
+    void          UpdateValue(IdType slider, ValueType);
 };
 #endif // !defined(PARMBOX3_HPP_INCLUDED)

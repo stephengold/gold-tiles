@@ -36,34 +36,34 @@ one for valid bytes and one for consumed bytes.
 
 class Fifo {
 public:
-	// public lifecycle
-	Fifo(void);
+    // public lifecycle
+    Fifo(void);
     // ~Fifo(void);  compiler-generated destructor is OK
 
-	// misc public methods
-	char GetByte(void);
-	void PreReceive(char *&dest, int &count);
-	void PostReceive(int count);
-	void Reset(void);
+    // misc public methods
+    char GetByte(void);
+    void PreReceive(char *&dest, int &count);
+    void PostReceive(int count);
+    void Reset(void);
 
-	// public inquiry methods
-	bool HasData(void) const;
-	bool HasSpace(void) const;
-	bool IsValid(void) const;
+    // public inquiry methods
+    bool HasData(void) const;
+    bool HasSpace(void) const;
+    bool IsValid(void) const;
 
 private:
     // private constants
-	static const int SIZE = 4096;
+    static const int SIZE = 4096;
 
     // private data
-	int  mConsumedCnt; // number of consumed bytes in the buffer
-	char mReadBuffer[SIZE];
-	int  mValidCnt;    // number of valid bytes in buffer, including those consumed
+    int  mConsumedCnt; // number of consumed bytes in the buffer
+    char mReadBuffer[SIZE];
+    int  mValidCnt;    // number of valid bytes in buffer, including those consumed
 
-	// private lifecycle
+    // private lifecycle
     Fifo(Fifo const&); // not copyable
 
-	// private operators
+    // private operators
     Fifo& operator=(Fifo const&); // not assignable
 };
 #endif // !defined(FIFO_HPP_INCLUDED)

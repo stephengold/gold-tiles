@@ -38,104 +38,104 @@ The GameOpt class ...
 #include "tile.hpp"    // HASA AttrCntType
 
 enum RulesType {
-	RULES_STANDARD,
-	RULES_CUSTOM,
-	RULES_REPLAY
+    RULES_STANDARD,
+    RULES_CUSTOM,
+    RULES_REPLAY
 };
 
 class GameOpt {
 public:
-	// public constants
-	static const unsigned BONUS_PERCENT_DEFAULT = 10;
+    // public constants
+    static const unsigned BONUS_PERCENT_DEFAULT = 10;
     static const unsigned CLONES_PER_COMBO_DEFAULT = 2;
     static const unsigned HAND_CNT_DEFAULT = 2;
     static const unsigned HAND_SIZE_MIN = 1;
     static const unsigned HAND_SIZE_DEFAULT = 6;
-	static const unsigned HANDS_DEALT_MIN = 1;
-	static const unsigned MINUTES_PER_HAND_MIN = 2;
-	static const unsigned MINUTES_PER_HAND_DEFAULT = 30;
+    static const unsigned HANDS_DEALT_MIN = 1;
+    static const unsigned MINUTES_PER_HAND_MIN = 2;
+    static const unsigned MINUTES_PER_HAND_DEFAULT = 30;
 
-	// public lifecycle
-	GameOpt(void);
+    // public lifecycle
+    GameOpt(void);
     // GameOpt(GameOpt const&);  compiler-generated copy constructor is OK
-	explicit GameOpt(String const&);
-	GameOpt(GameStyleType, unsigned clones, unsigned handSize, unsigned minutes);
+    explicit GameOpt(String const&);
+    GameOpt(GameStyleType, unsigned clones, unsigned handSize, unsigned minutes);
     // ~GameOpt(void);  compiler-generated destructor is OK
 
-	// public operators
+    // public operators
     // GameOpt& operator=(GameOpt const&);  compiler-generated assignment operator is OK
-	operator GameStyleType(void) const;
-	operator GridType(void) const;
-	operator RulesType(void) const;
-	operator String(void) const;
+    operator GameStyleType(void) const;
+    operator GridType(void) const;
+    operator RulesType(void) const;
+    operator String(void) const;
 
-	// misc public methods
-	AttrCntType  AttrCnt(void) const;
-	void         AttrCntChange(void);
-	String       AttrReport(void) const;
-	RowType      BoardHeight(void) const;
-	ColumnType   BoardWidth(void) const;
-	unsigned     BonusPercent(void) const;
-	long         CloneCnt(void) const;
-	unsigned     ClonesPerCombo(void) const;
-	long         ComboCnt(void) const;
-	AttrType     CountAttrValues(AttrIndexType) const;
+    // misc public methods
+    AttrCntType  AttrCnt(void) const;
+    void         AttrCntChange(void);
+    String       AttrReport(void) const;
+    RowType      BoardHeight(void) const;
+    ColumnType   BoardWidth(void) const;
+    unsigned     BonusPercent(void) const;
+    long         CloneCnt(void) const;
+    unsigned     ClonesPerCombo(void) const;
+    long         ComboCnt(void) const;
+    AttrType     CountAttrValues(AttrIndexType) const;
     bool         GetFromClient(Socket&);
-	void         GetUserChoice(void);
-	unsigned     HandsDealt(void) const;
-	unsigned     HandSize(void) const;
-	AttrType     MaxAttrValue(AttrIndexType) const;
-	unsigned     MinutesPerHand(void) const;
-	unsigned     SecondsPerHand(void) const;
-	void         SetAttrCnt(AttrCntType);
-	void         SetBoardHeight(RowType);
-	void         SetBoardWidth(ColumnType);
-	void         SetBoardWrap(bool);
-	void         SetBonusPercent(unsigned);
-	void         SetChallenge(void);
-	void         SetClonesPerCombo(unsigned);
-	void         SetDebug(void);
-	void         SetDoesBoardWrap(bool);
-	void         SetFriendly(void);
-	void         SetGrid(GridType);
-	void         SetHandsDealt(unsigned);
-	void         SetHandSize(unsigned);
-	void         SetMaxAttrValue(AttrIndexType, AttrType);
-	void         SetMinutesPerHand(unsigned);
-	void         SetNumAttrValues(AttrIndexType, AttrType);
-	void         SetPractice(void);
-	void         SetRules(RulesType);
-	void         Standardize(void);
-	void         StyleChange(void);
-	unsigned     TilesPerCombo(void) const;
-	long         TotalTileCnt(void) const;
-	void         Validate(void) const;
+    void         GetUserChoice(void);
+    unsigned     HandsDealt(void) const;
+    unsigned     HandSize(void) const;
+    AttrType     MaxAttrValue(AttrIndexType) const;
+    unsigned     MinutesPerHand(void) const;
+    unsigned     SecondsPerHand(void) const;
+    void         SetAttrCnt(AttrCntType);
+    void         SetBoardHeight(RowType);
+    void         SetBoardWidth(ColumnType);
+    void         SetBoardWrap(bool);
+    void         SetBonusPercent(unsigned);
+    void         SetChallenge(void);
+    void         SetClonesPerCombo(unsigned);
+    void         SetDebug(void);
+    void         SetDoesBoardWrap(bool);
+    void         SetFriendly(void);
+    void         SetGrid(GridType);
+    void         SetHandsDealt(unsigned);
+    void         SetHandSize(unsigned);
+    void         SetMaxAttrValue(AttrIndexType, AttrType);
+    void         SetMinutesPerHand(unsigned);
+    void         SetNumAttrValues(AttrIndexType, AttrType);
+    void         SetPractice(void);
+    void         SetRules(RulesType);
+    void         Standardize(void);
+    void         StyleChange(void);
+    unsigned     TilesPerCombo(void) const;
+    long         TotalTileCnt(void) const;
+    void         Validate(void) const;
 
-	// public inquiry methods
-	bool DoesBoardWrap(void) const;
-	bool HasFiniteHeight(void) const;
-	bool HasFiniteWidth(void) const;
-	bool HasTimeLimit(void) const;
-	bool IsChallenge(void) const;
-	bool IsDebug(void) const;
-	bool IsFriendly(void) const;
-	bool IsPractice(void) const;
+    // public inquiry methods
+    bool DoesBoardWrap(void) const;
+    bool HasFiniteHeight(void) const;
+    bool HasFiniteWidth(void) const;
+    bool HasTimeLimit(void) const;
+    bool IsChallenge(void) const;
+    bool IsDebug(void) const;
+    bool IsFriendly(void) const;
+    bool IsPractice(void) const;
 
 private:
-	// private data
+    // private data
     AttrCntType   mAttrCnt;
     RowType       mBoardHeight;
-	ColumnType    mBoardWidth;
-	unsigned      mBonusPercent;    // bonus tile percentage
-	unsigned      mClonesPerCombo;
-	bool          mDoesBoardWrap;
-	GridType      mGrid;
-	unsigned      mHandsDealt;      // number of hands dealt
-	unsigned      mHandSize;        // maximum number of tiles in a hand
-	std::vector<AttrType>
-		          mMaxAttrValues;   // maximum value of each attribute
-	unsigned      mMinutesPerHand;  // used only with GAME_STYLE_CHALLENGE
-	RulesType     mRules;
-	GameStyleType mStyle;
+    ColumnType    mBoardWidth;
+    unsigned      mBonusPercent;    // bonus tile percentage
+    unsigned      mClonesPerCombo;
+    bool          mDoesBoardWrap;
+    GridType      mGrid;
+    unsigned      mHandsDealt;      // number of hands dealt
+    unsigned      mHandSize;        // maximum number of tiles in a hand
+    std::vector<AttrType>
+                  mMaxAttrValues;   // maximum value of each attribute
+    unsigned      mMinutesPerHand;  // used only with GAME_STYLE_CHALLENGE
+    RulesType     mRules;
+    GameStyleType mStyle;
 };
 #endif // !defined(GAMEOPT_HPP_INCLUDED)

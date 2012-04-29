@@ -39,25 +39,23 @@ The WindowClass class extends the Win::WNDCLASSEX structure.
 
 class WindowClass: public Win::WNDCLASSEX {
 public:
-	// public lifecycle
-	// no default constructor
+    // public lifecycle
+    // no default constructor
     WindowClass(Win::HINSTANCE, Win::WNDPROC, TextType className, TextType menuName);
     // ~WindowClass(void);  compiler-generated destructor is fine
 
-	// misc public methods
+    // misc public methods
     Win::HINSTANCE 
-		     Module(void) const;
-	TextType Name(void) const;
+             Module(void) const;
+    TextType Name(void) const;
     void     RegisterClass(void);
 
 private:
-	// private lifecycle
-	WindowClass(WindowClass const&); // not copyable
+    // private lifecycle
+    WindowClass(WindowClass const&); // not copyable
 
-	// private operators
+    // private operators
     WindowClass& operator=(WindowClass const&); // not assignable
 };
 #endif // defined(_WINDOWS)
 #endif // !defined(WINDOWCLASS_HPP_INCLUDED)
-
-

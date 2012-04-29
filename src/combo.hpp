@@ -41,81 +41,81 @@ typedef unsigned short AttrIndexType; // an index into an array of attributes
 typedef unsigned short AttrType;      // an attribute value
 
 enum AttrModeType {                   // display mode type
-	ATTR_MODE_MIN = 0,
-	ATTR_MODE_ABC = 0,
-	ATTR_MODE_RST = 1,
-	ATTR_MODE_123 = 2,
+    ATTR_MODE_MIN = 0,
+    ATTR_MODE_ABC = 0,
+    ATTR_MODE_RST = 1,
+    ATTR_MODE_123 = 2,
 #ifdef _GUI
-	ATTR_MODE_COLOR = 3,
-	ATTR_MODE_SHAPE = 4,
-	ATTR_MODE_MAX = 4,
-	ATTR_MODE_CNT = 5
+    ATTR_MODE_COLOR = 3,
+    ATTR_MODE_SHAPE = 4,
+    ATTR_MODE_MAX = 4,
+    ATTR_MODE_CNT = 5
 #else // !defined(_GUI)
-	ATTR_MODE_MAX = 2,
-	ATTR_MODE_CNT = 3
+    ATTR_MODE_MAX = 2,
+    ATTR_MODE_CNT = 3
 #endif // !defined(_GUI)
 };
 
 class Combo {
 public:
-	// public constants
-	static const AttrCntType ATTRIBUTE_CNT_MIN = 2;
-	static const AttrCntType ATTRIBUTE_CNT_DEFAULT = 2;
+    // public constants
+    static const AttrCntType ATTRIBUTE_CNT_MIN = 2;
+    static const AttrCntType ATTRIBUTE_CNT_DEFAULT = 2;
 #ifdef _GUI
-	static const AttrCntType ATTRIBUTE_CNT_MAX = 5;
+    static const AttrCntType ATTRIBUTE_CNT_MAX = 5;
 #else // !defined(_GUI)
-	static const AttrCntType ATTRIBUTE_CNT_MAX = USHRT_MAX;
+    static const AttrCntType ATTRIBUTE_CNT_MAX = USHRT_MAX;
 #endif // !defined(_GUI)
 
-	static const AttrType VALUE_CNT_MIN = 2;
-	static const AttrType VALUE_CNT_DEFAULT = 6;
-	static const AttrType VALUE_CNT_MAX = 9;
+    static const AttrType VALUE_CNT_MIN = 2;
+    static const AttrType VALUE_CNT_DEFAULT = 6;
+    static const AttrType VALUE_CNT_MAX = 9;
 
-	static const long COMBINATION_CNT_MIN = 4L;
+    static const long COMBINATION_CNT_MIN = 4L;
 #ifdef _GUI
-	static const long COMBINATION_CNT_MAX = 59049L; // 9^5
+    static const long COMBINATION_CNT_MAX = 59049L; // 9^5
 #endif // defined(_GUI)
 
     // public lifecycle
-	Combo(void);
-	Combo(Combo const&);
-	explicit Combo(String const&);
-	~Combo(void);
+    Combo(void);
+    Combo(Combo const&);
+    explicit Combo(String const&);
+    ~Combo(void);
 
     // public operators
-	Combo&   operator=(Combo const&);
-	bool     operator==(Combo const&) const;
-	operator String(void) const;
+    Combo&   operator=(Combo const&);
+    bool     operator==(Combo const&) const;
+    operator String(void) const;
 
-	// misc public methods
-	AttrType            Attribute(AttrIndexType) const;
+    // misc public methods
+    AttrType            Attribute(AttrIndexType) const;
     static AttrCntType  AttributeCnt(void);
-	static String       AttributeToString(AttrModeType, AttrType);
-	static long         CombinationCnt(void);
-	AttrIndexType       CommonAttribute(Combo const&) const;
-	AttrCntType         CountMatchingAttributes(Combo const&) const;
+    static String       AttributeToString(AttrModeType, AttrType);
+    static long         CombinationCnt(void);
+    AttrIndexType       CommonAttribute(Combo const&) const;
+    AttrCntType         CountMatchingAttributes(Combo const&) const;
     String              Description(void) const;
-	static AttrModeType DefaultDisplayMode(AttrIndexType);
+    static AttrModeType DefaultDisplayMode(AttrIndexType);
     static Combo        FromDescription(String const&);
-	void                SetAttribute(AttrIndexType, AttrType);
-	static void         SetStatic(GameOpt const&);
-	static String       StringEmpty(void);
+    void                SetAttribute(AttrIndexType, AttrType);
+    static void         SetStatic(GameOpt const&);
+    static String       StringEmpty(void);
     static AttrType     ValueCnt(AttrIndexType);
     static AttrType     ValueMax(AttrIndexType);
 
-	// public inquiry methods
-	bool HasAttribute(AttrIndexType, AttrType) const;
-	bool IsCompatibleWith(Combo const&) const;
+    // public inquiry methods
+    bool HasAttribute(AttrIndexType, AttrType) const;
+    bool IsCompatibleWith(Combo const&) const;
 
 private:
-	// private data
-	AttrType* mpArray;     // array of attributes
+    // private data
+    AttrType* mpArray;     // array of attributes
 
-	static AttrIndexType msAttrCnt;  // number of attributes per tile
-	static AttrType*    mspValueMax;     // max value for each tile attribute
+    static AttrIndexType msAttrCnt;  // number of attributes per tile
+    static AttrType*    mspValueMax;     // max value for each tile attribute
 
-	// misc private methods
-	static AttrType CharToAttribute(AttrModeType, char);
+    // misc private methods
+    static AttrType CharToAttribute(AttrModeType, char);
 };
 
 // global utility functions

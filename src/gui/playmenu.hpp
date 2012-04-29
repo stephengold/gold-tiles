@@ -57,16 +57,16 @@ public:
 private:
     // private data
     MenuItem mPlay;
-	MenuItem mTakeBack;
-	MenuItem mSuggest;
-	MenuItem mPause;
-	MenuItem mSwapAll;
-	MenuItem mPass;
-	MenuItem mResign;
+    MenuItem mTakeBack;
+    MenuItem mSuggest;
+    MenuItem mPause;
+    MenuItem mSwapAll;
+    MenuItem mPass;
+    MenuItem mResign;
     MenuItem mRestart;
-	MenuItem mUndo;
-	MenuItem mRedo;
-	MenuItem mAutopause;
+    MenuItem mUndo;
+    MenuItem mRedo;
+    MenuItem mAutopause;
 
     // private lifecycle
     PlayMenu(PlayMenu const&); // not copyable

@@ -40,60 +40,60 @@ resignation flag.
 
 class Move {
 public:
-	// public types
+    // public types
     typedef std::set<TileCell>::const_iterator ConstIterator;
 
-	// public lifecycle
-	Move(void);
-	// Move(Move const&);  compiler-generated copy constructor is OK
-	Move(String const&, bool remote);
-	// ~Move(void);  compiler-generated destructor is OK
+    // public lifecycle
+    Move(void);
+    // Move(Move const&);  compiler-generated copy constructor is OK
+    Move(String const&, bool remote);
+    // ~Move(void);  compiler-generated destructor is OK
 
-	// public operators
-	// Move& operator=(Move const&);  compiler-generated assigment operator is OK
-	bool operator!=(Move const&) const;
+    // public operators
+    // Move& operator=(Move const&);  compiler-generated assigment operator is OK
+    bool operator!=(Move const&) const;
     operator Cells(void) const;
     operator String(void) const;
     operator Tiles(void) const;
 
-	// misc public methods
-	void     Add(TileCell const&);
+    // misc public methods
+    void     Add(TileCell const&);
     void     Add(Tile const&, Cell const&);
     void     AddSwapTile(Tile const&);
-	ConstIterator
-		     Begin(void) const;
+    ConstIterator
+             Begin(void) const;
     unsigned Count(void) const;
     unsigned CountTilesPlayed(void) const;
-	String   Description(void) const;
-	ConstIterator
-		     End(void) const;
+    String   Description(void) const;
+    ConstIterator
+             End(void) const;
     void     GetUserChoice(Tiles const&, unsigned mustPlay);
-	void     MakeResign(Tiles const&);
- 
-	// public inquiry methods
-	bool InvolvesSwap(void) const;
-	bool IsPass(void) const;
-	bool IsPlay(void) const;
-	bool IsPureSwap(void) const;
-	bool IsResign(void) const;
+    void     MakeResign(Tiles const&);
+
+    // public inquiry methods
+    bool InvolvesSwap(void) const;
+    bool IsPass(void) const;
+    bool IsPlay(void) const;
+    bool IsPureSwap(void) const;
+    bool IsResign(void) const;
     bool RepeatsCell(void) const;
     bool RepeatsTile(void) const;
 
 private:
-	// private types
+    // private types
     typedef std::set<TileCell> Set;
 
-	// private constants
-	static const String PREFIX;
-	static const String RESIGN;
-	static const String SEPARATOR;
-	static const String SUFFIX;
+    // private constants
+    static const String PREFIX;
+    static const String RESIGN;
+    static const String SEPARATOR;
+    static const String SUFFIX;
 
-	// private data
-	bool mResignFlag;
-	Set  mSet;
+    // private data
+    bool mResignFlag;
+    Set  mSet;
 
-	// misc private methods
-	void MakePass(void);
+    // misc private methods
+    void MakePass(void);
 };
 #endif // !defined(MOVE_HPP_INCLUDED)

@@ -42,48 +42,48 @@ The String class is extends std::string in the Standard Template Library.
 
 class String: public std::string {
 public:
-	// public types
-	typedef const_iterator ConstIterator;
-	typedef iterator       Iterator;
+    // public types
+    typedef const_iterator ConstIterator;
+    typedef iterator       Iterator;
 
-	// public lifecycle
+    // public lifecycle
     String(void);
-	explicit String(bool);
-	explicit String(char);
-	explicit String(double);
-	explicit String(int); // itoa
-	explicit String(long); // ltoa
-	explicit String(unsigned); // utoa
-	explicit String(unsigned long); // ultoa
-	String(unsigned cnt, char); // repeat characters
-	String(TextType);
-	String(std::string const&);
-	String(Strings const&, String const& separator); // join strings
-	// String(String const&);  compiler-generated copy constructor is OK
+    explicit String(bool);
+    explicit String(char);
+    explicit String(double);
+    explicit String(int); // itoa
+    explicit String(long); // ltoa
+    explicit String(unsigned); // utoa
+    explicit String(unsigned long); // ultoa
+    String(unsigned cnt, char); // repeat characters
+    String(TextType);
+    String(std::string const&);
+    String(Strings const&, String const& separator); // join strings
+    // String(String const&);  compiler-generated copy constructor is OK
     // ~String(void);  compiler-generated destructor is OK
 
-	// public operators
+    // public operators
     // String& operator=(String const&);  compiler-generated assignment method is OK
-	operator bool(void) const;
-	operator double(void) const;
-	operator long(void) const; // atol
-	operator TextType(void) const;
+    operator bool(void) const;
+    operator double(void) const;
+    operator long(void) const; // atol
+    operator TextType(void) const;
 
-	// misc public methods
-	void     Capitalize(void);
-	char     Last(void) const;
-	unsigned Length(void) const;
-	void     MakeEmpty(void);
-	String   Prefix(String const& suffix) const;
-	String   Purge(void) const;
-	String   Quote(void) const;
-	void     Shorten(unsigned);
-	String   Suffix(String const& prefix) const;
+    // misc public methods
+    void     Capitalize(void);
+    char     Last(void) const;
+    unsigned Length(void) const;
+    void     MakeEmpty(void);
+    String   Prefix(String const& suffix) const;
+    String   Purge(void) const;
+    String   Quote(void) const;
+    void     Shorten(unsigned);
+    String   Suffix(String const& prefix) const;
 
-	// public inquiry methods
-	bool HasPrefix(String const&) const;
-	bool HasSuffix(String const&) const;
-	bool IsBlank(void) const;
-	bool IsEmpty(void) const;
+    // public inquiry methods
+    bool HasPrefix(String const&) const;
+    bool HasSuffix(String const&) const;
+    bool IsBlank(void) const;
+    bool IsEmpty(void) const;
 };
 #endif // !defined(STRING_HPP_INCLUDED)

@@ -34,8 +34,8 @@ A Rect object represents a rectangular region in the client area of a window.
 
 class Rect {
 public:
-	// public lifecycle
-	// no default constructor
+    // public lifecycle
+    // no default constructor
     // Rect(Rect const&);  compiler-generated copy constructor is OK
     explicit Rect(Win::RECT const&);
     Rect(Point const& ulc, Point const& lrc);
@@ -43,15 +43,15 @@ public:
     Rect(LogicalYType, LogicalXType, PixelCntType width, PixelCntType height);
     // ~Rect(void);
 
-	// public operators
-	// Rect& operator=(Rect const&);  compiler-generated assignment method is OK
+    // public operators
+    // Rect& operator=(Rect const&);  compiler-generated assignment method is OK
     operator Win::RECT(void) const;
 
-	// misc public methods
-	float        AspectRatio(void) const;
+    // misc public methods
+    float        AspectRatio(void) const;
     LogicalYType BottomY(void) const;
     Point        Brc(void) const;  // bottom right corner coordinates
-	Point        Center(void) const; // center pixel coordinates
+    Point        Center(void) const; // center pixel coordinates
     Rect         CenterRect(float aspectRatio) const;
     Rect         CenterSquare(void) const;
     LogicalXType CenterX(void) const;
@@ -60,20 +60,20 @@ public:
     Point        Interpolate(FractionPair const&, bool invert = false) const;
     LogicalXType LeftX(void) const;
     LogicalXType RightX(void) const;
-	Rect         ShrinkHeight(PixelCntType) const;
+    Rect         ShrinkHeight(PixelCntType) const;
     LogicalYType TopY(void) const;
     Point        Ulc(void) const;  // upper left corner coordinates
     PixelCntType Width(void) const;
 
-	// public inquiry methods
+    // public inquiry methods
     bool Contains(Point const&) const;
     bool Contains(LogicalXType, LogicalYType) const;
     bool Contains(Rect const&) const;
 
 private:
     LogicalYType mBottom;
-	LogicalXType mLeft;
-	LogicalXType mRight;
-	LogicalYType mTop;
+    LogicalXType mLeft;
+    LogicalXType mRight;
+    LogicalYType mTop;
 };
 #endif // !defined(RECT_HPP_INCLUDED)

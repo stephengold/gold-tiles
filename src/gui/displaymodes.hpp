@@ -36,27 +36,27 @@ The DisplayModes class encapsulates an array of five AttrModeType values.
 
 class DisplayModes {
 public:
-	// public lifecycle
-	DisplayModes(void);
+    // public lifecycle
+    DisplayModes(void);
     DisplayModes(DisplayModes const&);
     // ~DisplayModes(void);  compiler-generated destructor is OK
 
-	// public operators
+    // public operators
     DisplayModes& operator=(DisplayModes const&);
 
-	// misc public methods
-	void          Cleanup(void);
-	AttrCntType   ColorCnt(void) const;
-	AttrCntType   MarkingCnt(void) const;
-	AttrModeType  Mode(AttrIndexType) const;
-	AttrIndexType SecondColorIndex(void) const;
-	void          SetMode(AttrIndexType, AttrModeType);
+    // misc public methods
+    void          Cleanup(void);
+    AttrCntType   ColorCnt(void) const;
+    AttrCntType   MarkingCnt(void) const;
+    AttrModeType  Mode(AttrIndexType) const;
+    AttrIndexType SecondColorIndex(void) const;
+    void          SetMode(AttrIndexType, AttrModeType);
 
-	// public inquiry methods
-	bool IsColor(AttrIndexType) const;
+    // public inquiry methods
+    bool IsColor(AttrIndexType) const;
 
 private:
-	// private data
-	AttrModeType mArray[Combo::ATTRIBUTE_CNT_MAX];
+    // private data
+    AttrModeType mArray[Combo::ATTRIBUTE_CNT_MAX];
 };
 #endif // !defined(DISPLAYMODES_HPP_INCLUDED)

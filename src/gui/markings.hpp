@@ -38,32 +38,32 @@ and the display method for each marking.
 
 class Markings {
 public:
-	// public constants
-	static const AttrCntType MARKING_CNT_MAX = 4;
+    // public constants
+    static const AttrCntType MARKING_CNT_MAX = 4;
 
-	// public lifecycle
-	// no default constructor
-	Markings(Tile const&, DisplayModes const&);  
+    // public lifecycle
+    // no default constructor
+    Markings(Tile const&, DisplayModes const&);  
     // Markings(Markings const&); compiler-generated copy constructor is OK
     // ~Markings(void);  compiler-generated destructor is OK
 
-	// public operators
+    // public operators
     // Markings& operator=(Markings const&);  compiler-generated assignment method is OK
 
-	// misc public methods
-	AttrType     Marking(AttrIndexType) const;
-	AttrCntType  MarkingCnt(void) const;
-	ColorType    MarkingColor(void) const;
-	AttrModeType Mode(AttrIndexType) const;
+    // misc public methods
+    AttrType     Marking(AttrIndexType) const;
+    AttrCntType  MarkingCnt(void) const;
+    ColorType    MarkingColor(void) const;
+    AttrModeType Mode(AttrIndexType) const;
 
 private:
     // private constants
-	static const ColorType msColors[Combo::VALUE_CNT_MAX];
+    static const ColorType msColors[Combo::VALUE_CNT_MAX];
 
-	// private data
-	AttrCntType  mMarkingCnt;
-	ColorType    mMarkingColor;
-	AttrType     mMarkings[MARKING_CNT_MAX];
-	AttrModeType mModes[MARKING_CNT_MAX];
+    // private data
+    AttrCntType  mMarkingCnt;
+    ColorType    mMarkingColor;
+    AttrType     mMarkings[MARKING_CNT_MAX];
+    AttrModeType mModes[MARKING_CNT_MAX];
 };
 #endif // !defined(MARKINGS_HPP_INCLUDED)

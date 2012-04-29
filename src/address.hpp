@@ -37,35 +37,35 @@ Currently, only IPv4 addresses are supported.
 
 class Address {
 public:
-	// public lifecycle
-	Address(void);
+    // public lifecycle
+    Address(void);
     // Address(Address const&);  compiler-generated copy constructor is OK
-	explicit Address(String const&);
-	explicit Address(unsigned long);
+    explicit Address(String const&);
+    explicit Address(unsigned long);
     // ~Address(void);  compiler-generated destructor is OK
 
-	// public operators
+    // public operators
     // Address &operator=(Address const&);  compiler-generated assignment operator is OK
-	operator String(void) const;
-	operator unsigned long(void) const;
+    operator String(void) const;
+    operator unsigned long(void) const;
 
-	// misc public methods
-	static Strings ListAll(void);
+    // misc public methods
+    static Strings ListAll(void);
 
 private:
-	// private types
-	typedef unsigned char NetType;
+    // private types
+    typedef unsigned char NetType;
 
-	// private constants
+    // private constants
     static const NetType LOCALHOST_NET = 127;
 
-	// private data
-	String mString;
+    // private data
+    String mString;
 
-	// misc private methods
-	NetType Net(void) const;
+    // misc private methods
+    NetType Net(void) const;
 
-	// private inquiry methods
-	bool IsLocalHost(void) const;
+    // private inquiry methods
+    bool IsLocalHost(void) const;
 };
 #endif // !defined(ADDRESS_HPP_INCLUDED)

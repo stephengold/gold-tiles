@@ -40,44 +40,44 @@ typedef long IndexType;
 
 class Indices: public std::set<IndexType> {
 public:
-	// public types
-	typedef std::set<IndexType>::const_iterator         ConstIterator;
-	typedef std::set<IndexType>::const_reverse_iterator ConstReverseIterator;
-	typedef std::set<IndexType>::iterator               Iterator;
+    // public types
+    typedef std::set<IndexType>::const_iterator         ConstIterator;
+    typedef std::set<IndexType>::const_reverse_iterator ConstReverseIterator;
+    typedef std::set<IndexType>::iterator               Iterator;
 
-	// public constants
-	static const IndexType INDEX_MAX = LONG_MAX;
-	static const IndexType INDEX_MIN = LONG_MIN;
+    // public constants
+    static const IndexType INDEX_MAX = LONG_MAX;
+    static const IndexType INDEX_MIN = LONG_MIN;
 
-	// public lifecycle
-	Indices(void);
-	// Indices(Indices const&);  compiler-generated copy constructor is OK
-	explicit Indices(String const&);
-	virtual ~Indices(void);
+    // public lifecycle
+    Indices(void);
+    // Indices(Indices const&);  compiler-generated copy constructor is OK
+    explicit Indices(String const&);
+    virtual ~Indices(void);
 
-	// public operators
-	//Indices& operator=(Indices const&);  compiler-generated assignment method is OK
-	operator String(void) const;
+    // public operators
+    //Indices& operator=(Indices const&);  compiler-generated assignment method is OK
+    operator String(void) const;
 
-	// misc public methods
-	void      Add(IndexType);
-	void      AddRemove(IndexType, bool);
+    // misc public methods
+    void      Add(IndexType);
+    void      AddRemove(IndexType, bool);
     unsigned  Count(void) const;
-	IndexType First(void) const;
-	IndexType Last(void) const;
-	void      MakeEmpty(void);
-	void      Merge(Indices const&);
-	void      Purge(Indices const&);
-	void      Remove(IndexType);
+    IndexType First(void) const;
+    IndexType Last(void) const;
+    void      MakeEmpty(void);
+    void      Merge(Indices const&);
+    void      Purge(Indices const&);
+    void      Remove(IndexType);
 
-	// public inquiry methods
+    // public inquiry methods
     bool Contains(IndexType) const;
-	bool IsEmpty(void) const;
+    bool IsEmpty(void) const;
 
 private:
-	// private constants
-	static const String PREFIX;
-	static const String SEPARATOR;
-	static const String SUFFIX;
+    // private constants
+    static const String PREFIX;
+    static const String SEPARATOR;
+    static const String SUFFIX;
 };
 #endif // !defined(INDICES_HPP_INCLUDED)

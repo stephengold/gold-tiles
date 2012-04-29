@@ -40,50 +40,50 @@ typedef Win::UINT MessageType;
 
 class BaseWindow {
 public:
-	// public lifecycle
-	BaseWindow(void);
+    // public lifecycle
+    BaseWindow(void);
     // ~BaseWindow(void);  compiler-generated destructor is OK
 
-	// public operators
-	operator Win::HWND(void) const;
+    // public operators
+    operator Win::HWND(void) const;
 
-	// misc public methods
+    // misc public methods
     static BaseWindow* Lookup(Win::HWND);
 
 protected:
-	// protected data
-	static BaseWindow* mspNewlyCreatedWindow;
+    // protected data
+    static BaseWindow* mspNewlyCreatedWindow;
 
-	// protected lifecycle
+    // protected lifecycle
     void Initialize(Win::CREATESTRUCT const&);
 
-	// misc protected methods
-	void           Center(void);
-	Win::HINSTANCE CopyModule(BaseWindow const&);
-	void           Create(void);
-	static Rect    DesktopBounds(void);
-	virtual TextType  
-		           Name(void) const = 0;
-	void           SetHandle(Win::HWND);
+    // misc protected methods
+    void           Center(void);
+    Win::HINSTANCE CopyModule(BaseWindow const&);
+    void           Create(void);
+    static Rect    DesktopBounds(void);
+    virtual TextType  
+                   Name(void) const = 0;
+    void           SetHandle(Win::HWND);
 
 private:
-	// private types
+    // private types
     typedef unsigned long                   KeyType;
     typedef std::map<KeyType, BaseWindow*>  Map;
     typedef std::pair<KeyType, BaseWindow*> Pair;
-	typedef Map::const_iterator             ConstIterator;
+    typedef Map::const_iterator             ConstIterator;
     typedef Map::iterator                   Iterator;
     typedef std::pair<Iterator, bool>       InsertResult;
 
-	// private data
+    // private data
     Win::HWND      mHandle;
-	static Map    msMap;
+    static Map    msMap;
     Win::HINSTANCE mModule; // the module/instance which owns this window  TODO static?
 
-	// private lifecycle
+    // private lifecycle
     BaseWindow(BaseWindow const&); // not copyable
 
-	// private operators
+    // private operators
     BaseWindow& operator=(BaseWindow const&); // not assignable
 };
 #endif // !defined(BASEWINDOW_HPP_INCLUDED)

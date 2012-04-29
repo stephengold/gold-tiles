@@ -39,56 +39,56 @@ It meant to be futher extended by adding controls.
 
 class Dialog: public BaseWindow {
 public:
-	// public types
+    // public types
     typedef long ValueType; // value of a control
 
-	// public constants
-	static const int       RESULT_OK = 1;
-	static const int       RESULT_CANCEL = 2;
+    // public constants
+    static const int       RESULT_OK = 1;
+    static const int       RESULT_CANCEL = 2;
     static const int       RESULT_BACK = 5;
-	static const ValueType VALUE_INVALID = LONG_MAX;
+    static const ValueType VALUE_INVALID = LONG_MAX;
 
-	// public lifecycle
-	// no default constructor
-	explicit Dialog(TextType templateName);
-	Dialog(TextType templateName, Win::DLGPROC);
+    // public lifecycle
+    // no default constructor
+    explicit Dialog(TextType templateName);
+    Dialog(TextType templateName, Win::DLGPROC);
     // ~Dialog(void);  compiler-generated destructor is OK
 
-	// misc public methods
-	int HandleMessage(MessageType, Win::WPARAM);
-	int Run(BaseWindow* pParent);
+    // misc public methods
+    int HandleMessage(MessageType, Win::WPARAM);
+    int Run(BaseWindow* pParent);
 
 protected:
-	// misc protected methods
-	ValueType AddListboxItem(IdType, TextType);
+    // misc protected methods
+    ValueType AddListboxItem(IdType, TextType);
     void      Close(int);
-	void      EnableControl(IdType, bool);
-	Address   GetAddress(IdType);
-	Win::HWND GetControlHandle(IdType) const;
-	ValueType GetListboxSelection(IdType);
+    void      EnableControl(IdType, bool);
+    Address   GetAddress(IdType);
+    Win::HWND GetControlHandle(IdType) const;
+    ValueType GetListboxSelection(IdType);
     ValueType GetSliderValue(IdType);
-	String    GetTextString(IdType);
+    String    GetTextString(IdType);
     ValueType GetTextValue(IdType);
-	void      SetAddress(IdType, Address const&);
-	void      SetButton(IdType, bool);
-	void      SetListboxSelection(IdType, ValueType);
+    void      SetAddress(IdType, Address const&);
+    void      SetButton(IdType, bool);
+    void      SetListboxSelection(IdType, ValueType);
     ValueType SetSliderValue(IdType, ValueType);
-	void      SetSliderRange(IdType, ValueType min, ValueType max);
-	void      SetTextString(IdType, String const&);
+    void      SetSliderRange(IdType, ValueType min, ValueType max);
+    void      SetTextString(IdType, String const&);
     void      SetTextValue(IdType, ValueType);
 
 private:
-	// private data
-	Win::DLGPROC mpMessageHandler;
-	TextType      mTemplateName;
+    // private data
+    Win::DLGPROC mpMessageHandler;
+    TextType      mTemplateName;
 
-	// private lifecycle
+    // private lifecycle
     Dialog(Dialog const&);  // not copyable
 
-	// private operators
+    // private operators
     Dialog& operator=(Dialog const&);  // not assignable
 
-	// private methods
-	TextType Name(void) const;
+    // private methods
+    TextType Name(void) const;
 };
 #endif // !defined(DIALOG_HPP_INCLUDED)

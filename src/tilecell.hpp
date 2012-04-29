@@ -36,37 +36,37 @@ where it is to be played.
 
 class TileCell {
 public:
-	// public lifecycle
-	TileCell(void);
+    // public lifecycle
+    TileCell(void);
     explicit TileCell(Tile const&);  // swap to swap area
-	// TileCell(TileCell const&);  compiler-generated copy constructor is OK
-	TileCell(String const&, bool remote);
+    // TileCell(TileCell const&);  compiler-generated copy constructor is OK
+    TileCell(String const&, bool remote);
     TileCell(Tile const&, Cell const&);  // place on a cell
     // ~TileCell(void);  compiler-generated destructor is OK
 
-	// public operators
-	bool operator!=(TileCell const&) const;
+    // public operators
+    bool operator!=(TileCell const&) const;
     bool operator<(TileCell const&) const;
     // TileCell& operator=(TileCell const&);  compiler-generated assignment method is OK
-	operator Cell(void) const;
+    operator Cell(void) const;
     operator String(void) const;
-	operator Tile(void) const;
+    operator Tile(void) const;
 
-	// misc public methods
-	String Description(void) const;
+    // misc public methods
+    String Description(void) const;
     String GetUserChoice(Tiles const&, Strings const&);
 
-	// public inquiry methods
-	bool IsSwap(void) const;
+    // public inquiry methods
+    bool IsSwap(void) const;
 
 private:
-	// private constants
-	static const String SEPARATOR;
-	static const String SWAP;
+    // private constants
+    static const String SEPARATOR;
+    static const String SWAP;
 
-	// private data
+    // private data
     Cell mCell;  // ignored if mSwapFlag is true
-	bool mSwapFlag;
+    bool mSwapFlag;
     Tile mTile;
 };
 #endif // !defined(TILECELL_HPP_INCLUDED)

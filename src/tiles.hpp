@@ -39,45 +39,45 @@ class Tiles: public Indices {
 public:
     // public lifecycle
     Tiles(void);
-	explicit Tiles(Tile const&);
+    explicit Tiles(Tile const&);
     // Tiles(Tiles const&);  compiler-generated copy constructor is OK
-	Tiles(Indices const&, bool remote);
-	Tiles(String const&, bool remote);
+    Tiles(Indices const&, bool remote);
+    Tiles(String const&, bool remote);
     // ~Tiles(void);  compiler-generated destructor is OK
 
-	// public operators
+    // public operators
     // Tiles& operator=(Tiles const&);  compiler-generated assignment method is OK
-	operator String(void) const; // for display/debug only, not for save/send
+    operator String(void) const; // for display/debug only, not for save/send
 
-	// misc public methods
-	void     Add(Tile::IdType);
-	void     AddAllTiles(AttrIndexType, Tile& model);
-	unsigned BonusFactor(void) const;
-	AttrIndexType
-		     CommonAttribute(void) const;
+    // misc public methods
+    void     Add(Tile::IdType);
+    void     AddAllTiles(AttrIndexType, Tile& model);
+    unsigned BonusFactor(void) const;
+    AttrIndexType
+             CommonAttribute(void) const;
     bool     CopyIds(Tiles const&);
-	String   Description(void) const;
+    String   Description(void) const;
     Tile::IdType
              FindFirst(TileOpt const&) const;
-	Tiles    LongestRun(void) const;
-	Tile     PullFirstTile(void);
+    Tiles    LongestRun(void) const;
+    Tile     PullFirstTile(void);
     Tile     PullRandomTile(void);
-	Tiles    PullRandomTiles(unsigned);
-	void     Restock(void);
+    Tiles    PullRandomTiles(unsigned);
+    void     Restock(void);
     Tiles    UniqueTiles(void) const;
 
-	// public inquiry methods
+    // public inquiry methods
     bool AreAllCompatible(void) const;
     bool AreAllCompatibleWith(Tile const&) const;
-	bool ContainsOpt(TileOpt const&) const;
+    bool ContainsOpt(TileOpt const&) const;
 
 private:
-	// private constants
-	static const String PREFIX;
-	static const String SEPARATOR;
-	static const String SUFFIX;
+    // private constants
+    static const String PREFIX;
+    static const String SEPARATOR;
+    static const String SUFFIX;
 
-	// private methods
-	void BuildRuns(Tiles const& runSoFar, Tiles& bestRun) const;
+    // private methods
+    void BuildRuns(Tiles const& runSoFar, Tiles& bestRun) const;
 };
 #endif // !defined(TILES_HPP_INCLUDED)

@@ -50,48 +50,48 @@ public:
     // public types
     typedef IndexType IdType;
 
-	// public constants
+    // public constants
     static const IdType ID_NONE = 0;    // indicates "no such tile"
     static const IdType ID_DEFAULT = 1; // generated only by default constructor
     static const IdType ID_FIRST = 2;   // first ID returned by NextId()
     static const IdType ID_MAX = Indices::INDEX_MAX;
 
     // public lifecycle
-	Tile(void);
+    Tile(void);
     Tile(IdType, bool remote = false);
-	// Tile(Tile const&);  compiler-generated copy constructor is OK
+    // Tile(Tile const&);  compiler-generated copy constructor is OK
     explicit Tile(TileOpt const&);
     explicit Tile(String const&, bool remote = false);
-	// ~Tile(void);  compiler-generated destructor is OK
+    // ~Tile(void);  compiler-generated destructor is OK
 
     // public operators
-	bool     operator<(Tile const&) const;
-	//Tile& operator=(Tile const&);  compiler-generated assignment method is OK
-	bool     operator==(Tile const&) const;
-	operator Combo(void) const;
+    bool     operator<(Tile const&) const;
+    //Tile& operator=(Tile const&);  compiler-generated assignment method is OK
+    bool     operator==(Tile const&) const;
+    operator Combo(void) const;
     operator IndexType(void) const;
     operator TileOpt(void) const;
-	operator String(void) const;
+    operator String(void) const;
 
-	// misc public methods
-	AttrType      Attribute(AttrIndexType) const;
-	static double BonusProbability(void);
-	Tile          CloneAndSetBonus(void) const;
-	AttrIndexType CommonAttribute(Tile const&) const;
-	String        Description(void) const;
+    // misc public methods
+    AttrType      Attribute(AttrIndexType) const;
+    static double BonusProbability(void);
+    Tile          CloneAndSetBonus(void) const;
+    AttrIndexType CommonAttribute(Tile const&) const;
+    String        Description(void) const;
     String        GetUserChoice(Tiles const&, Strings const&);
     IdType        Id(void) const;
     static void   PurgeRemoteTiles(void); // TODO
-	void          SetAttribute(AttrIndexType, AttrType);
-	static void   SetStatic(GameOpt const&);
+    void          SetAttribute(AttrIndexType, AttrType);
+    static void   SetStatic(GameOpt const&);
 
-	// public inquiry methods
-	bool HasAttribute(AttrIndexType, AttrType) const;
-	bool HasBonus(void) const;
+    // public inquiry methods
+    bool HasAttribute(AttrIndexType, AttrType) const;
+    bool HasBonus(void) const;
     bool HasId(IdType) const;
     bool HasOpt(TileOpt const&) const;
-	bool IsClone(Tile const&) const;
-	bool IsCompatibleWith(Tile const*) const;
+    bool IsClone(Tile const&) const;
+    bool IsCompatibleWith(Tile const*) const;
     static bool 
          IsValid(IdType);
 
@@ -105,13 +105,13 @@ private:
     // private constants
     static const String SEPARATOR;
 
-	// private data
+    // private data
     static double msBonusProbability; // configured by SetStatic()
     IdType         mId;
     static IdType msNextId;
     static Map    msOpts;
 
-	// misc private methods
+    // misc private methods
     static IdType NextId(void);
 };
 #endif // !defined(TILE_HPP_INCLUDED)

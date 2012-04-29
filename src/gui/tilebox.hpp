@@ -35,34 +35,35 @@ The TileBox class is an extension of the Dialog class.
 #include "gui/dialog.hpp"   // ISA Dialog
 #include "gameopt.hpp"      // HASA GameOpt
 
+
 class TileBox: public Dialog {
 public:
     // public lifecycle
-	// no default constructor
-	TileBox(GameOpt&);
-	// ~TileBox(void);  compiler-generated destructor is OK
+    // no default constructor
+    TileBox(GameOpt&);
+    // ~TileBox(void);  compiler-generated destructor is OK
 
-	// misc public methods
-	int HandleMessage(MessageType, Win::WPARAM, Win::LPARAM);
+    // misc public methods
+    int HandleMessage(MessageType, Win::WPARAM, Win::LPARAM);
 
 private:
-	// private data
-	GameOpt& mrGameOpt;
+    // private data
+    GameOpt& mrGameOpt;
 
-	// private lifecycle
+    // private lifecycle
     TileBox(TileBox const&);  // not copyable
 
-	// private operators
+    // private operators
     TileBox& operator=(TileBox const&); // not assignable
 
-	// misc private methods
+    // misc private methods
     IdType EditboxId(IdType slider) const;
     void   InitControl(IdType slider, ValueType value, bool enable);
     IdType MaxId(IdType slider) const;
     IdType MinId(IdType slider) const;
     IdType SliderId(IdType editbox) const;
-	IdType SliderId(Win::HWND) const;
-	void   UpdateTileCnt(void);
-	void   UpdateValue(IdType slider, ValueType);
+    IdType SliderId(Win::HWND) const;
+    void   UpdateTileCnt(void);
+    void   UpdateValue(IdType slider, ValueType);
 };
 #endif // !defined(TILEBOX_HPP_INCLUDED)

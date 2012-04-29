@@ -35,34 +35,34 @@ A Hands object represents a circular sequence of zero or more hands of tiles.
 
 class Hands: public std::vector<Hand> {
 public:
-	// public types
+    // public types
     typedef std::vector<Hand>::const_iterator ConstIterator;
     typedef std::vector<Hand>::iterator       Iterator;
 
-	// public lifecycle
-	// Hands(void);  compiler-generated default constructor is OK
-	// Hands(Hands const&);  compiler-generated copy constructor is OK
-	// ~Hands(void);  compiler-generated destructor is OK
+    // public lifecycle
+    // Hands(void);  compiler-generated default constructor is OK
+    // Hands(Hands const&);  compiler-generated copy constructor is OK
+    // ~Hands(void);  compiler-generated destructor is OK
 
     // public operators
     // Hands& operator=(Hands const&);  compiler-generated assignment operator is OK 
- 
-	// misc public methods
-	void      Append(Hand const&);
+
+    // misc public methods
+    void      Append(Hand const&);
     unsigned  Count(void) const;
-	ConstIterator 
-		      Find(String const&) const;
-	Iterator  Find(String const&);
-	ScoreType MaxScore(void) const;
+    ConstIterator 
+              Find(String const&) const;
+    Iterator  Find(String const&);
+    ScoreType MaxScore(void) const;
     void      Next(ConstIterator&) const;
     void      Next(Iterator&);
-	void      NextWorking(Iterator&);
+    void      NextWorking(Iterator&);
     void      Previous(ConstIterator&) const;
     void      Previous(Iterator&);
 
-	// public inquiry method
-	bool HasAnyGoneOut(void) const;
-	bool HaveAllResigned(void) const;
-	bool IsEmpty(void) const;
+    // public inquiry method
+    bool HasAnyGoneOut(void) const;
+    bool HaveAllResigned(void) const;
+    bool IsEmpty(void) const;
 };
 #endif // !defined(HANDS_HPP_INCLUDED)

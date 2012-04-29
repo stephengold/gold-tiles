@@ -38,31 +38,31 @@ The HintBox class is an extension of the Dialog class.
 class HintBox: public Dialog {
 public:
     // lifecycle
-	// no default constructor
-	HintBox(HintType, GameStyleType);
-	// ~HintBox(void);  compiler-generated destructor is OK
+    // no default constructor
+    HintBox(HintType, GameStyleType);
+    // ~HintBox(void);  compiler-generated destructor is OK
 
-	// public operators
-	operator HintType(void) const;
+    // public operators
+    operator HintType(void) const;
 
-	// misc public methods
-	int HandleMessage(MessageType, Win::WPARAM);
+    // misc public methods
+    int HandleMessage(MessageType, Win::WPARAM);
 
 private:
-	// private data
-	GameStyleType mGameStyle;
-	HintType      mStrength;
+    // private data
+    GameStyleType mGameStyle;
+    HintType      mStrength;
 
-	// private lifecycle
+    // private lifecycle
     HintBox (HintBox const&); // not copyable
 
-	// private operators
+    // private operators
     HintBox& operator=(HintBox const&); // not assignable
 
-	// misc private methods
-	TextType 
-		 Name(void) const;
-	void SetHintStrength(void);
-	void SetHintStrength(IdType buttonId);
+    // misc private methods
+    TextType 
+         Name(void) const;
+    void SetHintStrength(void);
+    void SetHintStrength(IdType buttonId);
 };
 #endif // !defined(HINTBOX_HPP_INCLUDED)

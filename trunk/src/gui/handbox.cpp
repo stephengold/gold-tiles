@@ -116,12 +116,11 @@ INT_PTR HandBox::HandleMessage(MessageType message, WPARAM wParam) {
 
 	        EnableControl(IDC_RADIOAUTO, true);
 			EnableControl(IDC_RADIOLOCAL, true);
-#if 1
-			// TODO
-			ASSERT(!mOptions.IsRemote());
-	        EnableControl(IDC_RADIOREMOTE, false);
-#endif
-            SetSliderRange(IDC_SLIDER1, 0, LEVEL_MAX);
+	        EnableControl(IDC_RADIOREMOTE, true);
+
+			SetSliderRange(IDC_SLIDER1, 0, LEVEL_MAX);
+			Address const address = mOptions;
+			SetAddress(IDC_IPADDRESS1, address);
 			UpdateButtons();
 			String const name = mOptions.PlayerName();
 			UpdateNameBox(name);
@@ -132,12 +131,19 @@ INT_PTR HandBox::HandleMessage(MessageType message, WPARAM wParam) {
         }
 
         case WM_COMMAND: {
-            IdType const id = LOWORD(wParam);
+            IdType const control_id = LOWORD(wParam);
 			int const notification_code = HIWORD(wParam);
-            switch (id) {
+            switch (control_id) {
+			    case IDC_IPADDRESS1:
+					if (notification_code == EN_CHANGE) {
+						Address const address = GetAddress(control_id);
+						mOptions.SetAddress(address);
+					}
+				    break;
+
                 case IDC_EDITNAME:
 					if (notification_code == EN_CHANGE) {
-                        String const name = GetTextString(id);
+                        String const name = GetTextString(control_id);
 					    mOptions.SetPlayerName(name);
 					    bool const good_name = mOptions.HasValidName();
 	                    EnableControl(IDOK, good_name);
@@ -148,7 +154,7 @@ INT_PTR HandBox::HandleMessage(MessageType message, WPARAM wParam) {
 				case IDC_RADIOLOCAL:
 				case IDC_RADIOREMOTE:
 					if (notification_code == BN_CLICKED) {
-					    HandleButtonClick(id);
+					    HandleButtonClick(control_id);
 					}
 					break;
             }

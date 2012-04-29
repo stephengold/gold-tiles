@@ -94,7 +94,9 @@ public:
 	static long         CombinationCnt(void);
 	AttrIndexType       CommonAttribute(Combo const&) const;
 	AttrCntType         CountMatchingAttributes(Combo const&) const;
+    String              Description(void) const;
 	static AttrModeType DefaultDisplayMode(AttrIndexType);
+    static Combo        FromDescription(String const&);
 	void                SetAttribute(AttrIndexType, AttrType);
 	static void         SetStatic(GameOpt const&);
 	static String       StringEmpty(void);

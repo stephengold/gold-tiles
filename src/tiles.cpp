@@ -180,12 +180,14 @@ AttrIndexType Tiles::CommonAttribute(void) const {
 
 String Tiles::Description(void) const {
     String result("{");
+    // Note:  not the PREFIX used for save/send.
 
     ConstIterator i_tile;
     for (i_tile = begin(); i_tile != end(); i_tile++) {
         if (i_tile != begin()) {
-			// append a separator
+			// Append a separator.
             result += ", ";
+            // Note:  not the SEPARATOR used for save/send.
         }
 
 		Tile const tile = *i_tile;
@@ -196,6 +198,22 @@ String Tiles::Description(void) const {
 
     return result;
 }
+
+Tile::IdType Tiles::FindFirst(TileOpt const& rTileOpt) const {
+    Tile::IdType result = Tile::ID_NONE;
+
+    ConstIterator i_tile;
+    for (i_tile = begin(); i_tile != end(); i_tile++) {
+       Tile const tile = *i_tile;
+        if (tile.HasOpt(rTileOpt)) {
+           result = tile.Id();
+           break;
+       }
+    }
+
+    return result;
+}
+
 
 // return the largest subset of mutually compatible tiles
 Tiles Tiles::LongestRun(void) const {
@@ -253,29 +271,12 @@ void Tiles::PullRandomTiles(unsigned tileCnt, Tiles& rBag) {
 	}
 }
 
-// add one instance of every possible combination of attributes
+// Add one instance of every possible combination of attributes.
 void Tiles::Restock(void) {
 	AttrIndexType const attribute_index = 0;
 	Tile model_tile;
 
     AddAllTiles(attribute_index, model_tile);
-}
-
-void Tiles::UnClone(Tile& rClone) const {
-	ASSERT(rClone.Id() == Tile::ID_DEFAULT);
-	ASSERT(ContainsOpt(rClone));
-
-    ConstIterator i_tile;
-    for (i_tile = begin(); i_tile != end(); i_tile++) {
-	   Tile const tile = *i_tile;
-       if (rClone.HasOpt(tile)) {
-           rClone = tile;
-           break;
-       }
-    }
-
-	ASSERT(rClone.Id() != Tile::ID_DEFAULT);
-	ASSERT(Contains(rClone));
 }
 
 // return a new set containing only one instance of each clone
@@ -327,16 +328,7 @@ bool Tiles::AreAllCompatibleWith(Tile const& rTile) const {
 }
 
 bool Tiles::ContainsOpt(TileOpt const& rTileOpt) const {
-    bool result = false;
-    
-    ConstIterator i_tile;
-    for (i_tile = begin(); i_tile != end(); i_tile++) {
-		Tile const tile = *i_tile;
-        if (tile.HasOpt(rTileOpt)) {
-            result = true;
-            break;
-        }
-    }
+    bool result = (FindFirst(rTileOpt) != Tile::ID_NONE);
     
     return result;
 }

@@ -112,7 +112,8 @@ Tile::operator IndexType(void) const {
 }
 
 Tile::operator String(void) const {
-    String const result = String(mId) + SEPARATOR + Description();
+   	TileOpt const& r_opt = msOpts[mId];
+    String const result = String(mId) + SEPARATOR + String(r_opt);
 
     return result;
 }
@@ -165,16 +166,15 @@ AttrIndexType Tile::CommonAttribute(Tile const& rOther) const {
 
 String Tile::Description(void) const {
 	TileOpt const& r_opt = msOpts[mId];
-	String const result = String(r_opt);
+	String const result = r_opt.Description();
 
 	return result;
 }
 
 String Tile::GetUserChoice(Tiles const& rAvailableTiles, Strings const& rAlternatives) {
-	String result;
-
 	ASSERT(mId == ID_DEFAULT);
-	TileOpt& r_opt = msOpts[mId];
+
+    String result;
 	for (;;) {
         std::cout << "Enter a tile name";
     	Strings::ConstIterator i_alt;
@@ -188,13 +188,16 @@ String Tile::GetUserChoice(Tiles const& rAvailableTiles, Strings const& rAlterna
 			break;
 		}
 
-        r_opt = TileOpt(result);
-        if (!r_opt.MatchesString(result)) {
-           std::cout << result.Quote() << " is invalid." << std::endl;
-        } else if (!rAvailableTiles.ContainsOpt(r_opt)) {
+        TileOpt const opt = TileOpt::FromDescription(result);
+        if (!opt.MatchesDescription(result)) {
+            std::cout << result.Quote() << " is invalid input." << std::endl;
+
+        } else if (!rAvailableTiles.ContainsOpt(opt)) {
             std::cout << result << " is unavailable." << std::endl;
+
         } else {
-            rAvailableTiles.UnClone(*this);
+            mId = rAvailableTiles.FindFirst(opt);
+            ASSERT(IsValid(mId));
             break;
         }
     }

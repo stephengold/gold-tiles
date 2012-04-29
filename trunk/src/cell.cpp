@@ -162,7 +162,7 @@ bool Cell::GetUserChoice(String const& rAlternate) {
     for (;;) {
         std::cout << "Enter a row number";
 		if (rAlternate != "") {
-			std::cout << " or '" << rAlternate << "'";
+			std::cout << " or " << rAlternate.Quote();
 		}
 		std::cout << ": ";
         std::cin >> input;
@@ -173,7 +173,7 @@ bool Cell::GetUserChoice(String const& rAlternate) {
         if (String(mRow) == input) {
             break;
         }
-        std::cout << "'" << input << "' is invalid." << std::endl;
+        std::cout << input.Quote() << " is invalid input." << std::endl;
     }
     for (;;) {
         std::cout << "Enter a column number: ";
@@ -182,7 +182,7 @@ bool Cell::GetUserChoice(String const& rAlternate) {
         if (String(mColumn) == input) {
             break;
         }
-        std::cout << "'" << input << "' is invalid." << std::endl;
+        std::cout << input.Quote() << " is invalid input." << std::endl;
     }
 
 	return false;

@@ -56,7 +56,7 @@ public:
 #elif defined(_WINDOWS)
     SubMenu(Menu const&, unsigned position);
 #endif // defined(_WINDOWS)
-    // ~SubMenu(void);  compiler-generated destructor is OK
+    virtual ~SubMenu(void);
 
     // misc public methods
 #ifdef _QT

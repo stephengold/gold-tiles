@@ -48,7 +48,7 @@ char Fifo::GetByte(void) {
 	ASSERT(IsValid());
 	ASSERT(HasData());
 
-	char result = mReadBuffer[mConsumedCnt];
+	char const result = mReadBuffer[mConsumedCnt];
 	mConsumedCnt++;
 
 	ASSERT(IsValid());

@@ -51,7 +51,8 @@ SubMenu::SubMenu(Menu const& rMenu, unsigned position):
 
 #endif // defined(_WINDOWS)
 
-// The compiler-generated destructor is OK.
+SubMenu::~SubMenu(void) {
+}
 
 
 // misc methods

@@ -257,7 +257,7 @@ void Hand::SetSocket(Socket const& rSocket) {
 }
 
 double Hand::SkipProbability(void) const {
-    double result = mOptions.SkipProbability();
+    double const result = mOptions.SkipProbability();
 
     return result;
 }

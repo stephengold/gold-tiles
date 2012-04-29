@@ -265,7 +265,7 @@ HDC Window::PaintDevice(void) const {
 // display a simple dialog box with a question and buttons for Yes and No
 int Window::QuestionBox(TextType message, TextType title) {
     HWND const this_window = *this;
-    UINT const options = MB_YESNO | MB_ICONERROR | MB_DEFBUTTON1 | MB_APPLMODAL;
+    UINT const options = MB_YESNO | MB_ICONASTERISK | MB_DEFBUTTON1 | MB_APPLMODAL;
     int const result = Win::MessageBox(this_window, message, title, options);
     ASSERT(result == IDCANCEL || result == IDYES || result == IDNO);
 

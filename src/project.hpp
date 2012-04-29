@@ -20,12 +20,21 @@
 #elif defined(_WINDOWS)
 # define _GUI
 # define Q_OBJECT
-//# define _SERVER
+# define _SERVER
+# define _CLIENT
 
 #elif !defined(_CONSOLE)
 # define _CONSOLE
 
+# if defined(_CLIENT) && defined(_SERVER)
+#  error console build cannot act as both a client and a server
+# endif
+
 #endif // !defined(_WINDOWS) && !defined(_QT) && !defined(_CONSOLE)
+
+#if !defined(_CLIENT) && !defined(_SERVER)
+#  error build should include either client or server support
+#endif
 
 // debugging macros: D(), ASSERT(), and FAIL()
 #ifdef _DEBUG

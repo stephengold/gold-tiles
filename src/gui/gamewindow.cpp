@@ -124,7 +124,11 @@ mGameView(*pGame),
 
     mDragBoardFlag = false;
     mpGame = pGame;
+#ifdef _CLIENT
     mInitialNewGame = (pGame == NULL);
+#else // !defined(_CLIENT)
+    mInitialNewGame = false;
+#endif // !defined(_CLIENT)
     mpMenuBar = NULL;
 
     // Set up Think fiber for background processing.
@@ -670,7 +674,19 @@ void GameWindow::LoadPlayerOptions(Hand const& rHand) {
 }
 
 TextType GameWindow::Name(void) const {
+#ifdef _SERVER
+# ifdef _CLIENT
+#  ifdef _DEBUG
+    return "DEBUG BUILD, CLIENT/SERVER CONFIGURATION";
+#  else // !defined(_DEBUG)
     return "Gold Tile - a game by Stephen Gold";
+#  endif // !defined(_DEBUG)
+# else // !defined _CLIENT
+    return "SERVER-ONLY CONFIGURATION";
+# endif // !defined _CLIENT
+#else // !defined _SERVER
+    return "CLIENT-ONLY CONFIGURATION";
+#endif // !defined _SERVER
 }
 
 void GameWindow::OfferNewGame(void) {
@@ -893,12 +909,26 @@ void GameWindow::PollForInvitation(void) {
         return;
     }
 
-    question = "You are invited to play a game with\n";
-    question += String(game_opt) + "Do you accept?";
-    int const accept = QuestionBox(question, "Accept Invitation - Gold Tile");
-    if (accept != IDYES) {
+    Address const client_address = socket.Peer();
+    question = String(client_address) + " has invited you to play a game with:\n";
+    question += String(game_opt);  // TODO better description
+    question += String(hand_opts);
+    question += "Do you accept?";
+    bool const accept = Network::Question(question);
+
+    if (!accept) {
+        socket.PutLine(Network::DECLINE);
+        socket.Close();
         return;
     }
+
+    bool const was_successful = socket.PutLine(Network::ACCEPT);
+    if (!was_successful) {
+        return;
+    }
+
+    Address const server_address = socket.Local();
+    hand_opts.Serverize(client_address, server_address);
 
     Game* const p_new_game = Game::New(game_opt, hand_opts, socket);
     if (p_new_game != NULL) {
@@ -1072,10 +1102,8 @@ void GameWindow::ResignHand(void) {
 }
 
 void GameWindow::Resize(PixelCntType clientAreaWidth, PixelCntType clientAreaHeight) {
-    PixelCntType old_height = ClientAreaHeight();
-    PixelCntType old_width = ClientAreaWidth();
     SetClientArea(clientAreaWidth, clientAreaHeight);
-    mGameView.Recenter(old_height, old_width);
+    mGameView.Recenter();
     ForceRepaint();
 }
 

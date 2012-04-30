@@ -162,8 +162,7 @@ Network::~Network(void) {
 /* static */ Socket Network::CheckForConnection(void) {
     Socket result;
 
-    Socket::HandleType const handle = msListen;
-    SOCKET const listen_socket = SOCKET(handle);
+    SOCKET const listen_socket = SOCKET(Socket::HandleType(msListen));
     SOCKET const data_socket = Win::accept(listen_socket, NULL, NULL);
     if (data_socket == INVALID_SOCKET) {
         int const error_code = Win::WSAGetLastError();
@@ -190,7 +189,7 @@ Network::~Network(void) {
     ASSERT(!rGame.IsConnectedToServer(rAddress));
     ASSERT(rGame.AmClient());
 
-    // Get an address for the client's send socket.
+    // Get address info for the client's send socket.
     ADDRINFOA address_hints;
     ::ZeroMemory(&address_hints, sizeof(address_hints));
     address_hints.ai_family = AF_INET; // for now, just use IPv4
@@ -213,8 +212,8 @@ Network::~Network(void) {
     // Open a data socket to the server.
     SOCKET data_socket = INVALID_SOCKET;
     while (data_socket == INVALID_SOCKET) {
-        Socket::HandleType const socket = OpenServer(address_list, rAddress);
-        data_socket = SOCKET(socket);
+        Socket::HandleType const data_handle = OpenServer(address_list, rAddress);
+        data_socket = SOCKET(data_handle);
         if (data_socket == INVALID_SOCKET) {
             String const retry_message = String("Failed to connect to ") 
                 + server_description;
@@ -237,28 +236,29 @@ Network::~Network(void) {
     ASSERT(ioctl_failure == 0);
 #endif // defined(_GUI)
 
-    // Save the open socket to all relevant hand objects.
-    Socket socket = Socket(Socket::HandleType(data_socket));
-    rGame.AddServer(rAddress, socket);
-    ASSERT(rGame.IsConnectedToServer(rAddress));
-
     // Invite the server to play.
-    InviteServer(socket, rGame);
+    Socket socket = Socket(Socket::HandleType(data_socket));
+    bool success = InviteServer(socket, rGame);
+    if (!success) {
+        return false;
+    }
     String const status = String("Waiting for ") + server 
         + " to accept your invitation ...";
     Network::Notice(status);
 
     String response;
-    bool const success = socket.GetLine(response);
+    success = socket.GetLine(response);
     if (!success) {
         return false;
-
-    } else if (response == Network::DECLINE) {
+    }
+    
+    if (response == Network::DECLINE) {
         String const report = server + " declined.";
         Network::Notice(report);
         return false;
+    }
 
-    } else if (response != Network::ACCEPT) {
+    if (response != Network::ACCEPT) {
         String const report = server + " sent an unexpected response: " 
             + response.Quote() + ".";
         Network::Notice(report);
@@ -274,6 +274,10 @@ Network::~Network(void) {
         String const report = server + " accepted.";
         Network::Notice(report);
     }
+
+    // Save the open socket to all relevant hand objects.
+    rGame.AddServer(rAddress, socket);
+    ASSERT(rGame.IsConnectedToServer(rAddress));
 
     return was_successful;
 }

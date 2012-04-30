@@ -35,6 +35,7 @@ or the "Tile Size" submenu.
 enum ThinkModeType {
     THINK_AUTOPLAY,
     THINK_CANCEL,
+    THINK_DISABLE,
     THINK_IDLE,
     THINK_REMOTE,
     THINK_SUGGEST

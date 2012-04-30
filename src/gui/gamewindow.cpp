@@ -225,12 +225,16 @@ void GameWindow::ChangeHand(String const& rOldPlayerName) {
             mpGame->StartClock();
         }
 
-        if (playable_hand.IsAutomatic() && !mpGame->CanRedo()) {
-            // launch autoplay
-            mThinkMode = THINK_AUTOPLAY;
-        } else if (playable_hand.IsRemote() && !mpGame->CanRedo()) {
-            // Expect to get a remote move over the network.
-            mThinkMode = THINK_REMOTE;
+        if (!mpGame->CanRedo()) {
+            if (mpGame->IsDisabled()) {
+                mThinkMode = THINK_DISABLE;
+            } else if (playable_hand.IsAutomatic()) {
+                // Launch autoplay.
+                mThinkMode = THINK_AUTOPLAY;
+            } else if (playable_hand.IsRemote()) {
+                // Expect to get a remote move over the network.
+                mThinkMode = THINK_REMOTE;
+            }
         }
     }
 }
@@ -479,7 +483,7 @@ void GameWindow::HandleMenuCommand(IdType command) {
 
         // Thinking menu options
     case IDM_CANCEL:
-        if (mThinkMode != THINK_AUTOPLAY) {
+        if (mThinkMode != THINK_AUTOPLAY && mThinkMode != THINK_DISABLE) {
             ASSERT(mThinkMode == THINK_SUGGEST || mThinkMode == THINK_REMOTE);
             mThinkMode = THINK_CANCEL;
         }
@@ -1227,12 +1231,36 @@ void GameWindow::Think(void) {
             mThinkMode = THINK_IDLE;
             Play(is_pass);
 
+        } else if (mThinkMode == THINK_DISABLE) {
+            ASSERT(!mpGame->AmClient());
+            Hand playable_hand = *mpGame;
+            Move move;
+            move.MakeResign(Tiles(playable_hand));
+
+            // Commit the move.
+            mpGame->FinishTurn(move);
+            mThinkMode = THINK_IDLE;
+            if (!mpGame->IsOver()) {
+                // The game isn't over yet, so proceed to the next hand.
+                String const old_player_name = SaveHandOptions();
+                mpGame->ActivateNextHand();
+                ChangeHand(old_player_name);
+            } else {
+                GameOver();
+            }
+
         } else if (mThinkMode == THINK_REMOTE) {
             Hand playable_hand = *mpGame;
             Move move;
             bool const success = playable_hand.GetRemoteMove(move);
             if (!success) {
                 move.MakeResign(Tiles(playable_hand));
+                if (mpGame->AmClient()) {
+                    Address const address = Address(playable_hand);
+                    mpGame->DisableServers(address);
+                } else {
+                    mpGame->Disable();
+                }
             }
 
             // Commit the move.

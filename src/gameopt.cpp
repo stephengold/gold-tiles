@@ -211,10 +211,12 @@ AttrType GameOpt::CountAttrValues(AttrIndexType ind) const {
 bool GameOpt::GetFromClient(Socket& rClient) {
     String opt_text;
     bool const success = rClient.GetParagraph(opt_text);
-    *this = GameOpt(opt_text);
-    Validate();
+    if (was_successful) {
+        *this = GameOpt(opt_text);
+        Validate();
+    }
 
-    return success;
+    return was_successful;
 }
 
 void GameOpt::GetUserChoice(void) {

@@ -38,11 +38,13 @@ Game::Game(
     HandOpts const& rHandOptions, 
     Socket const& rClientSocket)
     :
-mClient(rClientSocket),
+    mClient(rClientSocket),
     mOptions(rGameOpt)
 {
     ASSERT(!rHandOptions.IsEmpty());
     ASSERT(rHandOptions.Count() == rGameOpt.HandsDealt());
+
+    mAmClient = !rClientSocket.IsValid();
 
     // Intialize static data of the Cell, Combo, and Tile classes.
     Cell::SetStatic(mOptions);
@@ -56,7 +58,6 @@ mClient(rClientSocket),
             mStockBag.Restock();
         }
     } else {
-        std::cout << "Getting from client:  stock bag contents." << std::endl;
         String stock_text;
         bool const was_successful = mClient.GetLine(stock_text);
         if (was_successful) {
@@ -291,6 +292,13 @@ void Game::DescribeStatus(void) const {
         << std::endl << std::endl << mBoard.Description() << std::endl;
 }
 
+void Game::Disable(void) {
+    ASSERT(!AmClient());
+    ASSERT(mClient.IsValid());
+
+    mClient.Invalidate();
+}
+
 void Game::DisableServers(Address const& rAddress) {
     ASSERT(AmClient());
 
@@ -457,12 +465,9 @@ bool Game::FinishTurn(Move const& rMove) {
 
     String const move_string = rMove;
     if (AmClient()) {
-        bool const was_successful = PutLineToEachServer(move_string);
-        if (!was_successful) {
-            return false;
-        }
+        PutLineToEachServer(move_string);
 
-    } else if (miPlayableHand->IsLocalUser()) {
+    } else if (miPlayableHand->IsLocalUser() && mClient.IsValid()) {
         bool was_successful = mClient.PutLine(move_string);
         if (!was_successful) {
             return false;
@@ -702,7 +707,7 @@ void Game::PlayConsole(void) {
 }
 
 // Put a string (once) to each server.
-bool Game::PutLineToEachServer(String const& rLine) {
+void Game::PutLineToEachServer(String const& rLine) {
     ASSERT(AmClient());
 
     Indices done_addresses;
@@ -712,19 +717,18 @@ bool Game::PutLineToEachServer(String const& rLine) {
         if (r_hand.IsRemote()) {
             Address const address = Address(r_hand);
             IndexType const key = IndexType(address);
-            if (!done_addresses.Contains(key)) {
+            if (!done_addresses.Contains(key)) { // not contacted yet on this round
                 Socket socket = Socket(r_hand);
-                bool const was_successful = socket.PutLine(rLine);
-                if (!was_successful) {
-                    DisableServers(address);
-                    return false;
+                if (socket.IsValid()) { // not disabled
+                    bool const was_successful = socket.PutLine(rLine);
+                    if (!was_successful) {
+                        DisableServers(address);
+                    }
+                    done_addresses.Add(key);
                 }
-                done_addresses.Add(key);
             }
         }
     }
-
-    return true;
 }
 
 void Game::Redo(void) {
@@ -969,9 +973,7 @@ ScoreType Game::WinningScore(void) const {
 // inquiry methods
 
 bool Game::AmClient(void) const {
-    bool const result = !(mClient.IsValid());
-
-    return result;
+    return mAmClient;
 }
 
 bool Game::CanRedo(void) const {
@@ -1020,6 +1022,12 @@ bool Game::IsConnectedToServer(Address const& rServer) const {
             break;
         }
     }
+
+    return result;
+}
+
+bool Game::IsDisabled(void) const {
+    bool const result = (!mAmClient && !mClient.IsValid());
 
     return result;
 }

@@ -67,6 +67,8 @@ public:
     String        BestRunReport(void) const;
     static void   ConsoleGame(void);
     unsigned      CountStock(void) const;
+    void          Disable(void);
+    void          DisableServers(Address const&);
     bool          DrawTiles(unsigned cnt, Hand&, Tiles&);
     String        EndBonus(void);
     bool          FinishTurn(Move const&);
@@ -95,6 +97,7 @@ public:
     bool HasUnsavedChanges(void) const;
     bool IsClockRunning(void) const;
     bool IsConnectedToServer(Address const&) const;
+    bool IsDisabled(void) const;
     bool IsLegalMove(Move const&) const;
     bool IsLegalMove(Move const&, UmType& reason) const;
     bool IsLegalPartial(Partial const&) const;
@@ -108,6 +111,7 @@ private:
     static const unsigned STUCK_THRESHOLD = 7;  // turns before game is declared "stuck" 
 
     // private data
+    bool             mAmClient;
     String           mBestRunReport;
     Board            mBoard;         // extensible playing surface
     Socket           mClient;        // socket for communicating with the client (if a server)
@@ -136,13 +140,12 @@ private:
                ConsiderConsole(Socket&, GameOpt&, HandOpts&);
     void       DescribeScores(void) const;
     void       DescribeStatus(void) const;
-    void       DisableServers(Address const&);
     EndingType Ending(void) const;
     void       FindBestRun(void);
     bool       FirstTurnConsole(void);
     bool       NextTurnConsole(void);
     void       PlayConsole(void);
-    bool       PutLineToEachServer(String const&);
+    void       PutLineToEachServer(String const&);
     Strings    WinningHands(void) const;
     ScoreType  WinningScore(void) const;
 };

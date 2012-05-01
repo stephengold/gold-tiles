@@ -58,6 +58,7 @@ private:
 
     // private constants
     static const NetType LOCALHOST_NET = 127;
+    static const String DEFAULT;
 
     // private data
     String mString;

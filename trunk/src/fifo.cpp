@@ -22,6 +22,7 @@ You should have received a copy of the GNU General Public License
 along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <climits>
 #include "fifo.hpp"
 #include "project.hpp" // ASSERT()
 
@@ -30,6 +31,10 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 
 // construct an empty buffer
 Fifo::Fifo(void) {
+    mSize = INITIAL_SIZE;
+    mpBuffer = new char[mSize];
+    ASSERT(mpBuffer != NULL);
+
     Reset();
 }
 
@@ -48,7 +53,7 @@ char Fifo::GetByte(void) {
     ASSERT(IsValid());
     ASSERT(HasData());
 
-    char const result = mReadBuffer[mConsumedCnt];
+    char const result = mpBuffer[mConsumedCnt];
     mConsumedCnt++;
 
     ASSERT(IsValid());
@@ -64,16 +69,28 @@ void Fifo::PostReceive(int byteCnt) {
     ASSERT(IsValid());
 }
 
-void Fifo::PreReceive(char *&rpStart, int &rByteCnt) {
+void Fifo::PreReceive(char*& rpStart, int& rByteCnt) {
     ASSERT(IsValid());
-    ASSERT(HasSpace());
+
+    if (!HasSpace()) {
+        mSize *= 2;
+        char* p_buffer = new char[mSize];
+        for (int i_byte = mConsumedCnt; i_byte < mValidCnt; i_byte++) {
+            p_buffer[i_byte] = mpBuffer[i_byte];
+        }
+        delete mpBuffer;
+    }
 
     if (mConsumedCnt == mValidCnt) {
         Reset();
     }
 
-    rpStart = mReadBuffer + mValidCnt;
-    rByteCnt = SIZE - mValidCnt;
+    rpStart = mpBuffer + mValidCnt;
+    long byte_cnt = mSize - mValidCnt;
+    if (byte_cnt > INT_MAX) {
+        byte_cnt = INT_MAX;
+    }
+    rByteCnt = byte_cnt;
 
     ASSERT(rByteCnt > 0);
     ASSERT(rpStart != NULL);
@@ -89,7 +106,7 @@ bool Fifo::HasData(void) const {
 }
 
 bool Fifo::HasSpace(void) const {
-    bool const result = (mValidCnt < SIZE || mConsumedCnt == mValidCnt);
+    bool const result = (mValidCnt < mSize || mConsumedCnt == mValidCnt);
 
     return result;
 }
@@ -100,7 +117,8 @@ bool Fifo::IsValid(void) const {
     if (mConsumedCnt < 0
         || mConsumedCnt > mValidCnt
         || mValidCnt < 0
-        || mValidCnt > SIZE)
+        || mValidCnt > mSize
+        || mSize < 0)
     {
         result = false;
     }

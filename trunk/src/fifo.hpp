@@ -38,32 +38,35 @@ class Fifo {
 public:
     // public lifecycle
     Fifo(void);
-    // ~Fifo(void);  compiler-generated destructor is OK
+    ~Fifo(void);
 
     // misc public methods
     char GetByte(void);
-    void PreReceive(char *&dest, int &count);
     void PostReceive(int count);
+    void PreReceive(char*& dest, int& count);
     void Reset(void);
 
     // public inquiry methods
     bool HasData(void) const;
-    bool HasSpace(void) const;
     bool IsValid(void) const;
 
 private:
     // private constants
-    static const int SIZE = 4096;
+    static const long INITIAL_SIZE = 16;
 
     // private data
-    int  mConsumedCnt; // number of consumed bytes in the buffer
-    char mReadBuffer[SIZE];
-    int  mValidCnt;    // number of valid bytes in buffer, including those consumed
+    long   mConsumedCnt; // number of consumed bytes in the buffer
+    char* mpBuffer;
+    long   mSize;        // total size of the buffer, in bytes
+    long   mValidCnt;    // number of valid bytes in buffer, including those consumed
 
     // private lifecycle
     Fifo(Fifo const&); // not copyable
 
     // private operators
     Fifo& operator=(Fifo const&); // not assignable
+
+    // misc private methods
+    bool HasSpace(void) const;
 };
 #endif // !defined(FIFO_HPP_INCLUDED)

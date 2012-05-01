@@ -163,7 +163,7 @@ void Tiles::BuildRuns(Tiles const& rRunSoFar, Tiles& rLongestRun) const {
 AttrIndexType Tiles::CommonAttr(void) const {
     ASSERT(AreAllCompatible());
     ASSERT(Count() > 1);
-    ASSERT(Combo::AttributeCnt() == 2);
+    ASSERT(Combo::AttrCnt() == 2);
 
     ConstIterator i_tile = begin();
     ASSERT(i_tile != end());

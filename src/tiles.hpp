@@ -54,7 +54,7 @@ public:
     void     AddAllTiles(AttrIndexType, Tile& model);
     unsigned BonusFactor(void) const;
     AttrIndexType
-             CommonAttribute(void) const;
+             CommonAttr(void) const;
     bool     CopyIds(Tiles const&);
     String   Description(void) const;
     Tile::IdType

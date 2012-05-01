@@ -42,9 +42,9 @@ Markings::Markings(Tile const& rTile, DisplayModes const& rDisplayModes) {
     mMarkingColor = msColors[0];
     AttrIndexType i_marking = 0;
 
-    for (AttrIndexType i_attr = 0; i_attr < Combo::AttributeCnt(); i_attr++) {
+    for (AttrIndexType i_attr = 0; i_attr < Combo::AttrCnt(); i_attr++) {
         AttrModeType const display_mode = rDisplayModes.Mode(i_attr);
-        AttrType const attr_value = rTile.Attribute(i_attr);
+        AttrType const attr_value = rTile.Attr(i_attr);
         ASSERT(attr_value < Combo::VALUE_CNT_MAX);
 
         if (display_mode == ATTR_MODE_COLOR) {

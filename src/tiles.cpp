@@ -106,11 +106,11 @@ void Tiles::Add(Tile::IdType id) {
 
 // generate tiles for the stock bag - RECURSIVE
 void Tiles::AddAllTiles(AttrIndexType attributeIndex, Tile& rModelTile) {
-    AttrCntType const na = Combo::AttributeCnt();
+    AttrCntType const na = Combo::AttrCnt();
     if (attributeIndex < na) {
         AttrType const max = Combo::ValueMax(attributeIndex);
         for (AttrType attr = 0; attr <= max; attr++) {
-            rModelTile.SetAttribute(attributeIndex, attr);
+            rModelTile.SetAttr(attributeIndex, attr);
             AddAllTiles(attributeIndex + 1, rModelTile);
         }
     } else {
@@ -160,7 +160,7 @@ void Tiles::BuildRuns(Tiles const& rRunSoFar, Tiles& rLongestRun) const {
     }
 }
 
-AttrIndexType Tiles::CommonAttribute(void) const {
+AttrIndexType Tiles::CommonAttr(void) const {
     ASSERT(AreAllCompatible());
     ASSERT(Count() > 1);
     ASSERT(Combo::AttributeCnt() == 2);
@@ -173,7 +173,7 @@ AttrIndexType Tiles::CommonAttribute(void) const {
     ASSERT(i_tile != end());
     Tile const second_tile = *i_tile;
 
-    AttrIndexType const result = first_tile.CommonAttribute(second_tile);
+    AttrIndexType const result = first_tile.CommonAttr(second_tile);
 
     return result;
 }

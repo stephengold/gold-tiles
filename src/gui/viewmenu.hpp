@@ -63,7 +63,7 @@ private:
     SizeMenu mTileSize;
     MenuItem mRecenter;
     MenuItem mAnimation;
-    MenuItem mAttributes;
+    MenuItem mAttrs;
     MenuItem mHints;
     MenuItem mShowClocks;
     MenuItem mShowGrid;

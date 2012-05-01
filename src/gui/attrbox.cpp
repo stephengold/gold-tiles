@@ -88,7 +88,7 @@ AttrBox::operator DisplayModes(void) const {
 }
 
 void AttrBox::BumpDisplayMode(AttrIndexType index) {
-    ASSERT(index < Combo::AttributeCnt());
+    ASSERT(index < Combo::AttrCnt());
 
     // list all available modes
     Indices unused_modes;
@@ -97,7 +97,7 @@ void AttrBox::BumpDisplayMode(AttrIndexType index) {
     }
 
     // remove modes used for other attributes
-    for (AttrIndexType i_attr = 0; i_attr < Combo::AttributeCnt(); i_attr++) {
+    for (AttrIndexType i_attr = 0; i_attr < Combo::AttrCnt(); i_attr++) {
         if (i_attr != index) {
             ValueType const mode = mDisplayModes.Mode(i_attr);
             if (unused_modes.Contains(mode)) {
@@ -147,8 +147,8 @@ INT_PTR AttrBox::HandleMessage(MessageType message, WPARAM wParam, LPARAM lParam
     case WM_INITDIALOG: {
         Dialog::HandleMessage(message, wParam);
 
-        for (AttrIndexType i_attr = 0; i_attr < Combo::ATTRIBUTE_CNT_MAX; i_attr++) {
-            bool const enable_flag = (i_attr < Combo::AttributeCnt());
+        for (AttrIndexType i_attr = 0; i_attr < Combo::ATTR_CNT_MAX; i_attr++) {
+            bool const enable_flag = (i_attr < Combo::AttrCnt());
             IdType const listbox_id = ListboxId(i_attr);
             EnableControl(listbox_id, enable_flag);
 
@@ -231,7 +231,7 @@ void AttrBox::UpdateValue(IdType listboxId, AttrModeType value) {
     // only one attribute can use color
     if (value == ValueType(ATTR_MODE_COLOR)) {
         // check whether another attribute is already using color
-        for (AttrIndexType i_attr = 0; i_attr < Combo::AttributeCnt(); i_attr++) {
+        for (AttrIndexType i_attr = 0; i_attr < Combo::AttrCnt(); i_attr++) {
             if (i_attr != ind && mDisplayModes.IsColor(i_attr)) {
                 BumpDisplayMode(i_attr);
                 break;

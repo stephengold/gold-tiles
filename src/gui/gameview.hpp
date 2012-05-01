@@ -124,7 +124,7 @@ private:
     LogicalXType  CellX(ColumnType) const;
     LogicalYType  CellY(RowType) const;
     String        ClockText(Hand&) const;
-    AttrIndexType ColorAttribute(void) const;
+    AttrIndexType ColorAttr(void) const;
     void          DrawBlankTile(Canvas&, Point const&, bool bonus, bool odd);
     void          DrawBoard(Canvas&, unsigned layer);
     void          DrawCell(Canvas&, Cell const&, Point const&, unsigned swapCnt);

@@ -127,8 +127,8 @@ GameOpt::operator String(void) const {
 // misc methods
 
 AttrCntType GameOpt::AttrCnt(void) const {
-    ASSERT(mAttrCnt >= Combo::ATTRIBUTE_CNT_MIN);
-    ASSERT(mAttrCnt <= Combo::ATTRIBUTE_CNT_MAX);
+    ASSERT(mAttrCnt >= Combo::ATTR_CNT_MIN);
+    ASSERT(mAttrCnt <= Combo::ATTR_CNT_MAX);
 
     return mAttrCnt;
 }
@@ -140,8 +140,8 @@ String GameOpt::AttrReport(void) const {
         result += " " + ::ordinal(i_attr + 1) + " attribute ranges from ";
 
         AttrModeType const display_mode = Combo::DefaultDisplayMode(i_attr);
-        result += Combo::AttributeToString(display_mode, 0) + " to ";
-        result += Combo::AttributeToString(display_mode, value_max) + "\n";
+        result += Combo::AttrToString(display_mode, 0) + " to ";
+        result += Combo::AttrToString(display_mode, value_max) + "\n";
     }
     result += "\n";
 
@@ -281,8 +281,8 @@ unsigned GameOpt::SecondsPerHand(void) const {
 }
 
 void GameOpt::SetAttrCnt(AttrCntType attrCnt) {
-    ASSERT(attrCnt >= Combo::ATTRIBUTE_CNT_MIN);
-    ASSERT(attrCnt <= Combo::ATTRIBUTE_CNT_MAX);
+    ASSERT(attrCnt >= Combo::ATTR_CNT_MIN);
+    ASSERT(attrCnt <= Combo::ATTR_CNT_MAX);
 
     mAttrCnt = attrCnt;
 }
@@ -373,7 +373,7 @@ void GameOpt::SetRules(RulesType rules) {
 }
 
 void GameOpt::Standardize(void) {
-    mAttrCnt = Combo::ATTRIBUTE_CNT_DEFAULT;
+    mAttrCnt = Combo::ATTR_CNT_DEFAULT;
     mMaxAttrValues.clear();
     for (unsigned i_attr = 0; i_attr < mAttrCnt; i_attr++) {
         mMaxAttrValues.push_back(Combo::VALUE_CNT_DEFAULT - 1);
@@ -419,8 +419,8 @@ long GameOpt::TotalTileCnt(void) const {
 }
 
 void GameOpt::Validate(void) const {
-    ASSERT(mAttrCnt >= Combo::ATTRIBUTE_CNT_MIN);
-    ASSERT(mAttrCnt <= Combo::ATTRIBUTE_CNT_MAX);
+    ASSERT(mAttrCnt >= Combo::ATTR_CNT_MIN);
+    ASSERT(mAttrCnt <= Combo::ATTR_CNT_MAX);
     ASSERT(::is_even(mBoardHeight));
     ASSERT(mBoardHeight >= Cell::HEIGHT_MIN);
     ASSERT(mBoardHeight <= Cell::HEIGHT_MAX);

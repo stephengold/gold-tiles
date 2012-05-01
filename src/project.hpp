@@ -20,8 +20,8 @@
 #elif defined(_WINDOWS)
 # define _GUI
 # define Q_OBJECT
-# define _SERVER
 # define _CLIENT
+# define _SERVER
 
 #elif !defined(_CONSOLE)
 # define _CONSOLE

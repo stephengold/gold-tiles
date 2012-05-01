@@ -38,11 +38,17 @@ using Win::PMIB_IPADDRTABLE;
 #endif // defined(_WINSOCK2)
 
 
+// static constants
+
+const String Address::DEFAULT("172.27.100.25");
+
+
 // lifecycle
 
 Address::Address(void):
-mString("0.0.0.0")
-{}
+mString(DEFAULT)
+{
+}
 
 // The compiler-generated copy constructor is fine.
 

@@ -101,7 +101,7 @@ int main(int argCnt, char** argValues) {
 
 #elif defined(_WINDOWS)
 
-    // Instantiate top window and display it.
+    // Instantiate a game window and display it.
     p_window = new GameWindow(applicationInstance, NULL);
     p_window->Show(showHow);
 

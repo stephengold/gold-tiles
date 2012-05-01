@@ -210,7 +210,7 @@ AttrType GameOpt::CountAttrValues(AttrIndexType ind) const {
 // Return true if successful, false if canceled.
 bool GameOpt::GetFromClient(Socket& rClient) {
     String opt_text;
-    bool const success = rClient.GetParagraph(opt_text);
+    bool const was_successful = rClient.GetParagraph(opt_text);
     if (was_successful) {
         *this = GameOpt(opt_text);
         Validate();

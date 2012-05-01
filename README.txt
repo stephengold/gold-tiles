@@ -1,4 +1,4 @@
-README.txt for Release 0.81 of the Gold Tile Game
+README.txt for Release 0.9 of the Gold Tile Game
 programmed by Stephen Gold (sgold@sonic.net)
 
 Gold Tile is a turn-based multi-player game in which tiles 
@@ -55,3 +55,4 @@ RELEASE LOG
   0.7    4 March 2012       implemented automatic play and suggestions
   0.8   31 March 2012       add undo/restart/redo, bonus tiles, & adisp modes
   0.81  24 April 2012       warm tiles, Think menu, more topologies and sizes
+  0.9   30 April 2012       first cut at network play

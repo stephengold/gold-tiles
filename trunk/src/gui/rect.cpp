@@ -22,12 +22,11 @@ You should have received a copy of the GNU General Public License
 along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "fractionpair.hpp"
+#include "gui/fractionpair.hpp"
+#include "gui/rect.hpp"
 
 #ifdef _WINDOWS
-#include "gui/win.hpp"
 #include "gui/win_types.hpp"
-#include "rect.hpp"
 
 // lifecycle
 

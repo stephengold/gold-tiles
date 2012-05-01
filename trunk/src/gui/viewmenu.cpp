@@ -67,7 +67,7 @@ ViewMenu::ViewMenu(Menu const& rRootMenu, unsigned position):
 SubMenu(rRootMenu, position),
     mTileSize(rRootMenu, 0),
     mRecenter(rRootMenu, IDM_RECENTER),
-    mAttributes(rRootMenu, IDM_ATTRIBUTES),
+    mAttrs(rRootMenu, IDM_ATTRIBUTES),
     mHints(rRootMenu, IDM_HINTS),
     mShowClocks(rRootMenu, IDM_SHOW_CLOCKS),
     mShowGrid(rRootMenu, IDM_SHOW_GRID),
@@ -90,7 +90,7 @@ void ViewMenu::EnableItems(Partial const& rPartial, ThinkModeType thinkMode) {
 
     mTileSize.Enable(true);
     mRecenter.Enable(true);
-    mAttributes.Enable(true);
+    mAttrs.Enable(true);
     mHints.Enable(!is_over && is_local);
     mShowClocks.Enable(true);
     mShowGrid.Enable(true);

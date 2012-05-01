@@ -153,7 +153,7 @@ void Canvas::DrawMarking(
     case ATTR_MODE_123: {
         UseColors(backgroundColor, markingColor);
 
-        String const ch = Combo::AttributeToString(displayMode, marking);
+        String const ch = Combo::AttrToString(displayMode, marking);
         UseFont(rBounds.Height(), rBounds.Width());
         DrawTextLine(rBounds, ch);
         UseFont(FONT_HEIGHT_DEFAULT);

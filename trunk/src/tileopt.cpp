@@ -75,20 +75,20 @@ TileOpt::operator String(void) const {
 
 // misc methods
 
-AttrType TileOpt::Attribute(AttrIndexType index) const {
-    AttrType const result = mCombo.Attribute(index);
+AttrType TileOpt::Attr(AttrIndexType index) const {
+    AttrType const result = mCombo.Attr(index);
 
     return result;
 }
 
-AttrIndexType TileOpt::CommonAttribute(TileOpt const& rOther) const {
-    AttrIndexType const result = mCombo.CommonAttribute(rOther.mCombo);
+AttrIndexType TileOpt::CommonAttr(TileOpt const& rOther) const {
+    AttrIndexType const result = mCombo.CommonAttr(rOther.mCombo);
 
     return result;
 }
 
-AttrCntType TileOpt::CountMatchingAttributes(TileOpt const& rOther) const {
-    AttrCntType const result = mCombo.CountMatchingAttributes(rOther.mCombo);
+AttrCntType TileOpt::CountMatchingAttrs(TileOpt const& rOther) const {
+    AttrCntType const result = mCombo.CountMatchingAttrs(rOther.mCombo);
 
     return result;
 }
@@ -116,8 +116,8 @@ String TileOpt::Description(void) const {
     return result;
 }
 
-void TileOpt::SetAttribute(AttrIndexType index, AttrType value) {
-    mCombo.SetAttribute(index, value);
+void TileOpt::SetAttr(AttrIndexType index, AttrType value) {
+    mCombo.SetAttr(index, value);
 }
 
 void TileOpt::SetBonus(bool newBonus) {
@@ -127,8 +127,8 @@ void TileOpt::SetBonus(bool newBonus) {
 
 // inquiry methods
 
-bool TileOpt::HasAttribute(AttrIndexType index, AttrType value) const {
-    bool const result = mCombo.HasAttribute(index, value);
+bool TileOpt::HasAttr(AttrIndexType index, AttrType value) const {
+    bool const result = mCombo.HasAttr(index, value);
 
     return result;
 }

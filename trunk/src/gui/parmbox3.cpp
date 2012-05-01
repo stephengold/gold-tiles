@@ -92,7 +92,7 @@ INT_PTR ParmBox3::HandleMessage(MessageType message, WPARAM wParam, LPARAM lPara
         InitControl(IDC_SLIDER2, mrGameOpt.HandSize(), 
             GameOpt::HAND_SIZE_MIN, HAND_SIZE_MAX);
         InitControl(IDC_SLIDER3, mrGameOpt.AttrCnt(), 
-            Combo::ATTRIBUTE_CNT_MIN, Combo::ATTRIBUTE_CNT_MAX);
+            Combo::ATTR_CNT_MIN, Combo::ATTR_CNT_MAX);
         InitControl(IDC_SLIDER4, mrGameOpt.ClonesPerCombo(),
             0, CLONES_PER_COMBO_MAX);
         InitControl(IDC_SLIDER5, mrGameOpt.BonusPercent(),
@@ -275,8 +275,8 @@ void ParmBox3::UpdateValue(IdType sliderId, ValueType value) {
         mrGameOpt.SetHandSize(value);
         break;
     case IDC_SLIDER3: {
-        ASSERT(value >= Combo::ATTRIBUTE_CNT_MIN);
-        ASSERT(value <= Combo::ATTRIBUTE_CNT_MAX);
+        ASSERT(value >= Combo::ATTR_CNT_MIN);
+        ASSERT(value <= Combo::ATTR_CNT_MAX);
         AttrCntType attr_cnt = AttrCntType(value);
         mrGameOpt.SetAttrCnt(attr_cnt);
         break;

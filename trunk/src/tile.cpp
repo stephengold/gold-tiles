@@ -127,9 +127,9 @@ Tile::operator TileOpt(void) const {
 
 // misc methods
 
-AttrType Tile::Attribute(AttrIndexType index) const {
+AttrType Tile::Attr(AttrIndexType index) const {
     TileOpt const& r_opt = msOpts[mId];
-    AttrType const result = r_opt.Attribute(index);
+    AttrType const result = r_opt.Attr(index);
 
     return result;
 }
@@ -156,10 +156,10 @@ Tile Tile::CloneAndSetBonus(void) const {
 }
 
 // Identify the common attribute of a compatible tile.
-AttrIndexType Tile::CommonAttribute(Tile const& rOther) const {
+AttrIndexType Tile::CommonAttr(Tile const& rOther) const {
     TileOpt const& r_opt = msOpts[mId];
     TileOpt const& r_other = msOpts[rOther.mId];
-    AttrIndexType const result = r_opt.CommonAttribute(r_other);
+    AttrIndexType const result = r_opt.CommonAttr(r_other);
 
     return result;
 }
@@ -219,9 +219,9 @@ Tile::IdType Tile::Id(void) const {
     return result;
 }
 
-void Tile::SetAttribute(AttrIndexType index, AttrType value) {
+void Tile::SetAttr(AttrIndexType index, AttrType value) {
     TileOpt& r_opt = msOpts[mId];
-    r_opt.SetAttribute(index, value);
+    r_opt.SetAttr(index, value);
 }
 
 /* static */ void Tile::SetStatic(GameOpt const& rGameOpt) {
@@ -236,9 +236,9 @@ void Tile::SetAttribute(AttrIndexType index, AttrType value) {
 
 // inquiry methods
 
-bool Tile::HasAttribute(AttrIndexType index, AttrType value) const {
+bool Tile::HasAttr(AttrIndexType index, AttrType value) const {
     TileOpt const& r_opt = msOpts[mId];
-    bool const result = r_opt.HasAttribute(index, value);
+    bool const result = r_opt.HasAttr(index, value);
 
     return result;
 }

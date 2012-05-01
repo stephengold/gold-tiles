@@ -57,6 +57,6 @@ public:
 
 private:
     // private data
-    AttrModeType mArray[Combo::ATTRIBUTE_CNT_MAX];
+    AttrModeType mArray[Combo::ATTR_CNT_MAX];
 };
 #endif // !defined(DISPLAYMODES_HPP_INCLUDED)

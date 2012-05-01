@@ -44,7 +44,7 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 
 // Convert the entire board to a string for console output.
 String Board::Description(void) const {
-    unsigned const width = Combo::AttributeCnt() + 4;
+    unsigned const width = Combo::AttrCnt() + 4;
 
     String result(width, ' ');
     for (ColumnType column = -WestMax(); column <= EastMax(); column++) {
@@ -206,9 +206,9 @@ ScoreType Board::ScoreDirection(
         result *= bonus_factor;
 
         // special bonus for two-attribute games
-        if (Combo::AttributeCnt() == 2) {
+        if (Combo::AttrCnt() == 2) {
             // determine the common attribute
-            AttrIndexType const common_attr = tiles.CommonAttribute();
+            AttrIndexType const common_attr = tiles.CommonAttr();
             AttrIndexType const other_attr = 1 - common_attr;
             unsigned const max_length = Combo::ValueCnt(other_attr);
 

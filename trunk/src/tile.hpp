@@ -74,19 +74,19 @@ public:
     operator String(void) const;
 
     // misc public methods
-    AttrType      Attribute(AttrIndexType) const;
+    AttrType      Attr(AttrIndexType) const;
     static double BonusProbability(void);
     Tile          CloneAndSetBonus(void) const;
-    AttrIndexType CommonAttribute(Tile const&) const;
+    AttrIndexType CommonAttr(Tile const&) const;
     String        Description(void) const;
     String        GetUserChoice(Tiles const&, Strings const&);
     IdType        Id(void) const;
     static void   PurgeRemoteTiles(void); // TODO
-    void          SetAttribute(AttrIndexType, AttrType);
+    void          SetAttr(AttrIndexType, AttrType);
     static void   SetStatic(GameOpt const&);
 
     // public inquiry methods
-    bool HasAttribute(AttrIndexType, AttrType) const;
+    bool HasAttr(AttrIndexType, AttrType) const;
     bool HasBonus(void) const;
     bool HasId(IdType) const;
     bool HasOpt(TileOpt const&) const;

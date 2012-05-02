@@ -225,12 +225,15 @@ void Tile::SetAttr(AttrIndexType index, AttrType value) {
 }
 
 /* static */ void Tile::SetStatic(GameOpt const& rGameOpt) {
-    double const bonus_probability = rGameOpt.BonusPercent()/100.0;
+    Combo::SetStatic(rGameOpt);
 
+    double const bonus_probability = rGameOpt.BonusPercent()/100.0;
     ASSERT(bonus_probability >= 0.0);
     ASSERT(bonus_probability <= 1.0);
-
     msBonusProbability = bonus_probability;
+
+    msNextId = ID_FIRST;
+    msOpts.clear();
 }
 
 

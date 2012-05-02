@@ -46,9 +46,8 @@ Game::Game(
 
     mAmClient = !rClientSocket.IsValid();
 
-    // Intialize static data of the Cell, Combo, and Tile classes.
+    // Intialize static data of the Cell and Tile classes.
     Cell::SetStatic(mOptions);
-    Combo::SetStatic(mOptions);
     Tile::SetStatic(mOptions);
 
     // Add tiles to the stock bag.

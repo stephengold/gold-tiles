@@ -81,7 +81,6 @@ public:
     String        Description(void) const;
     String        GetUserChoice(Tiles const&, Strings const&);
     IdType        Id(void) const;
-    static void   PurgeRemoteTiles(void); // TODO
     void          SetAttr(AttrIndexType, AttrType);
     static void   SetStatic(GameOpt const&);
 

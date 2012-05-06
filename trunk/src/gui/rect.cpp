@@ -24,17 +24,28 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "gui/fractionpair.hpp"
 #include "gui/rect.hpp"
-
 #ifdef _WINDOWS
-#include "gui/win_types.hpp"
+# include "gui/win_types.hpp"
+#endif // defined(_WINDOWS)
+
 
 // lifecycle
 
-Rect::Rect(RECT const& rStruct) {
-    mTop = rStruct.top;
-    mLeft = rStruct.left;
-    mRight = rStruct.right;
-    mBottom = rStruct.bottom;
+
+Rect::Rect(RECT const& rRect) {
+#ifdef _WINDOWS
+    mTop = rRect.top;
+    mLeft = rRect.left;
+    mRight = rRect.right;
+    mBottom = rRect.bottom;
+#elif defined(_QT)
+    mTop = rRect.top();
+    mLeft = rRect.left();
+    mRight = rRect.right() + 1;
+    mBottom = rRect.bottom() + 1;
+#endif // defined(_QT)
+
+    ASSERT(BottomY() >= TopY());
 }
 
 Rect::Rect(Point const& rUlc, Point const& rBrc) {
@@ -44,6 +55,7 @@ Rect::Rect(Point const& rUlc, Point const& rBrc) {
     mBottom = rBrc.Y();
 
     ASSERT(Brc() == rBrc);
+    ASSERT(BottomY() >= TopY());
 }
 
 Rect::Rect(Point const& rUlc, PixelCntType width, PixelCntType height) {
@@ -54,6 +66,7 @@ Rect::Rect(Point const& rUlc, PixelCntType width, PixelCntType height) {
 
     ASSERT(Width() == width);
     ASSERT(Height() == height);
+    ASSERT(BottomY() >= TopY());
 }
 
 Rect::Rect(
@@ -72,19 +85,26 @@ Rect::Rect(
 
     ASSERT(Width() == width);
     ASSERT(Height() == height);
+    ASSERT(BottomY() >= TopY());
 }
+
 
 // operators
 
 Rect::operator RECT(void) const {
+#ifdef _QT
+    QRect result(mLeft, mTop, Width(), Height());
+#elif defined(_WINDOWS)
     RECT result;
     result.top = mTop;
     result.bottom = mBottom;
     result.left = mLeft;
     result.right = mRight;
+#endif // defined(_WINDOWS)
 
     return result;
 }
+
 
 // misc methods
 
@@ -279,4 +299,3 @@ bool Rect::Contains(Rect const& rOther) const {
 
     return result; 
 }
-#endif // defined(_WINDOWS)

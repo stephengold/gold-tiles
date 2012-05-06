@@ -32,7 +32,13 @@ of a window.
 The Point class is encapsulates a logical X coordinate and a logical Y coordinate. 
 */
 
-#include "gui/win.hpp"  //  Win::POINT
+#ifdef _WINDOWS
+# include "gui/win.hpp"  //  Win::POINT
+using Win::POINT;
+#elif defined(_QT)
+# include <QPoint>
+typedef QPoint POINT;
+#endif // defined(_QT)
 
 typedef long LogicalXType;
 typedef long LogicalYType;
@@ -43,16 +49,20 @@ public:
     // public lifecycle
     // no default constructor
     // Point(Point const&);  compiler-generated copy constructor is OK
-    explicit Point(Win::POINT const&);
+    explicit Point(POINT const&);
+#ifdef _WINDOWS
     explicit Point(Win::POINTS const&);
+#endif // defined(_WINDOWS)
     Point(LogicalXType, LogicalYType);
     // ~Point(void);
 
     // public operators
     //Point& operator=(Point const&);  compiler-generated assignment operator is OK
     bool operator==(Point const&) const;
-    operator Win::POINT(void) const;
+    operator POINT(void) const;
+#ifdef _WINDOWS
     operator Win::POINTS(void) const;
+#endif // defined(_WINDOWS)
 
     // misc public methods
     PixelCntType Distance(Point const&) const;

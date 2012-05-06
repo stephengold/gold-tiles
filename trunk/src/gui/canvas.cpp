@@ -22,7 +22,6 @@ You should have received a copy of the GNU General Public License
 along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifdef _WINDOWS
 #include <math.h>
 #include "cell.hpp"
 #include "gui/canvas.hpp"
@@ -39,7 +38,7 @@ Poly Canvas::msTargetArrow;         // polygon for target cell arrow
 // lifecycle
 
 Canvas::Canvas(Window& rWindow):
-Graphics(rWindow.PaintDevice(), rWindow, false, true)
+Graphics(rWindow)
 {
     // static polygons initialized on first instantiation of this class
     if (msShapes.size() == 0) {
@@ -437,4 +436,3 @@ Rect Canvas::DrawTile(
 
     return interior;
 }
-#endif // defined(_WINDOWS)

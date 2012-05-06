@@ -36,11 +36,20 @@ A Window object represents an overlapped GUI window with the following feaures:
 The Window class is implemented by extending the BaseWindow class.
 */
 
-#include "gui/basewindow.hpp" // ISA BaseWindow
-#include "gui/rect.hpp"       // HASA PixelCntType
+#ifdef _WINDOWS
+# include "gui/basewindow.hpp" // ISA BaseWindow
+#elif defined(_QT)
+# include <QMainWindow>        // ISA QMainWindow
+#endif // defined(_QT)
+#include "gui/rect.hpp"        // HASA PixelCntType
 
-
-class Window: public BaseWindow {
+class Window: public
+#ifdef _WINDOWS
+ BaseWindow
+#elif defined(_QT)
+ QMainWindow
+#endif // defined(_QT)
+{
 public:
     // public lifecycle
     Window(void);
@@ -50,32 +59,40 @@ public:
     operator Rect(void) const;
 
     // misc public methods
-    Point        Brc(void) const;
-    PixelCntType ClientAreaHeight(void) const;
-    PixelCntType ClientAreaWidth(void) const;
-    Win::LRESULT HandleMessage(MessageType, Win::WPARAM, Win::LPARAM); 
-    void         InfoBox(TextType message, TextType title);
-    int          MessageDispatchLoop(void);
-    Win::HDC     PaintDevice(void) const;
-    int          QuestionBox(TextType message, TextType title);
-    bool         RetryBox(TextType message, TextType title);
-    void         Show(int showHow);
-    void         Yields(void);
+    Point         Brc(void) const;
+    PixelCntType  ClientAreaHeight(void) const;
+    PixelCntType  ClientAreaWidth(void) const;
+#ifdef _WINDOWS
+    Win::LRESULT  HandleMessage(MessageType, Win::WPARAM, Win::LPARAM);
+#endif // defined(_WINDOWS)
+    void          InfoBox(TextType message, TextType title);
+    int           MessageDispatchLoop(void);
+#ifdef _WINDOWS
+    Win::HDC      PaintDevice(void) const;
+#endif // defined(_QT)
+    int           QuestionBox(TextType message, TextType title);
+    bool          RetryBox(TextType message, TextType title);
+    void          Show(int showHow);
+    void          Yields(void);
 
 protected:
-    // protected lifecycle
-    void Initialize(Win::CREATESTRUCT const&);
-
     // misc protected methods
+#ifdef _WINDOWS
     void* AddFiber(void (CALLBACK& routine)(void*));
+#endif // defined(_WINDOWS)
     void  BeginPaint(void);
     void  CaptureMouse(void);
     void  Close(void);
-    void  Create(String const& className, Rect const&, 
+#ifdef _WINDOWS
+    void  Create(String const& className, Rect const&,
               BaseWindow* parent, Win::HINSTANCE);
+#endif // defined(_WINDOWS)
     void  EndPaint(void);
     void  ErrorBox(TextType message, TextType title);
     void  ForceRepaint(void);
+#ifdef _WINDOWS
+    void  Initialize(Win::CREATESTRUCT const&);
+#endif // defined(_WINDOWS)
     bool  IsMouseCaptured(void) const;
     void  ReleaseMouse(void);
     void  SelfDestruct(void);
@@ -92,12 +109,14 @@ protected:
     void  WarpCursor(Point const&);
 
 private:
+#ifdef _WINDOWS
     Win::HACCEL      mAcceleratorTable;
     PixelCntType     mClientAreaHeight;
     PixelCntType     mClientAreaWidth;
     void*            mMainFiber;
     Win::HDC         mPaintDevice;
     Win::PAINTSTRUCT mPaintStruct;
+#endif // defined(_WINDOWS)
 
     // private lifecycle
     Window(Window const&); // not copyable
@@ -106,9 +125,11 @@ private:
     Window& operator=(Window const&); // not assignable
 
     // misc private methods
+#ifdef _WINDOWS
     bool GetAMessage(Win::MSG&, int& exitCode);
     void SetCursor(Win::LPSTR);
     void TranslateAndDispatch(Win::MSG&);
+#endif // defined(_WINDOWS)
 
     // private inquiry methods
     bool HasAMessage(void) const;

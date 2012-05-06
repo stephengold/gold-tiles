@@ -34,8 +34,8 @@ The Poly class is implemented as a list of FractionPair objects.
 
 #include <vector>               // ISA std::vector
 #include "gui/fractionpair.hpp" // HASA FractionPair
-#include "gui/win.hpp"          // Win::POINT
-#include "project.hpp"          // Rect
+#include "gui/point.hpp"        // USES POINT
+#include "project.hpp"          // USES Rect
 
 
 class Poly: public std::vector<FractionPair> {
@@ -55,8 +55,7 @@ public:
     // misc public methods
     void     Add(double x, double y);
     unsigned Count(void) const;
-    void     GetPoints(Win::POINT points[], unsigned numPoints, 
-                 Rect const& bounds, bool invert) const;    
+    void     GetPoints(POINT points[], unsigned numPoints,
+                 Rect const& bounds, bool invert) const;
 };
 #endif // !defined(POLY_HPP_INCLUDED)
-

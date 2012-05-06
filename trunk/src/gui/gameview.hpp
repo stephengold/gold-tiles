@@ -34,9 +34,8 @@ Drawing is performed on a temporary Canvas owned by the caller.
 */
 
 #include "partial.hpp"          // ISA Partial
-#include "gui/color.hpp"        // USES ColorType
 #include "gui/displaymodes.hpp" // HASA DisplayModes
-#include "gui/rect.hpp"         // HASA Rect
+#include "gui/graphics.hpp"     // HASA ColorType
 
 
 class GameView: public Partial {

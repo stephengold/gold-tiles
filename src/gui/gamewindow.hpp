@@ -34,32 +34,23 @@ In the Qt version, the GameWindow class extends the QMainWindow class.
 
 #include "gui/gameview.hpp" // HASA GameView
 #include "gui/submenu.hpp"  // HASA ThinkModeType
-#ifdef _QT
-# include <QMainWindow>
-# include "gui/rect.hpp"
-#elif defined(_WINDOWS)
-# include "gui/color.hpp"
-# include "gui/window.hpp"   // ISA Window
-#endif // defined(_WINDOWS)
+#include "gui/window.hpp"   // ISA Window
 
 #ifdef _QT
 namespace Ui {
     class GameWindow;
 }
-class GameWindow: public QMainWindow {
-    Q_OBJECT
-#elif defined(_WINDOWS)
-class GameWindow: public Window {
 #endif // defined(_QT)
 
+class GameWindow: public Window {
 public:
     // public lifecycle
     // no default constructor
 #ifdef _QT
     explicit GameWindow(Game* game = NULL);
 #elif defined(_WINDOWS)
-    GameWindow(Win::HINSTANCE, Game* game = NULL);
-#endif // defined(_QT)
+    explicit GameWindow(Win::HINSTANCE, Game* game = NULL);
+#endif // defined(_WINDOWS)
     ~GameWindow(void);
 
     // misc public methods
@@ -103,7 +94,6 @@ private:
 
     // private lifecycle
     GameWindow(GameWindow const&); // not copyable
-    void Initialize(Win::CREATESTRUCT const&);
 
     // private operators
     GameWindow& operator=(GameWindow const&); // not assignable
@@ -113,11 +103,16 @@ private:
     TextType ClassName(void) const;
     int      CreateNewGame(void);
     void     DiscardGame(void);
+#ifdef _WINDOWS
+    void     Initialize(Win::CREATESTRUCT const&);
+#endif // defined(_WINDOWS)
     void     GameOver(void);
     int      GameWarnBox(TextType message);
     void     HandleButtonDown(Point const&);
     void     HandleButtonUp(Point const&);
+#ifdef _WINDOWS
     void     HandleMenuCommand(IdType);
+#endif // defined(_WINDOWS)
     void     HandleMouseMove(Point const&);
     void     InfoBox(TextType message);
     void     LoadPlayerOptions(Hand const&);
@@ -136,7 +131,9 @@ private:
     String   SaveHandOptions(void) const;
     void     SavePlayerOptions(Hand const&) const;
     void     SetGame(Game* pGame);
+#ifdef _WINDOWS
     void     SetTileSize(IdType);
+#endif // defined(_WINDOWS)
     void     StopDragging(void);
     void     UndoTurn(void);
     void     UpdateMenuBar(void);

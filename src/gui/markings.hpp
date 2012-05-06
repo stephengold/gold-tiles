@@ -32,8 +32,8 @@ The Markings class encapsulates the tile's foreground color, its markings,
 and the display method for each marking.
 */
 
-#include "gui/color.hpp"  // HASA ColorType
-#include "tile.hpp"       // HASA AttrCntType
+#include "gui/graphics.hpp" // HASA ColorType
+#include "tile.hpp"         // HASA AttrCntType
 
 
 class Markings {

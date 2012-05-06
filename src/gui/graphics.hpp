@@ -27,15 +27,42 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 
 /*
 A Graphics object is used to draw shapes and text to the client area
-of a Window.
+of a Window.  Double buffering is provided.
 
 The Graphics class is implemented by encapsulating a pair of GDI device 
 contexts:  mDraw for drawing and mDevice for the physical device.
 */
 
-#include "gui/color.hpp"  // HASA ColorType
 #include "gui/rect.hpp"   // HASA Rect
+#ifdef _WINDOWS
+# include "gui/win.hpp"   // Win::COLORREF
+using Win::COLORREF;
+#elif defined(_QT)
+# define PALETTERGB QColor
+typedef QColor COLORREF;
+#endif // defined(_QT)
 
+// all colors used in the game
+enum ColorType {
+    COLOR_BLACK,
+    COLOR_DARK_GRAY,
+    COLOR_MEDIUM_GRAY,
+    COLOR_LIGHT_GRAY,
+    COLOR_WHITE,
+    COLOR_RED,
+    COLOR_PINK,
+    COLOR_BROWN,
+    COLOR_YELLOW,
+    COLOR_DULL_GOLD,
+    COLOR_GOLD,
+    COLOR_DARK_GREEN,
+    COLOR_GREEN,
+    COLOR_LIGHT_GREEN,
+    COLOR_DARK_BLUE,
+    COLOR_LIGHT_BLUE,
+    COLOR_PURPLE,
+    COLOR_TRANSPARENT
+};
 
 class Graphics {
 public:
@@ -44,7 +71,7 @@ public:
 
     // public lifecycle
     // no default constructor
-    Graphics(Win::HDC, Window&, bool releaseMe, bool doubleBufferingOption);
+    explicit Graphics(Window&);
     virtual ~Graphics(void);
 
     // misc public methods
@@ -73,17 +100,21 @@ private:
     typedef unsigned short TextSizeType;
 
     // private constants
+    static const ColorType    BRUSH_COLOR_DEFAULT = COLOR_WHITE;
     static const PixelCntType FONT_HEIGHT_MAX = 999;
-    static const PixelCntType FONT_HEIGHT_MIN = 4;
-    static const PixelCntType FONT_WIDTH_MIN = 4;
+    static const PixelCntType FONT_HEIGHT_MIN = 6;
+    static const PixelCntType FONT_WIDTH_MIN = 2;
+    static const ColorType    PEN_COLOR_DEFAULT = COLOR_BLACK;
     static const TextSizeType TEXT_SIZE_MAX = 13;
     static const TextSizeType TEXT_SIZE_CNT = TEXT_SIZE_MAX + 1;
 
+#ifdef _WINDOWS
     // private data - saved GDI handles
     Win::HGDIOBJ mBitmapSave;
     Win::HGDIOBJ mBrushSave;
     Win::HGDIOBJ mFontSave;
     Win::HGDIOBJ mPenSave;
+#endif // defined(_WINDOWS)
 
     // private data - current colors and fonts
     ColorType    mBackgroundColor;  // background color and mode for text and broken lines
@@ -93,7 +124,11 @@ private:
     TextSizeType mTextSize;         // size for text
 
     // private data - preselected fonts
+#ifdef _QT
+    QFont*      mpFonts[TEXT_SIZE_CNT];
+#elif defined(_WINDOWS)
     Win::HFONT   mFonts[TEXT_SIZE_CNT];
+#endif // defined(_WINDOWS)
     PixelCntType mFontHeight[TEXT_SIZE_CNT];
     PixelCntType mFontWidth[TEXT_SIZE_CNT];
 
@@ -102,11 +137,15 @@ private:
     static Poly msHexagon;
 
     // private data - misc
-    Win::HDC  mDevice;
-    Win::HDC  mDraw;
-    Rect      mRect;
-    bool      mReleaseMe;
-    Win::HWND mWindow;
+#ifdef _WINDOWS
+    Win::HDC   mDevice;
+    Win::HDC   mDraw;
+    Rect       mRect;
+    bool       mReleaseMe;
+    Win::HWND  mWindow;
+#elif defined(_QT)
+    QPainter* mpDraw;
+#endif // defined(_QT)
 
     // private lifecycle
     Graphics(Graphics const&);  // not copyable
@@ -115,6 +154,8 @@ private:
     Graphics& operator=(Graphics const&);  // not assignable
 
     // misc private methods
+    static COLORREF 
+         ColorRef(ColorType);
     void CreateFonts(void);
     TextSizeType 
          FindTextSize(PixelCntType height);

@@ -22,11 +22,14 @@ You should have received a copy of the GNU General Public License
 along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <climits>      // SHRT_MAX
-#include <cstdlib>      // abs()
+#include <climits>        // SHRT_MAX
+#include <cstdlib>        // ::abs()
 #include "point.hpp"
-#include "project.hpp"  // ASSERT
-#include "win_types.hpp"
+#include "project.hpp"    // ASSERT
+#ifdef _WINDOWS
+# include "win_types.hpp" // POINTS
+#endif // defined(_WINDOWS)
+
 
 // lifecycle
 
@@ -35,15 +38,22 @@ Point::Point(LogicalXType x, LogicalYType y) {
     mY = y;
 }
 
-Point::Point(POINT const &pt) {
-    mX = pt.x;
-    mY = pt.y;
+Point::Point(POINT const& rPoint) {
+#ifdef _QT
+    mX = rPoint.x();
+    mY = rPoint.y();
+#elif defined(_WINDOWS)
+    mX = rPoint.x;
+    mY = rPoint.y;
+#endif // defined(_WINDOWS)
 }
 
-Point::Point(POINTS const &pt) {
-    mX = pt.x;
-    mY = pt.y;
+#ifdef _WINDOWS
+Point::Point(POINTS const& rPoint) {
+    mX = rPoint.x;
+    mY = rPoint.y;
 }
+#endif // defined(_WINDOWS)
 
 
 // operators
@@ -55,13 +65,18 @@ bool Point::operator==(Point const& rOther) const {
 }
 
 Point::operator POINT(void) const {
+#ifdef _QT
+    QPoint const result(mX, mY);
+#elif defined(_WINDOWS)
     POINT result;
     result.x = mX;
     result.y = mY;
+#endif // defined(_WINDOWS)
 
     return result;
 }
 
+#ifdef _WINDOWS
 Point::operator POINTS(void) const {
     POINTS result;
 
@@ -75,6 +90,7 @@ Point::operator POINTS(void) const {
 
     return result;
 }
+#endif // defined(_WINDOWS)
 
 
 // misc methods

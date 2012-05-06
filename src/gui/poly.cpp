@@ -22,11 +22,9 @@ You should have received a copy of the GNU General Public License
 along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifdef _WINDOWS
 #include <vector>
 #include "gui/poly.hpp"
 #include "gui/rect.hpp"
-#include "gui/win_types.hpp"
 
 void Poly::Add(double x, double y) {
     ASSERT(x >= 0.0);
@@ -61,5 +59,3 @@ void Poly::GetPoints(
         it++;
     }
 }
-
-#endif // defined(_WINDOWS)

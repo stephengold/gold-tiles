@@ -30,14 +30,20 @@ A Rect object represents a rectangular region in the client area of a window.
 */
 
 #include "gui/point.hpp"  // USES Point
-#include "project.hpp"
+#include "project.hpp"    // USES FractionPair
+#ifdef _WINDOWS
+using Win::RECT;
+#elif defined(_QT)
+# include <QRect>
+typedef QRect RECT;
+#endif // defined(_QT)
 
 class Rect {
 public:
     // public lifecycle
     // no default constructor
     // Rect(Rect const&);  compiler-generated copy constructor is OK
-    explicit Rect(Win::RECT const&);
+    explicit Rect(RECT const&);
     Rect(Point const& ulc, Point const& lrc);
     Rect(Point const& ulc, PixelCntType width, PixelCntType height);
     Rect(LogicalYType, LogicalXType, PixelCntType width, PixelCntType height);
@@ -45,7 +51,7 @@ public:
 
     // public operators
     // Rect& operator=(Rect const&);  compiler-generated assignment method is OK
-    operator Win::RECT(void) const;
+    operator RECT(void) const;
 
     // misc public methods
     float        AspectRatio(void) const;

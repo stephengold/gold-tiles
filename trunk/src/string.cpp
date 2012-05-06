@@ -61,29 +61,57 @@ std::string() {}
 
 // conversions from base types
 String::String(bool flag):
-std::string(flag ? "true" : "false") {}
+std::string(flag ? "true" : "false")
+{
+}
 String::String(char character):
-std::string(1, character) {}
+std::string(1, character)
+{
+}
 String::String(double number):
-std::string(::lftos(number)) {}
+std::string(::lftos(number))
+{
+}
 String::String(int integer):
-std::string(::itos(integer)) {}
+std::string(::itos(integer))
+{
+}
 String::String(unsigned integer):
-std::string(::utos(integer)) {}
+std::string(::utos(integer))
+{
+}
 String::String(long integer):
-std::string(::ltos(integer)) {}
+std::string(::ltos(integer))
+{
+}
 String::String(unsigned long integer):
-std::string(::ultos(integer)) {}
+std::string(::ultos(integer))
+{
+}
 
 // repetition
 String::String(unsigned repeatCnt, char character):
-std::string(repeatCnt, character) {}
+std::string(repeatCnt, character)
+{
+}
 
 // copying
+#ifdef _QT
+String::String(QString const& rString):
+    std::string(rString.toStdString())
+{
+}
+#endif // defined(_QT)
+
 String::String(std::string const& rString):
-std::string(rString) {}
+std::string(rString)
+{
+}
+
 String::String(TextType text):
-std::string(text) {}
+std::string(text)
+{
+}
 
 // joining
 String::String(Strings const& rList, String const& rSeparator) {

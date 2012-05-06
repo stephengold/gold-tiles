@@ -33,6 +33,9 @@ The String class is extends std::string in the Standard Template Library.
 
 #include <string>      // ISA std::string
 #include "project.hpp"
+#ifdef _QT
+# include <QString>
+#endif // defined _QT
 
 #ifndef __STDC_WANT_SECURE_LIB__
 // for envs that don't provide strcpy_s() and strtok_s()
@@ -58,6 +61,9 @@ public:
     String(unsigned cnt, char); // repeat characters
     String(TextType);
     String(std::string const&);
+#ifdef _QT
+    explicit String(QString const&);
+#endif // defined(_QT)
     String(Strings const&, String const& separator); // join strings
     // String(String const&);  compiler-generated copy constructor is OK
     // ~String(void);  compiler-generated destructor is OK

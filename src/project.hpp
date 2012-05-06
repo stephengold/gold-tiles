@@ -10,27 +10,28 @@
 
 
 // platform, UI, and network configuration macros
-#ifdef WIN32
-# define _WINSOCK2
-#endif // defined(WIN32)
-
 #ifdef _QT
-# define _GUI
 
 #elif defined(_WINDOWS)
-# define _GUI
 # define Q_OBJECT
-# define _CLIENT
-# define _SERVER
+# define _WINSOCK2
 
 #elif !defined(_CONSOLE)
 # define _CONSOLE
+#endif
 
+#ifdef _CONSOLE
 # if defined(_CLIENT) && defined(_SERVER)
 #  error console build cannot act as both a client and a server
 # endif
-
-#endif // !defined(_WINDOWS) && !defined(_QT) && !defined(_CONSOLE)
+# ifdef WIN32
+#  define _WINSOCK2
+# endif // defined(WIN32)
+#else // !defined(_CONSOLE)
+# define _GUI
+# define _CLIENT
+# define _SERVER
+#endif // !defined(_CONSOLE)
 
 #if !defined(_CLIENT) && !defined(_SERVER)
 #  error build should include either client or server support
@@ -51,6 +52,11 @@
 #endif // !defined(_GUI)
 
 #define FAIL() ASSERT(false)
+
+// misc macros
+#ifndef max
+#define max(a,b)            (((a) > (b)) ? (a) : (b))
+#endif // !defined(max)
 
 // forward declarations of project classes
 class Address;
@@ -112,6 +118,12 @@ class TileBox;
 class ViewMenu;
 class Window;
 class WindowClass;
+
+# ifdef _QT
+// forward declarations of QT classes
+class QFont;
+class QPainter;
+# endif // defined(_QT)
 #endif // defined(_GUI)
 
 // project-wide typedefs

@@ -137,11 +137,11 @@ String GameOpt::AttrReport(void) const {
     String result = "Each tile has " + ::plural(AttrCnt(), "attribute") + ":\n";
     for (AttrIndexType i_attr = 0; i_attr < AttrCnt(); i_attr++) {
         AttrType const value_max = MaxAttrValue(i_attr);
-        result += " " + ::ordinal(i_attr + 1) + " attribute ranges from ";
+        result += " The " + ::ordinal(i_attr + 1) + " attribute ranges from ";
 
         AttrModeType const display_mode = Combo::DefaultDisplayMode(i_attr);
         result += Combo::AttrToString(display_mode, 0) + " to ";
-        result += Combo::AttrToString(display_mode, value_max) + "\n";
+        result += Combo::AttrToString(display_mode, value_max) + ".\n";
     }
     result += "\n";
 

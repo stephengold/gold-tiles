@@ -74,6 +74,7 @@ public:
 	bool IsEmpty(void) const;
 
 private:
+    // private data
 	std::list<String> mList;
 };
 #endif // !defined(STRINGS_HPP_INCLUDED)

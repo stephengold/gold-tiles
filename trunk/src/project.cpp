@@ -26,17 +26,20 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 #include "string.hpp"
 
 #ifdef WIN32
-#include "gui/win_types.hpp"
+# include "gui/win_types.hpp"
 #else // !defined(WIN32)
-#include <time.h>
+# include <time.h>
 #endif // !defined(WIN32)
 
 
 void assertion_failed(TextType file, unsigned line) {
-    std::cout << "Assertion failed at line " << line << " in " << file << std::endl;
+    std::cout << "Assertion failed at line " << line
+              << " in " << file << std::endl;
 
-    // A pause is needed when running in a console window because the window will
-    // be destroyed soon after exit() is called.
+    /*
+    A pause is needed when running in a console window,
+    because the window may close soon after exit() is called.
+    */
     ::pause();
 
     ::exit(EXIT_FAILURE);

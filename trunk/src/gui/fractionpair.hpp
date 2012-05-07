@@ -48,6 +48,7 @@ public:
 
 private:
     // private data
-    float mX, mY;
+    float mX;
+    float mY;
 };
 #endif // !defined(FRACTIONPAIR_HPP_INCLUDED)

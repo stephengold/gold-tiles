@@ -33,8 +33,8 @@ Hand::Hand(
     String const& rHandName,
     HandOpt const& rOptions,
     Socket const& rClientSocket)
-    :
-mName(rHandName),
+:
+    mName(rHandName),
     mOptions(rOptions)
 {
     mClockRunningFlag = false;
@@ -252,8 +252,6 @@ void Hand::SetSocket(Socket const& rSocket) {
     ASSERT(rSocket.IsValid());
 
     mSocket = rSocket;
-
-    ASSERT(rSocket == mSocket);
 }
 
 double Hand::SkipProbability(void) const {

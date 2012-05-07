@@ -837,5 +837,5 @@ int main(int argCnt, char** argValues) {
     return exit_code;
 }
 
-# endif // defined(_TEST_GRAPHICS)
+# endif // defined(_GRAPHICS_TEST)
 #endif // defined(_QT)

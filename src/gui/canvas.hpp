@@ -42,7 +42,7 @@ public:
     // public lifecycle
     // no default constructor
     explicit Canvas(Window&);
-    // ~Canvas(void);  compiler-generated destructor is OK
+    // ~Canvas(void);  implicitly defined destructor
 
     // misc public methods
     void DrawBlankTile(Point const&, PixelCntType width, PixelCntType height, 

@@ -47,7 +47,7 @@ public:
 #elif defined(_WINDOWS)
     PlayMenu(Menu const&, unsigned position);
 #endif // defined(_WINDOWS)
-    // ~PlayMenu(void);  compiler-generated destructor is fine
+    // ~PlayMenu(void);  implicitly defined destructor is fine
 
     // misc public methods
     void Autopause(bool);

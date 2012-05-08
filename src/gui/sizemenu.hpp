@@ -45,7 +45,7 @@ public:
     // no default constructor
     SizeMenu(Menu const&, unsigned position);
 #endif // defined(_WINDOWS)
-    // ~SizeMenu(void);  compiler-generated destructor is OK
+    // ~SizeMenu(void);  implicitly defined destructor
 
     // misc public methods
     void EnableItems(void);

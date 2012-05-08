@@ -59,12 +59,12 @@ enum UmType { // user message handles
 class Board: public BaseBoard {
 public:
     // public lifecycle
-    // Board(void);  compiler-generated default constructor is OK
-    // Board(Board const&);  compiler-generated copy constructor is OK
-    // ~Board(void);  compiler-generated destructor is OK
+    // Board(void);  implicitly defined default constructor
+    // Board(Board const&);  implicitly defined copy constructor
+    // ~Board(void);  implicitly defined destructor
 
     // public operators
-    // Board& operator=(Board const&);  compiler-generated assignment operator is OK 
+    // Board& operator=(Board const&);  implicitly defined assignment operator
 
     // misc public methods
     String        Description(void) const;

@@ -31,8 +31,8 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 Cells::Cells(void) {
 }
 
-// The compiler-generated copy constructor is fine.
-// The compiler-generated destructor is fine.
+// The implicitly defined copy constructor is fine.
+// The implicitly defined destructor is fine.
 
 Cells::Cells(Cell const& rCell) {
     Add(rCell);
@@ -58,7 +58,7 @@ Cells::operator String(void) const {
 }
 #endif
 
-// The compiler-generated assignment method is fine.
+// The implicitly defined assignment method is fine.
 
 
 // misc methods

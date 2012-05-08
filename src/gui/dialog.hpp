@@ -52,7 +52,7 @@ public:
     // no default constructor
     explicit Dialog(TextType templateName);
     Dialog(TextType templateName, Win::DLGPROC);
-    // ~Dialog(void);  compiler-generated destructor is OK
+    // ~Dialog(void);  implicitly defined destructor
 
     // misc public methods
     int HandleMessage(MessageType, Win::WPARAM);

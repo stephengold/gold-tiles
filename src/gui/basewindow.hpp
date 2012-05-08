@@ -42,7 +42,7 @@ class BaseWindow {
 public:
     // public lifecycle
     BaseWindow(void);
-    // ~BaseWindow(void);  compiler-generated destructor is OK
+    // ~BaseWindow(void);  implicitly defined destructor
 
     // public operators
     operator Win::HWND(void) const;

@@ -48,7 +48,7 @@ class Point {
 public:
     // public lifecycle
     // no default constructor
-    // Point(Point const&);  compiler-generated copy constructor is OK
+    // Point(Point const&);  implicitly defined copy constructor
     explicit Point(POINT const&);
 #ifdef _WINDOWS
     explicit Point(Win::POINTS const&);
@@ -57,7 +57,7 @@ public:
     // ~Point(void);
 
     // public operators
-    //Point& operator=(Point const&);  compiler-generated assignment operator is OK
+    //Point& operator=(Point const&);  implicitly defined assignment operator
     bool operator==(Point const&) const;
     operator POINT(void) const;
 #ifdef _WINDOWS

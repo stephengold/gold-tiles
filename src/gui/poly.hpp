@@ -45,12 +45,12 @@ public:
     typedef std::vector<FractionPair>::iterator       Iterator;
 
     // public lifecycle
-    // Poly(void);  compiler-generated default constructor is OK
-    // Poly(Poly const&);  compiler-generated copy constructor is OK
-    // ~Poly(void);  compiler-generated destructor is OK
+    // Poly(void);  implicitly defined default constructor
+    // Poly(Poly const&);  implicitly defined copy constructor
+    // ~Poly(void);  implicitly defined destructor
 
     // public operators
-    // Poly& operator=(Poly const&);  compiler-generated assignment operator is OK 
+    // Poly& operator=(Poly const&);  implicitly defined assignment operator 
 
     // misc public methods
     void     Add(double x, double y);

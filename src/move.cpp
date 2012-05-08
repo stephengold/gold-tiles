@@ -42,7 +42,7 @@ Move::Move(void) {
     mResignFlag = false;
 }
 
-// The compiler-generated copy constructor is fine.
+// The implicitly defined copy constructor is fine.
 
 // Parse a save/send string.
 Move::Move(String const& rString, bool remoteFlag) {
@@ -68,12 +68,12 @@ Move::Move(String const& rString, bool remoteFlag) {
     }
 }
 
-// The compiler-generated destructor is fine.
+// The implicitly defined destructor is fine.
 
 
 // operators
 
-// The compiler-generated assignment operator is fine.
+// The implicitly defined assignment operator is fine.
 
 bool Move::operator!=(Move const& rOther) const {
     bool result = (mResignFlag != rOther.mResignFlag);

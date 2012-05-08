@@ -27,14 +27,14 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 
 // lifecycle
 
-// The compiler-generated default constructor is OK.
-// The compiler-generated copy constructor is OK.
-// The compiler-generated destructor is OK.
+// The implicitly defined default constructor is OK.
+// The implicitly defined copy constructor is OK.
+// The implicitly defined destructor is OK.
 
 
 // operators
 
-// The compiler-generated assignment method is OK.
+// The implicitly defined assignment method is OK.
 
 
 // misc methods

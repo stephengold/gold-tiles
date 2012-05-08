@@ -44,11 +44,11 @@ public:
     // public lifecycle
     // no default constructor
     Markings(Tile const&, DisplayModes const&);  
-    // Markings(Markings const&); compiler-generated copy constructor is OK
-    // ~Markings(void);  compiler-generated destructor is OK
+    // Markings(Markings const&); implicitly defined copy constructor
+    // ~Markings(void);  implicitly defined destructor
 
     // public operators
-    // Markings& operator=(Markings const&);  compiler-generated assignment method is OK
+    // Markings& operator=(Markings const&);  implicitly defined assignment method
 
     // misc public methods
     AttrType     Marking(AttrIndexType) const;

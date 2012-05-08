@@ -42,7 +42,7 @@ public:
     // public lifecycle
     // no default constructor
     WindowClass(Win::HINSTANCE, Win::WNDPROC, TextType className, TextType menuName);
-    // ~WindowClass(void);  compiler-generated destructor is fine
+    // ~WindowClass(void);  implicitly defined destructor is fine
 
     // misc public methods
     Win::HINSTANCE 

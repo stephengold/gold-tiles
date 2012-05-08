@@ -47,13 +47,13 @@ Strings::Strings(TextType list, TextType separators) {
     delete[] copy_list;
 }
 
-// The compiler-generated copy constructor is OK.
-// The compiler-generated destructor is OK.
+// The implicitly defined copy constructor is OK.
+// The implicitly defined destructor is OK.
 
 
 // operators
 
-// The compiler-generated assignment method is OK.
+// The implicitly defined assignment method is OK.
 
 
 // misc methods

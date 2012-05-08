@@ -41,7 +41,7 @@ public:
     // public lifecycle
     // no default constructor
     AttrBox(DisplayModes const&);
-    // ~AttrBox(void);  compiler-generated destructor is OK
+    // ~AttrBox(void);  implicitly defined destructor
 
     // public operators
     operator DisplayModes(void) const;

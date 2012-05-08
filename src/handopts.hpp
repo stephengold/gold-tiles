@@ -39,11 +39,11 @@ class HandOpts {
 public:
     // public lifecycle
     HandOpts(void);
-    // HandOpts(HandOpts const&);  compiler-generated copy constructor is OK
-    // ~HandOpts(void);  compiler-generated destructor is OK
+    // HandOpts(HandOpts const&);  implicitly defined copy constructor
+    // ~HandOpts(void);  implicitly defined destructor
 
     // public operators
-    // HandOpts& operator=(HandOpts const&);  compiler-generated assignment operator is OK 
+    // HandOpts& operator=(HandOpts const&);  implicitly defined assignment operator 
     HandOpt& operator[](unsigned);
     HandOpt const& operator[](unsigned) const;
     operator String(void) const;

@@ -79,13 +79,13 @@ GameOpt::GameOpt(String const& rString) {
     }
 }
 
-// The compiler-generated copy constructor is OK.
-// The compiler-generated destructor is OK.
+// The implicitly defined copy constructor is OK.
+// The implicitly defined destructor is OK.
 
 
 // operators
 
-// The compiler-generated assignment method is OK.
+// The implicitly defined assignment method is OK.
 
 GameOpt::operator GameStyleType(void) const {
     ASSERT(mStyle != GAME_STYLE_NONE);

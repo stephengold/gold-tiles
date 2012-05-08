@@ -43,11 +43,11 @@ public:
     // no default constructor
     Turn(Tiles const&, String const& handName);
     Turn(Move const&, String const& handName, unsigned mustPlay);
-    // Turn(Turn const&);  compiler-generated copy constructor is OK
-    // ~Turn(void);  compiler-generated destructor is OK
+    // Turn(Turn const&);  implicitly defined copy constructor
+    // ~Turn(void);  implicitly defined destructor
 
     // public operators
-    // Turn const& operator=(Turn const&);  compiler-generated assignment operator is OK
+    // Turn const& operator=(Turn const&);  implicitly defined assignment operator
     bool operator==(Turn const&) const;
     operator Move(void) const;
     operator String(void) const;

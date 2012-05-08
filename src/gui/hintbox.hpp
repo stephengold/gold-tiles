@@ -40,7 +40,7 @@ public:
     // lifecycle
     // no default constructor
     HintBox(HintType, GameStyleType);
-    // ~HintBox(void);  compiler-generated destructor is OK
+    // ~HintBox(void);  implicitly defined destructor
 
     // public operators
     operator HintType(void) const;

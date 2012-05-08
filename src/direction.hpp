@@ -37,11 +37,11 @@ class Direction {
 public:
     // public lifecycle
     Direction(void);
-    // Direction(Direction const&);  compiler-generated copy constructor is OK
-    // ~Direction(void);  compiler-generated destructor is OK
+    // Direction(Direction const&);  implicitly defined copy constructor
+    // ~Direction(void);  implicitly defined destructor
 
     // public operators
-    // Direction& operator=(Direction const&);  compiler-generated assignment operator is OK
+    // Direction& operator=(Direction const&);  implicitly defined assignment operator
     operator int(void) const;
     Direction operator++(int);
 

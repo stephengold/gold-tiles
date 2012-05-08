@@ -44,12 +44,12 @@ public:
 
 	// public lifecycle
 	Strings();
-	// Strings(Strings const&);  compiler-generated copy constructor is OK
+	// Strings(Strings const&);  implicitly defined copy constructor
 	Strings(TextType list, TextType delimiters); // split
-    // ~Strings(void);  compiler-generated destructor is OK
+    // ~Strings(void);  implicitly defined destructor
 
 	// public operators
-    // Strings& operator=(Strings const&);  compiler-generated assignment operator is OK
+    // Strings& operator=(Strings const&);  implicitly defined assignment operator
 
 	// misc public methods
 	void          Append(String const&);

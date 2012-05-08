@@ -51,12 +51,12 @@ public:
 
     // public lifecycle
     Indices(void);
-    // Indices(Indices const&);  compiler-generated copy constructor is OK
+    // Indices(Indices const&);  implicitly defined copy constructor
     explicit Indices(String const&);
     virtual ~Indices(void);
 
     // public operators
-    //Indices& operator=(Indices const&);  compiler-generated assignment method is OK
+    //Indices& operator=(Indices const&);  implicitly defined assignment method
     operator String(void) const;
 
     // misc public methods

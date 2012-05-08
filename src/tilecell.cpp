@@ -66,8 +66,8 @@ mTile(rTile),
     mSwapFlag = false;
 }
 
-// The compiler-generated copy constructor is OK.
-// The compiler-generated destructor is OK.
+// The implicitly defined copy constructor is OK.
+// The implicitly defined destructor is OK.
 
 
 // operators
@@ -104,7 +104,7 @@ bool TileCell::operator<(TileCell const& rOther) const {
     return result;
 }
 
-// The compiler-generated assignment method is OK.
+// The implicitly defined assignment method is OK.
 
 TileCell::operator Cell(void) const {
     ASSERT(!mSwapFlag);

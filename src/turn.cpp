@@ -45,13 +45,13 @@ mHandName(rHandName),
     mPoints = 0;
 }
 
-// The compiler-generated copy constructor is OK.
-// The compiler-generated destructor is OK.
+// The implicitly defined copy constructor is OK.
+// The implicitly defined destructor is OK.
 
 
 // operators
 
-// The compiler-generated assignment operator is OK.
+// The implicitly defined assignment operator is OK.
 
 Turn::operator Move(void) const {
     return mMove;

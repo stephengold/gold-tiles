@@ -40,7 +40,7 @@ public:
     // public lifecycle
     // no default constructor
     HandBox(unsigned handIndex, unsigned handCnt, HandOpt const&); 
-    // ~HandBox(void);  compiler-generated destructor is OK
+    // ~HandBox(void);  implicitly defined destructor
 
     // public operators
     operator HandOpt(void) const;

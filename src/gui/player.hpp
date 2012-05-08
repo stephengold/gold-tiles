@@ -45,7 +45,7 @@ public:
     // public lifecycle
     // Player(void); no default constructor
     explicit Player(String const& name);
-    // ~Player(void);  compiler-generated destructor is OK
+    // ~Player(void);  implicitly defined destructor
 
     // public operators
     operator DisplayModes(void) const;

@@ -62,13 +62,13 @@ Markings::Markings(Tile const& rTile, DisplayModes const& rDisplayModes) {
     ASSERT(mMarkingCnt <= MARKING_CNT_MAX);
 }
 
-// The compiler-generated copy constructor is fine.
-// The compiler-generated destructor is OK.
+// The implicitly defined copy constructor is fine.
+// The implicitly defined destructor is OK.
 
 
 // operators
 
-// The compiler-generated assignment operator is fine.
+// The implicitly defined assignment operator is fine.
 
 
 // misc methods

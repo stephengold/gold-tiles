@@ -39,7 +39,7 @@ public:
     // public lifecycle
     DisplayModes(void);
     DisplayModes(DisplayModes const&);
-    // ~DisplayModes(void);  compiler-generated destructor is OK
+    // ~DisplayModes(void);  implicitly defined destructor
 
     // public operators
     DisplayModes& operator=(DisplayModes const&);

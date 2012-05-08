@@ -66,7 +66,7 @@ SubMenu(rRootMenu, position),
 
 #endif // defined(_WINDOWS)
 
-// The compiler-generated destructor is OK.
+// The implicitly defined destructor is OK.
 
 
 // misc methods

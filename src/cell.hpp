@@ -60,16 +60,16 @@ public:
 
     // public lifecycle
     Cell(void);   // the start cell
-    // Cell(Cell const&);  compiler-generated copy constructor is OK
+    // Cell(Cell const&);  implicitly defined copy constructor
     explicit Cell(String const&);
     Cell(RowType, ColumnType);
     Cell(Cell const&, Direction const&, int count);
-    // ~Cell(void);  compiler-generated destructor is OK
+    // ~Cell(void);  implicitly defined destructor
 
     // public operators
     bool operator!=(Cell const&) const;
     bool operator<(Cell const&) const;
-    // Cell& operator=(Cell const&);  compiler-generated assignment method is OK
+    // Cell& operator=(Cell const&);  implicitly defined assignment method
     bool operator==(Cell const&) const;
     operator String(void) const;
 

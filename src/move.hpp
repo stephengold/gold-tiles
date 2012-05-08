@@ -45,12 +45,12 @@ public:
 
     // public lifecycle
     Move(void);
-    // Move(Move const&);  compiler-generated copy constructor is OK
+    // Move(Move const&);  implicitly defined copy constructor
     Move(String const&, bool remote);
-    // ~Move(void);  compiler-generated destructor is OK
+    // ~Move(void);  implicitly defined destructor
 
     // public operators
-    // Move& operator=(Move const&);  compiler-generated assigment operator is OK
+    // Move& operator=(Move const&);  implicitly defined assigment operator
     bool operator!=(Move const&) const;
     operator Cells(void) const;
     operator String(void) const;

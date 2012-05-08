@@ -47,11 +47,11 @@ class BaseBoard {
 public:
     // public lifecycle
     BaseBoard(void);
-    // BaseBoard(BaseBoard const&);  compiler-generated copy constructor is OK
-    // ~BaseBoard(void);  compiler-generated destructor is OK
+    // BaseBoard(BaseBoard const&);  implicitly defined copy constructor
+    // ~BaseBoard(void);  implicitly defined destructor
 
     // public operators
-    // BaseBoard& operator=(BaseBoard const&);  compiler-generated assignment operator is OK
+    // BaseBoard& operator=(BaseBoard const&);  implicitly defined assignment operator
     operator Tiles(void) const;
 
     // misc public methods

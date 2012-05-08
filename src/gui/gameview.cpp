@@ -22,7 +22,6 @@ You should have received a copy of the GNU General Public License
 along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifdef _WINDOWS
 #include "gui/canvas.hpp"
 #include "gui/gamewindow.hpp"
 #include "gui/menubar.hpp"
@@ -643,7 +642,7 @@ void GameView::DrawTile(Canvas& rCanvas, Point const& rCenter, Tile const& rTile
     if (rTile.HasBonus()) {
         tile_color = COLOR_DULL_GOLD;
     }
-    if (Contains(id)) {
+    if (Contains(id) && IsLocalUsersTurn()) {
         tile_color = COLOR_WHITE;
         if (rTile.HasBonus()) {
             tile_color = COLOR_GOLD;
@@ -661,7 +660,7 @@ void GameView::DrawTile(Canvas& rCanvas, Point const& rCenter, Tile const& rTile
     Rect const result = rCanvas.DrawTile(markings, tile_color, center, mTileWidth, 
         tile_height, warm_flag, oddFlag);
 
-    if (Contains(id)) {
+    if (Contains(id) && IsLocalUsersTurn()) {
         TilePair const pair(id, result);
         mTileMap.insert(pair);
     }
@@ -1111,4 +1110,3 @@ bool GameView::IsWarmTile(Tile::IdType tileId) const {
 
     return result;
 }
-#endif // defined(_WINDOWS)

@@ -59,14 +59,14 @@ public:
     // public lifecycle
     Tile(void);
     Tile(IdType, bool remote = false);
-    // Tile(Tile const&);  compiler-generated copy constructor is OK
+    // Tile(Tile const&);  implicitly defined copy constructor
     explicit Tile(TileOpt const&);
     explicit Tile(String const&, bool remote = false);
-    // ~Tile(void);  compiler-generated destructor is OK
+    // ~Tile(void);  implicitly defined destructor
 
     // public operators
     bool     operator<(Tile const&) const;
-    //Tile& operator=(Tile const&);  compiler-generated assignment method is OK
+    //Tile& operator=(Tile const&);  implicitly defined assignment method
     bool     operator==(Tile const&) const;
     operator Combo(void) const;
     operator IndexType(void) const;

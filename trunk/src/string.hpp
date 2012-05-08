@@ -65,11 +65,11 @@ public:
     explicit String(QString const&);
 #endif // defined(_QT)
     String(Strings const&, String const& separator); // join strings
-    // String(String const&);  compiler-generated copy constructor is OK
-    // ~String(void);  compiler-generated destructor is OK
+    // String(String const&);  implicitly defined copy constructor
+    // ~String(void);  implicitly defined destructor
 
     // public operators
-    // String& operator=(String const&);  compiler-generated assignment method is OK
+    // String& operator=(String const&);  implicitly defined assignment method
     operator bool(void) const;
     operator double(void) const;
     operator long(void) const; // atol

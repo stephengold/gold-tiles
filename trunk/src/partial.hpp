@@ -60,12 +60,12 @@ public:
 
     // public lifecycle
     // no default constructor
-    // Partial(Partial const&);  compiler-generated copy constructor is OK
+    // Partial(Partial const&);  implicitly defined copy constructor
     Partial(Game const*, HintType, double skipProb);
     // ~Partial(void);
 
     // public operators
-    //Partial& operator=(Partial const&);  compiler-generated assignment operator is OK
+    //Partial& operator=(Partial const&);  implicitly defined assignment operator
     operator Board(void) const;
     operator HintType(void) const;
     operator Tiles(void) const;

@@ -57,13 +57,13 @@ public:
 
     // public lifecycle
     GameOpt(void);
-    // GameOpt(GameOpt const&);  compiler-generated copy constructor is OK
+    // GameOpt(GameOpt const&);  implicitly defined copy constructor
     explicit GameOpt(String const&);
     GameOpt(GameStyleType, unsigned clones, unsigned handSize, unsigned minutes);
-    // ~GameOpt(void);  compiler-generated destructor is OK
+    // ~GameOpt(void);  implicitly defined destructor
 
     // public operators
-    // GameOpt& operator=(GameOpt const&);  compiler-generated assignment operator is OK
+    // GameOpt& operator=(GameOpt const&);  implicitly defined assignment operator
     operator GameStyleType(void) const;
     operator GridType(void) const;
     operator RulesType(void) const;

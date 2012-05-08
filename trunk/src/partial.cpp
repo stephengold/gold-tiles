@@ -38,13 +38,13 @@ Partial::Partial(Game const* pGame, HintType strength, double skipProbability) {
     Reset(pGame, strength, skipProbability);
 }
 
-// Partial(Partial const &);  compiler-generated copy constructor is OK
-// ~Partial(void);  compiler-generated destructor is OK
+// Partial(Partial const &);  implicitly defined copy constructor is OK
+// ~Partial(void);  implicitly defined destructor is OK
 
 
 // operators
 
-// BaseBoard &operator=(BaseBoard const &);  compiler-generated assignment operator is OK
+// BaseBoard &operator=(BaseBoard const &);  implicitly defined assignment operator is OK
 
 Partial::operator Board(void) const {
     return mBoard;

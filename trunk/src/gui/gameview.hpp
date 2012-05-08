@@ -52,10 +52,10 @@ public:
     // public lifecycle
     // no default constructor
     explicit GameView::GameView(Game const& game);
-    // ~GameView(void);  compiler-generated destructor is OK
+    // ~GameView(void);  implicitly defined destructor
 
     // public operators
-    // GameView& operator=(GameView const&);  compiler-generated assignment operator is OK
+    // GameView& operator=(GameView const&);  implicitly defined assignment operator
     operator DisplayModes(void) const;
 
     // misc public methods

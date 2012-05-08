@@ -40,13 +40,13 @@ public:
     // public lifecycle
     Tiles(void);
     explicit Tiles(Tile const&);
-    // Tiles(Tiles const&);  compiler-generated copy constructor is OK
+    // Tiles(Tiles const&);  implicitly defined copy constructor
     Tiles(Indices const&, bool remote);
     Tiles(String const&, bool remote);
-    // ~Tiles(void);  compiler-generated destructor is OK
+    // ~Tiles(void);  implicitly defined destructor
 
     // public operators
-    // Tiles& operator=(Tiles const&);  compiler-generated assignment method is OK
+    // Tiles& operator=(Tiles const&);  implicitly defined assignment method
     operator String(void) const; // for display/debug only, not for save/send
 
     // misc public methods

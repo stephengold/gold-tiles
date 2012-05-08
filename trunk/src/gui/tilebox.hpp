@@ -41,7 +41,7 @@ public:
     // public lifecycle
     // no default constructor
     TileBox(GameOpt&);
-    // ~TileBox(void);  compiler-generated destructor is OK
+    // ~TileBox(void);  implicitly defined destructor
 
     // misc public methods
     int HandleMessage(MessageType, Win::WPARAM, Win::LPARAM);

@@ -40,11 +40,11 @@ public:
     // public lifecycle
     TileOpt(void);
     explicit TileOpt(String const&);
-    // TileOpt(TileOpt const&);  compiler-generated copy constructor is OK
-    // ~TileOpt(void);  compiler-generated destructor is OK
+    // TileOpt(TileOpt const&);  implicitly defined copy constructor
+    // ~TileOpt(void);  implicitly defined destructor
 
     // public operators
-    // TileOpt& operator=(TileOpt const&);  compiler-generated assignment operator is OK
+    // TileOpt& operator=(TileOpt const&);  implicitly defined assignment operator
     bool     operator==(TileOpt const&) const;
     operator Combo(void) const;
     operator String(void) const;

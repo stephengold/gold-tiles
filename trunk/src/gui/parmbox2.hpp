@@ -45,7 +45,7 @@ public:
     // lifecycle
     // no default constructor
     explicit ParmBox2(GameOpt&);
-    // ~ParmBox2(void);  compiler-generated destructor is OK
+    // ~ParmBox2(void);  implicitly defined destructor
 
     // misc public methods
     int HandleMessage(MessageType, Win::WPARAM);

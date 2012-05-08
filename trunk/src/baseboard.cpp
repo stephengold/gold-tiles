@@ -36,13 +36,13 @@ BaseBoard::BaseBoard(void) {
     mWestMax = 0;
 }
 
-// The compiler-generated copy constructor is OK.
-// The compiler-generated destructor is OK.
+// The implicitly defined copy constructor is fine.
+// The implicitly defined destructor is fine.
 
 
 // operators
 
-// The compiler-generated assignment operator is OK.
+// The implicitly defined assignment operator is fine.
 
 // get a list of all tiles played
 BaseBoard::operator Tiles(void) const {

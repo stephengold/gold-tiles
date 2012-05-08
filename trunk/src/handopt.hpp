@@ -51,15 +51,15 @@ class HandOpt {
 public:
     // public lifecycle
     HandOpt(void);
-    // HandOpt(HandOpt const&);  compiler-generated copy constructor is OK
+    // HandOpt(HandOpt const&);  implicitly defined copy constructor
     explicit HandOpt(String const&);
     HandOpt(GameStyleType, Strings const& playerNames);
     HandOpt(String const& playerName, bool autom, double skipProb, 
         bool rem, Address const&);
-    // ~HandOpt(void);  compiler-generated destructor is OK
+    // ~HandOpt(void);  implicitly defined destructor
 
     // public operators
-    // HandOpt& operator=(HandOpt const&);  compiler-generated assignment operator is OK
+    // HandOpt& operator=(HandOpt const&);  implicitly defined assignment operator
     operator Address(void) const;
     operator String(void) const;
 

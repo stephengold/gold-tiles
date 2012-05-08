@@ -39,15 +39,15 @@ public:
     // public lifecycle
     TileCell(void);
     explicit TileCell(Tile const&);  // swap to swap area
-    // TileCell(TileCell const&);  compiler-generated copy constructor is OK
+    // TileCell(TileCell const&);  implicitly defined copy constructor
     TileCell(String const&, bool remote);
     TileCell(Tile const&, Cell const&);  // place on a cell
-    // ~TileCell(void);  compiler-generated destructor is OK
+    // ~TileCell(void);  implicitly defined destructor
 
     // public operators
     bool operator!=(TileCell const&) const;
     bool operator<(TileCell const&) const;
-    // TileCell& operator=(TileCell const&);  compiler-generated assignment method is OK
+    // TileCell& operator=(TileCell const&);  implicitly defined assignment method
     operator Cell(void) const;
     operator String(void) const;
     operator Tile(void) const;

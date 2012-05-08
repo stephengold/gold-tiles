@@ -41,7 +41,7 @@ BaseWindow::BaseWindow(void) {
     mModule = 0;
 }
 
-// The compiler-generated destructor is fine.
+// The implicitly defined destructor is fine.
 
 void BaseWindow::Initialize(CREATESTRUCT const& rCreateStruct) {
     ASSERT(mHandle != 0);

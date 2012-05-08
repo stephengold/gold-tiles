@@ -49,7 +49,7 @@ DisplayModes::DisplayModes(DisplayModes const& rOther) {
     }
 }
 
-// The compiler-generated destructor is OK.
+// The implicitly defined destructor is OK.
 
 
 // operators

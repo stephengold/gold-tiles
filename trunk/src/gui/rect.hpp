@@ -42,7 +42,7 @@ class Rect {
 public:
     // public lifecycle
     // no default constructor
-    // Rect(Rect const&);  compiler-generated copy constructor is OK
+    // Rect(Rect const&);  implicitly defined copy constructor
     explicit Rect(RECT const&);
     Rect(Point const& ulc, Point const& lrc);
     Rect(Point const& ulc, PixelCntType width, PixelCntType height);
@@ -50,7 +50,7 @@ public:
     // ~Rect(void);
 
     // public operators
-    // Rect& operator=(Rect const&);  compiler-generated assignment method is OK
+    // Rect& operator=(Rect const&);  implicitly defined assignment method
     operator RECT(void) const;
 
     // misc public methods

@@ -55,7 +55,7 @@ Indices::Indices(String const& rString) {
     }
 }
 
-// The compiler-generated copy constructor is fine.
+// The implicitly defined copy constructor is fine.
 
 Indices::~Indices(void) {
 }
@@ -63,7 +63,7 @@ Indices::~Indices(void) {
 
 // operators
 
-// The compiler-generated assignment method is fine.
+// The implicitly defined assignment method is fine.
 
 Indices::operator String(void) const {
     String result(PREFIX);

@@ -44,13 +44,13 @@ TileOpt::TileOpt(String const& rString) {
     mCombo = Combo(copy);
 }
 
-// The compiler-generated copy constructor is fine.
-// The compiler-generated destructor is fine.
+// The implicitly defined copy constructor is fine.
+// The implicitly defined destructor is fine.
 
 
 // operators
 
-// The compiler-generated assignment method is fine.
+// The implicitly defined assignment method is fine.
 
 bool TileOpt::operator==(TileOpt const& rOther) const {
     bool const result = (mCombo == rOther.mCombo

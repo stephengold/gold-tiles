@@ -42,9 +42,9 @@ public:
     typedef std::list<Turn>::iterator Iterator;
 
     // public lifecycle
-    // Turns(void);  compiler-generated default constructor is OK
-    // Turns(Turns const&);  compiler-generated copy constructor is OK
-    // ~Turns(void);  compiler-generated destructor is OK
+    // Turns(void);  implicitly defined default constructor
+    // Turns(Turns const&);  implicitly defined copy constructor
+    // ~Turns(void);  implicitly defined destructor
 
     // misc public methods
     unsigned Count(void) const;

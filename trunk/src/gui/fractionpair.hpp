@@ -36,11 +36,11 @@ public:
     // lifecycle
     // no default constructor
     FractionPair(double x, double y);
-    // FractionPair(FractionPair const&); compiler-generated copy constructor is OK
-    // ~FractionPair(void); compiler-generated destructor is OK
+    // FractionPair(FractionPair const&); implicitly defined copy constructor
+    // ~FractionPair(void); implicitly defined destructor
 
     // public operators
-    // FractionPair& operator=(FractionPair const&); compiler-generated assignment method is OK
+    // FractionPair& operator=(FractionPair const&); implicitly defined assignment method
 
     // misc public methods
     float X(void) const;

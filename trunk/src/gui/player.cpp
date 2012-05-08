@@ -46,7 +46,7 @@ mName(rName),
     mTileSize = GameView::TILE_SIZE_DEFAULT;
 }
 
-// The compiler-generated destructor is OK.
+// The implicitly defined destructor is OK.
 
 
 // operators

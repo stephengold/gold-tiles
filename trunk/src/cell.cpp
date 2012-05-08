@@ -52,7 +52,7 @@ Cell::Cell(void) {
     ASSERT(IsValid());
 }
 
-// The compiler-generated copy constructor is fine.
+// The implicitly defined copy constructor is fine.
 
 Cell::Cell(String const& rString) {
     bool const has_prefix = rString.HasPrefix(PREFIX);
@@ -104,7 +104,7 @@ Cell::Cell(Cell const& rBase, Direction const& rDirection, int count) {
     }
 }
 
-// The compiler-generated destructor is fine.
+// The implicitly defined destructor is fine.
 
 
 // operators
@@ -132,7 +132,7 @@ bool Cell::operator<(Cell const& rOther) const {
     return result;
 }
 
-// The compiler-generated assignment operator is fine.
+// The implicitly defined assignment operator is fine.
 
 bool Cell::operator==(Cell const& rOther) const {
     bool const same_row = (mRow == rOther.mRow);

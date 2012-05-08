@@ -35,11 +35,11 @@ public:
     // public lifecycle
     // no default constructor
     Hand(String const& handName, HandOpt const&, Socket const& client);
-    // Hand(Hand const&); The compiler-generated copy constructor is fine.
-    // ~Hand(void); The compiler-generated destructor is fine.
+    // Hand(Hand const&); The implicitly defined copy constructor is fine.
+    // ~Hand(void); The implicitly defined destructor is fine.
 
     // public operators
-    // Hand& operator=(Hand const&); The compiler-generated assignment method is fine.
+    // Hand& operator=(Hand const&); The implicitly defined assignment method is fine.
     bool operator==(Hand const&) const;
     operator Address(void) const;
     operator HandOpt(void) const;

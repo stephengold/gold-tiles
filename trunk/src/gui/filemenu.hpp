@@ -45,7 +45,7 @@ public:
     // no default constructor
     FileMenu(Menu const&, unsigned position);
 #endif // defined(_WINDOWS)
-    // ~FileMenu();  compiler-generated destructor is OK
+    // ~FileMenu();  implicitly defined destructor
 
     // misc public methods
     void EnableItems(bool haveGame);

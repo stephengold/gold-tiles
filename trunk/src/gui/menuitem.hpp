@@ -55,7 +55,7 @@ public:
     MenuItem(Menu const&, IdType);
     MenuItem(Menu const&, IdType first, IdType last, IdType item);
 #endif // defined(_WINDOWS)
-    // ~MenuItem(void);  compiler-generated destructor is OK
+    // ~MenuItem(void);  implicitly defined destructor
 
     // misc public methods
 #ifdef _QT

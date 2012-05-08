@@ -80,8 +80,8 @@ Tile::Tile(IdType id, bool remoteFlag) {
     mId = id;
 }
 
-// The compiler-generated copy constructor is fine.
-// The compiler-generated destructor is fine.
+// The implicitly defined copy constructor is fine.
+// The implicitly defined destructor is fine.
 
 
 // operators
@@ -92,7 +92,7 @@ bool Tile::operator<(Tile const& rOther) const {
     return result;
 }
 
-// The compiler-generated assignment method is fine.
+// The implicitly defined assignment method is fine.
 
 bool Tile::operator==(Tile const& rOther) const {
     bool const result = (mId == rOther.mId);

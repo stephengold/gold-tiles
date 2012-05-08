@@ -39,7 +39,7 @@ public:
     // public lifecycle
     // no default constructor
     explicit Menu(Win::HMENU);
-    // ~Menu(void); The compiler-generated destructor is fine.
+    // ~Menu(void); The implicitly defined destructor is fine.
 
     // public operators
     operator Win::HMENU(void) const;

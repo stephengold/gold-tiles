@@ -36,13 +36,13 @@ Direction::Direction(DirectionType value) {
     mValue = value;
 }
 
-// The compiler-generated copy constructor is OK.
-// The compiler-generated destructor is OK.
+// The implicitly defined copy constructor is OK.
+// The implicitly defined destructor is OK.
 
 
 // operators
 
-// The compiler-generated assignment method is OK.
+// The implicitly defined assignment method is OK.
 Direction Direction::operator++(int) {
     ASSERT(IsValid());
 

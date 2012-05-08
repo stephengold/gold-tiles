@@ -68,9 +68,9 @@ public:
     void       ResetTargetCell(void);
     void       SavePlayerOptions(Player&) const;
     void       SetDisplayModes(DisplayModes const&);
-    void       SetWarmTiles(Indices const&);
     void       SetGame(Game*);
     void       SetTileSize(unsigned);
+    void       SetWarmTiles(Indices const&);
     void       SetWindow(GameWindow*, MenuBar*);
     void       StartCellOffset(long dx, long dy);
     Cell       TargetCell(void) const;

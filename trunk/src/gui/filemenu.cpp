@@ -81,13 +81,18 @@ SubMenu(rRootMenu, position),
 
 #endif // defined(_WINDOWS)
 
-// The compiler-generated destructor is OK.
+// The implicitly defined destructor is OK.
 
 
 // misc methods
 
 void FileMenu::EnableItems(bool haveGame) {
+#ifdef _CLIENT
     mNew.Enable(true);
+#else // !defined(_CLIENT)
+    mNew.Enable(false);
+#endif // !defined(_CLIENT)
+
     mOpen.Enable(false); // TODO
     mReopen.Enable(false);
     mRevert.Enable(false);

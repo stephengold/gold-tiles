@@ -34,9 +34,10 @@ The Socket class is encapsulates a handle (Winsock socket) and a Fifo
 for incoming data.
 */
 
-#include "fifo.hpp"   // HASA String
 #include "string.hpp" // USES String
-
+#ifdef _QT
+# include <QTcpSocket>
+#endif // defined(_QT)
 
 class Socket {
 public:
@@ -46,12 +47,16 @@ public:
 
     // public lifecycle
     Socket(void);
+#ifdef _WINSOCK2
     explicit Socket(HandleType);
-    // Socket(Socket const&);  compiler-generated copy constructor is OK
-    // ~Socket(void);  compiler-generated destructor is OK
+#elif defined(_QT)
+    explicit Socket(QTcpSocket*);
+#endif // defined(_QT)
+    // Socket(Socket const&);  implicitly defined copy constructor
+    // ~Socket(void);  implicitly defined destructor
 
     // public operators
-    // Socket& operator=(Socket const&);  compiler-generated assigment operator is OK
+    // Socket& operator=(Socket const&);  implicitly defined assigment operator
     operator HandleType(void) const;
 
     // misc public methods
@@ -71,8 +76,12 @@ public:
 
 private:
     // private data
+#ifdef _WINSOCK2
     HandleType     mHandle;
     Fifo*         mpReadBuffer;
+#elif defined(_QT)
+    QTcpSocket*   mpSocket;
+#endif // defined(_QT)
     static void* mspYieldArgument;
     static YieldFunctionType*
                  mspYieldFunction;

@@ -23,7 +23,6 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "network.hpp"
-#include "tile.hpp"
 
 #ifdef _CONSOLE
 # include <iostream>
@@ -52,14 +51,16 @@ int CALLBACK Win::WinMain(
     previousInstance;
     commandLine;
 
-    GameWindow* p_window = NULL;
-
 #else // !defined(_WINDOWS)
 
 // standard C++ main entry point
 int main(int argCnt, char** argValues) {
 
 #endif // !defined(_WINDOWS)
+
+#ifdef _GUI
+    GameWindow* p_window = NULL;
+#endif // defined(_GUI)
 
 #ifdef _CONSOLE
 
@@ -91,9 +92,9 @@ int main(int argCnt, char** argValues) {
 
 #elif defined(_QT)
 
-    // Instantiate top window and display it.
     QApplication application(argCnt, argValues);
 
+    // Instantiate a game window and display it.
     p_window = new GameWindow(NULL);
     p_window->show();
 

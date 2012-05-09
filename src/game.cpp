@@ -175,37 +175,6 @@ bool Game::ConnectToServers(void) {
     return result;
 }
 
-// SERVER:  Handle an invitation from a client.
-/* static */ Game* Game::ConsiderConsole(
-    Socket& rSocket,
-    GameOpt& rGameOpt,
-    HandOpts& rHandOpts)
-{
-    Address const client_address = rSocket.Peer();
-    String question = String(client_address) + " has invited you to play a game with:\n";
-    question += String(rGameOpt);  // TODO better description
-    question += String(rHandOpts);
-    question += "Do you accept?";
-    bool const accept = Network::Question(question);
-
-    Game* p_result = NULL;
-    if (!accept) {
-        rSocket.PutLine(Network::DECLINE);
-        rSocket.Close();
-    } else {
-        bool const was_successful = rSocket.PutLine(Network::ACCEPT);
-        if (was_successful) {
-            HandOpts server_hand_opts = rHandOpts;
-            Address const server_address = rSocket.Local();
-            server_hand_opts.Serverize(client_address, server_address);
-            p_result = New(rGameOpt, server_hand_opts, rSocket);
-        }
-    }
-
-    // The caller should check for NULL and then call p_result->Initialize().
-    return p_result;
-}
-
 /* static */ void Game::ConsoleGame(void) {
     GameOpt game_opt;
     HandOpts hand_opts;
@@ -213,11 +182,8 @@ bool Game::ConnectToServers(void) {
 
 #ifdef _SERVER
     // Act as a server only.
-    while (p_game == NULL) {
-        std::cout << Network::AddressReport()
-            << "\n\nListening for a connection on port " 
-            << Network::SERVER_LISTEN_PORT << " ..." << std::endl;
 
+    while (p_game == NULL) {
         // Wait for an invitation.
         Socket data_socket = Network::CheckForConnection();
         ASSERT(data_socket.IsValid());
@@ -225,20 +191,19 @@ bool Game::ConnectToServers(void) {
         // Get game options from client.
         GameOpt game_opt;
         bool success = game_opt.GetFromClient(data_socket);
+
         if (success) {
             unsigned const hand_cnt = game_opt.HandsDealt();
             HandOpts hand_opts;
             success = hand_opts.GetFromClient(data_socket, hand_cnt);
             if (success) {
                 // Ask a user to consider the invitation.
-                p_game = ConsiderConsole(data_socket, game_opt, hand_opts);
+                p_game = Network::ConsiderInvitation(data_socket, game_opt, hand_opts);
             }
         }
     }
 
-#endif // !defined(_SERVER)
-
-#ifdef _CLIENT
+#elif defined(_CLIENT)
     // Act as a client only.
 
     // Let a local user choose game options and hand options.

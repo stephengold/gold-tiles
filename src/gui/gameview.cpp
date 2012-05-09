@@ -27,6 +27,7 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 #include "gui/menubar.hpp"
 #include "gui/player.hpp"
 #include "network.hpp"
+#include "strings.hpp"
 
 
 // lifecycle
@@ -45,7 +46,7 @@ Partial(&rGame, HINT_DEFAULT, 0.0),
     SetTileSize(TILE_SIZE_DEFAULT);
 }
 
-// The compiler-generated destructor is OK.
+// The implicitly defined destructor is OK.
 
 
 // operators
@@ -191,7 +192,7 @@ void GameView::DrawBoard(Canvas& rCanvas, unsigned showLayer) {
         --swap_cnt;
     }
 
-    // automatic targeting when exactly one cell is hinted
+    // Set target automatically if exactly one cell is hinted.
     if (IsLocalUsersTurn() && !mTargetCellFlag && CountHinted() == 1) {
         mTargetCell = FirstHinted();
         mTargetCellFlag = true;
@@ -435,8 +436,10 @@ void GameView::DrawHandTiles(Canvas& rCanvas) {
             hand_y += cell_height;
         }
 
-        /*  If the active tile came from the board, draw it later 
-        (not now) so it won't get obscured. */
+        /*  
+        If the active tile came from the board, draw it later 
+        (not now) so it won't get obscured.
+        */
         if (!IsActive(id) || !IsOnBoard(id)) {
             // inactive tile or off-board tile -- draw it now
             Point const base(x, y);
@@ -452,14 +455,22 @@ void GameView::DrawIdle(Canvas& rCanvas) {
     ColorType const text_color = COLOR_GREEN;
     rCanvas.UseColors(bg_color, text_color);
 
+    Strings message_list;
+#ifdef _SERVER
+    message_list.Append(Network::AddressReport());
+#endif  // defined(_SERVER)
+    if (mpWindow->IsWaiting()) {
+        message_list.Append(mpWindow->WaitMessage());
+    }
+#ifdef _CLIENT
+    message_list.Append("Type Ctrl+N to start a new game.");
+#endif // defined_CLIENT
+    String const messages(message_list, "\n\n"); 
+
     Point const ulc(0, 0);
     Point const brc = mpWindow->Brc(); 
     Rect const client_area(ulc, brc);
-    String msg = "Type Ctrl+N to start a new game.";
-#ifdef _SERVER
-    msg = Network::AddressReport() + "\n\n" + msg;
-#endif  // defined(_SERVER)
-    rCanvas.DrawTextMultiline(client_area, msg);
+    rCanvas.DrawTextMultiline(client_area, messages);
 }
 
 void GameView::DrawPaused(Canvas& rCanvas) {
@@ -474,7 +485,7 @@ void GameView::DrawPaused(Canvas& rCanvas) {
     Point const ulc(0, 0);
     Point const brc = mpWindow->Brc(); 
     Rect const client_area(ulc, brc);
-    rCanvas.DrawTextLine(client_area, "The game is paused.  Click here to resume.");
+    rCanvas.DrawTextMultiline(client_area, "The game is paused.\n\nClick here to resume.");
 
     LogicalYType const top_y = mPadPixels;
     LogicalXType const left_x = mPadPixels;
@@ -508,7 +519,7 @@ void GameView::DrawPlayableHand(Canvas& rCanvas) {
         }
     }
 
-    // choose colors for hand area (mHandRect)
+    // Determine the colors of the hand area (mHandRect).
     Tile::IdType const active_tile = GetActive();
     if (IsInHand(active_tile)) {
         // The active tile started from this hand.
@@ -526,7 +537,7 @@ void GameView::DrawPlayableHand(Canvas& rCanvas) {
     ColorType const edge_color = COLOR_WHITE;
     rCanvas.UseColors(area_color, edge_color);
 
-    // draw hand area (mHandRect)
+    // Draw the hand area (mHandRect).
     top_y = header_rect.BottomY() - 1;
     mHandRect = rCanvas.DrawRectangle(top_y, left_x, width, height);
     left_x = mHandRect.LeftX();
@@ -538,7 +549,7 @@ void GameView::DrawPlayableHand(Canvas& rCanvas) {
         rCanvas.DrawTextLine(mHandRect, "went out");
     }
 
-    // draw swap area (mSwapRect)
+    // Draw the swap area (mSwapRect) below the hand.
     top_y = mHandRect.BottomY() - 1;
     if (playable_hand.HasGoneOut() || playable_hand.HasResigned()) {
         mSwapRect = Rect(top_y, left_x, width, 0);
@@ -546,7 +557,7 @@ void GameView::DrawPlayableHand(Canvas& rCanvas) {
         mSwapRect = DrawSwapArea(rCanvas, top_y, left_x, width);
     }
 
-    // draw stock area (mSwapRect)
+    // Draw stock bag below the swap area.
     top_y = mSwapRect.BottomY() - 1;
     DrawStockArea(rCanvas, top_y, left_x, width);
 }
@@ -557,17 +568,18 @@ void GameView::DrawStockArea(
     LogicalXType left_x,
     PixelCntType width)
 {
-    // calculate height of the stock area
+    // Calculate the height of the stock area.
     PixelCntType const height = 2*rCanvas.TextHeight() + 3*mPadPixels;
 
-    // set colors for the stock area
+    // Set the colors of the stock area.
     ColorType const area_color = COLOR_DARK_BLUE;
     ColorType const edge_color = COLOR_WHITE;
     rCanvas.UseColors(area_color, edge_color);
 
-    // draw the stock area
+    // Draw the stock area.
     Rect const stock_rect = rCanvas.DrawRectangle(top_y, left_x, width, height);
 
+    // Draw two lines of descriptive text in the stock area.
     unsigned const stock_cnt = mpGame->CountStock();
     String const stock_text1 = plural(stock_cnt, "tile");
     LogicalYType y = top_y + mPadPixels;
@@ -638,6 +650,7 @@ void GameView::DrawTile(Canvas& rCanvas, Point const& rCenter, Tile const& rTile
     AttrCntType const marking_cnt = mDisplayModes.MarkingCnt();
     ASSERT(marking_cnt <= Markings::MARKING_CNT_MAX);
 
+    // Determine the tile's background color.
     ColorType tile_color = COLOR_LIGHT_GRAY;
     if (rTile.HasBonus()) {
         tile_color = COLOR_DULL_GOLD;
@@ -862,7 +875,7 @@ void GameView::Recenter(void) {
 }
 
 void GameView::Repaint(Canvas& rCanvas) {
-    if (mpGame == NULL) {
+    if (mpGame == NULL || mpWindow->IsWaiting()) {
         DrawIdle(rCanvas);
 
     } else if (IsGamePaused()) {

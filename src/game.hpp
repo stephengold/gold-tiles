@@ -52,7 +52,7 @@ class Game {
 public:
     // public lifecycle
     // no default constructor -- use Game::New()
-    // ~Game(void);  compiler-generated destructor is OK
+    // ~Game(void);  implicitly defined destructor
 
     // public operators
     operator Board(void) const;
@@ -136,8 +136,6 @@ private:
     // misc private methods
     void       AddTurn(Turn const&);
     bool       ConnectToServers(void);
-    static Game* 
-               ConsiderConsole(Socket&, GameOpt&, HandOpts&);
     void       DescribeScores(void) const;
     void       DescribeStatus(void) const;
     EndingType Ending(void) const;

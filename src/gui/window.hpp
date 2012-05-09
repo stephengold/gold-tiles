@@ -40,8 +40,10 @@ The Window class is implemented by extending the BaseWindow class.
 # include "gui/basewindow.hpp" // ISA BaseWindow
 #elif defined(_QT)
 # include <QMainWindow>        // ISA QMainWindow
+# define IDYES 1
 #endif // defined(_QT)
 #include "gui/rect.hpp"        // HASA PixelCntType
+#include "string.hpp"          // HASA String
 
 class Window: public
 #ifdef _WINDOWS
@@ -53,7 +55,7 @@ class Window: public
 public:
     // public lifecycle
     Window(void);
-    // ~Window(void);  compiler-generated destructor is OK
+    // ~Window(void);  implicitly defined destructor
 
     // public operators
     operator Rect(void) const;
@@ -62,6 +64,7 @@ public:
     Point         Brc(void) const;
     PixelCntType  ClientAreaHeight(void) const;
     PixelCntType  ClientAreaWidth(void) const;
+    void          DoneWaiting(void);
 #ifdef _WINDOWS
     Win::LRESULT  HandleMessage(MessageType, Win::WPARAM, Win::LPARAM);
 #endif // defined(_WINDOWS)
@@ -73,7 +76,12 @@ public:
     int           QuestionBox(TextType message, TextType title);
     bool          RetryBox(TextType message, TextType title);
     void          Show(int showHow);
+    void          WaitingFor(String const& event);
+    String        WaitMessage(void) const;
     void          Yields(void);
+
+// public inquiry methods
+    bool IsWaiting(void) const;
 
 protected:
     // misc protected methods
@@ -93,7 +101,6 @@ protected:
 #ifdef _WINDOWS
     void  Initialize(Win::CREATESTRUCT const&);
 #endif // defined(_WINDOWS)
-    bool  IsMouseCaptured(void) const;
     void  ReleaseMouse(void);
     void  SelfDestruct(void);
     void  SetAcceleratorTable(TextType resourceName);
@@ -108,6 +115,9 @@ protected:
     int   WarnBox(TextType message, TextType title);
     void  WarpCursor(Point const&);
 
+    // protected inquiry methods
+    bool IsMouseCaptured(void) const;
+
 private:
 #ifdef _WINDOWS
     Win::HACCEL      mAcceleratorTable;
@@ -117,6 +127,8 @@ private:
     Win::HDC         mPaintDevice;
     Win::PAINTSTRUCT mPaintStruct;
 #endif // defined(_WINDOWS)
+    bool             mWaitingFlag;
+    String           mWaitingFor;
 
     // private lifecycle
     Window(Window const&); // not copyable

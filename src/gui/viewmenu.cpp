@@ -36,9 +36,8 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 
 ViewMenu::ViewMenu(void):
 SubMenu(tr("&View")),
-    mTileSize(Qt(), "&Tile Size"),
     mRecenter(Qt(), "&Re-center\tC"),
-    mAttributes(Qt(), "Tile &Attributes..."),
+    mAttrs(Qt(), "Tile &Attributes..."),
     mHints(Qt(), "&Hints..."),
     mShowClocks(Qt(), "Show &Clocks"),
     mShowGrid(Qt(), "Show &Grid"),
@@ -49,9 +48,8 @@ SubMenu(tr("&View")),
     QKeySequence const c(tr("C"));
     mRecenter.SetShortcut(c);
 
-    Add(mTileSize);
     Add(mRecenter);
-    Add(mAttributes);
+    Add(mAttrs);
     Add(mHints);
     AddSeparator();
     Add(mShowClocks);
@@ -78,7 +76,7 @@ SubMenu(rRootMenu, position),
 
 #endif // defined(_WINDOWS)
 
-// The compiler-generated destructor is OK.
+// The implicitly defined destructor is OK.
 
 
 // misc methods

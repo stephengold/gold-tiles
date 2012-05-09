@@ -26,7 +26,6 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 #ifdef _WINDOWS
 # include "gui/win_types.hpp"
 #endif // defined(_WINDOWS)
-#include "string.hpp"
 
 
 // lifecycle
@@ -36,6 +35,7 @@ Window::Window(void) {
     mAcceleratorTable = 0;
     mPaintDevice = 0;
 #endif // defined(_WINDOWS)
+    mWaitingFlag = false;
 }
 
 #ifdef _WINDOWS
@@ -175,6 +175,11 @@ void Window::Create(
     ASSERT(handle == HWND(*this));
 }
 #endif // defined(_WINDOWS)
+
+void Window::DoneWaiting(void) {
+    mWaitingFlag = false;
+    ForceRepaint();
+}
 
 void Window::EndPaint(void) {
 #ifdef _WINDOWS
@@ -470,6 +475,18 @@ void Window::UseFibers(void) {
 #endif // defined(_WINDOWS)
 }
 
+void Window::WaitingFor(String const& rEventDescription) {
+    mWaitingFlag = true;
+    mWaitingFor = rEventDescription;
+    ForceRepaint();
+}
+
+String Window::WaitMessage(void) const {
+    String const result = String("Waiting for ") + mWaitingFor + ".";
+
+    return result;
+}
+
 // display a simple dialog box with a warning message and buttons for Cancel, Try Again, and Continue
 int Window::WarnBox(TextType message, TextType title) {
 #ifdef _QT
@@ -536,4 +553,8 @@ bool Window::IsMouseCaptured(void) const {
 
     return result;
 #endif // defined(_WINDOWS)
+}
+
+bool Window::IsWaiting(void) const {
+    return mWaitingFlag;
 }

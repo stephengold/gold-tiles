@@ -1,6 +1,6 @@
 // File:     address.cpp
 // Location: src
-// Purpose:  Address class for the Gold Tile Game
+// Purpose:  implement Address class
 // Author:   Stephen Gold sgold@sonic.net
 // (c) Copyright 2012 Stephen Gold
 // Distributed under the terms of the GNU General Public License
@@ -24,8 +24,9 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "address.hpp"
 #include "strings.hpp"
-
-#ifdef _WINSOCK2
+#ifdef _QT
+# include <QNetworkInterface>
+#elif defined(_WINSOCK2)
 # include "gui/win_types.hpp"
 namespace Win {
 # include <iphlpapi.h> // IP help API
@@ -46,42 +47,73 @@ const String Address::DEFAULT("172.27.100.25");
 // lifecycle
 
 Address::Address(void):
+#ifdef _WINSOCK2
 mString(DEFAULT)
+#elif defined(_QT)
+QHostAddress(QString(DEFAULT))
+#endif // defined(_QT)
 {
 }
 
-// The compiler-generated copy constructor is fine.
+// The implicitly defined copy constructor is fine.
 
-Address::Address(String const &rString) {
+Address::Address(String const &rString)
+#ifdef _QT
+:QHostAddress(QString(rString))
+#endif // defined(_QT)
+{
+#ifdef _WINSOCK2
     unsigned long const address = Win::inet_addr(rString);
 
     IN_ADDR ipv4_address;
     ipv4_address.S_un.S_addr = address;
     TextType const text = Win::inet_ntoa(ipv4_address);
     mString = String(text);
+#endif
 }
 
 // Construct from a 32-bit address in network (bigendian) byte order.
-Address::Address(unsigned long address) {
+Address::Address(unsigned long address)
+#ifdef _QT
+:QHostAddress(quint32(address))
+#endif // defined(_QT)
+{
+#ifdef _WINSOCK2
     IN_ADDR ipv4_address;
     ipv4_address.S_un.S_addr = address;
     TextType const text = Win::inet_ntoa(ipv4_address);
     mString = String(text);
+#endif // defined(_WINSOCK2)
 }
 
-// The compiler-generated destructor is fine.
+#ifdef _QT
+Address::Address(QHostAddress const& rAddress):
+    QHostAddress(rAddress)
+{
+}
+#endif // defined(_QT)
+
+// The implicitly defined destructor is fine.
 
 
 // operators
 
-// The compiler-generated assignment operator is fine.
+// The implicitly defined assignment operator is fine.
 
 Address::operator String(void) const {
+#ifdef _QT
+    return String(toString());
+#elif defined(_WINSOCK2)
     return mString;
+#endif // defined(_WINSOCK2)
 }
 
 Address::operator unsigned long(void) const {
+#ifdef _QT
+    unsigned long const result = (unsigned long)(toIPv4Address());
+#elif defined(_WINSOCK2)
     unsigned long const result = Win::inet_addr(mString);
+#endif // defined(_WINSOCK2)
 
     return result;
 }
@@ -89,8 +121,21 @@ Address::operator unsigned long(void) const {
 
 // misc methods
 
-// List all usable, local IP addresses, excluding localhost.
+// List all usable, local IPv4 addresses, excluding localhost.
 /* static */ Strings Address::ListAll(void) {
+#ifdef _QT
+    QList<QHostAddress> const list = QNetworkInterface::allAddresses();
+    Strings result;
+    QList<QHostAddress>::const_iterator i_address;
+    for (i_address = list.constBegin(); i_address != list.constEnd(); i_address++) {
+        QHostAddress const address = *i_address;
+        if (address != QHostAddress::LocalHost
+         && address.protocol() == QAbstractSocket::IPv4Protocol) {
+            String const string(address.toString());
+            result.Append(string);
+        }
+    }
+#elif defined(_WINSOCK2)
     // allocate a too-small buffer for the address table
     PMIB_IPADDRTABLE p_table = new MIB_IPADDRTABLE;
     ASSERT(p_table != NULL);
@@ -125,10 +170,12 @@ Address::operator unsigned long(void) const {
         }
     }
     delete p_table;
+#endif // defined(_WINSOCK2)
 
     return result;
 }
 
+#ifdef _WINSOCK2
 Address::NetType Address::Net(void) const {
     unsigned long const address = Win::inet_addr(mString);
 
@@ -138,3 +185,4 @@ Address::NetType Address::Net(void) const {
 
     return result;
 }
+#endif // defined(_WINSOCK2)

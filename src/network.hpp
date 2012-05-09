@@ -38,14 +38,16 @@ and others for it to send to when it is a client (inviter).
 #include <map>         // HASA std::map
 #include "address.hpp" // HASA Address
 #include "socket.hpp"  // HASA Socket
+#ifdef _QT
+# include <QTcpServer>
+#endif // defined(_QT)
 
 
 class Network {
 public:
     // public constants
-    static const String   ACCEPT;
-    static const String   DECLINE;
-    static const TextType SERVER_LISTEN_PORT;
+    static const String ACCEPT;
+    static const String DECLINE;
 
     // public lifecycle
     Network(void);
@@ -55,6 +57,7 @@ public:
     static String AddressReport(void);
     static Socket CheckForConnection(void);
     static bool   ConnectToServer(Address const&, Game&);
+    static Game*  ConsiderInvitation(Socket&, GameOpt const&, HandOpts&);
     static void   Notice(String const&);
     static bool   Question(String const&);
 #ifdef _GUI
@@ -62,10 +65,18 @@ public:
 #endif // defined(_GUI)
 
 private:
+    // private constants
+    static const int      MAX_CONNECTION_CNT = 1;
+    static const TextType SERVER_LISTEN_PORT;
+
     // private data
-    static Socket   msListen;
+#ifdef _WINSOCK2
+    static Socket       msListen;
+#elif defined(_QT)
+    static QTcpServer* mspServer;
+#endif // defined(_WINSOCK2)
 #ifdef _GUI
-    static Window* mspWindow;
+    static Window*     mspWindow;
 #endif // defined(_GUI)
 
     // private lifecycle
@@ -75,11 +86,13 @@ private:
     Network& operator=(Network const&); // not assignable
 
     // misc private methods
+    static void   DoneWaiting(void);
     static bool   InviteServer(Socket&, Game const&);
     static Socket OpenListen(void* addrinfo_list);
     static Socket OpenServer(void* addrinfo_list, Address const& server);
     static bool   Retry(String const&);
     static bool   StartServer(void);
+    static void   WaitingFor(String const&);
 };
 #endif // !defined(NETWORK_HPP_INCLUDED)
 

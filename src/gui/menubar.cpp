@@ -36,12 +36,14 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 #ifdef _QT
 
 MenuBar::MenuBar(Partial const& rPartial):
-mrPartial(rPartial),
+   mrPartial(rPartial),
+    mThinking(tr("&Thinking")),
     mHelpMenu(tr("&Help"))
 {
     addMenu(mFileMenu.Qt());
     addMenu(mPlayMenu.Qt());
     addMenu(mViewMenu.Qt());
+    addMenu(mThinking.Qt());
 
     MenuItem rules(mHelpMenu.Qt(), tr("&Rules"));
     mHelpMenu.Add(rules);
@@ -80,7 +82,7 @@ void MenuBar::Initialize(GameStyleType gameStyle) {
     mTileSize = GameView::TILE_SIZE_DEFAULT;
 }
 
-// The compiler-generated destructor is OK.
+// The implicitly defined destructor is OK.
 
 // misc methods
 

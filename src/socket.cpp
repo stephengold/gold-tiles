@@ -25,8 +25,8 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 #include <iostream>    // cout
 #include "address.hpp"
 #include "network.hpp"
-
 #ifdef _WINSOCK2
+# include "fifo.hpp"
 # define WIN32_LEAN_AND_MEAN
 # include "gui/win_types.hpp"
 namespace Win {
@@ -42,7 +42,7 @@ using Win::SOCKET;
 
 // static data
 
-void*                      Socket::mspYieldArgument = NULL;
+void* Socket::mspYieldArgument = NULL;
 Socket::YieldFunctionType* Socket::mspYieldFunction = NULL;
 
 
@@ -50,13 +50,18 @@ Socket::YieldFunctionType* Socket::mspYieldFunction = NULL;
 
 // construct an invalid socket
 Socket::Socket(void) {
+#ifdef _WINSOCK2
     mpReadBuffer = NULL;
     Invalidate();
+#elif defined(_QT)
+    mpSocket = NULL;
+#endif // defined(_QT)
 
     ASSERT(!IsValid());
 }
 
-// construct a server-side socket based on a Winsock handle
+#ifdef _WINSOCK2
+// Construct a Socket based on a Winsock handle.
 Socket::Socket(HandleType handle) {
     ASSERT(handle != HandleType(INVALID_SOCKET));
 
@@ -65,18 +70,30 @@ Socket::Socket(HandleType handle) {
 
     ASSERT(IsValid());
 }
+#elif defined(_QT)
+// Construct a Socket out of a QTcpSocket pointer.
+Socket::Socket(QTcpSocket* pSocket) {
+    ASSERT(pSocket != NULL);
 
-// The compiler-generated copy constructor is fine.
-// The compiler-generated destructor is fine.
+    mpSocket = pSocket;
+
+    ASSERT(IsValid());
+}
+#endif // defined(_QT)
+
+// The implicitly defined copy constructor is fine.
+// The implicitly defined destructor is fine.
 
 
 // operators
 
-// The compiler-generated assignment operator is fine.
+// The implicitly defined assignment operator is fine.
 
+#ifdef _WINSOCK2
 Socket::operator Socket::HandleType(void) const {
     return mHandle;
 }
+#endif // defined(_WINSOCK2)
 
 
 // misc methods
@@ -84,9 +101,13 @@ Socket::operator Socket::HandleType(void) const {
 void Socket::Close(void) {
     ASSERT(IsValid());
 
+#ifdef _QT
+    mpSocket->close();
+#elif defined(_WINSOCK2)
     SOCKET const socket = SOCKET(mHandle);
     int failure = Win::closesocket(socket);
     ASSERT(failure == 0);
+#endif // defined(_WINSOCK2)
 
     Invalidate();
 
@@ -97,6 +118,13 @@ void Socket::Close(void) {
 bool Socket::GetCharacter(char& rCharacter) {
     ASSERT(IsValid());
 
+#ifdef _QT
+    while (mpSocket->bytesAvailable() < 1) {
+        mpSocket->waitForReadyRead(100);
+    }
+    bool const was_successful = mpSocket->getChar(&rCharacter);
+    ASSERT(was_successful);
+#elif defined(_WINSOCK2)
     bool was_successful = true;
     if (!HasBufferedData()) {
         was_successful = Read();
@@ -104,6 +132,7 @@ bool Socket::GetCharacter(char& rCharacter) {
     if (was_successful) {
         rCharacter = mpReadBuffer->GetByte();
     }
+#endif // defined(_WINSOCK2)
 
     return was_successful;
 }
@@ -146,8 +175,12 @@ bool Socket::GetParagraph(String& rString) {
 
 void Socket::Invalidate(void) {
     // TODO: close? free buffer?
-
+#ifdef _QT
+    mpSocket = NULL;
+#elif defined(_WINSOCK2)
     mHandle = HandleType(INVALID_SOCKET);
+#endif // defined(_WINSOCK2)
+
     ASSERT(!IsValid());
 }
 
@@ -155,6 +188,9 @@ void Socket::Invalidate(void) {
 Address Socket::Local(void) const {
     ASSERT(IsValid());
 
+#ifdef _QT
+    QHostAddress const address = mpSocket->localAddress();
+#elif defined(_WINSOCK2)
     SOCKET const socket = SOCKET(mHandle);
     SOCKADDR sockaddr;
     int length = sizeof(sockaddr);
@@ -164,17 +200,23 @@ Address Socket::Local(void) const {
 
     PSOCKADDR_IN const s = PSOCKADDR_IN(&sockaddr);
     in_addr const in = s->sin_addr;
-    TextType address =  Win::inet_ntoa(in);
+    TextType const address = Win::inet_ntoa(in);
+#endif // defined(_WINSOCK2)
 
     Address const result(address);
 
     return result;
 }
 
-// Get the address of the peer to which the socket is connected.
+// Get the address of the peer (host) to which the socket connects.
 Address Socket::Peer(void) const {
     ASSERT(IsValid());
 
+#ifdef _QT
+    ASSERT(mpSocket->state() == QAbstractSocket::ConnectedState);
+    QHostAddress const address = mpSocket->peerAddress();
+    ASSERT(address != QHostAddress::Null);
+#elif defined(_WINSOCK2)
     SOCKET const socket = SOCKET(mHandle);
     SOCKADDR sockaddr;
     int length = sizeof(sockaddr);
@@ -184,7 +226,8 @@ Address Socket::Peer(void) const {
 
     PSOCKADDR_IN const s = PSOCKADDR_IN(&sockaddr);
     in_addr const in = s->sin_addr;
-    TextType address =  Win::inet_ntoa(in);
+    TextType const address =  Win::inet_ntoa(in);
+#endif // defined(_WINSOCK2)
 
     Address const result(address);
 
@@ -194,6 +237,13 @@ Address Socket::Peer(void) const {
 bool Socket::Put(String const& rString) {
     ASSERT(IsValid());
 
+#ifdef _QT
+    TextType const data = rString;
+    qint64 bytes_sent = mpSocket->write(data);
+    if (bytes_sent == -1) {
+        FAIL();
+    }
+#elif defined(_WINSOCK2)
     SOCKET const socket = SOCKET(mHandle);
     char const* const p_buffer = TextType(rString);
     int const buffer_size = rString.Length();
@@ -210,8 +260,9 @@ bool Socket::Put(String const& rString) {
         }
         FAIL();
     }
-
     ASSERT(bytes_sent == buffer_size);
+#endif // defined(_WINSOCK2)
+
     ASSERT(IsValid());
     return true;
 }
@@ -223,6 +274,7 @@ bool Socket::PutLine(String const& rLine) {
     return was_successful;
 }
 
+#ifdef _WINSOCK2
 // Read some more network data into the FIFO buffer.
 // Return true if successful, false if canceled.
 bool Socket::Read(void) {
@@ -275,6 +327,7 @@ bool Socket::Read(void) {
 
     return was_successful;
 }
+#endif // defined(_WINSOCK2)
 
 // Set up a callback to be invoked when waiting for data from the network.
 /* static */ void Socket::SetYield(
@@ -296,15 +349,25 @@ bool Socket::Read(void) {
 
 bool Socket::HasBufferedData(void) const {
     ASSERT(IsValid());
+
+#ifdef _QT
+    qint64 const byte_cnt = mpSocket->bytesAvailable();
+    bool const result = (byte_cnt > 0);
+#elif defined(_WINSOCK2)
     bool const result = mpReadBuffer->HasData();
+#endif // defined(_WINSOCK2)
 
     return result;
 }
 
 bool Socket::IsValid(void) const {
+#ifdef _QT
+    bool const result = (mpSocket != NULL);
+#elif defined(_WINSOCK2)
     bool const result = (mHandle != HandleType(INVALID_SOCKET)
         && mpReadBuffer != NULL
         && mpReadBuffer->IsValid());
+#endif // defined(_WINSOCK2)
 
     return result;
 }

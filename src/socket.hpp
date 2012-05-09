@@ -65,6 +65,7 @@ public:
     bool    GetParagraph(String&);
     void    Invalidate(void);
     Address Local(void) const;
+    void    MakeNonblocking(void);
     Address Peer(void) const;
     bool    Put(String const&);
     bool    PutLine(String const&);

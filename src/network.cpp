@@ -40,7 +40,6 @@ using Win::ADDRINFOA;
 using Win::IPPROTO_TCP;
 using Win::PADDRINFOA;
 using Win::SOCKET;
-using Win::u_long;
 using Win::WSADATA;
 #endif // defined(_WINSOCK2)
 
@@ -159,13 +158,11 @@ Network::~Network(void) {
         // There's no connection yet.
     } else {
         DoneWaiting();
-#ifdef _GUI
-        // Put new data socket into non-blocking mode.
-        u_long non_blocking = 1;
-        int const failure = Win::ioctlsocket(data_socket, FIONBIO, &non_blocking);
-        ASSERT(failure == 0);
-#endif // defined(_GUI)
         result = Socket(Socket::HandleType(data_socket));
+# ifdef _GUI
+        // Put new data socket into non-blocking mode.
+        result.MakeNonblocking();
+# endif // defined(_GUI)
     }
 #endif // defined(_WINSOCK2)
 
@@ -252,15 +249,11 @@ Network::~Network(void) {
         return false;
     }
 
-#ifdef _GUI
-    // Put listen socket into non-blocking mode.
-    u_long non_blocking = 1;
-    int const ioctl_failure = Win::ioctlsocket(data_socket, FIONBIO, &non_blocking);
-    ASSERT(ioctl_failure == 0);
-#endif // defined(_GUI)
-
     Socket socket = Socket(Socket::HandleType(data_socket));
-
+# ifdef _GUI
+    // Put listen socket into non-blocking mode.
+    socket.MakeNonblocking();
+# endif // defined(_GUI)
 #endif // defined(_WINSOCK2)
 
     // Invite the server to play.
@@ -514,7 +507,7 @@ Network::~Network(void) {
     String end_of_line;
     std::getline(std::cin, end_of_line);
     // The console version retries until something kills the application,
-    // such as a local user pressing Ctrl+C.
+    // such as a local user typing Ctrl+C.
 #endif // defined(_CONSOLE)
 
     return result;
@@ -534,7 +527,6 @@ Network::~Network(void) {
     mspServer = new QTcpServer;
     ASSERT(mspServer != NULL);
 
-    FAIL();
     quint16 const port = long(String(SERVER_LISTEN_PORT));
     bool const success = mspServer->listen(QHostAddress::Any, port);
     if (!success) {
@@ -575,9 +567,7 @@ Network::~Network(void) {
 
 # ifdef _GUI
     // Put listen socket into non-blocking mode.
-    u_long non_blocking = 1;
-    failure = Win::ioctlsocket(server_listen, FIONBIO, &non_blocking);
-    ASSERT(failure == 0);
+    msListen.MakeNonblocking();
 # endif // defined(_GUI)
 #endif // defined(_WINSOCK2)
 

@@ -185,6 +185,7 @@ bool Game::ConnectToServers(void) {
 
     while (p_game == NULL) {
         // Wait for an invitation.
+//        FAIL();
         Socket data_socket = Network::CheckForConnection();
         ASSERT(data_socket.IsValid());
 

@@ -34,6 +34,7 @@ namespace Win {
 # pragma comment(lib, "ws2_32.lib")  // link with ws2_32.lib
 };
 using Win::in_addr;
+using Win::u_long;
 using Win::PSOCKADDR_IN;
 using Win::SOCKADDR;
 using Win::SOCKET;
@@ -206,6 +207,17 @@ Address Socket::Local(void) const {
     Address const result(address);
 
     return result;
+}
+
+void Socket::MakeNonblocking(void) {
+    ASSERT(IsValid());
+
+#ifdef _WINSOCK2
+    SOCKET const socket = SOCKET(mHandle);
+    u_long non_blocking = 1;
+    int const failure = Win::ioctlsocket(socket, FIONBIO, &non_blocking);
+    ASSERT(failure == 0);
+#endif // defined(_WINSOCK2)
 }
 
 // Get the address of the peer (host) to which the socket connects.

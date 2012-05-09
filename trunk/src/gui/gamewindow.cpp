@@ -902,7 +902,7 @@ void GameWindow::PollForInvitation(void) {
     }
 
     Address const address = socket.Peer();
-    String question = "Consider invitation from " + String(address) + "?";
+    String const question = "Consider invitation from " + String(address) + "?";
     int const consider = QuestionBox(question, "Consider Invitation - Gold Tile");
     if (consider != IDYES) {
         return;

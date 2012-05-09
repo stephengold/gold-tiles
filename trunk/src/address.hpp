@@ -32,20 +32,31 @@ The Address class encapsulates a String.
 Currently, only IPv4 addresses are supported.
 */
 
+#include "project.hpp" // _WINSOCK2
 #include "string.hpp"  // HASA String
+#ifdef _QT
+# include <QHostAddress>  // ISA QHostAddress
+#endif // defined(_QT)
 
 
-class Address {
+class Address
+#ifdef _QT
+: public QHostAddress
+#endif // defined(_QT)
+{
 public:
     // public lifecycle
     Address(void);
-    // Address(Address const&);  compiler-generated copy constructor is OK
+    // Address(Address const&);  implicitly defined copy constructor
     explicit Address(String const&);
     explicit Address(unsigned long);
-    // ~Address(void);  compiler-generated destructor is OK
+#ifdef _QT
+    explicit Address(QHostAddress const&);
+#endif // defined(_QT)
+    // ~Address(void);  implicitly defined destructor
 
     // public operators
-    // Address &operator=(Address const&);  compiler-generated assignment operator is OK
+    // Address &operator=(Address const&);  implicitly defined assignment operator
     operator String(void) const;
     operator unsigned long(void) const;
 

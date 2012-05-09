@@ -9,33 +9,35 @@
 // Distributed under the terms of the GNU General Public License
 
 
-// platform, UI, and network configuration macros
+// configuration #ifdefs
 #ifdef _QT
+# ifdef _NETWORK_TEST
+#  define _CONSOLE
+# else // !defined(_NETWORK_TEST)
+#  define _GUI
+# endif // !defined(_NETWORK_TEST)
 
 #elif defined(_WINDOWS)
 # define Q_OBJECT
-# define _WINSOCK2
+# define _GUI
+# ifndef WIN32
+#  error _WINDOWS build requires WIN32
+# endif // !defined(WIN32)
 
 #elif !defined(_CONSOLE)
 # define _CONSOLE
 #endif
 
+// network configuration #ifdefs
+#ifndef _QT
+# define _WINSOCK2
+#endif // !defined(_QT)
+
 #ifdef _CONSOLE
 # if defined(_CLIENT) && defined(_SERVER)
-#  error console build cannot act as both a client and a server
+#  error _CONSOLE build cannot act as both a client and a server
 # endif
-# ifdef WIN32
-#  define _WINSOCK2
-# endif // defined(WIN32)
-#else // !defined(_CONSOLE)
-# define _GUI
-# define _CLIENT
-# define _SERVER
 #endif // !defined(_CONSOLE)
-
-#if !defined(_CLIENT) && !defined(_SERVER)
-#  error build should include either client or server support
-#endif
 
 // debugging macros: D(), ASSERT(), and FAIL()
 #ifdef _DEBUG

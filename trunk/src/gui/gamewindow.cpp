@@ -25,14 +25,15 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 #include "gui/canvas.hpp"
 #include "gui/gamewindow.hpp"
 #include "gui/menubar.hpp"
+#include "gui/player.hpp"
+#include "handopts.hpp"
 #include "network.hpp"
 #include "strings.hpp"
 
 #ifdef _QT
-#include "ui_gamewindow.h"
+# include "ui_gamewindow.h"
 
 GameWindow::GameWindow(Game* pGame):
-QMainWindow(NULL),  // the top window has no parent
     mMouseLast(0, 0),
     mGameView(*pGame)
 {
@@ -43,22 +44,20 @@ QMainWindow(NULL),  // the top window has no parent
     mpMenuBar = new MenuBar(mGameView);
     setMenuBar(mpMenuBar);
 }
-#endif
+#endif // defined(_QT)
 
 #ifdef  _WINDOWS
-#include "gui/attrbox.hpp"
-#include "gui/handbox.hpp"
-#include "gui/hintbox.hpp"
-#include "gui/parmbox1.hpp"
-#include "gui/parmbox2.hpp"
-#include "gui/parmbox3.hpp"
-#include "gui/player.hpp"
-#include "gui/resource.hpp"
-#include "gui/tilebox.hpp"
-#include "gui/win_types.hpp"
-#include "gui/windowclass.hpp"
-#include "handopts.hpp"
-
+# include "gui/attrbox.hpp"
+# include "gui/handbox.hpp"
+# include "gui/hintbox.hpp"
+# include "gui/parmbox1.hpp"
+# include "gui/parmbox2.hpp"
+# include "gui/parmbox3.hpp"
+# include "gui/resource.hpp"
+# include "gui/tilebox.hpp"
+# include "gui/win_types.hpp"
+# include "gui/windowclass.hpp"
+#endif // defined(_WINDOWS)
 
 // static data of the class
 
@@ -67,6 +66,7 @@ WindowClass* GameWindow::mspClass = NULL;
 
 // static callback functions
 
+#ifdef  _WINDOWS
 // message handler (callback) for game window
 static LRESULT CALLBACK message_handler(
     HWND windowHandle,
@@ -95,6 +95,7 @@ static void CALLBACK think(void* pArgument) {
 
     window->Think();
 }
+#endif // defined(_WINDOWS)
 
 static void yield(void* pArgument, bool& rCancel) {
     GameWindow* const window = (GameWindow*)pArgument;
@@ -106,6 +107,7 @@ static void yield(void* pArgument, bool& rCancel) {
 
 // lifecycle
 
+#ifdef _WINDOWS
 GameWindow::GameWindow(HINSTANCE applicationInstance, Game* pGame):
 mGameView(*pGame),
     mMouseLast(0, 0)
@@ -154,11 +156,13 @@ mGameView(*pGame),
 
     // Wait for message_handler() to receive a message with this handle.
 }
+#endif // defined(_WINDOWS)
 
 GameWindow::~GameWindow(void) {
     delete mpMenuBar;
 }
 
+#ifdef _WINDOWS
 void GameWindow::Initialize(CREATESTRUCT const& rCreateStruct) {
     // Initialization which takes place after the Microsoft Windows window
     // has received its WM_CREATE message.
@@ -193,6 +197,7 @@ void GameWindow::Initialize(CREATESTRUCT const& rCreateStruct) {
     SetTimer(TIMEOUT_MSEC, ID_CLOCK_TIMER);
     UpdateMenuBar();
 }
+#endif // defined(_WINDOWS)
 
 
 // misc methods
@@ -259,7 +264,7 @@ void GameWindow::GameOver(void) {
 
 int GameWindow::GameWarnBox(TextType messageText) {
     String message(messageText);
-    String title = "Information";
+    String title = "Warning";
 
     // expand shortcuts
     if (::str_eq(message, "FEWTILES")) {
@@ -324,6 +329,7 @@ void GameWindow::HandleButtonUp(Point const& rMouse) {
     }
 }
 
+#ifdef _WINDOWS
 void GameWindow::HandleMenuCommand(IdType command) {
     switch (command) {
         // File menu options
@@ -622,11 +628,13 @@ LRESULT GameWindow::HandleMessage(MessageType message, WPARAM wParam, LPARAM lPa
 
 #ifdef _SERVER
     // Check for a new invitation from a client.
+    Network::SetWindow(this);
     PollForInvitation();
 #endif // defined(_SERVER)
 
     return result;
 }
+#endif // defined(_WINDOWS)
 
 void GameWindow::HandleMouseMove(Point const& rMouse) {
     long const drag_x = rMouse.X() - mMouseLast.X();
@@ -913,28 +921,7 @@ void GameWindow::PollForInvitation(void) {
         return;
     }
 
-    Address const client_address = socket.Peer();
-    question = String(client_address) + " has invited you to play a game with:\n";
-    question += String(game_opt);  // TODO better description
-    question += String(hand_opts);
-    question += "Do you accept?";
-    bool const accept = Network::Question(question);
-
-    if (!accept) {
-        socket.PutLine(Network::DECLINE);
-        socket.Close();
-        return;
-    }
-
-    bool const was_successful = socket.PutLine(Network::ACCEPT);
-    if (!was_successful) {
-        return;
-    }
-
-    Address const server_address = socket.Local();
-    hand_opts.Serverize(client_address, server_address);
-
-    Game* const p_new_game = Game::New(game_opt, hand_opts, socket);
+    Game* p_new_game = Network::ConsiderInvitation(socket, game_opt, hand_opts);
     if (p_new_game != NULL) {
         success = p_new_game->Initialize();
         if (success) {
@@ -1158,8 +1145,9 @@ void GameWindow::SetGame(Game* pGame) {
 
     GameStyleType old_style = GAME_STYLE_NONE;
     if (HasGame()) {
-        // TODO: free old Game object?
         old_style = mpGame->Style();
+        mThinkMode = THINK_CANCEL;
+        //delete mpGame;
     }
 
     mpGame = pGame;
@@ -1354,4 +1342,3 @@ bool GameWindow::IsThinkCanceled(void) const {
 
     return result;
 }
-#endif // !defined(_WINDOWS)

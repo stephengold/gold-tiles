@@ -48,7 +48,7 @@ static INT_PTR CALLBACK message_handler(
 // lifecycle
 
 ParmBox1::ParmBox1(GameOpt& rGameOpt):
-Dialog("PARMBOX1", &message_handler),
+    Dialog("PARMBOX1", &message_handler),
     mrGameOpt(rGameOpt)
 {
 }
@@ -64,6 +64,8 @@ INT_PTR ParmBox1::HandleMessage(MessageType message, WPARAM wParam, LPARAM lPara
         Dialog::HandleMessage(message, wParam);
 
         SetStyle();
+
+        SetTextValue(IDC_EDIT_SEED, mrGameOpt.Seed());
 
         IdType const slider_id = IDC_SLIDERMINUTES;
         ValueType const min_value = GameOpt::MINUTES_PER_HAND_MIN;
@@ -99,6 +101,22 @@ INT_PTR ParmBox1::HandleMessage(MessageType message, WPARAM wParam, LPARAM lPara
         IdType const control_id = LOWORD(wParam);
         int const notification_code = HIWORD(wParam);
         switch (control_id) {
+        case IDC_CHECKBOX_RANDOMIZE:
+            if (notification_code == BN_CLICKED) {
+                bool const value = GetCheckboxValue(control_id);
+                mrGameOpt.SetRandomizeFlag(value);
+                SetStyle();
+            }
+            break;
+
+        case IDC_EDIT_SEED: {
+            ValueType const value = GetTextValue(control_id);
+            if (value != VALUE_INVALID) {
+                mrGameOpt.SetSeed(value);
+            }
+            break;
+        }
+
         case IDC_EDITMINUTES: {
             ValueType const value = GetTextValue(control_id);
             if (value != VALUE_INVALID) {
@@ -118,6 +136,8 @@ INT_PTR ParmBox1::HandleMessage(MessageType message, WPARAM wParam, LPARAM lPara
                 mrGameOpt.SetRules(rules); 
             }
             break;
+
+
         case IDC_RADIODEBUG:
         case IDC_RADIOPRACTICE:
         case IDC_RADIOFRIENDLY:
@@ -154,10 +174,20 @@ INT_PTR ParmBox1::HandleMessage(MessageType message, WPARAM wParam, LPARAM lPara
 }
 
 void ParmBox1::SetStyle(void) {
-    SetButton(IDC_RADIODEBUG, mrGameOpt.IsDebug());
+    bool const is_debug = mrGameOpt.IsDebug();
+
+    SetButton(IDC_RADIODEBUG, is_debug);
     SetButton(IDC_RADIOPRACTICE, mrGameOpt.IsPractice());
     SetButton(IDC_RADIOFRIENDLY, mrGameOpt.IsFriendly());
     SetButton(IDC_RADIOCHALLENGE, mrGameOpt.IsChallenge());
+
+    if (!is_debug) {
+        mrGameOpt.SetRandomizeFlag(true);
+    }
+    EnableControl(IDC_CHECKBOX_RANDOMIZE, is_debug);
+    EnableControl(IDC_EDITMINUTES, mrGameOpt.IsChallenge());
+    EnableControl(IDC_EDIT_SEED, !mrGameOpt.IsRandomized());
+    SetButton(IDC_CHECKBOX_RANDOMIZE, mrGameOpt.IsRandomized());
 }
 
 void ParmBox1::SetStyle(IdType buttonId) {
@@ -177,6 +207,7 @@ void ParmBox1::SetStyle(IdType buttonId) {
     default:
         FAIL();
     }
-    EnableControl(IDC_EDITMINUTES, mrGameOpt.IsChallenge());
+
+    SetStyle();
 }
 #endif // defined(_WINDOWS)

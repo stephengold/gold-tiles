@@ -31,14 +31,22 @@ An Area object represents the dimensions (in pixels) of an on-screen rectangle.
 The Area class encapsulates two PixelCntType members. 
 */
 
+#ifdef _WINDOWS
+# include "gui/win.hpp"  // Win::SIZE
+using Win::SIZE;
+#elif defined(_QT)
+# include <QSize>
+typedef QSize SIZE;
+#endif // defined(_QT)
+
 typedef unsigned long PixelCntType;
 
-class Area
-{
+class Area {
 public:
     // public lifecycle
     // no default constructor
     // Area(Area const&);  implicitly defined copy constructor
+    Area(SIZE const&);
     Area(PixelCntType width, PixelCntType height);
     // ~Area(void);  implicitly defined destructor
 

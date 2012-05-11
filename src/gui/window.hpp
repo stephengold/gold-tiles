@@ -62,8 +62,7 @@ public:
 
     // misc public methods
     Point         Brc(void) const;
-    PixelCntType  ClientAreaHeight(void) const;
-    PixelCntType  ClientAreaWidth(void) const;
+    Area          ClientArea(void) const;
     void          DoneWaiting(void);
 #ifdef _WINDOWS
     Win::LRESULT  HandleMessage(MessageType, Win::WPARAM, Win::LPARAM);
@@ -102,13 +101,11 @@ protected:
     void  Initialize(Win::CREATESTRUCT const&);
 #endif // defined(_WINDOWS)
     void  ReleaseMouse(void);
-    void  SelfDestruct(void);
     void  SetAcceleratorTable(TextType resourceName);
-    void  SetClientArea(PixelCntType width, PixelCntType height);
+    void  SetClientArea(Area const&);
     void  SetCursorBusy(void);
     void  SetCursorDrag(void);
     void  SetCursorSelect(void);
-    void  SetIcons(TextType resourceName);
     void  SetTimer(unsigned msecs, unsigned id);
     void  UpdateMenuBar(void);
     void  UseFibers(void);
@@ -121,8 +118,7 @@ protected:
 private:
 #ifdef _WINDOWS
     Win::HACCEL      mAcceleratorTable;
-    PixelCntType     mClientAreaHeight;
-    PixelCntType     mClientAreaWidth;
+    Area             mClientArea;
     void*            mMainFiber;
     Win::HDC         mPaintDevice;
     Win::PAINTSTRUCT mPaintStruct;
@@ -139,7 +135,13 @@ private:
     // misc private methods
 #ifdef _WINDOWS
     bool GetAMessage(Win::MSG&, int& exitCode);
+#endif // defined(_WINDOWS)
+    void SelfDestruct(void);
+#ifdef _WINDOWS
     void SetCursor(Win::LPSTR);
+#endif // defined(_WINDOWS)
+    void SetIcons(TextType resourceName);
+#ifdef _WINDOWS
     void TranslateAndDispatch(Win::MSG&);
 #endif // defined(_WINDOWS)
 

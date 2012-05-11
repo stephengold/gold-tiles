@@ -27,6 +27,16 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 
 // lifecycle
 
+Area::Area(SIZE const& rSize) {
+#ifdef _QT
+    mWidth = rSize.width();
+    mHeight = rSize.height();
+#elif defined(_WINDOWS)
+    mWidth = rSize.cx;
+    mHeight = rSize.cy;
+#endif // defined(_WINDOWS)
+}
+
 Area::Area(PixelCntType width, PixelCntType height) {
     mWidth = width;
     mHeight = height;

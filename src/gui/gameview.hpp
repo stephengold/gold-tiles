@@ -102,13 +102,15 @@ private:
                                      TileConstIteratorPair;
 
     // private data
-    DisplayModes mDisplayModes;
     PixelCntType mBoardTileWidth;
+    DisplayModes mDisplayModes;
     Rect         mHandRect;
     PixelCntType mHandTileWidth;
     MenuBar*    mpMenuBar;
     PixelCntType mPadPixels;
     Indices      mPreviousPlay;
+    LogicalXType mRecenterLeftX;
+    LogicalXType mRecenterRightX;
     Point        mStartCell;
     Rect         mSwapRect;
     Cell         mTargetCell;

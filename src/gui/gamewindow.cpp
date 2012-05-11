@@ -524,7 +524,7 @@ void GameWindow::HandleMenuCommand(IdType command) {
 
         // View menu options
     case IDM_RECENTER:
-        Resize(ClientAreaWidth(), ClientAreaHeight());
+        Recenter();
         break;
     case IDM_ATTRIBUTES: {
         DisplayModes modes = DisplayModes(mGameView);
@@ -660,9 +660,10 @@ LRESULT GameWindow::HandleMessage(MessageType message, WPARAM wParam, LPARAM lPa
         break;
 
     case WM_SIZE: { // resize request
-        PixelCntType const client_area_width = LOWORD(lParam);
-        PixelCntType const client_area_height = HIWORD(lParam);
-        Resize(client_area_width, client_area_height);
+        PixelCntType const width = LOWORD(lParam);
+        PixelCntType const height = HIWORD(lParam);
+        Area const new_client_area(width, height);
+        Resize(new_client_area);
         break;
                   }
 
@@ -996,6 +997,11 @@ void GameWindow::PollForInvitation(void) {
     mHaveInvitation = false;
 }
 
+void GameWindow::Recenter(void) {
+    mGameView.Recenter();
+    ForceRepaint();
+}
+
 void GameWindow::RedoTurn(void) {
     ASSERT(HasGame());
     ASSERT(mpMenuBar != NULL);
@@ -1156,10 +1162,9 @@ void GameWindow::ResignHand(void) {
     }
 }
 
-void GameWindow::Resize(PixelCntType clientAreaWidth, PixelCntType clientAreaHeight) {
-    SetClientArea(clientAreaWidth, clientAreaHeight);
-    mGameView.Recenter();
-    ForceRepaint();
+void GameWindow::Resize(Area const& rClientArea) {
+    SetClientArea(rClientArea);
+    Recenter();
 }
 
 void GameWindow::RestartGame(void) {

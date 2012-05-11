@@ -46,8 +46,9 @@ and others for it to send to when it is a client (inviter).
 class Network {
 public:
     // public constants
-    static const String ACCEPT;
-    static const String DECLINE;
+    static const String   ACCEPT;
+    static const String   DECLINE;
+    static const TextType SERVER_LISTEN_PORT;
 
     // public lifecycle
     Network(void);
@@ -66,8 +67,7 @@ public:
 
 private:
     // private constants
-    static const int      MAX_CONNECTION_CNT = 1;
-    static const TextType SERVER_LISTEN_PORT;
+    static const int MAX_CONNECTION_CNT = 1;
 
     // private data
 #ifdef _WINSOCK2

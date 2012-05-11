@@ -449,8 +449,6 @@ void GameView::DrawHandTiles(Canvas& rCanvas) {
 }
 
 void GameView::DrawIdle(Canvas& rCanvas) {
-    ASSERT(!HasGame());
-
     ColorType const bg_color = COLOR_BLACK;
     ColorType const text_color = COLOR_GREEN;
     rCanvas.UseColors(bg_color, text_color);

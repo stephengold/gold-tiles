@@ -482,6 +482,7 @@ void Window::WaitingFor(String const& rEventDescription) {
 }
 
 String Window::WaitMessage(void) const {
+    ASSERT(mWaitingFlag);
     String const result = String("Waiting for ") + mWaitingFor + ".";
 
     return result;

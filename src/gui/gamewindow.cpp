@@ -126,6 +126,7 @@ mGameView(*pGame),
 
     mDragBoardFlag = false;
     mpGame = pGame;
+    mHaveInvitation = false;
 #ifdef _CLIENT
     mInitialNewGame = (pGame == NULL);
 #else // !defined(_CLIENT)
@@ -326,6 +327,39 @@ void GameWindow::HandleButtonUp(Point const& rMouse) {
     } else {
         ASSERT(mGameView.GetActive() != Tile::ID_NONE);        
         ReleaseActiveTile(rMouse);
+    }
+}
+
+// SERVER
+void GameWindow::HandleInvitation(Socket& rSocket) {
+    Address const address = rSocket.Peer();
+    String const question = "Consider invitation from " + String(address) + "?";
+    int const consider = QuestionBox(question, "Consider Invitation - Gold Tile");
+    if (consider != IDYES) {
+        return;
+    }
+
+    GameOpt game_opt;
+    bool success = game_opt.GetFromClient(rSocket);
+    if (!success) {
+        return;
+    }
+    unsigned const hand_cnt = game_opt.HandsDealt();
+
+    HandOpts hand_opts;
+    success = hand_opts.GetFromClient(rSocket, hand_cnt);
+    if (!success) {
+        return;
+    }
+
+    Game* p_new_game = Network::ConsiderInvitation(rSocket, game_opt, hand_opts);
+    if (p_new_game != NULL) {
+        success = p_new_game->Initialize();
+        if (success) {
+            SetGame(p_new_game);
+        } else {
+            delete p_new_game;
+        }
     }
 }
 
@@ -628,7 +662,6 @@ LRESULT GameWindow::HandleMessage(MessageType message, WPARAM wParam, LPARAM lPa
 
 #ifdef _SERVER
     // Check for a new invitation from a client.
-    Network::SetWindow(this);
     PollForInvitation();
 #endif // defined(_SERVER)
 
@@ -895,41 +928,26 @@ void GameWindow::Play(bool passFlag) {
 }
 
 void GameWindow::PollForInvitation(void) {
+    if (mHaveInvitation) {
+        return;
+    }
+
     // Check for a game invitation from a client.
+    if (mpGame == NULL) {
+        String const description = String("a connection on network port ") 
+                                 + Network::SERVER_LISTEN_PORT;
+        WaitingFor(description);
+    }
     Socket socket = Network::CheckForConnection();
     if (!socket.IsValid()) {
         return;
     }
 
-    Address const address = socket.Peer();
-    String const question = "Consider invitation from " + String(address) + "?";
-    int const consider = QuestionBox(question, "Consider Invitation - Gold Tile");
-    if (consider != IDYES) {
-        return;
-    }
-
-    GameOpt game_opt;
-    bool success = game_opt.GetFromClient(socket);
-    if (!success) {
-        return;
-    }
-    unsigned const hand_cnt = game_opt.HandsDealt();
-
-    HandOpts hand_opts;
-    success = hand_opts.GetFromClient(socket, hand_cnt);
-    if (!success) {
-        return;
-    }
-
-    Game* p_new_game = Network::ConsiderInvitation(socket, game_opt, hand_opts);
-    if (p_new_game != NULL) {
-        success = p_new_game->Initialize();
-        if (success) {
-            SetGame(p_new_game);
-        } else {
-            delete p_new_game;
-        }
-    }
+    // Got an invitation.
+    mHaveInvitation = true;
+    DoneWaiting();
+    HandleInvitation(socket);
+    mHaveInvitation = false;
 }
 
 void GameWindow::RedoTurn(void) {

@@ -11,6 +11,8 @@
 #define IDC_RADIOCHALLENGE                      1204
 #define IDC_SLIDERMINUTES                       1205
 #define IDC_EDITMINUTES                         1206
+#define IDC_CHECKBOX_RANDOMIZE                  1207
+#define IDC_EDIT_SEED                           1208
 #define IDC_ENDLESS                             1301
 #define IDC_RECT                                1302
 #define IDC_TORUS                               1303

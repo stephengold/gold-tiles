@@ -71,6 +71,10 @@ GameOpt::GameOpt(String const& rString) {
             mMaxAttrValues[index] = ::string_to_max_attr(value);
         } else if (name == "MinutesPerHand") {
             mMinutesPerHand = long(value);
+        } else if (name == "RandomizeFlag") {
+            mRandomizeFlag = bool(value);
+        } else if (name == "Seed") {
+            mSeed = long(value);
         } else if (name == "Style") {
             mStyle = ::string_to_game_style(value);
         } else {
@@ -117,6 +121,10 @@ GameOpt::operator String(void) const {
         result += "MaxAttrValue" + String(i_attr) + "=" + String(mMaxAttrValues[i_attr]) + "\n";
     }
     result += "MinutesPerHand=" + String(mMinutesPerHand) + "\n";
+    result += "RandomizeFlag=" + String(mRandomizeFlag) + "\n";
+    if (!mRandomizeFlag) {
+        result += "Seed=" + String(mSeed) + "\n";
+    }
     result += "Style=" + ::game_style_to_string(mStyle) + "\n";
 
     result += "\n";
@@ -274,10 +282,25 @@ unsigned GameOpt::MinutesPerHand(void) const {
     return mMinutesPerHand;
 }
 
+void GameOpt::ReseedGenerator(void) const {
+    // Re-seed the pseudo-random generator at the start of a game.
+    unsigned seed; 
+    if (mRandomizeFlag || !IsDebug()) {
+        seed = ::milliseconds();
+    } else {
+        seed = mSeed;
+    }
+    ::srand(seed);
+}
+
 unsigned GameOpt::SecondsPerHand(void) const {
     unsigned const result = MinutesPerHand() * SECONDS_PER_MINUTE;
 
     return result;
+}
+
+unsigned GameOpt::Seed(void) const {
+    return mSeed;
 }
 
 void GameOpt::SetAttrCnt(AttrCntType attrCnt) {
@@ -368,8 +391,16 @@ void GameOpt::SetPractice(void) {
     mStyle = GAME_STYLE_PRACTICE;
 }
 
+void GameOpt::SetRandomizeFlag(bool value) {
+    mRandomizeFlag = value;
+}
+
 void GameOpt::SetRules(RulesType rules) {
     mRules = rules;
+}
+
+void GameOpt::SetSeed(unsigned seed) {
+    mSeed = seed;
 }
 
 void GameOpt::Standardize(void) {
@@ -387,6 +418,7 @@ void GameOpt::Standardize(void) {
     mGrid = GRID_DEFAULT;
     mHandsDealt = HAND_CNT_DEFAULT;
     mHandSize = HAND_SIZE_DEFAULT;
+    mRandomizeFlag = true;
     mRules = RULES_STANDARD;
 }
 
@@ -394,11 +426,15 @@ void GameOpt::StyleChange(void) {
     switch (mStyle) {
     case GAME_STYLE_PRACTICE:
         mHandsDealt = 1;
+        mRandomizeFlag = true;
         break;
 
     case GAME_STYLE_CHALLENGE:
-    case GAME_STYLE_DEBUG:
     case GAME_STYLE_FRIENDLY:
+        mRandomizeFlag = true;
+        break;
+
+    case GAME_STYLE_DEBUG:
         break;
 
     default:
@@ -435,6 +471,7 @@ void GameOpt::Validate(void) const {
     ASSERT(mHandsDealt >= HANDS_DEALT_MIN);
     ASSERT(mHandSize >= HAND_SIZE_MIN);
     ASSERT(mMinutesPerHand >= MINUTES_PER_HAND_MIN);
+    ASSERT(IsDebug() || mRandomizeFlag);
     ASSERT(mStyle != GAME_STYLE_NONE);
 #ifdef _CONSOLE
     ASSERT(mStyle != GAME_STYLE_CHALLENGE);
@@ -488,4 +525,8 @@ bool GameOpt::IsPractice(void) const {
     bool const result = (mStyle == GAME_STYLE_PRACTICE);
 
     return result;
+}
+
+bool GameOpt::IsRandomized(void) const {
+    return mRandomizeFlag;
 }

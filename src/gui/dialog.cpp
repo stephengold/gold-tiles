@@ -116,6 +116,18 @@ Address Dialog::GetAddress(IdType ipAddressControlId) {
     return result;
 }
 
+bool Dialog::GetCheckboxValue(IdType checkboxId) const {
+   HWND const checkbox_handle = GetControlHandle(checkboxId);
+
+    WPARAM const unused_w = 0;
+    LPARAM const unused_l = 0;
+    LRESULT lresult = Win::SendMessage(checkbox_handle, BM_GETCHECK, unused_w, unused_l);
+    ASSERT(lresult == BST_CHECKED || lresult == BST_UNCHECKED);
+    bool const result = (lresult == BST_CHECKED);
+
+    return result;
+}
+
 // Get the window handle for a particular control.
 HWND Dialog::GetControlHandle(IdType controlId) const {
     HWND const window_handle = HWND(*this);
@@ -126,8 +138,8 @@ HWND Dialog::GetControlHandle(IdType controlId) const {
 }
 
 // fetch the numeric value of a listbox control
-Dialog::ValueType Dialog::GetListboxSelection(IdType sliderId) {
-    HWND const listbox_handle = GetControlHandle(sliderId);
+Dialog::ValueType Dialog::GetListboxSelection(IdType listboxId) {
+    HWND const listbox_handle = GetControlHandle(listboxId);
 
     // Get selected index.
     WPARAM const unused_w = 0;
@@ -153,7 +165,7 @@ String Dialog::GetTextString(IdType controlId) {
     HWND const window_handle = HWND(*this);
     char buffer[256];
     int const buffer_size = 256;
-    UINT success = Win::GetDlgItemText(window_handle, controlId, buffer, buffer_size);
+    UINT const success = Win::GetDlgItemText(window_handle, controlId, buffer, buffer_size);
     ASSERT(success >= 0);
 
     String const result = String(buffer);

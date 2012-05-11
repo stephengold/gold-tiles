@@ -50,6 +50,9 @@ Game::Game(
     Cell::SetStatic(mOptions);
     Tile::SetStatic(mOptions);
 
+    // Re-seed the psedo-random generator.
+    mOptions.ReseedGenerator();
+
     // Add tiles to the stock bag.
     if (AmClient()) {
         for (unsigned i = 0; i < mOptions.TilesPerCombo(); i++) {

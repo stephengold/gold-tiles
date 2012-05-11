@@ -86,7 +86,9 @@ public:
     unsigned     HandSize(void) const;
     AttrType     MaxAttrValue(AttrIndexType) const;
     unsigned     MinutesPerHand(void) const;
+    void         ReseedGenerator(void) const;
     unsigned     SecondsPerHand(void) const;
+    unsigned     Seed(void) const;
     void         SetAttrCnt(AttrCntType);
     void         SetBoardHeight(RowType);
     void         SetBoardWidth(ColumnType);
@@ -104,7 +106,9 @@ public:
     void         SetMinutesPerHand(unsigned);
     void         SetNumAttrValues(AttrIndexType, AttrType);
     void         SetPractice(void);
+    void         SetRandomizeFlag(bool);
     void         SetRules(RulesType);
+    void         SetSeed(unsigned);
     void         Standardize(void);
     void         StyleChange(void);
     unsigned     TilesPerCombo(void) const;
@@ -120,6 +124,7 @@ public:
     bool IsDebug(void) const;
     bool IsFriendly(void) const;
     bool IsPractice(void) const;
+    bool IsRandomized(void) const;
 
 private:
     // private data
@@ -135,7 +140,9 @@ private:
     std::vector<AttrType>
                   mMaxAttrValues;   // maximum value of each attribute
     unsigned      mMinutesPerHand;  // used only with GAME_STYLE_CHALLENGE
+    bool          mRandomizeFlag;
     RulesType     mRules;
+    unsigned      mSeed;            // used only if mRandomizeFlag == false
     GameStyleType mStyle;
 };
 #endif // !defined(GAMEOPT_HPP_INCLUDED)

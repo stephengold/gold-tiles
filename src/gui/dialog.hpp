@@ -64,6 +64,7 @@ protected:
     void      Close(int);
     void      EnableControl(IdType, bool);
     Address   GetAddress(IdType);
+    bool      GetCheckboxValue(IdType) const;
     Win::HWND GetControlHandle(IdType) const;
     ValueType GetListboxSelection(IdType);
     ValueType GetSliderValue(IdType);
@@ -88,7 +89,7 @@ private:
     // private operators
     Dialog& operator=(Dialog const&);  // not assignable
 
-    // private methods
+    // misc private methods
     TextType Name(void) const;
 };
 #endif // !defined(DIALOG_HPP_INCLUDED)

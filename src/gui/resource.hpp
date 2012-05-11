@@ -96,6 +96,7 @@
 #define IDM_SHOW_SCORES                         6207
 #define IDM_PEEK                                6208
 #define IDM_ANIMATION                           6209
+#define IDM_BS_ZOOM_OUT                         6220
 #define IDM_BS1                                 6221
 #define IDM_BS2                                 6222
 #define IDM_BS3                                 6223
@@ -103,6 +104,7 @@
 #define IDM_BS5                                 6225
 #define IDM_BS6                                 6226
 #define IDM_BS7                                 6227
+#define IDM_BS_ZOOM_IN                          6228
 #define IDM_TS1                                 6231
 #define IDM_TS2                                 6232
 #define IDM_TS3                                 6233

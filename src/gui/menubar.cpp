@@ -75,16 +75,21 @@ void MenuBar::Initialize(GameStyleType gameStyle) {
     bool const is_debug = (gameStyle == GAME_STYLE_DEBUG);
 
     mAutopauseFlag = is_challenge;
+    mBoardTileSize = GameView::TILE_SIZE_DEFAULT;
+    mHandTileSize = GameView::TILE_SIZE_DEFAULT;
     mShowClocksFlag = is_challenge || is_debug;
     mShowGridFlag = is_debug;
     mShowScoresFlag = true;
     mPeekFlag = is_debug;
-    mTileSize = GameView::TILE_SIZE_DEFAULT;
 }
 
 // The implicitly defined destructor is OK.
 
 // misc methods
+
+unsigned MenuBar::BoardTileSize(void) const {
+    return mBoardTileSize;
+}
 
 void MenuBar::GameOver(void) {
     mPeekFlag = true;
@@ -117,13 +122,18 @@ void MenuBar::HandleMenuCommand(IdType command) {
 }
 #endif // defined(_WINDOWS)
 
+unsigned MenuBar::HandTileSize(void) const {
+    return mHandTileSize;
+}
+
 void MenuBar::LoadPlayerOptions(Player const& rPlayer) {
     mAutopauseFlag = rPlayer.Autopause();
+    mBoardTileSize = rPlayer.BoardTileSize();
+    mHandTileSize = rPlayer.HandTileSize();
     mPeekFlag = rPlayer.Peek();
     mShowClocksFlag = rPlayer.ShowClocks();
     mShowGridFlag = rPlayer.ShowGrid();
     mShowScoresFlag = rPlayer.ShowScores();
-    mTileSize = rPlayer.TileSize();
 }
 
 void MenuBar::NewGame(GameStyleType oldStyle) {
@@ -140,19 +150,20 @@ void MenuBar::NewGame(GameStyleType oldStyle) {
 
 void MenuBar::SavePlayerOptions(Player& rPlayer) const {
     rPlayer.SetAutopause(mAutopauseFlag);
+    rPlayer.SetBoardTileSize(mBoardTileSize);
+    rPlayer.SetHandTileSize(mHandTileSize);
     rPlayer.SetPeek(mPeekFlag);
     rPlayer.SetShowClocks(mShowClocksFlag);
     rPlayer.SetShowGrid(mShowGridFlag);
     rPlayer.SetShowScores(mShowScoresFlag);
-    rPlayer.SetTileSize(mTileSize);
 }
 
-void MenuBar::SetTileSize(unsigned size) {
-    mTileSize = size;
+void MenuBar::SetBoardTileSize(unsigned size) {
+    mBoardTileSize = size;
 }
 
-unsigned MenuBar::TileSize(void) const {
-    return mTileSize;
+void MenuBar::SetHandTileSize(unsigned size) {
+    mHandTileSize = size;
 }
 
 void MenuBar::Update(ThinkModeType thinkMode) {
@@ -174,7 +185,8 @@ void MenuBar::Update(ThinkModeType thinkMode) {
     mPlayMenu.Enable(have_game && (is_local || is_over || can_redo));
 
     // "View" menu
-    mViewMenu.TileSize(mTileSize);
+    mViewMenu.BoardTileSize(mBoardTileSize);
+    mViewMenu.HandTileSize(mHandTileSize);
     mViewMenu.ShowClocks(mShowClocksFlag);
     mViewMenu.ShowGrid(mShowGridFlag);
     mViewMenu.ShowScores(mShowScoresFlag);

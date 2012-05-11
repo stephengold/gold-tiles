@@ -44,6 +44,7 @@ public:
     // no default constructor
     // Rect(Rect const&);  implicitly defined copy constructor
     explicit Rect(RECT const&);
+    Rect(Point const& center, Area const&);
     Rect(Point const& ulc, Point const& lrc);
     Rect(Point const& ulc, PixelCntType width, PixelCntType height);
     Rect(LogicalYType, LogicalXType, PixelCntType width, PixelCntType height);

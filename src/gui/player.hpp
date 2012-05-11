@@ -52,17 +52,19 @@ public:
     operator Point(void) const;    // get logical coordinates of Start cell
 
     // misc public methods
+    unsigned BoardTileSize(void) const;
+    unsigned HandTileSize(void) const;
     static Player& 
-             rLookup(String const&);
+            rLookup(String const&);
     void     SetAutopause(bool);
+    void     SetBoardTileSize(unsigned);
     void     SetDisplayModes(DisplayModes const&);
+    void     SetHandTileSize(unsigned);
     void     SetPeek(bool);
     void     SetShowClocks(bool);
     void     SetShowGrid(bool);
     void     SetShowScores(bool);
     void     SetStartCellPosition(Point const&);
-    void     SetTileSize(unsigned);
-    unsigned TileSize(void) const;
 
     // public inquiry methods
     bool Autopause(void) const;
@@ -81,6 +83,8 @@ private:
 
     // private data
     bool         mAutopause;
+    unsigned     mBoardTileSize;
+    unsigned     mHandTileSize;
     DisplayModes mDisplayModes;
     static Map  msMap;
     String       mName;
@@ -89,7 +93,6 @@ private:
     bool         mShowGrid;
     bool         mShowScores;
     Point        mStartCellPosition;  // logical coordinates of the Start cell
-    unsigned     mTileSize;
 
     // private lifecycle
     Player(Player const&);  // not copyable

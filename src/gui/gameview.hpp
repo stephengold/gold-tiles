@@ -37,6 +37,10 @@ Drawing is performed on a temporary Canvas owned by the caller.
 #include "gui/displaymodes.hpp" // HASA DisplayModes
 #include "gui/graphics.hpp"     // HASA ColorType
 
+enum PlaceType {
+    PLACE_BOARD,
+    PLACE_HAND
+};
 
 class GameView: public Partial {
 public:
@@ -67,9 +71,10 @@ public:
     void       Repaint(Canvas&);
     void       ResetTargetCell(void);
     void       SavePlayerOptions(Player&) const;
+    void       SetBoardTileSize(unsigned);
     void       SetDisplayModes(DisplayModes const&);
     void       SetGame(Game*);
-    void       SetTileSize(unsigned);
+    void       SetHandTileSize(unsigned);
     void       SetWarmTiles(Indices const&);
     void       SetWindow(GameWindow*, MenuBar*);
     void       StartCellOffset(long dx, long dy);
@@ -98,7 +103,9 @@ private:
 
     // private data
     DisplayModes mDisplayModes;
+    PixelCntType mBoardTileWidth;
     Rect         mHandRect;
+    PixelCntType mHandTileWidth;
     MenuBar*    mpMenuBar;
     PixelCntType mPadPixels;
     Indices      mPreviousPlay;
@@ -107,7 +114,6 @@ private:
     Cell         mTargetCell;
     bool         mTargetCellFlag;
     TileMap      mTileMap;
-    PixelCntType mTileWidth;
     Indices      mWarmTiles;   // tiles played on the previous turn
     GameWindow* mpWindow;
 
@@ -118,8 +124,7 @@ private:
     GameView& operator=(GameView const&);  // not assignable
 
     // misc private methods
-    PixelCntType  CellHeight(void) const;
-    PixelCntType  CellWidth(void) const;
+    Area          CellArea(PlaceType) const;
     LogicalXType  CellX(ColumnType) const;
     LogicalYType  CellY(RowType) const;
     String        ClockText(Hand&) const;
@@ -129,11 +134,11 @@ private:
     void          DrawCell(Canvas&, Cell const&, Point const&, unsigned swapCnt);
     Rect          DrawHandHeader(Canvas&, LogicalYType, LogicalXType leftRight, Hand&, 
                       ColorType, bool leftFlag);
-    void          DrawHandTile(Canvas&, Point const&, Tile const&, bool odd);
-    void          DrawHandTiles(Canvas&);
     void          DrawIdle(Canvas&);
     void          DrawPaused(Canvas&);
     void          DrawPlayableHand(Canvas&);
+    void          DrawPlayableTile(Canvas&, Point const&, Tile const&, bool odd);
+    void          DrawPlayableTiles(Canvas&);
     void          DrawStockArea(Canvas&, LogicalYType, LogicalXType, PixelCntType width);
     Rect          DrawSwapArea(Canvas&, LogicalYType, LogicalXType, PixelCntType width);
     void          DrawTile(Canvas&, Point const& center, Tile const&, bool odd);
@@ -141,7 +146,11 @@ private:
     PixelCntType  GridUnitX(void) const;
     PixelCntType  GridUnitY(void) const;
     String        ScoreText(Hand const&, bool playable) const;
-    PixelCntType  TileHeight(void) const;
+    Area          TileArea(Point const&) const;
+    Area          TileArea(PlaceType) const;
+    PixelCntType  TileWidth(PlaceType) const;
+    static PixelCntType
+                  TinyWidth(void);
 
     // private inquiry methods
     bool IsGridVisible(void) const;

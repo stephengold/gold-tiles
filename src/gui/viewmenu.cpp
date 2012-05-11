@@ -63,7 +63,8 @@ SubMenu(tr("&View")),
 
 ViewMenu::ViewMenu(Menu const& rRootMenu, unsigned position):
 SubMenu(rRootMenu, position),
-    mTileSize(rRootMenu, 0),
+    mBoardSize(rRootMenu, 0),
+    mTileSize(rRootMenu, 1),
     mRecenter(rRootMenu, IDM_RECENTER),
     mAttrs(rRootMenu, IDM_ATTRIBUTES),
     mHints(rRootMenu, IDM_HINTS),
@@ -81,11 +82,16 @@ SubMenu(rRootMenu, position),
 
 // misc methods
 
+void ViewMenu::BoardTileSize(unsigned size) {
+    mBoardSize.SetSize(size);
+}
+
 void ViewMenu::EnableItems(Partial const& rPartial, ThinkModeType thinkMode) {
     bool const is_over = rPartial.IsGameOver();
     bool const is_local = rPartial.IsLocalUsersTurn() && (thinkMode != THINK_SUGGEST);
     GameStyleType const game_style = rPartial.GameStyle();
 
+    mBoardSize.Enable(true);
     mTileSize.Enable(true);
     mRecenter.Enable(true);
     mAttrs.Enable(true);
@@ -95,6 +101,10 @@ void ViewMenu::EnableItems(Partial const& rPartial, ThinkModeType thinkMode) {
     mShowScores.Enable(true);
     mShowTiles.Enable(is_over || game_style == GAME_STYLE_DEBUG);
     mAnimation.Enable(false); // TODO
+}
+
+void ViewMenu::HandTileSize(unsigned size) {
+    mTileSize.SetSize(size);
 }
 
 void ViewMenu::ShowClocks(bool shown) {
@@ -109,6 +119,4 @@ void ViewMenu::ShowScores(bool shown) {
 void ViewMenu::ShowTiles(bool shown) {
     mShowTiles.Check(shown);
 }
-void ViewMenu::TileSize(unsigned size) {
-    mTileSize.SetSize(size);
-}
+

@@ -75,6 +75,16 @@ MENUBAR MENU
     }
     POPUP "&View"
     {
+        POPUP "&Board Size"
+        {
+            MENUITEM "&1 Tiny", IDM_BS1
+            MENUITEM "&2 Small", IDM_BS2
+            MENUITEM "&3 Smallish", IDM_BS3
+            MENUITEM "&4 Medium", IDM_BS4
+            MENUITEM "&5 Largish", IDM_BS5
+            MENUITEM "&6 Large", IDM_BS6
+            MENUITEM "&7 Very Large", IDM_BS7
+        }
         POPUP "&Tile Size"
         {
             MENUITEM "&1 Tiny", IDM_TS1

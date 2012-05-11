@@ -45,16 +45,14 @@ public:
     // ~Canvas(void);  implicitly defined destructor
 
     // misc public methods
-    void DrawBlankTile(Point const&, PixelCntType width, PixelCntType height, 
-             ColorType, bool odd);
-    Rect DrawCell(Point const&, PixelCntType width, PixelCntType height,
+    void DrawBlankTile(Point const&, Area const&, ColorType, bool odd);
+    Rect DrawCell(Point const&, Area const&,
              ColorType cellColor, ColorType gridColor, bool odd);
     void DrawTargetArrow(Rect const&);
     Rect DrawTile(Markings const&, ColorType tileColor, Point const& center, 
-             PixelCntType width, PixelCntType height, bool border, bool odd);
+             Area const&, bool border, bool odd);
     static Rect 
-         InteriorGridShape(Point const& center, PixelCntType width, 
-             PixelCntType height, bool odd);
+         InteriorGridShape(Point const& center, Area const&, bool odd);
 
 private:
     // private constants
@@ -71,8 +69,7 @@ private:
     Canvas& operator=(Canvas const&);  // not assignable
 
     // misc private methods
-    void DrawGridShape(Point const& center, PixelCntType width, 
-             PixelCntType height, bool oddFlag);
+    void DrawGridShape(Point const& center, Area const&, bool oddFlag);
     void DrawMarking(Rect const& bounds, AttrModeType, AttrType, ColorType bg,
              ColorType fg);
     static void	

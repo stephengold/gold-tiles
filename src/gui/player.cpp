@@ -39,11 +39,12 @@ mName(rName),
     mStartCellPosition(0, 0)
 {
     mAutopause = false;
+    mBoardTileSize = GameView::TILE_SIZE_DEFAULT;
+    mHandTileSize = GameView::TILE_SIZE_DEFAULT;
     mPeek = false;
     mShowClocks = false;
     mShowGrid = false;
     mShowScores = false;
-    mTileSize = GameView::TILE_SIZE_DEFAULT;
 }
 
 // The implicitly defined destructor is OK.
@@ -61,6 +62,14 @@ Player::operator Point(void) const {
 
 
 // misc methods
+
+unsigned Player::BoardTileSize(void) const {
+    return mBoardTileSize;
+}
+
+unsigned Player::HandTileSize(void) const {
+    return mHandTileSize;
+}
 
 /* static */ Player& Player::rLookup(String const& rName) {
     ConstIterator const i_player = msMap.find(rName);
@@ -86,8 +95,22 @@ void Player::SetAutopause(bool value) {
     mAutopause = value;
 }
 
+void Player::SetBoardTileSize(unsigned size) {
+    ASSERT(size >= GameView::TILE_SIZE_MIN);
+    ASSERT(size <= GameView::TILE_SIZE_MAX);
+
+    mBoardTileSize = size;
+}
+
 void Player::SetDisplayModes(DisplayModes const& rDisplayModes) {
     mDisplayModes = rDisplayModes;
+}
+
+void Player::SetHandTileSize(unsigned size) {
+    ASSERT(size >= GameView::TILE_SIZE_MIN);
+    ASSERT(size <= GameView::TILE_SIZE_MAX);
+
+    mHandTileSize = size;
 }
 
 void Player::SetPeek(bool value) {
@@ -108,17 +131,6 @@ void Player::SetShowScores(bool value) {
 
 void Player::SetStartCellPosition(Point const& rPoint) {
     mStartCellPosition = rPoint;
-}
-
-void Player::SetTileSize(unsigned size) {
-    ASSERT(size >= GameView::TILE_SIZE_MIN);
-    ASSERT(size <= GameView::TILE_SIZE_MAX);
-
-    mTileSize = size;
-}
-
-unsigned Player::TileSize(void) const {
-    return mTileSize;
 }
 
 

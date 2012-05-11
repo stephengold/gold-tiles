@@ -71,6 +71,10 @@ Window* Network::mspWindow = NULL;
 // lifecycle
 
 Network::Network(void) {
+#ifdef _GUI
+    mspWindow = NULL;
+#endif // defined(_GUI)
+
 #ifdef _WINSOCK2
     // Start Winsock.
     WSADATA wsa_data;
@@ -109,7 +113,7 @@ Network::~Network(void) {
     String result;
     // Generate a brief report.
     if (cnt == 0) {
-        result = "This computer no usable network address.";
+        result = "This computer has no usable network address.";
     } else {
         if (cnt == 1) {
             result = "This computer has one usable network address";
@@ -125,17 +129,16 @@ Network::~Network(void) {
 
 // SERVER: Check for a new connection request.
 /* static */ Socket Network::CheckForConnection(void) {
-#ifdef _GUI
-    ASSERT(mspWindow != NULL);
-#endif // defined(_GUI)
-
     Socket result;
+#ifdef _GUI
+    if (mspWindow == NULL) {
+        return result;
+    }
+#endif defined(_GUI)
 
 #ifdef _CONSOLE
     std::cout << AddressReport() << std::endl;
 #endif // defined(_CONSOLE)
-    String const description = String("a connection on network port ") + SERVER_LISTEN_PORT;
-    WaitingFor(description);
 
 #ifdef _QT
     ASSERT(mspServer != NULL);
@@ -157,7 +160,6 @@ Network::~Network(void) {
         ASSERT(error_code == WSAEWOULDBLOCK);
         // There's no connection yet.
     } else {
-        DoneWaiting();
         result = Socket(Socket::HandleType(data_socket));
 # ifdef _GUI
         // Put new data socket into non-blocking mode.
@@ -180,7 +182,7 @@ Network::~Network(void) {
     String const server = rAddress;
 
 #ifdef _WINSOCK2
-    // Get address info for the client's send socket.
+    // Get address info for the client's socket.
     ADDRINFOA address_hints;
     ::ZeroMemory(&address_hints, sizeof(address_hints));
     address_hints.ai_family = AF_INET; // for now, just use IPv4
@@ -196,9 +198,7 @@ Network::~Network(void) {
 
     String const server_description = String("port ") + SERVER_LISTEN_PORT 
         + " on " + server;
-    String const attempt_message = String("Connecting to ") 
-        + server_description;
-    Network::Notice(attempt_message);
+    String const response_event = String("response from ") + server_description;
 
     String const retry_message = String("Failed to connect to ")
         + server_description;
@@ -212,8 +212,10 @@ Network::~Network(void) {
 
     quint16 const port = long(String(SERVER_LISTEN_PORT));
     for (;;) {
+        WaitingFor(response_event);
         p_socket->connectToHost(QHostAddress(rAddress), port);
         bool const success = p_socket->waitForConnected(5 * MSECS_PER_SECOND);
+        DoneWaiting();
         if (success) {
             break;
         }
@@ -233,7 +235,9 @@ Network::~Network(void) {
     SOCKET data_socket = INVALID_SOCKET;
 
     for (;;) {
+        WaitingFor(response_event);
         Socket::HandleType const data_handle = OpenServer(address_list, rAddress);
+        DoneWaiting();
         data_socket = SOCKET(data_handle);
         if (data_socket != INVALID_SOCKET) {
             break;
@@ -449,7 +453,7 @@ Network::~Network(void) {
                     + " on " + server;
                 String const message = String("No response from ")
                     + server_description
-                    + "\n\nPlease make sure that a Gold Tile server is running on " 
+                    + "\n\nPlease ensure that a Gold Tile server is running on " 
                     + server;
                 Notice(message);
                 client_send = INVALID_SOCKET;

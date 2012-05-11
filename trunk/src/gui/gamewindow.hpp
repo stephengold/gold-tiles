@@ -82,6 +82,7 @@ private:
     Game*         mpGame;
     GameView       mGameView;  // view of the move in progress
     bool           mInitialNewGame;
+    bool           mHaveInvitation;
     bool           mIsStartCentered;
     MenuBar*      mpMenuBar;
     Point          mMouseLast; // coordinates of last mouse update
@@ -110,6 +111,7 @@ private:
     int      GameWarnBox(TextType message);
     void     HandleButtonDown(Point const&);
     void     HandleButtonUp(Point const&);
+    void     HandleInvitation(Socket&);
 #ifdef _WINDOWS
     void     HandleMenuCommand(IdType);
 #endif // defined(_WINDOWS)

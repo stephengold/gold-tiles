@@ -265,8 +265,8 @@ bool Socket::Put(String const& rString) {
         int const error_code = Win::WSAGetLastError();
         if (error_code == WSAECONNRESET) {
             String const peer(Peer());
-            String const error_message = String("Lost network connection")
-                + " -- discovered while sending to " + peer;
+            String const error_message = String("Lost network connection to ")
+                + peer + " discovered while sending data.";
             Network::Notice(error_message);
             return false;
         }
@@ -313,8 +313,8 @@ bool Socket::Read(void) {
             || error_code == WSAECONNABORTED)
         {
             String const peer(Peer());
-            String const error_message = String("Lost network connection")
-                + " -- expected more data from " + peer;
+            String const error_message = String("Lost network connection to ")
+                + peer + " discovered while receiving data.";
             Network::Notice(error_message);
             canceled = true;
             continue;

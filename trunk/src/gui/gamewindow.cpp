@@ -856,7 +856,6 @@ STEP4:
             }
         } else {
             ASSERT(result == Dialog::RESULT_OK);
-            hand_options[i_hand] = HandOpt(handbox);
             i_hand++;
         }
     }

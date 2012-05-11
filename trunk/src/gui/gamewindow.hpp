@@ -116,6 +116,7 @@ private:
     void     HandleMenuCommand(IdType);
 #endif // defined(_WINDOWS)
     void     HandleMouseMove(Point const&);
+    void     IncreaseBoardTileSize(int delta);
     void     InfoBox(TextType message);
     void     LoadPlayerOptions(Hand const&);
     TextType Name(void) const;

@@ -62,7 +62,7 @@ MENUBAR MENU
         MENUITEM "&Play\tEnter", IDM_PLAY_PLAY
         MENUITEM "Take &back\tEsc", IDM_TAKE_BACK
         MENUITEM "Su&ggest\tG", IDM_SUGGEST
-        MENUITEM "Pause", IDM_PAUSE
+        MENUITEM "Pause\tPause", IDM_PAUSE
         MENUITEM "S&wap All", IDM_SWAP_ALL
         MENUITEM "Pa&ss", IDM_PASS
         MENUITEM "&Resign", IDM_RESIGN
@@ -77,6 +77,8 @@ MENUBAR MENU
     {
         POPUP "&Board Size"
         {
+            MENUITEM "&Zoom out\t-", IDM_BS_ZOOM_OUT
+            MENUITEM SEPARATOR
             MENUITEM "&1 Tiny", IDM_BS1
             MENUITEM "&2 Small", IDM_BS2
             MENUITEM "&3 Smallish", IDM_BS3
@@ -84,6 +86,8 @@ MENUBAR MENU
             MENUITEM "&5 Largish", IDM_BS5
             MENUITEM "&6 Large", IDM_BS6
             MENUITEM "&7 Very Large", IDM_BS7
+            MENUITEM SEPARATOR
+            MENUITEM "Zoom in\t+", IDM_BS_ZOOM_IN
         }
         POPUP "&Tile Size"
         {
@@ -95,7 +99,7 @@ MENUBAR MENU
             MENUITEM "&6 Large", IDM_TS6
             MENUITEM "&7 Very Large", IDM_TS7
         }
-        MENUITEM "&Re-center\tC", IDM_RECENTER
+        MENUITEM "&Re-center\tC or Home", IDM_RECENTER
         MENUITEM "Tile &Attributes...", IDM_ATTRIBUTES
         MENUITEM "&Hints...", IDM_HINTS
         MENUITEM SEPARATOR
@@ -107,7 +111,7 @@ MENUBAR MENU
     }
     POPUP "&Thinking"
     {
-        MENUITEM "&Cancel\tCtrl-C", IDM_CANCEL
+        MENUITEM "&Cancel\tCtrl+C", IDM_CANCEL
     }
     POPUP "&Help", HELP
     {
@@ -364,11 +368,18 @@ FONT 10, "Microsoft Sans Serif"
 LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
 HOTKEYS ACCELERATORS
 {
-    VK_RETURN,     IDM_PLAY_PLAY, VIRTKEY
+    VK_ADD,        IDM_BS_ZOOM_IN, VIRTKEY
     VK_ESCAPE,     IDM_TAKE_BACK, VIRTKEY
     VK_F1,         IDM_RULES, VIRTKEY
     VK_F4,         IDM_EXIT, VIRTKEY, ALT
+    VK_HOME,       IDM_RECENTER, VIRTKEY
+    VK_OEM_MINUS,  IDM_BS_ZOOM_OUT, VIRTKEY
+    VK_OEM_PLUS,   IDM_BS_ZOOM_IN, VIRTKEY
+    VK_PAUSE,      IDM_PAUSE, VIRTKEY
+    VK_RETURN,     IDM_PLAY_PLAY, VIRTKEY
+    VK_SUBTRACT,   IDM_BS_ZOOM_OUT, VIRTKEY
     67,            IDM_RECENTER, VIRTKEY
+    67,            IDM_CANCEL, VIRTKEY, CONTROL
     71,            IDM_SUGGEST, VIRTKEY
     78,            IDM_NEW, VIRTKEY, CONTROL
     79,            IDM_OPEN, VIRTKEY, CONTROL
@@ -377,7 +388,6 @@ HOTKEYS ACCELERATORS
     87,            IDM_CLOSE, VIRTKEY, CONTROL
     89,            IDM_REDO, VIRTKEY
     90,            IDM_UNDO, VIRTKEY
-    67,            IDM_CANCEL, VIRTKEY, CONTROL
 }
 
 

@@ -471,6 +471,9 @@ void GameWindow::HandleMenuCommand(IdType command) {
         break;
 
     // Board Size menu options
+    case IDM_BS_ZOOM_OUT:
+        IncreaseBoardTileSize(-1);
+        break;
     case IDM_BS1:
         SetBoardTileSize(1);
         break;
@@ -491,6 +494,9 @@ void GameWindow::HandleMenuCommand(IdType command) {
         break;
     case IDM_BS7:
         SetBoardTileSize(7);
+        break;
+    case IDM_BS_ZOOM_IN:
+        IncreaseBoardTileSize(+1);
         break;
 
     // Tile Size menu options
@@ -707,6 +713,23 @@ void GameWindow::HandleMouseMove(Point const& rMouse) {
         mDragTileDeltaX += drag_x;
         mDragTileDeltaY += drag_y;
     }
+}
+
+void GameWindow::IncreaseBoardTileSize(int delta) {
+    ASSERT(mpMenuBar != NULL);
+
+    int size = mpMenuBar->BoardTileSize();
+    ASSERT(size >= GameView::TILE_SIZE_MIN);
+    ASSERT(size <= GameView::TILE_SIZE_MAX);
+
+    size += delta;
+    if (size < GameView::TILE_SIZE_MIN) {
+        size = GameView::TILE_SIZE_MIN;
+    } else if (size > GameView::TILE_SIZE_MAX) {
+        size = GameView::TILE_SIZE_MAX;
+    }
+
+    SetBoardTileSize(size);
 }
 
 void GameWindow::InfoBox(TextType messageText) {

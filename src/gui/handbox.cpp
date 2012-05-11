@@ -47,20 +47,13 @@ static INT_PTR CALLBACK message_handler(
 
 // lifecycle
 
-HandBox::HandBox(unsigned handIndex, unsigned handCnt, HandOpt const& rOptions):
+HandBox::HandBox(unsigned handIndex, unsigned handCnt, HandOpt& rOptions):
 Dialog("HANDBOX", &message_handler),
-    mOptions(rOptions)
+    mrOptions(rOptions)
 {
     mAreMoreHands = (handIndex < handCnt);
     mHandCnt = handCnt;
     mHandIndex = handIndex;
-}
-
-
-// operators
-
-HandBox::operator HandOpt(void) const {
-    return mOptions;
 }
 
 
@@ -69,20 +62,20 @@ HandBox::operator HandOpt(void) const {
 void HandBox::HandleButtonClick(IdType buttonId) {
     switch (buttonId) {
     case IDC_RADIOAUTO:
-        mOptions.SetAutomatic();
+        mrOptions.SetAutomatic();
         UpdateNameBox("Computer");
         break;
 
     case IDC_RADIOLOCAL:
-        mOptions.SetLocalUser();
-        if (mOptions.PlayerName() == "Computer") {
+        mrOptions.SetLocalUser();
+        if (mrOptions.PlayerName() == "Computer") {
             UpdateNameBox("User");
         }
         break;
 
     case IDC_RADIOREMOTE:
-        mOptions.SetRemote();
-        if (mOptions.PlayerName() == "Computer") {
+        mrOptions.SetRemote();
+        if (mrOptions.PlayerName() == "Computer") {
             UpdateNameBox("Remote Player");
         }
         break;
@@ -119,10 +112,10 @@ INT_PTR HandBox::HandleMessage(MessageType message, WPARAM wParam) {
         EnableControl(IDC_RADIOREMOTE, true);
 
         SetSliderRange(IDC_SLIDER1, 0, LEVEL_MAX);
-        Address const address = mOptions;
+        Address const address = mrOptions;
         SetAddress(IDC_IPADDRESS1, address);
         UpdateButtons();
-        String const name = mOptions.PlayerName();
+        String const name = mrOptions.PlayerName();
         UpdateNameBox(name);
         UpdateSlider();
 
@@ -137,15 +130,15 @@ INT_PTR HandBox::HandleMessage(MessageType message, WPARAM wParam) {
         case IDC_IPADDRESS1:
             if (notification_code == EN_CHANGE) {
                 Address const address = GetAddress(control_id);
-                mOptions.SetAddress(address);
+                mrOptions.SetAddress(address);
             }
             break;
 
         case IDC_EDITNAME:
             if (notification_code == EN_CHANGE) {
                 String const name = GetTextString(control_id);
-                mOptions.SetPlayerName(name);
-                bool const good_name = mOptions.HasValidName();
+                mrOptions.SetPlayerName(name);
+                bool const good_name = mrOptions.HasValidName();
                 EnableControl(IDOK, good_name);
             }
             break;
@@ -165,7 +158,7 @@ INT_PTR HandBox::HandleMessage(MessageType message, WPARAM wParam) {
     case WM_VSCROLL: {
         ValueType const value = GetSliderValue(IDC_SLIDER1);
         double const prob = double(LEVEL_MAX - value)/10.0;
-        mOptions.SetSkipProbability(prob);
+        mrOptions.SetSkipProbability(prob);
         break;
                      }
     }
@@ -178,27 +171,27 @@ INT_PTR HandBox::HandleMessage(MessageType message, WPARAM wParam) {
 }
 
 void HandBox::UpdateButtons(void) {
-    SetButton(IDC_RADIOAUTO, mOptions.IsAutomatic());
-    SetButton(IDC_RADIOLOCAL, mOptions.IsLocalUser());
-    SetButton(IDC_RADIOREMOTE, mOptions.IsRemote());
+    SetButton(IDC_RADIOAUTO, mrOptions.IsAutomatic());
+    SetButton(IDC_RADIOLOCAL, mrOptions.IsLocalUser());
+    SetButton(IDC_RADIOREMOTE, mrOptions.IsRemote());
 
-    EnableControl(IDC_IPADDRESS1, mOptions.IsRemote());
-    EnableControl(IDC_SLIDER1, mOptions.IsAutomatic());
+    EnableControl(IDC_IPADDRESS1, mrOptions.IsRemote());
+    EnableControl(IDC_SLIDER1, mrOptions.IsAutomatic());
 }
 
 void HandBox::UpdateNameBox(String const& rName) {
-    mOptions.SetPlayerName(rName);
+    mrOptions.SetPlayerName(rName);
     SetTextString(IDC_EDITNAME, rName);
 
-    bool const good_name = mOptions.HasValidName();
+    bool const good_name = mrOptions.HasValidName();
     EnableControl(IDOK, good_name);
 }
 
 void HandBox::UpdateSlider(void) {
-    double const prob = mOptions.SkipProbability();
+    double const prob = mrOptions.SkipProbability();
     ValueType const level = LEVEL_MAX - ValueType(0.5 + 10.0*prob);
     ValueType const new_level = SetSliderValue(IDC_SLIDER1, level);
     double const new_prob = double(LEVEL_MAX - new_level)/10.0;
-    mOptions.SetSkipProbability(new_prob);
+    mrOptions.SetSkipProbability(new_prob);
 }
 #endif // defined(_WINDOWS)

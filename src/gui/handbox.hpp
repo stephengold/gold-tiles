@@ -39,11 +39,8 @@ class HandBox: public Dialog {
 public:
     // public lifecycle
     // no default constructor
-    HandBox(unsigned handIndex, unsigned handCnt, HandOpt const&); 
+    HandBox(unsigned handIndex, unsigned handCnt, HandOpt&); 
     // ~HandBox(void);  implicitly defined destructor
-
-    // public operators
-    operator HandOpt(void) const;
 
     // misc public methods
     int HandleMessage(MessageType, Win::WPARAM);
@@ -53,10 +50,10 @@ private:
     static const ValueType LEVEL_MAX = 8;
 
     // private data
-    bool     mAreMoreHands;
-    unsigned mHandCnt;
-    unsigned mHandIndex;
-    HandOpt  mOptions;
+    bool      mAreMoreHands;
+    unsigned  mHandCnt;
+    unsigned  mHandIndex;
+    HandOpt& mrOptions;
 
     // private lifecycle
     HandBox(HandBox const&);  // not copyable

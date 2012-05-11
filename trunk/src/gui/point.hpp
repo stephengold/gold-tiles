@@ -29,11 +29,12 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 A Point object represents the location of a pixel in the client area 
 of a window.
 
-The Point class is encapsulates a logical X coordinate and a logical Y coordinate. 
+The Point class encapsulates a logical X coordinate and a logical Y coordinate. 
 */
 
+#include "gui/area.hpp"  // PixelCntType
 #ifdef _WINDOWS
-# include "gui/win.hpp"  //  Win::POINT
+# include "gui/win.hpp"  // Win::POINT
 using Win::POINT;
 #elif defined(_QT)
 # include <QPoint>
@@ -42,7 +43,6 @@ typedef QPoint POINT;
 
 typedef long LogicalXType;
 typedef long LogicalYType;
-typedef unsigned long PixelCntType;
 
 class Point {
 public:

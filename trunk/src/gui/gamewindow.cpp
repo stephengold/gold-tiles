@@ -183,7 +183,8 @@ void GameWindow::Initialize(CREATESTRUCT const& rCreateStruct) {
     Partial::SetYield(&yield, (void*)this);
     Socket::SetYield(&yield, (void*)this);
 
-    SetTileSize(GameView::TILE_SIZE_DEFAULT);
+    SetBoardTileSize(GameView::TILE_SIZE_DEFAULT);
+    SetHandTileSize(GameView::TILE_SIZE_DEFAULT);
     if (HasGame()) {
         Hands const hands = Hands(*mpGame);
         Hands::ConstIterator i_hand;
@@ -469,27 +470,50 @@ void GameWindow::HandleMenuCommand(IdType command) {
         mpMenuBar->HandleMenuCommand(command);
         break;
 
-        // Tile Size menu options
+    // Board Size menu options
+    case IDM_BS1:
+        SetBoardTileSize(1);
+        break;
+    case IDM_BS2:
+        SetBoardTileSize(2);
+        break;
+    case IDM_BS3:
+        SetBoardTileSize(3);
+        break;
+    case IDM_BS4:
+        SetBoardTileSize(4);
+        break;
+    case IDM_BS5:
+        SetBoardTileSize(5);
+        break;
+    case IDM_BS6:
+        SetBoardTileSize(6);
+        break;
+    case IDM_BS7:
+        SetBoardTileSize(7);
+        break;
+
+    // Tile Size menu options
     case IDM_TS1:
-        SetTileSize(1);
+        SetHandTileSize(1);
         break;
     case IDM_TS2:
-        SetTileSize(2);
+        SetHandTileSize(2);
         break;
     case IDM_TS3:
-        SetTileSize(3);
+        SetHandTileSize(3);
         break;
     case IDM_TS4:
-        SetTileSize(4);
+        SetHandTileSize(4);
         break;
     case IDM_TS5:
-        SetTileSize(5);
+        SetHandTileSize(5);
         break;
     case IDM_TS6:
-        SetTileSize(6);
+        SetHandTileSize(6);
         break;
     case IDM_TS7:
-        SetTileSize(7);
+        SetHandTileSize(7);
         break;
 
         // View menu options
@@ -1172,7 +1196,8 @@ void GameWindow::SetGame(Game* pGame) {
     mGameView.SetGame(mpGame);
     mpMenuBar->NewGame(old_style);
 
-    SetTileSize(GameView::TILE_SIZE_DEFAULT);
+    SetBoardTileSize(GameView::TILE_SIZE_DEFAULT);
+    SetHandTileSize(GameView::TILE_SIZE_DEFAULT);
     if (HasGame()) {
         Hands const hands = Hands(*mpGame);
         Hands::ConstIterator i_hand;
@@ -1194,13 +1219,22 @@ void GameWindow::SetGame(Game* pGame) {
     }
 }
 
-void GameWindow::SetTileSize(unsigned size) {
+void GameWindow::SetBoardTileSize(unsigned size) {
     ASSERT(mpMenuBar != NULL);
     ASSERT(size >= GameView::TILE_SIZE_MIN);
     ASSERT(size <= GameView::TILE_SIZE_MAX);
 
-    mpMenuBar->SetTileSize(size);
-    mGameView.SetTileSize(size);
+    mpMenuBar->SetBoardTileSize(size);
+    mGameView.SetBoardTileSize(size);
+}
+
+void GameWindow::SetHandTileSize(unsigned size) {
+    ASSERT(mpMenuBar != NULL);
+    ASSERT(size >= GameView::TILE_SIZE_MIN);
+    ASSERT(size <= GameView::TILE_SIZE_MAX);
+
+    mpMenuBar->SetHandTileSize(size);
+    mGameView.SetHandTileSize(size);
 }
 
 void GameWindow::StopDragging(void) {

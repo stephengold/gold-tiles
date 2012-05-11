@@ -54,11 +54,11 @@ Graphics(rWindow)
 
 void Canvas::DrawBlankTile(
     Point const& rCenter,
-    PixelCntType width,
-    PixelCntType height,
+    Area const& rArea,
     ColorType tileColor,
     bool oddFlag)
 {
+    PixelCntType const width = rArea.Width();
     ASSERT(::is_even(width));
 
     ColorType border_color = COLOR_DARK_GRAY;
@@ -67,14 +67,14 @@ void Canvas::DrawBlankTile(
     switch (Cell::Grid()) {
     case GRID_4WAY:
     case GRID_8WAY: {
-        ASSERT(width == height);
-        PixelCntType circle_diameter = width/TILE_POINTEDNESS;
+        ASSERT(rArea.IsSquare());
+        PixelCntType const circle_diameter = width/TILE_POINTEDNESS;
         DrawRoundedSquare(rCenter, width, circle_diameter);
         break;
                     }
     case GRID_HEX:
     case GRID_TRIANGLE: 
-        DrawGridShape(rCenter, width, height, oddFlag);
+        DrawGridShape(rCenter, rArea, oddFlag);
         break;
     default:
         FAIL();
@@ -83,36 +83,35 @@ void Canvas::DrawBlankTile(
 
 Rect Canvas::DrawCell(
     Point const& rCenter,
-    PixelCntType width,
-    PixelCntType height,
+    Area const& rArea,
     ColorType cellColor,
     ColorType gridColor,
     bool oddFlag)
 {
+    PixelCntType const width = rArea.Width();
     ASSERT(::is_even(width));
 
     UseColors(cellColor, gridColor);
-    DrawGridShape(rCenter, width, height, oddFlag);
-    Rect const interior = InteriorGridShape(rCenter, width, height, oddFlag);
+    DrawGridShape(rCenter, rArea, oddFlag);
+    Rect const interior = InteriorGridShape(rCenter, rArea, oddFlag);
 
     return interior;
 }
 
 void Canvas::DrawGridShape(
     Point const& rCenter,
-    PixelCntType width,
-    PixelCntType height,
+    Area const& rArea,
     bool oddFlag)
 {
-    Point ulc = rCenter;
-    ulc.Offset(-long(width/2), -long(height/2));
-    Rect const rectangle = Rect(ulc, width, height);
+    PixelCntType const height = rArea.Height();
+    PixelCntType const width = rArea.Width();
+    Rect const rectangle = Rect(rCenter, rArea);
 
     Rect interior(0,0,0,0);
     switch (Cell::Grid()) {
     case GRID_4WAY:
     case GRID_8WAY: // square
-        ASSERT(height == width);
+        ASSERT(rArea.IsSquare());
         DrawRectangle(rectangle);
         break;
     case GRID_HEX:
@@ -172,11 +171,11 @@ Rect Canvas::DrawTile(
     Markings const& rMarkings,
     ColorType tileColor,
     Point const& rCenter,
-    PixelCntType width,
-    PixelCntType height,
+    Area const& rArea,
     bool borderFlag,
     bool oddFlag)
 {
+    PixelCntType const width = rArea.Width();
     ASSERT(::is_even(width));
 
     if (borderFlag) {
@@ -193,7 +192,7 @@ Rect Canvas::DrawTile(
     switch (Cell::Grid()) {
     case GRID_4WAY:
     case GRID_8WAY: {
-        ASSERT(width == height);
+        ASSERT(rArea.IsSquare());
         PixelCntType const circle_diameter = width/TILE_POINTEDNESS;
         DrawRoundedSquare(rCenter, width, circle_diameter);
         if (borderFlag) {
@@ -205,12 +204,14 @@ Rect Canvas::DrawTile(
                     }
     case GRID_HEX:
     case GRID_TRIANGLE: 
-        DrawGridShape(rCenter, width, height, oddFlag);
+        DrawGridShape(rCenter, rArea, oddFlag);
         if (borderFlag) {
             UseColors(tileColor, tileColor);
-            DrawGridShape(rCenter, (width*5)/6, (height*5)/6, oddFlag);
+            PixelCntType const height = rArea.Height();
+            Area const net_area((width*5)/6, (height*5)/6);
+            DrawGridShape(rCenter, net_area, oddFlag);
         }
-        interior = InteriorGridShape(rCenter, width, height, oddFlag);
+        interior = InteriorGridShape(rCenter, rArea, oddFlag);
         break;
     default:
         FAIL();
@@ -406,28 +407,23 @@ Rect Canvas::DrawTile(
 
 /* static */ Rect Canvas::InteriorGridShape(
     Point const& rCenter,
-    PixelCntType width,
-    PixelCntType height,
+    Area const& rArea,
     bool oddFlag)
 {
-    Point ulc = rCenter;
-    ulc.Offset(-long(width/2), -long(height/2));
-    Rect const rectangle = Rect(ulc, width, height);
+    Rect const rectangle = Rect(rCenter, rArea);
 
     Rect interior(0,0,0,0);
     switch (Cell::Grid()) {
     case GRID_4WAY:
     case GRID_8WAY: // square
-        ASSERT(height == width);
+        ASSERT(rArea.IsSquare());
         interior = rectangle;
         break;
     case GRID_HEX:
         ASSERT(!oddFlag);
-        ASSERT(height < width);
         interior = InteriorHexagon(rectangle);
         break;
     case GRID_TRIANGLE: 
-        ASSERT(height < width);
         interior = InteriorEquilateral(rectangle, oddFlag);
         break;
     default:

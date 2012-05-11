@@ -60,13 +60,15 @@ public:
     // ~MenuBar(void);
 
     // misc public methods
+    unsigned BoardTileSize(void) const;
     void     GameOver(void);
     void     HandleMenuCommand(IdType);
+    unsigned HandTileSize(void) const;
     void     LoadPlayerOptions(Player const&);
     void     NewGame(GameStyleType old);
     void     SavePlayerOptions(Player&) const;
-    void     SetTileSize(unsigned);
-    unsigned TileSize(void) const;
+    void     SetBoardTileSize(unsigned);
+    void     SetHandTileSize(unsigned);
     void     Update(ThinkModeType);
 
     // public inquiry methods
@@ -79,7 +81,9 @@ public:
 private:
     // private data
     bool     mAutopauseFlag;
+    unsigned mBoardTileSize;
     FileMenu mFileMenu;
+    unsigned mHandTileSize;
     SubMenu  mHelpMenu;
 #ifdef _WINDOWS
     Menu     mMenu;
@@ -92,7 +96,6 @@ private:
     bool     mShowGridFlag;
     bool     mShowScoresFlag;
     SubMenu  mThinking;
-    unsigned mTileSize;
     ViewMenu mViewMenu;
 
     // private lifecycle

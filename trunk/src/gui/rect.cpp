@@ -48,6 +48,20 @@ Rect::Rect(RECT const& rRect) {
     ASSERT(BottomY() >= TopY());
 }
 
+Rect::Rect(Point const& rCenter, Area const& rArea) {
+    PixelCntType const height = rArea.Height();
+    PixelCntType const width = rArea.Width();
+    Point ulc = rCenter;
+    ulc.Offset(-long(width/2), -long(height/2));
+
+    mTop = ulc.Y();
+    mLeft = ulc.X();
+    mBottom = mTop + height;
+    mRight = mLeft + width;
+
+    ASSERT(Center() == rCenter);
+}
+
 Rect::Rect(Point const& rUlc, Point const& rBrc) {
     mTop = rUlc.Y();
     mLeft = rUlc.X();

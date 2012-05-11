@@ -134,7 +134,8 @@ private:
     void     SavePlayerOptions(Hand const&) const;
     void     SetGame(Game* pGame);
 #ifdef _WINDOWS
-    void     SetTileSize(IdType);
+    void     SetBoardTileSize(IdType);
+    void     SetHandTileSize(IdType);
 #endif // defined(_WINDOWS)
     void     StopDragging(void);
     void     UndoTurn(void);

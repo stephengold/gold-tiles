@@ -51,15 +51,17 @@ public:
 
     // misc public methods
     void Animation(bool);
+    void BoardTileSize(unsigned);
     void EnableItems(Partial const&, ThinkModeType);
+    void HandTileSize(unsigned);
     void ShowClocks(bool);
     void ShowGrid(bool);
     void ShowHints(bool);
     void ShowScores(bool);
     void ShowTiles(bool);
-    void TileSize(unsigned);
 
 private:
+    SizeMenu mBoardSize;
     SizeMenu mTileSize;
     MenuItem mRecenter;
     MenuItem mAnimation;

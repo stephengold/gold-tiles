@@ -30,7 +30,11 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 
 // lifecycle
 
-Window::Window(void) {
+Window::Window(void)
+#ifdef _WINDOWS
+    :mClientArea(0,0)
+#endif // defined(_WINDOWS)
+{
 #ifdef _WINDOWS
     mAcceleratorTable = 0;
     mPaintDevice = 0;
@@ -48,11 +52,12 @@ void Window::Initialize(CREATESTRUCT const& rCreateStruct) {
     /* It's a private DC because CS_OWNDC is hard-coded into the
     WindowClass constructor. */
 
-    // record size of client area
+    // Record the size of the client area.
     SIZE client_area_size;
     BOOL const success = Win::GetWindowExtEx(private_dc, &client_area_size);
     ASSERT(success != 0);
-    SetClientArea(client_area_size.cx, client_area_size.cy);
+    Area const client_area(client_area_size);
+    SetClientArea(client_area);
 
     TextType const icon_resource_name = "GAMEICON";
     SetIcons(icon_resource_name);
@@ -64,7 +69,7 @@ void Window::Initialize(CREATESTRUCT const& rCreateStruct) {
 
 Window::operator Rect(void) const {
     Point const origin(0,0);
-    Rect const result(origin, ClientAreaWidth(), ClientAreaHeight());
+    Rect const result(origin, ClientArea().Width(), ClientArea().Height());
 
     return result;
 }
@@ -95,8 +100,8 @@ void Window::BeginPaint(void) {
 }
 
 Point Window::Brc(void) const {
-    LogicalXType const x = ClientAreaWidth() - 1;
-    LogicalYType const y = ClientAreaHeight() - 1;
+    LogicalXType const x = ClientArea().Width() - 1;
+    LogicalYType const y = ClientArea().Height() - 1;
     Point const result(x, y);
 
     return result;
@@ -111,23 +116,13 @@ void Window::CaptureMouse(void) {
 #endif // defined(_WINDOWS)
 }
 
-PixelCntType Window::ClientAreaHeight(void) const {
+Area Window::ClientArea(void) const {
 #ifdef _QT
-    QSize const area = size();
-    PixelCntType const result = area.height();
+    QSize const client_area_size = size();
+    Area const result(client_area_size);
     return result;
 #elif defined(_WINDOWS)
-    return mClientAreaHeight;
-#endif // defined(_WINDOWS)
-}
-
-PixelCntType Window::ClientAreaWidth(void) const {
-#ifdef _QT
-    QSize const area = size();
-    PixelCntType const result = area.width();
-    return result;
-#elif defined(_WINDOWS)
-    return mClientAreaWidth;
+    return mClientArea;
 #endif // defined(_WINDOWS)
 }
 
@@ -258,7 +253,8 @@ LRESULT Window::HandleMessage(MessageType message, WPARAM wParameter, LPARAM lPa
     case WM_SIZE: { // resize window
         PixelCntType const width = LOWORD(lParameter);
         PixelCntType const height = HIWORD(lParameter);
-        SetClientArea(width, height);
+        Area const area(width, height);
+        SetClientArea(area);
         break;
                   }
 
@@ -353,12 +349,11 @@ void Window::SetAcceleratorTable(TextType resourceName) {
 #endif // defined(_WINDOWS)
 }
 
-void Window::SetClientArea(PixelCntType width, PixelCntType height) {
-    ASSERT(width < 4000);
-    ASSERT(height < 4000);
+void Window::SetClientArea(Area const& rArea) {
+    ASSERT(rArea.Width() < 4000);
+    ASSERT(rArea.Height() < 4000);
 #ifdef _WINDOWS
-    mClientAreaWidth = width;
-    mClientAreaHeight = height;
+    mClientArea = rArea;
 #endif // defined(_WINDOWS)
 }
 

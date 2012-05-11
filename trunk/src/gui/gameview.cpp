@@ -41,6 +41,8 @@ Partial(&rGame, HINT_DEFAULT, 0.0),
     mpMenuBar = NULL;
     mPadPixels = PAD_PIXELS_DEFAULT;
     mTargetCellFlag = false;
+    mRecenterLeftX = 0;
+    mRecenterRightX = 0;
     mpWindow = NULL;
 
     SetBoardTileSize(TILE_SIZE_DEFAULT);
@@ -159,7 +161,7 @@ void GameView::DrawBoard(Canvas& rCanvas, unsigned showLayer) {
         ASSERT(bottom_use_row <= top_use_row);
         ASSERT(left_use_column <= right_use_column);
 
-        // reduce visible range to only include "might use" cells
+        // Reduce the visible range to only include "might use" cells.
         if (top_use_row < top_see_row) {
             top_see_row = top_use_row;
         }
@@ -173,8 +175,6 @@ void GameView::DrawBoard(Canvas& rCanvas, unsigned showLayer) {
             right_see_column = right_use_column;
         }
     }
-    ASSERT(bottom_see_row <= top_see_row);
-    ASSERT(left_see_column <= right_see_column);
 
     unsigned swap_cnt = CountSwap();
     Tile::IdType const active_tile = GetActive();
@@ -425,11 +425,13 @@ void GameView::DrawPlayableHand(Canvas& rCanvas) {
     Hand playable_hand = *mpGame;
     ColorType area_color = COLOR_BLACK;
     bool const left = true;
-    Rect header_rect = DrawHandHeader(rCanvas, top_y, left_x, playable_hand, area_color, left);
+    Rect const header_rect = DrawHandHeader(rCanvas, top_y, left_x, 
+        playable_hand, area_color, left);
     left_x = header_rect.LeftX();
     PixelCntType width = header_rect.Width();
+    mRecenterLeftX = header_rect.RightX();
 
-    // calculate height of hand area (mHandRect)
+    // Calculate height of playable hand area (mHandRect).
     unsigned tile_cnt = CountHand();
     Area const cell_area = CellArea(PLACE_HAND);
     PixelCntType const cell_height = cell_area.Height();
@@ -442,7 +444,7 @@ void GameView::DrawPlayableHand(Canvas& rCanvas) {
         }
     }
 
-    // Determine the colors of the hand area (mHandRect).
+    // Determine the colors of the playable hand area (mHandRect).
     Tile::IdType const active_tile = GetActive();
     if (IsInHand(active_tile)) {
         // The active tile started from this hand.
@@ -681,15 +683,15 @@ void GameView::DrawUnplayableHands(Canvas& rCanvas) {
 
     Hands hands = mpGame->UnplayableHands();
     Hands::Iterator i_hand;
-    LogicalXType right_x = mpWindow->ClientAreaWidth() - mPadPixels;
+    LogicalXType right_x = mpWindow->ClientArea().Width() - mPadPixels;
     LogicalYType top_y = mPadPixels;
     for (i_hand = hands.begin(); i_hand < hands.end(); i_hand++) {
-        // draw header
+        // Draw the header.
         bool const rightFlag = false;
         ColorType const header_color = COLOR_BLACK;
         Rect header_rect = DrawHandHeader(rCanvas, top_y, right_x, *i_hand, header_color, rightFlag);
 
-        // draw hand area below the header
+        // Draw hand area below the header.
         top_y = header_rect.BottomY() - 1;
         LogicalXType const left_x = header_rect.LeftX();
         PixelCntType const width = header_rect.Width();
@@ -727,14 +729,15 @@ void GameView::DrawUnplayableHands(Canvas& rCanvas) {
             }
         } // if peeking
 
-        // add padding between hands
+        // Add padding between hands.
         if (mpMenuBar->IsPeeking()) {
             // right to left
+            mRecenterRightX = header_rect.LeftX();
             right_x = header_rect.LeftX() - mPadPixels;
             top_y = mPadPixels;
         } else {
             // top to bottom
-            right_x = mpWindow->ClientAreaWidth() - mPadPixels;
+            right_x = mpWindow->ClientArea().Width() - mPadPixels;
             top_y += height + mPadPixels;
         }
     }
@@ -866,14 +869,27 @@ void GameView::LoadPlayerOptions(Player const& rPlayer) {
 }
 
 void GameView::Recenter(void) {
-    if (mpWindow->ClientAreaWidth() > 250 && mpWindow->ClientAreaHeight() > 100) {
-        LogicalXType const x = mpWindow->ClientAreaWidth()/2; // TODO
-        LogicalYType const y = mpWindow->ClientAreaHeight()/2;
-        mStartCell = Point(x, y);
+    Area const client_area = mpWindow->ClientArea();
+    if (mRecenterLeftX >= mRecenterRightX) {
+        mRecenterLeftX = 0;
+        mRecenterRightX = client_area.Width();
     }
+    LogicalXType x = (mRecenterLeftX + mRecenterRightX)/2;
+    LogicalYType y = client_area.Height()/2;
+
+    Cell const center_cell = CenterCell();
+    RowType const row = center_cell.Row();
+    ColumnType const column = center_cell.Column();
+    x -= GridUnitX()*column;
+    y += GridUnitY()*row;
+
+    mStartCell = Point(x, y);
 }
 
 void GameView::Repaint(Canvas& rCanvas) {
+    mRecenterLeftX = 0;
+    mRecenterRightX = 0;
+
     if (mpGame == NULL || mpWindow->IsWaiting()) {
         DrawIdle(rCanvas);
 

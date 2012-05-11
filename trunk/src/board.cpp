@@ -42,6 +42,18 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 
 // misc methods
 
+Cell Board::CenterCell(void) const {
+    Cell result;
+
+    if (!Cell::DoesBoardWrap()) {
+        ColumnType const row = (NorthMax() - SouthMax())/2;
+        ColumnType const column = (EastMax() - WestMax())/2;
+        result = Cell(row, column);
+    }
+
+    return result;
+}
+
 // Convert the entire board to a string for console output.
 String Board::Description(void) const {
     unsigned const width = Combo::AttrCnt() + 4;

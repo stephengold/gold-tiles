@@ -124,11 +124,12 @@ private:
     void	 OfferSaveGame(void);
     void     Play(bool passFlag);
     void     PollForInvitation(void);
+    void     Recenter(void);
     void     RedoTurn(void);
     void     ReleaseActiveTile(Point const&);
     void     Repaint(void);
     void     ResignHand(void);
-    void     Resize(PixelCntType width, PixelCntType height);
+    void     Resize(Area const&);
     void     RestartGame(void);
     void     RuleBox(UmType);
     String   SaveHandOptions(void) const;

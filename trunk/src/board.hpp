@@ -67,6 +67,7 @@ public:
     // Board& operator=(Board const&);  implicitly defined assignment operator
 
     // misc public methods
+    Cell          CenterCell(void) const;
     String        Description(void) const;
     Cell          FirstCell(void) const;
     Tile::IdType  GetId(Cell const&) const;

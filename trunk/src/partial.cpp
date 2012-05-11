@@ -103,6 +103,12 @@ void Partial::BoardToHand(void) {
     ASSERT(IsInHand(mActiveId));
 }
 
+Cell Partial::CenterCell(void) const {
+    Cell const result = mBoard.CenterCell();
+
+    return result;
+}
+
 unsigned Partial::CountHand(void) const {
     ASSERT(CountTiles() >= CountPlayed() + CountSwap());
 

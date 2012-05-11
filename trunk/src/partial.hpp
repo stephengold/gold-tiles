@@ -115,7 +115,10 @@ public:
 protected:
     // protected data
     Game const* mpGame;
-    Tiles        mTiles; // the set of all available tiles
+    Tiles        mTiles; // the set of playable tiles
+
+    // misc protected methods
+    Cell CenterCell(void) const;
 
     // protected inquiry methods
     bool Contains(Tile::IdType) const;

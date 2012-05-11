@@ -8,6 +8,7 @@ TARGET = graphics-test
 TEMPLATE = app
 
 SOURCES += \
+ $${SRC_DIR}/gui/area.cpp \
  $${SRC_DIR}/gui/fractionpair.cpp \
  $${SRC_DIR}/gui/graphics.cpp \
  $${SRC_DIR}/gui/point.cpp \

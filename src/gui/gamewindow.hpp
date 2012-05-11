@@ -74,7 +74,7 @@ private:
 
     // private data
     static WindowClass* 
-        mspClass;
+                 mspClass;
     bool           mDragBoardFlag;
     PixelCntType   mDragBoardPixelCnt;
     long           mDragTileDeltaX;

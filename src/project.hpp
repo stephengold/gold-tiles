@@ -90,6 +90,7 @@ class Turns;
 
 #ifdef _GUI
 // forward declarations of GUI classes
+class Area;
 class AttrBox;
 class BaseWindow;
 class Canvas;

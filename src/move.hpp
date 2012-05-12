@@ -28,7 +28,7 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 /*
 A Move object represents a group of zero or more tiles and the
 location(s) where they will be played, or alternatively it indicates
-that a player will resign from the game.
+that a hand will resign from the game.
 
 The Move class encapsulates a set of TileCell objects and a
 resignation flag.

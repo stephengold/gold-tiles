@@ -26,7 +26,7 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 /*
-A TileOpt object represents the player-visible options of a Tile, namely
+A TileOpt object represents the user-visible options of a Tile, namely
 its bonus value and attributes.
 
 The TileOpt class is implemented by combining a bool (for the bonus)

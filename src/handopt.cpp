@@ -122,7 +122,8 @@ HandOpt::operator String(void) const {
         result += "SkipProbability=" + String(mSkipProbability) + "\n";
     }
     if (IsRemote()) {
-        result += "Address=" + String(mAddress) + "\n";
+        String const address_string = mAddress;
+        result += "Address=" + address_string + "\n";
     }
 
     result += "\n";

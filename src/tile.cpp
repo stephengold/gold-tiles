@@ -102,7 +102,7 @@ bool Tile::operator==(Tile const& rOther) const {
 
 Tile::operator Combo(void) const {
     TileOpt const& r_opt = msOpts[mId];
-    Combo const result = Combo(r_opt);
+    Combo const result = r_opt;
 
     return result;
 }
@@ -288,7 +288,7 @@ bool Tile::IsCompatibleWith(Tile const* pOther) const {
 
 /* static */ bool Tile::IsValid(Tile::IdType id) {
     bool const result = (id <= -Tile::ID_FIRST
-        || id >= Tile::ID_FIRST && id < msNextId);
+        || (id >= Tile::ID_FIRST && id < msNextId));
 
     return result;
 }

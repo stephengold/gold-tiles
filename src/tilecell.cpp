@@ -60,8 +60,8 @@ TileCell::TileCell(String const& rString, bool remoteFlag) {
 }
 
 TileCell::TileCell(Tile const& rTile, Cell const& rCell):
-mTile(rTile), 
-    mCell(rCell)
+    mCell(rCell),
+    mTile(rTile)
 {
     mSwapFlag = false;
 }
@@ -145,7 +145,8 @@ String TileCell::Description(void) const {
 
 String TileCell::GetUserChoice(Tiles const& rAvailableTiles, Strings const& rAlternatives) {
     String const result = mTile.GetUserChoice(rAvailableTiles, rAlternatives);
-    if (TileOpt(mTile).MatchesDescription(result)) {
+    TileOpt const opt = mTile;
+    if (opt.MatchesDescription(result)) {
         mSwapFlag = mCell.GetUserChoice("swap");
     }
 

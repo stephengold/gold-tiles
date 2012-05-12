@@ -33,6 +33,7 @@ The Indices class is implemented by applying the "set" container
 template (from the Standard Template Library) to IndexType.
 */
 
+#include <climits>    // USES LONG_MAX
 #include <set>        // ISA std::set
 #include "string.hpp" // USES String
 

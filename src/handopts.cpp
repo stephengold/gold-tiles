@@ -130,7 +130,7 @@ void HandOpts::GetUserChoice(unsigned handCnt) {
 
             Address address;
             String address_string;
-            while (address_string != String(address)) {
+            while (address_string != address.operator String()) {
                 std::cout << "Network address of " << remote_name << "'s computer? ";
                 std::cin >> address_string;
                 address = Address(address_string);

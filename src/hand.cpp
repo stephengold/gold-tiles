@@ -39,7 +39,8 @@ Hand::Hand(
 {
     mClockRunningFlag = false;
     mMilliseconds = 0L;
-    if (rClientSocket.IsValid() && Address(rOptions) == rClientSocket.Peer()) {
+    Address const hand_address = rOptions;
+    if (rClientSocket.IsValid() && hand_address == rClientSocket.Peer()) {
         mSocket = rClientSocket;
     }
     // mStartTime gets initialized in StartClock()

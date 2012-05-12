@@ -878,7 +878,7 @@ STEP4:
     }
     ASSERT(result == Dialog::RESULT_OK);
 
-    // check the sanity of the parameters so far
+    // Check the sanity of the parameters so far.
     unsigned const hand_size = game_options.HandSize();
     long const tiles_needed = hand_cnt*hand_size;
     long const total_tile_cnt = game_options.TotalTileCnt();
@@ -1223,6 +1223,7 @@ void GameWindow::SetGame(Game* pGame) {
 
     mpGame = pGame;
 
+    DoneWaiting();
     mGameView.SetGame(mpGame);
     mpMenuBar->NewGame(old_style);
 

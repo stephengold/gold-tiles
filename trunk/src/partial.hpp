@@ -66,7 +66,6 @@ public:
 
     // public operators
     //Partial& operator=(Partial const&);  implicitly defined assignment operator
-    operator Board(void) const;
     operator HintType(void) const;
     operator Tiles(void) const;
 
@@ -118,7 +117,7 @@ protected:
     Tiles        mTiles; // the set of playable tiles
 
     // misc protected methods
-    Cell CenterCell(void) const;
+    Board const& BoardReference(void) const;
 
     // protected inquiry methods
     bool Contains(Tile::IdType) const;

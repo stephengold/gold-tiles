@@ -133,7 +133,7 @@ void GameView::DrawBlankTile(
 }
 
 void GameView::DrawBoard(Canvas& rCanvas, unsigned showLayer) {
-    Board const board = *this;
+    Board const& r_board = BoardReference();
     int const column_fringe = 1;
     int const row_fringe = Cell::RowFringe();
 
@@ -153,10 +153,10 @@ void GameView::DrawBoard(Canvas& rCanvas, unsigned showLayer) {
         ASSERT(left_see_column <= right_see_column);
 
         // get the range of "might use" cells
-        RowType const top_use_row = row_fringe + board.NorthMax();
-        RowType const bottom_use_row = -row_fringe - board.SouthMax();
-        ColumnType const right_use_column = column_fringe + board.EastMax();
-        ColumnType const left_use_column = -column_fringe - board.WestMax();
+        RowType const top_use_row = row_fringe + r_board.NorthMax();
+        RowType const bottom_use_row = -row_fringe - r_board.SouthMax();
+        ColumnType const right_use_column = column_fringe + r_board.EastMax();
+        ColumnType const left_use_column = -column_fringe - r_board.WestMax();
 
         ASSERT(bottom_use_row <= top_use_row);
         ASSERT(left_use_column <= right_use_column);
@@ -468,7 +468,9 @@ void GameView::DrawPlayableHand(Canvas& rCanvas) {
     left_x = mHandRect.LeftX();
     width = mHandRect.Width();
 
-    if (playable_hand.HasResigned()) {
+    if (playable_hand.IsDisconnected()) {
+        rCanvas.DrawTextLine(mHandRect, "disconnected");
+    } else if (playable_hand.HasResigned()) {
         rCanvas.DrawTextLine(mHandRect, "resigned");
     } else if (playable_hand.HasGoneOut()) {
         rCanvas.DrawTextLine(mHandRect, "went out");
@@ -705,7 +707,9 @@ void GameView::DrawUnplayableHands(Canvas& rCanvas) {
         }
         Rect const hand_rect = rCanvas.DrawRectangle(top_y, left_x, width, height);
 
-        if (i_hand->HasResigned()) {
+        if (i_hand->IsDisconnected()) {
+            rCanvas.DrawTextLine(hand_rect, "disconnected");
+        } else if (i_hand->HasResigned()) {
             rCanvas.DrawTextLine(hand_rect, "resigned");
         } else if (i_hand->HasGoneOut()) {
             rCanvas.DrawTextLine(hand_rect, "went out");
@@ -729,11 +733,14 @@ void GameView::DrawUnplayableHands(Canvas& rCanvas) {
             }
         } // if peeking
 
+        if (mRecenterRightX > left_x) {
+            mRecenterRightX = left_x;
+        }
+
         // Add padding between hands.
         if (mpMenuBar->IsPeeking()) {
             // right to left
-            mRecenterRightX = header_rect.LeftX();
-            right_x = header_rect.LeftX() - mPadPixels;
+            right_x = left_x - mPadPixels;
             top_y = mPadPixels;
         } else {
             // top to bottom
@@ -877,18 +884,17 @@ void GameView::Recenter(void) {
     LogicalXType x = (mRecenterLeftX + mRecenterRightX)/2;
     LogicalYType y = client_area.Height()/2;
 
-    Cell const center_cell = CenterCell();
-    RowType const row = center_cell.Row();
-    ColumnType const column = center_cell.Column();
-    x -= GridUnitX()*column;
-    y += GridUnitY()*row;
+    Board const& r_board = BoardReference();
+    x -= GridUnitX()*(r_board.EastMax() - r_board.WestMax())/2;
+    y += GridUnitY()*(r_board.NorthMax() - r_board.SouthMax())/2;
 
     mStartCell = Point(x, y);
 }
 
 void GameView::Repaint(Canvas& rCanvas) {
+    Area const client_area = mpWindow->ClientArea();
+    mRecenterRightX = client_area.Width();
     mRecenterLeftX = 0;
-    mRecenterRightX = 0;
 
     if (mpGame == NULL || mpWindow->IsWaiting()) {
         DrawIdle(rCanvas);

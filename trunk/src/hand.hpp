@@ -80,6 +80,7 @@ public:
     bool HasResigned(void) const;
     bool IsAutomatic(void) const;
     bool IsClockRunning(void) const;
+    bool IsDisconnected(void) const;
     bool IsLocalUser(void) const;
     bool IsRemote(void) const;
 

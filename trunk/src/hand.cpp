@@ -323,6 +323,12 @@ bool Hand::IsClockRunning(void) const {
     return mClockRunningFlag;
 }
 
+bool Hand::IsDisconnected(void) const {
+    bool const result = IsRemote() && !mSocket.IsValid();
+
+    return result;
+}
+
 bool Hand::IsEmpty(void) const {
     bool const result = mTiles.IsEmpty();
 

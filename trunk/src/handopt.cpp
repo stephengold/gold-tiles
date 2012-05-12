@@ -65,14 +65,14 @@ HandOpt::HandOpt(String const& rString) {
 HandOpt::HandOpt(GameStyleType gameStyle, Strings const& rPlayerNames) {
     switch (gameStyle) {
     case GAME_STYLE_PRACTICE:
-        SetPlayerName("Player");
+        SetPlayerName("User");
         break;
     case GAME_STYLE_DEBUG:
         SetPlayerName("Tester");
         break;
     case GAME_STYLE_FRIENDLY:
     case GAME_STYLE_CHALLENGE: {
-        String const name = rPlayerNames.InventUnique("Player");
+        String const name = rPlayerNames.InventUnique("User");
         SetPlayerName(name);
         break;
                                }

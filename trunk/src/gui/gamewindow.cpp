@@ -853,11 +853,13 @@ STEP3:
 
     unsigned const hand_cnt = game_options.HandsDealt();
     if (hand_cnt > hand_options.Count()) { // adding new hands
-        // initialize a new hand_option for each new hand
+        // Initialize a new hand_option for each new hand.
         GameStyleType const game_style = GameStyleType(game_options);
-        Strings const player_names = hand_options.AllPlayerNames();
+        Strings player_names = hand_options.AllPlayerNames();
         for (unsigned i_hand = hand_options.Count(); i_hand < hand_cnt; i_hand++) {
             HandOpt const options = HandOpt(game_style, player_names);
+            String const new_name = options.PlayerName();
+            player_names.Append(new_name);
             hand_options.Append(options);
             ASSERT(i_hand + 1 == hand_options.Count());
         }

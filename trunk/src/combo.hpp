@@ -64,7 +64,7 @@ public:
 #ifdef _GUI
     static const AttrCntType ATTR_CNT_MAX = 5;
 #else // !defined(_GUI)
-    static const AttrCntType ATTR_CNT_MAX = USHRT_MAX;
+    static const AttrCntType ATTR_CNT_MAX = USHRT_MAX - 1;
 #endif // !defined(_GUI)
 
     static const AttrType VALUE_CNT_MIN = 2;

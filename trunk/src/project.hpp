@@ -56,9 +56,9 @@
 #define FAIL() ASSERT(false)
 
 // misc macros
-#ifndef max
-#define max(a,b)            (((a) > (b)) ? (a) : (b))
-#endif // !defined(max)
+#ifndef MAX
+#define MAX(a,b) (((a) > (b)) ? (a) : (b))
+#endif // !defined(MAX)
 
 // forward declarations of project classes
 class Address;
@@ -153,10 +153,10 @@ bool     is_odd(long);
 MsecIntervalType
          milliseconds(void);  // read real-time clock
 String   ordinal(unsigned);
-void     pause(void);
 TextType plural(unsigned);
 String   plural(unsigned, TextType);
 bool     random_bool(double trueProb);
 bool     str_eq(TextType, TextType);  // compare text strings
+void     system_pause(void);
 
 #endif // !defined(PROJECT_HPP_INCLUDED)

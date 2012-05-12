@@ -71,7 +71,7 @@ Game::Game(
     std::cout << "\nPlaced " << plural(CountStock(), "tile") << " in the stock bag." 
         << std::endl;
 
-    // generate list of unique player names
+    // Generate a list of unique player names.
     Strings names = rHandOptions.AllPlayerNames();
 
     // construct hands and generate a unique name for each
@@ -233,7 +233,7 @@ bool Game::ConnectToServers(void) {
     A pause is needed when running in a console window because the window may
     be destroyed soon after this function returns.
     */
-    ::pause();
+    ::system_pause();
 }
 
 unsigned Game::CountStock(void) const {

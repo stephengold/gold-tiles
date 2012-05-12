@@ -134,7 +134,7 @@ Network::~Network(void) {
     if (mspWindow == NULL) {
         return result;
     }
-#endif defined(_GUI)
+#endif // defined(_GUI)
 
 #ifdef _CONSOLE
     std::cout << AddressReport() << std::endl;

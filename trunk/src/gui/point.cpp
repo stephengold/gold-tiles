@@ -98,7 +98,7 @@ Point::operator POINTS(void) const {
 PixelCntType Point::Distance(Point const& rOther) const {
     PixelCntType const dx = ::abs(mX - rOther.mX);
     PixelCntType const dy = ::abs(mY - rOther.mY);
-    PixelCntType const result = max(dx, dy);
+    PixelCntType const result = MAX(dx, dy);
 
     return result;
 }

@@ -66,11 +66,11 @@ public:
     Cell       GetPointCell(Point const&) const;
     Tile::IdType 
                GetTileId(Point const&) const;
-    void       LoadPlayerOptions(Player const&);
+    void       LoadUserOptions(User const&);
     void       Recenter(void);
     void       Repaint(Canvas&);
     void       ResetTargetCell(void);
-    void       SavePlayerOptions(Player&) const;
+    void       SaveUserOptions(User&) const;
     void       SetBoardTileSize(unsigned);
     void       SetDisplayModes(DisplayModes const&);
     void       SetGame(Game*);

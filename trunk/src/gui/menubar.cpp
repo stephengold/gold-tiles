@@ -24,7 +24,7 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "gui/gameview.hpp"
 #include "gui/menubar.hpp"
-#include "gui/player.hpp"
+#include "gui/user.hpp"
 #ifdef _WINDOWS
 # include "gui/resource.hpp"
 # include "gui/win_types.hpp"
@@ -126,14 +126,14 @@ unsigned MenuBar::HandTileSize(void) const {
     return mHandTileSize;
 }
 
-void MenuBar::LoadPlayerOptions(Player const& rPlayer) {
-    mAutopauseFlag = rPlayer.Autopause();
-    mBoardTileSize = rPlayer.BoardTileSize();
-    mHandTileSize = rPlayer.HandTileSize();
-    mPeekFlag = rPlayer.Peek();
-    mShowClocksFlag = rPlayer.ShowClocks();
-    mShowGridFlag = rPlayer.ShowGrid();
-    mShowScoresFlag = rPlayer.ShowScores();
+void MenuBar::LoadUserOptions(User const& rUser) {
+    mAutopauseFlag = rUser.Autopause();
+    mBoardTileSize = rUser.BoardTileSize();
+    mHandTileSize = rUser.HandTileSize();
+    mPeekFlag = rUser.Peek();
+    mShowClocksFlag = rUser.ShowClocks();
+    mShowGridFlag = rUser.ShowGrid();
+    mShowScoresFlag = rUser.ShowScores();
 }
 
 void MenuBar::NewGame(GameStyleType oldStyle) {
@@ -148,14 +148,14 @@ void MenuBar::NewGame(GameStyleType oldStyle) {
     }
 }
 
-void MenuBar::SavePlayerOptions(Player& rPlayer) const {
-    rPlayer.SetAutopause(mAutopauseFlag);
-    rPlayer.SetBoardTileSize(mBoardTileSize);
-    rPlayer.SetHandTileSize(mHandTileSize);
-    rPlayer.SetPeek(mPeekFlag);
-    rPlayer.SetShowClocks(mShowClocksFlag);
-    rPlayer.SetShowGrid(mShowGridFlag);
-    rPlayer.SetShowScores(mShowScoresFlag);
+void MenuBar::SaveUserOptions(User& rUser) const {
+    rUser.SetAutopause(mAutopauseFlag);
+    rUser.SetBoardTileSize(mBoardTileSize);
+    rUser.SetHandTileSize(mHandTileSize);
+    rUser.SetPeek(mPeekFlag);
+    rUser.SetShowClocks(mShowClocksFlag);
+    rUser.SetShowGrid(mShowGridFlag);
+    rUser.SetShowScores(mShowScoresFlag);
 }
 
 void MenuBar::SetBoardTileSize(unsigned size) {

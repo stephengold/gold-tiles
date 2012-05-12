@@ -60,6 +60,8 @@ Dialog("HANDBOX", &message_handler),
 // misc methods
 
 void HandBox::HandleButtonClick(IdType buttonId) {
+    String const name = mrOptions.PlayerName();
+
     switch (buttonId) {
     case IDC_RADIOAUTO:
         mrOptions.SetAutomatic();
@@ -68,16 +70,17 @@ void HandBox::HandleButtonClick(IdType buttonId) {
 
     case IDC_RADIOLOCAL:
         mrOptions.SetLocalUser();
-        if (mrOptions.PlayerName() == "Computer"
-         || mrOptions.PlayerName() == "Remote Player") {
+        if (name == "Computer"
+         || name == "Remote Player") {
             UpdateNameBox("User");
         }
         break;
 
     case IDC_RADIOREMOTE:
         mrOptions.SetRemote();
-        if (mrOptions.PlayerName() == "Computer"
-         || mrOptions.PlayerName() == "User") {
+        if (name == "Computer"
+         || name == "Tester"
+         || name.HasPrefix("User")) {
             UpdateNameBox("Remote Player");
         }
         break;

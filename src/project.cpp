@@ -40,7 +40,7 @@ void assertion_failed(TextType file, unsigned line) {
     A pause is needed when running in a console window,
     because the window may close soon after exit() is called.
     */
-    ::pause();
+    ::system_pause();
 
     ::exit(EXIT_FAILURE);
 }
@@ -112,10 +112,6 @@ String ordinal(unsigned n) {
     return result;
 }
 
-void pause(void) {
-    ::system("PAUSE");
-}
-
 TextType plural(unsigned n) {
     TextType result = "s";
     if (n == 1) {
@@ -156,4 +152,8 @@ bool str_eq(TextType string1, TextType string2) {
     bool const result = (::strcmp(string1, string2) == 0);
 
     return result;
+}
+
+void system_pause(void) {
+    ::system("PAUSE");
 }

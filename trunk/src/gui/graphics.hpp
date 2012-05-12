@@ -102,7 +102,7 @@ private:
     // private constants
     static const ColorType    BRUSH_COLOR_DEFAULT = COLOR_WHITE;
     static const PixelCntType FONT_HEIGHT_MAX = 999;
-    static const PixelCntType FONT_HEIGHT_MIN = 6;
+    static const PixelCntType FONT_HEIGHT_MIN = 5;
     static const PixelCntType FONT_WIDTH_MIN = 2;
     static const ColorType    PEN_COLOR_DEFAULT = COLOR_BLACK;
     static const TextSizeType TEXT_SIZE_MAX = 13;

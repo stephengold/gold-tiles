@@ -118,7 +118,7 @@ private:
     void     HandleMouseMove(Point const&);
     void     IncreaseBoardTileSize(int delta);
     void     InfoBox(TextType message);
-    void     LoadPlayerOptions(Hand const&);
+    void     LoadUserOptions(Hand const&);
     TextType Name(void) const;
     void	 OfferNewGame(void);
     void	 OfferSaveGame(void);
@@ -133,7 +133,7 @@ private:
     void     RestartGame(void);
     void     RuleBox(UmType);
     String   SaveHandOptions(void) const;
-    void     SavePlayerOptions(Hand const&) const;
+    void     SaveUserOptions(Hand const&) const;
     void     SetGame(Game* pGame);
 #ifdef _WINDOWS
     void     SetBoardTileSize(IdType);

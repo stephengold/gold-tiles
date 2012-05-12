@@ -64,9 +64,9 @@ public:
     void     GameOver(void);
     void     HandleMenuCommand(IdType);
     unsigned HandTileSize(void) const;
-    void     LoadPlayerOptions(Player const&);
+    void     LoadUserOptions(User const&);
     void     NewGame(GameStyleType old);
-    void     SavePlayerOptions(Player&) const;
+    void     SaveUserOptions(User&) const;
     void     SetBoardTileSize(unsigned);
     void     SetHandTileSize(unsigned);
     void     Update(ThinkModeType);

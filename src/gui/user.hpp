@@ -1,9 +1,9 @@
-#ifndef PLAYER_HPP_INCLUDED
-#define PLAYER_HPP_INCLUDED
+#ifndef USER_HPP_INCLUDED
+#define USER_HPP_INCLUDED
 
-// File:     player.hpp
+// File:     user.hpp
 // Location: src/gui
-// Purpose:  declare Player class
+// Purpose:  declare User class
 // Author:   Stephen Gold sgold@sonic.net
 // (c) Copyright 2012 Stephen Gold
 // Distributed under the terms of the GNU General Public License
@@ -26,26 +26,23 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 /*
-A Player object represents a (human) user of the local computer.
+A User object represents a (human) user of the local computer.
 
-TODO rename this class!
-
-The Player class implements a static map for translating names to
+The User class implements a static map for translating names to
 user-interface settings.
 */
 
 #include <map>                  // HASA std::map
 #include "gui/displaymodes.hpp" // HASA DisplayModes
 #include "gui/point.hpp"        // HASA Point
-#include "gui/win.hpp"          // HASA IdType
 #include "string.hpp"           // HASA String
 
-class Player {
+class User {
 public:
     // public lifecycle
-    // Player(void); no default constructor
-    explicit Player(String const& name);
-    // ~Player(void);  implicitly defined destructor
+    // no default constructor
+    explicit User(String const& name);
+    // ~User(void);  implicitly defined destructor
 
     // public operators
     operator DisplayModes(void) const;
@@ -54,7 +51,7 @@ public:
     // misc public methods
     unsigned BoardTileSize(void) const;
     unsigned HandTileSize(void) const;
-    static Player& 
+    static User& 
             rLookup(String const&);
     void     SetAutopause(bool);
     void     SetBoardTileSize(unsigned);
@@ -75,11 +72,11 @@ public:
 
 private:
     // private types
-    typedef std::map<String, Player*>  Map;
-    typedef std::pair<String, Player*> Pair;
-    typedef Map::const_iterator        ConstIterator;
-    typedef Map::iterator              Iterator;
-    typedef std::pair<Iterator, bool>  InsertResult;
+    typedef std::map<String, User*>   Map;
+    typedef std::pair<String, User*>  Pair;
+    typedef Map::const_iterator       ConstIterator;
+    typedef Map::iterator             Iterator;
+    typedef std::pair<Iterator, bool> InsertResult;
 
     // private data
     bool         mAutopause;
@@ -95,9 +92,9 @@ private:
     Point        mStartCellPosition;  // logical coordinates of the Start cell
 
     // private lifecycle
-    Player(Player const&);  // not copyable
+    User(User const&);  // not copyable
 
     // private operators
-    Player& operator=(Player const&);  // not assignable
+    User& operator=(User const&);  // not assignable
 };
-#endif // !defined(PLAYER_HPP_INCLUDED)
+#endif // !defined(USER_HPP_INCLUDED)

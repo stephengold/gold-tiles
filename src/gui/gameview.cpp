@@ -25,7 +25,7 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 #include "gui/canvas.hpp"
 #include "gui/gamewindow.hpp"
 #include "gui/menubar.hpp"
-#include "gui/player.hpp"
+#include "gui/user.hpp"
 #include "network.hpp"
 #include "strings.hpp"
 
@@ -856,15 +856,15 @@ PixelCntType GameView::GridUnitY(void) const {
     return result;
 }
 
-void GameView::LoadPlayerOptions(Player const& rPlayer) {
-    mDisplayModes = DisplayModes(rPlayer);
+void GameView::LoadUserOptions(User const& rUser) {
+    mDisplayModes = DisplayModes(rUser);
     ASSERT(mDisplayModes.MarkingCnt() <= Markings::MARKING_CNT_MAX);
 
-    mStartCell = Point(rPlayer);
+    mStartCell = Point(rUser);
 
-    unsigned const board_tile_size = rPlayer.BoardTileSize();
+    unsigned const board_tile_size = rUser.BoardTileSize();
     SetBoardTileSize(board_tile_size);
-    unsigned const hand_tile_size = rPlayer.HandTileSize();
+    unsigned const hand_tile_size = rUser.HandTileSize();
     SetHandTileSize(hand_tile_size);
 }
 
@@ -913,9 +913,9 @@ void GameView::ResetTargetCell(void) {
     mTargetCellFlag = false;
 }
 
-void GameView::SavePlayerOptions(Player& rPlayer) const {
-    rPlayer.SetDisplayModes(mDisplayModes);
-    rPlayer.SetStartCellPosition(mStartCell);
+void GameView::SaveUserOptions(User& rUser) const {
+    rUser.SetDisplayModes(mDisplayModes);
+    rUser.SetStartCellPosition(mStartCell);
     // tile size is saved from the menu bar
 }
 

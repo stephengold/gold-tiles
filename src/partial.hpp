@@ -28,7 +28,7 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 /*
 A Partial object represents the playable hand's move in progress, including
 the location of every tile in the hand.  It also decides which cells should
-be "hinted" (that is to say highlighted) for the player's benefit.  It also
+be "hinted" (that is to say highlighted) for the user's benefit.  It also
 implements a Suggest() method for user assistance and automatic play.
 
 The tiles may be located in the playable hand, in the swap area, or on the board.

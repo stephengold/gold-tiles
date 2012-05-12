@@ -1,6 +1,6 @@
-// File:     player.cpp
+// File:     user.cpp
 // Location: src/gui
-// Purpose:  implement Player class
+// Purpose:  implement User class
 // Author:   Stephen Gold sgold@sonic.net
 // (c) Copyright 2012 Stephen Gold
 // Distributed under the terms of the GNU General Public License
@@ -23,18 +23,18 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "gui/gameview.hpp" // TILE_SIZE_DEFAULT
-#include "gui/player.hpp"
+#include "gui/user.hpp"
 #include "project.hpp"      // ASSERT
 
 
 // static data
 
-Player::Map Player::msMap;
+User::Map User::msMap;
 
 
 // lifecycle
 
-Player::Player(String const& rName):
+User::User(String const& rName):
 mName(rName),
     mStartCellPosition(0, 0)
 {
@@ -52,33 +52,33 @@ mName(rName),
 
 // operators
 
-Player::operator DisplayModes(void) const {
+User::operator DisplayModes(void) const {
     return mDisplayModes;
 }
 
-Player::operator Point(void) const {
+User::operator Point(void) const {
     return mStartCellPosition;
 }
 
 
 // misc methods
 
-unsigned Player::BoardTileSize(void) const {
+unsigned User::BoardTileSize(void) const {
     return mBoardTileSize;
 }
 
-unsigned Player::HandTileSize(void) const {
+unsigned User::HandTileSize(void) const {
     return mHandTileSize;
 }
 
-/* static */ Player& Player::rLookup(String const& rName) {
-    ConstIterator const i_player = msMap.find(rName);
+/* static */ User& User::rLookup(String const& rName) {
+    ConstIterator const i_user = msMap.find(rName);
 
-    Player* p_result = NULL;
-    if (i_player != msMap.end()) {
-        p_result = i_player->second;
+    User* p_result = NULL;
+    if (i_user != msMap.end()) {
+        p_result = i_user->second;
     } else {
-        p_result = new Player(rName);
+        p_result = new User(rName);
         ASSERT(p_result != NULL);
 
         Pair const new_mapping(rName, p_result); 
@@ -91,67 +91,67 @@ unsigned Player::HandTileSize(void) const {
     return *p_result;
 }
 
-void Player::SetAutopause(bool value) {
+void User::SetAutopause(bool value) {
     mAutopause = value;
 }
 
-void Player::SetBoardTileSize(unsigned size) {
+void User::SetBoardTileSize(unsigned size) {
     ASSERT(size >= GameView::TILE_SIZE_MIN);
     ASSERT(size <= GameView::TILE_SIZE_MAX);
 
     mBoardTileSize = size;
 }
 
-void Player::SetDisplayModes(DisplayModes const& rDisplayModes) {
+void User::SetDisplayModes(DisplayModes const& rDisplayModes) {
     mDisplayModes = rDisplayModes;
 }
 
-void Player::SetHandTileSize(unsigned size) {
+void User::SetHandTileSize(unsigned size) {
     ASSERT(size >= GameView::TILE_SIZE_MIN);
     ASSERT(size <= GameView::TILE_SIZE_MAX);
 
     mHandTileSize = size;
 }
 
-void Player::SetPeek(bool value) {
+void User::SetPeek(bool value) {
     mPeek = value;
 }
 
-void Player::SetShowClocks(bool value) {
+void User::SetShowClocks(bool value) {
     mShowClocks = value;
 }
 
-void Player::SetShowGrid(bool value) {
+void User::SetShowGrid(bool value) {
     mShowGrid = value;
 }
 
-void Player::SetShowScores(bool value) {
+void User::SetShowScores(bool value) {
     mShowScores = value;
 }
 
-void Player::SetStartCellPosition(Point const& rPoint) {
+void User::SetStartCellPosition(Point const& rPoint) {
     mStartCellPosition = rPoint;
 }
 
 
 // inquiry methods
 
-bool Player::Autopause(void) const {
+bool User::Autopause(void) const {
     return mAutopause;
 }
 
-bool Player::Peek(void) const {
+bool User::Peek(void) const {
     return mPeek;
 }
 
-bool Player::ShowClocks(void) const {
+bool User::ShowClocks(void) const {
     return mShowClocks;
 }
 
-bool Player::ShowGrid(void) const {
+bool User::ShowGrid(void) const {
     return mShowGrid;
 }
 
-bool Player::ShowScores(void) const {
+bool User::ShowScores(void) const {
     return mShowScores;
 }

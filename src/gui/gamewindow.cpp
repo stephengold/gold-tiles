@@ -25,7 +25,7 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 #include "gui/canvas.hpp"
 #include "gui/gamewindow.hpp"
 #include "gui/menubar.hpp"
-#include "gui/player.hpp"
+#include "gui/user.hpp"
 #include "handopts.hpp"
 #include "network.hpp"
 #include "strings.hpp"
@@ -190,7 +190,7 @@ void GameWindow::Initialize(CREATESTRUCT const& rCreateStruct) {
         Hands::ConstIterator i_hand;
         for (i_hand = hands.begin(); i_hand != hands.end(); i_hand++) {
             if (i_hand->IsLocalUser()) {
-                SavePlayerOptions(*i_hand);
+                SaveUserOptions(*i_hand);
             }
         }
         ChangeHand("");
@@ -212,7 +212,7 @@ void GameWindow::ChangeHand(String const& rOldPlayerName) {
 
     Hand const playable_hand = *mpGame;
     if (playable_hand.IsLocalUser()) {
-        LoadPlayerOptions(playable_hand);
+        LoadUserOptions(playable_hand);
     }
     double const skip_probability = playable_hand.SkipProbability();
     mGameView.Reset(skip_probability);
@@ -672,7 +672,7 @@ LRESULT GameWindow::HandleMessage(MessageType message, WPARAM wParam, LPARAM lPa
         if (timer_id == ID_CLOCK_TIMER) {
             if (mpMenuBar->AreClocksVisible() && !IsGamePaused() && !IsGameOver()) {
                 // don't update menus because they would flicker
-                ForceRepaint();  // to update active player's clock display
+                ForceRepaint();  // to update the playable hand's clock display
             } else {
                 SetTimer(TIMEOUT_MSEC, timer_id);
             }
@@ -758,12 +758,12 @@ void GameWindow::InfoBox(TextType messageText) {
     Window::InfoBox(message, title);
 }
 
-void GameWindow::LoadPlayerOptions(Hand const& rHand) {
-    String const player_name = rHand.PlayerName();
-    Player const& r_player = Player::rLookup(player_name);
+void GameWindow::LoadUserOptions(Hand const& rHand) {
+    String const user_name = rHand.PlayerName();
+    User const& r_user = User::rLookup(user_name);
 
-    mpMenuBar->LoadPlayerOptions(r_player);
-    mGameView.LoadPlayerOptions(r_player);
+    mpMenuBar->LoadUserOptions(r_user);
+    mGameView.LoadUserOptions(r_user);
 }
 
 TextType GameWindow::Name(void) const {
@@ -857,7 +857,7 @@ STEP3:
         GameStyleType const game_style = GameStyleType(game_options);
         Strings const player_names = hand_options.AllPlayerNames();
         for (unsigned i_hand = hand_options.Count(); i_hand < hand_cnt; i_hand++) {
-            HandOpt options = HandOpt(game_style, player_names);
+            HandOpt const options = HandOpt(game_style, player_names);
             hand_options.Append(options);
             ASSERT(i_hand + 1 == hand_options.Count());
         }
@@ -957,7 +957,7 @@ void GameWindow::Play(bool passFlag) {
         mpGame->FinishTurn(move);
 
         if (!mpGame->IsOver()) {
-            // the game isn't over yet, so proceed to the next hand
+            // The game isn't over yet, so proceed to the next hand.
             String const old_player_name = SaveHandOptions();
             mpGame->ActivateNextHand();
             ChangeHand(old_player_name);
@@ -1112,7 +1112,7 @@ void GameWindow::ReleaseActiveTile(Point const& rMouse) {
             mGameView.HandToSwap();
         }
 
-        // Explain to the player why it was illegal.
+        // Explain to the user why it was illegal.
         if (reason == UM_START && !from_board) {
             reason = UM_STARTSIMPLE;
         }
@@ -1192,21 +1192,21 @@ void GameWindow::RuleBox(UmType reason) {
 String GameWindow::SaveHandOptions(void) const {
     Hand const old_hand = Hand(*mpGame);
     if (old_hand.IsLocalUser()) {
-        SavePlayerOptions(old_hand);
+        SaveUserOptions(old_hand);
     }
     String const result = old_hand.PlayerName();
 
     return result;
 }
 
-void GameWindow::SavePlayerOptions(Hand const& rHand) const {
+void GameWindow::SaveUserOptions(Hand const& rHand) const {
     ASSERT(mpMenuBar != NULL);
 
-    String const player_name = rHand.PlayerName();
-    Player& r_player = Player::rLookup(player_name);
+    String const user_name = rHand.PlayerName();
+    User& r_user = User::rLookup(user_name);
 
-    mpMenuBar->SavePlayerOptions(r_player);
-    mGameView.SavePlayerOptions(r_player);
+    mpMenuBar->SaveUserOptions(r_user);
+    mGameView.SaveUserOptions(r_user);
 }
 
 void GameWindow::SetGame(Game* pGame) {
@@ -1230,7 +1230,7 @@ void GameWindow::SetGame(Game* pGame) {
         Hands const hands = Hands(*mpGame);
         Hands::ConstIterator i_hand;
         for (i_hand = hands.begin(); i_hand != hands.end(); i_hand++) {
-            SavePlayerOptions(*i_hand);
+            SaveUserOptions(*i_hand);
         }
 
         ChangeHand("");

@@ -68,14 +68,16 @@ void HandBox::HandleButtonClick(IdType buttonId) {
 
     case IDC_RADIOLOCAL:
         mrOptions.SetLocalUser();
-        if (mrOptions.PlayerName() == "Computer") {
+        if (mrOptions.PlayerName() == "Computer"
+         || mrOptions.PlayerName() == "Remote Player") {
             UpdateNameBox("User");
         }
         break;
 
     case IDC_RADIOREMOTE:
         mrOptions.SetRemote();
-        if (mrOptions.PlayerName() == "Computer") {
+        if (mrOptions.PlayerName() == "Computer"
+         || mrOptions.PlayerName() == "User") {
             UpdateNameBox("Remote Player");
         }
         break;

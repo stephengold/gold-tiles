@@ -46,10 +46,6 @@ Partial::Partial(Game const* pGame, HintType strength, double skipProbability) {
 
 // BaseBoard &operator=(BaseBoard const &);  implicitly defined assignment operator is OK
 
-Partial::operator Board(void) const {
-    return mBoard;
-}
-
 Partial::operator HintType(void) const {
     return mHintStrength;
 }
@@ -88,6 +84,10 @@ void Partial::AddValidNextUses(
     }
 }
 
+Board const& Partial::BoardReference(void) const {
+    return mBoard;
+}
+
 void Partial::BoardToHand(void) {
     ASSERT(mActiveId != Tile::ID_NONE);
     ASSERT(IsOnBoard(mActiveId));
@@ -101,12 +101,6 @@ void Partial::BoardToHand(void) {
     ASSERT(mBoard.HasEmptyCell(cell));
     ASSERT(!IsOnBoard(mActiveId));
     ASSERT(IsInHand(mActiveId));
-}
-
-Cell Partial::CenterCell(void) const {
-    Cell const result = mBoard.CenterCell();
-
-    return result;
 }
 
 unsigned Partial::CountHand(void) const {

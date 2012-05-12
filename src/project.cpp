@@ -155,5 +155,7 @@ bool str_eq(TextType string1, TextType string2) {
 }
 
 void system_pause(void) {
+#ifdef WIN32
     ::system("PAUSE");
+#endif // defined(WIN32)
 }

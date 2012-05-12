@@ -88,7 +88,8 @@ Tiles::operator String(void) const {
         }
 
         Tile const tile = *i_tile;
-        result += String(tile);
+        String const tile_string = tile;
+        result += tile_string;
     }       
     result += SUFFIX;
 

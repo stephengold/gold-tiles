@@ -312,9 +312,10 @@ Network::~Network(void) {
     HandOpts& rHandOpts)
 {
     Address const client_address = rSocket.Peer();
-    String question = String(client_address) + " has invited you to play a game with:\n";
-    question += String(rGameOpt);  // TODO better description
-    question += String(rHandOpts);
+    String const client_string = client_address;
+    String question = client_string + " has invited you to play a game with:\n";
+    question += rGameOpt.operator String();  // TODO better description
+    question += rHandOpts.operator String();
     question += "Do you accept?";
     bool const accept = Question(question);
 
@@ -348,7 +349,8 @@ Network::~Network(void) {
 // CLIENT:  Invite a server to participate in the current game.
 /* static */ bool Network::InviteServer(Socket& rSocket, Game const& rGame) {
     Address const peer = rSocket.Peer();
-    std::cout << "Sending invitation to " << String(peer) << std::endl;
+    String const peer_string = peer;
+    std::cout << "Sending invitation to " << peer_string << std::endl;
 
     GameOpt const game_opt = rGame;
     String const game_opt_string = game_opt;

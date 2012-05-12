@@ -102,7 +102,7 @@ Move::operator Cells(void) const {
     ConstIterator i_tile_cell;
     for (i_tile_cell = Begin(); i_tile_cell != End(); i_tile_cell++) {
         if (!i_tile_cell->IsSwap()) {
-            Cell const cell = Cell(*i_tile_cell);
+            Cell const cell = *i_tile_cell;
             result.insert(cell);
         }
     }
@@ -337,7 +337,7 @@ bool Move::RepeatsCell(void) const {
 
         for (i_tile_cell = Begin(); i_tile_cell != End(); i_tile_cell++) {
             if (!i_tile_cell->IsSwap()) {
-                Cell const cell = Cell(*i_tile_cell);
+                Cell const cell = *i_tile_cell;
                 if (cells_seen.Contains(cell)) {
                     result = true;
                     break;

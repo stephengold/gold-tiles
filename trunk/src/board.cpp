@@ -194,8 +194,8 @@ void Board::PlayMove(Move const& rMove) {
 }
 
 void Board::PlayTile(TileCell const& rTileCell) {
-    Cell const cell = Cell(rTileCell);
-    Tile const tile = rTileCell.operator Tile();
+    Cell const cell = rTileCell;
+    Tile const tile = rTileCell;
     ASSERT(HasEmptyCell(cell));
     PlayOnCell(cell, tile);
 }
@@ -335,7 +335,7 @@ void Board::UnplayMove(Move const& rMove) {
     Move::ConstIterator i_place;
     for (i_place = rMove.Begin(); i_place != rMove.End(); i_place++) {
         ASSERT(!i_place->IsSwap());
-        Cell const cell = Cell(*i_place);
+        Cell const cell = *i_place;
         MakeEmpty(cell);
     }
 }

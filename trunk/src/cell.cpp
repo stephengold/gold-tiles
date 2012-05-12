@@ -391,8 +391,8 @@ bool Cell::HasNeighbor(Direction const& rDirection) const {
         break;
 
     case GRID_TRIANGLE:
-        if (rDirection.IsNorth() && !IsOdd()
-            || rDirection.IsSouth() && IsOdd()
+        if ((rDirection.IsNorth() && !IsOdd())
+            || (rDirection.IsSouth() && IsOdd())
             || rDirection.IsDiagonal())
         {
             result = false;

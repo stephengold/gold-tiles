@@ -31,12 +31,12 @@ Strings::Strings(void) {
 }
 
 Strings::Strings(TextType list, TextType separators) {
-    // create a writable copy of the list
+    // Create a writable copy of the list.
     unsigned const length = strlen(list);
     char* copy_list = new char[length + 1];
     ::strcpy_s(copy_list, length + 1, list);
 
-    // parse the list into tokens
+    // Parse the list into tokens.
     char* next_token = NULL;
     TextType token = ::strtok_s(copy_list, separators, &next_token);
     while (token != NULL) {

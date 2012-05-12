@@ -27,7 +27,7 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 
 /*
 A HandBox object represents a dialog box for setting hand parameters
-such as the type of player.
+such as the player's name and the type of player.
 
 The HandBox class is an extension of the Dialog class.
 */

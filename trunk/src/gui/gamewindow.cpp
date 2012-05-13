@@ -214,7 +214,7 @@ void GameWindow::ChangeHand(String const& rOldPlayerName) {
     if (playable_hand.IsLocalUser()) {
         LoadUserOptions(playable_hand);
     }
-    double const skip_probability = playable_hand.SkipProbability();
+    Fraction const skip_probability = playable_hand.SkipProbability();
     mGameView.Reset(skip_probability);
     mGameView.ResetTargetCell();
 

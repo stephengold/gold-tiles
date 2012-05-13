@@ -259,9 +259,9 @@ Rect Canvas::DrawTile(
     {
         Poly roundel;
         for (unsigned i = 0; i < 20; i++) {
-            double const phi = M_PI/10 * (double)i;
-            double const x = 0.5 + 0.44*::cos(phi);
-            double const y = 0.5 + 0.44*::sin(phi);
+            double const phi = M_PI/10 * double(i);
+            Fraction const x = 0.5 + 0.44*::cos(phi);
+            Fraction const y = 0.5 + 0.44*::sin(phi);
             roundel.Add(x, y);
         }
         msShapes.push_back(roundel);
@@ -296,7 +296,7 @@ Rect Canvas::DrawTile(
     {
         Poly mulletOfSeven;
         for (unsigned i = 0; i < 14; i++) {
-            double const phi = M_PI/7 * (float)i;
+            double const phi = M_PI/7 * double(i);
             double x, y;
             if (::is_odd(i)) {
                 x = 0.5 + 0.2*::sin(phi);

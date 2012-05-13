@@ -76,7 +76,7 @@ int main(int argCnt, char** argValues) {
 
     // Seed the pseudo-random number generator.
     unsigned const seed = ::milliseconds();
-    ::srand(seed);
+    Fraction::ReseedGenerator(seed);
 
     // Initialize the networking support.
     Network network;

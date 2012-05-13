@@ -1,6 +1,6 @@
-// File:     fractionpair.cpp
-// Location: src/gui
-// Purpose:  implement FractionPair class
+// File:     fraction.cpp
+// Location: src
+// Purpose:  implement Fraction class
 // Author:   Stephen Gold sgold@sonic.net
 // (c) Copyright 2012 Stephen Gold
 // Distributed under the terms of the GNU General Public License
@@ -22,23 +22,55 @@ You should have received a copy of the GNU General Public License
 along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "gui/fractionpair.hpp"
+#include <cstdlib>      // ::srand()
+#include "fraction.hpp"
 #include "project.hpp"  // ASSERT
 
-FractionPair::FractionPair(double x, double y):
-    mX(x),
-    mY(y)
-{
+
+// lifecycle
+
+Fraction::Fraction(double x) {
+    ASSERT(x >= 0.0);
+    ASSERT(x <= 1.0);
+
+    mFloat = float(x);
 }
 
-float FractionPair::X(void) const {
-    float const result = mX;
+// The implicitly defined copy constructor is OK.
+// The implicitly defined destructor is OK.
+
+
+// operators
+
+Fraction::operator float(void) const {
+    float const result = mFloat;
 
     return result;
 }
 
-float FractionPair::Y(void) const {
-    float const result = mY;
+
+// misc methods
+
+void Fraction::Invert(void) {
+    mFloat = 1.0f - mFloat;
+}
+
+bool Fraction::RandomBool(void) const {
+    bool result = false;
+
+    if (mFloat == 1.0) {
+        result = true;
+
+    } else if (mFloat > 0.0) {
+        double const r = double(::rand())/RAND_MAX;
+        ASSERT(r >= 0.0);
+        ASSERT(r <= 1.0);
+        result = (r < mFloat);
+    }
 
     return result;
+}
+
+/* static */ void Fraction::ReseedGenerator(unsigned seed) {
+    ::srand(seed);
 }

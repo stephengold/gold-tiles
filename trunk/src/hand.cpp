@@ -140,7 +140,7 @@ void Hand::DisableServer(void) {
 }
 
 Move Hand::GetAutomaticMove(Game const& rGame) const {
-    double skip_probability = SkipProbability();
+    Fraction skip_probability = SkipProbability();
     if (rGame.MustPlay() > 0) {
         skip_probability = 0.0;
     }
@@ -255,8 +255,8 @@ void Hand::SetSocket(Socket const& rSocket) {
     mSocket = rSocket;
 }
 
-double Hand::SkipProbability(void) const {
-    double const result = mOptions.SkipProbability();
+Fraction Hand::SkipProbability(void) const {
+    Fraction const result = mOptions.SkipProbability();
 
     return result;
 }

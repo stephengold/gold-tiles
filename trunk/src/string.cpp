@@ -155,6 +155,13 @@ String::operator long(void) const {
     return result;
 }
 
+String::operator Fraction(void) const {
+    TextType const text = c_str();
+    Fraction const result = ::atof(text);
+
+    return result;
+}
+
 String::operator TextType(void) const {
     TextType const result = c_str();
 

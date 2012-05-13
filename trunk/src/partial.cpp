@@ -34,8 +34,14 @@ Partial::YieldFunctionType* Partial::mspYieldFunction = NULL;
 
 // lifecycle
 
-Partial::Partial(Game const* pGame, HintType strength, double skipProbability) {
-    Reset(pGame, strength, skipProbability);
+Partial::Partial(
+    Game const* pGame, 
+    HintType strength, 
+    Fraction const& rSkipProbability)
+:
+    mSkipProbability(rSkipProbability)
+{
+    Reset(pGame, strength, rSkipProbability);
 }
 
 // Partial(Partial const &);  implicitly defined copy constructor is OK
@@ -166,7 +172,7 @@ void Partial::FindBestMove(Partial& rBest, ScoreType& rBestPoints) const {
     for (i_tile = mTiles.begin(); i_tile != mTiles.end(); i_tile++) {
         Tile const tile = *i_tile;
         Tile::IdType const id = tile.Id();
-        if (temp.IsInHand(id) && !::random_bool(mSkipProbability)) {
+        if (temp.IsInHand(id) && !mSkipProbability.RandomBool()) {
             bool canceled = false;
 
             Yields(canceled);
@@ -297,18 +303,21 @@ ScoreType Partial::Points(void) const {
     return result;
 }
 
-void Partial::Reset(Game const* pGame, HintType strength, double skipProbability) {
+void Partial::Reset(
+    Game const* pGame, 
+    HintType strength, 
+    Fraction const& rSkipProbability)
+{
     mpGame = pGame;
     mHintStrength = strength;
-    Reset(skipProbability);
+    Reset(rSkipProbability);
 }
 
 // method invoked at the start of a turn
-void Partial::Reset(double skipProbability) {
-    ASSERT(skipProbability >= 0.0);
-    ASSERT(skipProbability < 1.0);
+void Partial::Reset(Fraction const& rSkipProbability) {
+    ASSERT(rSkipProbability < 1.0);
 
-    mSkipProbability = skipProbability;
+    mSkipProbability = rSkipProbability;
     Reset();
 }
 

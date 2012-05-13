@@ -1,9 +1,9 @@
-#ifndef FRACTIONPAIR_HPP_INCLUDED
-#define FRACTIONPAIR_HPP_INCLUDED
+#ifndef FRACTION_HPP_INCLUDED
+#define FRACTION_HPP_INCLUDED
 
-// File:     fractionpair.hpp
-// Location: src/gui
-// Purpose:  declare FractionPair class
+// File:     fraction.hpp
+// Location: src
+// Purpose:  declare Fraction class
 // Author:   Stephen Gold sgold@sonic.net
 // (c) Copyright 2012 Stephen Gold
 // Distributed under the terms of the GNU General Public License
@@ -26,31 +26,31 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 /*
-A FractionPair object represents a point in a unit square centered
-on (0.5, 0.5).
+A Fraction object represents a number between 0 and 1 inclusive,
+such as a probability.
 */
 
-#include "fraction.hpp"
 
-
-class FractionPair {
+class Fraction {
 public:
     // lifecycle
     // no default constructor
-    FractionPair(double x, double y);
-    // FractionPair(FractionPair const&); implicitly defined copy constructor
-    // ~FractionPair(void); implicitly defined destructor
+    Fraction(double);
+    // Fraction(Fraction const&); implicitly defined copy constructor
+    // ~Fraction(void); implicitly defined destructor
 
     // public operators
-    // FractionPair& operator=(FractionPair const&); implicitly defined assignment method
+    // Fraction& operator=(Fraction const&); implicitly defined assignment method
+    operator float(void) const;
 
     // misc public methods
-    float X(void) const;
-    float Y(void) const;
+    void Invert(void);
+    bool RandomBool(void) const;
+    static void 
+         ReseedGenerator(unsigned);
 
 private:
     // private data
-    Fraction mX;
-    Fraction mY;
+    float mFloat;
 };
-#endif // !defined(FRACTIONPAIR_HPP_INCLUDED)
+#endif // !defined(FRACTION_HPP_INCLUDED)

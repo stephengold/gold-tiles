@@ -137,7 +137,7 @@ void GameView::DrawBoard(Canvas& rCanvas, unsigned showLayer) {
     int const column_fringe = 1;
     int const row_fringe = Cell::RowFringe();
 
-    // determine which cells are visible in the client area
+    // Determine which cells are visible in the client area.
     Point const ulc(0,0);
     Cell const ulc_cell = GetPointCell(ulc);
     RowType top_see_row = ulc_cell.Row() + row_fringe - 1;
@@ -885,8 +885,8 @@ void GameView::Recenter(void) {
     LogicalYType y = client_area.Height()/2;
 
     Board const& r_board = BoardReference();
-    x -= GridUnitX()*(r_board.EastMax() - r_board.WestMax())/2;
-    y += GridUnitY()*(r_board.NorthMax() - r_board.SouthMax())/2;
+    x -= long(GridUnitX())*(r_board.EastMax() - r_board.WestMax())/2;
+    y += long(GridUnitY())*(r_board.NorthMax() - r_board.SouthMax())/2;
 
     mStartCell = Point(x, y);
 }

@@ -37,7 +37,7 @@ Window::Window(void)
 {
 #ifdef _WINDOWS
     mAcceleratorTable = 0;
-    mPaintDevice = 0;
+    mPaintDevice = NULL;
 #endif // defined(_WINDOWS)
     mWaitingFlag = false;
 }
@@ -199,13 +199,15 @@ void Window::ErrorBox(TextType message, TextType title) {
 
 void Window::ForceRepaint(void) {
 #ifdef _WINDOWS
-    HWND const this_window = *this;
-    ASSERT(this_window != 0);
+    if (mPaintDevice != NULL) {
+        HWND const this_window = *this;
+        ASSERT(this_window != 0);
 
-    RECT* const entire_client_area = NULL;
-    BOOL const erase = TRUE;
-    BOOL const success = Win::InvalidateRect(this_window, entire_client_area, erase);
-    ASSERT(success != 0);
+        PRECT const entire_client_area = NULL;
+        BOOL const erase = TRUE;
+        BOOL const success = Win::InvalidateRect(this_window, entire_client_area, erase);
+        ASSERT(success != 0);
+    }
 #endif // defined(_WINDOWS)
 }
 

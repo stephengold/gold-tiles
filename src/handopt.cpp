@@ -29,15 +29,16 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 
 // lifecycle
 
-HandOpt::HandOpt(void) {
+HandOpt::HandOpt(void):
+    mSkipProbability(0.0)
+{
     mAutomaticFlag = false;
     mRemoteFlag = false;
-    mSkipProbability = 0.0;
 }
 
-HandOpt::HandOpt(String const& rString) {
-    mSkipProbability = 0.0;
-
+HandOpt::HandOpt(String const& rString):
+    mSkipProbability(0.0)
+{
     Strings const lines(rString, "\n");
     Strings::ConstIterator i_line;
     for (i_line = lines.Begin(); i_line != lines.End(); i_line++) {
@@ -53,7 +54,7 @@ HandOpt::HandOpt(String const& rString) {
         } else if (name == "RemoteFlag") {
             mRemoteFlag = bool(value);
         } else if (name == "SkipProbability") {
-            mSkipProbability = double(value);
+            mSkipProbability = Fraction(value);
         } else if (name == "Address") {
             mAddress = Address(value);
         } else {
@@ -62,7 +63,9 @@ HandOpt::HandOpt(String const& rString) {
     }
 }
 
-HandOpt::HandOpt(GameStyleType gameStyle, Strings const& rPlayerNames) {
+HandOpt::HandOpt(GameStyleType gameStyle, Strings const& rPlayerNames):
+    mSkipProbability(0.0)
+{
     switch (gameStyle) {
     case GAME_STYLE_PRACTICE:
         SetPlayerName("User");
@@ -82,22 +85,21 @@ HandOpt::HandOpt(GameStyleType gameStyle, Strings const& rPlayerNames) {
 
     mAutomaticFlag = false;
     mRemoteFlag = false;
-    mSkipProbability = 0.0;
 }
 
 HandOpt::HandOpt(
     String const& rPlayerName,
     bool isAutomatic,
-    double skipProbability,
+    Fraction const& rSkipProbability,
     bool isRemote,
     Address const& rAddress)
-    :
-mAddress(rAddress)
+:
+    mAddress(rAddress),
+    mSkipProbability(rSkipProbability)
 {
     mAutomaticFlag = isAutomatic;
     SetPlayerName(rPlayerName);
     mRemoteFlag = isRemote;
-    mSkipProbability = skipProbability;
 }
 
 // The implicitly defined copy constructor is OK.
@@ -174,15 +176,13 @@ void HandOpt::SetPlayerName(String const& rPlayerName) {
     mPlayerName.Capitalize();
 }
 
-void HandOpt::SetSkipProbability(double skipProbability) {
-    ASSERT(skipProbability >= 0.0);
-    ASSERT(skipProbability < 1.0);
+void HandOpt::SetSkipProbability(Fraction const& rSkipProbability) {
+    ASSERT(rSkipProbability < 1.0);
 
-    mSkipProbability = skipProbability;
+    mSkipProbability = rSkipProbability;
 }
 
-double HandOpt::SkipProbability(void) const {
-    ASSERT(mSkipProbability >= 0.0);
+Fraction HandOpt::SkipProbability(void) const {
     ASSERT(mSkipProbability < 1.0);
 
     return mSkipProbability;

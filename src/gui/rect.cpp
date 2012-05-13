@@ -225,9 +225,9 @@ Point Rect::Interpolate(FractionPair const& rPair, bool invertFlag) const {
     ASSERT(dx < Width());
     LogicalXType const x = LeftX() + dx;
 
-    double y_fraction = rPair.Y();
+    Fraction y_fraction = rPair.Y();
     if (!invertFlag) {
-        y_fraction = 1.0 - y_fraction;
+        y_fraction.Invert();
     }
     PixelCntType const dy = PixelCntType(0.5 + y_fraction*height);
     ASSERT(dy < Height());

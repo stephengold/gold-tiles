@@ -54,7 +54,7 @@ public:
     // HandOpt(HandOpt const&);  implicitly defined copy constructor
     explicit HandOpt(String const&);
     HandOpt(GameStyleType, Strings const& playerNames);
-    HandOpt(String const& playerName, bool autom, double skipProb, 
+    HandOpt(String const& playerName, bool autom, Fraction const& skipProb, 
         bool rem, Address const&);
     // ~HandOpt(void);  implicitly defined destructor
 
@@ -64,15 +64,15 @@ public:
     operator String(void) const;
 
     // misc public methods
-    String PlayerName(void) const;
-    void   Serverize(Address const& client, Address const& server);
-    void   SetAddress(Address const&);
-    void   SetAutomatic(void);
-    void   SetLocalUser(void);
-    void   SetPlayerName(String const&);
-    void   SetRemote(void);
-    void   SetSkipProbability(double);
-    double SkipProbability(void) const;
+    String   PlayerName(void) const;
+    void     Serverize(Address const& client, Address const& server);
+    void     SetAddress(Address const&);
+    void     SetAutomatic(void);
+    void     SetLocalUser(void);
+    void     SetPlayerName(String const&);
+    void     SetRemote(void);
+    void     SetSkipProbability(Fraction const&);
+    Fraction SkipProbability(void) const;
 
     // public inquiry methods
     bool HasValidName(void) const;
@@ -82,11 +82,11 @@ public:
 
 private:
     // private data
-    Address mAddress;         // for remote hands only, else ignored
-    bool    mAutomaticFlag;
-    String  mPlayerName;
-    bool    mRemoteFlag;
-    double  mSkipProbability; // for automatic hands only, else 0.0
+    Address  mAddress;         // for remote hands only, else ignored
+    bool     mAutomaticFlag;
+    String   mPlayerName;
+    bool     mRemoteFlag;
+    Fraction mSkipProbability; // for automatic hands only, else 0.0
 };
 
 // global utility functions

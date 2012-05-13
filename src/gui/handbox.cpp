@@ -162,8 +162,8 @@ INT_PTR HandBox::HandleMessage(MessageType message, WPARAM wParam) {
     case WM_HSCROLL:
     case WM_VSCROLL: {
         ValueType const value = GetSliderValue(IDC_SLIDER1);
-        double const prob = double(LEVEL_MAX - value)/10.0;
-        mrOptions.SetSkipProbability(prob);
+        Fraction const probability = double(LEVEL_MAX - value)/10.0;
+        mrOptions.SetSkipProbability(probability);
         break;
                      }
     }
@@ -193,10 +193,10 @@ void HandBox::UpdateNameBox(String const& rName) {
 }
 
 void HandBox::UpdateSlider(void) {
-    double const prob = mrOptions.SkipProbability();
-    ValueType const level = LEVEL_MAX - ValueType(0.5 + 10.0*prob);
+    double const probability = mrOptions.SkipProbability();
+    ValueType const level = LEVEL_MAX - ValueType(0.5 + 10.0*probability);
     ValueType const new_level = SetSliderValue(IDC_SLIDER1, level);
-    double const new_prob = double(LEVEL_MAX - new_level)/10.0;
-    mrOptions.SetSkipProbability(new_prob);
+    Fraction const new_probability = double(LEVEL_MAX - new_level)/10.0;
+    mrOptions.SetSkipProbability(new_probability);
 }
 #endif // defined(_WINDOWS)

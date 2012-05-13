@@ -32,6 +32,7 @@ The String class is extends std::string in the Standard Template Library.
 */
 
 #include <string>      // ISA std::string
+#include "fraction.hpp"
 #include "project.hpp"
 #ifdef _QT
 # include <QString>
@@ -73,6 +74,7 @@ public:
     operator bool(void) const;
     operator double(void) const;
     operator long(void) const; // atol
+    operator Fraction(void) const;
     operator TextType(void) const;
 
     // misc public methods

@@ -35,7 +35,7 @@ const String Tile::SEPARATOR(":");
 
 // static data
 
-double       Tile::msBonusProbability = 0.0; // configured by SetStatic()
+Fraction     Tile::msBonusProbability = 0.0; // configured by SetStatic()
 Tile::IdType Tile::msNextId = ID_FIRST;
 Tile::Map    Tile::msOpts;
 
@@ -134,7 +134,7 @@ AttrType Tile::Attr(AttrIndexType index) const {
     return result;
 }
 
-/* static */ double Tile::BonusProbability(void) {
+/* static */ Fraction Tile::BonusProbability(void) {
     return msBonusProbability;
 }
 
@@ -149,7 +149,7 @@ Tile Tile::CloneAndSetBonus(void) const {
     r_result_opt = msOpts[mId];
 
     // Randomize its bonus value.
-    bool const gets_bonus = ::random_bool(msBonusProbability);
+    bool const gets_bonus = msBonusProbability.RandomBool();
     r_result_opt.SetBonus(gets_bonus);
 
     return result;
@@ -227,9 +227,7 @@ void Tile::SetAttr(AttrIndexType index, AttrType value) {
 /* static */ void Tile::SetStatic(GameOpt const& rGameOpt) {
     Combo::SetStatic(rGameOpt);
 
-    double const bonus_probability = rGameOpt.BonusPercent()/100.0;
-    ASSERT(bonus_probability >= 0.0);
-    ASSERT(bonus_probability <= 1.0);
+    Fraction const bonus_probability = rGameOpt.BonusPercent()/100.0;
     msBonusProbability = bonus_probability;
 
     msNextId = ID_FIRST;

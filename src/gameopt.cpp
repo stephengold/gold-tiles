@@ -284,13 +284,11 @@ unsigned GameOpt::MinutesPerHand(void) const {
 
 void GameOpt::ReseedGenerator(void) const {
     // Re-seed the pseudo-random generator at the start of a game.
-    unsigned seed; 
+    unsigned seed = mSeed; 
     if (mRandomizeFlag || !IsDebug()) {
         seed = ::milliseconds();
-    } else {
-        seed = mSeed;
     }
-    ::srand(seed);
+    Fraction::ReseedGenerator(seed);
 }
 
 unsigned GameOpt::SecondsPerHand(void) const {

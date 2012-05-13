@@ -74,15 +74,15 @@ public:
     operator String(void) const;
 
     // misc public methods
-    AttrType      Attr(AttrIndexType) const;
-    static double BonusProbability(void);
-    Tile          CloneAndSetBonus(void) const;
-    AttrIndexType CommonAttr(Tile const&) const;
-    String        Description(void) const;
-    String        GetUserChoice(Tiles const&, Strings const&);
-    IdType        Id(void) const;
-    void          SetAttr(AttrIndexType, AttrType);
-    static void   SetStatic(GameOpt const&);
+    AttrType        Attr(AttrIndexType) const;
+    static Fraction BonusProbability(void);
+    Tile            CloneAndSetBonus(void) const;
+    AttrIndexType   CommonAttr(Tile const&) const;
+    String          Description(void) const;
+    String          GetUserChoice(Tiles const&, Strings const&);
+    IdType          Id(void) const;
+    void            SetAttr(AttrIndexType, AttrType);
+    static void     SetStatic(GameOpt const&);
 
     // public inquiry methods
     bool HasAttr(AttrIndexType, AttrType) const;
@@ -105,10 +105,10 @@ private:
     static const String SEPARATOR;
 
     // private data
-    static double msBonusProbability; // configured by SetStatic()
-    IdType         mId;
-    static IdType msNextId;
-    static Map    msOpts;
+    static Fraction msBonusProbability; // configured by SetStatic()
+    IdType           mId;
+    static IdType   msNextId;
+    static Map      msOpts;
 
     // misc private methods
     static IdType NextId(void);

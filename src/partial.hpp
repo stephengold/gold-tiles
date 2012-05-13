@@ -61,7 +61,7 @@ public:
     // public lifecycle
     // no default constructor
     // Partial(Partial const&);  implicitly defined copy constructor
-    Partial(Game const*, HintType, double skipProb);
+    Partial(Game const*, HintType, Fraction const& skipProb);
     // ~Partial(void);
 
     // public operators
@@ -89,8 +89,8 @@ public:
     Cell          LocateTile(Tile::IdType) const;
     ScoreType     Points(void) const;             // points scored so far this turn
     void          Reset(void);
-    void          Reset(double skipProb);
-    void          Reset(Game const*, HintType, double skipProb);
+    void          Reset(Fraction const& skipProb);
+    void          Reset(Game const*, HintType, Fraction const& skipProb);
     void          SetHintStrength(HintType);
     static void   SetYield(YieldFunctionType*, void* arg);
     void          Suggest(void);
@@ -133,7 +133,7 @@ private:
     bool           mHintedCellsValid;
     HintType       mHintStrength;
     unsigned       mPlayedTileCnt;   // number of tiles played to the board
-    double         mSkipProbability; // reduces thoroughness of Suggest() method
+    Fraction       mSkipProbability; // reduces thoroughness of Suggest() method
     Indices        mSwapIds;         // indices of all tiles in the swap area
     static void* mspYieldArgument;
     static YieldFunctionType*

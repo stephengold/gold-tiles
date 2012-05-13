@@ -69,7 +69,7 @@ public:
     ScoreType Score(void) const;
     unsigned  Seconds(void) const;
     void      SetSocket(Socket const&);
-    double    SkipProbability(void) const;
+    Fraction  SkipProbability(void) const;
     void      StartClock(void);
     unsigned  StopClock(void);
     void      SubtractScore(ScoreType);

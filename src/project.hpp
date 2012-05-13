@@ -69,6 +69,7 @@ class Cells;
 class Combo;
 class Direction;
 class Fifo;
+class Fraction;
 class Game;
 class GameOpt;
 class Hand;
@@ -155,7 +156,6 @@ MsecIntervalType
 String   ordinal(unsigned);
 TextType plural(unsigned);
 String   plural(unsigned, TextType);
-bool     random_bool(double trueProb);
 bool     str_eq(TextType, TextType);  // compare text strings
 void     system_pause(void);
 

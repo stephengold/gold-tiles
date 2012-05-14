@@ -992,7 +992,7 @@ void GameWindow::PollForInvitation(void) {
         return;
     }
 
-    // Got an invitation.
+    // Got an invitation.  Deal with it!
     mHaveInvitation = true;
     DoneWaiting();
     HandleInvitation(socket);
@@ -1214,10 +1214,16 @@ void GameWindow::SaveUserOptions(Hand const& rHand) const {
 void GameWindow::SetGame(Game* pGame) {
     ASSERT(mpMenuBar != NULL);
 
+    // Cancel any operation which is using the Think fiber.
+    while (mThinkMode != THINK_IDLE) {
+        ASSERT(mThinkFiber != NULL);
+        mThinkMode = THINK_CANCEL;
+        Win::SwitchToFiber(mThinkFiber);
+    }
+
     GameStyleType old_style = GAME_STYLE_NONE;
     if (HasGame()) {
         old_style = mpGame->Style();
-        mThinkMode = THINK_CANCEL;
         //delete mpGame;
     }
 

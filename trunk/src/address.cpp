@@ -22,15 +22,32 @@ You should have received a copy of the GNU General Public License
 along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+
+#include <netinet/in.h>
+
 #include "address.hpp"
 #include "strings.hpp"
-#ifdef _QT
+
+#ifdef _POSIX
+# include <arpa/inet.h>
+# include <netinet/in.h>
+typedef sa_family_t ADDRESS_FAMILY;
+typedef struct in_addr IN_ADDR, *PIN_ADDR;
+typedef struct in6_addr IN6_ADDR, *PIN6_ADDR;
+typedef struct sockaddr *PSOCKADDR;
+typedef struct sockaddr_in *PSOCKADDR_IN;
+typedef struct sockaddr_in6 *PSOCKADDR_IN6;
+typedef int INT;
+# define InetNtop inet_ntop
+
+#elif defined(_QT)
 # include <QNetworkInterface>
+
 #elif defined(_WINSOCK2)
-# define WIN32_LEAN_AND_MEAN // to avoid macro redefinitions
+# define WIN32_LEAN_AND_MEAN  // to avoid macro redefinitions
 # include "gui/win_types.hpp"
 namespace Win {
-# include <ws2tcpip.h> // IPv6 support, including inet_pton
+# include <ws2tcpip.h>  // IPv6 support, including inet_pton
 # pragma comment(lib, "ws2_32.lib")  // link with ws2_32.lib
 # include <iphlpapi.h> // IP help API
 # pragma comment(lib, "iphlpapi.lib")  // link with iphlpapi.lib
@@ -45,24 +62,31 @@ using Win::PIP_ADAPTER_UNICAST_ADDRESS;
 using Win::PSOCKADDR;
 using Win::PSOCKADDR_IN;
 using Win::PSOCKADDR_IN6;
-#endif // defined(_WINSOCK2)
+using Win::InetNtop;
+using Win::inet_addr;
+using Win::inet_ntoa;
+using Win::inet_pton;
+
+#endif  // defined(_WINSOCK2)
 
 
 // static constants
 
 const String Address::DEFAULT("172.27.100.25");
+#ifndef _QT
 const String Address::LOCALHOST_IPV4("127.0.0.1");
 const String Address::LOCALHOST_IPV6("::1");
+#endif  // defined(_WINSOCK2)
 
 
 // lifecycle
 
 Address::Address(void):
-#ifdef _WINSOCK2
-    mString(DEFAULT)
-#elif defined(_QT)
+#ifdef _QT
     QHostAddress(QString(DEFAULT))
-#endif // defined(_QT)
+#else  // !defined(_InetNtopQT)
+    mString(DEFAULT)
+#endif  // !defined(_QT)
 {
 }
 
@@ -71,53 +95,59 @@ Address::Address(void):
 Address::Address(String const &rString)
 #ifdef _QT
 :QHostAddress(QString(rString))
-#endif // defined(_QT)
+#endif  // defined(_QT)
 {
-#ifdef _WINSOCK2
+#ifndef _QT
     if (rString.Contains(':')) {  // Assume it's an IPv6 address.
         IN6_ADDR ipv6_address;
-        INT const success = Win::inet_pton(AF_INET6, rString, &ipv6_address);
+        INT const success = inet_pton(AF_INET6, rString, &ipv6_address);
         if (success != 1) {
             mString.MakeEmpty();
         } else {
             char buffer[64];
-            TextType const text = Win::InetNtop(AF_INET6, &ipv6_address, buffer, sizeof(buffer));
+            TextType const text = InetNtop(AF_INET6, &ipv6_address, buffer, sizeof(buffer));
             mString = String(text);
         }
-    } else { // Assume it's an IPv4 address.
-        unsigned long const address = Win::inet_addr(rString);
+    } else {  // Assume it's an IPv4 address.
+        unsigned long const address = inet_addr(rString);
         if (address == INADDR_NONE || address == 0) {
             mString.MakeEmpty();
         } else {
             IN_ADDR ipv4_address;
-            ipv4_address.S_un.S_addr = address;
-            TextType const text = Win::inet_ntoa(ipv4_address);
+            ipv4_address.s_addr = address;
+            TextType const text = inet_ntoa(ipv4_address);
             mString = String(text);
         }
     }
-#endif
+#endif  // !defined(_QT)
 }
 
 // Construct based on an IPv4 address in network (bigendian) byte order.
 Address::Address(unsigned long address)
 #ifdef _QT
 :QHostAddress(quint32(address))
-#endif // defined(_QT)
+#endif  // defined(_QT)
 {
-#ifdef _WINSOCK2
+#ifndef _QT
     IN_ADDR ipv4_address;
-    ipv4_address.S_un.S_addr = address;
-    TextType const text = Win::inet_ntoa(ipv4_address);
+    ipv4_address.s_addr = address;
+    TextType const text = inet_ntoa(ipv4_address);
     mString = String(text);
-#endif // defined(_WINSOCK2)
+#endif  // !defined(_QT)
 }
 
-#ifdef _WINSOCK2
+#ifndef _QT
 
 // Construct based on a pointer to a SOCKADDR structure.
+#ifdef _POSIX
+Address::Address(struct sockaddr& rAddress) {
+    PSOCKADDR p_address = &rAddress;
+#elif defined(_WINSOCK2)
 Address::Address(void* p) {
-    ASSERT(p != NULL);
     PSOCKADDR const p_address = PSOCKADDR(p);
+#endif // defined(_WINSOCK2)
+
+    ASSERT(p_address != NULL);
     ADDRESS_FAMILY const family = p_address->sa_family;
 
     TextType text = NULL;
@@ -125,11 +155,11 @@ Address::Address(void* p) {
     if (family == AF_INET6) {
         PSOCKADDR_IN6 const p_sockaddr_v6 = PSOCKADDR_IN6(p_address);
         PIN6_ADDR const p_ipv6 = &(p_sockaddr_v6->sin6_addr);
-        text = Win::InetNtop(family, p_ipv6, buffer, sizeof(buffer));
+        text = InetNtop(family, p_ipv6, buffer, sizeof(buffer));
     } else if (family == AF_INET) {
         PSOCKADDR_IN const p_sockaddr_v4 = PSOCKADDR_IN(p_address);  
         PIN_ADDR const p_ipv4 = &(p_sockaddr_v4->sin_addr);
-        text = Win::InetNtop(family, p_ipv4, buffer, sizeof(buffer));
+        text = InetNtop(family, p_ipv4, buffer, sizeof(buffer));
     } else {
         FAIL();
     }
@@ -144,7 +174,7 @@ Address::Address(QHostAddress const& rAddress):
 {
 }
 
-#endif // defined(_QT)
+#endif  // defined(_QT)
 
 // The implicitly defined destructor is fine.
 
@@ -156,17 +186,17 @@ Address::Address(QHostAddress const& rAddress):
 Address::operator String(void) const {
 #ifdef _QT
     return String(toString());
-#elif defined(_WINSOCK2)
+#else  // !defined(_QT)
     return mString;
-#endif // defined(_WINSOCK2)
+#endif  // !defined(_QT)
 }
 
 Address::operator unsigned long(void) const {
 #ifdef _QT
     unsigned long const result = (unsigned long)(toIPv4Address());
-#elif defined(_WINSOCK2)
-    unsigned long const result = Win::inet_addr(mString);
-#endif // defined(_WINSOCK2)
+#else  // !defined(_QT)
+    unsigned long const result = inet_addr(mString);
+#endif // !defined(_QT)
 
     return result;
 }
@@ -179,6 +209,10 @@ Address::operator unsigned long(void) const {
     Strings result;
 
 #ifdef _QT
+
+    // TODO
+
+#elif defined(_QT)
 
     QList<QHostAddress> const list = QNetworkInterface::allAddresses();
     QList<QHostAddress>::const_iterator i_address;
@@ -237,7 +271,7 @@ Address::operator unsigned long(void) const {
 
     delete p_table;
 
-#endif // defined(_WINSOCK2)
+#endif  // defined(_WINSOCK2)
 
     return result;
 }
@@ -246,14 +280,23 @@ Address::operator unsigned long(void) const {
 // inquiry methods
 
 bool Address::IsLocalHost(void) const {
-    bool const result = (mString == LOCALHOST_IPV4 
+#ifdef _QT
+    bool const result = (*this == QHostAddress::LocalHost
+                      || *this == QHostAddress::LocalHostIPv6);
+#else  // !defined(_QT)
+    bool const result = (mString == LOCALHOST_IPV4
                       || mString == LOCALHOST_IPV6);
+#endif  // !defined(_QT)
 
     return result;
 }
 
 bool Address::IsValid(void) const {
+#ifdef _QT
+    bool const result = !this->isNull();
+#else  // !defined(_QT)
     bool const result = !mString.IsEmpty();
+#endif  // !defined(_QT)
 
     return result;
 }

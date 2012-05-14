@@ -32,9 +32,11 @@ The Address class encapsulates a String.  Both IPv4 and IPv6
 addresses are supported.
 */
 
-#include "project.hpp" // _WINSOCK2
-#include "string.hpp"  // HASA String
-#ifdef _QT
+#include "project.hpp"    // _WINSOCK2
+#include "string.hpp"     // HASA String
+#ifdef _POSIX
+# include <sys/socket.h>  // USES sockaddr
+#elif defined(_QT)
 # include <QHostAddress>  // ISA QHostAddress
 #endif // defined(_QT)
 
@@ -50,10 +52,12 @@ public:
     // Address(Address const&);  implicitly defined copy constructor
     explicit Address(String const&);
     explicit Address(unsigned long); // IPv4 only
-#ifdef _WINSOCK2
-    explicit Address(void*);
+#ifdef _POSIX
+    explicit Address(struct sockaddr&);
 #elif defined(_QT)
     explicit Address(QHostAddress const&);
+#elif defined(_WINSOCK2)
+    explicit Address(void*);
 #endif // defined(_QT)
     // ~Address(void);  implicitly defined destructor
 
@@ -69,19 +73,15 @@ public:
     bool IsValid(void) const;
 
 private:
-    // private types
-    typedef unsigned char NetType;
-
     // private constants
     static const String DEFAULT;
+#ifndef _QT
     static const String LOCALHOST_IPV4;
     static const String LOCALHOST_IPV6;
 
     // private data
     String mString;
-
-    // misc private methods
-    NetType Net(void) const;
+#endif // !defined(_QT)
 
     // private inquiry methods
     bool IsLocalHost(void) const;

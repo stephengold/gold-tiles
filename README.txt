@@ -34,6 +34,8 @@ helped me create this application:
  + the creators of the ResEdit free resource editor (www.resedit.net)
  + Microsoft Corporation for creating and distributing Microsoft
    Visual C++ 2010 Express
+ + Stefan Kueng and Luebbe Onken, authors of the TortoiseSVN
+   free Subversion client (tortoisesvn.net)
  + Todd Hoff for publishing his C++ Coding Standard 
    (http://www.possibility.com/Cpp/CppCodingStandard.html) which
    greatly influenced the coding style of this project

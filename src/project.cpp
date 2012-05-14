@@ -36,11 +36,13 @@ void assertion_failed(TextType file, unsigned line) {
     std::cout << "Assertion failed at line " << line
               << " in " << file << std::endl;
 
+#ifdef _CONSOLE
     /*
     A pause is needed when running in a console window,
     because the window may close soon after exit() is called.
     */
     ::system_pause();
+#endif // defined(_CONSOLE)
 
     ::exit(EXIT_FAILURE);
 }

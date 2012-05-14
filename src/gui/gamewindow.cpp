@@ -985,8 +985,8 @@ void GameWindow::PollForInvitation(void) {
 
     // Check for a game invitation from a client.
     if (mpGame == NULL) {
-        String const description = String("an invitation on network port ") 
-                                 + Network::SERVER_LISTEN_PORT;
+        String const description = String("an invitation on ") 
+                                 + Network::DescribeListenPort();
         WaitingFor(description);
     }
     Socket socket = Network::CheckForConnection();

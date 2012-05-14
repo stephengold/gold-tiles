@@ -260,8 +260,9 @@ bool Socket::Put(String const& rString) {
                 + peer + " -- discovered while sending data.";
             Network::Notice(error_message);
             return false;
+        } else {
+            Network::Fail("send");
         }
-        FAIL();
     }
     ASSERT(bytes_sent == buffer_size);
 #endif // defined(_WINSOCK2)
@@ -313,8 +314,7 @@ bool Socket::Read(void) {
             Yields(canceled);
             continue;
         } else {
-            std::cout << "Winsock error code " << error_code << " on recv." << std::endl;
-            FAIL();
+            Network::Fail("receive");
         }
     }
 

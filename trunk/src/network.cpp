@@ -51,7 +51,7 @@ using Win::WSADATA;
 
 const String Network::ACCEPT("Accept");
 const String Network::DECLINE("Decline");
-const TextType Network::SERVER_LISTEN_PORT = "27066";
+const TextType Network::LISTEN_PORT_DEFAULT = "27066";
 
 
 // static data
@@ -59,7 +59,11 @@ const TextType Network::SERVER_LISTEN_PORT = "27066";
 #ifdef _WINSOCK2
 Socket Network::msListenIpv4;
 Socket Network::msListenIpv6;
-#elif defined(_QT)
+#endif // defined(_WINSOCK2)
+
+String Network::msListenPort;
+
+#ifdef _QT
 QTcpServer* Network::mspServer = NULL;
 #endif // defined(_QT)
 
@@ -70,16 +74,23 @@ Window* Network::mspWindow = NULL;
 
 // lifecycle
 
-Network::Network(void) {
+Network::Network(TextType listenPort) {
 #ifdef _GUI
     mspWindow = NULL;
 #endif // defined(_GUI)
 
+    msListenPort = listenPort;
+    if (long(listenPort) < PORT_MIN || long(listenPort) > PORT_MAX) {
+        msListenPort = LISTEN_PORT_DEFAULT;
+    }
+
 #ifdef _WINSOCK2
     // Start Winsock.
     WSADATA wsa_data;
-    int failure = Win::WSAStartup(MAKEWORD(2,2), &wsa_data);
+    WORD const version = MAKEWORD(2,2);
+    int failure = Win::WSAStartup(version, &wsa_data);
     ASSERT(failure == 0);
+    ASSERT(wsa_data.wVersion == version);
 #endif // defined(_WINSOCK2)
 
 #ifdef _SERVER
@@ -211,12 +222,12 @@ Network::~Network(void) {
 
     PCSTR const server_name = server;
     PADDRINFOA address_list = NULL;
-    int const get_addr_failure = Win::getaddrinfo(server_name, SERVER_LISTEN_PORT, 
+    int const get_addr_failure = Win::getaddrinfo(server_name, msListenPort, 
         &address_hints, &address_list);
     ASSERT(get_addr_failure == 0);
 #endif // defined(_WINSOCK2)
 
-    String const server_description = String("port ") + SERVER_LISTEN_PORT 
+    String const server_description = DescribeListenPort()
         + " on " + server;
     String const response_event = String("response from ") + server_description;
 
@@ -230,7 +241,7 @@ Network::~Network(void) {
     QTcpSocket* p_socket = new QTcpSocket();
     ASSERT(p_socket != NULL);
 
-    quint16 const port = long(String(SERVER_LISTEN_PORT));
+    quint16 const port = long(msListenPort);
     for (;;) {
         WaitingFor(response_event);
         p_socket->connectToHost(QHostAddress(rAddress), port);
@@ -357,6 +368,12 @@ Network::~Network(void) {
     return p_result;
 }
 
+/* static */ String Network::DescribeListenPort(void) {
+    String result = "network port " + msListenPort;
+
+    return result;
+}
+
 /* static */ void Network::DoneWaiting(void) {
 #ifdef _GUI
     ASSERT(mspWindow != NULL);
@@ -365,6 +382,15 @@ Network::~Network(void) {
     std::cout << " done." << std::endl;
 #endif // defined(_CONSOLE)
 }
+
+#ifdef _WINSOCK2
+/* static */ void Network::Fail(TextType operation) {
+     int const error_code = Win::WSAGetLastError();
+     std::cout << "Unexpected Winsock error code " << error_code 
+                    << " on " << operation << "." << std::endl;
+     FAIL();
+}
+#endif // defined(_WINSOCK2)
 
 // CLIENT:  Invite a server to participate in the current game.
 /* static */ bool Network::InviteServer(Socket& rSocket, Game const& rGame) {
@@ -416,7 +442,7 @@ Network::~Network(void) {
 
     PCSTR const any_client = NULL;
     PADDRINFOA address_list = NULL;
-    int failure = Win::getaddrinfo(any_client, SERVER_LISTEN_PORT,
+    int failure = Win::getaddrinfo(any_client, msListenPort,
         &address_hints, &address_list);
     ASSERT(failure == 0);
 
@@ -438,17 +464,15 @@ Network::~Network(void) {
             int const error_code = Win::WSAGetLastError();
             if (error_code == WSAEADDRINUSE) {
 #ifdef _CONSOLE
-                String const message = String("Port ")
-                    + SERVER_LISTEN_PORT + " is busy on this computer.\n"
+                String const message = String("Network port ")
+                    + msListenPort + " is busy on this computer.\n"
                     + "Perhaps there is another Gold Tile server running.\n";
                 Notice(message);
 #endif // defined(_CONSOLE)
                 server_listen = INVALID_SOCKET;
                 // try next addrinfo
             } else {
-                std::cout << "Unexpected Winsock error code " << error_code 
-                    << " on bind." << std::endl;
-                FAIL();
+                Fail("bind");
             }
         }
     }
@@ -495,7 +519,7 @@ Network::~Network(void) {
         if (error_code == WSAECONNREFUSED
             || error_code == WSAETIMEDOUT) {
                 String const server(rServer);
-                String const server_description = String("port ") + SERVER_LISTEN_PORT 
+                String const server_description = DescribeListenPort() 
                     + " on " + server;
                 String const message = String("No response from ")
                     + server_description
@@ -505,9 +529,7 @@ Network::~Network(void) {
                 client_send = INVALID_SOCKET;
                 // try next addrinfo
         } else {
-            std::cout << "Unexpected Winsock error code " << error_code 
-                << " on connect." << std::endl;
-            FAIL();
+            Fail("connect");
         }
     } 
 
@@ -577,7 +599,7 @@ Network::~Network(void) {
     mspServer = new QTcpServer;
     ASSERT(mspServer != NULL);
 
-    quint16 const port = long(String(SERVER_LISTEN_PORT));
+    quint16 const port = long(msListenPort);
     bool const success = mspServer->listen(QHostAddress::Any, port);
     if (!success) {
         return false;

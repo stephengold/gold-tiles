@@ -109,6 +109,7 @@ void Window::Close(void) {
 #ifdef _WINDOWS
     int const ignored = 0;
     HWND const this_window = *this;
+    ASSERT(this_window != NULL);
 
     Win::SendMessage(this_window, WM_CLOSE, WPARAM(ignored), LPARAM(ignored));
 #endif // defined(_WINDOWS)

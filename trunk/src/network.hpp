@@ -48,10 +48,10 @@ public:
     // public constants
     static const String   ACCEPT;
     static const String   DECLINE;
-    static const TextType SERVER_LISTEN_PORT;
+    static const TextType LISTEN_PORT_DEFAULT;
 
     // public lifecycle
-    Network(void);
+    Network(TextType listenPort = LISTEN_PORT_DEFAULT);
     ~Network(void);
 
     // misc public methods
@@ -59,6 +59,8 @@ public:
     static Socket CheckForConnection(void);
     static bool   ConnectToServer(Address const&, Game&);
     static Game*  ConsiderInvitation(Socket&, GameOpt const&, HandOpts&);
+    static String DescribeListenPort(void);
+    static void   Fail(TextType operation);
     static void   Notice(String const&);
     static bool   Question(String const&);
 #ifdef _GUI
@@ -71,12 +73,16 @@ public:
 private:
     // private constants
     static const int MAX_CONNECTION_CNT = 1;
+    static const long PORT_MAX = 65535;
+    static const long PORT_MIN = 1024;
 
     // private data
 #ifdef _WINSOCK2
     static Socket       msListenIpv4;
     static Socket       msListenIpv6;
-#elif defined(_QT)
+#endif // defined(_WINSOCK2)
+    static String       msListenPort;
+#ifdef _QT
     static QTcpServer* mspServer;
 #endif // defined(_QT)
 #ifdef _GUI

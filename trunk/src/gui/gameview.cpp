@@ -382,8 +382,8 @@ void GameView::DrawIdle(Canvas& rCanvas) {
     if (Network::IsServerStarted()) {
         message_list.Append(Network::AddressReport());
     } else {
-        String const warning = String("Can't listen for invitations on network port ")  
-                             + Network::SERVER_LISTEN_PORT + "!";
+        String const warning = String("Can't listen for invitations on ")  
+                             + Network::DescribeListenPort() + "!";
         message_list.Append(warning);
     }
 #endif  // defined(_SERVER)
@@ -898,10 +898,6 @@ void GameView::Recenter(void) {
 }
 
 void GameView::Repaint(Canvas& rCanvas) {
-    Area const client_area = mpWindow->ClientArea();
-    mRecenterRightX = client_area.Width();
-    mRecenterLeftX = 0;
-
     if (mpGame == NULL || mpWindow->IsWaiting()) {
         DrawIdle(rCanvas);
 
@@ -909,7 +905,11 @@ void GameView::Repaint(Canvas& rCanvas) {
         DrawPaused(rCanvas);
 
     } else {
+        Area const client_area = mpWindow->ClientArea();
+        mRecenterLeftX = 0;
+        mRecenterRightX = client_area.Width();
         mTileMap.clear();
+
         DrawBoard(rCanvas, 0);
         DrawBoard(rCanvas, 1);
         DrawUnplayableHands(rCanvas);

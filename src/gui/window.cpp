@@ -37,32 +37,11 @@ Window::Window(void)
 {
 #ifdef _WINDOWS
     mAcceleratorTable = 0;
-    mPaintDevice = NULL;
+    mDestroyedFlag = false;
+    mPaintDevice = 0;
 #endif // defined(_WINDOWS)
     mWaitingFlag = false;
 }
-
-#ifdef _WINDOWS
-void Window::Initialize(CREATESTRUCT const& rCreateStruct) {
-    BaseWindow::Initialize(rCreateStruct);
-
-    HWND const this_window = *this;
-    HDC const private_dc = Win::GetDC(this_window);
-    ASSERT(private_dc != NULL);
-    /* It's a private DC because CS_OWNDC is hard-coded into the
-    WindowClass constructor. */
-
-    // Record the size of the client area.
-    SIZE client_area_size;
-    BOOL const success = Win::GetWindowExtEx(private_dc, &client_area_size);
-    ASSERT(success != 0);
-    Area const client_area(client_area_size);
-    SetClientArea(client_area);
-
-    TextType const icon_resource_name = "GAMEICON";
-    SetIcons(icon_resource_name);
-}
-#endif // defined(_WINDOWS)
 
 
 // operators
@@ -191,18 +170,19 @@ void Window::EndPaint(void) {
 // Display a simple dialog box with a pilot error message and an OK button.
 void Window::ErrorBox(TextType message, TextType title) {
 #ifdef _WINDOWS
+    HWND const this_window = *this;
+    ASSERT(this_window != NULL);
     UINT const options = MB_OK | MB_ICONERROR | MB_DEFBUTTON1 | MB_APPLMODAL;
-    int const success = Win::MessageBox(HWND(*this), message, title, options);
+    int const success = Win::MessageBox(this_window, message, title, options);
     ASSERT(success == IDOK);
 #endif // defined(_WINDOWS)
 }
 
 void Window::ForceRepaint(void) {
 #ifdef _WINDOWS
-    if (mPaintDevice != NULL) {
+    if (!mDestroyedFlag) {
         HWND const this_window = *this;
-        ASSERT(this_window != 0);
-
+        ASSERT(this_window != NULL);
         PRECT const entire_client_area = NULL;
         BOOL const erase = TRUE;
         BOOL const success = Win::InvalidateRect(this_window, entire_client_area, erase);
@@ -242,7 +222,7 @@ LRESULT Window::HandleMessage(MessageType message, WPARAM wParameter, LPARAM lPa
                    }
 
     case WM_CREATE: { // initialize window
-        CREATESTRUCT * const p_create_struct = (CREATESTRUCT *)lParameter;
+        LPCREATESTRUCT const p_create_struct = LPCREATESTRUCT(lParameter);
         ASSERT(p_create_struct != NULL);
         Initialize(*p_create_struct);
         break;
@@ -273,6 +253,7 @@ LRESULT Window::HandleMessage(MessageType message, WPARAM wParameter, LPARAM lPa
 void Window::InfoBox(TextType message, TextType title) {
 #ifdef _WINDOWS
     HWND const this_window = *this;
+    ASSERT(this_window != NULL);
     UINT const options = MB_OK | MB_ICONINFORMATION | MB_DEFBUTTON1 | MB_APPLMODAL;
     int const success = Win::MessageBox(this_window, message, title, options);
     ASSERT(success == IDOK);
@@ -280,6 +261,26 @@ void Window::InfoBox(TextType message, TextType title) {
 }
 
 #ifdef _WINDOWS
+void Window::Initialize(CREATESTRUCT const& rCreateStruct) {
+    BaseWindow::Initialize(rCreateStruct);
+
+    HWND const this_window = *this;
+    HDC const private_dc = Win::GetDC(this_window);
+    ASSERT(private_dc != NULL);
+    /* It's a private DC because CS_OWNDC is hard-coded into the
+    WindowClass constructor. */
+
+    // Record the size of the client area.
+    SIZE client_area_size;
+    BOOL const success = Win::GetWindowExtEx(private_dc, &client_area_size);
+    ASSERT(success != 0);
+    Area const client_area(client_area_size);
+    SetClientArea(client_area);
+
+    TextType const icon_resource_name = "GAMEICON";
+    SetIcons(icon_resource_name);
+}
+
 int Window::MessageDispatchLoop(void) {
     int exit_code;
 
@@ -308,6 +309,7 @@ int Window::QuestionBox(TextType message, TextType title) {
     return true;
 #elif defined(_WINDOWS)
     HWND const this_window = *this;
+    ASSERT(this_window != NULL);
     UINT const options = MB_YESNO | MB_ICONASTERISK | MB_DEFBUTTON1 | MB_APPLMODAL;
     int const result = Win::MessageBox(this_window, message, title, options);
     ASSERT(result == IDCANCEL || result == IDYES || result == IDNO);
@@ -327,8 +329,10 @@ bool Window::RetryBox(TextType message, TextType title) {
 #ifdef _QT
     return true;
 #elif defined(_WINDOWS)
+    HWND const this_window = *this;
+    ASSERT(this_window != NULL);
     UINT const options = MB_RETRYCANCEL | MB_ICONWARNING | MB_DEFBUTTON1 | MB_APPLMODAL;
-    int const success = Win::MessageBox(HWND(*this), message, title, options);
+    int const success = Win::MessageBox(this_window, message, title, options);
     ASSERT(success == IDRETRY || success == IDCANCEL);
     bool const result = (success == IDRETRY);
 
@@ -338,6 +342,7 @@ bool Window::RetryBox(TextType message, TextType title) {
 
 void Window::SelfDestruct(void) {
 #ifdef _WINDOWS
+    mDestroyedFlag = true;
     int const application_exit_code = 0;
     Win::PostQuitMessage(application_exit_code);
 #endif // defined(_WINDOWS)
@@ -547,6 +552,7 @@ bool Window::IsMouseCaptured(void) const {
 #elif defined(_WINDOWS)
     HWND const captor = Win::GetCapture();
     HWND const this_window = *this;
+    ASSERT(this_window != NULL);
     bool const result = (captor == this_window);
 
     return result;

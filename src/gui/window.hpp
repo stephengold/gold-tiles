@@ -119,6 +119,7 @@ private:
 #ifdef _WINDOWS
     Win::HACCEL      mAcceleratorTable;
     Area             mClientArea;
+    bool             mDestroyedFlag;
     void*            mMainFiber;
     Win::HDC         mPaintDevice;
     Win::PAINTSTRUCT mPaintStruct;

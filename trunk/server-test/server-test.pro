@@ -15,6 +15,7 @@ SOURCES += \
  $${SRC_DIR}/cells.cpp \
  $${SRC_DIR}/combo.cpp \
  $${SRC_DIR}/direction.cpp \
+ $${SRC_DIR}/fraction.cpp \
  $${SRC_DIR}/game.cpp \
  $${SRC_DIR}/gameopt.cpp \
  $${SRC_DIR}/hand.cpp \

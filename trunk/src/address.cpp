@@ -23,8 +23,6 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#include <netinet/in.h>
-
 #include "address.hpp"
 #include "strings.hpp"
 

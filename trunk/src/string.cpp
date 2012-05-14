@@ -284,6 +284,13 @@ String String::Suffix(String const& rPrefix) const {
 
 // inquiry methods
 
+bool String::Contains(char character) const {
+    size_t const position = find(character);
+    bool const result = (position != npos);
+
+    return result;
+}
+
 bool String::HasPrefix(String const& rPrefix) const {
     bool result = false;
 

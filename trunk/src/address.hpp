@@ -28,8 +28,8 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 /*
 An Address object represents a network address.
 
-The Address class encapsulates a String.
-Currently, only IPv4 addresses are supported.
+The Address class encapsulates a String.  Both IPv4 and IPv6
+addresses are supported.
 */
 
 #include "project.hpp" // _WINSOCK2
@@ -49,8 +49,10 @@ public:
     Address(void);
     // Address(Address const&);  implicitly defined copy constructor
     explicit Address(String const&);
-    explicit Address(unsigned long);
-#ifdef _QT
+    explicit Address(unsigned long); // IPv4 only
+#ifdef _WINSOCK2
+    explicit Address(void*);
+#elif defined(_QT)
     explicit Address(QHostAddress const&);
 #endif // defined(_QT)
     // ~Address(void);  implicitly defined destructor
@@ -63,13 +65,17 @@ public:
     // misc public methods
     static Strings ListAll(void);
 
+    // misc inquiry methods
+    bool IsValid(void) const;
+
 private:
     // private types
     typedef unsigned char NetType;
 
     // private constants
-    static const NetType LOCALHOST_NET = 127;
     static const String DEFAULT;
+    static const String LOCALHOST_IPV4;
+    static const String LOCALHOST_IPV6;
 
     // private data
     String mString;

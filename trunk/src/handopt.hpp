@@ -75,10 +75,10 @@ public:
     Fraction SkipProbability(void) const;
 
     // public inquiry methods
-    bool HasValidName(void) const;
     bool IsAutomatic(void) const;
     bool IsLocalUser(void) const;
     bool IsRemote(void) const;
+    bool IsValid(void) const;
 
 private:
     // private data

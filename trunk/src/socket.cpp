@@ -23,11 +23,10 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include <iostream>    // cout
-#include "address.hpp"
 #include "network.hpp"
 #ifdef _WINSOCK2
 # include "fifo.hpp"
-# define WIN32_LEAN_AND_MEAN
+# define WIN32_LEAN_AND_MEAN // to avoid macro redefinitions
 # include "gui/win_types.hpp"
 namespace Win {
 # include <winsock2.h>
@@ -185,7 +184,7 @@ void Socket::Invalidate(void) {
     ASSERT(!IsValid());
 }
 
-// Get the address of socket on the local host.
+// Get the local address associated with the socket.
 Address Socket::Local(void) const {
     ASSERT(IsValid());
 
@@ -193,15 +192,11 @@ Address Socket::Local(void) const {
     QHostAddress const address = mpSocket->localAddress();
 #elif defined(_WINSOCK2)
     SOCKET const socket = SOCKET(mHandle);
-    SOCKADDR sockaddr;
+    SOCKADDR sockaddr[2]; // a single SOCKADDR isn't sufficient??
     int length = sizeof(sockaddr);
-    int const failure = Win::getsockname(socket, &sockaddr, &length);
+    int const failure = Win::getsockname(socket, sockaddr, &length);
     ASSERT(failure == 0);
-    ASSERT(sockaddr.sa_family == AF_INET);
-
-    PSOCKADDR_IN const s = PSOCKADDR_IN(&sockaddr);
-    in_addr const in = s->sin_addr;
-    TextType const address = Win::inet_ntoa(in);
+    void* address = sockaddr;
 #endif // defined(_WINSOCK2)
 
     Address const result(address);
@@ -230,15 +225,11 @@ Address Socket::Peer(void) const {
     ASSERT(address != QHostAddress::Null);
 #elif defined(_WINSOCK2)
     SOCKET const socket = SOCKET(mHandle);
-    SOCKADDR sockaddr;
+    SOCKADDR sockaddr[2]; // a single SOCKADDR isn't sufficient??
     int length = sizeof(sockaddr);
-    int const failure = Win::getpeername(socket, &sockaddr, &length);
+    int const failure = Win::getpeername(socket, sockaddr, &length);
     ASSERT(failure == 0);
-    ASSERT(sockaddr.sa_family == AF_INET);
-
-    PSOCKADDR_IN const s = PSOCKADDR_IN(&sockaddr);
-    in_addr const in = s->sin_addr;
-    TextType const address =  Win::inet_ntoa(in);
+    void* address = sockaddr;
 #endif // defined(_WINSOCK2)
 
     Address const result(address);
@@ -266,7 +257,7 @@ bool Socket::Put(String const& rString) {
         if (error_code == WSAECONNRESET) {
             String const peer(Peer());
             String const error_message = String("Lost network connection to ")
-                + peer + " discovered while sending data.";
+                + peer + " -- discovered while sending data.";
             Network::Notice(error_message);
             return false;
         }
@@ -314,7 +305,7 @@ bool Socket::Read(void) {
         {
             String const peer(Peer());
             String const error_message = String("Lost network connection to ")
-                + peer + " discovered while receiving data.";
+                + peer + " -- discovered while receiving data.";
             Network::Notice(error_message);
             canceled = true;
             continue;

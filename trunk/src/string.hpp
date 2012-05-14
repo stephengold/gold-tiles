@@ -89,6 +89,7 @@ public:
     String   Suffix(String const& prefix) const;
 
     // public inquiry methods
+    bool Contains(char) const;
     bool HasPrefix(String const&) const;
     bool HasSuffix(String const&) const;
     bool IsBlank(void) const;

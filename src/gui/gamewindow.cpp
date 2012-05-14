@@ -576,8 +576,10 @@ void GameWindow::HandleMenuCommand(IdType command) {
         FAIL();
     }
 
-    UpdateMenuBar();
-    ForceRepaint();
+    if (command != IDM_EXIT) {
+        UpdateMenuBar();
+        ForceRepaint();
+    }
 }
 
 LRESULT GameWindow::HandleMessage(MessageType message, WPARAM wParam, LPARAM lParam) {
@@ -977,13 +979,13 @@ void GameWindow::Play(bool passFlag) {
 }
 
 void GameWindow::PollForInvitation(void) {
-    if (mHaveInvitation) {
+    if (mHaveInvitation || !Network::IsServerStarted()) {
         return;
     }
 
     // Check for a game invitation from a client.
     if (mpGame == NULL) {
-        String const description = String("a connection on network port ") 
+        String const description = String("an invitation on network port ") 
                                  + Network::SERVER_LISTEN_PORT;
         WaitingFor(description);
     }

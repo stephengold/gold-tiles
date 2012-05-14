@@ -65,6 +65,9 @@ public:
     static void   SetWindow(Window*);
 #endif // defined(_GUI)
 
+    // public inquiry methods
+    static bool IsServerStarted(void);
+
 private:
     // private constants
     static const int MAX_CONNECTION_CNT = 1;

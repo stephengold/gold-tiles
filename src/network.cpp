@@ -83,6 +83,7 @@ Network::Network(void) {
 #endif // defined(_WINSOCK2)
 
 #ifdef _SERVER
+# ifdef _CONSOLE
     bool success = false;
     while (!success) {
         success = StartServer();
@@ -90,6 +91,10 @@ Network::Network(void) {
             Retry("Startup failed.");
         }
     }
+# elif defined(_GUI)
+    StartServer();
+    // Report server startup failures later.
+# endif // defined(_GUI)
 #endif // defined(_SERVER)
 }
 
@@ -432,10 +437,12 @@ Network::~Network(void) {
             }
             int const error_code = Win::WSAGetLastError();
             if (error_code == WSAEADDRINUSE) {
+#ifdef _CONSOLE
                 String const message = String("Port ")
                     + SERVER_LISTEN_PORT + " is busy on this computer.\n"
                     + "Perhaps there is another Gold Tile server running.\n";
                 Notice(message);
+#endif // defined(_CONSOLE)
                 server_listen = INVALID_SOCKET;
                 // try next addrinfo
             } else {
@@ -601,6 +608,18 @@ Network::~Network(void) {
 #elif defined(_CONSOLE)
     std::cout << "Waiting for " << rEventDescription << " ..." << std::endl;
 #endif // defined(_CONSOLE)
+}
+
+
+// inquiry methods
+
+/* static */ bool Network::IsServerStarted(void) {
+#ifdef _WINSOCK2
+    bool const result = (msListenIpv4.IsValid() || msListenIpv6.IsValid());
+    return result;
+#elif defined(_QT)
+    return true;
+#endif
 }
 
 

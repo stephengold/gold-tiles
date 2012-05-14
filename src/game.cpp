@@ -186,24 +186,40 @@ bool Game::ConnectToServers(void) {
 #ifdef _SERVER
     // Act as a server only.
 
-    while (p_game == NULL) {
+    for (;;) {
+        std::cout << Network::AddressReport() << std::endl;
+
         // Wait for an invitation.
-        Socket data_socket = Network::CheckForConnection();
-        ASSERT(data_socket.IsValid());
+        Socket data_socket;
+        while (!data_socket.IsValid()) {
+            data_socket = Network::CheckForConnection();
+        }
 
         // Get game options from client.
         GameOpt game_opt;
         bool success = game_opt.GetFromClient(data_socket);
-
-        if (success) {
-            unsigned const hand_cnt = game_opt.HandsDealt();
-            HandOpts hand_opts;
-            success = hand_opts.GetFromClient(data_socket, hand_cnt);
-            if (success) {
-                // Ask a user to consider the invitation.
-                p_game = Network::ConsiderInvitation(data_socket, game_opt, hand_opts);
-            }
+        if (!success) {
+            continue;
         }
+
+        unsigned const hand_cnt = game_opt.HandsDealt();
+        HandOpts hand_opts;
+        success = hand_opts.GetFromClient(data_socket, hand_cnt);
+        if (!success) {
+            continue;
+        }
+
+        // Ask a user to consider the invitation.
+        p_game = Network::ConsiderInvitation(data_socket, game_opt, hand_opts);
+        if (p_game == NULL) {
+            continue;
+        }
+
+        bool const was_successful = p_game->Initialize();
+        if (was_successful) {
+            p_game->PlayConsole();
+        }
+        delete p_game;
     }
 
 #elif defined(_CLIENT)
@@ -219,8 +235,6 @@ bool Game::ConnectToServers(void) {
     Socket const no_client;
     p_game = New(game_opt, hand_opts, no_client);
 
-#endif // defined(_CLIENT)
-
     ASSERT(p_game != NULL);
     bool const was_successful = p_game->Initialize();
     if (was_successful) {
@@ -233,6 +247,9 @@ bool Game::ConnectToServers(void) {
     be destroyed soon after this function returns.
     */
     ::system_pause();
+
+#endif // defined(_CLIENT)
+
 }
 
 unsigned Game::CountStock(void) const {
@@ -671,6 +688,7 @@ void Game::PlayConsole(void) {
 
     // Display final scores.
     DescribeScores();
+    std::cout << std::endl;
 }
 
 // Put a string (once) to each server.

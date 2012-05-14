@@ -29,11 +29,10 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 #include "strings.hpp"
 
 #ifdef _WINSOCK2
-# define WIN32_LEAN_AND_MEAN
+# define WIN32_LEAN_AND_MEAN  // to avoid macro redefinitions
 # include "gui/win_types.hpp"
 namespace Win {
-# include <winsock2.h>
-# include <ws2tcpip.h>
+# include <ws2tcpip.h>   // for getaddrinfo
 # pragma comment(lib, "ws2_32.lib")  // link with ws2_32.lib
 };
 using Win::ADDRINFOA;
@@ -58,7 +57,8 @@ const TextType Network::SERVER_LISTEN_PORT = "27066";
 // static data
 
 #ifdef _WINSOCK2
-Socket Network::msListen;
+Socket Network::msListenIpv4;
+Socket Network::msListenIpv6;
 #elif defined(_QT)
 QTcpServer* Network::mspServer = NULL;
 #endif // defined(_QT)
@@ -130,17 +130,15 @@ Network::~Network(void) {
 // SERVER: Check for a new connection request.
 /* static */ Socket Network::CheckForConnection(void) {
     Socket result;
+
 #ifdef _GUI
     if (mspWindow == NULL) {
         return result;
     }
 #endif // defined(_GUI)
 
-#ifdef _CONSOLE
-    std::cout << AddressReport() << std::endl;
-#endif // defined(_CONSOLE)
-
 #ifdef _QT
+
     ASSERT(mspServer != NULL);
 # ifdef _CONSOLE
     mspServer->waitForNewConnection(-1);
@@ -151,21 +149,38 @@ Network::~Network(void) {
         ASSERT(p_next != NULL);
         result = Socket(p_next);
     }
+
 #elif defined(_WINSOCK2)
-    ASSERT(msListen.IsValid());
-    SOCKET const listen_socket = SOCKET(Socket::HandleType(msListen));
-    SOCKET const data_socket = Win::accept(listen_socket, NULL, NULL);
-    if (data_socket == INVALID_SOCKET) {
-        int const error_code = Win::WSAGetLastError();
-        ASSERT(error_code == WSAEWOULDBLOCK);
-        // There's no connection yet.
-    } else {
+
+    SOCKET data_socket = INVALID_SOCKET;
+
+    if (msListenIpv4.IsValid()) {
+        SOCKET const listen_socket = SOCKET(Socket::HandleType(msListenIpv4));
+        data_socket = Win::accept(listen_socket, NULL, NULL);
+        if (data_socket == INVALID_SOCKET) {
+            int const error_code = Win::WSAGetLastError();
+            ASSERT(error_code == WSAEWOULDBLOCK);
+            // There's IPv4 no connection to accept right now.
+        }
+    }
+    if (data_socket == INVALID_SOCKET && msListenIpv6.IsValid()) {
+        SOCKET const listen_socket = SOCKET(Socket::HandleType(msListenIpv6));
+        data_socket = Win::accept(listen_socket, NULL, NULL);
+        if (data_socket == INVALID_SOCKET) {
+            int const error_code = Win::WSAGetLastError();
+            ASSERT(error_code == WSAEWOULDBLOCK);
+            // There's IPv6 no connection to accept right now.
+        }
+    }
+
+    if (data_socket != INVALID_SOCKET) {
         result = Socket(Socket::HandleType(data_socket));
 # ifdef _GUI
         // Put new data socket into non-blocking mode.
         result.MakeNonblocking();
 # endif // defined(_GUI)
     }
+
 #endif // defined(_WINSOCK2)
 
     return result;
@@ -185,7 +200,7 @@ Network::~Network(void) {
     // Get address info for the client's socket.
     ADDRINFOA address_hints;
     ::ZeroMemory(&address_hints, sizeof(address_hints));
-    address_hints.ai_family = AF_INET; // for now, just use IPv4
+    address_hints.ai_family = AF_UNSPEC;
     address_hints.ai_socktype = SOCK_STREAM;
     address_hints.ai_protocol = IPPROTO_TCP;
 
@@ -384,46 +399,68 @@ Network::~Network(void) {
 }
 
 #ifdef _WINSOCK2
-// SERVER:  Attempt to bind to a listen socket.
-/* static */ Socket Network::OpenListen(void *p) {
-    PADDRINFOA const addrinfo_list = PADDRINFOA(p);
+// SERVER:  Create and bind a listen socket.
+/* static */ Socket Network::OpenListen(int family) {
+    // Get address info for the listen socket.
+    ADDRINFOA address_hints;
+    ::ZeroMemory(&address_hints, sizeof(address_hints));
+    address_hints.ai_family = family;
+    address_hints.ai_socktype = SOCK_STREAM;
+    address_hints.ai_protocol = IPPROTO_TCP;
+    address_hints.ai_flags = AI_PASSIVE;
+
+    PCSTR const any_client = NULL;
+    PADDRINFOA address_list = NULL;
+    int failure = Win::getaddrinfo(any_client, SERVER_LISTEN_PORT,
+        &address_hints, &address_list);
+    ASSERT(failure == 0);
 
     SOCKET server_listen = INVALID_SOCKET;
-    for (PADDRINFOA p_info = addrinfo_list; p_info != NULL; p_info = p_info->ai_next) {
-        // Create a listen socket.
-        ASSERT(p_info->ai_family == AF_INET);
+    for (PADDRINFOA p_info = address_list; p_info != NULL; p_info = p_info->ai_next) {
         ASSERT(p_info->ai_socktype == SOCK_STREAM);
         ASSERT(p_info->ai_protocol == IPPROTO_TCP);
-        server_listen = Win::socket(p_info->ai_family, 
-            p_info->ai_socktype, p_info->ai_protocol);
-        ASSERT(server_listen != INVALID_SOCKET);
+        if (p_info->ai_family == family) {
+            // Create a listen socket.
+            server_listen = Win::socket(family, p_info->ai_socktype, p_info->ai_protocol);
+            ASSERT(server_listen != INVALID_SOCKET);
 
-        // Attempt to bind to the socket.
-        int const failure = Win::bind(server_listen, 
-            p_info->ai_addr, int(p_info->ai_addrlen));
-        if (failure == 0) {
-            // success
-            break;
-        }
-        int const error_code = Win::WSAGetLastError();
-        if (error_code == WSAEADDRINUSE) {
-            String const message = String("Port ")
-                + SERVER_LISTEN_PORT + " on this computer is busy.\n"
-                + "Perhaps there is another Gold Tile server running.";
-            Notice(message);
-            server_listen = INVALID_SOCKET;
-            // try next addrinfo
-        } else {
-            std::cout << "Unexpected Winsock error code " << error_code 
-                << " on bind." << std::endl;
-            FAIL();
+            // Attempt to bind to the socket.
+            failure = Win::bind(server_listen, p_info->ai_addr, int(p_info->ai_addrlen));
+            if (failure == 0) {
+                // success
+                break;
+            }
+            int const error_code = Win::WSAGetLastError();
+            if (error_code == WSAEADDRINUSE) {
+                String const message = String("Port ")
+                    + SERVER_LISTEN_PORT + " is busy on this computer.\n"
+                    + "Perhaps there is another Gold Tile server running.\n";
+                Notice(message);
+                server_listen = INVALID_SOCKET;
+                // try next addrinfo
+            } else {
+                std::cout << "Unexpected Winsock error code " << error_code 
+                    << " on bind." << std::endl;
+                FAIL();
+            }
         }
     }
+
+    Win::freeaddrinfo(address_list);
 
     Socket result;
-    if (server_listen != INVALID_SOCKET) {
-        result = Socket(Socket::HandleType(server_listen));
+    if (server_listen == INVALID_SOCKET) {
+        return result;
     }
+
+    // Put the (bound but unconnected) socket into listen mode.
+    failure = Win::listen(server_listen, MAX_CONNECTION_CNT);
+    ASSERT(failure == 0);
+
+    result = Socket(Socket::HandleType(server_listen));
+
+    // Put the listen socket into non-blocking mode.
+    result.MakeNonblocking();
 
     return result;
 }
@@ -435,7 +472,7 @@ Network::~Network(void) {
     SOCKET client_send = INVALID_SOCKET;
     for (PADDRINFOA p_info = addrinfo_list; p_info != NULL; p_info = p_info->ai_next) {
         // Create a send socket.
-        ASSERT(p_info->ai_family == AF_INET);
+        ASSERT(p_info->ai_family == AF_INET || p_info->ai_family == AF_INET6);
         ASSERT(p_info->ai_socktype == SOCK_STREAM);
         ASSERT(p_info->ai_protocol == IPPROTO_TCP);
         client_send = Win::socket(p_info->ai_family, p_info->ai_socktype, p_info->ai_protocol);
@@ -542,39 +579,16 @@ Network::~Network(void) {
 
 #elif defined(_WINSOCK2)
 
-    ASSERT(!msListen.IsValid());
+    ASSERT(!msListenIpv4.IsValid());
+    ASSERT(!msListenIpv6.IsValid());
 
-    // Get address info for the server's listening socket.
-    ADDRINFOA address_hints;
-    ::ZeroMemory(&address_hints, sizeof(address_hints));
-    address_hints.ai_family = AF_INET; // for now, just use IPv4
-    address_hints.ai_socktype = SOCK_STREAM;
-    address_hints.ai_protocol = IPPROTO_TCP;
-    address_hints.ai_flags = AI_PASSIVE;
+    msListenIpv4 = OpenListen(AF_INET);
+    msListenIpv6 = OpenListen(AF_INET6);
 
-    PCSTR const any_client = NULL;
-    PADDRINFOA address_list = NULL;
-    int failure = Win::getaddrinfo(any_client, SERVER_LISTEN_PORT,
-        &address_hints, &address_list);
-    ASSERT(failure == 0);
-
-    msListen = OpenListen(address_list);
-
-    Win::freeaddrinfo(address_list);
-    if (!msListen.IsValid()) {
+    if (!msListenIpv4.IsValid() && !msListenIpv6.IsValid()) {
         return false;
     }
-
-    SOCKET server_listen = SOCKET(Socket::HandleType(msListen));
-
-    // Put the (bound but unconnected) socket into listen mode.
-    failure = Win::listen(server_listen, MAX_CONNECTION_CNT);
-    ASSERT(failure == 0);
-
-# ifdef _GUI
-    // Put listen socket into non-blocking mode.
-    msListen.MakeNonblocking();
-# endif // defined(_GUI)
+    
 #endif // defined(_WINSOCK2)
 
     return true;

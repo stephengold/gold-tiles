@@ -191,12 +191,6 @@ Fraction HandOpt::SkipProbability(void) const {
 
 // inquiry methods
 
-bool HandOpt::HasValidName(void) const {
-    bool const result = !mPlayerName.IsEmpty();
-
-    return result;
-}
-
 bool HandOpt::IsAutomatic(void) const {
     bool const result = (mAutomaticFlag && !mRemoteFlag);
 
@@ -211,6 +205,13 @@ bool HandOpt::IsLocalUser(void) const {
 
 bool HandOpt::IsRemote(void) const {
     return mRemoteFlag;
+}
+
+bool HandOpt::IsValid(void) const {
+    bool const valid_address = !IsRemote() || mAddress.IsValid();
+    bool const result = valid_address && !mPlayerName.IsEmpty();
+
+    return result;
 }
 
 

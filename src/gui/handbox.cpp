@@ -70,18 +70,15 @@ void HandBox::HandleButtonClick(IdType buttonId) {
 
     case IDC_RADIOLOCAL:
         mrOptions.SetLocalUser();
-        if (name == "Computer"
-         || name == "Remote Player") {
+        if (name == "Computer") {
             UpdateNameBox("User");
         }
         break;
 
     case IDC_RADIOREMOTE:
         mrOptions.SetRemote();
-        if (name == "Computer"
-         || name == "Tester"
-         || name.HasPrefix("User")) {
-            UpdateNameBox("Remote Player");
+        if (name == "Computer") {
+            UpdateNameBox("User");
         }
         break;
     }
@@ -96,6 +93,7 @@ INT_PTR HandBox::HandleMessage(MessageType message, WPARAM wParam) {
     case WM_INITDIALOG: {
         Dialog::HandleMessage(message, wParam);
 
+        // Fill in the dialog box label.
         String message = "Who will play the ";
         if (mAreMoreHands) {
             message += ::ordinal(mHandIndex) + " of the ";
@@ -118,7 +116,7 @@ INT_PTR HandBox::HandleMessage(MessageType message, WPARAM wParam) {
 
         SetSliderRange(IDC_SLIDER1, 0, LEVEL_MAX);
         Address const address = mrOptions;
-        SetAddress(IDC_IPADDRESS1, address);
+        SetTextString(IDC_IPADDRESS1, address);
         UpdateButtons();
         String const name = mrOptions.PlayerName();
         UpdateNameBox(name);
@@ -134,8 +132,11 @@ INT_PTR HandBox::HandleMessage(MessageType message, WPARAM wParam) {
         switch (control_id) {
         case IDC_IPADDRESS1:
             if (notification_code == EN_CHANGE) {
-                Address const address = GetAddress(control_id);
+                String const address_string = GetTextString(control_id);
+                Address const address(address_string);
                 mrOptions.SetAddress(address);
+                bool const valid = mrOptions.IsValid();
+                EnableControl(IDOK, valid);
             }
             break;
 
@@ -143,8 +144,8 @@ INT_PTR HandBox::HandleMessage(MessageType message, WPARAM wParam) {
             if (notification_code == EN_CHANGE) {
                 String const name = GetTextString(control_id);
                 mrOptions.SetPlayerName(name);
-                bool const good_name = mrOptions.HasValidName();
-                EnableControl(IDOK, good_name);
+                bool const valid = mrOptions.IsValid();
+                EnableControl(IDOK, valid);
             }
             break;
 
@@ -188,7 +189,7 @@ void HandBox::UpdateNameBox(String const& rName) {
     mrOptions.SetPlayerName(rName);
     SetTextString(IDC_EDITNAME, rName);
 
-    bool const good_name = mrOptions.HasValidName();
+    bool const good_name = mrOptions.IsValid();
     EnableControl(IDOK, good_name);
 }
 

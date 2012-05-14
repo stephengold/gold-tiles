@@ -71,10 +71,11 @@ private:
 
     // private data
 #ifdef _WINSOCK2
-    static Socket       msListen;
+    static Socket       msListenIpv4;
+    static Socket       msListenIpv6;
 #elif defined(_QT)
     static QTcpServer* mspServer;
-#endif // defined(_WINSOCK2)
+#endif // defined(_QT)
 #ifdef _GUI
     static Window*     mspWindow;
 #endif // defined(_GUI)
@@ -88,7 +89,7 @@ private:
     // misc private methods
     static void   DoneWaiting(void);
     static bool   InviteServer(Socket&, Game const&);
-    static Socket OpenListen(void* addrinfo_list);
+    static Socket OpenListen(int family);
     static Socket OpenServer(void* addrinfo_list, Address const& server);
     static bool   Retry(String const&);
     static bool   StartServer(void);

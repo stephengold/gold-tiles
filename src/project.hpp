@@ -29,9 +29,9 @@
 #endif
 
 // network configuration #ifdefs
-#ifndef _QT
+#if !defined(_QT) && !defined(_POSIX) && !defined(_WINSOCK2)
 # define _WINSOCK2
-#endif // !defined(_QT)
+#endif
 
 #ifdef _CONSOLE
 # if defined(_CLIENT) && defined(_SERVER)
@@ -41,23 +41,23 @@
 
 // debugging macros: D(), ASSERT(), and FAIL()
 #ifdef _DEBUG
-#define D(debug_only_code) (debug_only_code)
+# define D(debug_only_code) (debug_only_code)
 #else  // !defined(_DEBUG)
-#define D(debug_only_code) (void(0))
+# define D(debug_only_code) (void(0))
 #endif // !defined(_DEBUG)
 
 #ifdef _GUI
-#include <assert.h>
-#define ASSERT(expression) D(assert(expression))
+# include <assert.h>
+# define ASSERT(expression) D(assert(expression))
 #else // !defined(_GUI)
-#define ASSERT(expression) D((expression) ? void(0) : ::assertion_failed(__FILE__, __LINE__))
+# define ASSERT(expression) D((expression) ? void(0) : ::assertion_failed(__FILE__, __LINE__))
 #endif // !defined(_GUI)
 
 #define FAIL() ASSERT(false)
 
 // misc macros
 #ifndef MAX
-#define MAX(a,b) (((a) > (b)) ? (a) : (b))
+# define MAX(a,b) (((a) > (b)) ? (a) : (b))
 #endif // !defined(MAX)
 
 // forward declarations of project classes

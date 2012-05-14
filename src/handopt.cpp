@@ -54,7 +54,7 @@ HandOpt::HandOpt(String const& rString):
         } else if (name == "RemoteFlag") {
             mRemoteFlag = bool(value);
         } else if (name == "SkipProbability") {
-            mSkipProbability = Fraction(value);
+            mSkipProbability = value;
         } else if (name == "Address") {
             mAddress = Address(value);
         } else {

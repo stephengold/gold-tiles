@@ -379,14 +379,20 @@ void GameView::DrawIdle(Canvas& rCanvas) {
 
     Strings message_list;
 #ifdef _SERVER
-    message_list.Append(Network::AddressReport());
+    if (Network::IsServerStarted()) {
+        message_list.Append(Network::AddressReport());
+    } else {
+        String const warning = String("Can't listen for invitations on network port ")  
+                             + Network::SERVER_LISTEN_PORT + "!";
+        message_list.Append(warning);
+    }
 #endif  // defined(_SERVER)
     if (mpWindow->IsWaiting()) {
         message_list.Append(mpWindow->WaitMessage());
     }
 #ifdef _CLIENT
     message_list.Append("Type Ctrl+N to start a new game.");
-#endif // defined_CLIENT
+#endif // defined(_CLIENT)
     String const messages(message_list, "\n\n"); 
 
     Point const ulc(0, 0);

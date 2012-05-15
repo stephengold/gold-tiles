@@ -30,11 +30,11 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 # include <arpa/inet.h>
 # include <netinet/in.h>
 typedef sa_family_t ADDRESS_FAMILY;
-typedef struct in_addr IN_ADDR, *PIN_ADDR;
-typedef struct in6_addr IN6_ADDR, *PIN6_ADDR;
-typedef struct sockaddr *PSOCKADDR;
-typedef struct sockaddr_in *PSOCKADDR_IN;
-typedef struct sockaddr_in6 *PSOCKADDR_IN6;
+typedef in_addr IN_ADDR, *PIN_ADDR;
+typedef in6_addr IN6_ADDR, *PIN6_ADDR;
+typedef sockaddr *PSOCKADDR;
+typedef sockaddr_in *PSOCKADDR_IN;
+typedef sockaddr_in6 *PSOCKADDR_IN6;
 typedef int INT;
 # define InetNtop inet_ntop
 
@@ -61,8 +61,6 @@ using Win::PSOCKADDR;
 using Win::PSOCKADDR_IN;
 using Win::PSOCKADDR_IN6;
 using Win::InetNtop;
-using Win::inet_addr;
-using Win::inet_ntoa;
 using Win::inet_pton;
 
 #endif  // defined(_WINSOCK2)
@@ -107,13 +105,13 @@ Address::Address(String const &rString)
             mString = String(text);
         }
     } else {  // Assume it's an IPv4 address.
-        unsigned long const address = inet_addr(rString);
-        if (address == INADDR_NONE || address == 0) {
+        IN_ADDR ipv4_address;
+        INT const success = inet_pton(AF_INET, rString, &ipv4_address);
+        if (success != 1) {
             mString.MakeEmpty();
         } else {
-            IN_ADDR ipv4_address;
-            ipv4_address.s_addr = address;
-            TextType const text = inet_ntoa(ipv4_address);
+            char buffer[64];
+            TextType text = InetNtop(AF_INET, &ipv4_address, buffer, sizeof(buffer));
             mString = String(text);
         }
     }
@@ -129,33 +127,26 @@ Address::Address(unsigned long address)
 #ifndef _QT
     IN_ADDR ipv4_address;
     ipv4_address.s_addr = address;
-    TextType const text = inet_ntoa(ipv4_address);
+    char buffer[64];
+    TextType text = InetNtop(AF_INET, &ipv4_address, buffer, sizeof(buffer));
     mString = String(text);
 #endif  // !defined(_QT)
 }
 
 #ifndef _QT
 
-// Construct based on a pointer to a SOCKADDR structure.
-#ifdef _POSIX
-Address::Address(struct sockaddr& rAddress) {
-    PSOCKADDR p_address = &rAddress;
-#elif defined(_WINSOCK2)
-Address::Address(void* p) {
-    PSOCKADDR const p_address = PSOCKADDR(p);
-#endif // defined(_WINSOCK2)
-
-    ASSERT(p_address != NULL);
-    ADDRESS_FAMILY const family = p_address->sa_family;
+// Construct based on a sockaddr structure.
+Address::Address(sockaddr const& rAddress) {
+    ADDRESS_FAMILY const family = rAddress.sa_family;
 
     TextType text = NULL;
     char buffer[64];
     if (family == AF_INET6) {
-        PSOCKADDR_IN6 const p_sockaddr_v6 = PSOCKADDR_IN6(p_address);
+        PSOCKADDR_IN6 const p_sockaddr_v6 = PSOCKADDR_IN6(&rAddress);
         PIN6_ADDR const p_ipv6 = &(p_sockaddr_v6->sin6_addr);
         text = InetNtop(family, p_ipv6, buffer, sizeof(buffer));
     } else if (family == AF_INET) {
-        PSOCKADDR_IN const p_sockaddr_v4 = PSOCKADDR_IN(p_address);  
+        PSOCKADDR_IN const p_sockaddr_v4 = PSOCKADDR_IN(&rAddress);  
         PIN_ADDR const p_ipv4 = &(p_sockaddr_v4->sin_addr);
         text = InetNtop(family, p_ipv4, buffer, sizeof(buffer));
     } else {
@@ -193,7 +184,10 @@ Address::operator unsigned long(void) const {
 #ifdef _QT
     unsigned long const result = (unsigned long)(toIPv4Address());
 #else  // !defined(_QT)
-    unsigned long const result = inet_addr(mString);
+    IN_ADDR ipv4_address;
+    INT const success = inet_pton(AF_INET, mString, &ipv4_address);
+    ASSERT(success == 1);
+    unsigned long const result = ipv4_address.s_addr;
 #endif // !defined(_QT)
 
     return result;
@@ -206,7 +200,7 @@ Address::operator unsigned long(void) const {
 /* static */ Strings Address::ListAll(void) {
     Strings result;
 
-#ifdef _QT
+#ifdef _POSIX
 
     // TODO
 
@@ -255,7 +249,7 @@ Address::operator unsigned long(void) const {
             if ((p_unicast->Flags & IP_ADAPTER_ADDRESS_TRANSIENT) == 0x0) {
                 // not transient
                 Win::PSOCKADDR const p_address = p_unicast->Address.lpSockaddr;
-                Address const address(p_address);
+                Address const address(*p_address);
                 if (!address.IsLocalHost()) {
                     // not localhost
                     String const address_text = address;

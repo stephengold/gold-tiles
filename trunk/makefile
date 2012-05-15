@@ -25,7 +25,7 @@ LDFLAGS =
 SRCDIR = src
 TARGETS = gold-tile-client gold-tile-server
 
-CFLAGS = -c -D_DEBUG -D_POSIX -g -I$(SRCDIR) -Wall
+CFLAGS = -c -D_DEBUG -D_NETWORK_TEST -D_POSIX -g -I$(SRCDIR) -Wall
 SOURCES = \
  $(SRCDIR)/address.cpp \
  $(SRCDIR)/baseboard.cpp \
@@ -43,7 +43,6 @@ SOURCES = \
  $(SRCDIR)/handopts.cpp \
  $(SRCDIR)/hands.cpp \
  $(SRCDIR)/indices.cpp \
- $(SRCDIR)/main.cpp \
  $(SRCDIR)/move.cpp \
  $(SRCDIR)/network.cpp \
  $(SRCDIR)/partial.cpp \

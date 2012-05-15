@@ -34,11 +34,16 @@ addresses are supported.
 
 #include "project.hpp"    // _WINSOCK2
 #include "string.hpp"     // HASA String
-#ifdef _POSIX
-# include <sys/socket.h>  // USES sockaddr
-#elif defined(_QT)
+#ifdef _QT
 # include <QHostAddress>  // ISA QHostAddress
-#endif // defined(_QT)
+#elif defined(_POSIX)
+typedef struct sockaddr;
+#elif defined(_WINSOCK2)
+namespace Win {
+    struct sockaddr;
+}
+using Win::sockaddr;
+#endif // defined(_WINSOCK2)
 
 
 class Address
@@ -51,14 +56,12 @@ public:
     Address(void);
     // Address(Address const&);  implicitly defined copy constructor
     explicit Address(String const&);
-    explicit Address(unsigned long); // IPv4 only
-#ifdef _POSIX
-    explicit Address(struct sockaddr&);
-#elif defined(_QT)
+    explicit Address(unsigned long);  // IPv4 only
+#ifdef _QT
     explicit Address(QHostAddress const&);
-#elif defined(_WINSOCK2)
-    explicit Address(void*);
-#endif // defined(_QT)
+#else // !defined(_QT)
+    explicit Address(sockaddr const&);
+#endif // !defined(_QT)
     // ~Address(void);  implicitly defined destructor
 
     // public operators

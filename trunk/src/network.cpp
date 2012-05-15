@@ -647,11 +647,13 @@ Network::~Network(void) {
 
 #ifdef _NETWORK_TEST
 
-// unit test (requires Qt)
+// unit test
 
-# include <QCoreApplication>
-# include <QSocketNotifier>
-# include <QThread>
+# ifdef _QT
+
+#  include <QCoreApplication>
+#  include <QSocketNotifier>
+#  include <QThread>
 
 class MyThread: public QThread {
 public:
@@ -672,5 +674,19 @@ int main(int argCnt, char** argValues) {
 
     return application.exec();
 }
+
+# else // !defined(_QT)
+
+int main(int argCnt, char** argValues) {
+    argCnt;     // ununsed
+    argValues;  // unused
+
+    Network network;
+
+    Game::ConsoleGame();
+    return EXIT_SUCCESS;
+}
+
+# endif // !defined(_QT)
 
 #endif // defined(_NETWORK_TEST)

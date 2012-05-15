@@ -190,16 +190,15 @@ Address Socket::Local(void) const {
 
 #ifdef _QT
     QHostAddress const address = mpSocket->localAddress();
+    Address const result(address);
 #elif defined(_WINSOCK2)
     SOCKET const socket = SOCKET(mHandle);
-    SOCKADDR sockaddr[2]; // a single SOCKADDR isn't sufficient??
+    SOCKADDR sockaddr[2];  // a single SOCKADDR isn't sufficient??
     int length = sizeof(sockaddr);
     int const failure = Win::getsockname(socket, sockaddr, &length);
     ASSERT(failure == 0);
-    void* address = sockaddr;
+    Address const result(sockaddr[0]);
 #endif // defined(_WINSOCK2)
-
-    Address const result(address);
 
     return result;
 }
@@ -223,16 +222,15 @@ Address Socket::Peer(void) const {
     ASSERT(mpSocket->state() == QAbstractSocket::ConnectedState);
     QHostAddress const address = mpSocket->peerAddress();
     ASSERT(address != QHostAddress::Null);
+    Address const result(address);
 #elif defined(_WINSOCK2)
     SOCKET const socket = SOCKET(mHandle);
     SOCKADDR sockaddr[2]; // a single SOCKADDR isn't sufficient??
     int length = sizeof(sockaddr);
     int const failure = Win::getpeername(socket, sockaddr, &length);
     ASSERT(failure == 0);
-    void* address = sockaddr;
+    Address const result(sockaddr[0]);
 #endif // defined(_WINSOCK2)
-
-    Address const result(address);
 
     return result;
 }

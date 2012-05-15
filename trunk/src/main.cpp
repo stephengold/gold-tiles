@@ -22,24 +22,21 @@ You should have received a copy of the GNU General Public License
 along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include "gui/gamewindow.hpp"
 #include "network.hpp"
-
-#ifdef _CONSOLE
-# include <iostream>
-# include "game.hpp"
-# include "handopts.hpp"
-# include "strings.hpp"
-#elif defined(_QT)
+#ifdef _QT
 # include <QtGui/QApplication>
 #elif defined(_WINDOWS)
 # include "gui/win_types.hpp"
 #endif // defined(_WINDOWS)
 
-#ifdef _GUI
-# include "gui/gamewindow.hpp"
-#endif // defined(_GUI)
 
-#ifdef _WINDOWS
+#ifdef _QT
+
+// standard C++ main entry point
+int main(int argCnt, char** argValues) {
+
+#elif defined(_WINDOWS)
 
 // Microsoft Windows native application main entry point
 int CALLBACK Win::WinMain(
@@ -51,28 +48,9 @@ int CALLBACK Win::WinMain(
     previousInstance;
     commandLine;
 
-#else // !defined(_WINDOWS)
+#endif // defined(_WINDOWS)
 
-// standard C++ main entry point
-int main(int argCnt, char** argValues) {
-
-#endif // !defined(_WINDOWS)
-
-#ifdef _GUI
     GameWindow* p_window = NULL;
-#endif // defined(_GUI)
-
-#ifdef _CONSOLE
-
-    // Display legal notice.
-    std::cout
-        << "Gold Tile Game (c) Copyright 2012 Stephen Gold" << std::endl
-        << "This program comes with ABSOLUTELY NO WARRANTY." << std::endl
-        << "This is free software, and you are welcome to redistribute" << std::endl
-        << "it under certain conditions; see LICENSE.txt for details." << std::endl
-        << std::endl;
-
-#endif // defined(_CONSOLE)
 
     // Seed the pseudo-random number generator.
     unsigned const seed = ::milliseconds();
@@ -83,14 +61,7 @@ int main(int argCnt, char** argValues) {
 
     int exit_code = EXIT_SUCCESS;
 
-#ifdef _CONSOLE
-
-    argCnt;
-    argValues;
-
-    Game::ConsoleGame();
-
-#elif defined(_QT)
+#ifdef _QT
 
     QApplication application(argCnt, argValues);
 

@@ -37,7 +37,7 @@ addresses are supported.
 #ifdef _QT
 # include <QHostAddress>  // ISA QHostAddress
 #elif defined(_POSIX)
-typedef struct sockaddr;
+struct sockaddr;
 #elif defined(_WINSOCK2)
 namespace Win {
     struct sockaddr;

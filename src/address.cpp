@@ -27,8 +27,10 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 #include "strings.hpp"
 
 #ifdef _POSIX
-# include <arpa/inet.h>
-# include <netinet/in.h>
+# include <arpa/inet.h>  // struct in_addr
+# include <ifaddrs.h>    // ifaddrs()
+# include <net/if.h>     // IFF_UP
+
 typedef sa_family_t ADDRESS_FAMILY;
 typedef in_addr IN_ADDR, *PIN_ADDR;
 typedef in6_addr IN6_ADDR, *PIN6_ADDR;
@@ -196,13 +198,32 @@ Address::operator unsigned long(void) const {
 
 // misc methods
 
-// List all usable IPv4/IPv6 addresses, excluding localhost.
-/* static */ Strings Address::ListAll(void) {
+// List all useful IPv4/IPv6 addresses (excluding localhost).
+/* static */  Strings Address::ListAll(void) {
     Strings result;
 
 #ifdef _POSIX
+    // POSIX doesn't provide a way to enumerate network interfaces, so use Linux getifaddrs(3).
 
-    // TODO
+    ifaddrs* p_list;
+    int const error = ::getifaddrs(&p_list);
+    ASSERT(error == 0);
+    for (ifaddrs* p_current = p_list; p_current != NULL; p_current = p_current->ifa_next) {
+        unsigned flags = p_current->ifa_flags;
+        if ((flags & IFF_UP) 
+            && !(flags & IFF_LOOPBACK)
+            && (flags & IFF_POINTOPOINT))
+        {
+            Address const address(*(p_current->ifa_addr));
+            if (!address.IsLocalHost()) {
+                // not localhost
+                String const address_text = address;
+                result.Append(address_text);
+            }
+        }
+    }
+
+    ::freeifaddrs(p_list);
 
 #elif defined(_QT)
 
@@ -212,7 +233,7 @@ Address::operator unsigned long(void) const {
         QHostAddress const q_address = *i_address;
         Address const address(q_address);
         if (!address.IsLocalHost()) {
-            // skip localhost
+            // not localhost
             String const address_text = address;
             result.Append(address_text);
         }
@@ -221,26 +242,26 @@ Address::operator unsigned long(void) const {
 #elif defined(_WINSOCK2)
 
     ULONG const flags = (GAA_FLAG_SKIP_ANYCAST | GAA_FLAG_SKIP_MULTICAST);
-    PIP_ADAPTER_ADDRESSES p_table = NULL;
-    ULONG table_bytes = 16000;  // initial size estimate
-    while (p_table == NULL) {
-         p_table = PIP_ADAPTER_ADDRESSES(new char[table_bytes]);
-         ASSERT(p_table != NULL);
+    PIP_ADAPTER_ADDRESSES p_list = NULL;
+    ULONG list_bytes = 16000;  // initial size estimate
+    while (p_list == NULL) {
+         p_list = PIP_ADAPTER_ADDRESSES(new char[list_bytes]);
+         ASSERT(p_list != NULL);
 
          ULONG const error_code = Win::GetAdaptersAddresses(AF_UNSPEC, flags, NULL, 
-             p_table, &table_bytes);
+             p_list, &list_bytes);
          if (error_code != NO_ERROR) {
              if (error_code == ERROR_NO_DATA) {
                  return result;
              }
              ASSERT(error_code == ERROR_BUFFER_OVERFLOW);
-             delete p_table;
-             p_table = NULL;
+             delete p_list;
+             p_list = NULL;
          }
     }
 
-    // Go through the list and append usable IP addresses to the result.
-    PIP_ADAPTER_ADDRESSES p_current = p_table;
+    // Go through the list and append useful IP addresses to the result.
+    PIP_ADAPTER_ADDRESSES p_current = p_list;
 
     while (p_current != NULL) {
         // Only interested in unicast addresses.
@@ -261,7 +282,7 @@ Address::operator unsigned long(void) const {
         p_current = p_current->Next;
     }
 
-    delete p_table;
+    delete p_list;
 
 #endif  // defined(_WINSOCK2)
 

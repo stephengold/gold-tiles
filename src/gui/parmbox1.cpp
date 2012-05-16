@@ -81,7 +81,7 @@ INT_PTR ParmBox1::HandleMessage(MessageType message, WPARAM wParam, LPARAM lPara
 
         RulesType const rules = RulesType(mrGameOpt);
         unsigned const standard_index = AddListboxItem(IDC_LIST1, 
-            "Standard Rules - 108 square tiles on an endless grid, 2 hands of 6");
+            "Standard Rules (108 square tiles on an endless grid, 2 hands of 6)");
         ASSERT(standard_index == RULES_STANDARD);
         unsigned const custom_index = AddListboxItem(IDC_LIST1, 
             "Custom Rules - you decide what the rules will be");
@@ -210,4 +210,4 @@ void ParmBox1::SetStyle(IdType buttonId) {
 
     SetStyle();
 }
-#endif // defined(_WINDOWS)
+#endif  // defined(_WINDOWS)

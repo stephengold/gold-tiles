@@ -1,5 +1,5 @@
 // File:     main.cpp
-// Location: src
+// Location: src/gui
 // Purpose:  main entry points for the Gold Tile Game.
 // Author:   Stephen Gold sgold@sonic.net
 // (c) Copyright 2012 Stephen Gold

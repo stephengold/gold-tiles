@@ -22,7 +22,7 @@ You should have received a copy of the GNU General Public License
 along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <iostream>    // cin
+#include <iostream>    // std::cin
 #include "gameopt.hpp"
 #include "socket.hpp"
 #include "strings.hpp"
@@ -32,6 +32,7 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 
 GameOpt::GameOpt(void) {
     mMinutesPerHand = MINUTES_PER_HAND_DEFAULT;
+    mRandomizeFlag = true;
     mStyle = GAME_STYLE_DEFAULT;
     Standardize();
     Validate();
@@ -78,7 +79,7 @@ GameOpt::GameOpt(String const& rString) {
         } else if (name == "Style") {
             mStyle = ::string_to_game_style(value);
         } else {
-            FAIL(); // TODO recovery
+            FAIL();  // TODO recovery
         }
     }
 }
@@ -198,7 +199,7 @@ long GameOpt::ComboCnt(void) const {
     ASSERT(result >= Combo::COMBINATION_CNT_MIN);
 #ifdef _GUI
     ASSERT(result <= Combo::COMBINATION_CNT_MAX);
-#endif // defined(_GUI)
+#endif  // defined(_GUI)
 
     return result;
 }
@@ -212,6 +213,204 @@ AttrType GameOpt::CountAttrValues(AttrIndexType ind) const {
 
     ASSERT(result >= Combo::VALUE_CNT_MIN);
     ASSERT(result <= Combo::VALUE_CNT_MAX);
+    return result;
+}
+
+Strings GameOpt::CountValues(void) const {
+    Strings result;
+
+    for (AttrIndexType ind = 0; ind < mAttrCnt; ind++) {
+        long const count = CountAttrValues(ind);
+        String const count_string(count);
+        result.Append(count_string);
+    }
+
+    return result;
+}
+
+String GameOpt::DescribeAttrs(void) const {
+    String result;
+
+    if (AreAllAttrsSimilar()) {
+        AttrType const num_values = CountAttrValues(0);
+        result = ::plural(num_values, "value") + " for each attribute";
+    } else {
+        Strings const counts = CountValues();
+        result = "the attributes having " + String(counts, ", ", " and ") 
+            + " values respectively";
+    }
+
+    return result;
+}
+
+String GameOpt::DescribeBoard(void) const {
+    String result;
+
+    if (mBoardHeight == Cell::HEIGHT_MAX && mBoardWidth == Cell::WIDTH_MAX) {
+        result = "an endless grid";
+
+    } else if (mBoardHeight == Cell::HEIGHT_MAX) {
+        result = "a vertical ";
+        if (mDoesBoardWrap) {
+            result += "cylinder ";
+        } else {
+            result += "strip ";
+        }
+        result += ::plural(mBoardWidth, "cell") + " wide";
+
+    } else if (mBoardWidth == Cell::WIDTH_MAX) {
+        result = "a horizontal ";
+        if (mDoesBoardWrap) {
+            result += "cylinder ";
+        } else {
+            result += "strip ";
+        }
+        result += ::plural(mBoardHeight, "cell") + " tall";
+
+    } else if (mDoesBoardWrap) {
+        result = "a torus "
+            + ::plural(mBoardWidth, "cell") + " wide and "
+            + ::plural(mBoardHeight, "cell") + " tall";
+
+    } else if (mBoardWidth == mBoardHeight) {
+        result = "a square " + ::plural(mBoardWidth, "cell") + " on a side";
+
+    } else {
+        result = "a rectangle "
+            + ::plural(mBoardWidth, "cell") + " wide and "
+            + ::plural(mBoardHeight, "cell") + " tall";
+    }
+
+    return result;
+}
+
+String GameOpt::Description(void) const {
+
+    // Describe a few details which are separate from the rest.
+    Strings details;
+
+    if (!mRandomizeFlag) {
+        details.Append("a stacked deck");
+    }
+
+    if (HasTimeLimit()) {
+        String description = "a " + String(mMinutesPerHand);
+        description += "-minute time limit for each hand";
+        details.Append(description);
+    }
+
+    GameOpt const default_opt;  // default game options for comparison
+
+    // Begin recording commonalities and exceptions.
+    Strings commonalities;
+    Strings exceptions;
+
+    // tile shape, scoring directions, and number of tiles
+    String tiles;
+    long const tile_cnt = TotalTileCnt();
+    String const shape = TileShape();
+    if (tile_cnt == default_opt.TotalTileCnt()) {   // same number of tiles
+        if (shape == default_opt.TileShape()) {  // same shape
+            String const tile_shape = shape + " tile";
+            tiles = ::plural(tile_cnt, tile_shape);
+            if (mGrid != default_opt.mGrid) {  // different grid
+                String const ways = "an " + ::grid_to_string(mGrid) + "-way grid";
+                exceptions.Append(ways);
+            }
+        } else {   // different shape
+            tiles = ::plural(tile_cnt, "tile");
+            String const tile_shape = TileShape() + " tiles";
+            exceptions.Append(tile_shape);
+        }
+    } else {    // different number of tiles
+        if (shape == default_opt.TileShape()) {  // same shape
+            tiles = shape + " tiles";
+            String const number = ::plural(tile_cnt, "tile");
+            exceptions.Append(number);
+            if (mGrid != default_opt.mGrid) {  // different grid
+                String const ways = "an " + ::grid_to_string(mGrid) + "-way grid";
+                exceptions.Append(ways);
+            }
+        } else {   // different shape
+            String const tile_shape = shape + " tile";
+            String const description = ::plural(tile_cnt, tile_shape);
+            exceptions.Append(description);
+        }
+    }
+
+    // the board
+    String const board = DescribeBoard();
+
+    // combine tiles and board
+    if (board == default_opt.DescribeBoard()) {
+        if (tiles.IsEmpty()) {
+            commonalities.Append("on " + board);
+        } else {
+            commonalities.Append(tiles + " on " + board);
+        }
+    } else {
+        exceptions.Append("the board being " + board);
+        if (!tiles.IsEmpty()) {
+            commonalities.Append(tiles);
+        }
+    }
+
+    // attributes
+    String const attrs = ::plural(mAttrCnt, "attribute") + " per tile";
+    if (mAttrCnt != default_opt.mAttrCnt) {
+        exceptions.Append(attrs);
+    } else {
+        commonalities.Append(attrs);
+    }
+    String const describe_attrs = DescribeAttrs();
+    if (describe_attrs != default_opt.DescribeAttrs()) {
+        exceptions.Append(describe_attrs);
+    } else {
+        commonalities.Append(describe_attrs);
+    }
+
+    // number of hands and tiles per hand
+    String description = ::plural(mHandsDealt, "hand");
+    if (mHandsDealt == default_opt.mHandsDealt
+        && mHandSize == default_opt.mHandSize)
+    {
+        description += " of " + ::plural(mHandSize, "tile") + " each";
+        commonalities.Append(description);
+    } else if (mHandsDealt == default_opt.mHandsDealt) {
+        commonalities.Append(description);
+        description = ::plural(mHandSize, "tile") + " per hand";
+        exceptions.Append(description);
+    } else if (mHandSize == default_opt.mHandSize) {
+        exceptions.Append(description);
+        description = ::plural(mHandSize, "tile") + " per hand";
+        commonalities.Append(description);
+    } else {
+        description += " of " + ::plural(mHandSize, "tile") + " each";
+        exceptions.Append(description);
+    }
+
+    if (mBonusPercent != default_opt.mBonusPercent) {
+        String const description = String(mBonusPercent) + "% bonus tiles";
+        exceptions.Append(description);
+    }
+
+    // Pull the description together into a single string.
+    String result = "a " + ::game_style_to_string(mStyle) + " game";
+    if (!details.IsEmpty()) {
+        result += " with " + String(details, ", ", " and ") + ",";
+    }
+    if (!commonalities.IsEmpty()) {
+        result += " using the standard rules";
+        result += " (" + String(commonalities, ", ", " and ") + ")";
+        if (!exceptions.IsEmpty()) {
+            result += ", EXCEPT";
+        }
+    }
+    if (!exceptions.IsEmpty()) {
+        result += " with " + String(exceptions, ", ", ", and ");
+    }
+    result += ".";
+
     return result;
 }
 
@@ -416,8 +615,10 @@ void GameOpt::Standardize(void) {
     mGrid = GRID_DEFAULT;
     mHandsDealt = HAND_CNT_DEFAULT;
     mHandSize = HAND_SIZE_DEFAULT;
-    mRandomizeFlag = true;
+    // don't set mMinutesPerHand
+    // don't set mRandomizeFlag
     mRules = RULES_STANDARD;
+    // don't set mStyle
 }
 
 void GameOpt::StyleChange(void) {
@@ -438,6 +639,27 @@ void GameOpt::StyleChange(void) {
     default:
         FAIL();
     }
+}
+
+String GameOpt::TileShape(void) const {
+    String result;
+
+    switch (mGrid) {
+    case GRID_TRIANGLE:
+        result = "triangular";
+        break;
+    case GRID_HEX:
+        result = "hexagonal";
+        break;
+    case GRID_4WAY:
+    case GRID_8WAY:
+        result = "square";
+        break;
+    default:
+        FAIL();
+    }
+
+    return result;
 }
 
 unsigned GameOpt::TilesPerCombo(void) const {
@@ -478,6 +700,20 @@ void GameOpt::Validate(void) const {
 
 
 // inquiry methods
+
+bool GameOpt::AreAllAttrsSimilar(void) const {
+    bool result = true;
+
+    for (AttrIndexType i_attr = 1; i_attr < AttrCnt(); i_attr++) {
+        AttrType const value_max = MaxAttrValue(i_attr);
+        if (value_max != MaxAttrValue(0)) {
+            result = false;
+            break;
+        }
+    }
+
+    return result;
+}
 
 bool GameOpt::DoesBoardWrap(void) const {
     return mDoesBoardWrap;

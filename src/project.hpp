@@ -13,16 +13,16 @@
 #ifdef _QT
 # ifdef _NETWORK_TEST
 #  define _CONSOLE
-# else // !defined(_NETWORK_TEST)
+# else  // !defined(_NETWORK_TEST)
 #  define _GUI
-# endif // !defined(_NETWORK_TEST)
+# endif  // !defined(_NETWORK_TEST)
 
 #elif defined(_WINDOWS)
 # define Q_OBJECT
 # define _GUI
 # ifndef WIN32
 #  error _WINDOWS build requires WIN32
-# endif // !defined(WIN32)
+# endif  // !defined(WIN32)
 
 #elif !defined(_CONSOLE)
 # define _CONSOLE
@@ -37,28 +37,28 @@
 # if defined(_CLIENT) && defined(_SERVER)
 #  error _CONSOLE build cannot act as both a client and a server
 # endif
-#endif // !defined(_CONSOLE)
+#endif  // !defined(_CONSOLE)
 
 // debugging macros: D(), ASSERT(), and FAIL()
 #ifdef _DEBUG
 # define D(debug_only_code) (debug_only_code)
 #else  // !defined(_DEBUG)
 # define D(debug_only_code) (void(0))
-#endif // !defined(_DEBUG)
+#endif  // !defined(_DEBUG)
 
 #ifdef _GUI
 # include <assert.h>
 # define ASSERT(expression) D(assert(expression))
-#else // !defined(_GUI)
+#else  // !defined(_GUI)
 # define ASSERT(expression) D((expression) ? void(0) : ::assertion_failed(__FILE__, __LINE__))
-#endif // !defined(_GUI)
+#endif  // !defined(_GUI)
 
 #define FAIL() ASSERT(false)
 
 // misc macros
 #ifndef MAX
 # define MAX(a,b) (((a) > (b)) ? (a) : (b))
-#endif // !defined(MAX)
+#endif  // !defined(MAX)
 
 // forward declarations of project classes
 class Address;
@@ -127,8 +127,8 @@ class WindowClass;
 // forward declarations of QT classes
 class QFont;
 class QPainter;
-# endif // defined(_QT)
-#endif // defined(_GUI)
+# endif  // defined(_QT)
+#endif  // defined(_GUI)
 
 // project-wide typedefs
 typedef unsigned long MsecIntervalType;
@@ -154,8 +154,8 @@ bool     is_odd(long);
 MsecIntervalType
          milliseconds(void);  // read real-time clock
 String   ordinal(unsigned);
-TextType plural(unsigned);
-String   plural(unsigned, TextType);
+TextType plural(long);
+String   plural(long, TextType);
 bool     str_eq(TextType, TextType);  // compare text strings
 void     system_pause(void);
 

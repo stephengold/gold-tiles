@@ -102,7 +102,7 @@ String::String(QString const& rString):
     std::string(rString.toStdString())
 {
 }
-#endif // defined(_QT)
+#endif  // defined(_QT)
 
 String::String(std::string const& rString):
 std::string(rString)
@@ -125,6 +125,25 @@ String::String(Strings const& rList, String const& rSeparator) {
     }
 }
 
+String::String(
+    Strings const& rList,
+    String const& rSeparator,
+    String const& rFinalSeparator)
+{
+    Strings::ConstIterator i_string;
+    for (i_string = rList.Begin(); i_string != rList.End(); i_string++) {
+        if (i_string != rList.Begin()) {
+            Strings::ConstIterator i_next = i_string;
+            i_next++;
+            if (i_next != rList.End()) {
+                *this += rSeparator;
+            } else {
+                *this += rFinalSeparator;
+            }
+        }
+        *this += *i_string;
+    }
+}
 
 // operators
 
@@ -187,7 +206,7 @@ void String::Capitalize(void) {
 
         if (!is_graphic) {
             ch = space;
-        } else if (!after_graphic) { // first letter of a word
+        } else if (!after_graphic) {  // first letter of a word
             ch = char(::toupper(ch));
         }
 

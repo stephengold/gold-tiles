@@ -44,7 +44,7 @@ GameWindow::GameWindow(Game* pGame):
     mpMenuBar = new MenuBar(mGameView);
     setMenuBar(mpMenuBar);
 }
-#endif // defined(_QT)
+#endif  // defined(_QT)
 
 #ifdef  _WINDOWS
 # include "gui/attrbox.hpp"
@@ -57,7 +57,7 @@ GameWindow::GameWindow(Game* pGame):
 # include "gui/tilebox.hpp"
 # include "gui/win_types.hpp"
 # include "gui/windowclass.hpp"
-#endif // defined(_WINDOWS)
+#endif  // defined(_WINDOWS)
 
 // static data of the class
 
@@ -95,7 +95,7 @@ static void CALLBACK think(void* pArgument) {
 
     window->Think();
 }
-#endif // defined(_WINDOWS)
+#endif  // defined(_WINDOWS)
 
 static void yield(void* pArgument, bool& rCancel) {
     GameWindow* const window = (GameWindow*)pArgument;
@@ -129,9 +129,9 @@ mGameView(*pGame),
     mHaveInvitation = false;
 #ifdef _CLIENT
     mInitialNewGame = (pGame == NULL);
-#else // !defined(_CLIENT)
+#else  // !defined(_CLIENT)
     mInitialNewGame = false;
-#endif // !defined(_CLIENT)
+#endif  // !defined(_CLIENT)
     mpMenuBar = NULL;
 
     // Set up Think fiber for background processing.
@@ -157,7 +157,7 @@ mGameView(*pGame),
 
     // Wait for message_handler() to receive a message with this handle.
 }
-#endif // defined(_WINDOWS)
+#endif  // defined(_WINDOWS)
 
 GameWindow::~GameWindow(void) {
     delete mpMenuBar;
@@ -199,7 +199,7 @@ void GameWindow::Initialize(CREATESTRUCT const& rCreateStruct) {
     SetTimer(TIMEOUT_MSEC, ID_CLOCK_TIMER);
     UpdateMenuBar();
 }
-#endif // defined(_WINDOWS)
+#endif  // defined(_WINDOWS)
 
 
 // misc methods
@@ -811,7 +811,10 @@ void GameWindow::OfferNewGame(void) {
 STEP1:
     GameStyleType const old_game_style = game_options;
 
-    // first dialog:  prompt for game style, time limit, and standard/custom rules
+    /*
+    first dialog:  prompt for game style, random seed, 
+       time limit, and standard/custom rules
+    */
     int result = parmbox1.Run(this);
     if (result == Dialog::RESULT_CANCEL) {
         return;
@@ -1156,7 +1159,7 @@ void GameWindow::ResignHand(void) {
     mpGame->FinishTurn(move);
 
     if (!mpGame->IsOver()) {
-        // the game isn't over yet, so proceed to the next hand
+        // The game isn't over yet, so proceed to the next hand.
         String const old_player_name = SaveHandOptions();
         mpGame->ActivateNextHand();
         ChangeHand(old_player_name);
@@ -1185,7 +1188,7 @@ void GameWindow::RestartGame(void) {
 }
 
 void GameWindow::RuleBox(UmType reason) {
-    // expand reason shortcuts
+    // expand reason shorthand
     String title;
     String const message = Board::ReasonMessage(reason, title);
 
@@ -1232,11 +1235,12 @@ void GameWindow::SetGame(Game* pGame) {
     mpGame = pGame;
 
     DoneWaiting();
+
     mGameView.SetGame(mpGame);
     mpMenuBar->NewGame(old_style);
-
     SetBoardTileSize(GameView::TILE_SIZE_DEFAULT);
     SetHandTileSize(GameView::TILE_SIZE_DEFAULT);
+
     if (HasGame()) {
         Hands const hands = Hands(*mpGame);
         Hands::ConstIterator i_hand;
@@ -1253,6 +1257,11 @@ void GameWindow::SetGame(Game* pGame) {
     if (HasGame()) {
         ASSERT(!mpGame->CanRedo());
         ASSERT(!mpGame->IsOver());
+#ifdef _DEBUG
+        String const description = GameOpt(*mpGame).Description();
+        String const message = "Starting " + description;
+        Window::InfoBox(message, "Game Description - Gold Tile");
+#endif // defined(_DEBUG)
         String const report = pGame->BestRunReport();
         Window::InfoBox(report, "Opening Bids - Gold Tile");
     }

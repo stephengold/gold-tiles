@@ -153,21 +153,21 @@ Network::~Network(void) {
 
 // misc methodsstruct
 
-/* static */ String Network::AddressReport(void) {
+/* static */  String Network::AddressReport(void) {
     // Get list of addresses.
     Strings const list = Address::ListAll();
     unsigned const cnt = list.Count();
 
-    String result;
+    String result = "This computer has ";
     // Generate a brief report.
     if (cnt == 0) {
-        result = "This computer has no usable network address.";
+        result += "no useful network address.";
     } else {
         if (cnt == 1) {
-            result = "This computer has one usable network address";
+            result += "one useful network address";
         } else {
             ASSERT(cnt > 1);
-            result = "This computer has " + String(cnt) + " usable network addresses";
+            result += String(cnt) + " useful network addresses";
         }
         result += ":\n " + String(list, "\n ");
     }
@@ -176,7 +176,7 @@ Network::~Network(void) {
 }
 
 // SERVER: Check for a new connection request.
-/* static */ Socket Network::CheckForConnection(void) {
+/* static */  Socket Network::CheckForConnection(void) {
     Socket result;
 
 #ifdef _GUI
@@ -376,8 +376,8 @@ Network::~Network(void) {
 {
     Address const client_address = rSocket.Peer();
     String const client_string = client_address;
-    String question = client_string + " has invited you to play a game with:\n";
-    question += rGameOpt.operator String();  // TODO better description
+    String question = client_string + " has invited you to play a game:\n";
+    question += rGameOpt.Description();
     question += rHandOpts.operator String();
     question += "Do you accept?";
     bool const accept = Question(question);
@@ -466,7 +466,7 @@ Network::~Network(void) {
     return true;
 }
 
-/* static */ void Network::Notice(String const& rMessage) {
+/* static */  void Network::Notice(String const& rMessage) {
 #ifdef _GUI
     ASSERT(mspWindow != NULL);
     String const text = rMessage + "\nClick the OK button to continue.";
@@ -544,7 +544,7 @@ Network::~Network(void) {
 }
 
 // CLIENT:  Attempt to connect to a server.
-/* static */ Socket Network::OpenServer(void* p, Address const& rServer) {
+/* static */  Socket Network::OpenServer(void* p, Address const& rServer) {
     PADDRINFOA const addrinfo_list = PADDRINFOA(p);
 
     SOCKET client_send = INVALID_SOCKET;
@@ -611,7 +611,7 @@ Network::~Network(void) {
     }
 
     return true;
-#endif // defined(_CONSOLE)
+#endif  // defined(_CONSOLE)
 }
 
 /* static */ bool Network::Retry(String const& rMessage) {
@@ -627,18 +627,18 @@ Network::~Network(void) {
     std::getline(std::cin, end_of_line);
     // The console version retries until something kills the application,
     // such as a local user typing Ctrl+C.
-#endif // defined(_CONSOLE)
+#endif  // defined(_CONSOLE)
 
     return result;
 }
 
 #ifdef _GUI
-/* static */ void Network::SetWindow(Window* pWindow) {
+/* static */  void Network::SetWindow(Window* pWindow) {
     mspWindow = pWindow;
 }
-#endif // defined(_GUI)
+#endif  // defined(_GUI)
 
-/* static */ bool Network::StartServer(void) {
+/* static */  bool Network::StartServer(void) {
 #ifdef _QT
 
     ASSERT(mspServer == NULL);
@@ -665,24 +665,24 @@ Network::~Network(void) {
         return false;
     }
     
-#endif // defined(_WINSOCK2)
+#endif  // defined(_WINSOCK2)
 
     return true;
 }
 
-/* static */ void Network::WaitingFor(String const& rEventDescription) {
+/* static */  void Network::WaitingFor(String const& rEventDescription) {
 #ifdef _GUI
     ASSERT(mspWindow != NULL);
     mspWindow->WaitingFor(rEventDescription);
 #elif defined(_CONSOLE)
     std::cout << "Waiting for " << rEventDescription << " ..." << std::endl;
-#endif // defined(_CONSOLE)
+#endif  // defined(_CONSOLE)
 }
 
 
 // inquiry methods
 
-/* static */ bool Network::IsServerStarted(void) {
+/* static */  bool Network::IsServerStarted(void) {
 #ifdef _QT
     return true;
 #else  // !defined(_QT)
@@ -734,6 +734,6 @@ int main(int argCnt, char** argValues) {
     return EXIT_SUCCESS;
 }
 
-# endif // !defined(_QT)
+# endif  // !defined(_QT)
 
-#endif // defined(_NETWORK_TEST)
+#endif  // defined(_NETWORK_TEST)

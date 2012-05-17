@@ -32,10 +32,10 @@ The GameOpt class ...
 */
 
 #include <vector>
-#include "cell.hpp"    // HASA GridType
-#include "handopt.hpp" // HASA GameStyleType
-#include "string.hpp"  // HASA String
-#include "tile.hpp"    // HASA AttrCntType
+#include "cell.hpp"     // HASA GridType
+#include "handopt.hpp"  // HASA GameStyleType
+#include "string.hpp"   // HASA String
+#include "tile.hpp"     // HASA AttrCntType
 
 enum RulesType {
     RULES_STANDARD,
@@ -46,14 +46,14 @@ enum RulesType {
 class GameOpt {
 public:
     // public constants
-    static const unsigned BONUS_PERCENT_DEFAULT = 10;
+    static const unsigned BONUS_PERCENT_DEFAULT = 0;
     static const unsigned CLONES_PER_COMBO_DEFAULT = 2;
     static const unsigned HAND_CNT_DEFAULT = 2;
-    static const unsigned HAND_SIZE_MIN = 1;
     static const unsigned HAND_SIZE_DEFAULT = 6;
+    static const unsigned HAND_SIZE_MIN = 1;
     static const unsigned HANDS_DEALT_MIN = 1;
-    static const unsigned MINUTES_PER_HAND_MIN = 2;
     static const unsigned MINUTES_PER_HAND_DEFAULT = 30;
+    static const unsigned MINUTES_PER_HAND_MIN = 2;
 
     // public lifecycle
     GameOpt(void);
@@ -80,6 +80,7 @@ public:
     unsigned     ClonesPerCombo(void) const;
     long         ComboCnt(void) const;
     AttrType     CountAttrValues(AttrIndexType) const;
+    String       Description(void) const;
     bool         GetFromClient(Socket&);
     void         GetUserChoice(void);
     unsigned     HandsDealt(void) const;
@@ -144,5 +145,14 @@ private:
     RulesType     mRules;
     unsigned      mSeed;            // used only if mRandomizeFlag == false
     GameStyleType mStyle;
+
+    // misc private methods
+    Strings CountValues(void) const;
+    String  DescribeAttrs(void) const;
+    String  DescribeBoard(void) const;
+    String  TileShape(void) const;
+
+    // private inquiry methods
+    bool AreAllAttrsSimilar(void) const;
 };
-#endif // !defined(GAMEOPT_HPP_INCLUDED)
+#endif  // !defined(GAMEOPT_HPP_INCLUDED)

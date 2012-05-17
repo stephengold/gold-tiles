@@ -33,7 +33,7 @@ The String class is extends std::string in the Standard Template Library.
 
 #ifdef _QT
 # include <QString>
-#endif // defined _QT
+#endif  // defined _QT
 #include <string>      // ISA std::string
 #include "fraction.hpp"
 #include "project.hpp"
@@ -66,6 +66,7 @@ public:
     explicit String(QString const&);
 #endif  // defined(_QT)
     String(Strings const&, String const& separator);  // join strings
+    String(Strings const&, String const& separator, String const& final);  // join strings
     // String(String const&);  implicitly defined copy constructor
     // ~String(void);  implicitly defined destructor
 

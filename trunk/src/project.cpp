@@ -115,7 +115,9 @@ String ordinal(unsigned n) {
     return result;
 }
 
-TextType plural(unsigned n) {
+TextType plural(long n) {
+    ASSERT(n >= 0);
+
     TextType result = "s";
     if (n == 1) {
         result = "";
@@ -124,7 +126,7 @@ TextType plural(unsigned n) {
     return result; 
 }
 
-String plural(unsigned n, TextType noun) {
+String plural(long n, TextType noun) {
     String result = String(n);
     result += " ";
     result += noun;

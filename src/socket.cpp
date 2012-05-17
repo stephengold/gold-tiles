@@ -23,24 +23,27 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include <iostream>       // cout
+#include "network.hpp"
+
 #ifdef _POSIX
 namespace Posix {
 # include <errno.h>       // EWOULDBLOCK
 # include <netdb.h>
-# include <sys/ioctl.h>  // FIONBIO
+# include <sys/ioctl.h>   // FIONBIO
 };
+# include "fifo.hpp"
 using Posix::getsockname;
 using Posix::recv;
 using Posix::send;
 using Posix::sockaddr;
 using Posix::u_long;
 typedef sockaddr SOCKADDR;
-
-# include "fifo.hpp"
 typedef int SOCKET;
-
-int const SOCKET_ERROR = -1;
 SOCKET const INVALID_SOCKET = -1;
+int const SOCKET_ERROR = -1;
+int const WSAECONNABORTED = ECONNABORTED;
+int const WSAECONNRESET = ECONNRESET;
+int const WSAEWOULDBLOCK = EWOULDBLOCK;
 # define closesocket close
 # define ioctlsocket Posix::ioctl
 
@@ -64,11 +67,7 @@ using Win::PSOCKADDR_IN;
 using Win::SOCKADDR;
 using Win::SOCKET;
 typedef int socklen_t;
-int const ECONNABORTED = WSAECONNABORTED;
-int const ECONNRESET = WSAECONNRESET;
-int const EWOULDBLOCK = WSAEWOULDBLOCK;
 #endif  // defined(_WINSOCK2)
-#include "network.hpp"
 
 
 // static data
@@ -284,7 +283,7 @@ bool Socket::Put(String const& rString) {
     int const bytes_sent = send(socket, p_buffer, buffer_size, no_flags);
     if (bytes_sent == SOCKET_ERROR) {
         int const error_code = Network::ErrorCode();
-        if (error_code == ECONNRESET) {
+        if (error_code == WSAECONNRESET) {
             Address const peer_address = Peer();
             String const peer = peer_address;
             String const error_message = String("Lost network connection to ")
@@ -332,8 +331,8 @@ bool Socket::Read(void) {
         } 
         int const error_code = Network::ErrorCode();
         if (bytes_received == 0 
-            || error_code == ECONNABORTED
-            || error_code == ECONNRESET)
+            || error_code == WSAECONNABORTED
+            || error_code == WSAECONNRESET)
         {
             Address const peer_address = Peer();
             String const peer = peer_address;
@@ -342,7 +341,7 @@ bool Socket::Read(void) {
             Network::Notice(error_message);
             canceled = true;
             continue;
-        } else if (error_code == EWOULDBLOCK) {
+        } else if (error_code == WSAEWOULDBLOCK) {
             Yields(canceled);
             continue;
         } else {

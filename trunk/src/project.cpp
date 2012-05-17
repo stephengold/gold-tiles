@@ -23,13 +23,14 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include <iostream>   // cout
-#include "string.hpp"
-
 #ifdef WIN32
 # include "gui/win_types.hpp"
-#else // !defined(WIN32)
+#else  // !defined(WIN32)
+# include <stdlib.h>
+# include <string.h>
 # include <time.h>
-#endif // !defined(WIN32)
+#endif  // !defined(WIN32)
+#include "string.hpp"
 
 
 void assertion_failed(TextType file, unsigned line) {
@@ -64,10 +65,10 @@ MsecIntervalType milliseconds(void) {
 #ifdef WIN32
     Win::DWORD const ticks = Win::GetTickCount();
     result = MsecIntervalType(ticks);
-#else // !defined(WIN32)
+#else  // !defined(WIN32)
     time_t const seconds = ::time(NULL);
     result = MSECS_PER_SECOND*MsecIntervalType(seconds);
-#endif // !defined(WIN32)
+#endif  // !defined(WIN32)
 
     return result;
 }
@@ -93,7 +94,7 @@ String ordinal(unsigned n) {
         result = "fif";
         break;
     default:
-        break; // digits will suffice
+        break;  // digits will suffice
     }
 
     unsigned const ones_place = n % 10;
@@ -141,5 +142,5 @@ bool str_eq(TextType string1, TextType string2) {
 void system_pause(void) {
 #ifdef WIN32
     ::system("PAUSE");
-#endif // defined(WIN32)
+#endif  // defined(WIN32)
 }

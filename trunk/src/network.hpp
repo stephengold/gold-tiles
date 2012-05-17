@@ -35,12 +35,12 @@ one for the instance to listen on when it is a server (invitee)
 and others for it to send to when it is a client (inviter).
 */
 
-#include <map>         // HASA std::map
-#include "address.hpp" // HASA Address
-#include "socket.hpp"  // HASA Socket
+#include <map>          // HASA std::map
+#include "address.hpp"  // HASA Address
+#include "socket.hpp"   // HASA Socket
 #ifdef _QT
 # include <QTcpServer>
-#endif // defined(_QT)
+#endif  // defined(_QT)
 
 
 class Network {
@@ -60,12 +60,13 @@ public:
     static bool   ConnectToServer(Address const&, Game&);
     static Game*  ConsiderInvitation(Socket&, GameOpt const&, HandOpts&);
     static String DescribeListenPort(void);
+    static int    ErrorCode(void);
     static void   Fail(TextType operation);
     static void   Notice(String const&);
     static bool   Question(String const&);
 #ifdef _GUI
     static void   SetWindow(Window*);
-#endif // defined(_GUI)
+#endif  // defined(_GUI)
 
     // public inquiry methods
     static bool IsServerStarted(void);
@@ -77,23 +78,23 @@ private:
     static const long PORT_MIN = 1024;
 
     // private data
-#ifdef _WINSOCK2
+#ifndef _QT
     static Socket       msListenIpv4;
     static Socket       msListenIpv6;
-#endif // defined(_WINSOCK2)
+#endif  // !defined(_QT)
     static String       msListenPort;
 #ifdef _QT
     static QTcpServer* mspServer;
-#endif // defined(_QT)
+#endif  // defined(_QT)
 #ifdef _GUI
     static Window*     mspWindow;
-#endif // defined(_GUI)
+#endif  // defined(_GUI)
 
     // private lifecycle
-    Network(Network const&); // not copyable
+    Network(Network const&);  // not copyable
 
     // private operators
-    Network& operator=(Network const&); // not assignable
+    Network& operator=(Network const&);  // not assignable
 
     // misc private methods
     static void   DoneWaiting(void);
@@ -104,5 +105,5 @@ private:
     static bool   StartServer(void);
     static void   WaitingFor(String const&);
 };
-#endif // !defined(NETWORK_HPP_INCLUDED)
+#endif  // !defined(NETWORK_HPP_INCLUDED)
 

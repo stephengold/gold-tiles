@@ -22,6 +22,7 @@ You should have received a copy of the GNU General Public License
 along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <string.h>
 #include "strings.hpp"
 
 
@@ -32,7 +33,7 @@ Strings::Strings(void) {
 
 Strings::Strings(TextType list, TextType separators) {
     // Create a writable copy of the list.
-    unsigned const length = strlen(list);
+    unsigned const length = ::strlen(list);
     char* copy_list = new char[length + 1];
     ::strcpy_s(copy_list, length + 1, list);
 

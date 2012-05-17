@@ -22,9 +22,10 @@ You should have received a copy of the GNU General Public License
 along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <cstdlib>       // ::exit()
+#include <cstring>       // ::memset()
 #include <iostream>      // std::cout
-#include <stdlib.h>      // EXIT_SUCCESS
-#include <strings.h>     // bzero
+#include "game.hpp"
 
 #ifdef _POSIX
 namespace Posix {
@@ -40,6 +41,11 @@ using Posix::IPPROTO_TCP;
 using Posix::listen;
 using Posix::SOCK_STREAM;
 using Posix::socket;
+
+int const WSAEADDRINUSE = EADDRINUSE;
+int const WSAECONNREFUSED = ECONNREFUSED;
+int const WSAETIMEDOUT = ETIMEDOUT;
+int const WSAEWOULDBLOCK = EWOULDBLOCK;
 
 typedef Posix::addrinfo ADDRINFOA, *PADDRINFOA;
 typedef int SOCKET;
@@ -63,14 +69,8 @@ using Win::PADDRINFOA;
 using Win::socket;
 using Win::SOCKET;
 using Win::WSADATA;
-
-int const EADDRINUSE = WSAEADDRINUSE;
-int const ECONNREFUSED = WSAECONNREFUSED;
-int const ETIMEOUT = WSAETIMEOUT;
-int const EWOULDBLOCK = WSAEWOULDBLOCK;
 #endif  // defined(_WINSOCK2)
 
-#include "game.hpp"
 #ifdef _GUI
 # include "gui/window.hpp"
 #endif  // defined(_GUI)
@@ -207,7 +207,7 @@ Network::~Network(void) {
         data_socket = accept(listen_socket, NULL, NULL);
         if (data_socket == INVALID_SOCKET) {
             int const error_code = ErrorCode();
-            ASSERT(error_code == EWOULDBLOCK);
+            ASSERT(error_code == WSAEWOULDBLOCK);
             // There's IPv4 no connection to accept right now.
         }
     }
@@ -216,7 +216,7 @@ Network::~Network(void) {
         data_socket = accept(listen_socket, NULL, NULL);
         if (data_socket == INVALID_SOCKET) {
             int const error_code = ErrorCode();
-            ASSERT(error_code == EWOULDBLOCK);
+            ASSERT(error_code == WSAEWOULDBLOCK);
             // There's IPv6 no connection to accept right now.
         }
     }
@@ -247,7 +247,7 @@ Network::~Network(void) {
 #ifndef _QT
     // Get address info for the client's socket.
     ADDRINFOA address_hints;
-    ::bzero(&address_hints, sizeof(address_hints));
+    ::memset(&address_hints, 0, sizeof(address_hints));
     address_hints.ai_family = AF_UNSPEC;
     address_hints.ai_socktype = SOCK_STREAM;
     address_hints.ai_protocol = IPPROTO_TCP;
@@ -431,7 +431,7 @@ Network::~Network(void) {
      String const message = String("Unexpected socket error (code=")
          + String(error_code) + ") on " + operation + ".";
 #ifdef _GUI
-     mpWindow->ErrorBox(message, "Gold Tile Game - Socket Error")
+     mspWindow->ErrorBox(message, "Gold Tile Game - Socket Error");
 #elif defined(_CONSOLE)
      std::cout << message << std::endl;
 #endif  // defined(_CONSOLE)
@@ -481,7 +481,7 @@ Network::~Network(void) {
 /* static */  Socket Network::OpenListen(int family) {
     // Get address info for the listen socket.
     ADDRINFOA address_hints;
-    ::bzero(&address_hints, sizeof(address_hints));
+    ::memset(&address_hints, 0, sizeof(address_hints));
     address_hints.ai_family = family;
     address_hints.ai_socktype = SOCK_STREAM;
     address_hints.ai_protocol = IPPROTO_TCP;
@@ -509,7 +509,7 @@ Network::~Network(void) {
                 break;
             }
             int const error_code = Network::ErrorCode();
-            if (error_code == EADDRINUSE) {
+            if (error_code == WSAEADDRINUSE) {
 #ifdef _CONSOLE
                 String const message = String("Network port ")
                     + msListenPort + " is busy on this computer.\n"
@@ -563,8 +563,8 @@ Network::~Network(void) {
             break;
         }
         int const error_code = ErrorCode();
-        if (error_code == ECONNREFUSED
-            || error_code == ETIMEDOUT) {
+        if (error_code == WSAECONNREFUSED
+            || error_code == WSAETIMEDOUT) {
                 String const server = rServer;
                 String const server_description = DescribeListenPort() 
                     + " on " + server;

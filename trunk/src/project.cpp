@@ -26,8 +26,8 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 #ifdef WIN32
 # include "gui/win_types.hpp"
 #else  // !defined(WIN32)
-# include <stdlib.h>
-# include <string.h>
+# include <cstdlib>
+# include <cstring>
 # include <time.h>
 #endif  // !defined(WIN32)
 #include "string.hpp"

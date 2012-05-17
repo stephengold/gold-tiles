@@ -37,7 +37,10 @@ addresses are supported.
 #ifdef _QT
 # include <QHostAddress>  // ISA QHostAddress
 #elif defined(_POSIX)
-struct sockaddr;
+namespace Posix {
+    struct sockaddr;
+};
+using Posix::sockaddr;
 #elif defined(_WINSOCK2)
 namespace Win {
     struct sockaddr;
@@ -49,7 +52,7 @@ using Win::sockaddr;
 class Address
 #ifdef _QT
 : public QHostAddress
-#endif // defined(_QT)
+#endif  // defined(_QT)
 {
 public:
     // public lifecycle
@@ -59,9 +62,9 @@ public:
     explicit Address(unsigned long);  // IPv4 only
 #ifdef _QT
     explicit Address(QHostAddress const&);
-#else // !defined(_QT)
+#else  // !defined(_QT)
     explicit Address(sockaddr const&);
-#endif // !defined(_QT)
+#endif  // !defined(_QT)
     // ~Address(void);  implicitly defined destructor
 
     // public operators
@@ -89,4 +92,4 @@ private:
     // private inquiry methods
     bool IsLocalHost(void) const;
 };
-#endif // !defined(ADDRESS_HPP_INCLUDED)
+#endif  // !defined(ADDRESS_HPP_INCLUDED)

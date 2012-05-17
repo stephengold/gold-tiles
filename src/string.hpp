@@ -31,18 +31,18 @@ A String object represents a text string (sequence of characters).
 The String class is extends std::string in the Standard Template Library.
 */
 
-#include <string>      // ISA std::string
-#include "fraction.hpp"
-#include "project.hpp"
 #ifdef _QT
 # include <QString>
 #endif // defined _QT
+#include <string>      // ISA std::string
+#include "fraction.hpp"
+#include "project.hpp"
 
 #ifndef __STDC_WANT_SECURE_LIB__
 // for envs that don't provide strcpy_s() and strtok_s()
 #define strcpy_s(a, sz, b) strcpy(a, b)
 #define strtok_s(a, b, context) strtok(a, b)
-#endif // !defined(__STDC_WANT_SECURE_LIB__)
+#endif  // !defined(__STDC_WANT_SECURE_LIB__)
 
 class String: public std::string {
 public:
@@ -55,17 +55,17 @@ public:
     explicit String(bool);
     explicit String(char);
     explicit String(double);
-    explicit String(int); // itoa
-    explicit String(long); // ltoa
-    explicit String(unsigned); // utoa
-    explicit String(unsigned long); // ultoa
-    String(unsigned cnt, char); // repeat characters
+    explicit String(int);            // itoa
+    explicit String(long);           // ltoa
+    explicit String(unsigned);       // utoa
+    explicit String(unsigned long);  // ultoa
+    String(unsigned cnt, char);      // repeat characters
     String(TextType);
     String(std::string const&);
 #ifdef _QT
     explicit String(QString const&);
-#endif // defined(_QT)
-    String(Strings const&, String const& separator); // join strings
+#endif  // defined(_QT)
+    String(Strings const&, String const& separator);  // join strings
     // String(String const&);  implicitly defined copy constructor
     // ~String(void);  implicitly defined destructor
 
@@ -95,4 +95,4 @@ public:
     bool IsBlank(void) const;
     bool IsEmpty(void) const;
 };
-#endif // !defined(STRING_HPP_INCLUDED)
+#endif  // !defined(STRING_HPP_INCLUDED)

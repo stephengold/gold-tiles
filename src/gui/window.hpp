@@ -64,6 +64,7 @@ public:
     Point         Brc(void) const;
     Area          ClientArea(void) const;
     void          DoneWaiting(void);
+    void          ErrorBox(TextType message, TextType title);
 #ifdef _WINDOWS
     Win::LRESULT  HandleMessage(MessageType, Win::WPARAM, Win::LPARAM);
 #endif // defined(_WINDOWS)
@@ -95,7 +96,6 @@ protected:
               BaseWindow* parent, Win::HINSTANCE);
 #endif // defined(_WINDOWS)
     void  EndPaint(void);
-    void  ErrorBox(TextType message, TextType title);
     void  ForceRepaint(void);
 #ifdef _WINDOWS
     void  Initialize(Win::CREATESTRUCT const&);

@@ -22,21 +22,27 @@ You should have received a copy of the GNU General Public License
 along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-
 #include "address.hpp"
 #include "strings.hpp"
 
 #ifdef _POSIX
+namespace Posix {
 # include <arpa/inet.h>  // struct in_addr
 # include <ifaddrs.h>    // ifaddrs()
+};
 # include <net/if.h>     // IFF_UP
 
-typedef sa_family_t ADDRESS_FAMILY;
-typedef in_addr IN_ADDR, *PIN_ADDR;
-typedef in6_addr IN6_ADDR, *PIN6_ADDR;
+using Posix::freeifaddrs;
+using Posix::getifaddrs;
+using Posix::ifaddrs;
+using Posix::sockaddr;
+
+typedef Posix::sa_family_t ADDRESS_FAMILY;
+typedef Posix::in_addr IN_ADDR, *PIN_ADDR;
+typedef Posix::in6_addr IN6_ADDR, *PIN6_ADDR;
 typedef sockaddr *PSOCKADDR;
-typedef sockaddr_in *PSOCKADDR_IN;
-typedef sockaddr_in6 *PSOCKADDR_IN6;
+typedef Posix::sockaddr_in *PSOCKADDR_IN;
+typedef Posix::sockaddr_in6 *PSOCKADDR_IN6;
 typedef int INT;
 # define InetNtop inet_ntop
 
@@ -49,7 +55,7 @@ typedef int INT;
 namespace Win {
 # include <ws2tcpip.h>  // IPv6 support, including inet_pton
 # pragma comment(lib, "ws2_32.lib")  // link with ws2_32.lib
-# include <iphlpapi.h> // IP help API
+# include <iphlpapi.h>  // IP help API
 # pragma comment(lib, "iphlpapi.lib")  // link with iphlpapi.lib
 };
 using Win::ADDRESS_FAMILY;
@@ -79,7 +85,8 @@ const String Address::LOCALHOST_IPV6("::1");
 
 // lifecycle
 
-Address::Address(void):
+Address::Address(void)
+    :
 #ifdef _QT
     QHostAddress(QString(DEFAULT))
 #else  // !defined(_InetNtopQT)
@@ -103,7 +110,8 @@ Address::Address(String const &rString)
             mString.MakeEmpty();
         } else {
             char buffer[64];
-            TextType const text = InetNtop(AF_INET6, &ipv6_address, buffer, sizeof(buffer));
+            TextType const text = InetNtop(AF_INET6, &ipv6_address,
+                buffer, sizeof(buffer));
             mString = String(text);
         }
     } else {  // Assume it's an IPv4 address.
@@ -113,7 +121,8 @@ Address::Address(String const &rString)
             mString.MakeEmpty();
         } else {
             char buffer[64];
-            TextType text = InetNtop(AF_INET, &ipv4_address, buffer, sizeof(buffer));
+            TextType text = InetNtop(AF_INET, &ipv4_address,
+                buffer, sizeof(buffer));
             mString = String(text);
         }
     }
@@ -148,7 +157,7 @@ Address::Address(sockaddr const& rAddress) {
         PIN6_ADDR const p_ipv6 = &(p_sockaddr_v6->sin6_addr);
         text = InetNtop(family, p_ipv6, buffer, sizeof(buffer));
     } else if (family == AF_INET) {
-        PSOCKADDR_IN const p_sockaddr_v4 = PSOCKADDR_IN(&rAddress);  
+        PSOCKADDR_IN const p_sockaddr_v4 = PSOCKADDR_IN(&rAddress);
         PIN_ADDR const p_ipv4 = &(p_sockaddr_v4->sin_addr);
         text = InetNtop(family, p_ipv4, buffer, sizeof(buffer));
     } else {
@@ -157,11 +166,11 @@ Address::Address(sockaddr const& rAddress) {
     mString = String(text);
 }
 
-#elif defined(_QT)
+#else  // defined(_QT)
 
 // Construct from a QHostAddress object.
-Address::Address(QHostAddress const& rAddress):
-    QHostAddress(rAddress)
+Address::Address(QHostAddress const& rAddress)
+    :QHostAddress(rAddress)
 {
 }
 
@@ -190,7 +199,7 @@ Address::operator unsigned long(void) const {
     INT const success = inet_pton(AF_INET, mString, &ipv4_address);
     ASSERT(success == 1);
     unsigned long const result = ipv4_address.s_addr;
-#endif // !defined(_QT)
+#endif  // !defined(_QT)
 
     return result;
 }
@@ -203,14 +212,17 @@ Address::operator unsigned long(void) const {
     Strings result;
 
 #ifdef _POSIX
-    // POSIX doesn't provide a way to enumerate network interfaces, so use Linux getifaddrs(3).
+    /*
+    POSIX doesn't provide a way to enumerate network interfaces,
+    so use Linux getifaddrs(3).
+    */
 
     ifaddrs* p_list;
     int const error = ::getifaddrs(&p_list);
     ASSERT(error == 0);
     for (ifaddrs* p_current = p_list; p_current != NULL; p_current = p_current->ifa_next) {
         unsigned flags = p_current->ifa_flags;
-        if ((flags & IFF_UP) 
+        if ((flags & IFF_UP)
             && !(flags & IFF_LOOPBACK)
             && (flags & IFF_POINTOPOINT))
         {
@@ -248,8 +260,8 @@ Address::operator unsigned long(void) const {
          p_list = PIP_ADAPTER_ADDRESSES(new char[list_bytes]);
          ASSERT(p_list != NULL);
 
-         ULONG const error_code = Win::GetAdaptersAddresses(AF_UNSPEC, flags, NULL, 
-             p_list, &list_bytes);
+         ULONG const error_code = Win::GetAdaptersAddresses(
+             AF_UNSPEC, flags, NULL, p_list, &list_bytes);
          if (error_code != NO_ERROR) {
              if (error_code == ERROR_NO_DATA) {
                  return result;

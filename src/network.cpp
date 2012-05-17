@@ -23,28 +23,60 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include <iostream>      // std::cout
-#include "game.hpp"
-#include "handopts.hpp"
-#include "network.hpp"
-#include "strings.hpp"
+#include <stdlib.h>      // EXIT_SUCCESS
+#include <strings.h>     // bzero
 
-#ifdef _WINSOCK2
+#ifdef _POSIX
+namespace Posix {
+# include <errno.h>     // EWOULDBLOCK
+# include <netdb.h>     // getaddrinfo()
+};
+using Posix::accept;
+using Posix::connect;
+using Posix::__errno_location;
+using Posix::freeaddrinfo;
+using Posix::getaddrinfo;
+using Posix::IPPROTO_TCP;
+using Posix::listen;
+using Posix::SOCK_STREAM;
+using Posix::socket;
+
+typedef Posix::addrinfo ADDRINFOA, *PADDRINFOA;
+typedef int SOCKET;
+SOCKET const INVALID_SOCKET = -1;
+
+#elif defined(_WINSOCK2)
 # define WIN32_LEAN_AND_MEAN  // to avoid macro redefinitions
 # include "gui/win_types.hpp"
 namespace Win {
 # include <ws2tcpip.h>   // for getaddrinfo
 # pragma comment(lib, "ws2_32.lib")  // link with ws2_32.lib
 };
+using Win::accept;
 using Win::ADDRINFOA;
+using Win::connect;
+using Win::freeaddrinfo;
+using Win::getaddrinfo;
 using Win::IPPROTO_TCP;
+using Win::listen;
 using Win::PADDRINFOA;
+using Win::socket;
 using Win::SOCKET;
 using Win::WSADATA;
-#endif // defined(_WINSOCK2)
 
+int const EADDRINUSE = WSAEADDRINUSE;
+int const ECONNREFUSED = WSAECONNREFUSED;
+int const ETIMEOUT = WSAETIMEOUT;
+int const EWOULDBLOCK = WSAEWOULDBLOCK;
+#endif  // defined(_WINSOCK2)
+
+#include "game.hpp"
 #ifdef _GUI
 # include "gui/window.hpp"
-#endif // defined(_GUI)
+#endif  // defined(_GUI)
+#include "handopts.hpp"
+#include "network.hpp"
+#include "strings.hpp"
 
 
 // static constants
@@ -56,20 +88,20 @@ const TextType Network::LISTEN_PORT_DEFAULT = "27066";
 
 // static data
 
-#ifdef _WINSOCK2
+#ifndef _QT
 Socket Network::msListenIpv4;
 Socket Network::msListenIpv6;
-#endif // defined(_WINSOCK2)
+#endif  // !defined(_QT)
 
 String Network::msListenPort;
 
 #ifdef _QT
 QTcpServer* Network::mspServer = NULL;
-#endif // defined(_QT)
+#endif  // defined(_QT)
 
 #ifdef _GUI
 Window* Network::mspWindow = NULL;
-#endif // defined(_GUI)
+#endif  // defined(_GUI)
 
 
 // lifecycle
@@ -77,7 +109,7 @@ Window* Network::mspWindow = NULL;
 Network::Network(TextType listenPort) {
 #ifdef _GUI
     mspWindow = NULL;
-#endif // defined(_GUI)
+#endif  // defined(_GUI)
 
     msListenPort = listenPort;
     if (long(listenPort) < PORT_MIN || long(listenPort) > PORT_MAX) {
@@ -87,11 +119,11 @@ Network::Network(TextType listenPort) {
 #ifdef _WINSOCK2
     // Start Winsock.
     WSADATA wsa_data;
-    WORD const version = MAKEWORD(2,2);
+    WORD const version = MAKEWORD(2, 2);
     int failure = Win::WSAStartup(version, &wsa_data);
     ASSERT(failure == 0);
     ASSERT(wsa_data.wVersion == version);
-#endif // defined(_WINSOCK2)
+#endif  // defined(_WINSOCK2)
 
 #ifdef _SERVER
 # ifdef _CONSOLE
@@ -105,8 +137,8 @@ Network::Network(TextType listenPort) {
 # elif defined(_GUI)
     StartServer();
     // Report server startup failures later.
-# endif // defined(_GUI)
-#endif // defined(_SERVER)
+# endif  // defined(_GUI)
+#endif  // defined(_SERVER)
 }
 
 Network::~Network(void) {
@@ -115,11 +147,11 @@ Network::~Network(void) {
 #elif defined(_WINSOCK2)
     // Cleanly terminate Winsock.
     Win::WSACleanup();
-#endif // defined(_WINSOCK2)
+#endif  // defined(_WINSOCK2)
 }
 
 
-// misc methods
+// misc methodsstruct
 
 /* static */ String Network::AddressReport(void) {
     // Get list of addresses.
@@ -151,14 +183,14 @@ Network::~Network(void) {
     if (mspWindow == NULL) {
         return result;
     }
-#endif // defined(_GUI)
+#endif  // defined(_GUI)
 
 #ifdef _QT
 
     ASSERT(mspServer != NULL);
 # ifdef _CONSOLE
     mspServer->waitForNewConnection(-1);
-# endif // defined(_CONSOLE)
+# endif  // defined(_CONSOLE)
     if (mspServer->hasPendingConnections()) {
         DoneWaiting();
         QTcpSocket* p_next = mspServer->nextPendingConnection();
@@ -166,25 +198,25 @@ Network::~Network(void) {
         result = Socket(p_next);
     }
 
-#elif defined(_WINSOCK2)
+#else  // !defined(_QT)
 
     SOCKET data_socket = INVALID_SOCKET;
 
     if (msListenIpv4.IsValid()) {
         SOCKET const listen_socket = SOCKET(Socket::HandleType(msListenIpv4));
-        data_socket = Win::accept(listen_socket, NULL, NULL);
+        data_socket = accept(listen_socket, NULL, NULL);
         if (data_socket == INVALID_SOCKET) {
-            int const error_code = Win::WSAGetLastError();
-            ASSERT(error_code == WSAEWOULDBLOCK);
+            int const error_code = ErrorCode();
+            ASSERT(error_code == EWOULDBLOCK);
             // There's IPv4 no connection to accept right now.
         }
     }
     if (data_socket == INVALID_SOCKET && msListenIpv6.IsValid()) {
         SOCKET const listen_socket = SOCKET(Socket::HandleType(msListenIpv6));
-        data_socket = Win::accept(listen_socket, NULL, NULL);
+        data_socket = accept(listen_socket, NULL, NULL);
         if (data_socket == INVALID_SOCKET) {
-            int const error_code = Win::WSAGetLastError();
-            ASSERT(error_code == WSAEWOULDBLOCK);
+            int const error_code = ErrorCode();
+            ASSERT(error_code == EWOULDBLOCK);
             // There's IPv6 no connection to accept right now.
         }
     }
@@ -194,16 +226,16 @@ Network::~Network(void) {
 # ifdef _GUI
         // Put new data socket into non-blocking mode.
         result.MakeNonblocking();
-# endif // defined(_GUI)
+# endif  // defined(_GUI)
     }
 
-#endif // defined(_WINSOCK2)
+#endif  // !defined(_QT)
 
     return result;
 }
 
 // CLIENT:  Open a connection to a particular server.
-/* static */ bool Network::ConnectToServer(
+/* static */  bool Network::ConnectToServer(
     Address const& rAddress,
     Game& rGame)
 {
@@ -212,20 +244,20 @@ Network::~Network(void) {
 
     String const server = rAddress;
 
-#ifdef _WINSOCK2
+#ifndef _QT
     // Get address info for the client's socket.
     ADDRINFOA address_hints;
-    ::ZeroMemory(&address_hints, sizeof(address_hints));
+    ::bzero(&address_hints, sizeof(address_hints));
     address_hints.ai_family = AF_UNSPEC;
     address_hints.ai_socktype = SOCK_STREAM;
     address_hints.ai_protocol = IPPROTO_TCP;
 
-    PCSTR const server_name = server;
+    TextType const server_name = server;
     PADDRINFOA address_list = NULL;
-    int const get_addr_failure = Win::getaddrinfo(server_name, msListenPort, 
+    int const get_addr_failure = getaddrinfo(server_name, msListenPort,
         &address_hints, &address_list);
     ASSERT(get_addr_failure == 0);
-#endif // defined(_WINSOCK2)
+#endif  // !defined(_QT)
 
     String const server_description = DescribeListenPort()
         + " on " + server;
@@ -261,7 +293,7 @@ Network::~Network(void) {
     }
     Socket socket = Socket(p_socket);
 
-#elif defined(_WINSOCK2)
+#else  // !defined(_QT)
 
     SOCKET data_socket = INVALID_SOCKET;
 
@@ -278,7 +310,7 @@ Network::~Network(void) {
             break;
         }
     }
-    Win::freeaddrinfo(address_list);
+    freeaddrinfo(address_list);
 
     if (data_socket == INVALID_SOCKET) {
         return false;
@@ -288,8 +320,8 @@ Network::~Network(void) {
 # ifdef _GUI
     // Put listen socket into non-blocking mode.
     socket.MakeNonblocking();
-# endif // defined(_GUI)
-#endif // defined(_WINSOCK2)
+# endif  // defined(_GUI)
+#endif  // !defined(_QT)
 
     // Invite the server to play.
     bool was_successful = InviteServer(socket, rGame);
@@ -305,7 +337,7 @@ Network::~Network(void) {
     if (!was_successful) {
         return false;
     }
-    
+
     if (response == Network::DECLINE) {
         String const report = server + " declined.";
         Network::Notice(report);
@@ -313,7 +345,7 @@ Network::~Network(void) {
     }
 
     if (response != Network::ACCEPT) {
-        String const report = server + " sent an unexpected response: " 
+        String const report = server + " sent an unexpected response: "
             + response.Quote() + ".";
         Network::Notice(report);
         return false;
@@ -337,7 +369,7 @@ Network::~Network(void) {
 }
 
 // SERVER:  Consider an invitation from a client.
-/* static */ Game* Network::ConsiderInvitation(
+/* static */  Game* Network::ConsiderInvitation(
     Socket& rSocket,
     GameOpt const& rGameOpt,
     HandOpts& rHandOpts)
@@ -368,32 +400,47 @@ Network::~Network(void) {
     return p_result;
 }
 
-/* static */ String Network::DescribeListenPort(void) {
+/* static */  String Network::DescribeListenPort(void) {
     String result = "network port " + msListenPort;
 
     return result;
 }
 
-/* static */ void Network::DoneWaiting(void) {
+/* static */  void Network::DoneWaiting(void) {
 #ifdef _GUI
     ASSERT(mspWindow != NULL);
     mspWindow->DoneWaiting();
 #elif defined(_CONSOLE)
     std::cout << " done." << std::endl;
-#endif // defined(_CONSOLE)
+#endif  // defined(_CONSOLE)
 }
 
-#ifdef _WINSOCK2
-/* static */ void Network::Fail(TextType operation) {
-     int const error_code = Win::WSAGetLastError();
-     std::cout << "Unexpected Winsock error code " << error_code 
-                    << " on " << operation << "." << std::endl;
+#ifndef _QT
+/* static */  int Network::ErrorCode(void) {
+#ifdef _POSIX
+    int const result = errno;
+#elif defined(_WINSOCK2)
+    int const result = Win::WSAGetLastError();
+#endif  // defined(_WINSOCK2)
+
+    return result;
+}
+
+/* static */  void Network::Fail(TextType operation) {
+     int const error_code = ErrorCode();
+     String const message = String("Unexpected socket error (code=")
+         + String(error_code) + ") on " + operation + ".";
+#ifdef _GUI
+     mpWindow->ErrorBox(message, "Gold Tile Game - Socket Error")
+#elif defined(_CONSOLE)
+     std::cout << message << std::endl;
+#endif  // defined(_CONSOLE)
      FAIL();
 }
-#endif // defined(_WINSOCK2)
+#endif  // !defined(_QT)
 
 // CLIENT:  Invite a server to participate in the current game.
-/* static */ bool Network::InviteServer(Socket& rSocket, Game const& rGame) {
+/* static */  bool Network::InviteServer(Socket& rSocket, Game const& rGame) {
     Address const peer = rSocket.Peer();
     String const peer_string = peer;
     std::cout << "Sending invitation to " << peer_string << std::endl;
@@ -426,23 +473,23 @@ Network::~Network(void) {
     mspWindow->InfoBox(text, "Gold Tile Game - Network Notice");
 #elif defined(_CONSOLE)
     std::cout << rMessage << std::endl;
-#endif // defined(_CONSOLE)
+#endif  // defined(_CONSOLE)
 }
 
-#ifdef _WINSOCK2
+#ifndef _QT
 // SERVER:  Create and bind a listen socket.
-/* static */ Socket Network::OpenListen(int family) {
+/* static */  Socket Network::OpenListen(int family) {
     // Get address info for the listen socket.
     ADDRINFOA address_hints;
-    ::ZeroMemory(&address_hints, sizeof(address_hints));
+    ::bzero(&address_hints, sizeof(address_hints));
     address_hints.ai_family = family;
     address_hints.ai_socktype = SOCK_STREAM;
     address_hints.ai_protocol = IPPROTO_TCP;
     address_hints.ai_flags = AI_PASSIVE;
 
-    PCSTR const any_client = NULL;
+    TextType const any_client = NULL;
     PADDRINFOA address_list = NULL;
-    int failure = Win::getaddrinfo(any_client, msListenPort,
+    int failure = getaddrinfo(any_client, msListenPort,
         &address_hints, &address_list);
     ASSERT(failure == 0);
 
@@ -452,23 +499,23 @@ Network::~Network(void) {
         ASSERT(p_info->ai_protocol == IPPROTO_TCP);
         if (p_info->ai_family == family) {
             // Create a listen socket.
-            server_listen = Win::socket(family, p_info->ai_socktype, p_info->ai_protocol);
+            server_listen = socket(family, p_info->ai_socktype, p_info->ai_protocol);
             ASSERT(server_listen != INVALID_SOCKET);
 
             // Attempt to bind to the socket.
-            failure = Win::bind(server_listen, p_info->ai_addr, int(p_info->ai_addrlen));
+            failure = bind(server_listen, p_info->ai_addr, int(p_info->ai_addrlen));
             if (failure == 0) {
                 // success
                 break;
             }
-            int const error_code = Win::WSAGetLastError();
-            if (error_code == WSAEADDRINUSE) {
+            int const error_code = Network::ErrorCode();
+            if (error_code == EADDRINUSE) {
 #ifdef _CONSOLE
                 String const message = String("Network port ")
                     + msListenPort + " is busy on this computer.\n"
                     + "Perhaps there is another Gold Tile server running.\n";
                 Notice(message);
-#endif // defined(_CONSOLE)
+#endif  // defined(_CONSOLE)
                 server_listen = INVALID_SOCKET;
                 // try next addrinfo
             } else {
@@ -477,7 +524,7 @@ Network::~Network(void) {
         }
     }
 
-    Win::freeaddrinfo(address_list);
+    freeaddrinfo(address_list);
 
     Socket result;
     if (server_listen == INVALID_SOCKET) {
@@ -485,7 +532,7 @@ Network::~Network(void) {
     }
 
     // Put the (bound but unconnected) socket into listen mode.
-    failure = Win::listen(server_listen, MAX_CONNECTION_CNT);
+    failure = listen(server_listen, MAX_CONNECTION_CNT);
     ASSERT(failure == 0);
 
     result = Socket(Socket::HandleType(server_listen));
@@ -506,19 +553,19 @@ Network::~Network(void) {
         ASSERT(p_info->ai_family == AF_INET || p_info->ai_family == AF_INET6);
         ASSERT(p_info->ai_socktype == SOCK_STREAM);
         ASSERT(p_info->ai_protocol == IPPROTO_TCP);
-        client_send = Win::socket(p_info->ai_family, p_info->ai_socktype, p_info->ai_protocol);
+        client_send = socket(p_info->ai_family, p_info->ai_socktype, p_info->ai_protocol);
         ASSERT(client_send != INVALID_SOCKET);	
 
         // Attempt to connect to server.
-        int const failure = Win::connect(client_send, p_info->ai_addr, int(p_info->ai_addrlen));
+        int const failure = connect(client_send, p_info->ai_addr, int(p_info->ai_addrlen));
         if (failure == 0) {
             // success
             break;
         }
-        int const error_code = Win::WSAGetLastError();
-        if (error_code == WSAECONNREFUSED
-            || error_code == WSAETIMEDOUT) {
-                String const server(rServer);
+        int const error_code = ErrorCode();
+        if (error_code == ECONNREFUSED
+            || error_code == ETIMEDOUT) {
+                String const server = rServer;
                 String const server_description = DescribeListenPort() 
                     + " on " + server;
                 String const message = String("No response from ")
@@ -540,7 +587,7 @@ Network::~Network(void) {
 
     return result;
 }
-#endif // defined(_WINSOCK2)
+#endif // !defined(_QT)
 
 // Return true if user chooses "yes", false otherwise.
 /* static */ bool Network::Question(String const& rQuestion) {
@@ -636,12 +683,12 @@ Network::~Network(void) {
 // inquiry methods
 
 /* static */ bool Network::IsServerStarted(void) {
-#ifdef _WINSOCK2
+#ifdef _QT
+    return true;
+#else  // !defined(_QT)
     bool const result = (msListenIpv4.IsValid() || msListenIpv6.IsValid());
     return result;
-#elif defined(_QT)
-    return true;
-#endif
+#endif  // !defined(_QT)
 }
 
 

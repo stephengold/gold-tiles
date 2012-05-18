@@ -654,7 +654,7 @@ Network::~Network(void) {
     }
     mspServer->setMaxPendingConnections(MAX_CONNECTION_CNT);
 
-#elif defined(_WINSOCK2)
+#else  // !defined(_QT)
 
     ASSERT(!msListenIpv4.IsValid());
     ASSERT(!msListenIpv6.IsValid());
@@ -666,7 +666,7 @@ Network::~Network(void) {
         return false;
     }
     
-#endif  // defined(_WINSOCK2)
+#endif  // !defined(_QT)
 
     return true;
 }

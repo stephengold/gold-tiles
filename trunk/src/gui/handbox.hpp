@@ -46,9 +46,6 @@ public:
     int HandleMessage(MessageType, Win::WPARAM);
 
 private:
-    // private constants
-    static const ValueType LEVEL_MAX = 8;
-
     // private data
     bool      mAreMoreHands;
     unsigned  mHandCnt;
@@ -67,4 +64,4 @@ private:
     void UpdateNameBox(String const&);
     void UpdateSlider(void);
 };
-#endif // !defined(HANDBOX_HPP_INCLUDED)
+#endif  // !defined(HANDBOX_HPP_INCLUDED)

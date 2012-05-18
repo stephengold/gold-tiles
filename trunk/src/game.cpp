@@ -56,7 +56,7 @@ Game::Game(
     // Add tiles to the stock bag.
     if (AmClient()) {
         for (unsigned i = 0; i < mOptions.TilesPerCombo(); i++) {
-            // generate all possible tiles
+            // Generate all possible tiles.
             mStockBag.Restock();
         }
     } else {
@@ -68,13 +68,13 @@ Game::Game(
             mClient.Invalidate();
         } 
     }
-    std::cout << "\nPlaced " << plural(CountStock(), "tile") << " in the stock bag." 
+    std::cout << "\nPlaced " << ::plural(CountStock(), "tile") << " in the stock bag." 
         << std::endl;
 
     // Generate a list of unique player names.
     Strings names = rHandOptions.AllPlayerNames();
 
-    // construct hands and generate a unique name for each
+    // Construct hands and give each one a unique name.
     for (unsigned i_hand = 0; i_hand < rHandOptions.Count(); i_hand++) {
         HandOpt const options = rHandOptions[i_hand];
 
@@ -106,6 +106,18 @@ Game::operator Hand(void) const {
     return result;
 }
 
+Game::operator HandOpts(void) const {
+    HandOpts result;
+
+    Hands::ConstIterator i_hand;
+    for (i_hand = mHands.begin(); i_hand != mHands.end(); i_hand++) {
+        HandOpt const opt = HandOpt(*i_hand);
+        result.Append(opt);
+    }
+
+    return result;
+}
+
 Game::operator Hands(void) const {
     return mHands;
 }
@@ -116,14 +128,14 @@ Game::operator Hands(void) const {
 void Game::ActivateNextHand(void) {
     ASSERT(!IsClockRunning());
 
-    // skip over hands which have resigned
+    // Skip over hands which have resigned.
     mHands.NextWorking(miPlayableHand);
     mUnsavedChanges = true;
 
     ASSERT(!IsClockRunning());
 }
 
-// get copies of the tiles in the playable hand
+// Get copies of the tiles in the playable hand.
 Tiles Game::ActiveTiles(void) const {
     Tiles const result = Tiles(*miPlayableHand);
 
@@ -178,7 +190,7 @@ bool Game::ConnectToServers(void) {
     return result;
 }
 
-/* static */ void Game::ConsoleGame(void) {
+/* static */  void Game::ConsoleGame(void) {
     GameOpt game_opt;
     HandOpts hand_opts;
     Game* p_game = NULL;
@@ -248,7 +260,7 @@ bool Game::ConnectToServers(void) {
     */
     ::system_pause();
 
-#endif // defined(_CLIENT)
+#endif  // defined(_CLIENT)
 
 }
 
@@ -272,7 +284,7 @@ void Game::DescribeStatus(void) const {
     unsigned const stock = CountStock();
     std::cout << std::endl
         << miPlayableHand->Name() << "'s turn, " 
-        << plural(stock, "tile") << " remaining in the stock bag"
+        << ::plural(stock, "tile") << " remaining in the stock bag"
         << std::endl << std::endl << mBoard.Description() << std::endl;
 }
 
@@ -305,7 +317,7 @@ bool Game::DrawTiles(unsigned tileCount, Hand& rHand, Tiles& rTiles) {
         String const draw_string = Indices(rTiles);
         PutLineToEachServer(draw_string);
 
-    } else { // server
+    } else {  // server
         std::cout << "Getting from client:  tiles drawn by "
             << rHand.Name() << "." << std::endl;
         String draw_string;
@@ -335,13 +347,13 @@ String Game::EndBonus(void) {
     EndingType const ending = Ending();
 
     if (ending == ENDING_WENT_OUT) {
-        // start writing the report
+        // Start writing the report.
         result += miPlayableHand->Name();
         result += " went out with ";
         result += plural(miPlayableHand->Score(), "point");
         result += ".\n\n";
 
-        // the playable hand scores a point for each tile in every other hand
+        // The playable hand scores a point for each tile in every other hand.
         Hands::ConstIterator i_hand = miPlayableHand;
         mHands.Next(i_hand);
         while (i_hand != miPlayableHand) {
@@ -353,9 +365,9 @@ String Game::EndBonus(void) {
                 miPlayableHand->AddScore(points_in_hand);
 
                 result += "Add ";
-                result += plural(points_in_hand, "point");
+                result += ::plural(points_in_hand, "point");
                 result += " for the tile";
-                result += plural(tiles_in_hand);
+                result += ::plural(tiles_in_hand);
                 result += " held by ";
                 result += i_hand->Name();
                 result += ".\n";
@@ -368,7 +380,7 @@ String Game::EndBonus(void) {
 
     result += miPlayableHand->Name();
     result += " ended up with ";
-    result += plural(miPlayableHand->Score(), "point");
+    result += ::plural(miPlayableHand->Score(), "point");
     result += ".\n\n";
 
     if (mHands.Count() > 1) {
@@ -419,7 +431,7 @@ void Game::FindBestRun(void) {
 
         mBestRunReport += i_hand->Name();
         mBestRunReport += " has a run of ";
-        mBestRunReport += plural(run_length, "tile");
+        mBestRunReport += ::plural(run_length, "tile");
         mBestRunReport += ".\n";
 
         if (run_length > mMustPlay) {
@@ -434,7 +446,7 @@ void Game::FindBestRun(void) {
 
     mFirstTurnMessage = miPlayableHand->Name();
     mFirstTurnMessage += " plays first and must place "; 
-    mFirstTurnMessage += plural(mMustPlay, "tile");
+    mFirstTurnMessage += ::plural(mMustPlay, "tile");
     mFirstTurnMessage += " on the (empty) board.\n";
 
     mBestRunReport += mFirstTurnMessage;
@@ -494,16 +506,16 @@ bool Game::FinishTurn(Move const& rMove) {
         }
 
         if (rMove.InvolvesSwap()) {
-            // return swapped tiles to the stock bag
+            // Return the swapped tiles to the stock bag.
             mStockBag.Merge(tiles);
-            std::cout << miPlayableHand->Name() << " put " << plural(count, "tile")
+            std::cout << miPlayableHand->Name() << " put " << ::plural(count, "tile")
                 << " back into the stock bag." << std::endl;
 
         } else {
-            // place played tiles on the board
+            // Place played tiles on the board.
             mBoard.PlayMove(rMove);
 
-            // update the hand's score    
+            // Update the hand's score.
             ScoreType const points = mBoard.ScoreMove(rMove);
             miPlayableHand->AddScore(points);
             turn.SetPoints(points);
@@ -596,10 +608,10 @@ bool Game::Initialize(void) {
     // The hand with the best "run" gets to go first.
     FindBestRun();
 
-    // set iterator to end of history
+    // Set the redo iterator to the end of the history.
     miRedo = mHistory.end();
 
-    // pretend this game has been saved, for convenience
+    // Pretend this game has been saved, for convenience.
     mUnsavedChanges = false;
 
     ASSERT(IsPaused());
@@ -612,7 +624,7 @@ unsigned Game::MustPlay(void) const {
     return mMustPlay;
 }
 
-/* static */ Game* Game::New(
+/* static */  Game* Game::New(
     GameOpt const& rGameOpt,
     HandOpts const& rHandOpts, 
     Socket const& rClientSocket)
@@ -691,7 +703,7 @@ void Game::PlayConsole(void) {
     std::cout << std::endl;
 }
 
-// Put a string (once) to each server.
+// CLIENT:  Put a string (once) to each server.
 void Game::PutLineToEachServer(String const& rLine) {
     ASSERT(AmClient());
 
@@ -702,9 +714,9 @@ void Game::PutLineToEachServer(String const& rLine) {
         if (r_hand.IsRemote()) {
             Address const address = Address(r_hand);
             IndexType const key = IndexType(address);
-            if (!done_addresses.Contains(key)) { // not contacted yet on this round
+            if (!done_addresses.Contains(key)) {  // not contacted yet on this round
                 Socket socket = Socket(r_hand);
-                if (socket.IsValid()) { // not disabled
+                if (socket.IsValid()) {  // not disabled
                     bool const was_successful = socket.PutLine(rLine);
                     if (!was_successful) {
                         DisableServers(address);
@@ -730,21 +742,21 @@ void Game::Redo(void) {
         miPlayableHand->Resign(mStockBag);
 
     } else {
-        // remove played/swapped tiles from the hand
+        // Remove played/swapped tiles from the hand.
         Tiles const tiles = Tiles(move);
         miPlayableHand->RemoveTiles(tiles);
 
-        // draw replacement tiles from the stock bag
+        // Draw replacement tiles from the stock bag.
         Tiles const draw = turn.Draw();
         miPlayableHand->AddTiles(draw);
         mStockBag.Purge(draw);
 
         if (move.InvolvesSwap()) {
-            // return swapped tiles to the stock bag
+            // Return the swapped tiles to the stock bag.
             mStockBag.Merge(tiles);
 
         } else {
-            // place played tiles on the board
+            // Place the played tiles on the board.
             mBoard.PlayMove(move);
 
             // update the hand's score
@@ -765,12 +777,12 @@ void Game::Redo(void) {
 void Game::Restart(void) {
     ASSERT(!IsClockRunning());
 
-    // return all played tiles to the stock bag
-    Tiles played_tiles = Tiles(mBoard);
+    // Return all played tiles to the stock bag.
+    Tiles const played_tiles = Tiles(mBoard);
     mStockBag.Merge(played_tiles);
     mBoard.MakeEmpty();
 
-    // return all hand tiles to the stock bag
+    // Return all hand tiles to the stock bag.
     Hands::Iterator i_hand;
     for (i_hand = mHands.begin(); i_hand != mHands.end(); i_hand++) {
         Tiles const hand_tiles = Tiles(*i_hand);
@@ -778,7 +790,7 @@ void Game::Restart(void) {
         i_hand->Restart();
     }
 
-    // redo the initial draws
+    // Redo the initial draws.
     miRedo = mHistory.begin();
     for (unsigned i_hand = 0; i_hand < mHands.Count(); i_hand++) {
         ASSERT(miRedo->Points() == 0);
@@ -798,7 +810,7 @@ void Game::Restart(void) {
         miRedo++;
     }
 
-    // the hand with the best "run" gets the first turn
+    // The hand with the best "run" gets the first turn.
     FindBestRun();
 
     ASSERT(IsPaused());
@@ -806,7 +818,7 @@ void Game::Restart(void) {
 }
 
 int Game::Seconds(Hand& rHand) const {
-    // read the clock of a particular hand
+    // Read the hand's clock.
     int result = rHand.Seconds();
 
     if (mOptions.HasTimeLimit()) {
@@ -878,23 +890,23 @@ void Game::Undo(void) {
         miPlayableHand->Unresign(mStockBag, tiles);
 
     } else {
-        // return drawn tiles to the stock bag
+        // Return drawn tiles to the stock bag.
         Tiles const draw = turn.Draw();
         miPlayableHand->RemoveTiles(draw);
         mStockBag.Merge(draw);
 
-        // add played/swapped tiles back into the hand
+        // Add played/swapped tiles back into the hand.
         miPlayableHand->AddTiles(tiles);
 
         if (move.InvolvesSwap()) {
-            // remove swapped tiles from the stock bag
+            // Remove swapped tiles from the stock bag.
             mStockBag.Purge(tiles);
 
         } else {
-            // remove played tiles from the board
+            // Remove played tiles from the board.
             mBoard.UnplayMove(move);
 
-            // update the hand's score
+            // Roll back the hand's score.
             ScoreType const points = turn.Points();
             miPlayableHand->SubtractScore(points);
         }
@@ -916,8 +928,8 @@ Indices Game::UndoTiles(void) const {
     return result;
 }
 
+// Return a list of unplayable hands (including those which have resigned).
 Hands Game::UnplayableHands(void) const {
-    // return a list of unplayable hands (including those which have resigned)
     Hands result;
 
     Hands::ConstIterator i_hand = miPlayableHand;

@@ -114,7 +114,7 @@ INT_PTR HandBox::HandleMessage(MessageType message, WPARAM wParam) {
         EnableControl(IDC_RADIOLOCAL, true);
         EnableControl(IDC_RADIOREMOTE, true);
 
-        SetSliderRange(IDC_SLIDER1, 0, LEVEL_MAX);
+        SetSliderRange(IDC_SLIDER1, HandOpt::LEVEL_MIN, HandOpt::LEVEL_MAX);
         Address const address = mrOptions;
         SetTextString(IDC_IPADDRESS1, address);
         UpdateButtons();
@@ -162,9 +162,8 @@ INT_PTR HandBox::HandleMessage(MessageType message, WPARAM wParam) {
 
     case WM_HSCROLL:
     case WM_VSCROLL: {
-        ValueType const value = GetSliderValue(IDC_SLIDER1);
-        Fraction const probability = double(LEVEL_MAX - value)/10.0;
-        mrOptions.SetSkipProbability(probability);
+        ValueType const level = GetSliderValue(IDC_SLIDER1);
+        mrOptions.SetLevel(level);
         break;
                      }
     }
@@ -194,10 +193,8 @@ void HandBox::UpdateNameBox(String const& rName) {
 }
 
 void HandBox::UpdateSlider(void) {
-    double const probability = mrOptions.SkipProbability();
-    ValueType const level = LEVEL_MAX - ValueType(0.5 + 10.0*probability);
+    ValueType const level = mrOptions.Level();
     ValueType const new_level = SetSliderValue(IDC_SLIDER1, level);
-    Fraction const new_probability = double(LEVEL_MAX - new_level)/10.0;
-    mrOptions.SetSkipProbability(new_probability);
+    mrOptions.SetLevel(new_level);
 }
 #endif // defined(_WINDOWS)

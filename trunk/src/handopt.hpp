@@ -32,7 +32,7 @@ The HandOpt class encapsulates the hand's name and type, plus optional
 characteristics such as its IP address.
 */
 
-#include "address.hpp" // HASA Address
+#include "address.hpp"     // HASA Address
 
 enum GameStyleType {
     GAME_STYLE_NONE,
@@ -49,6 +49,14 @@ enum GameStyleType {
 
 class HandOpt {
 public:
+    // public types
+    typedef unsigned LevelType;
+
+    // public constants
+    static const LevelType LEVEL_DEFAULT = 10;
+    static const LevelType LEVEL_MAX = 10;
+    static const LevelType LEVEL_MIN = 2;
+
     // public lifecycle
     HandOpt(void);
     // HandOpt(HandOpt const&);  implicitly defined copy constructor
@@ -64,15 +72,17 @@ public:
     operator String(void) const;
 
     // misc public methods
-    String   PlayerName(void) const;
-    void     Serverize(Address const& client, Address const& server);
-    void     SetAddress(Address const&);
-    void     SetAutomatic(void);
-    void     SetLocalUser(void);
-    void     SetPlayerName(String const&);
-    void     SetRemote(void);
-    void     SetSkipProbability(Fraction const&);
-    Fraction SkipProbability(void) const;
+    String    Description(void) const;
+    LevelType Level(void) const;
+    String    PlayerName(void) const;
+    void      Serverize(Address const& client, Address const& server);
+    void      SetAddress(Address const&);
+    void      SetAutomatic(void);
+    void      SetLevel(LevelType);
+    void      SetLocalUser(void);
+    void      SetPlayerName(String const&);
+    void      SetRemote(void);
+    Fraction  SkipProbability(void) const;
 
     // public inquiry methods
     bool IsAutomatic(void) const;
@@ -82,11 +92,14 @@ public:
 
 private:
     // private data
-    Address  mAddress;         // for remote hands only, else ignored
+    Address  mAddress;          // for remote hands only, else ignored
     bool     mAutomaticFlag;
     String   mPlayerName;
     bool     mRemoteFlag;
-    Fraction mSkipProbability; // for automatic hands only, else 0.0
+    Fraction mSkipProbability;  // for automatic hands only, else 0.0
+
+    // private methods
+    void      SetSkipProbability(Fraction const&);
 };
 
 // global utility functions

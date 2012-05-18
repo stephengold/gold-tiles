@@ -145,11 +145,11 @@ AttrCntType GameOpt::AttrCnt(void) const {
 String GameOpt::AttrReport(void) const {
     String result = "Each tile has " + ::plural(AttrCnt(), "attribute") + ":\n";
     for (AttrIndexType i_attr = 0; i_attr < AttrCnt(); i_attr++) {
-        AttrType const value_max = MaxAttrValue(i_attr);
         result += " The " + ::ordinal(i_attr + 1) + " attribute ranges from ";
 
         AttrModeType const display_mode = Combo::DefaultDisplayMode(i_attr);
         result += Combo::AttrToString(display_mode, 0) + " to ";
+        AttrType const value_max = MaxAttrValue(i_attr);
         result += Combo::AttrToString(display_mode, value_max) + ".\n";
     }
     result += "\n";
@@ -407,7 +407,7 @@ String GameOpt::Description(void) const {
         }
     }
     if (!exceptions.IsEmpty()) {
-        result += " with " + String(exceptions, ", ", ", and ");
+        result += " with " + String(exceptions, ", ", " and ");
     }
     result += ".";
 
@@ -687,7 +687,7 @@ void GameOpt::Validate(void) const {
 #ifdef _CONSOLE
     ASSERT(!mDoesBoardWrap);
     ASSERT(mGrid == GRID_4WAY);
-#endif // defined(_CONSOLE)
+#endif  // defined(_CONSOLE)
     ASSERT(mHandsDealt >= HANDS_DEALT_MIN);
     ASSERT(mHandSize >= HAND_SIZE_MIN);
     ASSERT(mMinutesPerHand >= MINUTES_PER_HAND_MIN);
@@ -695,7 +695,7 @@ void GameOpt::Validate(void) const {
     ASSERT(mStyle != GAME_STYLE_NONE);
 #ifdef _CONSOLE
     ASSERT(mStyle != GAME_STYLE_CHALLENGE);
-#endif // defined(_CONSOLE)
+#endif  // defined(_CONSOLE)
 }
 
 

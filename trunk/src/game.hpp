@@ -36,10 +36,10 @@ the game are saved in a GameOpt object.
 
 */
 
-#include "board.hpp"  // HASA Board
-#include "gameopt.hpp"// HASA GameOpt
-#include "hands.hpp"  // HASA Hands
-#include "turns.hpp"  // HASA Turns
+#include "board.hpp"    // HASA Board
+#include "gameopt.hpp"  // HASA GameOpt
+#include "hands.hpp"    // HASA Hands
+#include "turns.hpp"    // HASA Turns
 
 enum EndingType {
     ENDING_NOT_OVER_YET,
@@ -58,6 +58,7 @@ public:
     operator Board(void) const;
     operator GameOpt(void) const;
     operator Hand(void) const;   // the playable hand
+    operator HandOpts(void) const;
     operator Hands(void) const;  // all hands
 
     // misc public methods
@@ -147,4 +148,4 @@ private:
     Strings    WinningHands(void) const;
     ScoreType  WinningScore(void) const;
 };
-#endif // !defined(GAME_HPP_INCLUDED)
+#endif  // !defined(GAME_HPP_INCLUDED)

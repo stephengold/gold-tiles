@@ -1,16 +1,25 @@
 == Builds ==
 
-There are two builds of the Gold Tiles Game:
+There is just one production build of the Gold Tiles Game:
 
  * gold-tile-Win32 - The main product, targeting the Microsoft Windows(tm) platform.
 
-This build implements a graphical user interface (GUI) which assumes the presence of a mouse or other pointing device.  The graphics are based on GDI.  The `_WINDOWS` and `_GUI` preprocessor macros are defined.
+This build implements a graphical user interface (GUI) which assumes the presence of a mouse or other pointing device.  With regard to network play, it acts as both a client (initiator) and a server (remote player).  The graphics are based on GDI, and the networking is based on WinSock2.  The '_CLIENT', '_SERVER', 'WIN32', and '_WINDOWS' preprocessor macros are defined.
 
- * gold-tile-console - implements a console user interface.
+A port to the Qt platform is in progress.
 
-This is barely playable and used mainly for debug.  It might 
-also be of interest to users wishing to play remotely (over 
-telnet/rsh) or users lacking a pointing device.  The `_CONSOLE` preprocessor macro is defined.
+There are several builds used for unit testing, including:
+
+ * gold-tile-client - implements a console user interface for
+multiple platforms, including MS-Windows, Qt, and Posix.  With regard
+to network play, it acts as both a client (initiator) only.  The '_CLIENT' and '_NETWORK_TEST' preprocessor macros are defined.
+
+ * gold-tile-server - implements a console user interface for
+multiple platforms, including MS-Windows, Qt, and Posix.  With regard
+to network play, it acts as both a server (remote player) only.  The '_NETWORK_TEST' and '_SERVER' preprocessor macros are defined.
+
+To build a debugging version (with assertions enabled) define the '_DEBUG' preprocessor macro.
+
 
 == Coding standards ==
 
@@ -26,7 +35,7 @@ Project-wide definitions belong in "project.hpp"
 
 === Indentation ===
 
- * Indent the contents of each block by four spaces.
+ * Indent the contents of each block (except labels) by four spaces.
  * Use Unix-style indentation when the open brace fits on the same line with the preceding keyword. If it doesn't fit, align the open brace with the keyword.
 
 === Identifiers ===

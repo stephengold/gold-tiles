@@ -1,8 +1,32 @@
-This wiki page explains the gold-tiles game to players.
+This wiki page explains the Gold Tiles game to players.
+
+== Quick start (Release 0.91) ==
+
+1. Download the latest ZIPped release from http://code.google.com/p/gold-tiles/downloads/list
+
+2. (optional) Extract the MS-Windows executable file "gold-tile-Win32.exe"
+
+3. Double-click on the "gold-tile-Win32" icon to start the program.  A Gold Tile game window should open, and it should contain a "Create New Game" dialog box with "Practice" and "Standard Rules" pre-selected.
+
+3a. If you get an error dialog about the a missing DLL, download and install MSVCP100.DLL from Microsoft's website at
+http://www.microsoft.com/download/en/details.aspx?displaylang=en&id=5555  and then try step 3 again.
+
+3b. If anti-virus software removes or quarantines the file, restore it and check the SHA1 checksum.  If it matches, try step 3 again.
+
+3c. If you get a system dialog warning you that the file's publisher is unknown, click on the "Run" button.
+
+4. Click the "Next >" button.  You should see a "Hand Information" dialog box for the first hand, with "someone at this computer" pre-selected.
+
+5. Click the "Next >" button.  You should see a "Hand Information" dialog box for the last hand, with "someone at this computer" pre-selected.
+
+6. Click to select "this computer (automatic play)".
+
+7. Click "Start Game".  A "Opening Bids" dialog box should appear.  Note who will play first (you or the computer) and how many tiles must be played.
+
 
 == Definitions and rules ==
 
-== Players and users ==
+=== Players and users ===
 
 Gold Tile is a turn-based computer game for one or more *players*.
 You can play it solitaire, play against a computer, or

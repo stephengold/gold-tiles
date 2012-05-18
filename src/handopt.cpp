@@ -144,7 +144,8 @@ String HandOpt::Description(void) const {
         result += String(", a computer playing at level ") + String(level);
     } else {
         if (mRemoteFlag) {
-            result += " at " + String(mAddress);
+            String const address_string = mAddress;
+            result += " at " + address_string;
         } else {
             result += ", a user at this computer";
         }

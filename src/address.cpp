@@ -222,9 +222,10 @@ Address::operator unsigned long(void) const {
     ASSERT(error == 0);
     for (ifaddrs* p_current = p_list; p_current != NULL; p_current = p_current->ifa_next) {
         unsigned flags = p_current->ifa_flags;
+        ADDRESS_FAMILY const family = p_current->ifa_addr->sa_family;
         if ((flags & IFF_UP)
             && !(flags & IFF_LOOPBACK)
-            && (flags & IFF_POINTOPOINT))
+            && (family == AF_INET || family == AF_INET6))
         {
             Address const address(*(p_current->ifa_addr));
             if (!address.IsLocalHost()) {

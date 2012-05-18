@@ -243,7 +243,7 @@ FONT 10, "Microsoft Sans Serif"
     PUSHBUTTON      "< Back", IDC_BACK, 44, 124, 26, 14
     GROUPBOX        "What sort of board do you want?", IDC_STATIC, 4, 3, 230, 58
     AUTORADIOBUTTON "Flat and endless (no wrap)", IDC_ENDLESS, 6, 18, 96, 8
-    AUTORADIOBUTTON "Rectangle (four edges)", IDC_RECT, 6, 33, 84, 8
+    AUTORADIOBUTTON "Rectangle/square (4 edges)", IDC_RECT, 6, 33, 92, 8
     AUTORADIOBUTTON "Torus (wraps in all directions)", IDC_TORUS, 6, 48, 102, 8
     AUTORADIOBUTTON "Vertical strip (left/right edges)", IDC_VSTRIP, 107, 18, 105, 8
     AUTORADIOBUTTON "Horizontal strip (top/bottom edges)", IDC_HSTRIP, 107, 28, 120, 8

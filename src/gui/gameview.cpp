@@ -391,7 +391,7 @@ void GameView::DrawIdle(Canvas& rCanvas) {
         message_list.Append(mpWindow->WaitMessage());
     }
 #ifdef _CLIENT
-    message_list.Append("Type Ctrl+N to start a new game.");
+    message_list.Append("Type Ctrl+N to start a game.");
 #endif // defined(_CLIENT)
     String const messages(message_list, "\n\n"); 
 
@@ -966,7 +966,6 @@ void GameView::SetDisplayModes(DisplayModes const& rDisplayModes) {
 }
 
 void GameView::SetGame(Game* pGame) {
-    // TODO: free old Game object?
     mpGame = pGame;
 
     if (pGame != NULL && pGame->Style() == GAME_STYLE_CHALLENGE) {
@@ -975,8 +974,7 @@ void GameView::SetGame(Game* pGame) {
         Reset(mpGame, HINT_DEFAULT, 0.0);
     }
 
-    SetBoardTileSize(TILE_SIZE_DEFAULT);
-    SetHandTileSize(TILE_SIZE_DEFAULT);
+    Recenter();
     ResetTargetCell();
     mDisplayModes.Cleanup();
 }

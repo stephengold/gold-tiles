@@ -1,4 +1,4 @@
-README.txt for Release 0.9 of the Gold Tile Game
+README.txt for Release 0.91 of the Gold Tile Game
 programmed by Stephen Gold (sgold@sonic.net)
 
 Gold Tile is a turn-based multi-player game in which tiles 
@@ -31,19 +31,20 @@ helped me create this application:
  + Skyler Burwell for testing Release 0.6
  + Julian Gold for testing various beta releases and for his
    advice on game features
- + the creators of the ResEdit free resource editor (www.resedit.net)
  + Microsoft Corporation for creating and distributing Microsoft
    Visual C++ 2010 Express
  + Stefan Kueng and Luebbe Onken, authors of the TortoiseSVN
    free Subversion client (tortoisesvn.net)
+ + the creators of the ResEdit free resource editor (www.resedit.net)
+ + the Microsoft Developers Network (MSDN) for application programming
+   interface (API) documentation and examples 
+ + Google Code for free project hosting
  + Todd Hoff for publishing his C++ Coding Standard 
    (http://www.possibility.com/Cpp/CppCodingStandard.html) which
    greatly influenced the coding style of this project
  + Colin Laplace and Bloodshed Software for creating and distributing
    the Dev-C++ integrated development environment 
    (http://www.bloodshed.net/devcpp.html)
- + the Microsoft Developers Network (MSDN) for application programming
-   interface (API) documentation and examples 
 
 
 RELEASE LOG
@@ -58,3 +59,4 @@ RELEASE LOG
   0.8   31 March 2012       add undo/restart/redo, bonus tiles, & adisp modes
   0.81  24 April 2012       warm tiles, Think menu, more topologies and sizes
   0.9   30 April 2012       first cut at network play
+  0.91  18 May 2012         IPv6, multisize tiles, improve netplay & centering

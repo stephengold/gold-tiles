@@ -135,7 +135,7 @@ FONT 10, "Microsoft Sans Serif", 700, 0, 0
     DEFPUSHBUTTON   "OK", IDOK, 48, 93, 23, 15, WS_GROUP
     CTEXT           "Gold Tile Game", IDC_STATIC, 34, 4, 49, 8, SS_CENTER
     CTEXT           "(c) Copyright 2012 Stephen Gold", IDC_STATIC, 4, 39, 107, 8, SS_CENTER
-    CTEXT           "Release 0.9 (20120430)", IDC_STATIC, 23, 13, 73, 8, SS_CENTER
+    CTEXT           "Release 0.91 (20120518)", IDC_STATIC, 23, 13, 77, 8, SS_CENTER
     CTEXT           "Distributed under the terms of the GNU General Public License", IDC_STATIC, 14, 60, 90, 16, SS_CENTER
     CTEXT           "sgold@sonic.net", IDC_STATIC, 32, 47, 52, 8, SS_CENTER
     CTEXT           "http://code.google.com/p/gold-tiles", IDC_STATIC, 6, 24, 106, 8, SS_CENTER

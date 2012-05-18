@@ -28,7 +28,7 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 # include <QtGui/QApplication>
 #elif defined(_WINDOWS)
 # include "gui/win_types.hpp"
-#endif // defined(_WINDOWS)
+#endif  // defined(_WINDOWS)
 
 
 #ifdef _QT
@@ -41,14 +41,14 @@ int main(int argCnt, char** argValues) {
 // Microsoft Windows native application main entry point
 int CALLBACK Win::WinMain(
     HINSTANCE applicationInstance, 
-    HINSTANCE previousInstance, // always NULL and ignored
-    char* commandLine, // TODO
+    HINSTANCE previousInstance,  // always NULL and ignored
+    char* commandLine,  // TODO
     int showHow) 
 {
     previousInstance;
     commandLine;
 
-#endif // defined(_WINDOWS)
+#endif  // defined(_WINDOWS)
 
     GameWindow* p_window = NULL;
 
@@ -80,7 +80,7 @@ int CALLBACK Win::WinMain(
     // Retrieve and dispatch messages for this application. 
     exit_code = p_window->MessageDispatchLoop();
 
-#endif // defined(_WINDOWS)
+#endif  // defined(_WINDOWS)
 
     return exit_code;
 }

@@ -58,7 +58,7 @@ public:
     static String AddressReport(void);
     static Socket CheckForConnection(void);
     static bool   ConnectToServer(Address const&, Game&);
-    static Game*  ConsiderInvitation(Socket&, GameOpt const&, HandOpts&);
+    static Game*  ConsiderInvitation(Socket&, GameOpt const&, HandOpts const&);
     static String DescribeListenPort(void);
     static int    ErrorCode(void);
     static void   Fail(TextType operation);

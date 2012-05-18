@@ -397,11 +397,10 @@ AttrCntType string_to_attr_cnt(String const& rString) {
 
 AttrType string_to_max_attr(String const& rString) {
     long const max_attr = long(rString);
-    long const value_cnt = max_attr + 1;
-    ASSERT(value_cnt >= Combo::VALUE_CNT_MIN);
-    ASSERT(value_cnt <= Combo::VALUE_CNT_MAX);
+    ASSERT(max_attr + 1 >= Combo::VALUE_CNT_MIN);
+    ASSERT(max_attr + 1<= Combo::VALUE_CNT_MAX);
 
-    AttrType const result = AttrType(value_cnt);
+    AttrType const result = AttrType(max_attr);
 
     return result;
 }

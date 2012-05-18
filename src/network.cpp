@@ -151,7 +151,7 @@ Network::~Network(void) {
 }
 
 
-// misc methodsstruct
+// misc methods
 
 /* static */  String Network::AddressReport(void) {
     // Get list of addresses.
@@ -169,7 +169,7 @@ Network::~Network(void) {
             ASSERT(cnt > 1);
             result += String(cnt) + " useful network addresses";
         }
-        result += ":\n " + String(list, "\n ");
+        result += ":\n " + String(list, "\n ", " and\n ");
     }
 
     return result;
@@ -261,8 +261,8 @@ Network::~Network(void) {
 
     String const server_description = DescribeListenPort()
         + " on " + server;
-    String const response_event = String("response from ") + server_description;
-
+    String const response_event = String("response from ")
+        + server_description;
     String const retry_message = String("Failed to connect to ")
         + server_description;
 
@@ -372,26 +372,27 @@ Network::~Network(void) {
 /* static */  Game* Network::ConsiderInvitation(
     Socket& rSocket,
     GameOpt const& rGameOpt,
-    HandOpts& rHandOpts)
+    HandOpts const& rHandOpts)
 {
+    HandOpts server_hand_opts = rHandOpts;
+    Address const server_address = rSocket.Local();
     Address const client_address = rSocket.Peer();
+    server_hand_opts.Serverize(client_address, server_address);
+
     String const client_string = client_address;
-    String question = client_string + " has invited you to play a game:\n";
-    question += rGameOpt.Description();
-    question += rHandOpts.operator String();
-    question += "Do you accept?";
+    String question = client_string + " has invited you to play ";
+    question += rGameOpt.Description() + "\n\n";
+    question += server_hand_opts.Description() + "\n";
+    question += "Do you accept " + client_string + "'s invitation?";
     bool const accept = Question(question);
 
     Game* p_result = NULL;
-    if (!accept) {
+    if (!accept) {  // declined
         rSocket.PutLine(DECLINE);
         rSocket.Close();
-    } else {
+    } else {  // accepted
         bool const was_successful = rSocket.PutLine(ACCEPT);
         if (was_successful) {
-            HandOpts server_hand_opts = rHandOpts;
-            Address const server_address = rSocket.Local();
-            server_hand_opts.Serverize(client_address, server_address);
             p_result = Game::New(rGameOpt, server_hand_opts, rSocket);
         }
     }
@@ -587,10 +588,10 @@ Network::~Network(void) {
 
     return result;
 }
-#endif // !defined(_QT)
+#endif  // !defined(_QT)
 
 // Return true if user chooses "yes", false otherwise.
-/* static */ bool Network::Question(String const& rQuestion) {
+/* static */  bool Network::Question(String const& rQuestion) {
 #ifdef _GUI
     ASSERT(mspWindow != NULL);
     int const accept = mspWindow->QuestionBox(rQuestion, "Gold Tile Game - Network Question");
@@ -614,7 +615,7 @@ Network::~Network(void) {
 #endif  // defined(_CONSOLE)
 }
 
-/* static */ bool Network::Retry(String const& rMessage) {
+/* static */  bool Network::Retry(String const& rMessage) {
     bool result = true;
 
 #ifdef _GUI
@@ -722,7 +723,7 @@ int main(int argCnt, char** argValues) {
     return application.exec();
 }
 
-# else // !defined(_QT)
+# else  // !defined(_QT)
 
 int main(int argCnt, char** argValues) {
     argCnt;     // ununsed

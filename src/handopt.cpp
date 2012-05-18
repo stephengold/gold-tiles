@@ -136,6 +136,33 @@ HandOpt::operator String(void) const {
 
 // misc methods
 
+String HandOpt::Description(void) const {
+    String result = PlayerName();
+
+    if (mAutomaticFlag) {
+        LevelType const level = Level();
+        result += String(", a computer playing at level ") + String(level);
+    } else {
+        if (mRemoteFlag) {
+            result += " at " + String(mAddress);
+        } else {
+            result += ", a user at this computer";
+        }
+    }
+
+    return result;
+}
+
+HandOpt::LevelType HandOpt::Level(void) const {
+    Fraction const probability = SkipProbability();
+
+    LevelType const result = LEVEL_MAX - LevelType(0.5 + float(LEVEL_MAX)*probability);
+
+    ASSERT(result >= LEVEL_MIN);
+    ASSERT(result <= LEVEL_MAX);
+    return result;
+}
+
 String HandOpt::PlayerName(void) const {
     return mPlayerName;
 }
@@ -158,6 +185,14 @@ void HandOpt::SetAutomatic(void) {
     mAutomaticFlag = true;
     mRemoteFlag = false;
     ASSERT(IsAutomatic());
+}
+
+void HandOpt::SetLevel(LevelType level) {
+    ASSERT(level <= LEVEL_MAX);
+    ASSERT(level >= LEVEL_MIN);
+
+    Fraction const probability = double(LEVEL_MAX - level)/double(LEVEL_MAX);
+    SetSkipProbability(probability);
 }
 
 void HandOpt::SetLocalUser(void) {

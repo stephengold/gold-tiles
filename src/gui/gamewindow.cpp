@@ -1257,11 +1257,6 @@ void GameWindow::SetGame(Game* pGame) {
     if (HasGame()) {
         ASSERT(!mpGame->CanRedo());
         ASSERT(!mpGame->IsOver());
-#ifdef _DEBUG
-        String const description = GameOpt(*mpGame).Description();
-        String const message = "Starting " + description;
-        Window::InfoBox(message, "Game Description - Gold Tile");
-#endif // defined(_DEBUG)
         String const report = pGame->BestRunReport();
         Window::InfoBox(report, "Opening Bids - Gold Tile");
     }

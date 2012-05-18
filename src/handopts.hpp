@@ -52,6 +52,7 @@ public:
     Strings  AllPlayerNames(void) const;
     void     Append(HandOpt const&);
     unsigned Count(void) const;
+    String   Description(void) const;
     bool     GetFromClient(Socket&, unsigned handCnt);
     void     GetUserChoice(unsigned handCnt);
     void     MakeEmpty(void);
@@ -65,4 +66,4 @@ private:
     // private data
     std::vector<HandOpt> mList;
 };
-#endif // !defined(HANDOPTS_HPP_INCLUDED)
+#endif  // !defined(HANDOPTS_HPP_INCLUDED)

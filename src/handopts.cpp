@@ -85,6 +85,18 @@ unsigned HandOpts::Count(void) const {
     return result;
 }
 
+String HandOpts::Description(void) const {
+    String result;
+
+    for (unsigned i_hand = 0; i_hand < Count(); i_hand++) {
+        String const hand_description = (*this)[i_hand].Description();
+        result += "The " + ::ordinal(i_hand + 1) 
+            + " hand will be played by " + hand_description + ".\n";
+    }
+
+    return result;
+}
+
 // Return true if successful, false if canceled.
 bool HandOpts::GetFromClient(Socket& rClient, unsigned handCnt) {
     MakeEmpty();

@@ -367,6 +367,20 @@ void GameWindow::HandleInvitation(Socket& rSocket) {
 #ifdef _WINDOWS
 void GameWindow::HandleMenuCommand(IdType command) {
     switch (command) {
+        // Arrow keys
+    case IDM_UP:
+        mGameView.MoveTarget(+1, 0);
+        break;
+    case IDM_DOWN:
+        mGameView.MoveTarget(-1, 0);
+        break;
+    case IDM_LEFT:
+        mGameView.MoveTarget(0, -1);
+        break;
+    case IDM_RIGHT:
+        mGameView.MoveTarget(0, +1);
+        break;
+
         // File menu options
     case IDM_NEW: {
         if (AreUnsavedChanges()) {

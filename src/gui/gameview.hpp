@@ -33,9 +33,9 @@ The GameView class extends the Partial class with drawing methods.
 Drawing is performed on a temporary Canvas owned by the caller.
 */
 
-#include "partial.hpp"          // ISA Partial
-#include "gui/displaymodes.hpp" // HASA DisplayModes
-#include "gui/graphics.hpp"     // HASA ColorType
+#include "partial.hpp"           // ISA Partial
+#include "gui/displaymodes.hpp"  // HASA DisplayModes
+#include "gui/graphics.hpp"      // HASA ColorType
 
 enum PlaceType {
     PLACE_BOARD,
@@ -67,6 +67,7 @@ public:
     Tile::IdType 
                GetTileId(Point const&) const;
     void       LoadUserOptions(User const&);
+    void       MoveTarget(int rows, int cols);
     void       Recenter(void);
     void       Repaint(Canvas&);
     void       ResetTargetCell(void);
@@ -158,4 +159,4 @@ private:
     bool IsGridVisible(void) const;
     bool IsWarmTile(Tile::IdType) const;
 };
-#endif // !defined(GAMEVIEW_HPP_INCLUDED)
+#endif  // !defined(GAMEVIEW_HPP_INCLUDED)

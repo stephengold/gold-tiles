@@ -152,7 +152,7 @@ void GameView::DrawBoard(Canvas& rCanvas, unsigned showLayer) {
         ASSERT(bottom_see_row <= top_see_row);
         ASSERT(left_see_column <= right_see_column);
 
-        // get the range of "might use" cells
+        // Get the range of "might use" cells.
         RowType const top_use_row = row_fringe + r_board.NorthMax();
         RowType const bottom_use_row = -row_fringe - r_board.SouthMax();
         ColumnType const right_use_column = column_fringe + r_board.EastMax();
@@ -268,7 +268,7 @@ void GameView::DrawCell(
         rCanvas.DrawTargetArrow(rect);
     }
     if (rCell.IsStart()) {
-        // it's the start cell
+        // It's the start cell.
         rCanvas.UseColors(COLOR_TRANSPARENT, feature_color);
         rCanvas.DrawTextLine(rect, "START", "S");
     }
@@ -392,7 +392,7 @@ void GameView::DrawIdle(Canvas& rCanvas) {
     }
 #ifdef _CLIENT
     message_list.Append("Type Ctrl+N to start a game.");
-#endif // defined(_CLIENT)
+#endif  // defined(_CLIENT)
     String const messages(message_list, "\n\n"); 
 
     Point const ulc(0, 0);
@@ -863,7 +863,7 @@ PixelCntType GameView::GridUnitY(void) const {
     }
 
     if (IsGridVisible()) {
-        result -= 1; // height of grid line
+        result -= 1;  // height of a grid line
     }
 
     return result;
@@ -879,6 +879,24 @@ void GameView::LoadUserOptions(User const& rUser) {
     SetBoardTileSize(board_tile_size);
     unsigned const hand_tile_size = rUser.HandTileSize();
     SetHandTileSize(hand_tile_size);
+}
+
+void GameView::MoveTarget(int rows, int columns) {
+    if (!mTargetCellFlag) {
+        mTargetCell = Cell();
+        mTargetCellFlag = true;
+    }
+
+    for (;;) {
+        mTargetCell.Offset(rows, columns);
+        if (mTargetCell.IsValid() && IsEmpty(mTargetCell)) {
+            break;
+        }
+    }
+
+    if (!MightUse(mTargetCell)) {
+        mTargetCellFlag = false;
+    }
 }
 
 void GameView::Recenter(void) {
@@ -1076,7 +1094,7 @@ PixelCntType GameView::TileWidth(PlaceType place) const {
 }
 
 // tile width for the smallest size
-/* static */ PixelCntType GameView::TinyWidth(void) {
+/* static */  PixelCntType GameView::TinyWidth(void) {
     PixelCntType result = 0;
 
     switch(Cell::Grid()) {

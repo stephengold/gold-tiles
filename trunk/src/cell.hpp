@@ -79,6 +79,7 @@ public:
     static GridType Grid(void);
     static void     LimitPlay(unsigned&);
     void            Next(Direction const&, int count = 1);
+    void            Offset(int rows, int columns);
     RowType         Row(void) const;
     static int      RowFringe(void);
     static String   ScoringAxes(void);
@@ -102,10 +103,10 @@ private:
     // private data
     ColumnType         mColumn;
     static GridType   msGrid;
-    static RowType    msHeight;   // must be even and <= HEIGHT_MAX
+    static RowType    msHeight;    // must be even and <= HEIGHT_MAX
     RowType            mRow;
-    static ColumnType msWidth;    // must be even and <= WIDTH_MAX
-    static bool       msWrapFlag; // coordinates wrap around
+    static ColumnType msWidth;     // must be even and <= WIDTH_MAX
+    static bool       msWrapFlag;  // coordinates wrap around
 
     // misc private methods
     static void NextCellOffsets(Direction const&, RowType&, ColumnType&);
@@ -117,4 +118,4 @@ String    index_to_string(IndexType);
 GridType  string_to_grid(String const&);
 IndexType string_to_index(String const&);
 
-#endif // !defined(CELL_HPP_INCLUDED)
+#endif  // !defined(CELL_HPP_INCLUDED)

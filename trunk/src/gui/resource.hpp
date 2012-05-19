@@ -68,6 +68,10 @@
 #define IDC_LIST3                               1703
 #define IDC_LIST4                               1704
 #define IDC_LIST5                               1705
+#define IDM_UP                                  5000
+#define IDM_DOWN                                5001
+#define IDM_LEFT                                5002
+#define IDM_RIGHT                               5003
 #define IDM_NEW                                 6000
 #define IDM_OPEN                                6001
 #define IDM_REOPEN                              6002

@@ -22,7 +22,7 @@ You should have received a copy of the GNU General Public License
 along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <iostream>      // cin
+#include <iostream>      // std::cin
 #include "direction.hpp"
 #include "gameopt.hpp"
 #include "strings.hpp"
@@ -283,18 +283,23 @@ void Cell::Next(Direction const& rDirection, int count) {
     }
 }
 
+void Cell::Offset(int rows, int columns) {
+    mRow += rows;
+    mColumn += columns;
+}
+
 RowType Cell::Row(void) const {
     return mRow;
 }
 
 // number of rows above (or below) used cells which might be usable
-/* static */ int Cell::RowFringe(void) {
+/* static */  int Cell::RowFringe(void) {
     int const result = (msGrid == GRID_HEX) ? 2 : 1;
 
     return result;
 }
 
-/* static */ String Cell::ScoringAxes(void) {
+/* static */  String Cell::ScoringAxes(void) {
     String result;
 
     switch (msGrid) {
@@ -317,7 +322,7 @@ RowType Cell::Row(void) const {
     return result;
 }
 
-/* static */ void Cell::SetStatic(GameOpt const& rGameOpt) {
+/* static */  void Cell::SetStatic(GameOpt const& rGameOpt) {
     GridType const grid = rGameOpt;
     switch (grid) {
     case GRID_HEX:
@@ -377,7 +382,7 @@ void Cell::Wrap(void) {
 
 // inquiry methods
 
-/* static */ bool Cell::DoesBoardWrap(void) {
+/* static */  bool Cell::DoesBoardWrap(void) {
     return msWrapFlag;
 }
 
@@ -437,7 +442,7 @@ bool Cell::IsOdd(void) const {
     return result;
 }
 
-/* static */ bool Cell::IsScoringAxis(Direction const& rAxis) {
+/* static */  bool Cell::IsScoringAxis(Direction const& rAxis) {
     ASSERT(rAxis.IsAxis());
 
     bool result = false;

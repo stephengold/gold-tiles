@@ -31,6 +31,8 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 #include "strings.hpp"
 
 #ifdef _QT
+# include <QApplication>
+# include <QDesktopWidget>
 
 GameWindow::GameWindow(Game* pGame):
     mGameView(*pGame),
@@ -41,7 +43,21 @@ GameWindow::GameWindow(Game* pGame):
     mpGame = pGame;
     mpMenuBar = new MenuBar(mGameView);
     setMenuBar(mpMenuBar);
+
+    // Get the geometry of the desktop.
+    QDesktopWidget* p_desktop = QApplication::desktop();
+    int screen = p_desktop->screenNumber(this);
+    QRect desktop_bounds = p_desktop->screenGeometry(screen);
+
+    // determine initial window size:  centered and covering 64% of desktop
+    PixelCntType const height = PixelCntType(0.8*double(desktop_bounds.height()));
+    PixelCntType const width = PixelCntType(0.8*double(desktop_bounds.width()));
+    LogicalXType const x = width/8;
+    LogicalYType const y = height/8;
+    QRect const rect(x, y, width, height);
+    setGeometry(rect);
 }
+
 #endif  // defined(_QT)
 
 #ifdef  _WINDOWS
@@ -113,8 +129,8 @@ mGameView(*pGame),
     ASSERT(HWND(*this) == 0);
     ASSERT(applicationInstance != NULL);
 
-    TextType class_name = "GAMEWINDOW";
-    TextType menubar_name = "MENUBAR";
+    TextType const class_name = "GAMEWINDOW";
+    TextType const menubar_name = "MENUBAR";
     if (mspClass == NULL) {
         // for first instance:  create a Microsoft Windows window class
         mspClass = new WindowClass(applicationInstance, &message_handler, class_name, menubar_name);

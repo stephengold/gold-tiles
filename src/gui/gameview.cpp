@@ -578,7 +578,7 @@ void GameView::DrawStockArea(
     rCanvas.UseColors(area_color, edge_color);
 
     // Draw the stock area.
-    Rect const stock_rect = rCanvas.DrawRectangle(top_y, left_x, width, height);
+    rCanvas.DrawRectangle(top_y, left_x, width, height);
 
     // Draw two lines of descriptive text in the stock area.
     unsigned const stock_cnt = mpGame->CountStock();
@@ -969,7 +969,7 @@ String GameView::ScoreText(Hand const& rHand, bool isPlayable) const {
     return result;
 }
 
-void GameView::SetBoardTileSize(unsigned size) {
+void GameView::SetBoardTileSize(TileSizeType size) {
     ASSERT(size >= TILE_SIZE_MIN);
     ASSERT(size <= TILE_SIZE_MAX);
 
@@ -997,7 +997,7 @@ void GameView::SetGame(Game* pGame) {
     mDisplayModes.Cleanup();
 }
 
-void GameView::SetHandTileSize(unsigned size) {
+void GameView::SetHandTileSize(TileSizeType size) {
     ASSERT(size >= TILE_SIZE_MIN);
     ASSERT(size <= TILE_SIZE_MAX);
 

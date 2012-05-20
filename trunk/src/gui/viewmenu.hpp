@@ -37,8 +37,6 @@ The ViewMenu class extends the SubMenu class.
 
 
 class ViewMenu: public SubMenu {
-    Q_OBJECT
-
 public:
     // public lifecycle
 #ifdef _QT
@@ -46,7 +44,7 @@ public:
 #elif defined(_WINDOWS)
     // no default constructor
     ViewMenu(Menu const&, unsigned position);
-#endif // defined(_WINDOWS)
+#endif  // defined(_WINDOWS)
     // ~ViewMenu(void);  implicitly defined destructor
 
     // misc public methods
@@ -64,13 +62,13 @@ private:
     SizeMenu mBoardSize;
     SizeMenu mTileSize;
     MenuItem mRecenter;
-    MenuItem mAnimation;
     MenuItem mAttrs;
     MenuItem mHints;
     MenuItem mShowClocks;
     MenuItem mShowGrid;
     MenuItem mShowScores;
     MenuItem mShowTiles;
+    MenuItem mAnimation;
 
     // private lifecycle
     ViewMenu(ViewMenu const&);   // not copyable
@@ -78,4 +76,4 @@ private:
     // private operators
     ViewMenu& operator=(ViewMenu const&);  // not assignable
 };
-#endif // !defined(VIEWMENU_HPP_INCLUDED)
+#endif  // !defined(VIEWMENU_HPP_INCLUDED)

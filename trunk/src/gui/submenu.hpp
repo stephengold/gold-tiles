@@ -44,10 +44,9 @@ enum ThinkModeType {
 #ifdef _QT
 # include <QMenu>
 class SubMenu: public QObject {
-    Q_OBJECT
 #elif defined(_WINDOWS)
 class SubMenu {
-#endif // defined(_WINDOWS)
+#endif  // defined(_WINDOWS)
 
 public:
     // public lifecycle
@@ -56,18 +55,18 @@ public:
     explicit SubMenu(QString const& label);
 #elif defined(_WINDOWS)
     SubMenu(Menu const&, unsigned position);
-#endif // defined(_WINDOWS)
+#endif  // defined(_WINDOWS)
     virtual ~SubMenu(void);
 
     // misc public methods
 #ifdef _QT
     void   Add(MenuItem&);
     void   AddSeparator(void);
-#endif // !defined(_QT)
+#endif  // !defined(_QT)
     void   Enable(bool);
 #ifdef _QT
     QMenu *Qt(void);
-#endif // !defined(_QT)
+#endif  // !defined(_QT)
 
 private:
     // private data
@@ -76,7 +75,7 @@ private:
 #elif defined(_WINDOWS)
     Menu const& mrMenu;
     unsigned     mPosition;
-#endif
+#endif  // defined(_WINDOWS)
 
     // private lifecycle
     SubMenu(SubMenu const&);  // not copyable
@@ -84,4 +83,4 @@ private:
     // private operators
     SubMenu& operator=(SubMenu const&);  // not assignable
 };
-#endif // !defined(SUBMENU_HPP_INCLUDED)
+#endif  // !defined(SUBMENU_HPP_INCLUDED)

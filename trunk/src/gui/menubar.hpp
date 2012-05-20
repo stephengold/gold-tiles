@@ -33,22 +33,22 @@ In the native version, the MenuBar class encapsulates a Menu object.
 
 */
 
+#ifdef _QT
+# include <QMenuBar>
+#endif  // defined(_QT)
 #include "gui/filemenu.hpp"  // HASA FileMenu
-#include "gui/menu.hpp"      // HASA Menu
+#ifdef _WINDOWS
+# include "gui/menu.hpp"     // HASA Menu
+#endif  // defined(_WINDOWS)
 #include "gui/playmenu.hpp"  // HASA PlayMenu
 #include "gui/viewmenu.hpp"  // HASA ViewMenu
-#ifdef _QT
-# include <QMenuBar.h>
-#endif // defined(_QT)
 
 
 #ifdef _QT
 class MenuBar: public QMenuBar {
-    Q_OBJECT
 #elif defined(_WINDOWS)
 class MenuBar {
-#endif // defined(_WINDOWS)
-
+#endif  // defined(_WINDOWS)
 public:
     // public lifecycle
     // no default constructor
@@ -56,13 +56,15 @@ public:
     explicit MenuBar(Partial const& rPartial);
 #elif defined(_WINDOWS)
     MenuBar(Win::CREATESTRUCT const&, Partial const&);
-#endif // defined(_WINDOWS)
-    // ~MenuBar(void);
+#endif  // defined(_WINDOWS)
+    // ~MenuBar(void);  implicitly defined destructor
 
     // misc public methods
     unsigned BoardTileSize(void) const;
     void     GameOver(void);
+#ifdef _WINDOWS
     void     HandleMenuCommand(IdType);
+#endif  // defined(_WINDOWS)
     unsigned HandTileSize(void) const;
     void     LoadUserOptions(User const&);
     void     NewGame(GameStyleType old);
@@ -87,7 +89,7 @@ private:
     SubMenu  mHelpMenu;
 #ifdef _WINDOWS
     Menu     mMenu;
-#endif // defined(_WINDOWS)
+#endif  // defined(_WINDOWS)
     Partial const&
             mrPartial;
     bool     mPeekFlag;
@@ -105,4 +107,4 @@ private:
     // private operators
     MenuBar& operator=(MenuBar const&);  // not assignable
 };
-#endif // !defined(MENUBAR_HPP_INCLUDED)
+#endif  // !defined(MENUBAR_HPP_INCLUDED)

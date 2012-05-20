@@ -33,14 +33,18 @@ The Graphics class is implemented by encapsulating a pair of GDI device
 contexts:  mDraw for drawing and mDevice for the physical device.
 */
 
+#ifdef _QT
+# include <QColor>
+#endif  // defined(_QT)
 #include "gui/rect.hpp"   // HASA Rect
 #ifdef _WINDOWS
 # include "gui/win.hpp"   // Win::COLORREF
 using Win::COLORREF;
+
 #elif defined(_QT)
 # define PALETTERGB QColor
 typedef QColor COLORREF;
-#endif // defined(_QT)
+#endif  // defined(_QT)
 
 // all colors used in the game
 enum ColorType {
@@ -114,7 +118,7 @@ private:
     Win::HGDIOBJ mBrushSave;
     Win::HGDIOBJ mFontSave;
     Win::HGDIOBJ mPenSave;
-#endif // defined(_WINDOWS)
+#endif  // defined(_WINDOWS)
 
     // private data - current colors and fonts
     ColorType    mBackgroundColor;  // background color and mode for text and broken lines
@@ -128,7 +132,7 @@ private:
     QFont*      mpFonts[TEXT_SIZE_CNT];
 #elif defined(_WINDOWS)
     Win::HFONT   mFonts[TEXT_SIZE_CNT];
-#endif // defined(_WINDOWS)
+#endif  // defined(_WINDOWS)
     PixelCntType mFontHeight[TEXT_SIZE_CNT];
     PixelCntType mFontWidth[TEXT_SIZE_CNT];
 
@@ -145,7 +149,7 @@ private:
     Win::HWND  mWindow;
 #elif defined(_QT)
     QPainter* mpDraw;
-#endif // defined(_QT)
+#endif  // defined(_QT)
 
     // private lifecycle
     Graphics(Graphics const&);  // not copyable
@@ -176,4 +180,4 @@ private:
     void UseBrushBackgroundColors(ColorType);
     void UsePenTextColors(ColorType);
 };
-#endif // !defined(GRAPHICS_HPP_INCLUDED)
+#endif  // !defined(GRAPHICS_HPP_INCLUDED)

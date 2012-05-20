@@ -31,14 +31,12 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 #include "strings.hpp"
 
 #ifdef _QT
-# include "ui_gamewindow.h"
 
 GameWindow::GameWindow(Game* pGame):
-    mMouseLast(0, 0),
-    mGameView(*pGame)
+    mGameView(*pGame),
+    mMouseLast(0, 0)
 {
-    mpUi = new Ui::GameWindow;
-    mpUi->setupUi(this);
+    mpWidget = new QWidget;
 
     mpGame = pGame;
     mpMenuBar = new MenuBar(mGameView);
@@ -334,7 +332,8 @@ void GameWindow::HandleButtonUp(Point const& rMouse) {
 // SERVER
 void GameWindow::HandleInvitation(Socket& rSocket) {
     Address const address = rSocket.Peer();
-    String const question = "Consider invitation from " + String(address) + "?";
+    String const address_string = address;
+    String const question = "Consider invitation from " + address_string + "?";
     int const consider = QuestionBox(question, "Consider Invitation - Gold Tile");
     if (consider != IDYES) {
         return;
@@ -798,6 +797,7 @@ TextType GameWindow::Name(void) const {
 #endif // !defined _SERVER
 }
 
+#ifdef _WINDOWS
 void GameWindow::OfferNewGame(void) {
     // set up default options
     GameOpt game_options;
@@ -944,6 +944,7 @@ STEP4:
         delete p_new_game;
     }
 }
+#endif  // defined(_WINDOWS)
 
 void GameWindow::OfferSaveGame(void) {
 #if 0
@@ -1067,9 +1068,9 @@ void GameWindow::ReleaseActiveTile(Point const& rMouse) {
         }
     }
 
-    if (from_hand && to_hand ||
-        from_swap && to_swap ||
-        from_board && to_board && from_cell == to_cell)
+    if ((from_hand && to_hand) ||
+        (from_swap && to_swap) ||
+        (from_board && to_board && from_cell == to_cell))
     {
         /* 
         Trivial drags (drags which don't actually move the tile)
@@ -1156,7 +1157,9 @@ void GameWindow::Repaint(void) {
     if (mInitialNewGame) {
         ASSERT(!HasGame());
         mInitialNewGame = false;
+#ifdef _WINDOWS
         OfferNewGame();
+#endif  // defined(_WINDOWS)
     }
 }
 
@@ -1233,12 +1236,14 @@ void GameWindow::SaveUserOptions(Hand const& rHand) const {
 void GameWindow::SetGame(Game* pGame) {
     ASSERT(mpMenuBar != NULL);
 
+#ifdef _WINDOWS
     // Cancel any operation which is using the Think fiber.
     while (mThinkMode != THINK_IDLE) {
         ASSERT(mThinkFiber != NULL);
         mThinkMode = THINK_CANCEL;
         Win::SwitchToFiber(mThinkFiber);
     }
+#endif  // defined(_WINDOWS)
 
     GameStyleType old_style = GAME_STYLE_NONE;
     if (HasGame()) {
@@ -1276,7 +1281,7 @@ void GameWindow::SetGame(Game* pGame) {
     }
 }
 
-void GameWindow::SetBoardTileSize(unsigned size) {
+void GameWindow::SetBoardTileSize(TileSizeType size) {
     ASSERT(mpMenuBar != NULL);
     ASSERT(size >= GameView::TILE_SIZE_MIN);
     ASSERT(size <= GameView::TILE_SIZE_MAX);
@@ -1285,7 +1290,7 @@ void GameWindow::SetBoardTileSize(unsigned size) {
     mGameView.SetBoardTileSize(size);
 }
 
-void GameWindow::SetHandTileSize(unsigned size) {
+void GameWindow::SetHandTileSize(TileSizeType size) {
     ASSERT(mpMenuBar != NULL);
     ASSERT(size >= GameView::TILE_SIZE_MIN);
     ASSERT(size <= GameView::TILE_SIZE_MAX);

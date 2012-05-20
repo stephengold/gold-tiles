@@ -31,12 +31,11 @@ A FileMenu object represents the "File" submenu in the menu bar.
 The FileMenu class extends the SubMenu class.
 */
 
-#include "gui/menuitem.hpp" // HASA MenuItem
-#include "gui/submenu.hpp"  // ISA SubMenu
+#include "gui/menuitem.hpp"  // HASA MenuItem
+#include "gui/submenu.hpp"   // ISA SubMenu
+
 
 class FileMenu: public SubMenu {
-    Q_OBJECT
-
 public:
     // public lifecycle
 #ifdef _QT
@@ -44,8 +43,8 @@ public:
 #elif defined(_WINDOWS)
     // no default constructor
     FileMenu(Menu const&, unsigned position);
-#endif // defined(_WINDOWS)
-    // ~FileMenu();  implicitly defined destructor
+#endif  // defined(_WINDOWS)
+    // ~FileMenu(void);  implicitly defined destructor
 
     // misc public methods
     void EnableItems(bool haveGame);
@@ -68,4 +67,4 @@ private:
     // private operators
     FileMenu& operator=(FileMenu const&);  // not assignable
 };
-#endif // !defined(FILEMENU_HPP_INCLUDED)
+#endif  // !defined(FILEMENU_HPP_INCLUDED)

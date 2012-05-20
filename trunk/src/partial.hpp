@@ -37,11 +37,11 @@ At any instant, only one tile may be active (in motion).
 The Partial class is ...
 */
 
-#include "board.hpp"   // HASA Board
-#include "cells.hpp"   // HASA Cells
+#include "board.hpp"    // HASA Board
+#include "cells.hpp"    // HASA Cells
 #include "game.hpp"
-#include "indices.hpp" // HASA Indices
-#include "tiles.hpp"   // HASA Tiles
+#include "indices.hpp"  // HASA Indices
+#include "tiles.hpp"    // HASA Tiles
 
 enum HintType {
     HINT_NONE,
@@ -65,7 +65,7 @@ public:
     // ~Partial(void);
 
     // public operators
-    //Partial& operator=(Partial const&);  implicitly defined assignment operator
+    // Partial& operator=(Partial const&);  implicitly defined assignment operator
     operator HintType(void) const;
     operator Tiles(void) const;
 
@@ -114,7 +114,7 @@ public:
 protected:
     // protected data
     Game const* mpGame;
-    Tiles        mTiles; // the set of playable tiles
+    Tiles        mTiles;  // the set of playable tiles
 
     // misc protected methods
     Board const& BoardReference(void) const;
@@ -127,14 +127,14 @@ protected:
 
 private:
     // private data
-    Tile::IdType   mActiveId;        // tile actively being dragged (or else Tile::ID_NONE)
+    Tile::IdType   mActiveId;         // tile actively being dragged (or else Tile::ID_NONE)
     Board          mBoard;
-    Cells          mHintedCells;     // cached choice of cells
+    Cells          mHintedCells;      // cached choice of cells
     bool           mHintedCellsValid;
     HintType       mHintStrength;
-    unsigned       mPlayedTileCnt;   // number of tiles played to the board
-    Fraction       mSkipProbability; // reduces thoroughness of Suggest() method
-    Indices        mSwapIds;         // indices of all tiles in the swap area
+    unsigned       mPlayedTileCnt;    // number of tiles played to the board
+    Fraction       mSkipProbability;  // reduces thoroughness of Suggest() method
+    Indices        mSwapIds;          // indices of all tiles in the swap area
     static void* mspYieldArgument;
     static YieldFunctionType*
                  mspYieldFunction;
@@ -148,4 +148,4 @@ private:
     // private inquiry methods
     bool IsValidNextStep(Move const&, Cell const&, Tile const&) const;
 };
-#endif // !defined(PARTIAL_HPP_INCLUDED)
+#endif  // !defined(PARTIAL_HPP_INCLUDED)

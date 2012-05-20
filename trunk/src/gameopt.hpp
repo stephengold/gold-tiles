@@ -46,13 +46,8 @@ enum RulesType {
 class GameOpt {
 public:
     // public constants
-    static const unsigned BONUS_PERCENT_DEFAULT = 0;
-    static const unsigned CLONES_PER_COMBO_DEFAULT = 2;
-    static const unsigned HAND_CNT_DEFAULT = 2;
-    static const unsigned HAND_SIZE_DEFAULT = 6;
     static const unsigned HAND_SIZE_MIN = 1;
     static const unsigned HANDS_DEALT_MIN = 1;
-    static const unsigned MINUTES_PER_HAND_DEFAULT = 30;
     static const unsigned MINUTES_PER_HAND_MIN = 2;
 
     // public lifecycle
@@ -128,6 +123,14 @@ public:
     bool IsRandomized(void) const;
 
 private:
+    // private constants
+    static const unsigned BONUS_PERCENT_DEFAULT = 0;
+    static const unsigned CLONES_PER_COMBO_DEFAULT = 2;
+    static const unsigned HAND_CNT_DEFAULT = 2;
+    static const unsigned HAND_SIZE_DEFAULT = 6;
+    static const unsigned MINUTES_PER_HAND_DEFAULT = 30;
+    static const unsigned SEED_DEFAULT = 123;
+
     // private data
     AttrCntType   mAttrCnt;
     RowType       mBoardHeight;

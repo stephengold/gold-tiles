@@ -78,7 +78,7 @@ void MenuBar::Initialize(GameStyleType gameStyle) {
     mBoardTileSize = GameView::TILE_SIZE_DEFAULT;
     mHandTileSize = GameView::TILE_SIZE_DEFAULT;
     mShowClocksFlag = is_challenge || is_debug;
-    mShowGridFlag = is_debug;
+    mShowGridFlag = true;
     mShowScoresFlag = true;
     mPeekFlag = is_debug;
 }

@@ -27,7 +27,7 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 # include "gui/menu.hpp"
 # include "gui/submenu.hpp"
 # include "gui/win_types.hpp"
-#endif // defined(_WINDOWS)
+#endif  // defined(_WINDOWS)
 
 
 // lifecycle
@@ -58,7 +58,7 @@ mrMenu(rMenu)
     mLastItemId = lastId;
 }
 
-#endif // defined(_WINDOWS)
+#endif  // defined(_WINDOWS)
 
 // The implicitly defined destructor is OK.
 
@@ -84,7 +84,7 @@ void MenuItem::Check(bool checkedFlag) {
         flags |= MF_UNCHECKED;
     }
     Win::CheckMenuItem(HMENU(mrMenu), mItemId, flags);
-#endif // defined(_WINDOWS)
+#endif  // defined(_WINDOWS)
 }
 
 void MenuItem::CheckRadio(bool checkedFlag) {
@@ -98,7 +98,7 @@ void MenuItem::CheckRadio(bool checkedFlag) {
         flags |= MF_UNCHECKED;
     }
     Win::CheckMenuRadioItem(HMENU(mrMenu), mFirstItemId, mLastItemId, mItemId, flags);
-#endif // defined(_WINDOWS)
+#endif  // defined(_WINDOWS)
 }
 
 void MenuItem::Enable(bool enabledFlag) {
@@ -112,7 +112,7 @@ void MenuItem::Enable(bool enabledFlag) {
         flags |= MF_GRAYED;
     }
     Win::EnableMenuItem(HMENU(mrMenu), mItemId, flags);
-#endif // defined(_WINDOWS)
+#endif  // defined(_WINDOWS)
 }
 
 #ifdef _QT
@@ -121,4 +121,4 @@ void MenuItem::SetShortcut(QString const &sequence) {
     mpAction->setShortcut(sequence);
 }
 
-#endif // defined(_QT)
+#endif  // defined(_QT)

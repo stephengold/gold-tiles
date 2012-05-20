@@ -24,10 +24,10 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "gui/resource.hpp"
 #include "gui/viewmenu.hpp"
-#include "partial.hpp"
 #ifdef _WINDOWS
 # include "gui/win_types.hpp"
 #endif  // defined(_WINDOWS)
+#include "partial.hpp"
 
 
 // lifecycle

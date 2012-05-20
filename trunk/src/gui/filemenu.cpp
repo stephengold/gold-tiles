@@ -26,14 +26,15 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 #ifdef _WINDOWS
 # include "gui/resource.hpp"
 # include "gui/win_types.hpp"
-#endif // defined(_WINDOWS)
+#endif  // defined(_WINDOWS)
 
 
 // lifecycle
 
 #ifdef _QT
-FileMenu::FileMenu(void):
-SubMenu(tr("&File")),
+
+FileMenu::FileMenu(void)
+:   SubMenu(tr("&File")),
     mNew(Qt(), tr("&New\tCtrl+N")),
     mOpen(Qt(), tr("&Open...\tCtrl+O")),
     mReopen(Qt(), tr("Open &Recent...")),
@@ -79,7 +80,7 @@ SubMenu(rRootMenu, position),
     mExit(rRootMenu, IDM_EXIT)
 {}
 
-#endif // defined(_WINDOWS)
+#endif  // defined(_WINDOWS)
 
 // The implicitly defined destructor is OK.
 
@@ -89,11 +90,11 @@ SubMenu(rRootMenu, position),
 void FileMenu::EnableItems(bool haveGame) {
 #ifdef _CLIENT
     mNew.Enable(true);
-#else // !defined(_CLIENT)
+#else  // !defined(_CLIENT)
     mNew.Enable(false);
-#endif // !defined(_CLIENT)
+#endif  // !defined(_CLIENT)
 
-    mOpen.Enable(false); // TODO
+    mOpen.Enable(false);  // TODO
     mReopen.Enable(false);
     mRevert.Enable(false);
     mSave.Enable(false);

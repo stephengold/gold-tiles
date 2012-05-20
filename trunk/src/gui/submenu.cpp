@@ -38,7 +38,7 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 
 #ifdef _QT
 
-SubMenu::SubMenu(QString const &label) {
+SubMenu::SubMenu(QString const& label) {
     mpQMenu = new QMenu(label);
     ASSERT(mpQMenu != NULL);
 }
@@ -74,7 +74,7 @@ void SubMenu::AddSeparator(void) {
     mpQMenu->addSeparator();
 }
 
-#endif // defined(_QT)
+#endif  // defined(_QT)
 
 void SubMenu::Enable(bool enabledFlag) {
 #ifdef _QT

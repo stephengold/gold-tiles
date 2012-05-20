@@ -49,19 +49,18 @@ public:
     operator Point(void) const;    // get logical coordinates of Start cell
 
     // misc public methods
-    unsigned BoardTileSize(void) const;
-    unsigned HandTileSize(void) const;
-    static User& 
-            rLookup(String const&);
-    void     SetAutopause(bool);
-    void     SetBoardTileSize(TileSizeType);
-    void     SetDisplayModes(DisplayModes const&);
-    void     SetHandTileSize(TileSizeType);
-    void     SetPeek(bool);
-    void     SetShowClocks(bool);
-    void     SetShowGrid(bool);
-    void     SetShowScores(bool);
-    void     SetStartCellPosition(Point const&);
+    TileSizeType  BoardTileSize(void) const;
+    TileSizeType  HandTileSize(void) const;
+    static User& rLookup(String const&);
+    void          SetAutopause(bool);
+    void          SetBoardTileSize(TileSizeType);
+    void          SetDisplayModes(DisplayModes const&);
+    void          SetHandTileSize(TileSizeType);
+    void          SetPeek(bool);
+    void          SetShowClocks(bool);
+    void          SetShowGrid(bool);
+    void          SetShowScores(bool);
+    void          SetStartCellPosition(Point const&);
 
     // public inquiry methods
     bool Autopause(void) const;

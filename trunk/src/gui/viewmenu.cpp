@@ -27,7 +27,7 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 #include "partial.hpp"
 #ifdef _WINDOWS
 # include "gui/win_types.hpp"
-#endif // defined(_WINDOWS)
+#endif  // defined(_WINDOWS)
 
 
 // lifecycle
@@ -75,14 +75,14 @@ SubMenu(rRootMenu, position),
     mAnimation(rRootMenu, IDM_ANIMATION)
 {}
 
-#endif // defined(_WINDOWS)
+#endif  // defined(_WINDOWS)
 
 // The implicitly defined destructor is OK.
 
 
 // misc methods
 
-void ViewMenu::BoardTileSize(unsigned size) {
+void ViewMenu::BoardTileSize(TileSizeType size) {
     mBoardSize.SetSize(size);
 }
 
@@ -103,7 +103,7 @@ void ViewMenu::EnableItems(Partial const& rPartial, ThinkModeType thinkMode) {
     mAnimation.Enable(false); // TODO
 }
 
-void ViewMenu::HandTileSize(unsigned size) {
+void ViewMenu::HandTileSize(TileSizeType size) {
     mTileSize.SetSize(size);
 }
 

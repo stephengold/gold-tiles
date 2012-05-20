@@ -60,17 +60,19 @@ public:
     // ~MenuBar(void);  implicitly defined destructor
 
     // misc public methods
-    unsigned BoardTileSize(void) const;
+    TileSizeType 
+             BoardTileSize(void) const;
     void     GameOver(void);
 #ifdef _WINDOWS
     void     HandleMenuCommand(IdType);
 #endif  // defined(_WINDOWS)
-    unsigned HandTileSize(void) const;
+    TileSizeType
+             HandTileSize(void) const;
     void     LoadUserOptions(User const&);
     void     NewGame(GameStyleType old);
     void     SaveUserOptions(User&) const;
-    void     SetBoardTileSize(unsigned);
-    void     SetHandTileSize(unsigned);
+    void     SetBoardTileSize(TileSizeType);
+    void     SetHandTileSize(TileSizeType);
     void     Update(ThinkModeType);
 
     // public inquiry methods
@@ -82,23 +84,23 @@ public:
 
 private:
     // private data
-    bool     mAutopauseFlag;
-    unsigned mBoardTileSize;
-    FileMenu mFileMenu;
-    unsigned mHandTileSize;
-    SubMenu  mHelpMenu;
+    bool         mAutopauseFlag;
+    TileSizeType mBoardTileSize;
+    FileMenu     mFileMenu;
+    TileSizeType mHandTileSize;
+    SubMenu      mHelpMenu;
 #ifdef _WINDOWS
-    Menu     mMenu;
+    Menu         mMenu;
 #endif  // defined(_WINDOWS)
     Partial const&
-            mrPartial;
-    bool     mPeekFlag;
-    PlayMenu mPlayMenu;
-    bool     mShowClocksFlag;
-    bool     mShowGridFlag;
-    bool     mShowScoresFlag;
-    SubMenu  mThinking;
-    ViewMenu mViewMenu;
+                mrPartial;
+    bool         mPeekFlag;
+    PlayMenu     mPlayMenu;
+    bool         mShowClocksFlag;
+    bool         mShowGridFlag;
+    bool         mShowScoresFlag;
+    SubMenu      mThinking;
+    ViewMenu     mViewMenu;
 
     // private lifecycle
     MenuBar(MenuBar const&);  // not copyable

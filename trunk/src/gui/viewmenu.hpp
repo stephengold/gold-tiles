@@ -34,6 +34,7 @@ The ViewMenu class extends the SubMenu class.
 #include "game.hpp"           // USES GameStyleType
 #include "gui/menuitem.hpp"   // HASA MenuItem
 #include "gui/sizemenu.hpp"   // HASA SizeMenu
+#include "gui/gameview.hpp"   // USES TileSizeType
 
 
 class ViewMenu: public SubMenu {
@@ -49,9 +50,9 @@ public:
 
     // misc public methods
     void Animation(bool);
-    void BoardTileSize(unsigned);
+    void BoardTileSize(TileSizeType);
     void EnableItems(Partial const&, ThinkModeType);
-    void HandTileSize(unsigned);
+    void HandTileSize(TileSizeType);
     void ShowClocks(bool);
     void ShowGrid(bool);
     void ShowHints(bool);

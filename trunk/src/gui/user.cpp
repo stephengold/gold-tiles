@@ -22,9 +22,9 @@ You should have received a copy of the GNU General Public License
 along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "gui/gameview.hpp" // TILE_SIZE_DEFAULT
+#include "gui/gameview.hpp"  // TILE_SIZE_DEFAULT
 #include "gui/user.hpp"
-#include "project.hpp"      // ASSERT
+#include "project.hpp"       // ASSERT
 
 
 // static data
@@ -63,15 +63,15 @@ User::operator Point(void) const {
 
 // misc methods
 
-unsigned User::BoardTileSize(void) const {
+TileSizeType User::BoardTileSize(void) const {
     return mBoardTileSize;
 }
 
-unsigned User::HandTileSize(void) const {
+TileSizeType User::HandTileSize(void) const {
     return mHandTileSize;
 }
 
-/* static */ User& User::rLookup(String const& rName) {
+/* static */  User& User::rLookup(String const& rName) {
     ConstIterator const i_user = msMap.find(rName);
 
     User* p_result = NULL;

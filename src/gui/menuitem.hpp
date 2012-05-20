@@ -38,14 +38,13 @@ In the native version, the MenuItem class encapsulates a handle and a resource i
 # include <QAction>
 #elif defined(_WINDOWS)
 # include "gui/win.hpp"  // HASA IdType
-#endif // defined(_WINDOWS)
+#endif  // defined(_WINDOWS)
 
 #ifdef _QT
 class MenuItem: public QObject {
-    Q_OBJECT
 #elif defined(_WINDOWS)
 class MenuItem {
-#endif // defined(_WINDOWS)
+#endif  // defined(_WINDOWS)
 public:
     // public lifecycle
     // no default constructor
@@ -54,19 +53,19 @@ public:
 #elif defined(_WINDOWS)
     MenuItem(Menu const&, IdType);
     MenuItem(Menu const&, IdType first, IdType last, IdType item);
-#endif // defined(_WINDOWS)
+#endif  // defined(_WINDOWS)
     // ~MenuItem(void);  implicitly defined destructor
 
     // misc public methods
 #ifdef _QT
     QAction* pAction(void);
-#endif // defined(_QT)
+#endif  // defined(_QT)
     void      Check(bool);
     void      CheckRadio(bool);
     void      Enable(bool);
 #ifdef _QT
     void      SetShortcut(QString const&);
-#endif // defined(_QT)
+#endif  // defined(_QT)
 
 private:
     // private data
@@ -78,7 +77,7 @@ private:
     IdType    mLastItemId;
     Menu const&
              mrMenu;
-#endif // defined(_WINDOWS)
+#endif  // defined(_WINDOWS)
 
     // private lifecycle
     MenuItem(MenuItem const&);   // not copyable
@@ -86,4 +85,4 @@ private:
     // private operators
     MenuItem& operator=(MenuItem const&);   // not assignable
 };
-#endif // !defined(MENUITEM_HPP_INCLUDED)
+#endif  // !defined(MENUITEM_HPP_INCLUDED)

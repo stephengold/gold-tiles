@@ -31,12 +31,11 @@ A SizeMenu object represents the "Tile Size" SubMenu in the "View" Menu.
 The SizeMenu class extends the SubMenu class.
 */
 
-#include "gui/menuitem.hpp"   // HASA MenuItem
+#include "gui/menuitem.hpp"  // HASA MenuItem
 #include "gui/submenu.hpp"   // ISA SubMenu
 
 
 class SizeMenu: public SubMenu {
-    Q_OBJECT
 public:
     // public lifecycle
 #ifdef _QT
@@ -61,9 +60,9 @@ private:
     MenuItem mSize7;
 
     // private lifecycle
-    SizeMenu(SizeMenu const&);   // not copyable
+    SizeMenu(SizeMenu const&);  // not copyable
 
     // private operators
     SizeMenu& operator=(SizeMenu const&);  // not assignable
 };
-#endif // !defined(SIZEMENU_HPP_INCLUDED)
+#endif  // !defined(SIZEMENU_HPP_INCLUDED)

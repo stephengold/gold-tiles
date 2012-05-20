@@ -37,8 +37,6 @@ The PlayMenu class extends the SubMenu class.
 
 
 class PlayMenu: public SubMenu {
-    Q_OBJECT
-
 public:
     // public lifecycle
     // no default constructor
@@ -46,7 +44,7 @@ public:
     PlayMenu(void);
 #elif defined(_WINDOWS)
     PlayMenu(Menu const&, unsigned position);
-#endif // defined(_WINDOWS)
+#endif  // defined(_WINDOWS)
     // ~PlayMenu(void);  implicitly defined destructor is fine
 
     // misc public methods
@@ -74,4 +72,4 @@ private:
     // private operators
     PlayMenu& operator=(PlayMenu const&); // not assignable
 };
-#endif // !defined(PLAYMENU_HPP_INCLUDED)
+#endif  // !defined(PLAYMENU_HPP_INCLUDED)

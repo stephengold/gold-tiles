@@ -32,15 +32,13 @@ In the native version, the GameWindow class extends the Window class.
 In the Qt version, the GameWindow class extends the QMainWindow class.
 */
 
-#include "gui/gameview.hpp" // HASA GameView
-#include "gui/submenu.hpp"  // HASA ThinkModeType
-#include "gui/window.hpp"   // ISA Window
-
 #ifdef _QT
-namespace Ui {
-    class GameWindow;
-}
-#endif // defined(_QT)
+# include <QWidget>
+#endif  // defined(_QT)
+#include "gui/gameview.hpp"  // HASA GameView
+#include "gui/submenu.hpp"   // HASA ThinkModeType
+#include "gui/window.hpp"    // ISA Window
+
 
 class GameWindow: public Window {
 public:
@@ -50,7 +48,7 @@ public:
     explicit GameWindow(Game* game = NULL);
 #elif defined(_WINDOWS)
     explicit GameWindow(Win::HINSTANCE, Game* game = NULL);
-#endif // defined(_WINDOWS)
+#endif  // defined(_WINDOWS)
     ~GameWindow(void);
 
     // misc public methods
@@ -58,7 +56,7 @@ public:
     long         DragTileDeltaY(void) const;
 #ifdef _WINDOWS
     Win::LRESULT HandleMessage(MessageType, Win::WPARAM, Win::LPARAM);
-#endif // defined(_WINDOWS)
+#endif  // defined(_WINDOWS)
     void         Think(void);
 
     // public inquiry methods
@@ -90,8 +88,8 @@ private:
     void*          mThinkFiber;
     ThinkModeType  mThinkMode;
 #ifdef _QT
-    Ui::GameWindow* mpUi;
-#endif // defined(_QT)
+    QWidget*      mpWidget;
+#endif  // defined(_QT)
 
     // private lifecycle
     GameWindow(GameWindow const&); // not copyable
@@ -135,10 +133,8 @@ private:
     String   SaveHandOptions(void) const;
     void     SaveUserOptions(Hand const&) const;
     void     SetGame(Game* pGame);
-#ifdef _WINDOWS
-    void     SetBoardTileSize(IdType);
-    void     SetHandTileSize(IdType);
-#endif // defined(_WINDOWS)
+    void     SetBoardTileSize(TileSizeType);
+    void     SetHandTileSize(TileSizeType);
     void     StopDragging(void);
     void     UndoTurn(void);
     void     UpdateMenuBar(void);
@@ -149,4 +145,4 @@ private:
     bool IsGameOver(void) const;
     bool IsGamePaused(void) const;
 };
-#endif // !defined(GAMEWINDOW_HPP_INCLUDED)
+#endif  // !defined(GAMEWINDOW_HPP_INCLUDED)

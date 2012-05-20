@@ -28,7 +28,7 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 #ifdef _WINDOWS
 # include "gui/resource.hpp"
 # include "gui/win_types.hpp"
-#endif // defined(_WINDOWS)
+#endif  // defined(_WINDOWS)
 
 
 // lifecycle
@@ -68,7 +68,7 @@ mrPartial(rPartial),
     Initialize(game_style);
 }
 
-#endif // defined(_WINDOWS)
+#endif  // defined(_WINDOWS)
 
 void MenuBar::Initialize(GameStyleType gameStyle) {
     bool const is_challenge = (gameStyle == GAME_STYLE_CHALLENGE);
@@ -87,7 +87,7 @@ void MenuBar::Initialize(GameStyleType gameStyle) {
 
 // misc methods
 
-unsigned MenuBar::BoardTileSize(void) const {
+TileSizeType MenuBar::BoardTileSize(void) const {
     return mBoardTileSize;
 }
 
@@ -122,7 +122,7 @@ void MenuBar::HandleMenuCommand(IdType command) {
 }
 #endif // defined(_WINDOWS)
 
-unsigned MenuBar::HandTileSize(void) const {
+TileSizeType MenuBar::HandTileSize(void) const {
     return mHandTileSize;
 }
 
@@ -158,11 +158,11 @@ void MenuBar::SaveUserOptions(User& rUser) const {
     rUser.SetShowScores(mShowScoresFlag);
 }
 
-void MenuBar::SetBoardTileSize(unsigned size) {
+void MenuBar::SetBoardTileSize(TileSizeType size) {
     mBoardTileSize = size;
 }
 
-void MenuBar::SetHandTileSize(unsigned size) {
+void MenuBar::SetHandTileSize(TileSizeType size) {
     mHandTileSize = size;
 }
 

@@ -734,7 +734,7 @@ void GameWindow::HandleMouseMove(Point const& rMouse) {
 void GameWindow::IncreaseBoardTileSize(int delta) {
     ASSERT(mpMenuBar != NULL);
 
-    int size = mpMenuBar->BoardTileSize();
+    TileSizeType size = mpMenuBar->BoardTileSize();
     ASSERT(size >= GameView::TILE_SIZE_MIN);
     ASSERT(size <= GameView::TILE_SIZE_MAX);
 

@@ -24,7 +24,7 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 
 #ifdef _WINDOWS
 # include "gui/resource.hpp"
-#endif // defined(_WINDOWS)
+#endif  // defined(_WINDOWS)
 #include "gui/sizemenu.hpp"
 
 
@@ -64,7 +64,7 @@ SubMenu(rRootMenu, position),
     mSize7(rRootMenu, IDM_TS1, IDM_TS7, IDM_TS7)
 {}
 
-#endif // defined(_WINDOWS)
+#endif  // defined(_WINDOWS)
 
 // The implicitly defined destructor is OK.
 
@@ -81,7 +81,7 @@ void SizeMenu::EnableItems(void) {
     mSize7.Enable(true);
 }
 
-void SizeMenu::SetSize(unsigned size) {
+void SizeMenu::SetSize(TileSizeType size) {
     switch (size) {
     case 1:
         mSize1.CheckRadio(true);

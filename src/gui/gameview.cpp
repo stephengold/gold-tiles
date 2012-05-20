@@ -32,8 +32,8 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 
 // lifecycle
 
-GameView::GameView(Game const& rGame):
-Partial(&rGame, HINT_DEFAULT, 0.0),
+GameView::GameView(Game const& rGame)
+:   Partial(&rGame, HINT_DEFAULT, 0.0),
     mHandRect(0, 0, 0, 0),
     mStartCell(0, 0),
     mSwapRect(0, 0, 0, 0)
@@ -875,9 +875,9 @@ void GameView::LoadUserOptions(User const& rUser) {
 
     mStartCell = Point(rUser);
 
-    unsigned const board_tile_size = rUser.BoardTileSize();
+    TileSizeType const board_tile_size = rUser.BoardTileSize();
     SetBoardTileSize(board_tile_size);
-    unsigned const hand_tile_size = rUser.HandTileSize();
+    TileSizeType const hand_tile_size = rUser.HandTileSize();
     SetHandTileSize(hand_tile_size);
 }
 

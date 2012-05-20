@@ -31,6 +31,7 @@ A SizeMenu object represents the "Tile Size" SubMenu in the "View" Menu.
 The SizeMenu class extends the SubMenu class.
 */
 
+#include "gui/gameview.hpp"  // USES TileSizeType
 #include "gui/menuitem.hpp"  // HASA MenuItem
 #include "gui/submenu.hpp"   // ISA SubMenu
 
@@ -43,12 +44,12 @@ public:
 #elif defined(_WINDOWS)
     // no default constructor
     SizeMenu(Menu const&, unsigned position);
-#endif // defined(_WINDOWS)
+#endif  // defined(_WINDOWS)
     // ~SizeMenu(void);  implicitly defined destructor
 
     // misc public methods
     void EnableItems(void);
-    void SetSize(unsigned);
+    void SetSize(TileSizeType);
 
 private:
     MenuItem mSize1;

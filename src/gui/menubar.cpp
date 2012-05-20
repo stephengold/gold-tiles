@@ -35,18 +35,26 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 
 #ifdef _QT
 
-MenuBar::MenuBar(Partial const& rPartial):
-   mrPartial(rPartial),
+MenuBar::MenuBar(Partial const& rPartial)
+: mrPartial(rPartial),
     mThinking(tr("&Thinking")),
     mHelpMenu(tr("&Help"))
 {
     addMenu(mFileMenu.Qt());
     addMenu(mPlayMenu.Qt());
     addMenu(mViewMenu.Qt());
+
+    MenuItem cancel(mViewMenu.Qt(), tr("&Cancel\tCtrl+C"));
+    mThinking.Add(cancel);
     addMenu(mThinking.Qt());
 
-    MenuItem rules(mHelpMenu.Qt(), tr("&Rules"));
+    MenuItem rules(mHelpMenu.Qt(), tr("&Rules...\tF1"));
     mHelpMenu.Add(rules);
+    rules.SetShortcut(tr("F1"));
+    MenuItem warranty(mHelpMenu.Qt(), tr("&Warranty..."));
+    mHelpMenu.Add(warranty);
+    MenuItem about(mHelpMenu.Qt(), tr("&About Gold Tile..."));
+    mHelpMenu.Add(about);
     addMenu(mHelpMenu.Qt());
 
     GameStyleType game_style = mrPartial.GameStyle();

@@ -95,7 +95,7 @@ void User::SetAutopause(bool value) {
     mAutopause = value;
 }
 
-void User::SetBoardTileSize(unsigned size) {
+void User::SetBoardTileSize(TileSizeType size) {
     ASSERT(size >= GameView::TILE_SIZE_MIN);
     ASSERT(size <= GameView::TILE_SIZE_MAX);
 
@@ -106,7 +106,7 @@ void User::SetDisplayModes(DisplayModes const& rDisplayModes) {
     mDisplayModes = rDisplayModes;
 }
 
-void User::SetHandTileSize(unsigned size) {
+void User::SetHandTileSize(TileSizeType size) {
     ASSERT(size >= GameView::TILE_SIZE_MIN);
     ASSERT(size <= GameView::TILE_SIZE_MAX);
 

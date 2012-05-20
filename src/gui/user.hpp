@@ -32,10 +32,10 @@ The User class implements a static map for translating names to
 user-interface settings.
 */
 
-#include <map>                  // HASA std::map
-#include "gui/displaymodes.hpp" // HASA DisplayModes
-#include "gui/point.hpp"        // HASA Point
-#include "string.hpp"           // HASA String
+#include <map>                   // HASA std::map
+#include "gui/displaymodes.hpp"  // HASA DisplayModes
+#include "gui/point.hpp"         // HASA Point
+#include "string.hpp"            // HASA String
 
 class User {
 public:
@@ -54,9 +54,9 @@ public:
     static User& 
             rLookup(String const&);
     void     SetAutopause(bool);
-    void     SetBoardTileSize(unsigned);
+    void     SetBoardTileSize(TileSizeType);
     void     SetDisplayModes(DisplayModes const&);
-    void     SetHandTileSize(unsigned);
+    void     SetHandTileSize(TileSizeType);
     void     SetPeek(bool);
     void     SetShowClocks(bool);
     void     SetShowGrid(bool);
@@ -80,9 +80,9 @@ private:
 
     // private data
     bool         mAutopause;
-    unsigned     mBoardTileSize;
-    unsigned     mHandTileSize;
+    TileSizeType mBoardTileSize;
     DisplayModes mDisplayModes;
+    TileSizeType mHandTileSize;
     static Map  msMap;
     String       mName;
     bool         mPeek;
@@ -97,4 +97,4 @@ private:
     // private operators
     User& operator=(User const&);  // not assignable
 };
-#endif // !defined(USER_HPP_INCLUDED)
+#endif  // !defined(USER_HPP_INCLUDED)

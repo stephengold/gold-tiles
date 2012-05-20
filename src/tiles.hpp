@@ -50,21 +50,21 @@ public:
     operator String(void) const; // for display/debug only, not for save/send
 
     // misc public methods
-    void     Add(Tile::IdType);
-    void     AddAllTiles(AttrIndexType, Tile& model);
-    unsigned BonusFactor(void) const;
+    void      Add(Tile::IdType);
+    void      AddAllTiles(AttrIndexType, Tile& model);
+    ScoreType BonusFactor(void) const;
     AttrIndexType
-             CommonAttr(void) const;
-    bool     CopyIds(Tiles const&);
-    String   Description(void) const;
+              CommonAttr(void) const;
+    bool      CopyIds(Tiles const&);
+    String    Description(void) const;
     Tile::IdType
-             FindFirst(TileOpt const&) const;
-    Tiles    LongestRun(void) const;
-    Tile     PullFirstTile(void);
-    Tile     PullRandomTile(void);
-    Tiles    PullRandomTiles(unsigned);
-    void     Restock(void);
-    Tiles    UniqueTiles(void) const;
+              FindFirst(TileOpt const&) const;
+    Tiles     LongestRun(void) const;
+    Tile      PullFirstTile(void);
+    Tile      PullRandomTile(void);
+    Tiles     PullRandomTiles(SizeType);
+    void      Restock(void);
+    Tiles     UniqueTiles(void) const;
 
     // public inquiry methods
     bool AreAllCompatible(void) const;

@@ -136,7 +136,7 @@ private:
     AttrIndexType ColorAttr(void) const;
     void          DrawBlankTile(Canvas&, Point const&, bool bonus, bool odd);
     void          DrawBoard(Canvas&, unsigned layer);
-    void          DrawCell(Canvas&, Cell const&, Point const&, unsigned swapCnt);
+    void          DrawCell(Canvas&, Cell const&, Point const&, SizeType swapCnt);
     Rect          DrawHandHeader(Canvas&, LogicalYType, LogicalXType leftRight, Hand&, 
                       ColorType, bool leftFlag);
     void          DrawIdle(Canvas&);

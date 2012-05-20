@@ -39,17 +39,17 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 
 // misc methods
 
-unsigned Turns::Count(void) const {
-    unsigned const result = size();
+SizeType Turns::Count(void) const {
+    SizeType const result = SizeType(size());
 
     return result;
 }
 
 // convert an iterator to an index
-unsigned Turns::Index(Iterator const& rIterator) const {
+SizeType Turns::Index(Iterator const& rIterator) const {
 
     // count the number of iterator values preceding the argument
-    unsigned result = 0;
+    SizeType result = 0;
     ConstIterator iterator;
     for (iterator = begin(); iterator != rIterator; iterator++) {
         ASSERT(iterator != end());
@@ -59,8 +59,8 @@ unsigned Turns::Index(Iterator const& rIterator) const {
     return result;
 }
 
-unsigned Turns::IndexLastPlay(void) const {
-    unsigned result = Count();
+SizeType Turns::IndexLastPlay(void) const {
+    SizeType result = Count();
 
     for (ConstReverseIterator i_turn = rbegin(); i_turn != rend(); i_turn++) {
         Move const move = *i_turn;

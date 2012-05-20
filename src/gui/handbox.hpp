@@ -39,7 +39,7 @@ class HandBox: public Dialog {
 public:
     // public lifecycle
     // no default constructor
-    HandBox(unsigned handIndex, unsigned handCnt, HandOpt&); 
+    HandBox(SizeType handIndex, SizeType handCnt, HandOpt&); 
     // ~HandBox(void);  implicitly defined destructor
 
     // misc public methods
@@ -48,8 +48,8 @@ public:
 private:
     // private data
     bool      mAreMoreHands;
-    unsigned  mHandCnt;
-    unsigned  mHandIndex;
+    SizeType  mHandCnt;
+    SizeType  mHandIndex;
     HandOpt& mrOptions;
 
     // private lifecycle

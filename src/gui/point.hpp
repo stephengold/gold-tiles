@@ -36,13 +36,14 @@ The Point class encapsulates a logical X coordinate and a logical Y coordinate.
 #ifdef _WINDOWS
 # include "gui/win.hpp"  // Win::POINT
 using Win::POINT;
+
 #elif defined(_QT)
 # include <QPoint>
 typedef QPoint POINT;
 #endif // defined(_QT)
 
-typedef long LogicalXType;
-typedef long LogicalYType;
+typedef int32_t LogicalXType;
+typedef int32_t LogicalYType;
 
 class Point {
 public:

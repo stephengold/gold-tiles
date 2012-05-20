@@ -23,9 +23,9 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #ifdef _WINDOWS
+#include "project.hpp"  // ASSERT
 #include "gui/win_types.hpp"
 #include "gui/windowclass.hpp"
-#include "project.hpp"  // ASSERT
 
 // lifecycle
 

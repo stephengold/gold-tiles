@@ -122,21 +122,18 @@ void Tiles::AddAllTiles(AttrIndexType attributeIndex, Tile& rModelTile) {
     }
 }
 
-unsigned Tiles::BonusFactor(void) const {
-    unsigned long factor = 1;
+ScoreType Tiles::BonusFactor(void) const {
+    ScoreType result = 1;
 
     ConstIterator i_tile;
     for (i_tile = begin(); i_tile != end(); i_tile++) {
         Tile const tile = *i_tile;
         if (tile.HasBonus()) {
-            factor *= 2;
+            result *= 2;
         }
     }
 
-    ASSERT(factor > 0);
-    ASSERT(factor <= UINT_MAX);
-    unsigned result = unsigned(factor);
-
+    ASSERT(result > 0);
     return result;
 }
 
@@ -244,14 +241,14 @@ Tile Tiles::PullFirstTile(void) {
 Tile Tiles::PullRandomTile(void) {
     ASSERT(!IsEmpty());
 
-    unsigned const n = Count();
+    SizeType const n = Count();
     ASSERT(n > 0);
-    unsigned const r = ::rand() % n;
+    SizeType const r = ::rand() % n;
 
     // find the "r"th tile in the bag
     Iterator i_tile = begin();
     ASSERT(i_tile != end());
-    for (unsigned i = 0; i < r; i++) {
+    for (SizeType i = 0; i < r; i++) {
         i_tile++;
         ASSERT(i_tile != end());
     }
@@ -263,10 +260,10 @@ Tile Tiles::PullRandomTile(void) {
     return result;
 }
 
-Tiles Tiles::PullRandomTiles(unsigned tileCnt) {
+Tiles Tiles::PullRandomTiles(SizeType tileCnt) {
     Tiles result;
 
-    for (unsigned i_tile = 0; i_tile < tileCnt; i_tile++) {
+    for (SizeType i_tile = 0; i_tile < tileCnt; i_tile++) {
         if (IsEmpty()) {
             break;
         }

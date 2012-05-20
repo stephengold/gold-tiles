@@ -62,12 +62,12 @@ public:
     void     AddSwapTile(Tile const&);
     ConstIterator
              Begin(void) const;
-    unsigned Count(void) const;
-    unsigned CountTilesPlayed(void) const;
+    SizeType Count(void) const;
+    SizeType CountTilesPlayed(void) const;
     String   Description(void) const;
     ConstIterator
              End(void) const;
-    void     GetUserChoice(Tiles const&, unsigned mustPlay);
+    void     GetUserChoice(Tiles const&, SizeType mustPlay);
     void     MakeResign(Tiles const&);
 
     // public inquiry methods

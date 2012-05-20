@@ -269,9 +269,9 @@ IdType TileBox::SliderId(HWND handle) const {
 }
 
 void TileBox::UpdateTileCnt(void) {
-    ValueType const combo_cnt = mrGameOpt.ComboCnt();
-    ValueType const clone_cnt = mrGameOpt.CloneCnt();
-    ValueType const total_tile_cnt = mrGameOpt.TotalTileCnt();
+    ComboCntType const combo_cnt = mrGameOpt.ComboCnt();
+    ComboCntType const clone_cnt = mrGameOpt.CloneCnt();
+    ComboCntType const total_tile_cnt = mrGameOpt.TotalTileCnt();
 
     String const combo_cnt_string = ::plural(combo_cnt, "combination");
     String const clone_cnt_string = ::plural(clone_cnt, "clone");

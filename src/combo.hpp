@@ -35,12 +35,11 @@ the same number of attributes.
 #include <climits>      // USHRT_MAX
 #include "project.hpp"  // USES String
 
-// attribute types
-typedef unsigned short AttrCntType;   // an attribute count
-typedef unsigned short AttrIndexType; // an index into an array of attributes
-typedef unsigned short AttrType;      // an attribute value
+typedef uint16_t AttrCntType;   // an attribute count
+typedef uint16_t AttrIndexType; // an index into an array of attributes
+typedef uint16_t AttrType;      // an attribute value
 
-enum AttrModeType {                   // display mode type
+enum AttrModeType {             // display mode type
     ATTR_MODE_MIN = 0,
     ATTR_MODE_ABC = 0,
     ATTR_MODE_RST = 1,
@@ -55,6 +54,8 @@ enum AttrModeType {                   // display mode type
     ATTR_MODE_CNT = 3
 #endif // !defined(_GUI)
 };
+
+typedef uintmax_t ComboCntType;  // for counting combinations
 
 class Combo {
 public:
@@ -71,9 +72,9 @@ public:
     static const AttrType VALUE_CNT_DEFAULT = 6;
     static const AttrType VALUE_CNT_MAX = 9;
 
-    static const long COMBINATION_CNT_MIN = 4L;
+    static const ComboCntType COMBINATION_CNT_MIN = 4;
 #ifdef _GUI
-    static const long COMBINATION_CNT_MAX = 59049L; // 9^5
+    static const ComboCntType COMBINATION_CNT_MAX = 59049L; // 9^5
 #endif // defined(_GUI)
 
     // public lifecycle
@@ -91,7 +92,7 @@ public:
     AttrType            Attr(AttrIndexType) const;
     static AttrCntType  AttrCnt(void);
     static String       AttrToString(AttrModeType, AttrType);
-    static long         CombinationCnt(void);
+    static ComboCntType CombinationCnt(void);
     AttrIndexType       CommonAttr(Combo const&) const;
     AttrCntType         CountMatchingAttrs(Combo const&) const;
     String              Description(void) const;

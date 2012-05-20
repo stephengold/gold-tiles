@@ -33,6 +33,7 @@ The Fifo class is encapsulates a fixed-size buffer and a pair of counts,
 one for valid bytes and one for consumed bytes.
 */
 
+#include "project.hpp"  // HASA SizeType
 
 class Fifo {
 public:
@@ -42,8 +43,8 @@ public:
 
     // misc public methods
     char GetByte(void);
-    void PostReceive(int count);
-    void PreReceive(char*& dest, int& count);
+    void PostReceive(SizeType count);
+    void PreReceive(char*& dest, SizeType& count);
     void Reset(void);
 
     // public inquiry methods
@@ -52,13 +53,13 @@ public:
 
 private:
     // private constants
-    static const long INITIAL_SIZE = 16;
+    static const SizeType INITIAL_SIZE = 16;
 
     // private data
-    long   mConsumedCnt; // number of consumed bytes in the buffer
-    char* mpBuffer;
-    long   mSize;        // total size of the buffer, in bytes
-    long   mValidCnt;    // number of valid bytes in buffer, including those consumed
+    SizeType mConsumedCnt; // number of consumed bytes in the buffer
+    char*   mpBuffer;
+    SizeType mSize;        // total size of the buffer, in bytes
+    SizeType mValidCnt;    // number of valid bytes in buffer, including those consumed
 
     // private lifecycle
     Fifo(Fifo const&); // not copyable

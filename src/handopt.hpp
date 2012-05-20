@@ -42,15 +42,17 @@ enum GameStyleType {
     GAME_STYLE_CHALLENGE, // no peeking, no undo, no hints; time limits
 #ifdef _DEBUG
     GAME_STYLE_DEFAULT = GAME_STYLE_DEBUG,
-#else // !defined(_DEBUG)
+#else  // !defined(_DEBUG)
     GAME_STYLE_DEFAULT = GAME_STYLE_PRACTICE
-#endif // !defined(_DEBUG)
+#endif  // !defined(_DEBUG)
 };
+
+typedef int32_t SecondsType;  // up to 78 years
 
 class HandOpt {
 public:
     // public types
-    typedef unsigned LevelType;
+    typedef uint16_t LevelType;
 
     // public constants
     static const LevelType LEVEL_DEFAULT = 10;

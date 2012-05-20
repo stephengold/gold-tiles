@@ -54,7 +54,7 @@ public:
     // misc public methods
     void     Add(Cell const&);
     void     AddCells(Cells const&);
-    unsigned Count(void) const;
+    SizeType Count(void) const;
     Cell     First(void) const;
     void     MakeEmpty(void);
     void     Remove(Cell const&);

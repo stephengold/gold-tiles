@@ -57,9 +57,12 @@ public:
     explicit String(double);
     explicit String(int);            // itoa
     explicit String(long);           // ltoa
+    explicit String(long long);      // lltoa
     explicit String(unsigned);       // utoa
     explicit String(unsigned long);  // ultoa
-    String(unsigned cnt, char);      // repeat characters
+    explicit String(unsigned long long);  // ulltoa
+
+    String(SizeType cnt, char);      // repeat characters
     String(TextType);
     String(std::string const&);
 #ifdef _QT
@@ -74,6 +77,7 @@ public:
     // String& operator=(String const&);  implicitly defined assignment method
     operator bool(void) const;
     operator double(void) const;
+    operator int(void) const; // atoi
     operator long(void) const; // atol
     operator Fraction(void) const;
     operator TextType(void) const;
@@ -81,12 +85,12 @@ public:
     // misc public methods
     void     Capitalize(void);
     char     Last(void) const;
-    unsigned Length(void) const;
+    SizeType Length(void) const;
     void     MakeEmpty(void);
     String   Prefix(String const& suffix) const;
     String   Purge(void) const;
     String   Quote(void) const;
-    void     Shorten(unsigned);
+    void     Shorten(SizeType);
     String   Suffix(String const& prefix) const;
 
     // public inquiry methods

@@ -47,6 +47,16 @@ static std::string ultos(unsigned long integer) {
     sout << integer;
     return sout.str(); 
 }
+static std::string lltos(long long integer) {
+    std::ostringstream sout;
+    sout << integer;
+    return sout.str(); 
+}
+static std::string ulltos(unsigned long long integer) {
+    std::ostringstream sout;
+    sout << integer;
+    return sout.str(); 
+}
 static std::string lftos(double number) {
     std::ostringstream sout;
     sout << number;
@@ -89,9 +99,17 @@ String::String(unsigned long integer):
 std::string(::ultos(integer))
 {
 }
+String::String(long long integer):
+std::string(::lltos(integer))
+{
+}
+String::String(unsigned long long integer):
+std::string(::ulltos(integer))
+{
+}
 
 // repetition
-String::String(unsigned repeatCnt, char character):
+String::String(SizeType repeatCnt, char character):
 std::string(repeatCnt, character)
 {
 }
@@ -168,6 +186,13 @@ String::operator double(void) const {
     return result;
 }
 
+String::operator int(void) const {
+    TextType const text = c_str();
+    int const result = ::atoi(text);
+
+    return result;
+}
+
 String::operator long(void) const {
     TextType const text = c_str();
     long const result = ::atol(text);
@@ -200,7 +225,7 @@ void String::Capitalize(void) {
     String result;
     char const space = ' ';
 
-    for (unsigned i_char = 0; i_char < Length(); i_char++) {
+    for (SizeType i_char = 0; i_char < Length(); i_char++) {
         char ch = at(i_char);
         bool const is_graphic = (::isgraph(ch) != 0 && ch != '=');
 
@@ -228,14 +253,14 @@ void String::Capitalize(void) {
 char String::Last(void) const {
     ASSERT(!IsEmpty());
 
-    unsigned const length = Length();
+    SizeType const length = Length();
     char const result = at(length - 1);
 
     return result;
 }
 
-unsigned String::Length(void) const {
-    unsigned const result = size();
+SizeType String::Length(void) const {
+    SizeType const result = SizeType(size());
 
     return result;
 }
@@ -247,9 +272,9 @@ void String::MakeEmpty(void) {
 String String::Prefix(String const& rSuffix) const {
     String result;
 
-    unsigned const suffix_length = rSuffix.Length();
+    SizeType const suffix_length = rSuffix.Length();
     if (Length() >= suffix_length) {
-        unsigned const prefix_length = Length() - suffix_length;
+        SizeType const prefix_length = Length() - suffix_length;
         result = substr(0, prefix_length);
     }
 
@@ -260,7 +285,7 @@ String String::Prefix(String const& rSuffix) const {
 String String::Purge(void) const {
     String result;
 
-    for (unsigned i_char = 0; i_char < Length(); i_char++) {
+    for (SizeType i_char = 0; i_char < Length(); i_char++) {
         char const ch = at(i_char);
         bool const is_graphic = (::isgraph(ch) != 0);
 
@@ -280,9 +305,9 @@ String String::Quote(void) const {
 }
 
 // delete characters from the end
-void String::Shorten(unsigned characterCnt) {
-    unsigned const length = Length();
-    unsigned new_length = length - characterCnt;
+void String::Shorten(SizeType characterCnt) {
+    SizeType const length = Length();
+    SizeType new_length = length - characterCnt;
     if (characterCnt >= length) {
         new_length = 0;
     }
@@ -292,9 +317,9 @@ void String::Shorten(unsigned characterCnt) {
 String String::Suffix(String const& rPrefix) const {
     String result;
 
-    unsigned const prefix_length = rPrefix.Length();
+    SizeType const prefix_length = rPrefix.Length();
     if (Length() >= prefix_length) {
-        unsigned const suffix_length = Length() - prefix_length;
+        SizeType const suffix_length = Length() - prefix_length;
         result = substr(prefix_length, suffix_length);
     }
 
@@ -305,7 +330,7 @@ String String::Suffix(String const& rPrefix) const {
 // inquiry methods
 
 bool String::Contains(char character) const {
-    size_t const position = find(character);
+    SizeType const position = SizeType(find(character));
     bool const result = (position != npos);
 
     return result;
@@ -314,7 +339,7 @@ bool String::Contains(char character) const {
 bool String::HasPrefix(String const& rPrefix) const {
     bool result = false;
 
-    unsigned const prefix_length = rPrefix.Length();
+    SizeType const prefix_length = rPrefix.Length();
     if (Length() >= prefix_length) {
         String const prefix = substr(0, prefix_length);
         result = (prefix == rPrefix);
@@ -326,9 +351,9 @@ bool String::HasPrefix(String const& rPrefix) const {
 bool String::HasSuffix(String const& rSuffix) const {
     bool result = false;
 
-    unsigned const suffix_length = rSuffix.Length();
+    SizeType const suffix_length = rSuffix.Length();
     if (Length() >= suffix_length) {
-        unsigned const prefix_length = Length() - suffix_length;
+        SizeType const prefix_length = Length() - suffix_length;
         String const suffix = substr(prefix_length, suffix_length);
         result = (suffix == rSuffix);
     }

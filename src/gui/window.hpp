@@ -106,7 +106,7 @@ protected:
     void  SetCursorBusy(void);
     void  SetCursorDrag(void);
     void  SetCursorSelect(void);
-    void  SetTimer(unsigned msecs, unsigned id);
+    void  SetTimer(MsecIntervalType msecs, unsigned id);
     void  UpdateMenuBar(void);
     void  UseFibers(void);
     int   WarnBox(TextType message, TextType title);

@@ -344,7 +344,7 @@ void GameWindow::HandleInvitation(Socket& rSocket) {
     if (!success) {
         return;
     }
-    unsigned const hand_cnt = game_opt.HandsDealt();
+    SizeType const hand_cnt = game_opt.HandsDealt();
 
     HandOpts hand_opts;
     success = hand_opts.GetFromClient(rSocket, hand_cnt);
@@ -870,12 +870,12 @@ STEP3:
     }
     ASSERT(result == Dialog::RESULT_OK);
 
-    unsigned const hand_cnt = game_options.HandsDealt();
+    SizeType const hand_cnt = game_options.HandsDealt();
     if (hand_cnt > hand_options.Count()) { // adding new hands
         // Initialize a new hand_option for each new hand.
         GameStyleType const game_style = GameStyleType(game_options);
         Strings player_names = hand_options.AllPlayerNames();
-        for (unsigned i_hand = hand_options.Count(); i_hand < hand_cnt; i_hand++) {
+        for (SizeType i_hand = hand_options.Count(); i_hand < hand_cnt; i_hand++) {
             HandOpt const options = HandOpt(game_style, player_names);
             String const new_name = options.PlayerName();
             player_names.Append(new_name);
@@ -898,9 +898,9 @@ STEP4:
     ASSERT(result == Dialog::RESULT_OK);
 
     // Check the sanity of the parameters so far.
-    unsigned const hand_size = game_options.HandSize();
-    long const tiles_needed = hand_cnt*hand_size;
-    long const total_tile_cnt = game_options.TotalTileCnt();
+    SizeType const hand_size = game_options.HandSize();
+    SizeType const tiles_needed = hand_cnt*hand_size;
+    ComboCntType const total_tile_cnt = game_options.TotalTileCnt();
     if (total_tile_cnt < tiles_needed) {
         result = GameWarnBox("FEWTILES");
         if (result == IDCANCEL) {
@@ -912,7 +912,7 @@ STEP4:
     }
 
     // fifth dialog and onward:  parameters of each hand
-    for (unsigned i_hand = 0; i_hand < hand_cnt; ) {
+    for (SizeType i_hand = 0; i_hand < hand_cnt; ) {
         HandBox handbox(i_hand+1, hand_cnt, hand_options[i_hand]);
         result = handbox.Run(this);
         if (result == Dialog::RESULT_CANCEL) {

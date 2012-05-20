@@ -29,7 +29,6 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 #include "socket.hpp"  // HASA Socket
 #include "tiles.hpp"   // HASA Tiles
 
-
 class Hand {
 public:
     // public lifecycle
@@ -47,33 +46,33 @@ public:
     operator Tiles(void) const;
 
     // misc public methods
-    void      AddScore(ScoreType);
-    void      AddTiles(Tiles const&);
-    Move      ChooseMove(unsigned mustPlay) const;
-    bool      ConnectToServer(Game&);
-    void      DescribeName(void) const;
-    void      DescribeScore(void) const;
-    void      DescribeTiles(void) const;
-    void      DisableServer(void);
-    Move      GetAutomaticMove(Game const&) const;
-    bool      GetRemoteMove(Move&);
-    Tiles     LongestRun(void) const;
+    void        AddScore(ScoreType);
+    void        AddTiles(Tiles const&);
+    Move        ChooseMove(SizeType mustPlay) const;
+    bool        ConnectToServer(Game&);
+    void        DescribeName(void) const;
+    void        DescribeScore(void) const;
+    void        DescribeTiles(void) const;
+    void        DisableServer(void);
+    Move        GetAutomaticMove(Game const&) const;
+    bool        GetRemoteMove(Move&);
+    Tiles       LongestRun(void) const;
     MsecIntervalType
-              Milliseconds(void) const;
-    String    Name(void) const;
-    String    PlayerName(void) const;
-    void      RemoveTile(Tile const&);
-    void      RemoveTiles(Tiles const&);
-    void      Resign(Tiles& bag);
-    void      Restart(void);
-    ScoreType Score(void) const;
-    unsigned  Seconds(void) const;
-    void      SetSocket(Socket const&);
-    Fraction  SkipProbability(void) const;
-    void      StartClock(void);
-    unsigned  StopClock(void);
-    void      SubtractScore(ScoreType);
-    void      Unresign(Tiles& bag, Tiles const& hand);
+                Milliseconds(void) const;
+    String      Name(void) const;
+    String      PlayerName(void) const;
+    void        RemoveTile(Tile const&);
+    void        RemoveTiles(Tiles const&);
+    void        Resign(Tiles& bag);
+    void        Restart(void);
+    ScoreType   Score(void) const;
+    SecondsType Seconds(void) const;
+    void        SetSocket(Socket const&);
+    Fraction    SkipProbability(void) const;
+    void        StartClock(void);
+    SecondsType StopClock(void);
+    void        SubtractScore(ScoreType);
+    void        Unresign(Tiles& bag, Tiles const& hand);
 
     // public inquiry methods
     bool HasGoneOut(void) const;

@@ -192,16 +192,16 @@ bool Cell::GetUserChoice(String const& rAlternate) {
     return msGrid;
 }
 
-/* static */ void Cell::LimitPlay(unsigned& rCellCnt) {
+/* static */ void Cell::LimitPlay(SizeType& rCellCnt) {
     ASSERT(rCellCnt > 0);
 
-    IndexType const cells_needed = rCellCnt;
-    IndexType most_found = 1;
+    SizeType const cells_needed = rCellCnt;
+    SizeType most_found = 1;
 
     Direction axis;
     for (axis.SetFirst(); axis.IsAxis(); axis++) {
         if (Cell::IsScoringAxis(axis)) {
-            IndexType cells_found = 1;
+            SizeType cells_found = 1;
 
             Cell current; // start cell
             ASSERT(current.IsValid());
@@ -500,7 +500,7 @@ String grid_to_string(GridType grid) {
     case GRID_4WAY:
     case GRID_HEX:
     case GRID_8WAY:
-        result = String(unsigned(grid));
+        result = String(long(grid));
         break;
     default:
         FAIL();

@@ -166,14 +166,14 @@ Move::ConstIterator Move::Begin(void) const {
     return result;
 }
 
-unsigned Move::Count(void) const {
-    unsigned const result = mSet.size();
+SizeType Move::Count(void) const {
+    SizeType const result = SizeType(mSet.size());
 
     return result;
 }
 
-unsigned Move::CountTilesPlayed(void) const {
-    unsigned result = 0;
+SizeType Move::CountTilesPlayed(void) const {
+    SizeType result = 0;
 
     if (!InvolvesSwap()) {
         result = Count();
@@ -213,7 +213,7 @@ Move::ConstIterator Move::End(void) const {
     return result;
 }
 
-void Move::GetUserChoice(Tiles const& rAvailableTiles, unsigned mustPlay) {
+void Move::GetUserChoice(Tiles const& rAvailableTiles, SizeType mustPlay) {
     MakePass();
 
     for (;;) {

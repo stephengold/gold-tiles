@@ -49,7 +49,7 @@ public:
 
     // misc public methods
     void      Append(Hand const&);
-    unsigned  Count(void) const;
+    SizeType  Count(void) const;
     ConstIterator 
               Find(String const&) const;
     Iterator  Find(String const&);

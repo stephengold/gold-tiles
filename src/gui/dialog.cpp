@@ -286,7 +286,7 @@ Dialog::ValueType Dialog::SetSliderValue(IdType id, ValueType value) {
 void Dialog::SetTextString(IdType controlId, String const& rString) {
     HWND const window_handle = HWND(*this);
 
-    unsigned const length = rString.Length();
+    SizeType const length = rString.Length();
     char* copy_text = new char[length + 1];
     ::strcpy_s(copy_text, length + 1, rString.c_str());
 

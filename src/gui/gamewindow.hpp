@@ -84,7 +84,7 @@ private:
     bool           mIsStartCentered;
     MenuBar*      mpMenuBar;
     Point          mMouseLast; // coordinates of last mouse update
-    unsigned       mMouseUpCnt;
+    uint16_t       mMouseUpCnt;
     void*          mThinkFiber;
     ThinkModeType  mThinkMode;
 #ifdef _QT

@@ -44,7 +44,7 @@ public:
     ViewMenu(void);
 #elif defined(_WINDOWS)
     // no default constructor
-    ViewMenu(Menu const&, unsigned position);
+    ViewMenu(Menu const&, SizeType position);
 #endif  // defined(_WINDOWS)
     // ~ViewMenu(void);  implicitly defined destructor
 

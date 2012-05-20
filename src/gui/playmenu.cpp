@@ -72,7 +72,7 @@ SubMenu(tr("&Play")),
 
 #elif defined(_WINDOWS)
 
-PlayMenu::PlayMenu(Menu const& rRootMenu, unsigned position):	
+PlayMenu::PlayMenu(Menu const& rRootMenu, SizeType position):	
 SubMenu(rRootMenu, position),
     mPlay(rRootMenu, IDM_PLAY_PLAY),
     mTakeBack(rRootMenu, IDM_TAKE_BACK),

@@ -56,7 +56,7 @@ Dialog("PARMBOX2", &message_handler),
 
 // misc methods
 
-IndexType ParmBox2::GetTextIndex(IdType controlId) {
+Dialog::ValueType ParmBox2::GetTextIndex(IdType controlId) {
     String const string = GetTextString(controlId);
 
     IndexType result = Cell::HEIGHT_MAX;

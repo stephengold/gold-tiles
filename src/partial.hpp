@@ -72,11 +72,11 @@ public:
     // misc public methods
     void          Activate(Tile::IdType);
     void          BoardToHand(void);             // move the active tile
-    unsigned      CountHand(void) const;
-    unsigned      CountHinted(void);
-    unsigned      CountPlayed(void) const;
-    unsigned      CountSwap(void) const;
-    unsigned      CountTiles(void) const;
+    SizeType      CountHand(void) const;
+    SizeType      CountHinted(void);
+    SizeType      CountPlayed(void) const;
+    SizeType      CountSwap(void) const;
+    SizeType      CountTiles(void) const;
     void          Deactivate(void);
     Cell          FirstHinted(void);
     GameStyleType GameStyle(void) const;
@@ -132,7 +132,7 @@ private:
     Cells          mHintedCells;      // cached choice of cells
     bool           mHintedCellsValid;
     HintType       mHintStrength;
-    unsigned       mPlayedTileCnt;    // number of tiles played to the board
+    SizeType       mPlayedTileCnt;    // number of tiles played to the board
     Fraction       mSkipProbability;  // reduces thoroughness of Suggest() method
     Indices        mSwapIds;          // indices of all tiles in the swap area
     static void* mspYieldArgument;

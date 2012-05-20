@@ -105,8 +105,8 @@ void Indices::AddRemove(IndexType index, bool addFlag) {
     ASSERT(addFlag == Contains(index));
 }
 
-unsigned Indices::Count(void) const {
-    unsigned const result = size();
+SizeType Indices::Count(void) const {
+    SizeType const result = SizeType(size());
 
     return result;
 }

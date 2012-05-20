@@ -42,7 +42,7 @@ int main(int argCnt, char** argValues) {
 int CALLBACK Win::WinMain(
     HINSTANCE applicationInstance, 
     HINSTANCE previousInstance,  // always NULL and ignored
-    char* commandLine,  // TODO
+    LPSTR commandLine,  // TODO
     int showHow) 
 {
     previousInstance;
@@ -51,10 +51,6 @@ int CALLBACK Win::WinMain(
 #endif  // defined(_WINDOWS)
 
     GameWindow* p_window = NULL;
-
-    // Seed the pseudo-random number generator.
-    unsigned const seed = ::milliseconds();
-    Fraction::ReseedGenerator(seed);
 
     // Initialize the networking support.
     Network network;

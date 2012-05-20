@@ -45,7 +45,7 @@ SubMenu::SubMenu(QString const& label) {
 
 #elif defined(_WINDOWS)
 
-SubMenu::SubMenu(Menu const& rMenu, unsigned position)
+SubMenu::SubMenu(Menu const& rMenu, SizeType position)
 :   mrMenu(rMenu)
 {
     mPosition = position;

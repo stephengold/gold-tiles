@@ -67,7 +67,7 @@ ViewMenu::ViewMenu(void)
 
 #elif defined(_WINDOWS)
 
-ViewMenu::ViewMenu(Menu const& rRootMenu, unsigned position):
+ViewMenu::ViewMenu(Menu const& rRootMenu, SizeType position):
 SubMenu(rRootMenu, position),
     mBoardSize(rRootMenu, 0),
     mTileSize(rRootMenu, 1),

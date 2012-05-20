@@ -165,10 +165,10 @@ Rect Rect::CenterRect(float aspectRatio) const {
     LogicalYType top = TopY();
 
     if (width > height*aspectRatio) {
-        left += (unsigned)(width - height*aspectRatio)/2;
+        left += PixelCntType((width - height*aspectRatio)/2);
         width = height;
     } else if (height > width/aspectRatio) {
-        top += (unsigned)(height - width/aspectRatio)/2;
+        top += PixelCntType((height - width/aspectRatio)/2);
         height = width;
     } 
     Rect const result(top, left, width, height);

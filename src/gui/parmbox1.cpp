@@ -65,7 +65,7 @@ INT_PTR ParmBox1::HandleMessage(MessageType message, WPARAM wParam, LPARAM lPara
 
         SetStyle();
 
-        SetTextValue(IDC_EDIT_SEED, mrGameOpt.Seed());
+        SetTextValue(IDC_EDIT_SEED, ValueType(mrGameOpt.Seed()));
 
         IdType const slider_id = IDC_SLIDERMINUTES;
         ValueType const min_value = GameOpt::MINUTES_PER_HAND_MIN;
@@ -80,14 +80,14 @@ INT_PTR ParmBox1::HandleMessage(MessageType message, WPARAM wParam, LPARAM lPara
         EnableControl(IDC_EDITMINUTES, mrGameOpt.HasTimeLimit());
 
         RulesType const rules = RulesType(mrGameOpt);
-        unsigned const standard_index = AddListboxItem(IDC_LIST1, 
+        Dialog::ValueType const standard_index = AddListboxItem(IDC_LIST1, 
             "Standard Rules (108 square tiles on an endless grid, 2 hands of 6)");
         ASSERT(standard_index == RULES_STANDARD);
-        unsigned const custom_index = AddListboxItem(IDC_LIST1, 
+        Dialog::ValueType const custom_index = AddListboxItem(IDC_LIST1, 
             "Custom Rules - you decide what the rules will be");
         ASSERT(custom_index == RULES_CUSTOM);
         if (rules == RULES_REPLAY) {
-            unsigned const replay_index = AddListboxItem(IDC_LIST1, 
+            Dialog::ValueType const replay_index = AddListboxItem(IDC_LIST1, 
                 "Replay - use the same rules as last time");
             ASSERT(replay_index == RULES_REPLAY);
         }
@@ -112,7 +112,7 @@ INT_PTR ParmBox1::HandleMessage(MessageType message, WPARAM wParam, LPARAM lPara
         case IDC_EDIT_SEED: {
             ValueType const value = GetTextValue(control_id);
             if (value != VALUE_INVALID) {
-                mrGameOpt.SetSeed(value);
+                mrGameOpt.SetSeed(SeedType(value));
             }
             break;
         }
@@ -125,7 +125,7 @@ INT_PTR ParmBox1::HandleMessage(MessageType message, WPARAM wParam, LPARAM lPara
                 if (slider_value != value) {
                     SetTextValue(control_id, slider_value);
                 }
-                mrGameOpt.SetMinutesPerHand(slider_value);
+                mrGameOpt.SetMinutesPerHand(MinutesType(slider_value));
             }
             break;
                               }
@@ -159,9 +159,9 @@ INT_PTR ParmBox1::HandleMessage(MessageType message, WPARAM wParam, LPARAM lPara
         IdType const slider_id = IDC_SLIDERMINUTES;
         ASSERT(control_handle == GetControlHandle(slider_id));
         ValueType const value = GetSliderValue(slider_id);
-        IdType editbox_id = IDC_EDITMINUTES;
+        IdType const editbox_id = IDC_EDITMINUTES;
         SetTextValue(editbox_id, value);
-        mrGameOpt.SetMinutesPerHand(value);
+        mrGameOpt.SetMinutesPerHand(MinutesType(value));
         break;
                      }
     }

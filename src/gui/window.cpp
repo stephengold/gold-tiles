@@ -107,11 +107,10 @@ Area Window::ClientArea(void) const {
 
 void Window::Close(void) {
 #ifdef _WINDOWS
-    int const ignored = 0;
     HWND const this_window = *this;
     ASSERT(this_window != NULL);
 
-    Win::SendMessage(this_window, WM_CLOSE, WPARAM(ignored), LPARAM(ignored));
+    Win::SendMessage(this_window, WM_CLOSE, WPARAM(0), LPARAM(0));
 #endif // defined(_WINDOWS)
 }
 
@@ -429,9 +428,11 @@ void Window::SetIcons(TextType resourceName) {
 #endif // defined(_WINDOWS)
 }
 
-void Window::SetTimer(unsigned interval_msecs, unsigned event_id) {
+void Window::SetTimer(MsecIntervalType intervalMsecs, unsigned eventId) {
 #ifdef _WINDOWS
     HWND const this_window = *this;
+    UINT_PTR const event_id = eventId;
+    UINT const interval_msecs = intervalMsecs;
     TIMERPROC const callback = NULL;
     UINT_PTR const success = Win::SetTimer(this_window, event_id, interval_msecs, callback);
     ASSERT(success != 0);

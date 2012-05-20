@@ -71,6 +71,6 @@ bool Fraction::RandomBool(void) const {
     return result;
 }
 
-/* static */ void Fraction::ReseedGenerator(unsigned seed) {
+/* static */ void Fraction::ReseedGenerator(SeedType seed) {
     ::srand(seed);
 }

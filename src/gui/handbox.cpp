@@ -47,8 +47,8 @@ static INT_PTR CALLBACK message_handler(
 
 // lifecycle
 
-HandBox::HandBox(unsigned handIndex, unsigned handCnt, HandOpt& rOptions):
-Dialog("HANDBOX", &message_handler),
+HandBox::HandBox(SizeType handIndex, SizeType handCnt, HandOpt& rOptions)
+:   Dialog("HANDBOX", &message_handler),
     mrOptions(rOptions)
 {
     mAreMoreHands = (handIndex < handCnt);
@@ -162,7 +162,7 @@ INT_PTR HandBox::HandleMessage(MessageType message, WPARAM wParam) {
 
     case WM_HSCROLL:
     case WM_VSCROLL: {
-        ValueType const level = GetSliderValue(IDC_SLIDER1);
+        HandOpt::LevelType const level = HandOpt::LevelType(GetSliderValue(IDC_SLIDER1));
         mrOptions.SetLevel(level);
         break;
                      }
@@ -195,6 +195,6 @@ void HandBox::UpdateNameBox(String const& rName) {
 void HandBox::UpdateSlider(void) {
     ValueType const level = mrOptions.Level();
     ValueType const new_level = SetSliderValue(IDC_SLIDER1, level);
-    mrOptions.SetLevel(new_level);
+    mrOptions.SetLevel(HandOpt::LevelType(new_level));
 }
 #endif // defined(_WINDOWS)

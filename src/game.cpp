@@ -55,7 +55,7 @@ Game::Game(
 
     // Add tiles to the stock bag.
     if (AmClient()) {
-        for (unsigned i = 0; i < mOptions.TilesPerCombo(); i++) {
+        for (SizeType i = 0; i < mOptions.TilesPerCombo(); i++) {
             // Generate all possible tiles.
             mStockBag.Restock();
         }
@@ -75,11 +75,11 @@ Game::Game(
     Strings names = rHandOptions.AllPlayerNames();
 
     // Construct hands and give each one a unique name.
-    for (unsigned i_hand = 0; i_hand < rHandOptions.Count(); i_hand++) {
+    for (SizeType i_hand = 0; i_hand < rHandOptions.Count(); i_hand++) {
         HandOpt const options = rHandOptions[i_hand];
 
         String hand_name = options.PlayerName();
-        unsigned const cnt = names.Count(hand_name);
+        SizeType const cnt = names.Count(hand_name);
         if (cnt > 1) {
             hand_name = names.InventUnique(hand_name, "'s ", " hand");
             names.Append(hand_name);
@@ -214,7 +214,7 @@ bool Game::ConnectToServers(void) {
             continue;
         }
 
-        unsigned const hand_cnt = game_opt.HandsDealt();
+        SizeType const hand_cnt = game_opt.HandsDealt();
         HandOpts hand_opts;
         success = hand_opts.GetFromClient(data_socket, hand_cnt);
         if (!success) {
@@ -240,7 +240,7 @@ bool Game::ConnectToServers(void) {
     // Let a local user choose game options and hand options.
     game_opt.GetUserChoice();
 
-    unsigned const hand_cnt = game_opt.HandsDealt();
+    SizeType const hand_cnt = game_opt.HandsDealt();
     hand_opts.GetUserChoice(hand_cnt);
 
     // Instantiate the game.
@@ -264,8 +264,8 @@ bool Game::ConnectToServers(void) {
 
 }
 
-unsigned Game::CountStock(void) const {
-    unsigned const result = mStockBag.Count();
+SizeType Game::CountStock(void) const {
+    SizeType const result = mStockBag.Count();
 
     return result;
 }
@@ -281,7 +281,7 @@ void Game::DescribeScores(void) const {
 
 void Game::DescribeStatus(void) const {
     DescribeScores();
-    unsigned const stock = CountStock();
+    SizeType const stock = CountStock();
     std::cout << std::endl
         << miPlayableHand->Name() << "'s turn, " 
         << ::plural(stock, "tile") << " remaining in the stock bag"
@@ -310,7 +310,7 @@ void Game::DisableServers(Address const& rAddress) {
     }
 }
 
-bool Game::DrawTiles(unsigned tileCount, Hand& rHand, Tiles& rTiles) {
+bool Game::DrawTiles(SizeType tileCount, Hand& rHand, Tiles& rTiles) {
     if (AmClient()) {
         rTiles = mStockBag.PullRandomTiles(tileCount);
 
@@ -331,7 +331,7 @@ bool Game::DrawTiles(unsigned tileCount, Hand& rHand, Tiles& rTiles) {
     }
     rHand.AddTiles(rTiles);
 
-    unsigned const actual_cnt = rTiles.Count();
+    SizeType const actual_cnt = rTiles.Count();
     if (actual_cnt > 0) {
         std::cout << rHand.Name() << " drew " << ::plural(actual_cnt, "tile") 
             << " from the stock bag." << std::endl;
@@ -358,7 +358,7 @@ String Game::EndBonus(void) {
         mHands.Next(i_hand);
         while (i_hand != miPlayableHand) {
             Tiles hand = Tiles(*i_hand);
-            unsigned const tiles_in_hand = hand.Count();
+            SizeType const tiles_in_hand = hand.Count();
             ScoreType const points_in_hand = ScoreType(tiles_in_hand);  // TODO?
 
             if (points_in_hand > 0) {
@@ -427,7 +427,7 @@ void Game::FindBestRun(void) {
     Hands::Iterator i_hand;
     for (i_hand = mHands.begin(); i_hand < mHands.end(); i_hand++) {
         Tiles const run = i_hand->LongestRun();
-        unsigned const run_length = run.Count();
+        SizeType const run_length = run.Count();
 
         mBestRunReport += i_hand->Name();
         mBestRunReport += " has a run of ";
@@ -494,7 +494,7 @@ bool Game::FinishTurn(Move const& rMove) {
         miPlayableHand->RemoveTiles(tiles);
 
         // Attempt to draw replacement tiles from the stock bag.
-        unsigned const count = tiles.Count();
+        SizeType const count = tiles.Count();
         if (count > 0) {
             Tiles draw;
             bool const was_successful = DrawTiles(count, *miPlayableHand, draw);
@@ -572,8 +572,8 @@ bool Game::FirstTurnConsole(void) {
     return was_successful;
 }
 
-unsigned Game::HandSize(void) const {
-    unsigned const result = mOptions.HandSize();
+SizeType Game::HandSize(void) const {
+    SizeType const result = mOptions.HandSize();
 
     return result;
 }
@@ -588,7 +588,7 @@ bool Game::Initialize(void) {
     }
 
     // Deal tiles to each hand from the stock bag.
-    unsigned const hand_size = mOptions.HandSize();
+    SizeType const hand_size = mOptions.HandSize();
     Hands::Iterator i_hand;
     for (i_hand = mHands.begin(); i_hand < mHands.end(); i_hand++) {
         Tiles deal;
@@ -620,7 +620,7 @@ bool Game::Initialize(void) {
     return true;
 }
 
-unsigned Game::MustPlay(void) const {
+SizeType Game::MustPlay(void) const {
     return mMustPlay;
 }
 
@@ -792,7 +792,7 @@ void Game::Restart(void) {
 
     // Redo the initial draws.
     miRedo = mHistory.begin();
-    for (unsigned i_hand = 0; i_hand < mHands.Count(); i_hand++) {
+    for (SizeType i_hand = 0; i_hand < mHands.Count(); i_hand++) {
         ASSERT(miRedo->Points() == 0);
 
         Move const move = Move(*miRedo);
@@ -823,15 +823,15 @@ int Game::Seconds(Hand& rHand) const {
 
     if (mOptions.HasTimeLimit()) {
         // counting down
-        unsigned const time_limit = SecondsPerHand();
+        SecondsType const time_limit = SecondsPerHand();
         result = time_limit - result;
     }
 
     return result;
 }
 
-unsigned Game::SecondsPerHand(void) const {
-    unsigned const result = mOptions.SecondsPerHand();
+SecondsType Game::SecondsPerHand(void) const {
+    SecondsType const result = mOptions.SecondsPerHand();
 
     return result;
 }
@@ -944,13 +944,13 @@ Hands Game::UnplayableHands(void) const {
 }
 
 Strings Game::WinningHands(void) const {
-    unsigned const winning_score = WinningScore();
+    ScoreType const winning_score = WinningScore();
 
     Strings result;
 
     Hands::ConstIterator i_hand;
     for (i_hand = mHands.begin(); i_hand != mHands.end(); i_hand++) {
-        unsigned const score = i_hand->Score();
+        ScoreType const score = i_hand->Score();
         if (score == winning_score) {
             String const name = i_hand->Name();
             result.Append(name);
@@ -980,7 +980,7 @@ bool Game::CanRedo(void) const {
 }
 
 bool Game::CanUndo(void) const {
-    unsigned const turn = mHistory.Index(miRedo);
+    SizeType const turn = mHistory.Index(miRedo);
     bool const result = (turn > mHands.Count());
 
     return result;
@@ -1037,9 +1037,9 @@ bool Game::IsLegalMove(Move const& rMove) const {
 }
 
 bool Game::IsLegalMove(Move const& rMove, UmType& rReason) const {
-    unsigned const stock = CountStock();
+    SizeType const stock = CountStock();
     bool result = true;
-    unsigned const tiles_played = rMove.CountTilesPlayed();
+    SizeType const tiles_played = rMove.CountTilesPlayed();
 
     if (!mBoard.IsValidMove(rMove, rReason)) {
         result = false;

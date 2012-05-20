@@ -33,7 +33,7 @@ Strings::Strings(void) {
 
 Strings::Strings(TextType list, TextType separators) {
     // Create a writable copy of the list.
-    unsigned const length = ::strlen(list);
+    SizeType const length = ::strlen(list);
     char* copy_list = new char[length + 1];
     ::strcpy_s(copy_list, length + 1, list);
 
@@ -75,14 +75,14 @@ Strings::Iterator Strings::Begin(void) {
     return result;
 }
 
-unsigned Strings::Count(void) const {
-    unsigned const result = mList.size();
+SizeType Strings::Count(void) const {
+    SizeType const result = SizeType(mList.size());
 
     return result;
 }
 
-unsigned Strings::Count(String const& rString) const {
-    unsigned result = 0;
+SizeType Strings::Count(String const& rString) const {
+    SizeType result = 0;
     ConstIterator i_string;
     for (i_string = Begin(); i_string != End(); i_string++) {
         if (*i_string == rString) {
@@ -129,7 +129,7 @@ String Strings::First(void) const {
 String Strings::InventUnique(String const& rPrefix) const {
     String result = rPrefix;
 
-    unsigned i = 2;
+    SizeType i = 2;
     while (Contains(result)) {
         result = rPrefix + String(i);
         i++;
@@ -145,7 +145,7 @@ String Strings::InventUnique(
     String const& rSuffix) const
 {
     String result = rPrefix;
-    unsigned i = 1;
+    SizeType i = 1;
     while (Contains(result)) {
         result = rPrefix + rInfix + ::ordinal(i) + rSuffix;
         i++;

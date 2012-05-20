@@ -156,7 +156,7 @@ Network::~Network(void) {
 /* static */  String Network::AddressReport(void) {
     // Get list of addresses.
     Strings const list = Address::ListAll();
-    unsigned const cnt = list.Count();
+    SizeType const cnt = list.Count();
 
     String result = "This computer has ";
     // Generate a brief report.

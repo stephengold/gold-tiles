@@ -30,6 +30,9 @@ A Fraction object represents a number between 0 and 1 inclusive,
 such as a probability.
 */
 
+#include "project.hpp"   // 
+
+typedef uint32_t SeedType;
 
 class Fraction {
 public:
@@ -47,7 +50,7 @@ public:
     void Invert(void);
     bool RandomBool(void) const;
     static void 
-         ReseedGenerator(unsigned);
+         ReseedGenerator(SeedType);
 
 private:
     // private data

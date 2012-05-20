@@ -278,7 +278,7 @@ bool Socket::Put(String const& rString) {
 #else  // !defined(_QT)
     SOCKET const socket = SOCKET(mHandle);
     char const* const p_buffer = TextType(rString);
-    int const buffer_size = rString.Length();
+    SizeType const buffer_size = rString.Length();
     int const no_flags = 0;
     int const bytes_sent = send(socket, p_buffer, buffer_size, no_flags);
     if (bytes_sent == SOCKET_ERROR) {
@@ -294,7 +294,7 @@ bool Socket::Put(String const& rString) {
             Network::Fail("send");
         }
     }
-    ASSERT(bytes_sent == buffer_size);
+    ASSERT(SizeType(bytes_sent) == buffer_size);
 #endif  // !defined(_QT)
 
     ASSERT(IsValid());
@@ -317,7 +317,7 @@ bool Socket::Read(void) {
     SOCKET const socket = SOCKET(mHandle);
 
     char* p_start = NULL;
-    int bytes_requested = 0;
+    SizeType bytes_requested = 0;
     mpReadBuffer->PreReceive(p_start, bytes_requested);
     ASSERT(bytes_requested > 0);
 

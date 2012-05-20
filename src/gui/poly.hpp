@@ -54,8 +54,8 @@ public:
 
     // misc public methods
     void     Add(double x, double y);
-    unsigned Count(void) const;
-    void     GetPoints(POINT points[], unsigned numPoints,
+    SizeType Count(void) const;
+    void     GetPoints(POINT points[], SizeType numPoints,
                  Rect const& bounds, bool invert) const;
 };
 #endif // !defined(POLY_HPP_INCLUDED)

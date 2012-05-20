@@ -33,6 +33,7 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 GameOpt::GameOpt(void) {
     mMinutesPerHand = MINUTES_PER_HAND_DEFAULT;
     mRandomizeFlag = true;
+    mSeed = SEED_DEFAULT;
     mStyle = GAME_STYLE_DEFAULT;
     Standardize();
     Validate();

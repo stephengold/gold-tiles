@@ -42,20 +42,22 @@ enum PlaceType {
     PLACE_HAND
 };
 
+typedef int TileSizeType;
+
 class GameView: public Partial {
 public:
     // public constants
     static const PixelCntType PAD_PIXELS_DEFAULT = 6;
-    static const unsigned     TILE_SIZE_MIN = 1;
-    static const unsigned     TILE_SIZE_DEFAULT = 6;
-    static const unsigned     TILE_SIZE_MAX = 7;
+    static const TileSizeType TILE_SIZE_MIN = 1;
+    static const TileSizeType TILE_SIZE_DEFAULT = 6;
+    static const TileSizeType TILE_SIZE_MAX = 7;
     static const PixelCntType WIDTH_TINY_SQUARE = 10;
     static const PixelCntType WIDTH_TINY_HEX = 12;
     static const PixelCntType WIDTH_TINY_TRIANGLE = 16;
 
     // public lifecycle
     // no default constructor
-    explicit GameView::GameView(Game const& game);
+    explicit GameView(Game const& game);
     // ~GameView(void);  implicitly defined destructor
 
     // public operators
@@ -72,10 +74,10 @@ public:
     void       Repaint(Canvas&);
     void       ResetTargetCell(void);
     void       SaveUserOptions(User&) const;
-    void       SetBoardTileSize(unsigned);
+    void       SetBoardTileSize(TileSizeType);
     void       SetDisplayModes(DisplayModes const&);
     void       SetGame(Game*);
-    void       SetHandTileSize(unsigned);
+    void       SetHandTileSize(TileSizeType);
     void       SetWarmTiles(Indices const&);
     void       SetWindow(GameWindow*, MenuBar*);
     void       StartCellOffset(long dx, long dy);

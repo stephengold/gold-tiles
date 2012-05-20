@@ -36,9 +36,9 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 #ifdef _QT
 
 MenuBar::MenuBar(Partial const& rPartial)
-: mrPartial(rPartial),
-    mThinking(tr("&Thinking")),
-    mHelpMenu(tr("&Help"))
+:   mHelpMenu(tr("&Help")),
+   mrPartial(rPartial),
+    mThinking(tr("&Thinking"))
 {
     addMenu(mFileMenu.Qt());
     addMenu(mPlayMenu.Qt());
@@ -128,7 +128,7 @@ void MenuBar::HandleMenuCommand(IdType command) {
         FAIL();
     }
 }
-#endif // defined(_WINDOWS)
+#endif  // defined(_WINDOWS)
 
 TileSizeType MenuBar::HandTileSize(void) const {
     return mHandTileSize;
@@ -208,6 +208,7 @@ void MenuBar::Update(ThinkModeType thinkMode) {
 
     mHelpMenu.Enable(true);
 }
+
 
 // inquiry methods
 

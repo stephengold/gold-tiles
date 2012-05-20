@@ -98,9 +98,9 @@ String GameView::ClockText(Hand& rHand) const {
         seconds = -seconds;
     }
 
-    unsigned minutes = seconds / SECONDS_PER_MINUTE;
+    unsigned const minutes = seconds / SECONDS_PER_MINUTE;
     seconds -= minutes*SECONDS_PER_MINUTE;
-    unsigned tens_of_seconds = seconds / 10;
+    unsigned const tens_of_seconds = seconds / 10;
     seconds -= tens_of_seconds*10;
 
     ASSERT(seconds >= 0);

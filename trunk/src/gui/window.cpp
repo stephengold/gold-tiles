@@ -64,7 +64,7 @@ void* Window::AddFiber(void (__stdcall & rStartRoutine)(void *)) {
 
     return result;
 }
-#endif // defined(_WINDOWS)
+#endif  // defined(_WINDOWS)
 
 void Window::BeginPaint(void) {
 #ifdef _WINDOWS
@@ -75,7 +75,7 @@ void Window::BeginPaint(void) {
     mPaintDevice = Win::BeginPaint(this_window, &mPaintStruct);
 
     ASSERT(mPaintDevice != NULL);
-#endif // defined(_WINDOWS)
+#endif  // defined(_WINDOWS)
 }
 
 Point Window::Brc(void) const {
@@ -92,7 +92,7 @@ void Window::CaptureMouse(void) {
     Win::SetCapture(this_window);
 
     ASSERT(IsMouseCaptured());
-#endif // defined(_WINDOWS)
+#endif  // defined(_WINDOWS)
 }
 
 Area Window::ClientArea(void) const {
@@ -102,7 +102,7 @@ Area Window::ClientArea(void) const {
     return result;
 #elif defined(_WINDOWS)
     return mClientArea;
-#endif // defined(_WINDOWS)
+#endif  // defined(_WINDOWS)
 }
 
 void Window::Close(void) {
@@ -148,7 +148,7 @@ void Window::Create(
         applicationInstance, parameters);
     ASSERT(handle == HWND(*this));
 }
-#endif // defined(_WINDOWS)
+#endif  // defined(_WINDOWS)
 
 void Window::DoneWaiting(void) {
     mWaitingFlag = false;
@@ -221,18 +221,18 @@ LRESULT Window::HandleMessage(MessageType message, WPARAM wParameter, LPARAM lPa
         break;
                    }
 
-    case WM_CREATE: { // initialize window
+    case WM_CREATE: {  // initialize window
         LPCREATESTRUCT const p_create_struct = LPCREATESTRUCT(lParameter);
         ASSERT(p_create_struct != NULL);
         Initialize(*p_create_struct);
         break;
                     }
 
-    case WM_DESTROY: // destroy window
+    case WM_DESTROY:  // destroy window
         SelfDestruct();
         break;
 
-    case WM_SIZE: { // resize window
+    case WM_SIZE: {  // resize window
         PixelCntType const width = LOWORD(lParameter);
         PixelCntType const height = HIWORD(lParameter);
         Area const area(width, height);
@@ -247,7 +247,7 @@ LRESULT Window::HandleMessage(MessageType message, WPARAM wParameter, LPARAM lPa
 
     return result;
 }
-#endif // defined(_WINDOWS)
+#endif  // defined(_WINDOWS)
 
 // display a simple dialog box with a informational message and an OK button
 void Window::InfoBox(TextType message, TextType title) {
@@ -301,7 +301,7 @@ HDC Window::PaintDevice(void) const {
 
     return mPaintDevice;
 }
-#endif // defined(_WINDOWS)
+#endif  // defined(_WINDOWS)
 
 // Display a simple dialog box with a question and buttons for Yes and No.
 int Window::QuestionBox(TextType message, TextType title) {
@@ -315,13 +315,13 @@ int Window::QuestionBox(TextType message, TextType title) {
     ASSERT(result == IDCANCEL || result == IDYES || result == IDNO);
 
     return result;
-#endif // defined(_WINDOWS)
+#endif  // defined(_WINDOWS)
 }
 
 void Window::ReleaseMouse(void) {
 #ifdef _WINDOWS
     Win::ReleaseCapture();
-#endif // defined(_WINDOWS)
+#endif  // defined(_WINDOWS)
 }
 
 // Display a simple dialog box with a retry button.
@@ -337,7 +337,7 @@ bool Window::RetryBox(TextType message, TextType title) {
     bool const result = (success == IDRETRY);
 
     return result;
-#endif // defined(_WINDOWS)
+#endif  // defined(_WINDOWS)
 }
 
 void Window::SelfDestruct(void) {
@@ -345,7 +345,7 @@ void Window::SelfDestruct(void) {
     mDestroyedFlag = true;
     int const application_exit_code = 0;
     Win::PostQuitMessage(application_exit_code);
-#endif // defined(_WINDOWS)
+#endif  // defined(_WINDOWS)
 }
 
 void Window::SetAcceleratorTable(TextType resourceName) {
@@ -353,7 +353,7 @@ void Window::SetAcceleratorTable(TextType resourceName) {
     HINSTANCE const module = CopyModule(*this);
     mAcceleratorTable = Win::LoadAccelerators(module, resourceName);
     ASSERT(mAcceleratorTable != NULL);
-#endif // defined(_WINDOWS)
+#endif  // defined(_WINDOWS)
 }
 
 void Window::SetClientArea(Area const& rArea) {
@@ -361,7 +361,7 @@ void Window::SetClientArea(Area const& rArea) {
     ASSERT(rArea.Height() < 4000);
 #ifdef _WINDOWS
     mClientArea = rArea;
-#endif // defined(_WINDOWS)
+#endif  // defined(_WINDOWS)
 }
 
 #ifdef _WINDOWS
@@ -376,24 +376,30 @@ void Window::SetCursor(LPSTR resource) {
 
     Win::SetCursor(handle);
 }
-#endif // defined(_WINDOWS)
+#endif  // defined(_WINDOWS)
 
 void Window::SetCursorBusy(void) {
-#ifdef _WINDOWS
+#ifdef _QT
+    setCursor(Qt::WaitCursor);
+#elif defined(_WINDOWS)
     SetCursor(IDC_WAIT);
-#endif // defined(_WINDOWS)
+#endif  // defined(_WINDOWS)
 }
 
 void Window::SetCursorDrag(void) {
-#ifdef _WINDOWS
+#ifdef _QT
+    setCursor(Qt::ClosedHandCursor);
+#elif defined(_WINDOWS)
     SetCursor(IDC_HAND);
-#endif // defined(_WINDOWS)
+#endif  // defined(_WINDOWS)
 }
 
 void Window::SetCursorSelect(void) {
-#ifdef _WINDOWS
+#ifdef _QT
+    setCursor(Qt::ArrowCursor);
+#elif defined(_WINDOWS)
     SetCursor(IDC_ARROW);
-#endif // defined(_WINDOWS)
+#endif  // defined(_WINDOWS)
 }
 
 // set large and small icons for a window
@@ -425,7 +431,7 @@ void Window::SetIcons(TextType resourceName) {
     ASSERT(large_icon != NULL);
 
     Win::SendMessage(this_window, WM_SETICON, WPARAM(ICON_BIG), LPARAM(large_icon));
-#endif // defined(_WINDOWS)
+#endif  // defined(_WINDOWS)
 }
 
 void Window::SetTimer(MsecIntervalType intervalMsecs, unsigned eventId) {
@@ -436,17 +442,17 @@ void Window::SetTimer(MsecIntervalType intervalMsecs, unsigned eventId) {
     TIMERPROC const callback = NULL;
     UINT_PTR const success = Win::SetTimer(this_window, event_id, interval_msecs, callback);
     ASSERT(success != 0);
-#endif // defined(_WINDOWS)
+#endif  // defined(_WINDOWS)
 }
 
-void Window::Show(int how) {
 #ifdef _WINDOWS
+void Window::Show(int how) {
     HWND const this_window = *this;
     ASSERT(this_window != 0);
 
     Win::ShowWindow(this_window, how);
-#endif // defined(_WINDOWS)
 }
+#endif  // defined(_WINDOWS)
 
 #ifdef _WINDOWS
 void Window::TranslateAndDispatch(MSG& rMessage) {
@@ -460,7 +466,7 @@ void Window::TranslateAndDispatch(MSG& rMessage) {
     Win::TranslateMessage(&rMessage); 
     Win::DispatchMessage(&rMessage); 
 }
-#endif // defined(_WINDOWS)
+#endif  // defined(_WINDOWS)
 
 // redraw all menus
 void Window::UpdateMenuBar(void) {
@@ -468,7 +474,7 @@ void Window::UpdateMenuBar(void) {
     HWND const this_window = *this;
     BOOL const success = Win::DrawMenuBar(this_window);
     ASSERT(success);
-#endif // defined(_WINDOWS)
+#endif  // defined(_WINDOWS)
 }
 
 void Window::UseFibers(void) {
@@ -476,7 +482,7 @@ void Window::UseFibers(void) {
     // create the first fiber for this thread
     mMainFiber = Win::ConvertThreadToFiber(this);
     ASSERT(mMainFiber != NULL);
-#endif // defined(_WINDOWS)
+#endif  // defined(_WINDOWS)
 }
 
 void Window::WaitingFor(String const& rEventDescription) {
@@ -503,7 +509,7 @@ int Window::WarnBox(TextType message, TextType title) {
     ASSERT(result == IDCANCEL || result == IDTRYAGAIN || result == IDCONTINUE);
 
     return result;
-#endif // defined(_WINDOWS)
+#endif  // defined(_WINDOWS)
 }
 
 void Window::WarpCursor(Point const& rDestination) {
@@ -517,7 +523,7 @@ void Window::WarpCursor(Point const& rDestination) {
     // warp the cursor to new coordinates
     success = Win::SetCursorPos(point.x, point.y);
     ASSERT(success);
-#endif // defined(_WINDOWS)
+#endif  // defined(_WINDOWS)
 }
 
 void Window::Yields(void) {
@@ -527,7 +533,7 @@ void Window::Yields(void) {
         ASSERT(mMainFiber != NULL);
         Win::SwitchToFiber(mMainFiber);
     }
-#endif // defined(_WINDOWS)
+#endif  // defined(_WINDOWS)
 }
 
 
@@ -545,7 +551,7 @@ bool Window::HasAMessage(void) const {
     bool const result = (found != 0);
 
     return result;
-#endif // defined(_WINDOWS)
+#endif  // defined(_WINDOWS)
 }
 
 bool Window::IsMouseCaptured(void) const {
@@ -558,7 +564,7 @@ bool Window::IsMouseCaptured(void) const {
     bool const result = (captor == this_window);
 
     return result;
-#endif // defined(_WINDOWS)
+#endif  // defined(_WINDOWS)
 }
 
 bool Window::IsWaiting(void) const {

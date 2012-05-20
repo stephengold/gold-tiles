@@ -60,13 +60,14 @@ public:
 
     // misc public methods
 #ifdef _QT
-    void   Add(MenuItem&);
-    void   AddSeparator(void);
-#endif  // !defined(_QT)
-    void   Enable(bool);
+    void      Add(MenuItem&);
+    void      Add(SubMenu&);
+    void      AddSeparator(void);
+#endif  // defined(_QT)
+    void      Enable(bool);
 #ifdef _QT
-    QMenu *Qt(void);
-#endif  // !defined(_QT)
+    QMenu*    Qt(void);
+#endif  // defined(_QT)
 
 private:
     // private data

@@ -26,7 +26,7 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 /*
-A SizeMenu object represents the "Tile Size" SubMenu in the "View" Menu.
+A SizeMenu object represents a tile size SubMenu in the "View" Menu.
 
 The SizeMenu class extends the SubMenu class.
 */
@@ -40,7 +40,7 @@ class SizeMenu: public SubMenu {
 public:
     // public lifecycle
 #ifdef _QT
-    SizeMenu(void);
+    SizeMenu(QString const& label);
 #elif defined(_WINDOWS)
     // no default constructor
     SizeMenu(Menu const&, unsigned position);

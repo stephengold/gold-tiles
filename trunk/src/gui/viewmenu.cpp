@@ -34,9 +34,11 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 
 #ifdef _QT
 
-ViewMenu::ViewMenu(void):
-SubMenu(tr("&View")),
-    mRecenter(Qt(), "&Re-center\tC"),
+ViewMenu::ViewMenu(void)
+:   SubMenu(tr("&View")),
+    mBoardSize(tr("&Board size")),
+    mTileSize(tr("&Tile size")),
+    mRecenter(Qt(), "&Re-center\tC or Home"),
     mAttrs(Qt(), "Tile &Attributes..."),
     mHints(Qt(), "&Hints..."),
     mShowClocks(Qt(), "Show &Clocks"),
@@ -47,7 +49,11 @@ SubMenu(tr("&View")),
 {
     QKeySequence const c(tr("C"));
     mRecenter.SetShortcut(c);
+    QKeySequence const home(tr("Home"));
+    mRecenter.SetShortcut(home);
 
+    Add(mBoardSize);
+    Add(mTileSize);
     Add(mRecenter);
     Add(mAttrs);
     Add(mHints);
@@ -100,7 +106,7 @@ void ViewMenu::EnableItems(Partial const& rPartial, ThinkModeType thinkMode) {
     mShowGrid.Enable(true);
     mShowScores.Enable(true);
     mShowTiles.Enable(is_over || game_style == GAME_STYLE_DEBUG);
-    mAnimation.Enable(false); // TODO
+    mAnimation.Enable(false);  // TODO
 }
 
 void ViewMenu::HandTileSize(TileSizeType size) {

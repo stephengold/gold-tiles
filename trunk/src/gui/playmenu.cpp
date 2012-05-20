@@ -23,11 +23,12 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "gui/playmenu.hpp"
-#include "partial.hpp"
 #ifdef _WINDOWS
 # include "gui/resource.hpp"
 # include "gui/win_types.hpp"
-#endif // defined(_WINDOWS)
+#endif  // defined(_WINDOWS)
+#include "partial.hpp"
+
 
 // lifecycle
 
@@ -38,7 +39,7 @@ SubMenu(tr("&Play")),
     mPlay(Qt(), "&Play\tEnter"),
     mTakeBack(Qt(), "Take &back\tEsc"),
     mSuggest(Qt(), "Su&ggest\tG"),
-    mPause(Qt(), "Pause"),
+    mPause(Qt(), "Pause\tPause"),
     mSwapAll(Qt(), "S&wap All"),
     mPass(Qt(), "Pa&ss"),
     mResign(Qt(), "&Resign"),
@@ -50,6 +51,7 @@ SubMenu(tr("&Play")),
     mPlay.SetShortcut(tr("Enter"));
     mTakeBack.SetShortcut(tr("Enter"));
     mSuggest.SetShortcut(tr("G"));
+    mPause.SetShortcut(tr("Pause"));
     mUndo.SetShortcut(tr("Z"));
     mRedo.SetShortcut(tr("Y"));
 
@@ -85,7 +87,7 @@ SubMenu(rRootMenu, position),
     mAutopause(rRootMenu, IDM_AUTOPAUSE)
 {}
 
-#endif // defined(_WINDOWS)
+#endif  // defined(_WINDOWS)
 
 // The implicitly defined destructor is OK.
 

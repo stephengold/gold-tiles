@@ -32,8 +32,8 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 
 #ifdef _QT
 
-SizeMenu::SizeMenu(void):
-SubMenu(tr("&Tile Size")),
+SizeMenu::SizeMenu(QString const& label)
+:   SubMenu(label),
     mSize1(Qt(), "&1 Tiny"),
     mSize2(Qt(), "&2 Small"),
     mSize3(Qt(), "&3 Smallish"),

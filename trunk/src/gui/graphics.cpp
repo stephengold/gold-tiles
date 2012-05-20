@@ -317,7 +317,7 @@ void Graphics::DrawPolygon(
     bool invertFlag,
     bool fillFlag)
 {
-    unsigned const point_cnt = rPolygon.Count();
+    SizeType const point_cnt = rPolygon.Count();
 #ifdef _QT
     QPoint* const points = new QPoint[point_cnt];
     ASSERT(points != NULL);

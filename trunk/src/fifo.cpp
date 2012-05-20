@@ -60,7 +60,7 @@ char Fifo::GetByte(void) {
     return result;
 }
 
-void Fifo::PostReceive(int byteCnt) {
+void Fifo::PostReceive(SizeType byteCnt) {
     ASSERT(IsValid());
     ASSERT(byteCnt >= 0);
 
@@ -69,13 +69,13 @@ void Fifo::PostReceive(int byteCnt) {
     ASSERT(IsValid());
 }
 
-void Fifo::PreReceive(char*& rpStart, int& rByteCnt) {
+void Fifo::PreReceive(char*& rpStart, SizeType& rByteCnt) {
     ASSERT(IsValid());
 
     if (!HasSpace()) {
         mSize *= 2;
         char* p_buffer = new char[mSize];
-        for (int i_byte = mConsumedCnt; i_byte < mValidCnt; i_byte++) {
+        for (SizeType i_byte = mConsumedCnt; i_byte < mValidCnt; i_byte++) {
             p_buffer[i_byte] = mpBuffer[i_byte];
         }
         delete mpBuffer;
@@ -86,10 +86,7 @@ void Fifo::PreReceive(char*& rpStart, int& rByteCnt) {
     }
 
     rpStart = mpBuffer + mValidCnt;
-    long byte_cnt = mSize - mValidCnt;
-    if (byte_cnt > INT_MAX) {
-        byte_cnt = INT_MAX;
-    }
+    SizeType byte_cnt = mSize - mValidCnt;
     rByteCnt = byte_cnt;
 
     ASSERT(rByteCnt > 0);

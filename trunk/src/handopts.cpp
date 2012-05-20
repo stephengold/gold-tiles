@@ -35,13 +35,13 @@ HandOpts::HandOpts(void) {
 
 // operators
 
-HandOpt& HandOpts::operator[](unsigned ind) {
+HandOpt& HandOpts::operator[](SizeType ind) {
     ASSERT(ind < Count());
 
     return mList[ind];
 }
 
-HandOpt const& HandOpts::operator[](unsigned ind) const {
+HandOpt const& HandOpts::operator[](SizeType ind) const {
     ASSERT(ind < Count());
 
     return mList[ind];
@@ -50,7 +50,7 @@ HandOpt const& HandOpts::operator[](unsigned ind) const {
 HandOpts::operator String(void) const {
     String result;
 
-    for (unsigned i_hand = 0; i_hand < Count(); i_hand++) {
+    for (SizeType i_hand = 0; i_hand < Count(); i_hand++) {
         String const hand_opt_string = (*this)[i_hand];
         result += hand_opt_string;
     }
@@ -70,7 +70,7 @@ void HandOpts::Append(HandOpt const& rHandOpt) {
 Strings HandOpts::AllPlayerNames(void) const {
     Strings result;
 
-    for (unsigned i_hand = 0; i_hand < Count(); i_hand++) {
+    for (SizeType i_hand = 0; i_hand < Count(); i_hand++) {
         String const player_name = (*this)[i_hand].PlayerName();
         result.Append(player_name);
     }
@@ -79,8 +79,8 @@ Strings HandOpts::AllPlayerNames(void) const {
     return result;
 }
 
-unsigned HandOpts::Count(void) const {
-    unsigned const result = mList.size();
+SizeType HandOpts::Count(void) const {
+    SizeType const result = SizeType(mList.size());
 
     return result;
 }
@@ -88,7 +88,7 @@ unsigned HandOpts::Count(void) const {
 String HandOpts::Description(void) const {
     String result;
 
-    for (unsigned i_hand = 0; i_hand < Count(); i_hand++) {
+    for (SizeType i_hand = 0; i_hand < Count(); i_hand++) {
         String const hand_description = (*this)[i_hand].Description();
         result += "The " + ::ordinal(i_hand + 1) 
             + " hand will be played by " + hand_description + ".\n";
@@ -98,10 +98,10 @@ String HandOpts::Description(void) const {
 }
 
 // Return true if successful, false if canceled.
-bool HandOpts::GetFromClient(Socket& rClient, unsigned handCnt) {
+bool HandOpts::GetFromClient(Socket& rClient, SizeType handCnt) {
     MakeEmpty();
     bool success = true;
-    for (unsigned i_hand = 0; i_hand < handCnt; i_hand++) {
+    for (SizeType i_hand = 0; i_hand < handCnt; i_hand++) {
         String hand_opt_string;
         success = rClient.GetParagraph(hand_opt_string);
         if (!success) {
@@ -114,8 +114,8 @@ bool HandOpts::GetFromClient(Socket& rClient, unsigned handCnt) {
     return success;
 }
 
-void HandOpts::GetUserChoice(unsigned handCnt) {
-    for (unsigned i_hand = 0; i_hand < handCnt; i_hand++) {
+void HandOpts::GetUserChoice(SizeType handCnt) {
+    for (SizeType i_hand = 0; i_hand < handCnt; i_hand++) {
         String name;
         while (name.IsEmpty()) {
             std::cout << "Who will play the " 
@@ -169,13 +169,13 @@ void HandOpts::MakeEmpty(void) {
 }
 
 void HandOpts::Serverize(Address const& rClient, Address const& rServer) {
-    for (unsigned i_hand = 0; i_hand < Count(); i_hand++) {
+    for (SizeType i_hand = 0; i_hand < Count(); i_hand++) {
         HandOpt &r_hand_opt = (*this)[i_hand];
         r_hand_opt.Serverize(rClient, rServer);
     }
 }
 
-void HandOpts::Truncate(unsigned new_length) {
+void HandOpts::Truncate(SizeType new_length) {
     ASSERT(Count() >= new_length);
 
     while (Count() > new_length) {

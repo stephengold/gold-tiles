@@ -269,10 +269,10 @@ IdType ParmBox3::SliderId(HWND handle) const {
 void ParmBox3::UpdateValue(IdType sliderId, ValueType value) {
     switch (sliderId) {
     case IDC_SLIDER1:
-        mrGameOpt.SetHandsDealt(value);
+        mrGameOpt.SetHandsDealt(SizeType(value));
         break;
     case IDC_SLIDER2:
-        mrGameOpt.SetHandSize(value);
+        mrGameOpt.SetHandSize(SizeType(value));
         break;
     case IDC_SLIDER3: {
         ASSERT(value >= Combo::ATTR_CNT_MIN);
@@ -282,10 +282,10 @@ void ParmBox3::UpdateValue(IdType sliderId, ValueType value) {
         break;
                       }
     case IDC_SLIDER4:
-        mrGameOpt.SetClonesPerCombo(value);
+        mrGameOpt.SetClonesPerCombo(SizeType(value));
         break;
     case IDC_SLIDER5:
-        mrGameOpt.SetBonusPercent(value);
+        mrGameOpt.SetBonusPercent(PercentType(value));
         break;
     default:
         FAIL();

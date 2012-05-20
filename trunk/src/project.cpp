@@ -33,7 +33,7 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 #include "string.hpp"
 
 
-void assertion_failed(TextType file, unsigned line) {
+void assertion_failed(TextType file, uint32_t line) {
     std::cout << "Assertion failed at line " << line
               << " in " << file << std::endl;
 
@@ -48,13 +48,13 @@ void assertion_failed(TextType file, unsigned line) {
     ::exit(EXIT_FAILURE);
 }
 
-bool is_even(long number) {
+bool is_even(intmax_t number) {
     bool const result = ((number & 0x1) == 0);
 
     return result;
 }
 
-bool is_odd(long number) {
+bool is_odd(intmax_t number) {
     bool const result = ((number & 0x1) == 0x1);
 
     return result;
@@ -73,7 +73,9 @@ MsecIntervalType milliseconds(void) {
     return result;
 }
 
-String ordinal(unsigned n) {
+String ordinal(uintmax_t n) {
+    ASSERT(n > 0);
+
     String result(n);
 
     // tweak a few common cases
@@ -97,8 +99,8 @@ String ordinal(unsigned n) {
         break;  // digits will suffice
     }
 
-    unsigned const ones_place = n % 10;
-    unsigned const tens_place = (n / 10) % 10;
+    uint16_t const ones_place = n % 10;
+    uintmax_t const tens_place = (n / 10) % 10;
 
     if (tens_place == 1) {
         result += "th";
@@ -115,7 +117,7 @@ String ordinal(unsigned n) {
     return result;
 }
 
-TextType plural(long n) {
+TextType plural(intmax_t n) {
     ASSERT(n >= 0);
 
     TextType result = "s";
@@ -126,7 +128,9 @@ TextType plural(long n) {
     return result; 
 }
 
-String plural(long n, TextType noun) {
+String plural(intmax_t n, TextType noun) {
+    ASSERT(n >= 0);
+
     String result = String(n);
     result += " ";
     result += noun;

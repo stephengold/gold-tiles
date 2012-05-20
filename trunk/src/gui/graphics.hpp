@@ -101,7 +101,7 @@ public:
 
 private:
     // private types
-    typedef unsigned short TextSizeType;
+    typedef uint16_t TextSizeType;
 
     // private constants
     static const ColorType    BRUSH_COLOR_DEFAULT = COLOR_WHITE;

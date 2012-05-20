@@ -217,7 +217,7 @@ Rect Canvas::DrawTile(
         FAIL();
     }
 
-    unsigned const marking_cnt = rMarkings.MarkingCnt();
+    SizeType const marking_cnt = rMarkings.MarkingCnt();
 
     PixelCntType marking_width = interior.Width();
     PixelCntType marking_height = interior.Height();    
@@ -258,7 +258,7 @@ Rect Canvas::DrawTile(
     // polygons for tile markings
     {
         Poly roundel;
-        for (unsigned i = 0; i < 20; i++) {
+        for (uint16_t i = 0; i < 20; i++) {
             double const phi = M_PI/10 * double(i);
             Fraction const x = 0.5 + 0.44*::cos(phi);
             Fraction const y = 0.5 + 0.44*::sin(phi);
@@ -295,7 +295,7 @@ Rect Canvas::DrawTile(
     }        
     {
         Poly mulletOfSeven;
-        for (unsigned i = 0; i < 14; i++) {
+        for (uint16_t i = 0; i < 14; i++) {
             double const phi = M_PI/7 * double(i);
             double x, y;
             if (::is_odd(i)) {

@@ -37,7 +37,7 @@ template (from the Standard Template Library) to IndexType.
 #include <set>        // ISA std::set
 #include "string.hpp" // USES String
 
-typedef long IndexType;
+typedef int32_t IndexType;
 
 class Indices: public std::set<IndexType> {
 public:
@@ -63,7 +63,7 @@ public:
     // misc public methods
     void      Add(IndexType);
     void      AddRemove(IndexType, bool);
-    unsigned  Count(void) const;
+    SizeType  Count(void) const;
     IndexType First(void) const;
     IndexType Last(void) const;
     void      MakeEmpty(void);

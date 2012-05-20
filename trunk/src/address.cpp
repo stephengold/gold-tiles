@@ -130,7 +130,7 @@ Address::Address(String const &rString)
 }
 
 // Construct based on an IPv4 address in network (bigendian) byte order.
-Address::Address(unsigned long address)
+Address::Address(uint32_t address)
 #ifdef _QT
 :QHostAddress(quint32(address))
 #endif  // defined(_QT)
@@ -191,14 +191,14 @@ Address::operator String(void) const {
 #endif  // !defined(_QT)
 }
 
-Address::operator unsigned long(void) const {
+Address::operator uint32_t(void) const {
 #ifdef _QT
-    unsigned long const result = (unsigned long)(toIPv4Address());
+    uint32_t const result = uint32_t(toIPv4Address());
 #else  // !defined(_QT)
     IN_ADDR ipv4_address;
     INT const success = inet_pton(AF_INET, mString, &ipv4_address);
     ASSERT(success == 1);
-    unsigned long const result = ipv4_address.s_addr;
+    uint32_t const result = ipv4_address.s_addr;
 #endif  // !defined(_QT)
 
     return result;

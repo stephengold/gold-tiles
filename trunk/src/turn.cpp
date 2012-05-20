@@ -36,7 +36,7 @@ mDraw(rTiles),
     mPoints = 0;
 }
 
-Turn::Turn(Move const& rMove, String const& rHandName, unsigned mustPlay):
+Turn::Turn(Move const& rMove, String const& rHandName, SizeType mustPlay):
 mHandName(rHandName),
     mMove(rMove)
 {
@@ -80,6 +80,6 @@ void Turn::SetPoints(ScoreType points) {
     mPoints = points;
 }
 
-unsigned Turn::MustPlay(void) const {
+SizeType Turn::MustPlay(void) const {
     return mMustPlay;
 }

@@ -44,20 +44,20 @@ public:
 
     // public operators
     // HandOpts& operator=(HandOpts const&);  implicitly defined assignment operator 
-    HandOpt& operator[](unsigned);
-    HandOpt const& operator[](unsigned) const;
+    HandOpt& operator[](SizeType);
+    HandOpt const& operator[](SizeType) const;
     operator String(void) const;
 
     // misc public methods
     Strings  AllPlayerNames(void) const;
     void     Append(HandOpt const&);
-    unsigned Count(void) const;
+    SizeType Count(void) const;
     String   Description(void) const;
-    bool     GetFromClient(Socket&, unsigned handCnt);
-    void     GetUserChoice(unsigned handCnt);
+    bool     GetFromClient(Socket&, SizeType handCnt);
+    void     GetUserChoice(SizeType handCnt);
     void     MakeEmpty(void);
     void     Serverize(Address const& client, Address const& server);
-    void     Truncate(unsigned new_length);
+    void     Truncate(SizeType new_length);
 
     // public inquiry method
     bool IsEmpty(void) const;

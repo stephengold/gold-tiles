@@ -37,6 +37,9 @@ The GameOpt class ...
 #include "string.hpp"   // HASA String
 #include "tile.hpp"     // HASA AttrCntType
 
+typedef uint16_t MinutesType;  // up to 45 days
+typedef int16_t PercentType;
+ 
 enum RulesType {
     RULES_STANDARD,
     RULES_CUSTOM,
@@ -46,15 +49,15 @@ enum RulesType {
 class GameOpt {
 public:
     // public constants
-    static const unsigned HAND_SIZE_MIN = 1;
-    static const unsigned HANDS_DEALT_MIN = 1;
-    static const unsigned MINUTES_PER_HAND_MIN = 2;
+    static const SizeType    HAND_SIZE_MIN = 1;
+    static const SizeType    HANDS_DEALT_MIN = 1;
+    static const MinutesType MINUTES_PER_HAND_MIN = 2;
 
     // public lifecycle
     GameOpt(void);
     // GameOpt(GameOpt const&);  implicitly defined copy constructor
     explicit GameOpt(String const&);
-    GameOpt(GameStyleType, unsigned clones, unsigned handSize, unsigned minutes);
+    GameOpt(GameStyleType, SizeType clones, SizeType handSize, MinutesType minutes);
     // ~GameOpt(void);  implicitly defined destructor
 
     // public operators
@@ -70,45 +73,45 @@ public:
     String       AttrReport(void) const;
     RowType      BoardHeight(void) const;
     ColumnType   BoardWidth(void) const;
-    unsigned     BonusPercent(void) const;
-    long         CloneCnt(void) const;
-    unsigned     ClonesPerCombo(void) const;
-    long         ComboCnt(void) const;
+    PercentType  BonusPercent(void) const;
+    ComboCntType CloneCnt(void) const;
+    SizeType     ClonesPerCombo(void) const;
+    ComboCntType ComboCnt(void) const;
     AttrType     CountAttrValues(AttrIndexType) const;
     String       Description(void) const;
     bool         GetFromClient(Socket&);
     void         GetUserChoice(void);
-    unsigned     HandsDealt(void) const;
-    unsigned     HandSize(void) const;
+    SizeType     HandsDealt(void) const;
+    SizeType     HandSize(void) const;
     AttrType     MaxAttrValue(AttrIndexType) const;
-    unsigned     MinutesPerHand(void) const;
+    MinutesType  MinutesPerHand(void) const;
     void         ReseedGenerator(void) const;
-    unsigned     SecondsPerHand(void) const;
-    unsigned     Seed(void) const;
+    SecondsType  SecondsPerHand(void) const;
+    SeedType     Seed(void) const;
     void         SetAttrCnt(AttrCntType);
     void         SetBoardHeight(RowType);
     void         SetBoardWidth(ColumnType);
     void         SetBoardWrap(bool);
-    void         SetBonusPercent(unsigned);
+    void         SetBonusPercent(PercentType);
     void         SetChallenge(void);
-    void         SetClonesPerCombo(unsigned);
+    void         SetClonesPerCombo(SizeType);
     void         SetDebug(void);
     void         SetDoesBoardWrap(bool);
     void         SetFriendly(void);
     void         SetGrid(GridType);
-    void         SetHandsDealt(unsigned);
-    void         SetHandSize(unsigned);
+    void         SetHandsDealt(SizeType);
+    void         SetHandSize(SizeType);
     void         SetMaxAttrValue(AttrIndexType, AttrType);
-    void         SetMinutesPerHand(unsigned);
+    void         SetMinutesPerHand(MinutesType);
     void         SetNumAttrValues(AttrIndexType, AttrType);
     void         SetPractice(void);
     void         SetRandomizeFlag(bool);
     void         SetRules(RulesType);
-    void         SetSeed(unsigned);
+    void         SetSeed(SeedType);
     void         Standardize(void);
     void         StyleChange(void);
-    unsigned     TilesPerCombo(void) const;
-    long         TotalTileCnt(void) const;
+    SizeType     TilesPerCombo(void) const;
+    ComboCntType TotalTileCnt(void) const;
     void         Validate(void) const;
 
     // public inquiry methods
@@ -124,29 +127,29 @@ public:
 
 private:
     // private constants
-    static const unsigned BONUS_PERCENT_DEFAULT = 0;
-    static const unsigned CLONES_PER_COMBO_DEFAULT = 2;
-    static const unsigned HAND_CNT_DEFAULT = 2;
-    static const unsigned HAND_SIZE_DEFAULT = 6;
-    static const unsigned MINUTES_PER_HAND_DEFAULT = 30;
-    static const unsigned SEED_DEFAULT = 123;
+    static const PercentType BONUS_PERCENT_DEFAULT = 0;
+    static const SizeType    CLONES_PER_COMBO_DEFAULT = 2;
+    static const SizeType    HAND_CNT_DEFAULT = 2;
+    static const SizeType    HAND_SIZE_DEFAULT = 6;
+    static const MinutesType MINUTES_PER_HAND_DEFAULT = 30;
+    static const SeedType    SEED_DEFAULT = 123;
 
     // private data
     AttrCntType   mAttrCnt;
     RowType       mBoardHeight;
     ColumnType    mBoardWidth;
-    unsigned      mBonusPercent;    // bonus tile percentage
-    unsigned      mClonesPerCombo;
+    PercentType   mBonusPercent;    // bonus tile percentage
+    SizeType      mClonesPerCombo;
     bool          mDoesBoardWrap;
     GridType      mGrid;
-    unsigned      mHandsDealt;      // number of hands dealt
-    unsigned      mHandSize;        // maximum number of tiles in a hand
+    SizeType      mHandsDealt;      // number of hands dealt
+    SizeType      mHandSize;        // maximum number of tiles in a hand
     std::vector<AttrType>
                   mMaxAttrValues;   // maximum value of each attribute
-    unsigned      mMinutesPerHand;  // used only with GAME_STYLE_CHALLENGE
+    MinutesType   mMinutesPerHand;  // used only with GAME_STYLE_CHALLENGE
     bool          mRandomizeFlag;
     RulesType     mRules;
-    unsigned      mSeed;            // used only if mRandomizeFlag == false
+    SeedType      mSeed;            // used only if mRandomizeFlag == false
     GameStyleType mStyle;
 
     // misc private methods

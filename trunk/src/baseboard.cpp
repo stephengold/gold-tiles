@@ -60,8 +60,8 @@ BaseBoard::operator Tiles(void) const {
 
 // misc methods
 
-unsigned BaseBoard::Count(void) const {
-    unsigned const result = mCells.size();
+SizeType BaseBoard::Count(void) const {
+    SizeType const result = SizeType(mCells.size());
 
     ASSERT(mTiles.size() == result);
 

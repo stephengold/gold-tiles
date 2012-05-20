@@ -55,8 +55,8 @@ public:
 	void          Append(String const&);
 	ConstIterator Begin(void) const;
 	Iterator      Begin(void);
-	unsigned      Count(void) const;
-	unsigned      Count(String const&) const;
+	SizeType      Count(void) const;
+	SizeType      Count(String const&) const;
 	ConstIterator End(void) const;
 	Iterator      End(void);
 	ConstIterator Find(String const&) const;

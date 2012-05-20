@@ -109,31 +109,31 @@ void Partial::BoardToHand(void) {
     ASSERT(IsInHand(mActiveId));
 }
 
-unsigned Partial::CountHand(void) const {
+SizeType Partial::CountHand(void) const {
     ASSERT(CountTiles() >= CountPlayed() + CountSwap());
 
-    unsigned const result = CountTiles() - CountPlayed() - CountSwap();
+    SizeType const result = CountTiles() - CountPlayed() - CountSwap();
 
     return result; 
 }
 
-unsigned Partial::CountHinted(void) {
+SizeType Partial::CountHinted(void) {
     if (!mHintedCellsValid) {
         SetHintedCells();
     }
     ASSERT(mHintedCellsValid);
 
-    unsigned const result = mHintedCells.Count();
+    SizeType const result = mHintedCells.Count();
 
     return result;
 }
 
-unsigned Partial::CountPlayed(void) const {
+SizeType Partial::CountPlayed(void) const {
     return mPlayedTileCnt; 
 }
 
-unsigned Partial::CountSwap(void) const {
-    unsigned const result = mSwapIds.Count();
+SizeType Partial::CountSwap(void) const {
+    SizeType const result = mSwapIds.Count();
 
     ASSERT(result <= CountTiles());
     ASSERT(!HasGame() || result <= mpGame->CountStock());
@@ -141,8 +141,8 @@ unsigned Partial::CountSwap(void) const {
     return result; 
 }
 
-unsigned Partial::CountTiles(void) const {
-    unsigned const result = mTiles.Count();
+SizeType Partial::CountTiles(void) const {
+    SizeType const result = mTiles.Count();
 
     return result; 
 }
@@ -292,8 +292,8 @@ Cell Partial::LocateTile(Tile::IdType id) const {
 }
 
 ScoreType Partial::Points(void) const {
-    unsigned const played_tile_cnt = CountPlayed();
-    unsigned const must_play = mpGame->MustPlay();
+    SizeType const played_tile_cnt = CountPlayed();
+    SizeType const must_play = mpGame->MustPlay();
     ScoreType result = 0;
     if (must_play == 0 || played_tile_cnt == must_play) {
         Move const move = GetMove(false);

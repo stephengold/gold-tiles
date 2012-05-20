@@ -33,8 +33,8 @@ void Hands::Append(Hand const& rHand) {
     ASSERT(!IsEmpty());
 }
 
-unsigned Hands::Count(void) const {
-    unsigned const result = size();
+SizeType Hands::Count(void) const {
+    SizeType const result = SizeType(size());
 
     return result;
 }

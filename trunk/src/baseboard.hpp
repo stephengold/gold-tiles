@@ -55,7 +55,7 @@ public:
     operator Tiles(void) const;
 
     // misc public methods
-    unsigned    Count(void) const;
+    SizeType    Count(void) const;
     ColumnType  EastMax(void) const;
     Tile const* GetCell(Cell const&) const;
     bool        LocateTile(Tile::IdType, Cell&) const;

@@ -42,7 +42,7 @@ public:
     FileMenu(void);
 #elif defined(_WINDOWS)
     // no default constructor
-    FileMenu(Menu const&, unsigned position);
+    FileMenu(Menu const&, SizeType position);
 #endif  // defined(_WINDOWS)
     // ~FileMenu(void);  implicitly defined destructor
 

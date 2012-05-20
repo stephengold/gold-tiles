@@ -77,7 +77,7 @@ public:
     ColumnType      Column(void) const;
     bool            GetUserChoice(String const&);
     static GridType Grid(void);
-    static void     LimitPlay(unsigned&);
+    static void     LimitPlay(SizeType&);
     void            Next(Direction const&, int count = 1);
     void            Offset(int rows, int columns);
     RowType         Row(void) const;

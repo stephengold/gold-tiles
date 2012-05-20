@@ -190,11 +190,11 @@ AttrType Combo::Attr(AttrIndexType ind) const {
     return result;
 }
 
-// calculate the number of possible combinations of attributes
-/* static */ long Combo::CombinationCnt(void) {
+// Calculate the number of possible combinations of attributes.
+/* static */  ComboCntType Combo::CombinationCnt(void) {
     ASSERT(msAttrCnt >= ATTR_CNT_MIN);
 
-    long result = 1L;
+    ComboCntType result = 1;
     for (AttrIndexType i_attr = 0; i_attr < msAttrCnt; i_attr++) {
         AttrType const max_value = mspValueMax[i_attr];
         AttrType const possible_values = max_value + 1;  // zero is a possible value

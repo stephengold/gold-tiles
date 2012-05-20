@@ -67,7 +67,7 @@ mrMenu(rMenu)
 
 #ifdef _QT
 
-QAction *MenuItem::pAction(void) {
+QAction* MenuItem::pAction(void) {
     return mpAction;
 }
 

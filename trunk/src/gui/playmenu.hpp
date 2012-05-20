@@ -43,7 +43,7 @@ public:
 #ifdef _QT
     PlayMenu(void);
 #elif defined(_WINDOWS)
-    PlayMenu(Menu const&, unsigned position);
+    PlayMenu(Menu const&, SizeType position);
 #endif  // defined(_WINDOWS)
     // ~PlayMenu(void);  implicitly defined destructor is fine
 

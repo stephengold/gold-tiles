@@ -36,11 +36,13 @@ addresses are supported.
 #include "string.hpp"     // HASA String
 #ifdef _QT
 # include <QHostAddress>  // ISA QHostAddress
+
 #elif defined(_POSIX)
 namespace Posix {
     struct sockaddr;
 };
 using Posix::sockaddr;
+
 #elif defined(_WINSOCK2)
 namespace Win {
     struct sockaddr;
@@ -59,7 +61,7 @@ public:
     Address(void);
     // Address(Address const&);  implicitly defined copy constructor
     explicit Address(String const&);
-    explicit Address(unsigned long);  // IPv4 only
+    explicit Address(uint32_t);  // IPv4 only
 #ifdef _QT
     explicit Address(QHostAddress const&);
 #else  // !defined(_QT)
@@ -70,7 +72,7 @@ public:
     // public operators
     // Address &operator=(Address const&);  implicitly defined assignment operator
     operator String(void) const;
-    operator unsigned long(void) const;
+    operator uint32_t(void) const;
 
     // misc public methods
     static Strings ListAll(void);

@@ -152,10 +152,10 @@ INT_PTR AttrBox::HandleMessage(MessageType message, WPARAM wParam, LPARAM lParam
             IdType const listbox_id = ListboxId(i_attr);
             EnableControl(listbox_id, enable_flag);
 
-            for (unsigned i_mode = ATTR_MODE_MIN; i_mode <= ATTR_MODE_MAX; i_mode++) {
+            for (SizeType i_mode = ATTR_MODE_MIN; i_mode <= ATTR_MODE_MAX; i_mode++) {
                 AttrModeType const mode = AttrModeType(i_mode);
-                TextType  const text = DisplayModeText(mode);
-                unsigned const item_index = AddListboxItem(listbox_id, text);
+                TextType const text = DisplayModeText(mode);
+                SizeType const item_index = AddListboxItem(listbox_id, text);
                 ASSERT(item_index == i_mode); // BumpDisplayMode() relies on this
             }
 

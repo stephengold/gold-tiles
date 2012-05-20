@@ -47,8 +47,8 @@ public:
     // ~Turns(void);  implicitly defined destructor
 
     // misc public methods
-    unsigned Count(void) const;
-    unsigned Index(Iterator const&) const;
-    unsigned IndexLastPlay(void) const;
+    SizeType Count(void) const;
+    SizeType Index(Iterator const&) const;
+    SizeType IndexLastPlay(void) const;
 };
 #endif // !defined(TURNS_HPP_INCLUDED)

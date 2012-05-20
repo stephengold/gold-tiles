@@ -56,23 +56,23 @@ GameOpt::GameOpt(String const& rString) {
         } else if (name == "BoardWidth") {
             mBoardWidth = ::string_to_index(value);
         } else if (name == "BonusPercent") {
-            mBonusPercent = long(value);
+            mBonusPercent = PercentType(long(value));
         } else if (name == "ClonesPerCombo") {
-            mClonesPerCombo = long(value);
+            mClonesPerCombo = SizeType(long(value));
         } else if (name == "DoesBoardWrap") {
             mDoesBoardWrap = bool(value);
         } else if (name == "Grid") {
             mGrid = ::string_to_grid(value);
         } else if (name == "HandsDealt") {
-            mHandsDealt = long(value);
+            mHandsDealt = SizeType(long(value));
         } else if (name == "HandSize") {
-            mHandSize = long(value);
+            mHandSize = SizeType(long(value));
         } else if (name.HasPrefix("MaxAttrValue")) {
             String const suffix = name.Suffix("MaxAttrValue");
-            unsigned const index = long(suffix);
+            AttrType const index = AttrType(long(suffix));
             mMaxAttrValues[index] = ::string_to_max_attr(value);
         } else if (name == "MinutesPerHand") {
-            mMinutesPerHand = long(value);
+            mMinutesPerHand = MinutesType(long(value));
         } else if (name == "RandomizeFlag") {
             mRandomizeFlag = bool(value);
         } else if (name == "Seed") {
@@ -174,25 +174,25 @@ ColumnType GameOpt::BoardWidth(void) const {
     return mBoardWidth;
 }
 
-unsigned GameOpt::BonusPercent(void) const {
+PercentType GameOpt::BonusPercent(void) const {
     ASSERT(mBonusPercent < 100);
 
     return mBonusPercent;
 }
 
-long GameOpt::CloneCnt(void) const {
-    long const result = ComboCnt() * ClonesPerCombo();
+ComboCntType GameOpt::CloneCnt(void) const {
+    ComboCntType const result = ComboCnt() * ClonesPerCombo();
 
     return result;
 }
 
-unsigned GameOpt::ClonesPerCombo(void) const {
+SizeType GameOpt::ClonesPerCombo(void) const {
     return mClonesPerCombo;
 }
 
-long GameOpt::ComboCnt(void) const {
+ComboCntType GameOpt::ComboCnt(void) const {
     // Compute the number of possible combinations.
-    long result = 1L;
+    ComboCntType result = 1;
     for (AttrIndexType i_attr = 0; i_attr < mAttrCnt; i_attr++) {
         AttrType const possible_values = CountAttrValues(i_attr);
         result *= possible_values;
@@ -308,7 +308,7 @@ String GameOpt::Description(void) const {
 
     // tile shape, scoring directions, and number of tiles
     String tiles;
-    long const tile_cnt = TotalTileCnt();
+    ComboCntType const tile_cnt = TotalTileCnt();
     String const shape = TileShape();
     if (tile_cnt == default_opt.TotalTileCnt()) {   // same number of tiles
         if (shape == default_opt.TileShape()) {  // same shape
@@ -438,7 +438,7 @@ void GameOpt::GetUserChoice(void) {
         std::getline(std::cin, line);
         hands_dealt = long(line);
     }
-    SetHandsDealt(hands_dealt);
+    SetHandsDealt(SizeType(hands_dealt));
     std::cout << std::endl;
 
     long hand_size = 0;
@@ -448,23 +448,23 @@ void GameOpt::GetUserChoice(void) {
         std::getline(std::cin, line);
         hand_size = long(line);
     }
-    SetHandSize(hand_size);
+    SetHandSize(SizeType(hand_size));
     std::cout << std::endl;
 
     // Clone tiles so that there are enough to fill each hand at least three times.
-    unsigned const tiles_needed = 3 * hand_size * hands_dealt;
-    long const combo_cnt = ComboCnt();
-    unsigned clones_per_combo = unsigned(tiles_needed / combo_cnt);
+    SizeType const tiles_needed = 3 * HandSize() * HandsDealt();
+    ComboCntType const combo_cnt = ComboCnt();
+    SizeType clones_per_combo = SizeType(tiles_needed / combo_cnt);
     SetClonesPerCombo(clones_per_combo);
 }
 
-unsigned GameOpt::HandsDealt(void) const {
+SizeType GameOpt::HandsDealt(void) const {
     ASSERT(mHandsDealt >= HANDS_DEALT_MIN);
 
     return mHandsDealt;
 }
 
-unsigned GameOpt::HandSize(void) const {
+SizeType GameOpt::HandSize(void) const {
     ASSERT(mHandSize >= HAND_SIZE_MIN);
 
     return mHandSize;
@@ -476,7 +476,7 @@ AttrType GameOpt::MaxAttrValue(AttrIndexType ind) const {
     return result;
 }
 
-unsigned GameOpt::MinutesPerHand(void) const {
+MinutesType GameOpt::MinutesPerHand(void) const {
     ASSERT(mMinutesPerHand >= MINUTES_PER_HAND_MIN);
 
     return mMinutesPerHand;
@@ -484,20 +484,20 @@ unsigned GameOpt::MinutesPerHand(void) const {
 
 void GameOpt::ReseedGenerator(void) const {
     // Re-seed the pseudo-random generator at the start of a game.
-    unsigned seed = mSeed; 
+    SeedType seed = mSeed; 
     if (mRandomizeFlag || !IsDebug()) {
         seed = ::milliseconds();
     }
     Fraction::ReseedGenerator(seed);
 }
 
-unsigned GameOpt::SecondsPerHand(void) const {
-    unsigned const result = MinutesPerHand() * SECONDS_PER_MINUTE;
+SecondsType GameOpt::SecondsPerHand(void) const {
+    SecondsType const result = MinutesPerHand() * SECONDS_PER_MINUTE;
 
     return result;
 }
 
-unsigned GameOpt::Seed(void) const {
+SeedType GameOpt::Seed(void) const {
     return mSeed;
 }
 
@@ -524,7 +524,7 @@ void GameOpt::SetBoardWidth(ColumnType width) {
     mBoardWidth = width;
 }
 
-void GameOpt::SetBonusPercent(unsigned percent) {
+void GameOpt::SetBonusPercent(PercentType percent) {
     ASSERT(percent < 100);
 
     mBonusPercent = percent;
@@ -534,7 +534,7 @@ void GameOpt::SetChallenge(void) {
     mStyle = GAME_STYLE_CHALLENGE;
 }
 
-void GameOpt::SetClonesPerCombo(unsigned clonesPerCombo) {
+void GameOpt::SetClonesPerCombo(SizeType clonesPerCombo) {
     mClonesPerCombo = clonesPerCombo;
 }
 
@@ -554,19 +554,19 @@ void GameOpt::SetGrid(GridType grid) {
     mGrid = grid;
 }
 
-void GameOpt::SetHandsDealt(unsigned handsDealt) {
+void GameOpt::SetHandsDealt(SizeType handsDealt) {
     ASSERT(mHandsDealt >= HANDS_DEALT_MIN);
 
     mHandsDealt = handsDealt;
 }
 
-void GameOpt::SetHandSize(unsigned handSize) {
+void GameOpt::SetHandSize(SizeType handSize) {
     ASSERT(handSize >= HAND_SIZE_MIN);
 
     mHandSize = handSize;
 }
 
-void GameOpt::SetMinutesPerHand(unsigned minutes) {
+void GameOpt::SetMinutesPerHand(MinutesType minutes) {
     ASSERT(minutes >= MINUTES_PER_HAND_MIN);
 
     mMinutesPerHand = minutes;
@@ -597,14 +597,14 @@ void GameOpt::SetRules(RulesType rules) {
     mRules = rules;
 }
 
-void GameOpt::SetSeed(unsigned seed) {
+void GameOpt::SetSeed(SeedType seed) {
     mSeed = seed;
 }
 
 void GameOpt::Standardize(void) {
     mAttrCnt = Combo::ATTR_CNT_DEFAULT;
     mMaxAttrValues.clear();
-    for (unsigned i_attr = 0; i_attr < mAttrCnt; i_attr++) {
+    for (AttrIndexType i_attr = 0; i_attr < mAttrCnt; i_attr++) {
         mMaxAttrValues.push_back(Combo::VALUE_CNT_DEFAULT - 1);
     }
 
@@ -663,14 +663,14 @@ String GameOpt::TileShape(void) const {
     return result;
 }
 
-unsigned GameOpt::TilesPerCombo(void) const {
-    unsigned const result = ClonesPerCombo() + 1;
+SizeType GameOpt::TilesPerCombo(void) const {
+    SizeType const result = ClonesPerCombo() + 1;
 
     return result;
 }
 
-long GameOpt::TotalTileCnt(void) const {
-    long const result = ComboCnt() * (1 + ClonesPerCombo());
+ComboCntType GameOpt::TotalTileCnt(void) const {
+    ComboCntType const result = ComboCnt() * (1 + ClonesPerCombo());
 
     return result;
 }

@@ -29,8 +29,8 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 A Rect object represents a rectangular region in the client area of a window.
 */
 
-#include "gui/point.hpp"  // USES Point
 #include "project.hpp"    // USES FractionPair
+#include "gui/point.hpp"  // USES Point
 #ifdef _WINDOWS
 using Win::RECT;
 #elif defined(_QT)

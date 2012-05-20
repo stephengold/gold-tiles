@@ -130,32 +130,34 @@ class QPainter;
 # endif  // defined(_QT)
 #endif  // defined(_GUI)
 
+#include <cstdint>  // uint32_t
+
 // project-wide typedefs
-typedef unsigned long MsecIntervalType;
-typedef unsigned      ScoreType;
-typedef char const*   TextType;   // read-only, NUL-terminated string of characters
+typedef uint32_t    MsecIntervalType;  // up to 49 days
+typedef uint32_t    SizeType;
+typedef char const* TextType;   // read-only, NUL-terminated string of characters
 
 // project-wide constants
 #ifndef NULL
-#define NULL 0
+# define NULL 0
 #endif // !defined(NULL)
 #ifndef M_PI
 const double   M_PI = 3.14159265358979323846;
 #endif // !defined(M_PI)
 const MsecIntervalType 
                MSECS_PER_SECOND = 1000;
-const unsigned SECONDS_PER_MINUTE = 60;
+const uint8_t  SECONDS_PER_MINUTE = 60;
 const double   SQRT_3 = 1.732050807568877;
 
 // project-wide utility functions
-void     assertion_failed(TextType, unsigned);
-bool     is_even(long);
-bool     is_odd(long);
+void     assertion_failed(TextType, uint32_t);
+bool     is_even(intmax_t);
+bool     is_odd(intmax_t);
 MsecIntervalType
          milliseconds(void);  // read real-time clock
-String   ordinal(unsigned);
-TextType plural(long);
-String   plural(long, TextType);
+String   ordinal(uintmax_t);
+TextType plural(intmax_t);
+String   plural(intmax_t, TextType);
 bool     str_eq(TextType, TextType);  // compare text strings
 void     system_pause(void);
 

@@ -67,20 +67,20 @@ public:
     void          AddServer(Address const&, Socket const&);
     String        BestRunReport(void) const;
     static void   ConsoleGame(void);
-    unsigned      CountStock(void) const;
+    SizeType      CountStock(void) const;
     void          Disable(void);
     void          DisableServers(Address const&);
-    bool          DrawTiles(unsigned cnt, Hand&, Tiles&);
+    bool          DrawTiles(SizeType cnt, Hand&, Tiles&);
     String        EndBonus(void);
     bool          FinishTurn(Move const&);
-    unsigned      HandSize(void) const;
+    SizeType      HandSize(void) const;
     bool          Initialize(void);
-    unsigned      MustPlay(void) const;
+    SizeType      MustPlay(void) const;
     static Game*  New(GameOpt const&, HandOpts const&, Socket const& client);
     void          Redo(void);
     void          Restart(void);
     int           Seconds(Hand&) const;
-    unsigned      SecondsPerHand(void) const;
+    SecondsType   SecondsPerHand(void) const;
     void          StartClock(void);
     String        StockBagString(void) const;
     void          StopClock(void);
@@ -109,7 +109,7 @@ public:
 
 private:
     // private constants
-    static const unsigned STUCK_THRESHOLD = 7;  // turns before game is declared "stuck" 
+    static const SizeType STUCK_THRESHOLD = 7;  // turns before game is declared "stuck" 
 
     // private data
     bool             mAmClient;
@@ -120,7 +120,7 @@ private:
     String           mFirstTurnMessage;
     Hands            mHands;         // all hands being played
     Turns            mHistory;       // history of turns for undo/redo
-    unsigned         mMustPlay;      // min number of tiles to play, zero after the first turn
+    SizeType         mMustPlay;      // min number of tiles to play, zero after the first turn
     GameOpt const    mOptions;
     Hands::Iterator miPlayableHand;  // whose turn it is
     Turns::Iterator miRedo;          // current position in the history

@@ -98,7 +98,7 @@ String GameView::ClockText(Hand& rHand) const {
         seconds = -seconds;
     }
 
-    unsigned const minutes = seconds / SECONDS_PER_MINUTE;
+    MinutesType const minutes = MinutesType(seconds / SECONDS_PER_MINUTE);
     seconds -= minutes*SECONDS_PER_MINUTE;
     unsigned const tens_of_seconds = seconds / 10;
     seconds -= tens_of_seconds*10;
@@ -176,7 +176,7 @@ void GameView::DrawBoard(Canvas& rCanvas, unsigned showLayer) {
         }
     }
 
-    unsigned swap_cnt = CountSwap();
+    SizeType swap_cnt = CountSwap();
     Tile::IdType const active_tile = GetActive();
     if (IsInSwap(active_tile)) {
         ASSERT(swap_cnt > 0);
@@ -229,7 +229,7 @@ void GameView::DrawCell(
     Canvas& rCanvas, 
     Cell const& rCell, 
     Point const& rCenter, 
-    unsigned swapCnt)
+    SizeType swapCnt)
 {
     ASSERT(rCell.IsValid());
 
@@ -438,7 +438,7 @@ void GameView::DrawPlayableHand(Canvas& rCanvas) {
     mRecenterLeftX = header_rect.RightX();
 
     // Calculate height of playable hand area (mHandRect).
-    unsigned tile_cnt = CountHand();
+    SizeType tile_cnt = CountHand();
     Area const cell_area = CellArea(PLACE_HAND);
     PixelCntType const cell_height = cell_area.Height();
     PixelCntType height = rCanvas.TextHeight() + 2*mPadPixels;
@@ -520,8 +520,8 @@ void GameView::DrawPlayableTiles(Canvas& rCanvas) {
     LogicalYType hand_y = mHandRect.TopY() + mPadPixels + cell_height/2;
     LogicalYType swap_y = mSwapRect.TopY() + mPadPixels + cell_height/2;
 
-    unsigned const tile_cnt = CountSwap();
-    unsigned const stock_cnt = mpGame->CountStock();
+    SizeType const tile_cnt = CountSwap();
+    SizeType const stock_cnt = mpGame->CountStock();
     if (tile_cnt < CountTiles()  && tile_cnt < stock_cnt) {
         swap_y += cell_height/2;
     }
@@ -581,7 +581,7 @@ void GameView::DrawStockArea(
     rCanvas.DrawRectangle(top_y, left_x, width, height);
 
     // Draw two lines of descriptive text in the stock area.
-    unsigned const stock_cnt = mpGame->CountStock();
+    SizeType const stock_cnt = mpGame->CountStock();
     String const stock_text1 = plural(stock_cnt, "tile");
     LogicalYType y = top_y + mPadPixels;
     Rect const bounds1(y, left_x, width, rCanvas.TextHeight());
@@ -601,8 +601,8 @@ Rect GameView::DrawSwapArea(
     // calculate height of swap area (mSwapRect)
     Area const cell_area = CellArea(PLACE_HAND);
     PixelCntType const cell_height = cell_area.Height();
-    unsigned const stock_cnt = mpGame->CountStock();
-    unsigned tile_cnt = CountSwap();
+    SizeType const stock_cnt = mpGame->CountStock();
+    SizeType tile_cnt = CountSwap();
     PixelCntType height = tile_cnt*cell_height + rCanvas.TextHeight() + 3*mPadPixels;
 
     if (tile_cnt < CountTiles() && tile_cnt < stock_cnt) {
@@ -616,7 +616,7 @@ Rect GameView::DrawSwapArea(
         ASSERT(tile_cnt > 0);
         --tile_cnt;
     }
-    unsigned played_tile_cnt = CountPlayed();
+    SizeType played_tile_cnt = CountPlayed();
     if (IsOnBoard(active_tile)) {
         ASSERT(played_tile_cnt > 0);
         --played_tile_cnt;
@@ -704,7 +704,7 @@ void GameView::DrawUnplayableHands(Canvas& rCanvas) {
         LogicalXType const left_x = header_rect.LeftX();
         PixelCntType const width = header_rect.Width();
         Tiles const hand_tiles = *i_hand;
-        unsigned const tile_count = hand_tiles.Count();
+        SizeType const tile_count = hand_tiles.Count();
         area_color = COLOR_DARK_BLUE;
         rCanvas.UseColors(area_color, edge_color);
         PixelCntType height = rCanvas.TextHeight() + 2*mPadPixels;
@@ -952,9 +952,9 @@ void GameView::SaveUserOptions(User& rUser) const {
 String GameView::ScoreText(Hand const& rHand, bool isPlayable) const {
     ASSERT(mpGame != NULL);
 
-    unsigned const score = rHand.Score();
+    ScoreType const score = rHand.Score();
 
-    unsigned points_this_turn = 0;
+    ScoreType points_this_turn = 0;
     if (isPlayable) {
         points_this_turn = Points();
     }

@@ -54,7 +54,7 @@ public:
 #ifdef _QT
     explicit SubMenu(QString const& label);
 #elif defined(_WINDOWS)
-    SubMenu(Menu const&, unsigned position);
+    SubMenu(Menu const&, SizeType position);
 #endif  // defined(_WINDOWS)
     virtual ~SubMenu(void);
 
@@ -75,7 +75,7 @@ private:
     QMenu* mpQMenu;
 #elif defined(_WINDOWS)
     Menu const& mrMenu;
-    unsigned     mPosition;
+    SizeType     mPosition;
 #endif  // defined(_WINDOWS)
 
     // private lifecycle

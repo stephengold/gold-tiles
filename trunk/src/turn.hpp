@@ -42,7 +42,7 @@ public:
     // lifecycle
     // no default constructor
     Turn(Tiles const&, String const& handName);
-    Turn(Move const&, String const& handName, unsigned mustPlay);
+    Turn(Move const&, String const& handName, SizeType mustPlay);
     // Turn(Turn const&);  implicitly defined copy constructor
     // ~Turn(void);  implicitly defined destructor
 
@@ -55,7 +55,7 @@ public:
     // misc methods
     Tiles     Draw(void) const;
     String    HandName(void) const;
-    unsigned  MustPlay(void) const;
+    SizeType  MustPlay(void) const;
     ScoreType Points(void) const;
     void      SetDraw(Tiles const&);
     void      SetPoints(ScoreType);
@@ -65,7 +65,7 @@ private:
     Tiles     mDraw;      // move first, then draw
     String    mHandName;
     Move      mMove;      // move first, then draw
-    unsigned  mMustPlay;  // set for first turn, otherwise zero
+    SizeType  mMustPlay;  // set for first turn, otherwise zero
     ScoreType mPoints;    // from start of turn
 };
 #endif // !defined(TURN_HPP_INCLUDED)

@@ -36,22 +36,22 @@ void Poly::Add(double x, double y) {
     push_back(pair);
 }
 
-unsigned Poly::Count(void) const {
-    unsigned const result = size();
+SizeType Poly::Count(void) const {
+    SizeType const result = SizeType(size());
 
     return result;
 }
 
 void Poly::GetPoints(
     POINT points[], 
-    unsigned numPoints, 
+    SizeType numPoints, 
     Rect const& rBounds,
     bool invertFlag) const
 {
     ASSERT(numPoints <= Count());
 
     ConstIterator it = begin();
-    for (unsigned i = 0; i < numPoints; i++) {
+    for (SizeType i = 0; i < numPoints; i++) {
         ASSERT(it < end());
         FractionPair const pair = *it;
         Point const point = rBounds.Interpolate(pair, invertFlag);

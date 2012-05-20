@@ -94,7 +94,7 @@ void Hand::AddTiles(Tiles const& rTiles) {
     mTiles.Merge(rTiles);
 }
 
-Move Hand::ChooseMove(unsigned mustPlay) const {
+Move Hand::ChooseMove(SizeType mustPlay) const {
     ASSERT(IsClockRunning());
     ASSERT(IsLocalUser());
 
@@ -130,7 +130,7 @@ void Hand::DescribeScore(void) const {
 
 void Hand::DescribeTiles(void) const {
     DescribeName();
-    unsigned const count = mTiles.Count();
+    SizeType const count = mTiles.Count();
     std::cout << " holds " << ::plural(count, "tile") << ": " 
         << mTiles.Description() << "." << std::endl;
 }
@@ -241,9 +241,9 @@ ScoreType Hand::Score(void) const {
 }
 
 // how much time this hand has spent, in seconds
-unsigned Hand::Seconds(void) const {
+SecondsType Hand::Seconds(void) const {
     MsecIntervalType const msecs = Milliseconds();
-    unsigned const result = unsigned(msecs/MSECS_PER_SECOND);
+    SecondsType const result = SecondsType(msecs/MSECS_PER_SECOND);
 
     return result;
 }
@@ -268,14 +268,14 @@ void Hand::StartClock(void) {
     mClockRunningFlag = true;
 }
 
-unsigned Hand::StopClock(void) {
+SecondsType Hand::StopClock(void) {
     ASSERT(IsClockRunning());
 
     mMilliseconds = Milliseconds();
     mClockRunningFlag = false;
 
     // return the number of elapsed seconds
-    unsigned const result = unsigned(mMilliseconds/MSECS_PER_SECOND);
+    SecondsType const result = SecondsType(mMilliseconds/MSECS_PER_SECOND);
 
     return result;
 }

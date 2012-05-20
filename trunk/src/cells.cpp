@@ -79,8 +79,8 @@ void Cells::AddCells(Cells const& rCells) {
     }
 }
 
-unsigned Cells::Count(void) const {
-    unsigned const result = size();
+SizeType Cells::Count(void) const {
+    SizeType const result = SizeType(size());
 
     return result;
 }

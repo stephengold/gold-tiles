@@ -68,7 +68,7 @@ protected:
 
 private:
     // private types
-    typedef unsigned long                   KeyType;
+    typedef intptr_t                        KeyType;
     typedef std::map<KeyType, BaseWindow*>  Map;
     typedef std::pair<KeyType, BaseWindow*> Pair;
     typedef Map::const_iterator             ConstIterator;

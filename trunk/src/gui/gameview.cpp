@@ -40,9 +40,9 @@ GameView::GameView(Game const& rGame)
 {
     mpMenuBar = NULL;
     mPadPixels = PAD_PIXELS_DEFAULT;
-    mTargetCellFlag = false;
     mRecenterLeftX = 0;
     mRecenterRightX = 0;
+    mTargetCellFlag = false;
     mpWindow = NULL;
 
     SetBoardTileSize(TILE_SIZE_DEFAULT);

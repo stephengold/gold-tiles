@@ -53,6 +53,7 @@ SubMenu::SubMenu(Menu const& rMenu, SizeType position)
 
 #endif  // defined(_WINDOWS)
 
+// destructor
 SubMenu::~SubMenu(void) {
 }
 

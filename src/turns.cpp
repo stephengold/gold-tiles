@@ -47,7 +47,6 @@ SizeType Turns::Count(void) const {
 
 // convert an iterator to an index
 SizeType Turns::Index(Iterator const& rIterator) const {
-
     // count the number of iterator values preceding the argument
     SizeType result = 0;
     ConstIterator iterator;

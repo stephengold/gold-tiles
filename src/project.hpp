@@ -130,7 +130,7 @@ class QPainter;
 # endif  // defined(_QT)
 #endif  // defined(_GUI)
 
-#include <cstdint>  // uint32_t
+#include <inttypes.h>  // uint32_t
 
 // project-wide typedefs
 typedef uint32_t    MsecIntervalType;  // up to 49 days

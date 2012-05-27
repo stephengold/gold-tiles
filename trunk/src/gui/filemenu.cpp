@@ -42,14 +42,12 @@ FileMenu::FileMenu(void)
     mSave(Qt(), tr("&Save\tCtrl+S")),
     mSaveAs(Qt(), tr("Save &As...")),
     mClose(Qt(), tr("&Close\tCtrl+W")),
-    mPrint(Qt(), tr("&Print...\tCtrl+P")),
     mExit(Qt(), tr("&Exit"))
 {
     mNew.SetShortcut(tr("Ctrl+N"));
     mOpen.SetShortcut(tr("Ctrl+O"));
     mSave.SetShortcut(tr("Ctrl+S"));
     mClose.SetShortcut(tr("Ctrl+W"));
-    mPrint.SetShortcut(tr("Ctrl+P"));
     mExit.SetShortcut(tr("Alt+F4"));
 
     Add(mNew);
@@ -61,7 +59,6 @@ FileMenu::FileMenu(void)
     Add(mSaveAs);
     AddSeparator();
     Add(mClose);
-    Add(mPrint);
     Add(mExit);
 }
 
@@ -76,7 +73,6 @@ SubMenu(rRootMenu, position),
     mSave(rRootMenu, IDM_SAVE),
     mSaveAs(rRootMenu, IDM_SAVE_AS),
     mClose(rRootMenu, IDM_CLOSE),
-    mPrint(rRootMenu, IDM_PRINT),
     mExit(rRootMenu, IDM_EXIT)
 {}
 
@@ -100,6 +96,5 @@ void FileMenu::EnableItems(bool haveGame) {
     mSave.Enable(false);
     mSaveAs.Enable(false);
     mClose.Enable(haveGame);
-    mPrint.Enable(false);
     mExit.Enable(true);
 }

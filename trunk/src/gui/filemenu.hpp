@@ -58,7 +58,6 @@ private:
     MenuItem mSave;
     MenuItem mSaveAs;
     MenuItem mClose;
-    MenuItem mPrint;
     MenuItem mExit;
 
     // private lifecycle

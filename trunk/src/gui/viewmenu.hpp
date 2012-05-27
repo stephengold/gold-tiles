@@ -49,7 +49,6 @@ public:
     // ~ViewMenu(void);  implicitly defined destructor
 
     // misc public methods
-    void Animation(bool);
     void BoardTileSize(TileSizeType);
     void EnableItems(Partial const&, ThinkModeType);
     void HandTileSize(TileSizeType);
@@ -69,10 +68,9 @@ private:
     MenuItem mShowGrid;
     MenuItem mShowScores;
     MenuItem mShowTiles;
-    MenuItem mAnimation;
 
     // private lifecycle
-    ViewMenu(ViewMenu const&);   // not copyable
+    ViewMenu(ViewMenu const&);  // not copyable
 
     // private operators
     ViewMenu& operator=(ViewMenu const&);  // not assignable

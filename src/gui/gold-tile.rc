@@ -54,7 +54,6 @@ MENUBAR MENU
         MENUITEM "Save &As...", IDM_SAVE_AS
         MENUITEM SEPARATOR
         MENUITEM "&Close\tCtrl+W", IDM_CLOSE
-        MENUITEM "&Print...\tCtrl+P", IDM_PRINT
         MENUITEM "&Exit\tAlt+F4", IDM_EXIT
     }
     POPUP "&Play"
@@ -107,7 +106,6 @@ MENUBAR MENU
         MENUITEM "Show &Grid", IDM_SHOW_GRID
         MENUITEM "Show Sc&ores", IDM_SHOW_SCORES
         MENUITEM "&Peek", IDM_PEEK
-        MENUITEM "A&nimation", IDM_ANIMATION
     }
     POPUP "&Thinking"
     {
@@ -387,7 +385,6 @@ HOTKEYS ACCELERATORS
     71,            IDM_SUGGEST, VIRTKEY
     78,            IDM_NEW, VIRTKEY, CONTROL
     79,            IDM_OPEN, VIRTKEY, CONTROL
-    80,            IDM_PRINT, VIRTKEY, CONTROL
     83,            IDM_SAVE, VIRTKEY, CONTROL
     87,            IDM_CLOSE, VIRTKEY, CONTROL
     89,            IDM_REDO, VIRTKEY

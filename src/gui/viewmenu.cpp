@@ -44,8 +44,7 @@ ViewMenu::ViewMenu(void)
     mShowClocks(Qt(), "Show &Clocks"),
     mShowGrid(Qt(), "Show &Grid"),
     mShowScores(Qt(), "Show Sc&ores"),
-    mShowTiles(Qt(), "&Peek"),
-    mAnimation(Qt(), "A&nimation")
+    mShowTiles(Qt(), "&Peek")
 {
     QKeySequence const c(tr("C"));
     mRecenter.SetShortcut(c);
@@ -62,7 +61,6 @@ ViewMenu::ViewMenu(void)
     Add(mShowGrid);
     Add(mShowScores);
     Add(mShowTiles);
-    Add(mAnimation);
 }
 
 #elif defined(_WINDOWS)
@@ -77,8 +75,7 @@ SubMenu(rRootMenu, position),
     mShowClocks(rRootMenu, IDM_SHOW_CLOCKS),
     mShowGrid(rRootMenu, IDM_SHOW_GRID),
     mShowScores(rRootMenu, IDM_SHOW_SCORES),
-    mShowTiles(rRootMenu, IDM_PEEK),
-    mAnimation(rRootMenu, IDM_ANIMATION)
+    mShowTiles(rRootMenu, IDM_PEEK)
 {}
 
 #endif  // defined(_WINDOWS)
@@ -106,7 +103,6 @@ void ViewMenu::EnableItems(Partial const& rPartial, ThinkModeType thinkMode) {
     mShowGrid.Enable(true);
     mShowScores.Enable(true);
     mShowTiles.Enable(is_over || game_style == GAME_STYLE_DEBUG);
-    mAnimation.Enable(false);  // TODO
 }
 
 void ViewMenu::HandTileSize(TileSizeType size) {

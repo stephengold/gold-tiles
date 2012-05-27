@@ -79,8 +79,7 @@
 #define IDM_SAVE                                6004
 #define IDM_SAVE_AS                             6005
 #define IDM_CLOSE                               6006
-#define IDM_PRINT                               6007
-#define IDM_EXIT                                6008
+#define IDM_EXIT                                6007
 #define IDM_PLAY_PLAY                           6100
 #define IDM_TAKE_BACK                           6101
 #define IDM_SUGGEST                             6102
@@ -99,7 +98,6 @@
 #define IDM_SHOW_GRID                           6206
 #define IDM_SHOW_SCORES                         6207
 #define IDM_PEEK                                6208
-#define IDM_ANIMATION                           6209
 #define IDM_BS_ZOOM_OUT                         6220
 #define IDM_BS1                                 6221
 #define IDM_BS2                                 6222

@@ -410,7 +410,6 @@ void GameWindow::HandleMenuCommand(IdType command) {
     case IDM_REVERT:
     case IDM_SAVE:
     case IDM_SAVE_AS:
-    case IDM_PRINT:
         FAIL(); // TODO
         break;
 
@@ -576,11 +575,8 @@ void GameWindow::HandleMenuCommand(IdType command) {
         }
         break;
                     }
-    case IDM_ANIMATION:
-        FAIL(); // TODO
-        break;
 
-        // Thinking menu options
+    // Thinking menu options
     case IDM_CANCEL:
         if (mThinkMode != THINK_AUTOPLAY && mThinkMode != THINK_DISABLE) {
             ASSERT(mThinkMode == THINK_SUGGEST || mThinkMode == THINK_REMOTE);

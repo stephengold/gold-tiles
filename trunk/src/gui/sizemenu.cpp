@@ -53,15 +53,15 @@ SizeMenu::SizeMenu(QString const& label)
 
 #elif defined(_WINDOWS)
 
-SizeMenu::SizeMenu(Menu const& rRootMenu, SizeType position):
+SizeMenu::SizeMenu(Menu const& rRootMenu, SizeType position, IdType ts1):
 SubMenu(rRootMenu, position),
-    mSize1(rRootMenu, IDM_TS1, IDM_TS7, IDM_TS1),
-    mSize2(rRootMenu, IDM_TS1, IDM_TS7, IDM_TS2),
-    mSize3(rRootMenu, IDM_TS1, IDM_TS7, IDM_TS3),
-    mSize4(rRootMenu, IDM_TS1, IDM_TS7, IDM_TS4),
-    mSize5(rRootMenu, IDM_TS1, IDM_TS7, IDM_TS5),
-    mSize6(rRootMenu, IDM_TS1, IDM_TS7, IDM_TS6),
-    mSize7(rRootMenu, IDM_TS1, IDM_TS7, IDM_TS7)
+    mSize1(rRootMenu, ts1, ts1 + 6, ts1),
+    mSize2(rRootMenu, ts1, ts1 + 6, ts1 + 1),
+    mSize3(rRootMenu, ts1, ts1 + 6, ts1 + 2),
+    mSize4(rRootMenu, ts1, ts1 + 6, ts1 + 3),
+    mSize5(rRootMenu, ts1, ts1 + 6, ts1 + 4),
+    mSize6(rRootMenu, ts1, ts1 + 6, ts1 + 5),
+    mSize7(rRootMenu, ts1, ts1 + 6, ts1 + 6)
 {}
 
 #endif  // defined(_WINDOWS)

@@ -43,7 +43,7 @@ public:
     SizeMenu(QString const& label);
 #elif defined(_WINDOWS)
     // no default constructor
-    SizeMenu(Menu const&, SizeType position);
+    SizeMenu(Menu const&, SizeType position, IdType ts1);
 #endif  // defined(_WINDOWS)
     // ~SizeMenu(void);  implicitly defined destructor
 

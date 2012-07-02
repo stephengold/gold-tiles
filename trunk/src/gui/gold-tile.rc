@@ -90,6 +90,8 @@ MENUBAR MENU
         }
         POPUP "&Tile Size"
         {
+            MENUITEM "&Zoom out", IDM_TS_ZOOM_OUT
+            MENUITEM SEPARATOR
             MENUITEM "&1 Tiny", IDM_TS1
             MENUITEM "&2 Small", IDM_TS2
             MENUITEM "&3 Smallish", IDM_TS3
@@ -97,6 +99,8 @@ MENUBAR MENU
             MENUITEM "&5 Largish", IDM_TS5
             MENUITEM "&6 Large", IDM_TS6
             MENUITEM "&7 Very Large", IDM_TS7
+            MENUITEM SEPARATOR
+            MENUITEM "Zoom in", IDM_TS_ZOOM_IN
         }
         MENUITEM "&Re-center\tC or Home", IDM_RECENTER
         MENUITEM "Tile &Attributes...", IDM_ATTRIBUTES

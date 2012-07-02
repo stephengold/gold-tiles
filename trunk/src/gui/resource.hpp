@@ -107,6 +107,7 @@
 #define IDM_BS6                                 6226
 #define IDM_BS7                                 6227
 #define IDM_BS_ZOOM_IN                          6228
+#define IDM_TS_ZOOM_OUT                         6230
 #define IDM_TS1                                 6231
 #define IDM_TS2                                 6232
 #define IDM_TS3                                 6233
@@ -114,6 +115,7 @@
 #define IDM_TS5                                 6235
 #define IDM_TS6                                 6236
 #define IDM_TS7                                 6237
+#define IDM_TS_ZOOM_IN                          6238
 #define IDM_CANCEL                              6301
 #define IDM_RULES                               6900
 #define IDM_WARRANTY                            6901

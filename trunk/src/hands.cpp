@@ -25,6 +25,33 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 #include "hands.hpp"
 
 
+// static constants
+const String Hands::PREFIX("hands{");
+const String Hands::SEPARATOR(" ");
+const String Hands::SUFFIX("}");
+
+
+// operators
+
+Hands::operator String(void) const {
+    String result(PREFIX);
+
+    ConstIterator i_hand;
+    for (i_hand = begin(); i_hand != end(); i_hand++) {
+        if (i_hand != begin()) {
+            result += SEPARATOR;
+        }
+
+        Hand const hand = *i_hand;
+        String const turn_string = hand;
+        result += turn_string;
+    }       
+    result += SUFFIX;
+
+    return result;
+}
+
+
 // misc methods
 
 void Hands::Append(Hand const& rHand) {

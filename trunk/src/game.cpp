@@ -22,6 +22,7 @@ You should have received a copy of the GNU General Public License
 along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <fstream>
 #include <iostream>
 #include "direction.hpp"
 #include "game.hpp"
@@ -37,8 +38,7 @@ Game::Game(
     GameOpt const& rGameOpt,
     HandOpts const& rHandOptions, 
     Socket const& rClientSocket)
-    :
-    mClient(rClientSocket),
+:   mClient(rClientSocket),
     mOptions(rGameOpt)
 {
     ASSERT(!rHandOptions.IsEmpty());
@@ -120,6 +120,24 @@ Game::operator HandOpts(void) const {
 
 Game::operator Hands(void) const {
     return mHands;
+}
+
+Game::operator String(void) const {
+    String result;
+    
+    result += "AmClient=" + String(mAmClient) + "\n";
+    result += "BestRunReport={" +  mBestRunReport + "}\n";
+    result += "Board=" + String(mBoard) + "\n";
+    result += "FirstTurnMessage={" + mFirstTurnMessage + "}\n";
+    result += "Hands=" + String(mHands) + "\n";
+    result += "History=" + String(mHistory) + "\n";
+    result += "MustPlay=" + String(mMustPlay) + "\n";
+    result += "PlayableHand=" + miPlayableHand->Name() + "\n";
+    result += "Redo=" + String(mHistory.Index(miRedo)) + "\n";
+    result += "StockBag=" + String(mStockBag) + "\n";
+    result += String(mOptions);
+
+    return result;
 }
 
 
@@ -815,6 +833,20 @@ void Game::Restart(void) {
 
     ASSERT(IsPaused());
     ASSERT(!CanUndo());
+}
+
+void Game::Save(void) {
+  if (mFilespec.IsEmpty()) {
+      mFilespec = "untitled.gtg";
+  }
+
+  // TODO check for existing file
+  std::ofstream file;
+  file.open(mFilespec);
+  file << String(*this);
+  file.close();
+
+  mUnsavedChanges = false;
 }
 
 int Game::Seconds(Hand& rHand) const {

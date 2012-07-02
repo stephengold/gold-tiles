@@ -36,10 +36,10 @@ The Board class extends the BaseBoard class.  The implementation of
 BaseBoard is hidden from these extensions.
 */
 
-#include "baseboard.hpp" // ISA BaseBoard
-#include "move.hpp"      // USES Move
+#include "baseboard.hpp"  // ISA BaseBoard
+#include "move.hpp"       // USES Move
 
-enum UmType { // user message handles
+enum UmType {  // user message handles
     UM_COLUMNCOMPAT,
     UM_DIAGCOMPAT,
     UM_EMPTY,
@@ -65,11 +65,11 @@ public:
 
     // public operators
     // Board& operator=(Board const&);  implicitly defined assignment operator
+    operator String(void) const;
 
     // misc public methods
     String        Description(void) const;
     Cell          FirstCell(void) const;
-    Tile::IdType  GetId(Cell const&) const;
     void          Next(Cell&) const;
     void          PlayMove(Move const&);
     static String ReasonMessage(UmType, String& title);
@@ -86,6 +86,11 @@ public:
     bool MightUse(Cell const&) const;
 
 private:
+    // private constants
+    static const String PREFIX;
+    static const String SEPARATOR;
+    static const String SUFFIX;
+
     // misc private methods
     Cells     GetRun(Cell const&, Direction const&) const;
     Tile      GetTile(Cell const&) const;
@@ -101,4 +106,4 @@ private:
     bool DoesAnyHaveNeighbor(Cells const&) const;
     bool IsRunCompatible(Cell const&, Direction const&) const;
 };
-#endif // !defined(BOARD_HPP_INCLUDED)
+#endif  // !defined(BOARD_HPP_INCLUDED)

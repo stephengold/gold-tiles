@@ -60,6 +60,7 @@ public:
     operator Hand(void) const;   // the playable hand
     operator HandOpts(void) const;
     operator Hands(void) const;  // all hands
+    operator String(void) const;
 
     // misc public methods
     void          ActivateNextHand(void);
@@ -79,6 +80,7 @@ public:
     static Game*  New(GameOpt const&, HandOpts const&, Socket const& client);
     void          Redo(void);
     void          Restart(void);
+    void          Save(void);
     int           Seconds(Hand&) const;
     SecondsType   SecondsPerHand(void) const;
     void          StartClock(void);

@@ -46,9 +46,18 @@ public:
     // Turns(Turns const&);  implicitly defined copy constructor
     // ~Turns(void);  implicitly defined destructor
 
+    // public operators
+    operator String(void) const;
+
     // misc public methods
     SizeType Count(void) const;
     SizeType Index(Iterator const&) const;
     SizeType IndexLastPlay(void) const;
+
+private:
+    // private constants
+    static const String PREFIX;
+    static const String SEPARATOR;
+    static const String SUFFIX;
 };
-#endif // !defined(TURNS_HPP_INCLUDED)
+#endif  // !defined(TURNS_HPP_INCLUDED)

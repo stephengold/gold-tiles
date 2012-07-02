@@ -27,8 +27,8 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 
 // lifecycle
 
-Turn::Turn(Tiles const& rTiles, String const& rHandName):
-mDraw(rTiles),
+Turn::Turn(Tiles const& rTiles, String const& rHandName)
+:   mDraw(rTiles),
     mHandName(rHandName)
 {
     // one of the initial draws
@@ -36,8 +36,8 @@ mDraw(rTiles),
     mPoints = 0;
 }
 
-Turn::Turn(Move const& rMove, String const& rHandName, SizeType mustPlay):
-mHandName(rHandName),
+Turn::Turn(Move const& rMove, String const& rHandName, SizeType mustPlay)
+:   mHandName(rHandName),
     mMove(rMove)
 {
     // an ordinary turn
@@ -55,6 +55,13 @@ mHandName(rHandName),
 
 Turn::operator Move(void) const {
     return mMove;
+}
+
+Turn::operator String(void) const {
+    String const result = "turn{" + String(mPoints) + " " + String(mMustPlay)
+        + " " + String(mMove) + " " + String(mDraw) + " " + mHandName + "}";
+
+    return result;
 }
 
 

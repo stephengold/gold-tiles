@@ -43,6 +43,7 @@ public:
     operator Address(void) const;
     operator HandOpt(void) const;
     operator Socket(void) const;
+    operator String(void) const;
     operator Tiles(void) const;
 
     // misc public methods
@@ -100,4 +101,4 @@ private:
     // private inquiry methods
     bool IsEmpty(void) const;
 };
-#endif // !defined(HAND_HPP_INCLUDED)
+#endif  // !defined(HAND_HPP_INCLUDED)

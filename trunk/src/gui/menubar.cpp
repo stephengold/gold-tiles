@@ -35,7 +35,7 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 
 #ifdef _QT
 
-MenuBar::MenuBar(Partial const& rPartial)
+MenuBar::MenuBar(Partial const& rPartial, QObject* pParent)
 :   mHelpMenu(tr("&Help")),
    mrPartial(rPartial),
     mThinking(tr("&Thinking"))
@@ -44,20 +44,24 @@ MenuBar::MenuBar(Partial const& rPartial)
     addMenu(mPlayMenu.Qt());
     addMenu(mViewMenu.Qt());
 
-    MenuItem cancel(mViewMenu.Qt(), tr("&Cancel\tCtrl+C"));
-    mThinking.Add(cancel);
+    MenuItem* p_cancel = new MenuItem(mViewMenu.Qt(), tr("&Cancel\tCtrl+C"));
+    mThinking.Add(*p_cancel);
     addMenu(mThinking.Qt());
 
-    MenuItem rules(mHelpMenu.Qt(), tr("&Rules...\tF1"));
-    mHelpMenu.Add(rules);
-    rules.SetShortcut(tr("F1"));
-    MenuItem warranty(mHelpMenu.Qt(), tr("&Warranty..."));
-    mHelpMenu.Add(warranty);
-    MenuItem about(mHelpMenu.Qt(), tr("&About Gold Tile..."));
-    mHelpMenu.Add(about);
-    addMenu(mHelpMenu.Qt());
+    MenuItem* p_rules = new MenuItem(mHelpMenu.Qt(), tr("&Rules...\tF1"));
+    connect(p_rules->pAction(), SIGNAL(triggered()),
+        pParent, SLOT(HandleMenuCommand(void)));
+    p_rules->SetShortcut(tr("F1"));
+    mHelpMenu.Add(*p_rules);
 
-    GameStyleType game_style = mrPartial.GameStyle();
+    MenuItem* p_warranty = new MenuItem(mHelpMenu.Qt(), tr("&Warranty..."));
+    mHelpMenu.Add(*p_warranty);
+
+    MenuItem* p_about = new MenuItem(mHelpMenu.Qt(), tr("&About Gold Tile..."));
+    addMenu(mHelpMenu.Qt());
+    mHelpMenu.Add(*p_about);
+
+    GameStyleType const game_style = mrPartial.GameStyle();
     Initialize(game_style);
 }
 

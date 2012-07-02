@@ -62,7 +62,8 @@ int CALLBACK Win::WinMain(
     QApplication application(argCnt, argValues);
 
     // Instantiate a game window and display it.
-    p_window = new GameWindow(NULL);
+    p_window = new GameWindow();
+    ASSERT(p_window != NULL);
     p_window->show();
 
     exit_code = application.exec();
@@ -70,7 +71,8 @@ int CALLBACK Win::WinMain(
 #elif defined(_WINDOWS)
 
     // Instantiate a game window and display it.
-    p_window = new GameWindow(applicationInstance, NULL);
+    p_window = new GameWindow(applicationInstance);
+    ASSERT(p_window != NULL);
     p_window->Show(showHow);
 
     // Retrieve and dispatch messages for this application. 

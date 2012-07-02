@@ -122,15 +122,15 @@ class User;
 class ViewMenu;
 class Window;
 class WindowClass;
+#endif  // defined(_GUI)
 
-# ifdef _QT
+#ifdef _QT
 // forward declarations of QT classes
 class QFont;
 class QPainter;
-# endif  // defined(_QT)
-#endif  // defined(_GUI)
+#endif  // defined(_QT)
 
-#include <inttypes.h>  // uint32_t
+#include <cstdint>  // uint32_t
 
 // project-wide typedefs
 typedef uint32_t    MsecIntervalType;  // up to 49 days
@@ -140,10 +140,10 @@ typedef char const* TextType;   // read-only, NUL-terminated string of character
 // project-wide constants
 #ifndef NULL
 # define NULL 0
-#endif // !defined(NULL)
+#endif  // !defined(NULL)
 #ifndef M_PI
 const double   M_PI = 3.14159265358979323846;
-#endif // !defined(M_PI)
+#endif  // !defined(M_PI)
 const MsecIntervalType 
                MSECS_PER_SECOND = 1000;
 const uint8_t  SECONDS_PER_MINUTE = 60;
@@ -161,4 +161,4 @@ String   plural(intmax_t, TextType);
 bool     str_eq(TextType, TextType);  // compare text strings
 void     system_pause(void);
 
-#endif // !defined(PROJECT_HPP_INCLUDED)
+#endif  // !defined(PROJECT_HPP_INCLUDED)

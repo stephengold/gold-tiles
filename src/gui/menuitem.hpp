@@ -36,15 +36,17 @@ In the native version, the MenuItem class encapsulates a handle and a resource i
 
 #ifdef _QT
 # include <QAction>
+typedef unsigned IdType;
+
 #elif defined(_WINDOWS)
 # include "gui/win.hpp"  // HASA IdType
 #endif  // defined(_WINDOWS)
 
+class MenuItem
 #ifdef _QT
-class MenuItem: public QObject {
-#elif defined(_WINDOWS)
-class MenuItem {
-#endif  // defined(_WINDOWS)
+:   public QObject
+#endif  // defined(_QT)
+{
 public:
     // public lifecycle
     // no default constructor

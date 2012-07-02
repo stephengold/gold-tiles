@@ -1,12 +1,16 @@
 SVN_DIR = ../..
 SRC_DIR = $${SVN_DIR}/gold-tiles/src
 CONFIG += debug qt
-DEFINES += _CLIENT _DEBUG _SERVER _QT
+DEFINES += _CLIENT _DEBUG _QT _SERVER
 FORMS +=
 INCLUDEPATH += $${SRC_DIR}
 QT += core gui network
 TARGET = Qt
 TEMPLATE = app
+
+HEADERS += \
+ $${SRC_DIR}/gui/gamewindow.hpp \
+ $${SRC_DIR}/gui/menubar.hpp
 
 SOURCES += \
  $${SRC_DIR}/address.cpp \

@@ -57,7 +57,7 @@ public:
 
     // public lifecycle
     // no default constructor
-    explicit GameView(Game const& game);
+    explicit GameView(Game const* game);
     // ~GameView(void);  implicitly defined destructor
 
     // public operators

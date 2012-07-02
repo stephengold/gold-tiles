@@ -34,20 +34,31 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 # include <QApplication>
 # include <QDesktopWidget>
 
-GameWindow::GameWindow(Game* pGame):
-    mGameView(*pGame),
+GameWindow::GameWindow(void)
+:   mGameView(NULL),
     mMouseLast(0, 0)
 {
     mpWidget = new QWidget;
+    ASSERT(mpWidget != NULL);
 
-    mpGame = pGame;
-    mpMenuBar = new MenuBar(mGameView);
+    mDragBoardFlag = false;
+    mpGame = NULL;
+    mHaveInvitation = false;
+#ifdef _CLIENT
+    mInitialNewGame = true;
+#else  // !defined(_CLIENT)
+    mInitialNewGame = false;
+#endif  // !defined(_CLIENT)
+    mThinkMode = THINK_IDLE;
+
+    mpMenuBar = new MenuBar(mGameView, this);
+    ASSERT(mpMenuBar != NULL);
     setMenuBar(mpMenuBar);
 
     // Get the geometry of the desktop.
-    QDesktopWidget* p_desktop = QApplication::desktop();
-    int screen = p_desktop->screenNumber(this);
-    QRect desktop_bounds = p_desktop->screenGeometry(screen);
+    QDesktopWidget* const p_desktop = QApplication::desktop();
+    int const screen = p_desktop->screenNumber(this);
+    QRect const desktop_bounds = p_desktop->screenGeometry(screen);
 
     // determine initial window size:  centered and covering 64% of desktop
     PixelCntType const height = PixelCntType(0.8*double(desktop_bounds.height()));
@@ -56,6 +67,14 @@ GameWindow::GameWindow(Game* pGame):
     LogicalYType const y = height/8;
     QRect const rect(x, y, width, height);
     setGeometry(rect);
+
+    Network::SetWindow(this);
+    mGameView.SetWindow(this, mpMenuBar);
+    SetCursorSelect();
+    SetBoardTileSize(GameView::TILE_SIZE_DEFAULT);
+    SetHandTileSize(GameView::TILE_SIZE_DEFAULT);
+
+    UpdateMenuBar();
 }
 
 #endif  // defined(_QT)
@@ -122,8 +141,8 @@ static void yield(void* pArgument, bool& rCancel) {
 // lifecycle
 
 #ifdef _WINDOWS
-GameWindow::GameWindow(HINSTANCE applicationInstance, Game* pGame):
-mGameView(*pGame),
+GameWindow::GameWindow(HINSTANCE applicationInstance)
+:   mGameView(NULL),
     mMouseLast(0, 0)
 {
     ASSERT(HWND(*this) == 0);
@@ -139,10 +158,10 @@ mGameView(*pGame),
     }
 
     mDragBoardFlag = false;
-    mpGame = pGame;
+    mpGame = NULL;
     mHaveInvitation = false;
 #ifdef _CLIENT
-    mInitialNewGame = (pGame == NULL);
+    mInitialNewGame = true;
 #else  // !defined(_CLIENT)
     mInitialNewGame = false;
 #endif  // !defined(_CLIENT)
@@ -199,16 +218,6 @@ void GameWindow::Initialize(CREATESTRUCT const& rCreateStruct) {
 
     SetBoardTileSize(GameView::TILE_SIZE_DEFAULT);
     SetHandTileSize(GameView::TILE_SIZE_DEFAULT);
-    if (HasGame()) {
-        Hands const hands = Hands(*mpGame);
-        Hands::ConstIterator i_hand;
-        for (i_hand = hands.begin(); i_hand != hands.end(); i_hand++) {
-            if (i_hand->IsLocalUser()) {
-                SaveUserOptions(*i_hand);
-            }
-        }
-        ChangeHand("");
-    }
 
     SetTimer(TIMEOUT_MSEC, ID_CLOCK_TIMER);
     UpdateMenuBar();
@@ -379,7 +388,6 @@ void GameWindow::HandleInvitation(Socket& rSocket) {
     }
 }
 
-#ifdef _WINDOWS
 void GameWindow::HandleMenuCommand(IdType command) {
     switch (command) {
         // Arrow keys
@@ -527,7 +535,10 @@ void GameWindow::HandleMenuCommand(IdType command) {
         IncreaseBoardTileSize(+1);
         break;
 
-    // Tile Size menu options
+    // (hand) Tile Size menu options
+    case IDM_TS_ZOOM_OUT:
+        IncreaseHandTileSize(-1);
+        break;
     case IDM_TS1:
         SetHandTileSize(1);
         break;
@@ -548,6 +559,9 @@ void GameWindow::HandleMenuCommand(IdType command) {
         break;
     case IDM_TS7:
         SetHandTileSize(7);
+        break;
+    case IDM_TS_ZOOM_IN:
+        IncreaseHandTileSize(+1);
         break;
 
         // View menu options
@@ -607,6 +621,7 @@ void GameWindow::HandleMenuCommand(IdType command) {
     }
 }
 
+#ifdef _WINDOWS
 LRESULT GameWindow::HandleMessage(MessageType message, WPARAM wParam, LPARAM lParam) {
     LRESULT result = 0;
     switch (message) {
@@ -621,20 +636,20 @@ LRESULT GameWindow::HandleMessage(MessageType message, WPARAM wParam, LPARAM lPa
         break;
                    }
 
-    case WM_COMMAND: { // menu command
+    case WM_COMMAND: {  // menu command
         IdType const command = LOWORD(wParam);
         HandleMenuCommand(command);
         break;
                      }
 
-    case WM_CREATE: { // initialize window
+    case WM_CREATE: {  // initialize window
         LPCREATESTRUCT const p_create_struct = LPCREATESTRUCT(lParam);
         ASSERT(p_create_struct != NULL);
         Initialize(*p_create_struct);
         break;
                     }
 
-    case WM_LBUTTONDOWN: // begin left-click
+    case WM_LBUTTONDOWN:  // begin left-click
         if (HasGame()) {
             if (IsGamePaused()) {
                 mpGame->StartClock();
@@ -648,7 +663,7 @@ LRESULT GameWindow::HandleMessage(MessageType message, WPARAM wParam, LPARAM lPa
         }
         break;
 
-    case WM_LBUTTONUP: // complete left-click
+    case WM_LBUTTONUP:  // complete left-click
         if (mGameView.IsDragging()) {
             if (IsMouseCaptured()) {
                 POINTS const points = MAKEPOINTS(lParam);
@@ -662,7 +677,7 @@ LRESULT GameWindow::HandleMessage(MessageType message, WPARAM wParam, LPARAM lPa
         }
         break;
 
-    case WM_MOUSEMOVE: // mouse position update
+    case WM_MOUSEMOVE:  // mouse position update
         if (mGameView.IsDragging()) {
             if (IsMouseCaptured()) {
                 POINTS const points = MAKEPOINTS(lParam);
@@ -675,18 +690,18 @@ LRESULT GameWindow::HandleMessage(MessageType message, WPARAM wParam, LPARAM lPa
         }
         break;
 
-    case WM_MOUSEWHEEL: { // wheel position update
+    case WM_MOUSEWHEEL: {  // wheel position update
         int const z_delta = GET_WHEEL_DELTA_WPARAM(wParam);
         mGameView.StartCellOffset(0, -z_delta/5);
         ForceRepaint();
         break;
                         }
 
-    case WM_PAINT: // request to repaint the client area
+    case WM_PAINT:  // request to repaint the client area
         Repaint();
         break;
 
-    case WM_SIZE: { // resize request
+    case WM_SIZE: {  // resize request
         PixelCntType const width = LOWORD(lParam);
         PixelCntType const height = HIWORD(lParam);
         Area const new_client_area(width, height);
@@ -694,7 +709,7 @@ LRESULT GameWindow::HandleMessage(MessageType message, WPARAM wParam, LPARAM lPa
         break;
                   }
 
-    case WM_TIMER: { // timer popped
+    case WM_TIMER: {  // timer popped
         int const timer_id = int(wParam);
         if (timer_id == ID_CLOCK_TIMER) {
             if (mpMenuBar->AreClocksVisible() && !IsGamePaused() && !IsGameOver()) {
@@ -712,7 +727,7 @@ LRESULT GameWindow::HandleMessage(MessageType message, WPARAM wParam, LPARAM lPa
         break;
     }
 
-    // give the Think fiber an opportunity to run
+    // Give the Think fiber an opportunity to run.
     if (mThinkMode != THINK_IDLE) {
         ASSERT(mThinkFiber != NULL);
         Win::SwitchToFiber(mThinkFiber);
@@ -721,11 +736,11 @@ LRESULT GameWindow::HandleMessage(MessageType message, WPARAM wParam, LPARAM lPa
 #ifdef _SERVER
     // Check for a new invitation from a client.
     PollForInvitation();
-#endif // defined(_SERVER)
+#endif  // defined(_SERVER)
 
     return result;
 }
-#endif // defined(_WINDOWS)
+#endif  // defined(_WINDOWS)
 
 void GameWindow::HandleMouseMove(Point const& rMouse) {
     long const drag_x = rMouse.X() - mMouseLast.X();
@@ -758,6 +773,23 @@ void GameWindow::IncreaseBoardTileSize(int delta) {
     }
 
     SetBoardTileSize(size);
+}
+
+void GameWindow::IncreaseHandTileSize(int delta) {
+    ASSERT(mpMenuBar != NULL);
+
+    TileSizeType size = mpMenuBar->HandTileSize();
+    ASSERT(size >= GameView::TILE_SIZE_MIN);
+    ASSERT(size <= GameView::TILE_SIZE_MAX);
+
+    size += delta;
+    if (size < GameView::TILE_SIZE_MIN) {
+        size = GameView::TILE_SIZE_MIN;
+    } else if (size > GameView::TILE_SIZE_MAX) {
+        size = GameView::TILE_SIZE_MAX;
+    }
+
+    SetHandTileSize(size);
 }
 
 void GameWindow::InfoBox(TextType messageText) {
@@ -959,11 +991,13 @@ STEP4:
 #endif  // defined(_WINDOWS)
 
 void GameWindow::OfferSaveGame(void) {
-#if 0
-    YesNo box("UNSAVED");
-    box.Run(this);
-    // TODO
-#endif
+    ASSERT(mpGame != NULL);
+
+    int const save = QuestionBox("The current game has unsaved changes.  Save them?", 
+        "Gold Tile Game - Unsaved Changes");
+    if (save == IDYES) {
+        mpGame->Save();
+    }
 }
 
 void GameWindow::Play(bool passFlag) {

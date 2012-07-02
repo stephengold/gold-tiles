@@ -44,16 +44,17 @@ In the native version, the MenuBar class encapsulates a Menu object.
 #include "gui/viewmenu.hpp"  // HASA ViewMenu
 
 
+class MenuBar
 #ifdef _QT
-class MenuBar: public QMenuBar {
-#elif defined(_WINDOWS)
-class MenuBar {
-#endif  // defined(_WINDOWS)
+: public QMenuBar
+#endif  // defined(_QT)
+{
+    Q_OBJECT
 public:
     // public lifecycle
     // no default constructor
 #ifdef _QT
-    explicit MenuBar(Partial const& rPartial);
+    explicit MenuBar(Partial const&, QObject* parent);
 #elif defined(_WINDOWS)
     MenuBar(Win::CREATESTRUCT const&, Partial const&);
 #endif  // defined(_WINDOWS)

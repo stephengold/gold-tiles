@@ -34,6 +34,7 @@ In the Qt version, the GameWindow class extends the QMainWindow class.
 
 #ifdef _QT
 # include <QWidget>
+typedef unsigned IdType;
 #endif  // defined(_QT)
 #include "gui/gameview.hpp"  // HASA GameView
 #include "gui/submenu.hpp"   // HASA ThinkModeType
@@ -41,13 +42,14 @@ In the Qt version, the GameWindow class extends the QMainWindow class.
 
 
 class GameWindow: public Window {
+    Q_OBJECT
 public:
     // public lifecycle
     // no default constructor
 #ifdef _QT
-    explicit GameWindow(Game* game = NULL);
+    GameWindow(void);
 #elif defined(_WINDOWS)
-    explicit GameWindow(Win::HINSTANCE, Game* game = NULL);
+    explicit GameWindow(Win::HINSTANCE);
 #endif  // defined(_WINDOWS)
     ~GameWindow(void);
 
@@ -62,6 +64,11 @@ public:
     // public inquiry methods
     bool IsDraggingBoard(void) const;
     bool IsThinkCanceled(void) const;
+
+#ifdef _QT
+public slots:
+     void HandleMenuCommand(IdType);
+#endif  // defined(_QT)
 
 private:
     // private constants
@@ -84,7 +91,7 @@ private:
     bool           mIsStartCentered;
     MenuBar*      mpMenuBar;
     Point          mMouseLast; // coordinates of last mouse update
-    uint16_t       mMouseUpCnt;
+    uint8_t        mMouseUpCnt;
     void*          mThinkFiber;
     ThinkModeType  mThinkMode;
 #ifdef _QT
@@ -92,10 +99,10 @@ private:
 #endif  // defined(_QT)
 
     // private lifecycle
-    GameWindow(GameWindow const&); // not copyable
+    GameWindow(GameWindow const&);  // not copyable
 
     // private operators
-    GameWindow& operator=(GameWindow const&); // not assignable
+    GameWindow& operator=(GameWindow const&);  // not assignable
 
     // misc private methods
     void     ChangeHand(String const& old_player);
@@ -104,7 +111,7 @@ private:
     void     DiscardGame(void);
 #ifdef _WINDOWS
     void     Initialize(Win::CREATESTRUCT const&);
-#endif // defined(_WINDOWS)
+#endif  // defined(_WINDOWS)
     void     GameOver(void);
     int      GameWarnBox(TextType message);
     void     HandleButtonDown(Point const&);
@@ -112,9 +119,10 @@ private:
     void     HandleInvitation(Socket&);
 #ifdef _WINDOWS
     void     HandleMenuCommand(IdType);
-#endif // defined(_WINDOWS)
+#endif  // defined(_WINDOWS)
     void     HandleMouseMove(Point const&);
     void     IncreaseBoardTileSize(int delta);
+    void     IncreaseHandTileSize(int delta);
     void     InfoBox(TextType message);
     void     LoadUserOptions(Hand const&);
     TextType Name(void) const;
@@ -132,7 +140,7 @@ private:
     void     RuleBox(UmType);
     String   SaveHandOptions(void) const;
     void     SaveUserOptions(Hand const&) const;
-    void     SetGame(Game* pGame);
+    void     SetGame(Game*);
     void     SetBoardTileSize(TileSizeType);
     void     SetHandTileSize(TileSizeType);
     void     StopDragging(void);

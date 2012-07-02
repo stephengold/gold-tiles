@@ -140,7 +140,7 @@ private:
     ColumnType    mBoardWidth;
     PercentType   mBonusPercent;    // bonus tile percentage
     SizeType      mClonesPerCombo;
-    bool          mDoesBoardWrap;
+    bool          mDoesBoardWrap;   // used only if board is finite on one or both dimensions
     GridType      mGrid;
     SizeType      mHandsDealt;      // number of hands dealt
     SizeType      mHandSize;        // maximum number of tiles in a hand

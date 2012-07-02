@@ -75,6 +75,19 @@ Hand::operator Socket(void) const {
     return mSocket;
 }
 
+Hand::operator String(void) const {
+    String result;
+
+    result += "Milliseconds=" + String(mMilliseconds) + "\n";
+    result += "Name=" + mName + "\n";
+    result += "ResignedFlag=" + String(mResignedFlag) + "\n";
+    result += "Score=" + String(mScore) + "\n";
+    result += "Tiles=" + String(mTiles) + "\n";
+    result += String(mOptions);
+
+    return result;
+}
+
 Hand::operator Tiles(void) const {
     return mTiles;
 }

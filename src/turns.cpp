@@ -25,6 +25,13 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 #include "turns.hpp"
 
 
+// static constants
+
+const String Turns::PREFIX("turns{");
+const String Turns::SEPARATOR(" ");
+const String Turns::SUFFIX("}");
+
+
 // lifecycle
 
 // The implicitly defined default constructor is OK.
@@ -35,6 +42,25 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 // operators
 
 // The implicitly defined assignment method is OK.
+
+// Convert to a string for save/send.
+Turns::operator String(void) const {
+    String result(PREFIX);
+
+    ConstIterator i_turn;
+    for (i_turn = begin(); i_turn != end(); i_turn++) {
+        if (i_turn != begin()) {
+            result += SEPARATOR;
+        }
+
+        Turn const turn = *i_turn;
+        String const turn_string = turn;
+        result += turn_string;
+    }       
+    result += SUFFIX;
+
+    return result;
+}
 
 
 // misc methods

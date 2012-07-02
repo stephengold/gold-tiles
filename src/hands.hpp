@@ -45,7 +45,8 @@ public:
     // ~Hands(void);  implicitly defined destructor
 
     // public operators
-    // Hands& operator=(Hands const&);  implicitly defined assignment operator 
+    // Hands& operator=(Hands const&);  implicitly defined assignment operator
+    operator String(void) const;
 
     // misc public methods
     void      Append(Hand const&);
@@ -64,5 +65,11 @@ public:
     bool HasAnyGoneOut(void) const;
     bool HaveAllResigned(void) const;
     bool IsEmpty(void) const;
+
+private:
+    // private constants
+    static const String PREFIX;
+    static const String SEPARATOR;
+    static const String SUFFIX;
 };
-#endif // !defined(HANDS_HPP_INCLUDED)
+#endif  // !defined(HANDS_HPP_INCLUDED)

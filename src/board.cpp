@@ -28,6 +28,12 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 #include "tiles.hpp"
 
 
+// static constants
+const String Board::PREFIX("board{");
+const String Board::SEPARATOR(" ");
+const String Board::SUFFIX("}");
+
+
 // lifecycle
 
 // The implicitly defined default constructor is OK.
@@ -38,6 +44,29 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 // operators
 
 // The implicitly defined assignment method is OK.
+
+Board::operator String(void) const {
+    String result;
+
+    for (Cell cell = FirstCell(); MightUse(cell); Next(cell)) {
+        Tile const* p_tile = GetCell(cell);
+        if (p_tile != NULL) {
+            TileCell const tile_cell(*p_tile, cell);
+            String const word(tile_cell);
+            if (result.IsEmpty()) {
+                result = PREFIX + word;
+            } else {
+                result += SEPARATOR + word;
+            }
+        }
+    }
+    if (result.IsEmpty()) {
+        result = PREFIX;
+    }
+    result += SUFFIX;
+
+    return result;
+}
 
 
 // misc methods

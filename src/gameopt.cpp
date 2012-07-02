@@ -124,9 +124,7 @@ GameOpt::operator String(void) const {
     }
     result += "MinutesPerHand=" + String(mMinutesPerHand) + "\n";
     result += "RandomizeFlag=" + String(mRandomizeFlag) + "\n";
-    if (!mRandomizeFlag) {
-        result += "Seed=" + String(mSeed) + "\n";
-    }
+    result += "Seed=" + String(mSeed) + "\n";
     result += "Style=" + ::game_style_to_string(mStyle) + "\n";
 
     result += "\n";

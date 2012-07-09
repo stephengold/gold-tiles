@@ -1,5 +1,5 @@
 // File:     Combo.java
-// Location: Java
+// Location: Java/GoldTile/src/goldtile
 // Purpose:  Combo class for the Gold Tile Game
 /**
  * @author Stephen Gold
@@ -27,14 +27,21 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 package goldtile;
 public class Combo {
     private short attrs[];
+    
+    // static fields
+    
     static private short attrCnt = 0;
     static private short valueMax[];
+    static public final short ATTR_CNT_MIN = 2;
+    static public final short ATTR_CNT_DEFAULT = 2;
+    static public final short VALUE_CNT_DEFAULT = 6;
+    static private final AttrMode stringMode = AttrMode.ATTR_MODE_ABC;
+
 
     // constructors
     
     public Combo() {
-        if (attrCnt <= 0)
-            throw new RuntimeException();
+        assertInitialized();
         
         attrs = new short[attrCnt];          
     }
@@ -43,30 +50,63 @@ public class Combo {
      * @param other the Combo to be replicated
      */
     public Combo(Combo other) {
-        if (attrCnt <= 0)
-            throw new RuntimeException();
+        assertInitialized();
         
         attrs = new short[attrCnt];
         System.arraycopy(other.attrs, 0, attrs, 0, attrCnt);
+    }
+
+    /**
+     * @param text string-form of a Combo to construct
+     */
+    public Combo(String text) {
+        assertInitialized();
+        
+        attrs = new short[attrCnt];
+        
+        short iAttr;
+        for (iAttr = 0 ; iAttr < text.length(); iAttr++) {
+            final char ch = text.charAt(iAttr);
+
+            if (iAttr < attrCnt) {
+                int value = stringMode.charToAttr(ch);
+                if (value > valueMax(iAttr)) {
+                    value = 0; // so resulting object can be valid
+                }
+                setAttr(iAttr, value);
+            }
+        }
+
+        while (iAttr < attrCnt) {
+            /*
+             * not enough characters in the string -- 
+             * pad the attribute array with zeroes
+             */
+            setAttr(iAttr, 0);
+            iAttr++;
+        }
+    }
+
+    // methods
+    
+    private static void assertInitialized() {
+        if (attrCnt < ATTR_CNT_MIN)
+            throw new RuntimeException();        
     }
     
     /**
      * @param iAttr the index of the attribute
      */
-    public int attr(int iAttr) {
+    public short attr(int iAttr) {
         return attrs[iAttr];
     }
     
     public static short attrCnt() {
-        if (attrCnt <= 0)
-            throw new RuntimeException();
-
         return attrCnt;
     }
     
     public static long combinationCnt() {
-        if (attrCnt <= 0)
-            throw new RuntimeException();
+        assertInitialized();
 
         long result = 1;
         for (int iAttr = 0; iAttr < attrCnt; iAttr++) {
@@ -79,7 +119,7 @@ public class Combo {
     /**
      * @param other the Combo to be compared
      */
-    public int commonAttr(Combo other) {
+    public short commonAttr(Combo other) {
         short result = attrCnt;
         for (short iAttr = 0; iAttr < attrCnt; iAttr++) {
             if (attrs[iAttr] == other.attrs[iAttr]) {
@@ -97,7 +137,7 @@ public class Combo {
     /**
      * @param other the Combo to be compared
      */
-    public int countMatchingAttrs(Combo other) {
+    public short countMatchingAttrs(Combo other) {
         short result = 0;
         for (short iAttr = 0; iAttr < attrCnt; iAttr++) {
             final int otherValue = other.attrs[iAttr];
@@ -113,7 +153,7 @@ public class Combo {
         String result = "";
        
         for (short iAttr = 0; iAttr < attrCnt; iAttr++) {
-            final int value = attrs[iAttr];
+            final short value = attr(iAttr);
             final AttrMode displayMode = AttrMode.defaultDisplayMode(iAttr);
             result += displayMode.attrToChar(value);
         }
@@ -122,9 +162,20 @@ public class Combo {
     }
     
     /**
+     * @param other the Combo to compare with
+     */
+    public boolean equals(Combo other) {
+        final short matchCnt = countMatchingAttrs(other);
+        
+        return matchCnt == attrCnt;        
+    }
+    
+    /**
      * @param text the description to convert
      */
-    public Combo fromDescription(String text) {   
+    public static Combo fromDescription(String text) {
+        assertInitialized();
+        
         Combo result = new Combo();
 
         short iAttr;
@@ -146,6 +197,7 @@ public class Combo {
              * pad the attribute array with zeroes.
              */
             result.setAttr(iAttr, 0);
+            iAttr++;
         }
 
         return result;
@@ -156,25 +208,16 @@ public class Combo {
      * @param value the test value for the attribute
      */
     public boolean hasAttr(int iAttr, int value) {
-        return (attr(iAttr) == value);
+        return attr(iAttr) == value;
     }
 
     /**
      * @param other the Combo to compare with
      */
     public boolean isCompatibleWith(Combo other) {
-        final int matchCnt = countMatchingAttrs(other);
+        final short matchCnt = countMatchingAttrs(other);
         
-        return (matchCnt == 1);
-    }
-    
-    /**
-     * @param other the Combo to compare with
-     */
-    public boolean isEqualTo(Combo other) {
-        final int matchCnt = countMatchingAttrs(other);
-        
-        return (matchCnt == attrCnt);        
+        return matchCnt == 1;
     }
     
     /**
@@ -189,10 +232,12 @@ public class Combo {
     }
     
     public static void setStatic() {
-        attrCnt = 2;
+        attrCnt = ATTR_CNT_DEFAULT;
         valueMax = new short[attrCnt];
-        valueMax[0] = 5;
-        valueMax[1] = 5;
+        valueMax[0] = VALUE_CNT_DEFAULT - 1;
+        valueMax[1] = VALUE_CNT_DEFAULT - 1;
+        
+        assertInitialized();
     }
 
     public String toString() {
@@ -200,8 +245,7 @@ public class Combo {
         
         for (short iAttr = 0; iAttr < attrCnt; iAttr++) {
             final int value = attrs[iAttr];
-            final AttrMode displayMode = AttrMode.ATTR_MODE_ABC;
-            result += displayMode.attrToChar(value);
+            result += stringMode.attrToChar(value);
         }
         
         return result;
@@ -210,14 +254,18 @@ public class Combo {
     /**
      * @param iAttr the index of the attribute
      */
-    public static int valueCnt(int iAttr) {
-        return 1 + valueMax(iAttr);    
+    public static short valueCnt(int iAttr) {
+        short result = valueMax(iAttr);
+        result++;
+        return result;    
     }
 
     /**
      * @param iAttr the index of the attribute
      */
-    public static int valueMax(int iAttr) {
+    public static short valueMax(int iAttr) {
+        assertInitialized();
+    
         return valueMax[iAttr];
     }
 }

@@ -1,7 +1,29 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
+// File:     AttrMode.java
+// Location: Java/GoldTile/src/goldtile
+// Purpose:  AttrMode class for the Gold Tile Game
+/**
+ * @author Stephen Gold
  */
+// (c) Copyright 2012 Stephen Gold
+// Distributed under the terms of the GNU General Public License
+
+/*
+This file is part of the Gold Tile Game.
+
+The Gold Tile Game is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by the 
+Free Software Foundation, either version 3 of the License, or (at your 
+option) any later version.
+
+The Gold Tile Game is distributed in the hope that it will be useful, but 
+WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY 
+or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License 
+for more details.
+
+You should have received a copy of the GNU General Public License
+along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
 package goldtile;
 public enum AttrMode {
     ATTR_MODE_ABC, 
@@ -10,6 +32,7 @@ public enum AttrMode {
     ATTR_MODE_SHAPE,
     ATTR_MODE_COLOR;
     
+    // methods
     
     /**
      * @param value the value of the attribute
@@ -35,20 +58,20 @@ public enum AttrMode {
     }
 
     /**
-     * @param value the value of the attribute
+     * @param value the char representation of the attribute
      */
-    public int charToAttr(char ch) {
-        int result = 0;
+    public short charToAttr(char ch) {
+        short result = 0;
         
         switch (this) {
             case ATTR_MODE_ABC:
-                result = (int)(ch - 'A');
+                result = (short)(ch - 'A');
                 break;
             case ATTR_MODE_RST:
-                result = (int)(ch - 'R');
+                result = (short)(ch - 'R');
                 break;
             case ATTR_MODE_123:
-                result = (int)(ch - '1');
+                result = (short)(ch - '1');
                 break;
             default:
                 throw new RuntimeException();

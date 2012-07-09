@@ -31,27 +31,26 @@ public class GoldTile {
      */
     public static void main(String[] args) {
         Combo.setStatic();
-        Combo c = new Combo();
-        c.setAttr(0, 4);
-        c.setAttr(1, 5);
-        Combo d = new Combo();
+        
+        TileOpt c = new TileOpt("EF");
+        TileOpt d = new TileOpt();
         d.setAttr(0, 4);
         d.setAttr(1, 4);
-        Combo copy = new Combo(c);
+        TileOpt copy = new TileOpt(c);
         
-        long a = c.combinationCnt();
+        long a = c.combo().combinationCnt();
         System.out.println(a);
 
-        int ai = c.commonAttr(d);
+        int ai = c.combo().commonAttr(d.combo());
         System.out.println(ai);
 
-        int cnt = c.countMatchingAttrs(d);
-        System.out.println(cnt);
-        
-        boolean isCompat = d.isCompatibleWith(c);
+        boolean isCompat = copy.combo().isCompatibleWith(d.combo());
         System.out.println(isCompat);
 
-        boolean isCompat2 = copy.isCompatibleWith(c);
+        boolean isCompat2 = copy.equals(c);
         System.out.println(isCompat2);
+        
+        String desc = copy.description();
+        System.out.println(desc);
     }
 }

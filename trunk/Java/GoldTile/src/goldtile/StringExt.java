@@ -55,6 +55,13 @@ public class StringExt {
     }
     
     /**
+     * @param text the text to enclose in quotes
+     */
+    public static String quote(String text) {
+        return "\"" + text + "\"";
+    }
+    
+    /**
      * @param text the text to shorten
      * @param cnt is the number of characters to remove
      */

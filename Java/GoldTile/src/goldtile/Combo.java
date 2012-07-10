@@ -36,8 +36,7 @@ public class Combo {
     static public final short ATTR_CNT_DEFAULT = 2;
     static public final short VALUE_CNT_DEFAULT = 6;
     static private final AttrMode stringMode = AttrMode.ATTR_MODE_ABC;
-
-
+    
     // constructors
     
     public Combo() {
@@ -65,7 +64,7 @@ public class Combo {
         attrs = new short[attrCnt];
         
         short iAttr;
-        for (iAttr = 0 ; iAttr < text.length(); iAttr++) {
+        for (iAttr = 0; iAttr < text.length(); iAttr++) {
             final char ch = text.charAt(iAttr);
 
             if (iAttr < attrCnt) {
@@ -90,8 +89,8 @@ public class Combo {
     // methods
     
     private static void assertInitialized() {
-        if (attrCnt < ATTR_CNT_MIN)
-            throw new RuntimeException();        
+        assert attrCnt >= ATTR_CNT_MIN;
+        assert valueMax != null;
     }
     
     /**
@@ -103,6 +102,14 @@ public class Combo {
     
     public static short attrCnt() {
         return attrCnt;
+    }
+
+    public static short attrCntMax() {
+        if (Global.consoleFlag) { 
+            return 0x7fff;
+        } else {
+            return 5;
+        }
     }
     
     public static long combinationCnt() {
@@ -225,17 +232,15 @@ public class Combo {
      * @param value the new value for the attribute
      */
     public void setAttr(int iAttr, int value) {
-        if (value < 0 || value > valueMax[iAttr])
-            throw new RuntimeException();
+        assert value >= 0;
+        assert value <= valueMax[iAttr];
         
         attrs[iAttr] = (short)value;
     }
     
-    public static void setStatic() {
-        attrCnt = ATTR_CNT_DEFAULT;
-        valueMax = new short[attrCnt];
-        valueMax[0] = VALUE_CNT_DEFAULT - 1;
-        valueMax[1] = VALUE_CNT_DEFAULT - 1;
+    public static void setStatic(GameOpt opt) {
+        attrCnt = opt.attrCnt();
+        valueMax = opt.valueMax();
         
         assertInitialized();
     }

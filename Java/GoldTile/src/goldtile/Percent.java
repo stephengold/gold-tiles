@@ -1,6 +1,6 @@
-// File:     Fraction.java
+// File:     Percent.java
 // Location: Java/GoldTile/src/goldtile
-// Purpose:  Fraction class for the Gold Tile Game
+// Purpose:  Percent class for the Gold Tile Game
 /**
  * @author Stephen Gold
  */
@@ -25,62 +25,36 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 package goldtile;
-import java.util.*;
-
-public class Fraction {
-    private double value;
-    
-    // static fields
-    
-    static private Random generator;
+public class Percent {
+    private short value;
     
     // constructors
     
-    public Fraction() {
-        value = 0.0;
+    public Percent() {
+        value = 0;
     }
     
-    public Fraction(double x) {
-        assert x >= 0.0;
-        assert x <= 1.0;
+    public Percent(int x) {
+        assert x >= 0;
+        assert x <= 100;
 
-        value = x;
+        value = (short)x;
     }
     
     /**
-     * @param other the Fraction to be replicated
+     * @param other the Percent to be replicated
      */
-    public Fraction(Fraction other) {
+    public Percent(Percent other) {
         value = other.value;   
     }
     
     // methods
     
-    public double inverse() {
-        return 1.0 - value;
+    public Fraction toFraction() {
+        return new Fraction(value/100.0);
     }
     
-    public boolean randomBoolean() {
-        boolean result = false;
-        
-        if (value >= 1.0) {
-            result = true;
-        } else if (value > 0.0) {
-            final double r = generator.nextDouble();
-            assert r >= 0.0;
-            assert r <= 1.0;
-
-            result = (r < value);
-        }
-        
-        return result;
-    }
-    
-    public static void reseedGenerator(long seed) {
-        generator.setSeed(seed);
-    }
-    
-    public double value() {
+    public short value() {
         return value;
     }
 }

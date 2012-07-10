@@ -26,8 +26,8 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 
 package goldtile;
 public class TileOpt {
-    private Combo combo;
-    private boolean hasBonus;
+    public Combo combo;
+    public boolean hasBonus;
     
     // static fields
     
@@ -40,6 +40,10 @@ public class TileOpt {
         hasBonus = false;
     }
 
+    public TileOpt(Combo c) {
+        combo = new Combo(c);
+    }
+    
     /**
      * @param text string-form of a TileOpt to construct
      */
@@ -65,10 +69,6 @@ public class TileOpt {
 
     // methods
     
-    public Combo combo() {
-        return combo;
-    }
-    
     public String description() {
         String result = combo.description();
         
@@ -89,7 +89,7 @@ public class TileOpt {
     /**
      * @param text description of a TileOpt to construct
      */
-    public TileOpt fromDescription(String text) {
+    static public TileOpt fromDescription(String text) {
         TileOpt result = new TileOpt();
         
         String copy = text;
@@ -97,15 +97,11 @@ public class TileOpt {
             result.hasBonus = true;
             copy = StringExt.shorten(text, 1);
         }
-        result.combo = new Combo(copy);
+        result.combo = Combo.fromDescription(copy);
         
         return result;
     }
     
-    public boolean hasBonus() {
-        return hasBonus;
-    }
-
     /**
      * @param text the description to be compared
      */
@@ -117,21 +113,6 @@ public class TileOpt {
         final String match = StringExt.purge(text);
 
         return description.equals(match);
-    }
-    
-    /**
-     * @param iAttr the index of the attribute
-     * @param value the new value for the attribute
-     */
-    public void setAttr(int iAttr, int value) {
-        combo.setAttr(iAttr, value);    
-    }
-    
-    /**
-     * @param bonus new setting for the bonus flag
-     */
-    public void setBonus(boolean bonus) {
-        hasBonus = bonus;
     }
     
     public String toString() {

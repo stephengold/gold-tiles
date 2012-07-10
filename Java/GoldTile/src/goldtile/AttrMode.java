@@ -1,6 +1,6 @@
 // File:     AttrMode.java
 // Location: Java/GoldTile/src/goldtile
-// Purpose:  AttrMode class for the Gold Tile Game
+// Purpose:  AttrMode enum for the Gold Tile Game
 /**
  * @author Stephen Gold
  */
@@ -58,7 +58,7 @@ public enum AttrMode {
     }
 
     /**
-     * @param value the char representation of the attribute
+     * @param ch the char representation of the attribute
      */
     public short charToAttr(char ch) {
         short result = 0;

@@ -29,8 +29,8 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 #include "string.hpp"
 
 namespace Win {
-#include <WindowsX.h> // Edit_Enable
-#include <CommCtrl.h> // TBM_GETPOS
+#include <WindowsX.h>  // Edit_Enable
+#include <CommCtrl.h>  // TBM_GETPOS
 };
 
 
@@ -69,7 +69,7 @@ int Dialog::Run(BaseWindow* pParent) {
     ASSERT(pParent != NULL);
     mspNewlyCreatedWindow = this;
 
-    // create a modal dialog box
+    // Create a modal dialog box.
     HINSTANCE const module = CopyModule(*pParent);
     HWND const parent_handle = HWND(*pParent);
     INT_PTR const result = Win::DialogBox(module, mTemplateName, parent_handle, mpMessageHandler);
@@ -305,4 +305,4 @@ void Dialog::SetTextValue(IdType id, ValueType value) {
 
     ASSERT(GetTextValue(id) == value);
 }
-#endif // defined(_WINDOWS)
+#endif  // defined(_WINDOWS)

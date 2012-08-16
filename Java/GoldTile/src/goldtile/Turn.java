@@ -1,6 +1,6 @@
-// File:     Indices.java
+// File:     Turn.java
 // Location: Java/GoldTile/src/goldtile
-// Purpose:  Indices class for the Gold Tile Game
+// Purpose:  Turn class for the Gold Tile Game
 /**
  * @author Stephen Gold
  */
@@ -26,16 +26,35 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 
 package goldtile;
 
-public class Indices extends java.util.TreeSet< Integer > {
-    public void addRemove(int index, boolean addFlag) {
-        if (addFlag) {
-            add(index);
-        } else {
-            remove(index);
-        }
+public class Turn {
+    // per-instance fields
+    private Tiles draw;
+    // TODO
+    
+    // constructors
+    
+    // dummy turn to mark end of history
+    public Turn() {
+        draw = null;
+    }
+            
+    // newly dealt hand
+    public Turn(Hand hand) {
+        draw = hand.copyContents();
     }
     
-    public boolean isEmpty() {
-        return size() == 0;
-    }    
+    // player move
+    public Turn(Move move, Hand hand, int mustPlay) {
+        //draw TODO
+    }
+    
+    // methods
+    
+    public boolean isDummy() {
+        return draw == null; // TODO
+    }
+    
+    public void setDraw(Tiles draw) {
+        this.draw = new Tiles(draw);
+    }
 }

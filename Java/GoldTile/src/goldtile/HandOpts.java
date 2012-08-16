@@ -1,6 +1,6 @@
-// File:     Indices.java
+// File:     HandOpts.java
 // Location: Java/GoldTile/src/goldtile
-// Purpose:  Indices class for the Gold Tile Game
+// Purpose:  HandOpts class for the Gold Tile Game
 /**
  * @author Stephen Gold
  */
@@ -26,16 +26,30 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 
 package goldtile;
 
-public class Indices extends java.util.TreeSet< Integer > {
-    public void addRemove(int index, boolean addFlag) {
-        if (addFlag) {
-            add(index);
-        } else {
-            remove(index);
+public class HandOpts extends java.util.LinkedList< HandOpt > {       
+    // methods
+    
+    public static HandOpts chooseConsole(GameOpt gameOpt) {
+        assert gameOpt != null;
+
+        final int handsDealt = gameOpt.getHandsDealt();
+        
+        HandOpts result = new HandOpts();
+        for (int iHand = 0; iHand < handsDealt; iHand++) {
+            HandOpt handOpt = HandOpt.chooseConsole(iHand);
+            result.addLast(handOpt);
         }
+        
+        return result;
     }
     
-    public boolean isEmpty() {
-        return size() == 0;
-    }    
+    public Strings getAllPlayerNames() {
+        Strings result = new Strings();
+        
+        for (HandOpt opt : this) {
+            result.addLast(opt.getPlayerName());    
+        }
+        
+        return result;
+    }
 }

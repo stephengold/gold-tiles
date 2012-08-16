@@ -1,6 +1,6 @@
-// File:     Indices.java
+// File:     Hint.java
 // Location: Java/GoldTile/src/goldtile
-// Purpose:  Indices class for the Gold Tile Game
+// Purpose:  Hint enum for the Gold Tile Game
 /**
  * @author Stephen Gold
  */
@@ -26,16 +26,18 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 
 package goldtile;
 
-public class Indices extends java.util.TreeSet< Integer > {
-    public void addRemove(int index, boolean addFlag) {
-        if (addFlag) {
-            add(index);
+public enum Hint {
+    NONE,
+    EMPTY,
+    CONNECTED,
+    USABLE_ANY,
+    USABLE_SELECTED;
+    
+    public static Hint getDefault(Game game) {
+        if (game != null && game.isChallenge()) {
+            return EMPTY;
         } else {
-            remove(index);
+            return USABLE_SELECTED;
         }
     }
-    
-    public boolean isEmpty() {
-        return size() == 0;
-    }    
 }

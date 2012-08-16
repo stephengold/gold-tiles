@@ -1,6 +1,6 @@
-// File:     Percent.java
+// File:     Fraction.java
 // Location: Java/GoldTile/src/goldtile
-// Purpose:  Percent class for the Gold Tile Game
+// Purpose:  Fraction class for the Gold Tile Game
 /**
  * @author Stephen Gold
  */
@@ -25,47 +25,35 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 package goldtile;
+import java.awt.Point;
 
-public class Percent {
-    final private int percentage;
+public class FractionPair {
+    public Fraction x, y;
     
-    public final static int MAX = 100;
-    public final static int MIN = 0;
+    // constructor
     
-    // constructors
-    
-    public Percent() {
-        percentage = 0;
-    }
-    
-    public Percent(int percentage) {
-        assert percentage >= MIN : percentage;
-        assert percentage <= MAX : percentage;
-
-        this.percentage = percentage;
-    }
-    
-    /**
-     * @param other the Percent to be replicated
-     */
-    public Percent(Percent other) {
-        assert other != null;
-        
-        percentage = other.percentage;   
+    FractionPair(double x, double y) {
+        this.x = new Fraction(x);
+        this.y = new Fraction(y);
     }
     
     // methods
     
-    public Fraction toFraction() {
-        return new Fraction(percentage/(double)MAX);
-    }
-    
-    public int toInt() {
-        return percentage;
-    }
-    
-    @Override
-    public String toString() {
-        return Integer.toString(percentage) + '%';
+    Point interpolate(Rect bounds, boolean invertYFlag) {
+        final double width = bounds.width - 1;
+        final int dx = (int)(0.5 + x.toDouble()*width);
+        assert dx < bounds.width : dx;
+        final int x = bounds.x + dx;
+        
+        final double height = bounds.height - 1;
+        final double yValue = y.toDouble(!invertYFlag);
+        final int dy = (int)(0.5 + yValue*height);
+        assert dy < bounds.height : dy;
+        final int y = bounds.y + dy;  
+
+        final Point result = new Point(x, y);
+        assert bounds.contains(result) : result;
+        
+        return result;
     }
 }

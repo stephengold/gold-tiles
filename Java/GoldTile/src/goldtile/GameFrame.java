@@ -1,6 +1,6 @@
-// File:     Indices.java
+// File:     GameFrame.java
 // Location: Java/GoldTile/src/goldtile
-// Purpose:  Indices class for the Gold Tile Game
+// Purpose:  GameFrame class for the Gold Tile Game
 /**
  * @author Stephen Gold
  */
@@ -25,17 +25,27 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 package goldtile;
+import java.awt.BorderLayout;
+import java.awt.Container;
 
-public class Indices extends java.util.TreeSet< Integer > {
-    public void addRemove(int index, boolean addFlag) {
-        if (addFlag) {
-            add(index);
-        } else {
-            remove(index);
-        }
+public class GameFrame extends javax.swing.JFrame {
+    public GameFrame(Game game) {
+        setTitle("Gold Tile Game");
+        setDefaultCloseOperation(EXIT_ON_CLOSE);
+        
+        // create menu bar
+        final MenuBar menuBar = new MenuBar();
+        setJMenuBar(menuBar);
+        // create panel for the client area
+        final GamePanel clientArea = new GamePanel(menuBar, game);
+        menuBar.clientArea = clientArea;
+
+        // lay out the frame
+        final Container content = getContentPane();
+        content.add(clientArea, BorderLayout.CENTER);
+        pack();
+        
+        // display the frame
+        setVisible(true);
     }
-    
-    public boolean isEmpty() {
-        return size() == 0;
-    }    
 }

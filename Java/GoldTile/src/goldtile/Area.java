@@ -1,6 +1,6 @@
-// File:     Indices.java
+// File:     Area.java
 // Location: Java/GoldTile/src/goldtile
-// Purpose:  Indices class for the Gold Tile Game
+// Purpose:  Area class for the Gold Tile Game
 /**
  * @author Stephen Gold
  */
@@ -26,16 +26,24 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 
 package goldtile;
 
-public class Indices extends java.util.TreeSet< Integer > {
-    public void addRemove(int index, boolean addFlag) {
-        if (addFlag) {
-            add(index);
-        } else {
-            remove(index);
-        }
+public class Area extends java.awt.Dimension {  
+    // constructors
+    
+    public Area(Area other) {
+        super(other);
     }
     
-    public boolean isEmpty() {
-        return size() == 0;
-    }    
+    public Area(int width, int height) {
+        super(width, height);
+    }
+    
+    // methods
+    
+    public Area expand(int pixels) {
+        return new Area(width + pixels, height + pixels);
+    }
+    
+    public boolean isSquare() {
+        return height == width;
+    }
 }

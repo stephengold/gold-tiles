@@ -1,6 +1,6 @@
-// File:     Indices.java
+// File:     Hands.java
 // Location: Java/GoldTile/src/goldtile
-// Purpose:  Indices class for the Gold Tile Game
+// Purpose:  Hands class for the Gold Tile Game
 /**
  * @author Stephen Gold
  */
@@ -26,16 +26,6 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 
 package goldtile;
 
-public class Indices extends java.util.TreeSet< Integer > {
-    public void addRemove(int index, boolean addFlag) {
-        if (addFlag) {
-            add(index);
-        } else {
-            remove(index);
-        }
-    }
+public class Hands extends java.util.LinkedList< Hand > {
     
-    public boolean isEmpty() {
-        return size() == 0;
-    }    
 }

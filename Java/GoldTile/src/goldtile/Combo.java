@@ -25,58 +25,62 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 package goldtile;
+
 public class Combo {
-    private short attrs[];
+    // constants 
+    
+    final private static AttrMode STRING_MODE = AttrMode.ABC;
+    
+    final public static int ATTR_COUNT_DEFAULT = 2;
+    final public static int ATTR_COUNT_MAX = 5;
+    final public static int ATTR_COUNT_MIN = 2;
+    final public static int VALUE_COUNT_DEFAULT = 6;
+    final public static int VALUE_COUNT_MAX = 9;
+    
+    // fields
+    final private int attrs[] = new int[attrCount];
     
     // static fields
-    
-    static private short attrCnt = 0;
-    static private short valueMax[];
-    static public final short ATTR_CNT_MIN = 2;
-    static public final short ATTR_CNT_DEFAULT = 2;
-    static public final short VALUE_CNT_DEFAULT = 6;
-    static private final AttrMode stringMode = AttrMode.ATTR_MODE_ABC;
+    private static int attrCount = 0;
+    private static int valueMax[] = null;
     
     // constructors
     
     public Combo() {
         assertInitialized();
-        
-        attrs = new short[attrCnt];          
     }
     
     /**
      * @param other the Combo to be replicated
      */
     public Combo(Combo other) {
+        assert other != null;
         assertInitialized();
         
-        attrs = new short[attrCnt];
-        System.arraycopy(other.attrs, 0, attrs, 0, attrCnt);
+        System.arraycopy(other.attrs, 0, attrs, 0, attrCount);
     }
 
     /**
      * @param text string-form of a Combo to construct
      */
     public Combo(String text) {
+        assert text != null;
         assertInitialized();
         
-        attrs = new short[attrCnt];
-        
-        short iAttr;
+        int iAttr;
         for (iAttr = 0; iAttr < text.length(); iAttr++) {
             final char ch = text.charAt(iAttr);
 
-            if (iAttr < attrCnt) {
-                int value = stringMode.charToAttr(ch);
-                if (value > valueMax(iAttr)) {
+            if (iAttr < attrCount) {
+                int value = STRING_MODE.charToAttr(ch);
+                if (value > getValueMax(iAttr)) {
                     value = 0; // so resulting object can be valid
                 }
                 setAttr(iAttr, value);
             }
         }
 
-        while (iAttr < attrCnt) {
+        while (iAttr < attrCount) {
             /*
              * not enough characters in the string -- 
              * pad the attribute array with zeroes
@@ -84,40 +88,22 @@ public class Combo {
             setAttr(iAttr, 0);
             iAttr++;
         }
+        // caller should verify fidelity
     }
 
     // methods
     
     private static void assertInitialized() {
-        assert attrCnt >= ATTR_CNT_MIN;
+        assert attrCount >= ATTR_COUNT_MIN : attrCount;
         assert valueMax != null;
     }
     
-    /**
-     * @param iAttr the index of the attribute
-     */
-    public short attr(int iAttr) {
-        return attrs[iAttr];
-    }
-    
-    public static short attrCnt() {
-        return attrCnt;
-    }
-
-    public static short attrCntMax() {
-        if (Global.consoleFlag) { 
-            return 0x7fff;
-        } else {
-            return 5;
-        }
-    }
-    
-    public static long combinationCnt() {
+    public static long comboCount() {
         assertInitialized();
 
         long result = 1;
-        for (int iAttr = 0; iAttr < attrCnt; iAttr++) {
-            result *= valueCnt(iAttr);
+        for (int iAttr = 0; iAttr < attrCount; iAttr++) {
+            result *= getValueCount(iAttr);
         }
         
         return result;
@@ -126,28 +112,10 @@ public class Combo {
     /**
      * @param other the Combo to be compared
      */
-    public short commonAttr(Combo other) {
-        short result = attrCnt;
-        for (short iAttr = 0; iAttr < attrCnt; iAttr++) {
-            if (attrs[iAttr] == other.attrs[iAttr]) {
-                result = iAttr;
-                break;
-            }
-        }
-
-        if (result >= attrCnt)
-            throw new RuntimeException();
-    
-        return result;
-    }
-    
-    /**
-     * @param other the Combo to be compared
-     */
-    public short countMatchingAttrs(Combo other) {
-        short result = 0;
-        for (short iAttr = 0; iAttr < attrCnt; iAttr++) {
-            final int otherValue = other.attrs[iAttr];
+    private int countMatches(Combo other) {
+        int result = 0;
+        for (int iAttr = 0; iAttr < attrCount; iAttr++) {
+            final int otherValue = other.getAttr(iAttr);
             if (hasAttr(iAttr, otherValue)) {
                 result ++;
             }
@@ -156,12 +124,12 @@ public class Combo {
         return result;
     }    
 
-    public String description() {
+    public String describe() {
         String result = "";
        
-        for (short iAttr = 0; iAttr < attrCnt; iAttr++) {
-            final short value = attr(iAttr);
-            final AttrMode displayMode = AttrMode.defaultDisplayMode(iAttr);
+        for (int iAttr = 0; iAttr < attrCount; iAttr++) {
+            final AttrMode displayMode = AttrMode.getConsoleDefault(iAttr);
+            final int value = getAttr(iAttr);
             result += displayMode.attrToChar(value);
         }
         
@@ -172,9 +140,21 @@ public class Combo {
      * @param other the Combo to compare with
      */
     public boolean equals(Combo other) {
-        final short matchCnt = countMatchingAttrs(other);
+        return countMatches(other) == attrCount;        
+    }
+    
+    /**
+     * @param other the compatible Combo to be compared
+     */
+    public int findFirstMatch(Combo other) {
+        assert isCompatibleWith(other) : other;
         
-        return matchCnt == attrCnt;        
+        for (int iAttr = 0; iAttr < attrCount; iAttr++) {
+            if (attrs[iAttr] == other.attrs[iAttr]) {
+                return iAttr;
+            }
+        }
+        throw new AssertionError(other);
     }
     
     /**
@@ -183,22 +163,22 @@ public class Combo {
     public static Combo fromDescription(String text) {
         assertInitialized();
         
-        Combo result = new Combo();
+        final Combo result = new Combo();
 
-        short iAttr;
+        int iAttr;
         for (iAttr = 0 ; iAttr < text.length(); iAttr++) {
             final char ch = text.charAt(iAttr);
-            if (iAttr < attrCnt) {
-                final AttrMode displayMode = AttrMode.defaultDisplayMode(iAttr);
+            if (iAttr < attrCount) {
+                final AttrMode displayMode = AttrMode.getConsoleDefault(iAttr);
                 int value = displayMode.charToAttr(ch);
-                if (value > valueMax(iAttr)) {
+                if (value > getValueMax(iAttr)) {
                     value = 0; // so resulting object can be valid
                 }
                 result.setAttr(iAttr, value);
             }
         }
 
-        while (iAttr < attrCnt) {
+        while (iAttr < attrCount) {
             /*
              * Not enough characters in the string -- 
              * pad the attribute array with zeroes.
@@ -207,70 +187,93 @@ public class Combo {
             iAttr++;
         }
 
+        // caller should verify fidelity
         return result;
     }
     
     /**
      * @param iAttr the index of the attribute
+     */
+    public int getAttr(int iAttr) {
+        assert iAttr >= 0 : iAttr;
+        assert iAttr < attrCount : iAttr;
+        
+        return attrs[iAttr];
+    }
+    
+    public static int getAttrCount() {
+        return attrCount;
+    }
+
+    /**
+     * @param iAttr the index of the attribute
+     */
+    public static int getValueCount(int iAttr) {
+        return 1 + getValueMax(iAttr);
+    }
+
+    /**
+     * @param iAttr the index of the attribute
+     */
+    public static int getValueMax(int iAttr) {
+        assertInitialized();
+    
+        return valueMax[iAttr];
+    }
+
+    /**
+     * @param iAttr the index of the attribute
      * @param value the test value for the attribute
      */
     public boolean hasAttr(int iAttr, int value) {
-        return attr(iAttr) == value;
+        assert iAttr >= 0 : iAttr;
+        assert iAttr < attrCount : iAttr;
+        assert value >= 0 : value;
+        assert value <= valueMax[iAttr] : value;
+
+        return getAttr(iAttr) == value;
     }
 
     /**
      * @param other the Combo to compare with
      */
     public boolean isCompatibleWith(Combo other) {
-        final short matchCnt = countMatchingAttrs(other);
+        assert other != null;
         
-        return matchCnt == 1;
+        final int matchCount = countMatches(other);
+        
+        return matchCount == 1;
     }
     
     /**
      * @param iAttr the index of the attribute
      * @param value the new value for the attribute
      */
-    public void setAttr(int iAttr, int value) {
-        assert value >= 0;
-        assert value <= valueMax[iAttr];
+    final public void setAttr(int iAttr, int value) {
+        assert iAttr >= 0 : iAttr;
+        assert iAttr < attrCount : iAttr;
+        assert value >= 0 : value;
+        assert value <= valueMax[iAttr] : value;
         
-        attrs[iAttr] = (short)value;
+        attrs[iAttr] = value;
     }
     
-    public static void setStatic(GameOpt opt) {
-        attrCnt = opt.attrCnt();
-        valueMax = opt.valueMax();
+    public static void setStatic(GameOpt gameOpt) {
+        attrCount = gameOpt.getAttrCount();
+        valueMax = gameOpt.copyValueMax();
         
         assertInitialized();
     }
 
+    @Override
     public String toString() {
         String result = "";
         
-        for (short iAttr = 0; iAttr < attrCnt; iAttr++) {
+        for (short iAttr = 0; iAttr < attrCount; iAttr++) {
             final int value = attrs[iAttr];
-            result += stringMode.attrToChar(value);
+            result += STRING_MODE.attrToChar(value);
         }
         
         return result;
-    }
-    
-    /**
-     * @param iAttr the index of the attribute
-     */
-    public static short valueCnt(int iAttr) {
-        short result = valueMax(iAttr);
-        result++;
-        return result;    
-    }
-
-    /**
-     * @param iAttr the index of the attribute
-     */
-    public static short valueMax(int iAttr) {
-        assertInitialized();
-    
-        return valueMax[iAttr];
-    }
+    }    
 }

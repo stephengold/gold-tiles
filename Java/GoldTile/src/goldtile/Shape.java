@@ -1,6 +1,6 @@
-// File:     Indices.java
+// File:     Shape.java
 // Location: Java/GoldTile/src/goldtile
-// Purpose:  Indices class for the Gold Tile Game
+// Purpose:  Shape enum for the Gold Tile Game
 /**
  * @author Stephen Gold
  */
@@ -26,16 +26,17 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 
 package goldtile;
 
-public class Indices extends java.util.TreeSet< Integer > {
-    public void addRemove(int index, boolean addFlag) {
-        if (addFlag) {
-            add(index);
-        } else {
-            remove(index);
-        }
-    }
+public enum Shape {
+    HEXAGON (12),
+    SQUARE (10),
+    TRIANGLE (16);
     
-    public boolean isEmpty() {
-        return size() == 0;
-    }    
+    final public int tinyWidth;
+    
+    private Shape(int tinyWidth) {
+        assert tinyWidth > 0 : tinyWidth;
+        assert Global.isEven(tinyWidth);
+        
+        this.tinyWidth = tinyWidth;
+    }
 }

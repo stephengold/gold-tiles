@@ -25,78 +25,112 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 package goldtile;
+
 public enum AttrMode {
-    ATTR_MODE_ABC, 
-    ATTR_MODE_RST, 
-    ATTR_MODE_123, 
-    ATTR_MODE_SHAPE,
-    ATTR_MODE_COLOR;
+    // values
+    ABC ('A'),
+    COLOR,
+    NUMERAL ('1'), 
+    RST ('R'), 
+    SHAPE;
+    
+    final private char base;
+    
+    // constructors
+    
+    private AttrMode() {
+        base = '!';
+    }
+    
+    private AttrMode(char base) {
+       this.base = base;        
+    }
     
     // methods
     
     /**
-     * @param value the value of the attribute
+     * @param attr the numeric value of the attribute
      */
-    public char attrToChar(int value) {
-        char result = '?';
-        
+    public char attrToChar(int attr) {
         switch (this) {
-            case ATTR_MODE_ABC:
-                result = (char)('A' + value);
-                break;
-            case ATTR_MODE_RST:
-                result = (char)('R' + value);
-                break;
-            case ATTR_MODE_123:
-                result = (char)('1' + value);
-                break;
+            case ABC:
+            case NUMERAL:
+            case RST:
+                return (char)(base + attr);
             default:
-                throw new RuntimeException();
+                throw new AssertionError(this);
         }
+   }
 
-        return result;
+    /**
+     * @param attr the numeric value of the attribute
+     */
+    public String attrToString(int attr) {
+        final char ch = attrToChar(attr);
+        
+        return Character.toString(ch);
     }
 
     /**
      * @param ch the char representation of the attribute
      */
-    public short charToAttr(char ch) {
-        short result = 0;
-        
+    public int charToAttr(char ch) {
         switch (this) {
-            case ATTR_MODE_ABC:
-                result = (short)(ch - 'A');
-                break;
-            case ATTR_MODE_RST:
-                result = (short)(ch - 'R');
-                break;
-            case ATTR_MODE_123:
-                result = (short)(ch - '1');
-                break;
+            case ABC:
+            case NUMERAL:
+            case RST:
+                return ch - base;
             default:
-                throw new RuntimeException();
+                throw new AssertionError(this);
         }
-
-        return result;
     }
 
     /**
      * @param iAttr the index of the attribute
      */
-    public static AttrMode defaultDisplayMode(int iAttr) {
-        AttrMode result = ATTR_MODE_SHAPE;
+    public static AttrMode getConsoleDefault(int iAttr) {
+        assert iAttr < Combo.ATTR_COUNT_MAX : iAttr;
         
         switch (iAttr) {
             case 0:
-                result = ATTR_MODE_ABC;
-                break;
+                return ABC;
             case 1:
-                result = ATTR_MODE_RST;
-                break;
+                return RST;
             default:
-                result = ATTR_MODE_123;
+                return NUMERAL;
         }
-        
-        return result;
     }
+    
+    public static AttrMode getDefault(Display display, int iAttr) {
+        switch (display) {
+            case CONSOLE:
+                return getConsoleDefault(iAttr);
+            case GUI:
+                return getGuiDefault(iAttr);
+            default:
+                throw new AssertionError(display);
+        }    
+    }
+    
+    public static AttrMode getFirst() {
+        return ABC;
+    }
+    
+    /**
+     * @param iAttr the index of the attribute
+     */
+    public static AttrMode getGuiDefault(int iAttr) {
+        assert iAttr < Combo.ATTR_COUNT_MAX : iAttr;
+        
+        switch (iAttr) {
+            case 0:
+                return COLOR;
+            default:
+                return SHAPE;
+        }
+    }
+    
+    public boolean isColor() {
+        return this == COLOR;
+    }    
 }

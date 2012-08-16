@@ -25,55 +25,72 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 package goldtile;
+
 public class TileOpt {
-    public Combo combo;
-    public boolean hasBonus;
-    
-    // static fields
-    
+    // constants
     private final static char BONUS_CHARACTER = '+';
+    
+    // per-instance fields
+    final public boolean bonusFlag;
+    final public Combo combo;
     
     // constructors
     
     public TileOpt() {
+        bonusFlag = false;
         combo = new Combo();
-        hasBonus = false;
     }
 
-    public TileOpt(Combo c) {
-        combo = new Combo(c);
+    public TileOpt(Combo combo) {
+        assert combo != null;
+        
+        bonusFlag = false;
+        this.combo = new Combo(combo);
+    }
+    
+    public TileOpt(Combo combo, boolean bonusFlag) {
+        assert combo != null;
+
+        this.bonusFlag = bonusFlag;
+        this.combo = new Combo(combo);
     }
     
     /**
      * @param text string-form of a TileOpt to construct
      */
-    public TileOpt(String text) {
-        String copy;
-        if (StringExt.last(text) == BONUS_CHARACTER) {
-            hasBonus = true;
-            copy = StringExt.shorten(text, 1);
+    public TileOpt(String string) {
+        assert string != null;
+        
+        if (StringExt.getLast(string) == BONUS_CHARACTER) {
+            bonusFlag = true;
+            string = StringExt.shorten(string, 1);
         } else {
-            hasBonus = false;
-            copy = text;
+            bonusFlag = false;
         }
-        combo = new Combo(copy);
+        combo = new Combo(string);
     }
     
     /**
      * @param other the TileOpt to be replicated
      */
     public TileOpt(TileOpt other) {
-        hasBonus = other.hasBonus;
+        assert other != null;
+        assert other.combo != null;
+        
+        bonusFlag = other.bonusFlag;
         combo = new Combo(other.combo);
+        
+        assert equals(other);
     }
 
     // methods
     
-    public String description() {
-        String result = combo.description();
+    public String describe() {
+        String result = combo.describe();
         
-        if (hasBonus)
+        if (bonusFlag) {
             result += BONUS_CHARACTER;
+        }
         
         return result;
     }
@@ -81,32 +98,41 @@ public class TileOpt {
     /**
      * @param other the TileOpt to be compared
      */
-    public boolean equals(TileOpt other) {
-        return hasBonus == other.hasBonus
-                && combo.equals(other.combo);
+    final public boolean equals(TileOpt other) {
+        assert other != null;
+        assert other.combo != null;
+        
+        return bonusFlag == other.bonusFlag
+            && combo.equals(other.combo);
     }
      
     /**
      * @param text description of a TileOpt to construct
      */
     static public TileOpt fromDescription(String text) {
-        TileOpt result = new TileOpt();
+        assert text != null;
         
-        String copy = text;
-        if (StringExt.last(text) == BONUS_CHARACTER) {
-            result.hasBonus = true;
-            copy = StringExt.shorten(text, 1);
+        boolean bonusFlag = false;
+        if (StringExt.getLast(text) == BONUS_CHARACTER) {
+            bonusFlag = true;
+            text = StringExt.shorten(text, 1);
         }
-        result.combo = Combo.fromDescription(copy);
-        
+        final Combo combo = Combo.fromDescription(text);      
+        final TileOpt result = new TileOpt(combo, bonusFlag);
+
+        // caller should verify fidelity
         return result;
+    }
+    
+    public boolean isCompatibleWith(TileOpt other) {
+        return combo.isCompatibleWith(other.combo);
     }
     
     /**
      * @param text the description to be compared
      */
     public boolean matchesDescription(String text) {
-        String description = description();
+        String description = describe();
 
         // Purge both strings, so that only graphic characters are compared.
         description = StringExt.purge(description);
@@ -115,11 +141,13 @@ public class TileOpt {
         return description.equals(match);
     }
     
+    @Override
     public String toString() {
         String result = combo.toString();
         
-        if (hasBonus)
+        if (bonusFlag) {
             result += BONUS_CHARACTER;
+        }
         
         return result;
     }

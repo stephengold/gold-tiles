@@ -25,26 +25,37 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 package goldtile;
-import java.io.*;
-import java.util.*;
 
 public class Tile implements Comparable {
-    private int id;
+    // classes
+    
+    public static class Choice {
+        final public String string;
+        public Tile tile = null;
+        
+        public Choice(String string) {
+            this.string = string;
+        }
+    }
+    
+    // constants
+    
+    final public static int ID_NONE = 0;    // indicates "null tile"
+    final public static int ID_DEFAULT = 1; // generated only by def constructor
+    final public static int ID_FIRST = 2;   // first ID returned by nextId()
+    final public static int ID_MAX = 0x7fffffff;
+    
+    final private static String SEPARATOR = ":";
+    final private static String SEPARATOR_REGEX = "[:]";
+
+    // per-instance fields
+    final private int id;
     
     // static fields
-    
-    static final public int ID_NONE = 0;    // indicates "no such tile"
-    static final public int ID_DEFAULT = 1; // generated only by def constructor
-    static final public int ID_FIRST = 2;   // first ID returned by nextId()
-    static final public int ID_MAX = 0x7fffffff;
-    
-    static final private String SEPARATOR = ":";
-    static final private String SEPARATOR_REGEX = "[:]";
+    private static Fraction bonusProbability;  // configured by setStatic()
+    private static int nextId = ID_FIRST;
+    private static java.util.Map<Integer,TileOpt> opts;
 
-    static private Fraction bonusProbability;  // configured by setStatic()
-    static private int nextId = ID_FIRST;
-    static private Map<Integer,TileOpt> opts;
-    
     // constructors
     
     public Tile() {
@@ -90,90 +101,108 @@ public class Tile implements Comparable {
     
     // methods
 
+    public static Choice chooseConsole(Tiles available, Strings alternatives) {
+        assert available != null;
+        assert !available.isEmpty();
+        assert alternatives != null;
+        
+        for (;;) {
+            Global.print("Enter a tile name");
+            for (String alt : alternatives) {
+                Global.print(" or ");
+                Global.print(StringExt.quote(alt));
+            }
+            Global.print(": ");
+            final String input = Global.readLine();
+            
+            final Choice result = new Choice(input);
+            if (alternatives.contains(input)) {
+                return result;
+            }
+
+            // convert to TileOpt
+            final TileOpt tileOpt = TileOpt.fromDescription(input);
+            if (!tileOpt.matchesDescription(input)) {
+                Global.print(StringExt.quote(result.string));
+                Global.print(" is invalid input.\n");
+            
+            } else if (!available.contains(tileOpt)) {
+                Global.print(input);
+                Global.print(" is unavailable.\n");
+
+            } else {
+                result.tile = available.findFirst(tileOpt);
+                return result;
+            }
+        }
+    }
+    
     public static Tile cloneAndSetBonus(Combo combo) {
-        TileOpt opt = new TileOpt(combo);
-        opt.hasBonus = bonusProbability.randomBoolean();
+        final boolean bonusFlag = bonusProbability.randomBoolean();
+        final TileOpt opt = new TileOpt(combo, bonusFlag);
 
         return new Tile(opt);
     }
     
-    public Combo combo() {
-        final TileOpt opt = opts.get(id);
-        
-        return opt.combo;
-    }
-    
+    @Override
     public int compareTo(Object object) {
         final Tile other = (Tile)object;
 
         return id - other.id;
     }
     
-    public String description() {
-        final TileOpt opt = opts.get(id);
-
-        return opt.description();
+    public String describe() {
+        return getOpt().describe();
     }
     
     public boolean equals(Tile other) {
         return id == other.id;
     }
     
-    public String getUserChoice(Tiles availableTiles, String alternatives[]) 
-            throws IOException
-    {
-        assert id == ID_DEFAULT;
-        
-        String result = "";
-        for (;;) {
-            System.out.print("Enter a tile name");
-            for (String alt : alternatives) {
-                System.out.print(" or ");
-                System.out.print(StringExt.quote(alt));
-            }
-            System.out.print(": ");
-            BufferedReader reader = 
-                    new BufferedReader(new InputStreamReader(System.in));
-            result = reader.readLine();
-            if (Arrays.asList(alternatives).contains(result)) {
-                break;
-            }
-
-            final TileOpt tileOpt = TileOpt.fromDescription(result);
-        
-            if (!tileOpt.matchesDescription(result)) {
-                System.out.print(StringExt.quote(result));
-                System.out.println(" is invalid input.");
-            
-            } else if (!availableTiles.containsOpt(tileOpt)) {
-                System.out.print(result);
-                System.out.println(" is unavailable.");
-
-            } else {
-                final Tile tile = availableTiles.findFirst(tileOpt);
-                id = tile.id();
-                break;
-            }
-        }
+    public Combo getCombo() {
+        return getOpt().combo;
+    }
     
-        return result;
+    public int getId() {
+        return id;
+    }
+    
+    public TileOpt getOpt() {
+        return opts.get(id);
+    }
+    
+    public boolean hasBonus() {
+        return getOpt().bonusFlag;    
+    }
+    
+    public boolean hasCombo(Combo combo) {
+        final Combo c = getCombo();
+        
+        return c.equals(combo);
     }
     
     public boolean hasOpt(TileOpt tileOpt) {
-        final TileOpt opt = opts.get(id);
+        final TileOpt opt = getOpt();
         
         return opt.equals(tileOpt);
     }
     
-    public int id() {
-        return id;
+    public boolean isCompatibleWith(Tile other) {
+        if (other == null) {
+            return true;
+        } else {
+            final TileOpt opt = getOpt();
+            final TileOpt otherOpt = other.getOpt();
+            
+            return opt.isCompatibleWith(otherOpt);
+        }
     }
     
-    static public boolean isValid(int id) {
+    public static boolean isValid(int id) {
         return (id <= -ID_FIRST || (id >= ID_FIRST && id < nextId));
     }
 
-    static private int nextId() {
+    private static int nextId() {
         assert nextId < ID_MAX;
             
         final int result = nextId;
@@ -182,16 +211,17 @@ public class Tile implements Comparable {
         return result;
     }
     
-    static public void setStatic(GameOpt options) {
-        Combo.setStatic(options);
-        bonusProbability = options.bonusPercent.toFraction();
+    public static void setStatic(GameOpt opt) {
+        Combo.setStatic(opt);
+        bonusProbability = opt.bonusPercent.toFraction();
         
         nextId = ID_FIRST;
-        opts = new TreeMap<>();
+        opts = new java.util.TreeMap<>();
     }
     
+    @Override
     public String toString() {
-        final TileOpt opt = opts.get(id);
+        final TileOpt opt = getOpt();
         
         return String.format("%d%s%s", id, SEPARATOR, opt.toString());
     }

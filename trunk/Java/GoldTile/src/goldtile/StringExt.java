@@ -25,14 +25,109 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 package goldtile;
+
 public class StringExt {
     /**
      * @param text the text to examine
      */
-    public static char last(String text) {
+    public static char getLast(String text) {
         final int length = text.length();
+        assert length > 0 : text;
         
         return text.charAt(length - 1);
+    }
+    
+    /*
+     * Capitalize the first letter of each word.
+     * Trim leading and trailing non-graphic characters.
+     * Convert adjacent non-graphic characters a single space.
+     * Equal-signs (=) are treated as non-graphic characters.
+     */
+    public static String normalizeName(String name) {
+        boolean afterGraphicFlag = false;
+        String result = "";
+        final char space = ' ';
+
+        for (char ch : name.toCharArray()) {
+            final boolean graphicFlag = (ch > space && ch <= '~' && ch != '=');
+
+            if (!graphicFlag) {
+                ch = space;
+            } else if (!afterGraphicFlag) {  // first letter of a word
+                ch = Character.toUpperCase(ch);
+            }
+
+            if (graphicFlag || afterGraphicFlag) {
+                result += ch;
+            }
+
+            afterGraphicFlag = graphicFlag;
+        }
+
+        if (!result.isEmpty() && StringExt.getLast(result) == space) {
+            /*
+             * remove trailing space, which was originally 
+             * some non-graphic character
+             */
+            result = StringExt.shorten(result, 1);
+        }
+        
+        return result;
+    }
+    
+    public static String ordinal(long n) {
+        assert n > 0;
+
+        String result;
+
+        if (n == 1) {
+            result = "fir";
+        } else if (n == 2) {
+            result = "seco";
+        } else if (n == 3) {
+            result = "thi";
+        } else if (n == 4) {
+            result = "four";
+        } else if (n == 5) {
+            result = "fif";
+        } else {
+            // digits will suffice
+            result = String.format("%d", n);
+        }
+
+        final long onesPlace = n % 10;
+        final long tensPlace = (n / 10) % 10;
+
+        if (tensPlace == 1) {
+            result += "th";
+        } else if (onesPlace == 1) {
+            result += "st";
+        } else if (onesPlace == 2) {
+            result += "nd";
+        } else if (onesPlace == 3) {
+            result += "rd";
+        } else {
+            result += "th";
+        }
+
+        return result;
+    }
+    
+    public static String plural(long n) {
+        assert n >= 0;
+
+        if (n == 1) {
+            return "";
+        } else {
+            return "s";
+        }
+    }
+
+    public static String plural(long n, String noun) {
+        assert noun != null;
+        assert n >= 0;
+
+        return String.format("%d %s%s", n, noun, plural(n));
     }
     
     /**

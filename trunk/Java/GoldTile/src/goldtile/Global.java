@@ -25,19 +25,67 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 package goldtile;
-public class Global {
-    // global configuration flags
-    
-    final static public boolean consoleFlag = true;
-    final static public boolean debugFlag = true;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.Random;
 
-    // global utility methods
+public class Global {
+    // console I/O
     
-    static public boolean isEven(int x) {
+    private static BufferedReader in = new BufferedReader(
+            new InputStreamReader(System.in));
+    private static java.io.PrintStream out = System.out; 
+
+    public static void disableConsole() {
+        in = null;
+        out = null;
+    }
+    
+    public static void print(String string) {
+        if (out != null) {
+            out.print(string);
+        }
+    }
+    
+    public static String readLine() {
+        assert in != null;
+        
+        try {
+            String result = in.readLine();
+            result = result.trim();
+            return result;
+            
+        } catch (IOException exception) {
+            throw new AssertionError();
+        }
+    }
+
+    // pseudo-random generator   
+    
+    final private static Random generator = new Random();
+
+    public static Fraction nextFraction() {
+        return new Fraction(generator.nextDouble());
+    }
+    
+    public static int nextInt(int n) {
+        return generator.nextInt(n);
+    }  
+
+    public static void reseedGenerator(long seed) {
+        generator.setSeed(seed);
+    }
+
+    // math
+    
+    final public static double SQRT_3 = Math.sqrt(3);
+    
+    public static boolean isEven(int x) {
         return (x & 0x1) == 0;
     }
     
-    static public boolean isOdd(int x) {
+    public static boolean isOdd(int x) {
         return (x & 0x1) != 0;
-    }
+    }    
 }

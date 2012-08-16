@@ -1,6 +1,6 @@
 // File:     GameOpt.java
 // Location: Java/GoldTile/src/goldtile
-// Purpose:  TileOpt class for the Gold Tile Game
+// Purpose:  GameOpt class for the Gold Tile Game
 /**
  * @author Stephen Gold
  */
@@ -25,63 +25,177 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 package goldtile;
-import java.util.*;
-public class GameOpt {
-    private short    attrCnt;
-    private int      boardHeight;
-    private int      boardWidth;
-    public Percent   bonusPercent;    // bonus tile percentage
-    private short    clonesPerCombo;
-    public boolean   doesBoardWrap;   
-                      // used only if board is finite on one or both dimensions
-    public Grid      grid;
-    private short    handsDealt;      // number of hands dealt
-    private short    handSize;        // maximum number of tiles in a hand
-    private short    maxAttrValues[]; // maximum value of each attribute
-    private short    minutesPerHand;  // used only with GAME_STYLE_CHALLENGE
-    public boolean   randomizeFlag;
-    public Rules     rules;
-    private long     seed;            // used only if mRandomizeFlag == false
-    public GameStyle style;
-    
-    // static fields
-    
-    final static private short BONUS_PERCENT_DEFAULT = 0;
-    final static private short CLONES_PER_COMBO_DEFAULT = 2;
-    final static private short HANDS_DEALT_DEFAULT = 2;
-    final static private short HANDS_DEALT_MIN = 1;
-    final static private short HAND_SIZE_DEFAULT = 6;
-    final static private short HAND_SIZE_MIN = 1;
-    final static private short MINUTES_PER_HAND_DEFAULT = 30;
-    final static private short MINUTES_PER_HAND_MIN = 2;
-    final static private long SEED_DEFAULT = 123L;
+import java.util.Date;
 
+public class GameOpt {
+    // constants
+    final private static int BONUS_PERCENT_DEFAULT = 0;
+    final private static int CLONES_PER_COMBO_DEFAULT = 2;
+    final private static int HANDS_DEALT_DEFAULT = 2;
+    final private static int HANDS_DEALT_MIN = 1;
+    final private static int HAND_SIZE_DEFAULT = 6;
+    final private static int HAND_SIZE_MIN = 1;
+    final private static int MINUTES_PER_HAND_DEFAULT = 30;
+    final private static int MINUTES_PER_HAND_MIN = 2;
+    final private static long SEED_DEFAULT = 123L;
+
+    // per-instance fields
+    private boolean boardWrapFlag;   
+                      // used only if board is finite on one or both dimensions
+    private boolean randomizeFlag;
+    private GameStyle style;
+    private Grid grid;
+    private int attrCount;
+    private int boardHeight;
+    private int boardWidth;
+    private int clonesPerCombo;
+    private int handsDealt;      // number of hands dealt
+    private int handSize;        // maximum number of tiles in a hand
+    private int maxAttrValues[]; // maximum value of each attribute
+    private int minutesPerHand;  // used only with GameStyle.CHALLENGE
+    public long seed;            // used only if randomizeFlag == false
+    public Percent bonusPercent;    // bonus tile percentage
+    public Rules rules;
+    
     // constructors
     
     public GameOpt() {
         minutesPerHand = MINUTES_PER_HAND_DEFAULT;
         randomizeFlag = true;
         seed = SEED_DEFAULT;
-        style = GameStyle.defaultStyle();
+        style = GameStyle.getDefault();
         
         standardize();
         validate();
     }
     
-    // methods
-    
-    public short attrCnt() {
-        return attrCnt;
+    public GameOpt(GameOpt other) {
+        assert other != null;
+        
+        boardWrapFlag = other.boardWrapFlag;
+        randomizeFlag = other.randomizeFlag;
+        style = other.style;
+        grid = other.grid;
+        attrCount = other.attrCount;
+        boardHeight = other.boardHeight;
+        boardWidth = other.boardWidth;
+        clonesPerCombo = other.clonesPerCombo;
+        handsDealt = other.handsDealt;
+        handSize = other.handSize;
+        
+        maxAttrValues = new int[other.maxAttrValues.length];
+        System.arraycopy(other.maxAttrValues, 0,
+                             maxAttrValues, 0, other.maxAttrValues.length);
+        
+        minutesPerHand = other.minutesPerHand;
+        seed = other.seed;
+        bonusPercent = new Percent(other.bonusPercent);
+        rules = other.rules;
+        
+        validate();
     }
     
-    public int boardHeight() {
+    // methods
+    
+    public static GameOpt chooseConsole() {
+        GameOpt result = new GameOpt();
+        
+        final String attrReport = result.reportAttrs();
+        Global.print(attrReport);
+
+        result.handsDealt = -1;
+        while (result.handsDealt < HANDS_DEALT_MIN) {
+            Global.print("Deal how many hands? ");
+            String line = Global.readLine();
+            try {
+                result.handsDealt = Integer.parseInt(line);
+            } catch (NumberFormatException exception) {
+            }
+        }
+        Global.print("\n");
+
+        result.handSize = -1;
+        while (result.handSize < HAND_SIZE_MIN) {
+            Global.print("How many tiles per hand? ");
+            String line = Global.readLine();
+            try {
+                result.handSize = Integer.parseInt(line);
+            } catch (NumberFormatException exception) {
+            }
+        }
+        Global.print("\n");
+
+        /*
+         * Clone tiles so that there are enough to fill each hand at 
+         * least three times.
+         */
+        final long tilesNeeded = 3 * result.handSize * result.handsDealt;
+        final long comboCount = result.countCombos();
+        result.clonesPerCombo = (int)(tilesNeeded / comboCount);
+        
+        return result;
+    }
+    
+    public int[] copyValueMax() {
+        int[] result = new int[attrCount];
+        System.arraycopy(maxAttrValues, 0, result, 0, attrCount);
+                
+        return result;
+    }
+    
+    public long countCombos() {
+        long result = 1;
+        for (int iAttr = 0; iAttr < attrCount; iAttr++) {
+            result *= getAttrValueCount(iAttr);
+        }
+        
+        return result;
+    }
+
+    public boolean doesBoardWrap() {
+        return boardWrapFlag;
+    }
+    
+    public int getAttrCount() {
+        return attrCount;
+    }
+    
+    public int getAttrValueCount(int iAttr) {
+        return 1 + getMaxAttrValue(iAttr);
+    }
+    
+    public int getBoardHeight() {
         return boardHeight;
     }
     
-    public int boardWidth() {
+    public int getBoardWidth() {
         return boardWidth;
     }
+
+    public Grid getGrid() {
+        return grid;
+    }
     
+    public int getHandsDealt() {
+        return handsDealt;   
+    }
+    
+    public int getHandSize() {
+        return handSize;
+    }
+    
+    public int getClonesPerCombo() {
+        return clonesPerCombo;
+    }
+    
+    public int getMaxAttrValue(int iAttr) {
+        return maxAttrValues[iAttr];
+    }
+    
+    public int getTilesPerCombo() {
+        return 1 + getClonesPerCombo();
+    }
+
     public boolean hasFiniteHeight() {
         return boardHeight < Cell.HEIGHT_MAX;
     }
@@ -90,75 +204,81 @@ public class GameOpt {
         return boardWidth < Cell.WIDTH_MAX;
     }
     
+    public boolean isChallenge() {
+        return style == GameStyle.CHALLENGE;    
+    }
+    
+    public String reportAttrs() {
+        String result = "Each tile has ";
+        result += StringExt.plural(attrCount, "attribute") + ":\n";
+        
+        for (int iAttr = 0; iAttr < attrCount; iAttr++) {
+            result += " The " + StringExt.ordinal(iAttr + 1);
+            result += " attribute ranges from ";
+
+            final AttrMode mode = AttrMode.getConsoleDefault(iAttr);
+            result += mode.attrToString(0) + " to ";
+            final int valueMax = getMaxAttrValue(iAttr);
+            result += mode.attrToString(valueMax) + ".\n";
+        }
+        result += "\n";
+
+        return result;
+    }
+    
+
     public void reseedGenerator() {
         long s = seed; 
-        if (randomizeFlag || style != GameStyle.GAME_STYLE_DEBUG) {
+        if (randomizeFlag || style != GameStyle.DEBUG) {
             final Date date = new Date();
             seed = date.getTime();
         }
-        Fraction.reseedGenerator(seed);
+        Global.reseedGenerator(seed);
     }
     
     public void standardize() {
-        attrCnt = Combo.ATTR_CNT_DEFAULT;
-        maxAttrValues = new short[attrCnt];    
-        for (short iAttr = 0; iAttr < attrCnt; iAttr++) {
-            maxAttrValues[iAttr] = Combo.VALUE_CNT_DEFAULT - 1;
-       }
-       boardHeight = Cell.HEIGHT_MAX;
-       boardWidth = Cell.WIDTH_MAX;
-       bonusPercent = new Percent(BONUS_PERCENT_DEFAULT);
-       clonesPerCombo = CLONES_PER_COMBO_DEFAULT;
-       doesBoardWrap = false;
-       grid = Grid.defaultGrid();
-       handsDealt = HANDS_DEALT_DEFAULT;
-       handSize = HAND_SIZE_DEFAULT;
-       // don't set minutesPerHand
-       // don't set randomizeFlag
-       rules = Rules.STANDARD;
-       // don't set seed
-       // don't set style
-    }
-    
-    public short tilesPerCombo() {
-        short cnt = clonesPerCombo;
-        cnt++;
-        
-        return cnt;
+        attrCount = Combo.ATTR_COUNT_DEFAULT;
+        maxAttrValues = new int[attrCount];    
+        for (int iAttr = 0; iAttr < attrCount; iAttr++) {
+            maxAttrValues[iAttr] = Combo.VALUE_COUNT_DEFAULT - 1;
+        }
+        boardHeight = Cell.HEIGHT_MAX;
+        boardWidth = Cell.WIDTH_MAX;
+        bonusPercent = new Percent(BONUS_PERCENT_DEFAULT);
+        clonesPerCombo = CLONES_PER_COMBO_DEFAULT;
+        boardWrapFlag = false;
+        grid = Grid.getDefault();
+        handsDealt = HANDS_DEALT_DEFAULT;
+        handSize = HAND_SIZE_DEFAULT;
+        // don't set minutesPerHand
+        // don't set randomizeFlag
+        rules = Rules.STANDARD;
+        // don't set seed
+        // don't set style
     }
     
     public void validate() {
-        assert attrCnt >= Combo.ATTR_CNT_MIN;
-        assert attrCnt <= Combo.attrCntMax();
-        assert Global.isEven(boardHeight);
-        assert boardHeight >= Cell.HEIGHT_MIN;
-        assert boardHeight <= Cell.HEIGHT_MAX;
-        assert Global.isEven(boardWidth);
-        assert boardWidth >= Cell.WIDTH_MIN;
-        assert boardWidth <= Cell.WIDTH_MAX;
+        assert attrCount <= Combo.ATTR_COUNT_MAX : attrCount;
+        assert attrCount >= Combo.ATTR_COUNT_MIN : attrCount;
+        
+        assert Global.isEven(boardHeight) : boardHeight;
+        assert boardHeight <= Cell.HEIGHT_MAX : boardHeight;
+        assert boardHeight >= Cell.HEIGHT_MIN : boardHeight;
+        
+        assert Global.isEven(boardWidth) : boardWidth;
+        assert boardWidth >= Cell.WIDTH_MIN : boardWidth;
+        assert boardWidth <= Cell.WIDTH_MAX : boardWidth;
+        
         assert bonusPercent != null;
-        if (Global.consoleFlag) {
-            assert !doesBoardWrap;
-            assert grid == Grid.GRID_4WAY;
-        }
         assert grid != null;
-        assert handsDealt >= HANDS_DEALT_MIN;
-        assert handSize >= HAND_SIZE_MIN;
+        assert handsDealt >= HANDS_DEALT_MIN : handsDealt;
+        assert handSize >= HAND_SIZE_MIN : handSize;
         assert maxAttrValues != null;
-        assert maxAttrValues.length >= attrCnt;
-        assert minutesPerHand >= MINUTES_PER_HAND_MIN;
+        assert maxAttrValues.length >= attrCount : maxAttrValues.length;
+        assert minutesPerHand >= MINUTES_PER_HAND_MIN : minutesPerHand;
         assert rules != null;
-        assert style == GameStyle.GAME_STYLE_DEBUG || randomizeFlag;
+        assert style == GameStyle.DEBUG || randomizeFlag : style;
         assert style != null;
-        if (Global.consoleFlag) {
-            assert style != GameStyle.GAME_STYLE_CHALLENGE;
-        }
     }
 
-    public short[] valueMax() {
-        short[] result = new short[attrCnt];
-        System.arraycopy(maxAttrValues, 0, result, 0, attrCnt);
-                
-        return result;
-    }
 }

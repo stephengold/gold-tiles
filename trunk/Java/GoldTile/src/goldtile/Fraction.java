@@ -25,62 +25,62 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 package goldtile;
-import java.util.*;
 
 public class Fraction {
-    private double value;
+    // fields
+    final private double value;
     
-    // static fields
-    
-    static private Random generator;
+    // constants
+    final private static double MIN = 0.0;
+    final private static double MAX = 1.0;
     
     // constructors
     
-    public Fraction() {
-        value = 0.0;
-    }
-    
-    public Fraction(double x) {
-        assert x >= 0.0;
-        assert x <= 1.0;
+    public Fraction(double value) {
+        assert value >= MIN : value;
+        assert value <= MAX : value;
 
-        value = x;
+        this.value = value;
     }
     
     /**
      * @param other the Fraction to be replicated
      */
     public Fraction(Fraction other) {
+        assert other != null;
+        
         value = other.value;   
     }
     
     // methods
     
-    public double inverse() {
-        return 1.0 - value;
-    }
-    
     public boolean randomBoolean() {
-        boolean result = false;
-        
-        if (value >= 1.0) {
-            result = true;
-        } else if (value > 0.0) {
-            final double r = generator.nextDouble();
-            assert r >= 0.0;
-            assert r <= 1.0;
-
-            result = (r < value);
+        if (value > 0.0) {
+            if (value < 1.0) {
+                final Fraction random = Global.nextFraction();
+                return random.value < value;
+            } else {
+                return true;
+            }
+        } else {
+            return false;
         }
-        
-        return result;
     }
-    
-    public static void reseedGenerator(long seed) {
-        generator.setSeed(seed);
-    }
-    
-    public double value() {
+
+    public double toDouble() {
         return value;
+    }
+
+    public double toDouble(boolean invertFlag) {
+        if (invertFlag) {
+            return 1.0 - value;
+        } else {
+            return value;
+        }
+    }
+    
+    @Override
+    public String toString() {
+        return Double.toString(value);
     }
 }

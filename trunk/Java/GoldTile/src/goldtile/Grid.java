@@ -1,6 +1,6 @@
-// File:     AttrMode.java
+// File:     Grid.java
 // Location: Java/GoldTile/src/goldtile
-// Purpose:  AttrMode enum for the Gold Tile Game
+// Purpose:  Grid enum for the Gold Tile Game
 /**
  * @author Stephen Gold
  */
@@ -25,29 +25,58 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 package goldtile;
+
 public enum Grid {
-    GRID_TRIANGLE,
-    GRID_4WAY,
-    GRID_HEX,
-    GRID_8WAY;
+    GRID_TRIANGLE (1, 1, 3),
+    GRID_4WAY (1, 1, 4),
+    GRID_HEX (1, 2, 6),
+    GRID_8WAY (1, 1, 8);
     
-    public static Grid defaultGrid() {
+    final public int columnFringe;
+    final public int rowFringe;
+    final public int wayCnt;
+
+    // constructors
+    
+    private Grid(int cf, int rf, int ways) {
+        columnFringe = cf;
+        rowFringe = rf;
+        wayCnt = ways;   
+    }
+    
+    // methods
+    
+    public Shape getCellShape() {
+        switch (this) {
+            case GRID_TRIANGLE:
+                return Shape.TRIANGLE;
+            case GRID_4WAY:
+                return Shape.SQUARE;
+            case GRID_HEX:
+                return Shape.HEXAGON;
+            case GRID_8WAY:
+                return Shape.SQUARE;
+            default:
+                throw new AssertionError(Cell.getGrid());
+        }
+    }
+
+    public static Grid getDefault() {
         return GRID_4WAY;
     }
 
-    public short wayCnt() {
+    public Direction[] getScoringAxes() {
         switch (this) {
             case GRID_TRIANGLE:
-                return 3;
+                return Direction.nonVerticalAxes;
             case GRID_4WAY:
-                return 4;
+                return Direction.nonDiagonalAxes;
             case GRID_HEX:
-                return 6;
+                return Direction.nonHorizontalAxes;
             case GRID_8WAY:
-                return 8;
+                return Direction.allAxes;
             default:
-                assert false;
-                return 0;
+                throw new AssertionError(Cell.getGrid());
         }
     }
 }

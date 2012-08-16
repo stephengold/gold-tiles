@@ -1,6 +1,6 @@
-// File:     Indices.java
+// File:     Poly.java
 // Location: Java/GoldTile/src/goldtile
-// Purpose:  Indices class for the Gold Tile Game
+// Purpose:  Poly class for the Gold Tile Game
 /**
  * @author Stephen Gold
  */
@@ -26,16 +26,30 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 
 package goldtile;
 
-public class Indices extends java.util.TreeSet< Integer > {
-    public void addRemove(int index, boolean addFlag) {
-        if (addFlag) {
-            add(index);
-        } else {
-            remove(index);
-        }
+public class Poly extends java.util.LinkedList< FractionPair > {
+    // methods
+    
+    void add(double x, double y) {
+        assert x >= 0.0 : x;
+        assert x <= 1.0 : x;
+        assert y >= 0.0 : y;
+        assert y <= 1.0 : y;
+
+        final FractionPair pair = new FractionPair(x, y);
+        add(pair);
     }
     
-    public boolean isEmpty() {
-        return size() == 0;
-    }    
+    void getPoints(int[] xPoints, int[] yPoints, int numPoints, 
+            Rect bounds, boolean invertFlag)
+    {
+        assert numPoints <= size() : numPoints;
+
+        int i = 0;
+        for (FractionPair pair : this) {
+             final java.awt.Point point = pair.interpolate(bounds, invertFlag);
+             xPoints[i] = point.x;
+             yPoints[i] = point.y;
+             i++;
+        }
+    }
 }

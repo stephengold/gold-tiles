@@ -25,8 +25,9 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 package goldtile;
+
 public enum Rules {
-    STANDARD,
     CUSTOM,
-    REPLAY;
+    REPLAY,
+    STANDARD;
 }

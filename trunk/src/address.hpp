@@ -32,15 +32,16 @@ The Address class encapsulates a String.  Both IPv4 and IPv6
 addresses are supported.
 */
 
-#include "project.hpp"    // _WINSOCK2
-#include "string.hpp"     // HASA String
 #ifdef _QT
 # include <QHostAddress>  // ISA QHostAddress
+#endif  // defined(_QT)
+#include "project.hpp"    // _WINSOCK2
+#include "string.hpp"     // HASA String
 
-#elif defined(_POSIX)
+#ifdef _POSIX
 namespace Posix {
     struct sockaddr;
-};
+}
 using Posix::sockaddr;
 
 #elif defined(_WINSOCK2)
@@ -48,12 +49,11 @@ namespace Win {
     struct sockaddr;
 }
 using Win::sockaddr;
-#endif // defined(_WINSOCK2)
-
+#endif  // defined(_WINSOCK2)
 
 class Address
 #ifdef _QT
-: public QHostAddress
+:   public QHostAddress
 #endif  // defined(_QT)
 {
 public:
@@ -89,7 +89,7 @@ private:
 
     // private data
     String mString;
-#endif // !defined(_QT)
+#endif  // !defined(_QT)
 
     // private inquiry methods
     bool IsLocalHost(void) const;

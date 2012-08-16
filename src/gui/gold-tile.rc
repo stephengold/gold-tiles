@@ -76,7 +76,7 @@ MENUBAR MENU
     {
         POPUP "&Board Size"
         {
-            MENUITEM "&Zoom out\t-", IDM_BS_ZOOM_OUT
+            MENUITEM "&Zoom Out\t-", IDM_BS_ZOOM_OUT
             MENUITEM SEPARATOR
             MENUITEM "&1 Tiny", IDM_BS1
             MENUITEM "&2 Small", IDM_BS2
@@ -86,7 +86,7 @@ MENUBAR MENU
             MENUITEM "&6 Large", IDM_BS6
             MENUITEM "&7 Very Large", IDM_BS7
             MENUITEM SEPARATOR
-            MENUITEM "Zoom in\t+", IDM_BS_ZOOM_IN
+            MENUITEM "Zoom In\t+", IDM_BS_ZOOM_IN
         }
         POPUP "&Tile Size"
         {

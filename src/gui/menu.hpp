@@ -54,4 +54,4 @@ private:
     // private operators
     Menu& operator=(Menu const&);  // not copyable
 };
-#endif // !defined(MENU_HPP_INCLUDED)
+#endif  // !defined(MENU_HPP_INCLUDED)

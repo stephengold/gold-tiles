@@ -72,14 +72,14 @@ Area GameView::CellArea(PlaceType place) const {
 
 LogicalXType GameView::CellX(ColumnType column) const {
     PixelCntType const grid_unit = GridUnitX();
-    LogicalXType result = mStartCell.X() + grid_unit*column;
+    LogicalXType const result = mStartCell.X() + grid_unit*column;
 
     return result;
 }
 
 LogicalYType GameView::CellY(RowType row) const {
     PixelCntType const grid_unit = GridUnitY();
-    LogicalYType result = mStartCell.Y() - grid_unit*row;
+    LogicalYType const result = mStartCell.Y() - grid_unit*row;
 
     return result;
 }
@@ -260,9 +260,9 @@ void GameView::DrawCell(
     Rect const rect = rCanvas.DrawCell(rCenter, cell_area, 
         cell_color, grid_color, odd_flag);
 
-    // draw cell features
+    // Draw the cell's features.
     if (mTargetCellFlag && rCell == mTargetCell) {
-        // it's the target cell
+        // It's the target cell.
         ColorType const target_color = COLOR_MEDIUM_GRAY;
         rCanvas.UseColors(target_color, target_color);
         rCanvas.DrawTargetArrow(rect);
@@ -273,8 +273,10 @@ void GameView::DrawCell(
         rCanvas.DrawTextLine(rect, "START", "S");
     }
 
-    /*  If the active tile came from the board, draw it later 
-    (not now) so it won't get obscured. */
+    /*  
+     * If the active tile came from the board, draw it later 
+     * (not now) so it won't get obscured.
+     */
     Tile::IdType const id = Partial::GetCellTile(rCell);
     if (id != Tile::ID_NONE && !IsActive(id)) {
         // inactive tile -- draw it now

@@ -177,8 +177,10 @@ Rect Rect::CenterRect(float aspectRatio) const {
     return result;
 }
 
-// construct the largest square that is centered and contained
-// within this Rect
+/*
+ Construct the largest square that is centered and contained
+ within this Rect
+ */
 Rect Rect::CenterSquare(void) const {
     PixelCntType width = Width();
     PixelCntType height = Height();

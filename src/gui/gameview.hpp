@@ -111,7 +111,6 @@ private:
     PixelCntType mHandTileWidth;
     MenuBar*    mpMenuBar;
     PixelCntType mPadPixels;
-    Indices      mPreviousPlay;
     LogicalXType mRecenterLeftX;
     LogicalXType mRecenterRightX;
     Point        mStartCell;

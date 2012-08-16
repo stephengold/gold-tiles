@@ -176,7 +176,7 @@ void BaseBoard::PlayOnCell(Cell const& rCell, Tile const& rTile) {
     ASSERT(GetCell(rCell) == NULL);
     ASSERT(mTiles.find(rTile) == mTiles.end());
 
-    // expand the limits as needed
+    // Expand the limits as needed.
     RowType const row = rCell.Row();
     if (row > mNorthMax) {
         mNorthMax = row;

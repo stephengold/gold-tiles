@@ -129,8 +129,8 @@ private:
     // private constants
     static const PercentType BONUS_PERCENT_DEFAULT = 0;
     static const SizeType    CLONES_PER_COMBO_DEFAULT = 2;
-    static const SizeType    HAND_CNT_DEFAULT = 2;
     static const SizeType    HAND_SIZE_DEFAULT = 6;
+    static const SizeType    HANDS_DEALT_DEFAULT = 2;
     static const MinutesType MINUTES_PER_HAND_DEFAULT = 30;
     static const SeedType    SEED_DEFAULT = 123;
 

@@ -45,7 +45,7 @@ public:
 	// public lifecycle
 	Strings();
 	// Strings(Strings const&);  implicitly defined copy constructor
-	Strings(TextType list, TextType delimiters); // split
+	Strings(TextType list, TextType delimiters);  // split
     // ~Strings(void);  implicitly defined destructor
 
 	// public operators
@@ -77,4 +77,4 @@ private:
     // private data
 	std::list<String> mList;
 };
-#endif // !defined(STRINGS_HPP_INCLUDED)
+#endif  // !defined(STRINGS_HPP_INCLUDED)

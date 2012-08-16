@@ -35,9 +35,9 @@ the same number of attributes.
 #include <climits>      // USHRT_MAX
 #include "project.hpp"  // USES String
 
-typedef uint16_t AttrCntType;   // an attribute count
-typedef uint16_t AttrIndexType; // an index into an array of attributes
-typedef uint16_t AttrType;      // an attribute value
+typedef uint16_t AttrCntType;    // an attribute count
+typedef uint16_t AttrIndexType;  // an index into an array of attributes
+typedef uint16_t AttrType;       // an attribute value
 
 enum AttrModeType {             // display mode type
     ATTR_MODE_MIN = 0,
@@ -49,10 +49,10 @@ enum AttrModeType {             // display mode type
     ATTR_MODE_SHAPE = 4,
     ATTR_MODE_MAX = 4,
     ATTR_MODE_CNT = 5
-#else // !defined(_GUI)
+#else  // !defined(_GUI)
     ATTR_MODE_MAX = 2,
     ATTR_MODE_CNT = 3
-#endif // !defined(_GUI)
+#endif  // !defined(_GUI)
 };
 
 typedef uintmax_t ComboCntType;  // for counting combinations
@@ -64,9 +64,9 @@ public:
     static const AttrCntType ATTR_CNT_DEFAULT = 2;
 #ifdef _GUI
     static const AttrCntType ATTR_CNT_MAX = 5;
-#else // !defined(_GUI)
+#else  // !defined(_GUI)
     static const AttrCntType ATTR_CNT_MAX = USHRT_MAX - 1;
-#endif // !defined(_GUI)
+#endif  // !defined(_GUI)
 
     static const AttrType VALUE_CNT_MIN = 2;
     static const AttrType VALUE_CNT_DEFAULT = 6;
@@ -75,7 +75,7 @@ public:
     static const ComboCntType COMBINATION_CNT_MIN = 4;
 #ifdef _GUI
     static const ComboCntType COMBINATION_CNT_MAX = 59049L; // 9^5
-#endif // defined(_GUI)
+#endif  // defined(_GUI)
 
     // public lifecycle
     Combo(void);
@@ -100,7 +100,6 @@ public:
     static Combo        FromDescription(String const&);
     void                SetAttr(AttrIndexType, AttrType);
     static void         SetStatic(GameOpt const&);
-    static String       StringEmpty(void);
     static AttrType     ValueCnt(AttrIndexType);
     static AttrType     ValueMax(AttrIndexType);
 
@@ -112,8 +111,8 @@ private:
     // private data
     AttrType* mpArray;     // array of attributes
 
-    static AttrIndexType msAttrCnt;  // number of attributes per tile
-    static AttrType*    mspValueMax; // max value for each tile attribute
+    static AttrIndexType msAttrCnt;   // number of attributes per tile
+    static AttrType*    mspValueMax;  // max value for each tile attribute
 
     // misc private methods
     static AttrType CharToAttr(AttrModeType, char);
@@ -123,4 +122,4 @@ private:
 AttrCntType string_to_attr_cnt(String const&);
 AttrCntType string_to_max_attr(String const&);
 
-#endif // !defined(COMBO_HPP_INCLUDED)
+#endif  // !defined(COMBO_HPP_INCLUDED)

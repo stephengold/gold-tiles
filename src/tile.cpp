@@ -285,8 +285,7 @@ bool Tile::IsCompatibleWith(Tile const* pOther) const {
 }
 
 /* static */ bool Tile::IsValid(Tile::IdType id) {
-    bool const result = (id <= -Tile::ID_FIRST
-        || (id >= Tile::ID_FIRST && id < msNextId));
+    bool const result = (id <= -ID_FIRST || (id >= ID_FIRST && id < msNextId));
 
     return result;
 }

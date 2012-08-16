@@ -338,13 +338,13 @@ RowType Cell::Row(void) const {
     RowType const height = rGameOpt.BoardHeight();
     ASSERT(height <= HEIGHT_MAX);
     ASSERT(height >= HEIGHT_MIN);
-    ASSERT(!::is_odd(height));
+    ASSERT(::is_even(height));
     msHeight = height;
 
     ColumnType const width = rGameOpt.BoardWidth(); 
     ASSERT(width <= WIDTH_MAX);
     ASSERT(width >= WIDTH_MIN);
-    ASSERT(!::is_odd(width));
+    ASSERT(::is_even(width));
     msWidth = width;
 
     msWrapFlag = rGameOpt.DoesBoardWrap();
@@ -478,12 +478,9 @@ bool Cell::IsValid(void) const {
 
     if (msGrid == GRID_HEX && IsOdd()) {
         result = false;
-    }
-
-    if (mRow < -msHeight/2 || mRow >= msHeight/2) {
+    } else if (mRow < -msHeight/2 || mRow >= msHeight/2) {
         result = false;
-    }
-    if (mColumn < -msWidth/2 || mColumn >= msWidth/2) {
+    } else if (mColumn < -msWidth/2 || mColumn >= msWidth/2) {
         result = false;
     }
 

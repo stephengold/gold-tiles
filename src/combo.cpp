@@ -344,12 +344,6 @@ void Combo::SetAttr(AttrIndexType ind, AttrType value) {
     }
 }
 
-/* static */ String Combo::StringEmpty(void) {
-    String const result(msAttrCnt, '.');
-
-    return result;
-}
-
 /* static */ AttrType Combo::ValueCnt(AttrIndexType attrIndex) {
     AttrType const result = ValueMax(attrIndex) + 1;
 

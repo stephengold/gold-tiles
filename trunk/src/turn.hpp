@@ -34,7 +34,7 @@ about the play.
 */
 
 #include "move.hpp"  // HASA Move
-#include "tiles.hpp" // HASA Tiles
+#include "tiles.hpp"  // HASA Tiles
 
 
 class Turn {
@@ -68,4 +68,4 @@ private:
     SizeType  mMustPlay;  // set for first turn, otherwise zero
     ScoreType mPoints;    // from start of turn
 };
-#endif // !defined(TURN_HPP_INCLUDED)
+#endif  // !defined(TURN_HPP_INCLUDED)

@@ -612,11 +612,12 @@ void GameOpt::Standardize(void) {
     mClonesPerCombo = CLONES_PER_COMBO_DEFAULT;
     mDoesBoardWrap = false;
     mGrid = GRID_DEFAULT;
-    mHandsDealt = HAND_CNT_DEFAULT;
+    mHandsDealt = HANDS_DEALT_DEFAULT;
     mHandSize = HAND_SIZE_DEFAULT;
     // don't set mMinutesPerHand
     // don't set mRandomizeFlag
     mRules = RULES_STANDARD;
+    // don't set mSeed
     // don't set mStyle
 }
 

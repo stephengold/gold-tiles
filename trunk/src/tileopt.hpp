@@ -72,4 +72,4 @@ private:
     Combo mCombo;    // all attributes
     bool  mHasBonus;
 };
-#endif // !defined(TILEOPT_HPP_INCLUDED)
+#endif  // !defined(TILEOPT_HPP_INCLUDED)

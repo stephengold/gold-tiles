@@ -71,7 +71,7 @@ Game::Game(
     std::cout << "\nPlaced " << ::plural(CountStock(), "tile") << " in the stock bag." 
         << std::endl;
 
-    // Generate a list of unique player names.
+    // Generate a list of player names.
     Strings names = rHandOptions.AllPlayerNames();
 
     // Construct hands and give each one a unique name.

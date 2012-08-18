@@ -306,28 +306,6 @@ bool Move::IsPlay(void) const {
     return result;
 }
 
-bool Move::RepeatsTile(void) const {
-    bool result = false;
-
-    if (Count() > 1) {
-        Indices tiles_seen;
-        ConstIterator i_tile_cell;
-
-        for (i_tile_cell = Begin(); i_tile_cell != End(); i_tile_cell++) {
-            Tile const tile = i_tile_cell->operator Tile();   // TODO
-            Tile::IdType const id = tile.Id();
-            if (tiles_seen.Contains(id)) {
-                result = true;
-                break;
-            } else {
-                tiles_seen.Add(id);
-            }
-        }
-    }
-
-    return result;
-}
-
 bool Move::RepeatsCell(void) const {
     bool result = false;
 
@@ -344,6 +322,28 @@ bool Move::RepeatsCell(void) const {
                 } else {
                     cells_seen.Add(cell);
                 }
+            }
+        }
+    }
+
+    return result;
+}
+
+bool Move::RepeatsTile(void) const {
+    bool result = false;
+
+    if (Count() > 1) {
+        Indices tiles_seen;
+        ConstIterator i_tile_cell;
+
+        for (i_tile_cell = Begin(); i_tile_cell != End(); i_tile_cell++) {
+            Tile const tile = i_tile_cell->operator Tile();   // TODO
+            Tile::IdType const id = tile.Id();
+            if (tiles_seen.Contains(id)) {
+                result = true;
+                break;
+            } else {
+                tiles_seen.Add(id);
             }
         }
     }

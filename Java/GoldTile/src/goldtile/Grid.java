@@ -32,6 +32,7 @@ public enum Grid {
     GRID_HEX (1, 2, 6),
     GRID_8WAY (1, 1, 8);
     
+    // per-instance fields (immutable)
     final public int columnFringe;
     final public int rowFringe;
     final public int wayCnt;

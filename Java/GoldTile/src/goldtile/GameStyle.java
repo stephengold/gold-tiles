@@ -34,7 +34,6 @@ public enum GameStyle {
 
     // methods
     
-    
     public boolean allowsUndo() {
         return this == DEBUG || this == PRACTICE;
     }

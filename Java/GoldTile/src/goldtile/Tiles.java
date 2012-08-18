@@ -50,19 +50,19 @@ public class Tiles extends java.util.TreeSet< Tile > {
         final int iAttr = 0;
         addCombos(iAttr, new Combo());
     }
-    
 
     // generate tiles for the stock bag - RECURSIVE
     private void addCombos(int iAttr, Combo comboSoFar) {
         final int attrCount = Combo.getAttrCount();
         if (iAttr < attrCount) {
             final int max = Combo.getValueMax(iAttr);
-            for (int attr = 0; attr <= max; attr++) {
+            for (int attrValue = 0; attrValue <= max; attrValue++) {
+                final Attr attr = new Attr(attrValue);
                 comboSoFar.setAttr(iAttr, attr);
                 addCombos(iAttr + 1, comboSoFar);
             }
         } else {
-            assert iAttr == attrCount;
+            assert iAttr == attrCount : iAttr;
             final Tile clone = Tile.cloneAndSetBonus(comboSoFar);
             add(clone);
         }
@@ -124,17 +124,11 @@ public class Tiles extends java.util.TreeSet< Tile > {
     }
     
     public boolean contains(Combo combo) {
-        for (Tile tile : this) {
-            if (tile.hasCombo(combo)) {
-                return true;
-            }
-        }
-        
-        return false;
+        return first(combo) != null;
     }
     
     public boolean contains(TileOpt tileOpt) {
-        return findFirst(tileOpt) != null;
+        return first(tileOpt) != null;
     }
     
     public String describe() {
@@ -154,7 +148,17 @@ public class Tiles extends java.util.TreeSet< Tile > {
         return result;
     }
     
-    public Tile findFirst(TileOpt tileOpt) {
+    public Tile first(Combo combo) {
+        for (Tile tile : this) {
+            if (tile.hasCombo(combo)) {
+                return tile;
+            }
+        }
+        
+        return null;
+    }
+    
+    public Tile first(TileOpt tileOpt) {
         for (Tile tile : this) {
             if (tile.hasOpt(tileOpt)) {
                 return tile;
@@ -162,6 +166,33 @@ public class Tiles extends java.util.TreeSet< Tile > {
         }
 
         return null;
+    }
+    
+    public int firstMatchingAttr() {
+        assert areAllCompatible();
+        assert size() > 1 : size();
+        assert Combo.getAttrCount() == 2 : Combo.getAttrCount();
+        
+        final Tile first = first();
+        assert first != null;
+        
+        final Tile second = higher(first);
+        assert second != null;
+
+        return first.firstMatchingAttr(second);
+    }
+    
+    public int getBonusFactor() {
+        int result = 1;
+        
+        for (Tile tile : this) {
+            if (tile.hasBonus()) {
+                result *= 2;
+            }
+        }
+        
+        assert result > 0;
+        return result;
     }
     
     // return the largest subset of mutually compatible tiles
@@ -228,12 +259,14 @@ public class Tiles extends java.util.TreeSet< Tile > {
     // return a new set containing only one instance of each clone/combo
     public Tiles skipClones() {
         final Tiles result = new Tiles();
+        
         for (Tile tile : this) {
             final Combo combo = tile.getCombo();
             if (!result.contains(combo)) {
                 result.add(tile);
             }
         }
+        
         return result;
     }
     

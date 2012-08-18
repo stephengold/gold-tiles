@@ -109,7 +109,7 @@ public class BaseBoard {
         assert tileMap.get(tile) == null;
     }
     
-    public Tile getCell(Cell cell) {
+    public Tile getContent(Cell cell) {
        return cellMap.get(cell);
     }
     

@@ -37,7 +37,7 @@ public enum Direction {
     WEST      (false,  0, -1),
     NORTHWEST (false, +1, -1) ;
     
-    // fields
+    // per-instance fields (immutable)
     
     final public boolean axisFlag;
     final public boolean diagonalFlag;

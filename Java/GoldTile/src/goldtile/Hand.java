@@ -26,7 +26,7 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 
 package goldtile;
 
-public class Hand {
+public class Hand implements ReadHandOpt {
     
     // per-instance fields
     private boolean clockRunningFlag = false;
@@ -41,27 +41,26 @@ public class Hand {
     // constructor
     
     public Hand(String name, HandOpt opt) {
-        this.name = new String(name);
-        this.opt = new HandOpt(opt);
-    }
-    
-    public Hand(Hand other) {
-        assert other != null;
+        assert name != null;
+        assert opt != null;
         
-        clockRunningFlag = other.clockRunningFlag;
-        resignedFlag = other.resignedFlag;
-        opt = new HandOpt(other.opt);
-        score = other.score;
-        milliseconds = other.milliseconds;
-        startTime = other.startTime;
-        name = other.name;
-        contents = new Tiles(other.contents);
+        this.name = name;
+        this.opt = new HandOpt(opt);
     }
     
     // methods
     
     public void add(Tiles tiles) {
         contents.addAll(tiles);    
+    }
+    
+    public void addScore(int pointCount) {
+        assert !isClockRunning();
+        assert pointCount >= 0 : pointCount;
+
+        final int newScore = score + pointCount;
+        assert newScore >= score : score; // check for wraparound
+        score = newScore;
     }
     
     public Move chooseMoveAutomatic(Game game) {
@@ -90,25 +89,42 @@ public class Hand {
     }
     
     public String describeContents() {
-         String result = name;
-         final int count = contents.size();
-         result +=  " holds ";
-         result += StringExt.plural(count, "tile");
-         result += ": ";
-         result += contents.describe();
-         result += ".\n";
+        final int count = contents.size();
 
-         return result;
+        return String.format("%s holds %s: %s.\n",
+                name,
+                StringExt.plural(count, "tile"), 
+                contents.describe());
+    }
+    
+    public String describeScore() {
+        return String.format("%s has %s.\n",
+                name, 
+                StringExt.plural(score, "point"));
     }
     
     public Tiles getLongestRun() {
         return contents.getLongestRun();
     }
     
+    public int getScore() {
+        return score;
+    }
+    
+    public boolean hasGoneOut() {
+        return contents.size() == 0 && !resignedFlag;
+    }
+    
     public boolean hasResigned() {
         return resignedFlag;    
     }
     
+    @Override
+    public String getPlayerName() {
+        return opt.getPlayerName();
+    }
+    
+    @Override
     public boolean isAutomatic() {
         return opt.isAutomatic();
     }
@@ -117,10 +133,12 @@ public class Hand {
         return clockRunningFlag;
     }
     
+    @Override
     public boolean isLocalUser() {
         return opt.isLocalUser();
     }
     
+    @Override
     public boolean isRemote() {
         return opt.isRemote();
     }
@@ -143,6 +161,10 @@ public class Hand {
 
         assert hasResigned();
         return tiles;
+    }
+    
+    public int size() {
+        return contents.size();
     }
     
     public void startClock() {

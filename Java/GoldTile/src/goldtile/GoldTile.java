@@ -30,7 +30,7 @@ public class GoldTile {
     // configuration flags
     public static boolean consoleFlag = true;
     public static boolean debugFlag = true;
-    public static boolean guiFlag = false;
+    public static boolean guiFlag = true;
     public static Display control = Display.CONSOLE;
     public static boolean initialGameFlag = true;
     

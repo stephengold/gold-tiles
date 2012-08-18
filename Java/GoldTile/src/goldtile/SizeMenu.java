@@ -133,6 +133,7 @@ public class SizeMenu
             case "6":
                 final Integer size = Integer.parseInt(command);
                 setValue(size.intValue());
+                break;
 
             default:
                 throw new AssertionError(command);

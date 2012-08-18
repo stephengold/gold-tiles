@@ -36,7 +36,7 @@ public class GameView extends Partial {
     //
     private Canvas canvas = null;
     private Cell target = null;
-    private DisplayModes displayModes = null;
+    private DisplayModes displayModes = new DisplayModes(Display.GUI);
     final private GamePanel panel;
     final private MenuBar menuBar;
     private int padPixels = PAD_PIXELS_DEFAULT;
@@ -50,13 +50,13 @@ public class GameView extends Partial {
     
     // constructors
     
-    public GameView(GamePanel p, MenuBar bar, Game g) {
-        super(g, Hint.getDefault(g), HandOpt.SKIP_PROBABILITY_DEFAULT);
-        assert bar != null;
-        assert p != null;
+    public GameView(GamePanel panel, MenuBar menuBar) {
+        super(null, Hint.getDefault(null), HandOpt.SKIP_PROBABILITY_DEFAULT);
+        assert panel != null;
+        assert menuBar != null;
         
-        menuBar = bar;
-        panel = p;
+        this.menuBar = menuBar;
+        this.panel = panel;
     }
 
     // methods
@@ -334,11 +334,7 @@ public class GameView extends Partial {
     {
         for (int column = leftSeeColumn; column <= rightSeeColumn; column++) {
             final Cell cell = new Cell(row, column);
-            Cell wrapCell = cell;
-            if (Cell.doesBoardWrap()) {
-                wrapCell = new Cell(wrapCell);
-                wrapCell.wrap();
-            }
+            Cell wrapCell = cell.wrap();
                 
             if ((board.mightUse(cell) || board.mightUse(wrapCell)) 
                     && wrapCell.isValid())
@@ -362,7 +358,6 @@ public class GameView extends Partial {
 
         final int topY = padPixels;
         final int leftX = padPixels;
-        Hand playableHand = game.copyPlayableHand();
         // TODO
     }
     
@@ -407,18 +402,18 @@ public class GameView extends Partial {
         start = new Point(x, y);
     }
     
-    public void setGame(Game g) {
-        game = g;
-        
-        reset(game, Hint.getDefault(game), new Fraction(0.0));
-        recenter();
-        target = null;
-        displayModes.cleanup();
-    }
-    
     public void scroll(int dx, int dy) {
         start.x += dx;
         start.y += dy;
+    }
+    
+    final public void setGame(Game g) {
+        game = g;
+        
+        reset(game, Hint.getDefault(game), HandOpt.SKIP_PROBABILITY_DEFAULT);
+        recenter();
+        target = null;
+        displayModes.cleanup();
     }
     
     public void toggleTargetCell(Point point) {

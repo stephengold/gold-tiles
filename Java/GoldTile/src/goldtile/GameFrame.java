@@ -25,27 +25,31 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 package goldtile;
-import java.awt.BorderLayout;
-import java.awt.Container;
 
 public class GameFrame extends javax.swing.JFrame {
     public GameFrame(Game game) {
         setTitle("Gold Tile Game");
-        setDefaultCloseOperation(EXIT_ON_CLOSE);
+        if (GoldTile.control == Display.GUI) {
+            setDefaultCloseOperation(EXIT_ON_CLOSE);
+        }
         
-        // create menu bar
+        // Create the menu bar.
         final MenuBar menuBar = new MenuBar();
         setJMenuBar(menuBar);
-        // create panel for the client area
-        final GamePanel clientArea = new GamePanel(menuBar, game);
+        
+        // Create the panel for the client area.
+        final GamePanel clientArea = new GamePanel(menuBar);
         menuBar.clientArea = clientArea;
 
-        // lay out the frame
-        final Container content = getContentPane();
-        content.add(clientArea, BorderLayout.CENTER);
+        // Lay out the frame.
+        final java.awt.Container content = getContentPane();
+        content.add(clientArea, java.awt.BorderLayout.CENTER);
         pack();
         
-        // display the frame
+        // Associate the game (if any) with the clientArea.
+        clientArea.view.setGame(game);
+        
+        // Display the frame.
         setVisible(true);
     }
 }

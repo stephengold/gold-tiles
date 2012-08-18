@@ -31,8 +31,8 @@ public class TileOpt {
     private final static char BONUS_CHARACTER = '+';
     
     // per-instance fields
-    final public boolean bonusFlag;
-    final public Combo combo;
+    final public boolean bonusFlag;  // immutable
+    final public Combo combo;        // mutable
     
     // constructors
     
@@ -99,8 +99,9 @@ public class TileOpt {
      * @param other the TileOpt to be compared
      */
     final public boolean equals(TileOpt other) {
-        assert other != null;
-        assert other.combo != null;
+        if (other == null) {
+            return false;
+        }
         
         return bonusFlag == other.bonusFlag
             && combo.equals(other.combo);
@@ -125,6 +126,10 @@ public class TileOpt {
     }
     
     public boolean isCompatibleWith(TileOpt other) {
+        if (other == null) {
+            return false;
+        }
+
         return combo.isCompatibleWith(other.combo);
     }
     

@@ -34,6 +34,7 @@ public enum AttrMode {
     RST ('R'), 
     SHAPE;
     
+    // per-instance fields (immutable)
     final private char base;
     
     // constructors
@@ -51,12 +52,13 @@ public enum AttrMode {
     /**
      * @param attr the numeric value of the attribute
      */
-    public char attrToChar(int attr) {
+    public char attrToChar(Attr attr) {
         switch (this) {
             case ABC:
             case NUMERAL:
             case RST:
-                return (char)(base + attr);
+                return (char)(base + attr.intValue());
+                
             default:
                 throw new AssertionError(this);
         }
@@ -65,7 +67,7 @@ public enum AttrMode {
     /**
      * @param attr the numeric value of the attribute
      */
-    public String attrToString(int attr) {
+    public String attrToString(Attr attr) {
         final char ch = attrToChar(attr);
         
         return Character.toString(ch);

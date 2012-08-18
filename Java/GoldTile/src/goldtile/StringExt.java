@@ -36,7 +36,7 @@ public class StringExt {
         
         return text.charAt(length - 1);
     }
-    
+        
     /*
      * Capitalize the first letter of each word.
      * Trim leading and trailing non-graphic characters.
@@ -44,11 +44,15 @@ public class StringExt {
      * Equal-signs (=) are treated as non-graphic characters.
      */
     public static String normalizeName(String name) {
-        boolean afterGraphicFlag = false;
-        String result = "";
+        assert name != null;
+        
+        final int length = name.length();
         final char space = ' ';
 
-        for (char ch : name.toCharArray()) {
+        boolean afterGraphicFlag = false;
+        String result = "";
+        for (int iChar = 0; iChar < length; iChar++) {
+            char ch = name.charAt(iChar);
             final boolean graphicFlag = (ch > space && ch <= '~' && ch != '=');
 
             if (!graphicFlag) {
@@ -134,19 +138,41 @@ public class StringExt {
      * @param text the text to purge
      */
     public static String purge(String text) {
-        final int length = text.length();
-        String result = "";
+        assert text != null;
         
+        final int length = text.length();
+        final char space = ' ';
+
+        String result = "";        
         for (int iChar = 0; iChar < length; iChar++) {
             final char ch = text.charAt(iChar);
-            final boolean isGraphic = (ch > 0x0020 && ch < 0x007f);
-
-            if (isGraphic) {
+            final boolean graphicFlag = (ch > space && ch <= '~' && ch != '=');
+            if (graphicFlag) {
                 result += ch;
             }
         }
 
         return result;
+    }
+    
+    public static String repeat(int count, char ch) {
+        assert count >= 0;
+        
+        String result = "";
+        
+        for (int iChar = 0; iChar < count; iChar++) {
+            result += ch;
+        }
+        
+        return result;
+    }
+    
+    public static String pad(String text, int width) {
+        assert text != null;
+        assert width >= text.length();
+
+        final int pad = width - text.length();
+        return repeat(pad, ' ') + text;
     }
     
     /**
@@ -160,11 +186,9 @@ public class StringExt {
      * @param text the text to shorten
      * @param cnt is the number of characters to remove
      */
-    public static String shorten(String text, int cnt) {
+    public static String shorten(String text, int count) {
         final int length = text.length();
 
-        String result = text.substring(0, length - cnt);
-
-        return result;
+        return text.substring(0, length - count);
     }
 }

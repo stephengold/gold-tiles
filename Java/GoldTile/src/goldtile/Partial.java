@@ -62,7 +62,7 @@ public class Partial {
     }
     
     public Tile getCellTile(Cell cell) {
-        return board.getCell(cell);
+        return board.getContent(cell);
     }
     
     public boolean isActive(Tile tile) {
@@ -70,7 +70,7 @@ public class Partial {
     }
     
     public boolean isEmpty(Cell cell) {
-        return board.getCell(cell) == null;
+        return board.isEmpty(cell);
     }
     
     public boolean isHinted(Cell cell) {

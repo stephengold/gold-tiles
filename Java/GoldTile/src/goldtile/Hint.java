@@ -33,6 +33,8 @@ public enum Hint {
     USABLE_ANY,
     USABLE_SELECTED;
     
+    // methods
+    
     public static Hint getDefault(Game game) {
         if (game != null && game.isChallenge()) {
             return EMPTY;

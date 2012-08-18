@@ -31,44 +31,54 @@ public class Markings {
     final public static int MARKING_COUNT_MAX = 4;
     private static Color colors[] = null;
 
-    private AttrMode modes[];
-    private Color    color;
-    private int      count;
-    private int      markings[];
+    // per-instance fields (immutable)
+    final private Attr markings[];
+    final private AttrMode modes[];
+    final private Color color;
+    final private int count;
+    
+    // constructors
     
     Markings(Tile tile, DisplayModes displayModes) {
         if (colors == null) {
             initializeColors();
         }
         
-        color = colors[0];
-        int iMarking = 0;
+        Color color = colors[0];
+        Attr markings[] = new Attr[MARKING_COUNT_MAX];
+        AttrMode modes[] = new AttrMode[MARKING_COUNT_MAX];
+        int count = 0;
 
         for (int iAttr = 0; iAttr < Combo.getAttrCount(); iAttr++) {
             final AttrMode displayMode = displayModes.getMode(iAttr);
-            final int attrValue = tile.getCombo().getAttr(iAttr);
-            assert attrValue < Combo.VALUE_COUNT_MAX;
+            final Attr attr = tile.getCombo().getAttr(iAttr);
 
             if (displayMode == AttrMode.COLOR) {
-                color = colors[attrValue];
+                color = colors[attr.intValue()];
             } else {
-                assert iMarking < MARKING_COUNT_MAX;
-                modes[iMarking] = displayMode;
-                markings[iMarking] = attrValue;
-                iMarking++;
+                assert count < MARKING_COUNT_MAX;
+                modes[count] = displayMode;
+                markings[count] = attr;
+                count++;
             }
         }
 
-        count = iMarking;
         assert count > 0 : count;
         assert count <= MARKING_COUNT_MAX : count;
+
+        this.color = color;
+        this.count = count;
+        this.markings = markings;
+        this.modes = modes;        
     }  
+    
+    // methods
     
     public Color getColor() {
         return color;
     }
     
-    public int getMarking(int iAttr) {
+    public Attr getMarking(int iAttr) {
         assert iAttr >= 0 : iAttr;
         assert iAttr < count : iAttr;
         
@@ -84,7 +94,7 @@ public class Markings {
     
     private static void initializeColors() {
         assert colors == null : colors;
-        colors = new Color[Combo.VALUE_COUNT_MAX];
+        colors = new Color[Attr.COUNT_MAX];
         
         colors[0] = Color.BLACK;
         colors[1] = Color.RED;

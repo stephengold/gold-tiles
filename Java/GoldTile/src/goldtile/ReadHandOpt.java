@@ -1,6 +1,6 @@
-// File:     Cells.java
+// File:     ReadHandOpt.java
 // Location: Java/GoldTile/src/goldtile
-// Purpose:  Cells class for the Gold Tile Game
+// Purpose:  ReadHandOpt interface for the Gold Tile Game
 /**
  * @author Stephen Gold
  */
@@ -26,39 +26,9 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 
 package goldtile;
 
-public class Cells extends java.util.TreeSet< Cell > {
-    // constants
-    private static final String PREFIX = "cells{";
-    private static final String SEPARATOR = " ";
-    private static final String SUFFIX = "}";
-
-    // constructors
-    
-    public Cells() {
-        super();
-    }
-    
-    // construct a set containing a single cell
-    public Cells(Cell cell) {
-        super();
-        
-        final boolean success = add(cell);
-        assert success : cell;
-    }
-
-    public Cells(Cells other) {
-        super(other);
-    }
-    
-    // methods
-    
-    public boolean isAnyStart() {
-        for (Cell cell : this) {
-            if (cell.isStart()) {
-                return true;
-            }
-        }
-        
-        return false;
-    }
+public interface ReadHandOpt {
+    public String getPlayerName();
+    public boolean isAutomatic();
+    public boolean isLocalUser();
+    public boolean isRemote();
 }

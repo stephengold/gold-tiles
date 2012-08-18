@@ -37,7 +37,7 @@ public class GameOpt {
     final private static int HAND_SIZE_MIN = 1;
     final private static int MINUTES_PER_HAND_DEFAULT = 30;
     final private static int MINUTES_PER_HAND_MIN = 2;
-    final private static long SEED_DEFAULT = 123L;
+    final private static long SEED_DEFAULT = 12345L;
 
     // per-instance fields
     private boolean boardWrapFlag;   
@@ -98,7 +98,9 @@ public class GameOpt {
     // methods
     
     public static GameOpt chooseConsole() {
-        GameOpt result = new GameOpt();
+        final GameOpt result = new GameOpt();
+        
+        result.setRandomizeFlag(false);
         
         final String attrReport = result.reportAttrs();
         Global.print(attrReport);
@@ -188,7 +190,15 @@ public class GameOpt {
         return clonesPerCombo;
     }
     
+    public Attr getLastAttr(int iAttr) {
+        assert iAttr >= 0;
+
+        return new Attr(getMaxAttrValue(iAttr));
+    }
+    
     public int getMaxAttrValue(int iAttr) {
+        assert iAttr >= 0;
+        
         return maxAttrValues[iAttr];
     }
     
@@ -213,13 +223,12 @@ public class GameOpt {
         result += StringExt.plural(attrCount, "attribute") + ":\n";
         
         for (int iAttr = 0; iAttr < attrCount; iAttr++) {
-            result += " The " + StringExt.ordinal(iAttr + 1);
-            result += " attribute ranges from ";
-
             final AttrMode mode = AttrMode.getConsoleDefault(iAttr);
-            result += mode.attrToString(0) + " to ";
-            final int valueMax = getMaxAttrValue(iAttr);
-            result += mode.attrToString(valueMax) + ".\n";
+
+            result += String.format(" The %s attribute ranges from %s to %s.\n",
+                    StringExt.ordinal(iAttr + 1),
+                    mode.attrToString(new Attr(0)),
+                    mode.attrToString(getLastAttr(iAttr)) );
         }
         result += "\n";
 
@@ -236,11 +245,15 @@ public class GameOpt {
         Global.reseedGenerator(seed);
     }
     
+    public void setRandomizeFlag(boolean randomizeFlag) {
+        this.randomizeFlag = randomizeFlag;
+    }
+    
     public void standardize() {
         attrCount = Combo.ATTR_COUNT_DEFAULT;
         maxAttrValues = new int[attrCount];    
         for (int iAttr = 0; iAttr < attrCount; iAttr++) {
-            maxAttrValues[iAttr] = Combo.VALUE_COUNT_DEFAULT - 1;
+            maxAttrValues[iAttr] = Attr.MAX_DEFAULT;
         }
         boardHeight = Cell.HEIGHT_MAX;
         boardWidth = Cell.WIDTH_MAX;

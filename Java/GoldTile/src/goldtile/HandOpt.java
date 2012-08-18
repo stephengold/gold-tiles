@@ -26,11 +26,11 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 
 package goldtile;
 
-public class HandOpt {
+public class HandOpt implements ReadHandOpt {
     // constants
     public static Fraction SKIP_PROBABILITY_DEFAULT = new Fraction(0.0);
     
-    // fields
+    // per-instance fields
     private boolean automaticFlag;
     private boolean remoteFlag;
     private Fraction skipProbability; // ignored except in automatic hands
@@ -98,18 +98,22 @@ public class HandOpt {
         return result;
     }
     
+    @Override
     public String getPlayerName() {
         return playerName;
     }
     
+    @Override
     public boolean isAutomatic() {
         return automaticFlag;
     }
     
+    @Override
     public boolean isLocalUser() {
         return !automaticFlag && !remoteFlag;
     }
 
+    @Override
     public boolean isRemote() {
         return remoteFlag;
     }

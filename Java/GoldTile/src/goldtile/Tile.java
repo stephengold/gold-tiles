@@ -48,7 +48,7 @@ public class Tile implements Comparable {
     final private static String SEPARATOR = ":";
     final private static String SEPARATOR_REGEX = "[:]";
 
-    // per-instance fields
+    // per-instance fields (immutable)
     final private int id;
     
     // static fields
@@ -131,7 +131,7 @@ public class Tile implements Comparable {
                 Global.print(" is unavailable.\n");
 
             } else {
-                result.tile = available.findFirst(tileOpt);
+                result.tile = available.first(tileOpt);
                 return result;
             }
         }
@@ -156,7 +156,18 @@ public class Tile implements Comparable {
     }
     
     public boolean equals(Tile other) {
+        if (other == null) {
+            return false;
+        }
+        
         return id == other.id;
+    }
+    
+    public int firstMatchingAttr(Tile other) {
+        final Combo combo = getCombo();
+        final Combo otherCombo = other.getCombo();
+        
+        return combo.firstMatchingAttr(otherCombo);
     }
     
     public Combo getCombo() {

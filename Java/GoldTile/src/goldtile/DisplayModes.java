@@ -70,6 +70,10 @@ public class DisplayModes {
                 : getMarkingCount();
     }
     
+    public boolean equals(DisplayModes other) {
+        return java.util.Arrays.deepEquals(modes, other.modes);    
+    }
+    
     public int getColorCnt() {
         int result = 0;
         for (int iAttr = 0; iAttr < Combo.ATTR_COUNT_MAX; iAttr++) {

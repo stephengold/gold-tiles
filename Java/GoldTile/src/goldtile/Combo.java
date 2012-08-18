@@ -34,11 +34,9 @@ public class Combo {
     final public static int ATTR_COUNT_DEFAULT = 2;
     final public static int ATTR_COUNT_MAX = 5;
     final public static int ATTR_COUNT_MIN = 2;
-    final public static int VALUE_COUNT_DEFAULT = 6;
-    final public static int VALUE_COUNT_MAX = 9;
     
-    // fields
-    final private int attrs[] = new int[attrCount];
+    // per-instance fields (mutable)
+    final private Attr attrs[] = new Attr[attrCount];
     
     // static fields
     private static int attrCount = 0;
@@ -72,11 +70,13 @@ public class Combo {
             final char ch = text.charAt(iAttr);
 
             if (iAttr < attrCount) {
-                int value = STRING_MODE.charToAttr(ch);
-                if (value > getValueMax(iAttr)) {
-                    value = 0; // so resulting object can be valid
+                int attrValue = STRING_MODE.charToAttr(ch);
+                if (attrValue <= 0 || attrValue > getValueMax(iAttr)) {
+                    setAttr(iAttr, new Attr()); 
+                    // so the resulting object will be valid
+                } else {
+                    setAttr(iAttr, new Attr(attrValue));
                 }
-                setAttr(iAttr, value);
             }
         }
 
@@ -85,7 +85,7 @@ public class Combo {
              * not enough characters in the string -- 
              * pad the attribute array with zeroes
              */
-            setAttr(iAttr, 0);
+            setAttr(iAttr, new Attr());
             iAttr++;
         }
         // caller should verify fidelity
@@ -112,11 +112,13 @@ public class Combo {
     /**
      * @param other the Combo to be compared
      */
-    private int countMatches(Combo other) {
+    private int countMatchingAttrs(Combo other) {
+        assert other != null;
+        
         int result = 0;
         for (int iAttr = 0; iAttr < attrCount; iAttr++) {
-            final int otherValue = other.getAttr(iAttr);
-            if (hasAttr(iAttr, otherValue)) {
+            final Attr attr = getAttr(iAttr);
+            if (other.hasMatchingAttr(iAttr, attr)) {
                 result ++;
             }
         }
@@ -129,7 +131,7 @@ public class Combo {
        
         for (int iAttr = 0; iAttr < attrCount; iAttr++) {
             final AttrMode displayMode = AttrMode.getConsoleDefault(iAttr);
-            final int value = getAttr(iAttr);
+            final Attr value = getAttr(iAttr);
             result += displayMode.attrToChar(value);
         }
         
@@ -140,17 +142,23 @@ public class Combo {
      * @param other the Combo to compare with
      */
     public boolean equals(Combo other) {
-        return countMatches(other) == attrCount;        
+        if (other == null) {
+            return false;
+        }
+        
+        return countMatchingAttrs(other) == attrCount;        
     }
     
     /**
      * @param other the compatible Combo to be compared
      */
-    public int findFirstMatch(Combo other) {
+    public int firstMatchingAttr(Combo other) {
+        assert other != null;
         assert isCompatibleWith(other) : other;
         
         for (int iAttr = 0; iAttr < attrCount; iAttr++) {
-            if (attrs[iAttr] == other.attrs[iAttr]) {
+            final Attr attr = getAttr(iAttr);
+            if (other.hasMatchingAttr(iAttr, attr)) {
                 return iAttr;
             }
         }
@@ -161,6 +169,7 @@ public class Combo {
      * @param text the description to convert
      */
     public static Combo fromDescription(String text) {
+        assert text != null;
         assertInitialized();
         
         final Combo result = new Combo();
@@ -170,11 +179,13 @@ public class Combo {
             final char ch = text.charAt(iAttr);
             if (iAttr < attrCount) {
                 final AttrMode displayMode = AttrMode.getConsoleDefault(iAttr);
-                int value = displayMode.charToAttr(ch);
-                if (value > getValueMax(iAttr)) {
-                    value = 0; // so resulting object can be valid
+                int attrValue = displayMode.charToAttr(ch);
+                if (attrValue <= 0 || attrValue > getValueMax(iAttr)) {
+                    result.setAttr(iAttr, new Attr());
+                    // so the resulting object will be valid
+                } else {
+                    result.setAttr(iAttr, new Attr(attrValue));
                 }
-                result.setAttr(iAttr, value);
             }
         }
 
@@ -183,7 +194,7 @@ public class Combo {
              * Not enough characters in the string -- 
              * pad the attribute array with zeroes.
              */
-            result.setAttr(iAttr, 0);
+            result.setAttr(iAttr, new Attr());
             iAttr++;
         }
 
@@ -194,7 +205,7 @@ public class Combo {
     /**
      * @param iAttr the index of the attribute
      */
-    public int getAttr(int iAttr) {
+    public Attr getAttr(int iAttr) {
         assert iAttr >= 0 : iAttr;
         assert iAttr < attrCount : iAttr;
         
@@ -209,6 +220,9 @@ public class Combo {
      * @param iAttr the index of the attribute
      */
     public static int getValueCount(int iAttr) {
+        assert iAttr >= 0 : iAttr;
+        assert iAttr < attrCount : iAttr;
+        
         return 1 + getValueMax(iAttr);
     }
 
@@ -217,6 +231,8 @@ public class Combo {
      */
     public static int getValueMax(int iAttr) {
         assertInitialized();
+        assert iAttr >= 0 : iAttr;
+        assert iAttr < attrCount : iAttr;        
     
         return valueMax[iAttr];
     }
@@ -225,13 +241,13 @@ public class Combo {
      * @param iAttr the index of the attribute
      * @param value the test value for the attribute
      */
-    public boolean hasAttr(int iAttr, int value) {
+    public boolean hasMatchingAttr(int iAttr, Attr attr) {
         assert iAttr >= 0 : iAttr;
         assert iAttr < attrCount : iAttr;
-        assert value >= 0 : value;
-        assert value <= valueMax[iAttr] : value;
+        assert attr != null;
+        assert attr.intValue() <= getValueMax(iAttr) : attr;
 
-        return getAttr(iAttr) == value;
+        return getAttr(iAttr).equals(attr);
     }
 
     /**
@@ -240,22 +256,22 @@ public class Combo {
     public boolean isCompatibleWith(Combo other) {
         assert other != null;
         
-        final int matchCount = countMatches(other);
-        
-        return matchCount == 1;
+        return countMatchingAttrs(other) == 1;
     }
     
     /**
      * @param iAttr the index of the attribute
      * @param value the new value for the attribute
      */
-    final public void setAttr(int iAttr, int value) {
+    final public void setAttr(int iAttr, Attr attr) {
         assert iAttr >= 0 : iAttr;
         assert iAttr < attrCount : iAttr;
-        assert value >= 0 : value;
-        assert value <= valueMax[iAttr] : value;
+        assert attr != null;
+        assert attr.intValue() <= valueMax[iAttr] : attr;
         
-        attrs[iAttr] = value;
+        attrs[iAttr] = attr;
+        
+        assert hasMatchingAttr(iAttr, attr);
     }
     
     public static void setStatic(GameOpt gameOpt) {
@@ -270,7 +286,7 @@ public class Combo {
         String result = "";
         
         for (short iAttr = 0; iAttr < attrCount; iAttr++) {
-            final int value = attrs[iAttr];
+            final Attr value = attrs[iAttr];
             result += STRING_MODE.attrToChar(value);
         }
         

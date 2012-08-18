@@ -217,41 +217,6 @@ void Board::PlayTile(TileCell const& rTileCell) {
     PlayOnCell(cell, tile);
 }
 
-ScoreType Board::ScoreDirection(
-    Cell const& rCell,
-    Direction const& rDirection) const
-{
-    ASSERT(!HasEmptyCell(rCell));
-
-    Cells const cells = GetRun(rCell, rDirection);
-    SizeType const length = cells.Count();
-
-    ScoreType result = 0;
-    if (length > 1) {
-        result = ScoreType(length); // base score
-
-        Tiles const tiles = GetTiles(cells);
-        ScoreType const bonus_factor = tiles.BonusFactor();
-        result *= bonus_factor;
-
-        // special bonus for two-attribute games
-        if (Combo::AttrCnt() == 2) {
-            // determine the common attribute
-            AttrIndexType const common_attr = tiles.CommonAttr();
-            AttrIndexType const other_attr = 1 - common_attr;
-            SizeType const max_length = Combo::ValueCnt(other_attr);
-
-            // double the score yet again if at max length
-            ASSERT(length <= max_length);
-            if (length == max_length) {
-                result *= 2;
-            }
-        }
-    }
-
-    return result;
-}
-
 /* static */ String Board::ReasonMessage(UmType reason, String& rTitle) {
     String message;
     rTitle = "Information";
@@ -323,6 +288,41 @@ ScoreType Board::ScoreDirection(
     return message;
 }
 
+ScoreType Board::ScoreDirection(
+    Cell const& rCell,
+    Direction const& rDirection) const
+{
+    ASSERT(!HasEmptyCell(rCell));
+
+    Cells const cells = GetRun(rCell, rDirection);
+    SizeType const length = cells.Count();
+
+    ScoreType result = 0;
+    if (length > 1) {
+        result = ScoreType(length); // base score
+
+        Tiles const tiles = GetTiles(cells);
+        ScoreType const bonus_factor = tiles.BonusFactor();
+        result *= bonus_factor;
+
+        // special bonus for two-attribute games
+        if (Combo::AttrCnt() == 2) {
+            // determine the common attribute
+            AttrIndexType const common_attr = tiles.CommonAttr();
+            AttrIndexType const other_attr = 1 - common_attr;
+            SizeType const max_length = Combo::ValueCnt(other_attr);
+
+            // double the score yet again if at max length
+            ASSERT(length <= max_length);
+            if (length == max_length) {
+                result *= 2;
+            }
+        }
+    }
+
+    return result;
+}
+
 ScoreType Board::ScoreMove(Move const& rMove) const {
     ScoreType result = 0;
 
@@ -373,6 +373,20 @@ bool Board::AreAllCompatible(Cells const& rCells) const {
     return result;
 }
 
+bool Board::AreAllEmpty(Cells const& rCells) const {
+    bool result = true;
+
+    Cells::const_iterator i_cell;
+    for (i_cell = rCells.begin(); i_cell != rCells.end(); i_cell++) {
+        if (!HasEmptyCell(*i_cell)) {
+            result = false;
+            break;
+        }
+    }
+
+    return result;
+}
+
 bool Board::AreAllRunsCompatible(Cells const& rCells, Direction const& rAxis) const {
     ASSERT(Cell::IsScoringAxis(rAxis));
 
@@ -393,20 +407,6 @@ bool Board::AreAllRunsCompatible(Cells const& rCells, Direction const& rAxis) co
     }
 
     return result; 
-}
-
-bool Board::AreAllEmpty(Cells const& rCells) const {
-    bool result = true;
-
-    Cells::const_iterator i_cell;
-    for (i_cell = rCells.begin(); i_cell != rCells.end(); i_cell++) {
-        if (!HasEmptyCell(*i_cell)) {
-            result = false;
-            break;
-        }
-    }
-
-    return result;
 }
 
 bool Board::AreSingleConnectedRun(Cells const& rCells, Direction const& rAxis) const {

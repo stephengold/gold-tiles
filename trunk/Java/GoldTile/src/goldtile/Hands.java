@@ -25,7 +25,70 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 package goldtile;
+import java.util.ListIterator;
 
 public class Hands extends java.util.LinkedList< Hand > {
+    // constants
+    private static final String PREFIX = "hands{";
+    private static final String SEPARATOR = " ";
+    private static final String SUFFIX = "}";
+
+    // methods
+
+    public Hand getNextWorking(Hand hand) {
+        assert hand != null;
+        
+        int iHand = indexOf(hand);
+        assert iHand >= 0 : hand;
+        
+        for (;;) {
+            iHand++;
+            if (iHand >= size()) {
+                iHand = 0;
+            }
+            final Hand result = get(iHand);
+            if (!result.hasResigned()) {
+                return result;
+            }
+        }
+    }   
+
+    public boolean hasAnyGoneOut() {
+        for (Hand hand : this) {
+            if (hand.hasGoneOut()) {
+                return true;
+            }        
+        }
+        
+        return false;
+    }
     
+    public boolean haveAllResigned() {
+        for (Hand hand : this) {
+            if (!hand.hasResigned()) {
+                return false;
+            }   
+        }
+        
+        return true;
+    }
+    
+    @Override
+    public String toString() {
+        String result = PREFIX;
+
+        boolean firstFlag = true;
+        for (Hand hand : this) {
+            if (firstFlag) {
+                firstFlag = false;
+            } else {
+                result += SEPARATOR;
+            }
+
+            result += hand.toString();
+        }       
+        result += SUFFIX;
+
+        return result;
+    }
 }

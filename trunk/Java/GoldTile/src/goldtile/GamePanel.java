@@ -31,7 +31,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
 public class GamePanel extends javax.swing.JPanel {
-    final private GameView view;
+    final public GameView view;
     private int dragBoardPixelCnt = 0;
     private Point mouseLast = null;
     
@@ -42,8 +42,8 @@ public class GamePanel extends javax.swing.JPanel {
    
     // constructor
     
-    GamePanel(MenuBar menuBar, Game game) {
-        view = new GameView(this, menuBar, game);
+    GamePanel(MenuBar menuBar) {
+        view = new GameView(this, menuBar);
         
         setBackground(Color.BLACK);
         setPreferredSize(new Area(640, 480)); // TODO

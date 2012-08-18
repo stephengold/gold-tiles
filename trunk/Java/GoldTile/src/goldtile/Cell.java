@@ -25,6 +25,7 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 package goldtile;
+import java.util.Arrays;
 
 public class Cell implements Comparable {
     // constants
@@ -38,9 +39,9 @@ public class Cell implements Comparable {
     final public static String SEPARATOR = ",";
     final public static String SUFFIX = ")";
 
-    // per-instance fields
-    private int column;
-    private int row;
+    // per-instance fields (immutable)
+    final private int column;
+    final private int row;
     
     // static fields
     private static GameOpt gameOpt;
@@ -53,16 +54,6 @@ public class Cell implements Comparable {
         assert isStart() : this;
     }
 
-    /**
-     * @param other the Cell to be replicated
-     */
-    public Cell(Cell other) {
-        column = other.column;
-        row = other.row;
-        
-        assert isEqual(other) : other;
-    }
-    
     /**
      * @param row the index of the row containing the cell
      * @param column the index of the column containing the cell
@@ -78,6 +69,7 @@ public class Cell implements Comparable {
      * in a given direction from a base cell
      */
     public Cell(Cell base, Direction direction) {
+        assert base != null;
         assert base.isValid() : base;
         assert direction != null;
 
@@ -130,11 +122,11 @@ public class Cell implements Comparable {
         }
     }
     
+    @Override
     public int compareTo(Object object) {
         final Cell other = (Cell)object;
-        final boolean sameRow = (row == other.row);
         
-        if (sameRow) {
+        if (row == other.row) {
             return column - other.column;
         } else {
             return row - other.row;
@@ -148,7 +140,12 @@ public class Cell implements Comparable {
     }
 
     public boolean equals(Cell other) {
-        return row == other.row && column == other.column;
+        if (other == null) {
+            return false;
+        }
+        
+        return row == other.row && 
+               column == other.column;
     }
     
     public static int getBoardHeight() {
@@ -185,15 +182,78 @@ public class Cell implements Comparable {
         return getGrid().getCellShape();
     }
     
-    public boolean isEqual(Cell other) {
+    public boolean hasNeighbor(Direction direction) {
+        assert isValid();
+        assert direction != null;
+
+        switch (getGrid()) {
+            case GRID_TRIANGLE:
+                if (direction == Direction.NORTH && isEven()) {
+                    return false;
+                } else if (direction == Direction.SOUTH && isOdd()) {
+                    return false;
+                } else if (direction.diagonalFlag) {
+                    return false;
+                }
+                break;
+
+            case GRID_4WAY:
+                if (direction.diagonalFlag) {
+                    return false;
+                }
+                break;
+                
+            case GRID_HEX:
+                if (direction.horizontalFlag) {
+                    return false;
+                }
+                break;
+
+            case GRID_8WAY:
+                break; // generally has neighbors in all eight directions
+            
+            default:
+                throw new AssertionError(getGrid());
+        }
+
+        // Check for edges.
+        int row = this.row + direction.rowOffset;
+        int column = this.column + direction.columnOffset;
+
+        if (doesBoardWrap()) {
+            final int height = getBoardHeight();
+            if (row >= height/2 || row < -height/2) {
+                return false;
+            }
+            
+            final int width = getBoardWidth();
+            if (column >= width/2 || column < -width/2) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+    
+    final public boolean isEqual(Cell other) {
         return row == other.row && column == other.column;
+    }
+    
+    public boolean isEven() {
+        return Global.isEven(row + column);
     }
     
     public boolean isOdd() {
         return Global.isOdd(row + column);
     }
+
+    static public boolean isScoringAxis(Direction direction) {
+        final Direction[] scoringAxes = getScoringAxes();
+        
+        return Arrays.asList(scoringAxes).contains(direction);
+    } 
     
-    public boolean isStart() {
+    final public boolean isStart() {
         return row == 0 && column == 0;
     }
     
@@ -281,8 +341,8 @@ public class Cell implements Comparable {
     public String toString() {
         assert isValid();
 
-        return PREFIX + Integer.toString(row) 
-                + SEPARATOR + Integer.toString(column) + SUFFIX;
+        return String.format("%s%d%s%d%s",
+                PREFIX, row, SEPARATOR, column, SUFFIX);
     }
     
     public Cell wrap() {

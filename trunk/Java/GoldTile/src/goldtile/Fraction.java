@@ -27,12 +27,12 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 package goldtile;
 
 public class Fraction {
-    // fields
-    final private double value;
-    
     // constants
     final private static double MIN = 0.0;
     final private static double MAX = 1.0;
+    
+    // per-instance fields (immutable)
+    final private double value;
     
     // constructors
     

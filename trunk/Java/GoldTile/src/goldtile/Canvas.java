@@ -99,7 +99,7 @@ public class Canvas extends Graphics {
        }
     }
     
-    private void drawMarking(Rect bounds, AttrMode displayMode, int attr,
+    private void drawMarking(Rect bounds, AttrMode displayMode, Attr attr,
             Color color)
     {
         switch (displayMode) {
@@ -107,7 +107,7 @@ public class Canvas extends Graphics {
                 foregroundColor = color;
                 backgroundColor = color;
 
-                final Poly shape = shapes[attr];
+                final Poly shape = shapes[attr.intValue()];
                 final Rect square = bounds.centerSquare();
                 drawPolygon(shape, square, false, Fill.YES);
                 break;
@@ -117,9 +117,8 @@ public class Canvas extends Graphics {
             case RST:
                 foregroundColor = color;
 
-                final char ch[] = new char[1];
-                ch[0] = displayMode.attrToChar(attr);
-                final String str = new String(ch);
+                final char ch = displayMode.attrToChar(attr);
+                final String str = Character.toString(ch);
                 //useFont(bounds.height, bounds.width);
                 drawTextLine(bounds, str, null);
                 //useFont(FONT_HEIGHT_DEFAULT);
@@ -152,7 +151,7 @@ public class Canvas extends Graphics {
             foregroundColor = Color.DARK_GRAY;
         }
 
-        Rect interior = null;
+        Rect interior;
         if (Cell.getShape() == Shape.SQUARE) {
             assert tileArea.isSquare();
             final int arcDiameter = width/TILE_POINTEDNESS;
@@ -204,7 +203,7 @@ public class Canvas extends Graphics {
             final Rect markingBounds = new Rect(markingLeft, 
                     markingTop, markingWidth, markingHeight);
             final AttrMode mode = markings.getMode(ind);
-            final int marking = markings.getMarking(ind);
+            final Attr marking = markings.getMarking(ind);
             drawMarking(markingBounds, mode, marking, markingColor); 
         }
 
@@ -213,7 +212,7 @@ public class Canvas extends Graphics {
     
     private static void initializeShapes() {
         assert shapes == null : shapes;
-        shapes = new Poly[Combo.VALUE_COUNT_MAX];
+        shapes = new Poly[Attr.COUNT_MAX];
 
         // polygons for tile markings
         

@@ -27,10 +27,12 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 package goldtile;
 
 public class Percent {
-    final private int percentage;
-    
+    // constants
     public final static int MAX = 100;
     public final static int MIN = 0;
+
+    // per-instance fields (immutable)
+    final private int percentage;
     
     // constructors
     

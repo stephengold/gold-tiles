@@ -41,7 +41,7 @@ public class TileCell implements Comparable {
     final private static String SEPARATOR = "@";
     final private static String SWAP = "swap";
     
-    // per-instance fields
+    // per-instance fields (immutable)
     final private Cell destination; // null means "swap area"
     final private Tile tile;
     
@@ -82,7 +82,7 @@ public class TileCell implements Comparable {
         assert object != null;
         TileCell other = (TileCell)object;
 
-        if (tile != other.tile) {
+        if (!tile.equals(other.tile)) {
             return tile.compareTo(other.tile);
             
         } else if (destination == null) {
@@ -98,6 +98,22 @@ public class TileCell implements Comparable {
         } else {
             return destination.compareTo(other.destination);
         }
+    }
+    
+    public boolean equals(TileCell other) {
+        if (other == null) {
+            return false;
+        }
+        
+        final boolean bothSwap = 
+                destination == null && 
+                other.destination == null;
+        final boolean sameCell =
+                destination != null &&
+                destination.equals(other.destination);
+        final boolean sameTile = tile.equals(other.tile);
+        
+        return  sameTile && (bothSwap || sameCell);
     }
     
     public Cell getDestination() {

@@ -28,33 +28,47 @@ package goldtile;
 
 public class Turn {
     // per-instance fields
-    private Tiles draw;
-    // TODO
+    final private Hand hand;
+    final private int mustPlay;        // immutable
+    private int points = 0;
+    final private Move move;           // move first, then draw
+    private Tiles draw = new Tiles();  // move first, then draw
     
     // constructors
     
-    // dummy turn to mark end of history
-    public Turn() {
-        draw = null;
-    }
-            
-    // newly dealt hand
+    // a newly dealt hand
     public Turn(Hand hand) {
+        this.hand = hand;
+        mustPlay = 0;
+        move = new Move();
         draw = hand.copyContents();
     }
     
-    // player move
+    // a move
     public Turn(Move move, Hand hand, int mustPlay) {
-        //draw TODO
+        this.hand = hand;
+        this.mustPlay = mustPlay;
+        this.move = new Move(move);
     }
     
     // methods
     
-    public boolean isDummy() {
-        return draw == null; // TODO
+    public boolean didPlace() {
+        return move.doesPlace(); 
     }
     
     public void setDraw(Tiles draw) {
+        assert draw != null;
+        
         this.draw = new Tiles(draw);
     }
+    
+    public void setPoints(int points) {
+        this.points = points;
+    }
+
+    public boolean wasDrawOnly() {
+        return move.isPass() && !draw.isEmpty(); 
+    }
+    
 }

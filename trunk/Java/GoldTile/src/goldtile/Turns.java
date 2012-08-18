@@ -25,7 +25,66 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 package goldtile;
+import java.util.ListIterator;
 
 public class Turns extends java.util.LinkedList< Turn > {
+    // methods
     
+    public void clearToEnd(Turn turn) {
+        assert turn != null;
+        assert count(turn) == 1;
+        
+        final ListIterator iTurn = listIterator();
+        
+        // Advance the iterator to just past the specified turn.
+        Turn prev = null;
+        while (iTurn.hasNext() && prev != turn) {
+            prev = (Turn)iTurn.next();
+        }
+
+        // Remove the specified turn and everything after it.
+        while (iTurn.hasNext()) {
+            iTurn.remove();
+            iTurn.next();
+        }
+        iTurn.remove();
+    }
+    
+    public int count(Turn turn) {
+        assert turn != null;
+        
+        int count = 0;
+        for (Turn current : this) {
+            if (current == turn) {
+                count ++;
+            }
+        }
+        
+        return count;
+    }
+    
+    public int findIndex(Turn turn) {
+        if (turn == null) {
+            return size();
+        }
+        
+        assert count(turn) == 1;
+        return indexOf(turn);
+    }
+    
+    public int lastPlaceIndex() {
+        final java.util.Iterator iTurn = descendingIterator();
+        
+        int result = size();
+        
+        while (iTurn.hasNext()) {
+            final Turn turn = (Turn)iTurn.next();
+            result--;
+            if (turn.didPlace() || turn.wasDrawOnly()) {
+                break;
+            }
+        }
+        
+        return result;
+    }
 }

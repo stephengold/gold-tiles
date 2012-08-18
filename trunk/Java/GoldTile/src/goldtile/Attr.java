@@ -1,6 +1,6 @@
-// File:     FractionPair.java
+// File:     Fraction.java
 // Location: Java/GoldTile/src/goldtile
-// Purpose:  FractionPair class for the Gold Tile Game
+// Purpose:  Fraction class for the Gold Tile Game
 /**
  * @author Stephen Gold
  */
@@ -25,37 +25,42 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 package goldtile;
-import java.awt.Point;
 
-public class FractionPair {
+public class Attr {
+    // constants
+    final public static int COUNT_DEFAULT = 6;
+    final public static int COUNT_MAX = 9;
+    final public static int MIN = 0;
+    final public static int MAX_DEFAULT = COUNT_DEFAULT - 1;
+    final public static int MAX_MAX = COUNT_MAX - 1;
+
     // per-instance fields (immutable)
-    final public Fraction x;
-    final public Fraction y;
+    final private int value;
     
-    // constructor
+    // constructors
     
-    FractionPair(double x, double y) {
-        this.x = new Fraction(x);
-        this.y = new Fraction(y);
+    public Attr() {
+        this.value = 0;
     }
     
+    public Attr(int value) {
+        assert value >= MIN : value;
+        assert value <= MAX_MAX : value;
+        
+        this.value = value;
+    }
+
     // methods
     
-    public Point interpolate(Rect bounds, boolean invertYFlag) {
-        final double width = bounds.width - 1;
-        final int dx = (int)(0.5 + x.toDouble()*width);
-        assert dx < bounds.width : dx;
-        final int pointX = bounds.x + dx;
+    public boolean equals(Attr other) {
+        if (other == null) {
+            return false;
+        }
         
-        final double height = bounds.height - 1;
-        final double yValue = y.toDouble(!invertYFlag);
-        final int dy = (int)(0.5 + yValue*height);
-        assert dy < bounds.height : dy;
-        final int pointY = bounds.y + dy;  
-
-        final Point result = new Point(pointX, pointY);
-        assert bounds.contains(result) : result;
-        
-        return result;
+        return value == other.value;
+    }
+    
+    public int intValue() {
+        return value;
     }
 }

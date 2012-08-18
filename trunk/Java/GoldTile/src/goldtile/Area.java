@@ -25,11 +25,12 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 package goldtile;
+import java.awt.Dimension;
 
-public class Area extends java.awt.Dimension {  
+public class Area extends Dimension {  
     // constructors
     
-    public Area(Area other) {
+    public Area(Dimension other) {
         super(other);
     }
     

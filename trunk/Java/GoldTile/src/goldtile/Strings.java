@@ -30,6 +30,8 @@ public class Strings extends java.util.LinkedList< String > {
     // methods
     
     public int count(String string) {
+        assert string != null;
+        
         int result = 0;
         
         for (String str : this) {
@@ -43,6 +45,8 @@ public class Strings extends java.util.LinkedList< String > {
     
     // create unique name using a numeric suffix
     public String inventUnique(String prefix) {
+        assert prefix != null;
+        
         String result = prefix;
 
         int i = 2;
@@ -56,15 +60,36 @@ public class Strings extends java.util.LinkedList< String > {
     
     // create unique name using ordinals
     public String inventUnique(String prefix, String infix, String suffix) {
+        assert prefix != null;
+        assert infix != null;
+        assert suffix != null;
+        
         String result = prefix;
         
         int i = 1;
         while (contains(result)) {
-            result = String.format("%s%s%s%s", prefix, infix, 
-                    StringExt.ordinal(i), suffix);
+            final String ordinal = StringExt.ordinal(i);
+            result = String.format("%s%s%s%s", prefix, infix,  ordinal, suffix);
             i++;
         }
 
+        return result;
+    }
+    
+    public String join(String separator) {
+        assert separator != null;
+        
+        String result = "";
+        boolean firstFlag = true;
+        for (String item : this) {
+            if (firstFlag) {
+                firstFlag = false;
+            } else {
+                result += separator;
+            }
+            result += item;
+        }       
+        
         return result;
     }
 }

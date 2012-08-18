@@ -25,6 +25,7 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 package goldtile;
+import java.util.TreeSet;
 
 public class Move {
     // constants
@@ -34,21 +35,25 @@ public class Move {
     final private static String SUFFIX = "}";
     
     // per-instance fields
-    final private boolean resignFlag;
-    final java.util.Set<TileCell> set = new java.util.TreeSet<>();
+    final private boolean resignFlag;  // immutable
+    final java.util.Set<TileCell> set; // mutable
     
     // constructors
     
     // construct a "pass"
     public Move() {
         resignFlag = false;
+        set = new TreeSet<>();
         
         assert isPass();
     }
     
     // construct a resignation
     private Move(Tiles tiles) {
-        resignFlag = true;
+        assert tiles != null;
+
+        resignFlag = true;        
+        set = new TreeSet<>();
         
         for (Tile tile : tiles) {
             final TileCell tileCell = new TileCell(tile);
@@ -58,9 +63,17 @@ public class Move {
         assert isResignation();
     }
     
+    public Move(Move other) {
+        assert other != null;
+        
+        resignFlag = other.resignFlag;
+        set = new TreeSet(other.set);
+    }
+    
     // methods
     
     public static Move chooseConsole(Tiles available, int mustPlay) {
+        assert available != null;
         assert mustPlay >= 0;
         
         final Move result = new Move();
@@ -94,12 +107,12 @@ public class Move {
     }
     
     public Cells copyCells() {
-        Cells result = new Cells();
+        final Cells result = new Cells();
         
         for (TileCell tileCell : set) {
             final Cell cell = tileCell.getDestination();
             if (cell != null) {
-                result.add(new Cell(cell));
+                result.add(cell);
             }
         }
         
@@ -107,13 +120,37 @@ public class Move {
     }
     
     public Tiles copyTiles() {
-        Tiles result = new Tiles();
+        final Tiles result = new Tiles();
         
         for (TileCell tileCell : set) {
             result.add(tileCell.getTile());
         }
         
         return result;
+    }
+    
+    public int countTilesPlaced() {
+        int result = 0;
+        
+        for (TileCell tileCell : set) {
+            if (tileCell.getDestination() != null) {
+                ++ result;
+            }
+        }    
+        
+        return result;
+    }
+
+    public boolean doesPlace() {
+        return !resignFlag && !set.isEmpty();
+    }
+    
+    public boolean equals(Move other) {
+        if (other == null) {
+            return false;
+        }
+        
+        return resignFlag == other.resignFlag && set.equals(other.set);
     }
     
     public boolean involvesSwap() {
@@ -147,7 +184,59 @@ public class Move {
     final public boolean isResignation() {
         return resignFlag;
     }
+
+    public void place(Board board) {
+        assert board != null;
+        assert doesPlace();
+        
+        for (TileCell tileCell : set) {
+            board.place(tileCell);
+        }
+    }
     
+    public boolean repeatsCell() {
+        if (set.size() < 2) {
+            return false;
+        }
+        
+        final Cells cellsSeen = new Cells();
+
+        for (TileCell tileCell : set) {
+            final Cell cell = tileCell.getDestination();
+            if (cell != null) {
+                if (cellsSeen.contains(cell)) {
+                    return true;
+                } else {
+                    cellsSeen.add(cell);
+                }
+            }
+        }
+        
+        return false;
+    }
+
+    public boolean repeatsTile() {
+        if (set.size() < 2) {
+            return false;
+        }
+        
+        final Tiles tilesSeen = new Tiles();
+
+        for (TileCell tileCell : set) {
+            final Tile tile = tileCell.getTile();
+            assert tile != null;
+            
+            if (tilesSeen.contains(tile)) {
+                return true;
+            } else {
+                tilesSeen.add(tile);
+            }
+        }
+        
+        return false;
+    }
+
+
     public int size() {
         return set.size();
     }

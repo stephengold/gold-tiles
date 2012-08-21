@@ -25,6 +25,7 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 package goldtile;
+
 import java.util.TreeSet;
 
 public class Move {
@@ -49,13 +50,13 @@ public class Move {
     }
     
     // construct a resignation
-    private Move(Tiles tiles) {
-        assert tiles != null;
+    public Move(Tiles discard) {
+        assert discard != null;
 
         resignFlag = true;        
         set = new TreeSet<>();
         
-        for (Tile tile : tiles) {
+        for (Tile tile : discard) {
             final TileCell tileCell = new TileCell(tile);
             set.add(tileCell);
         }
@@ -71,6 +72,12 @@ public class Move {
     }
     
     // methods
+    
+    public void add(Tile tile, Cell destination) {
+        final TileCell tileCell = new TileCell(tile, destination);
+        
+        set.add(tileCell);
+    }
     
     public static Move chooseConsole(Tiles available, int mustPlay) {
         assert available != null;

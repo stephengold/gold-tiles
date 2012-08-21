@@ -25,6 +25,7 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 package goldtile;
+
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -60,7 +61,7 @@ public class BaseBoard {
         assert size() == other.size();
     }
     
-    // methods
+    // methods, sorted by name
     
     public void clear() {
         eastMax = 0;
@@ -75,6 +76,7 @@ public class BaseBoard {
     }
     
     public void clear(Cell cell) {
+        assert cell != null;
         final Tile tile = cellMap.get(cell);
         assert tile != null;
         assert tileMap.get(tile).equals(cell) : cell;
@@ -109,8 +111,20 @@ public class BaseBoard {
         assert tileMap.get(tile) == null;
     }
     
+    public Cell find(Tile tile) {
+        if (tile == null) {
+            return null;
+        } else {
+            return tileMap.get(tile);
+        }
+    }
+    
     public Tile getContent(Cell cell) {
-       return cellMap.get(cell);
+        if (cell == null) {
+            return null;
+        } else {
+            return cellMap.get(cell);
+        }
     }
     
     public int getEastMax() {
@@ -163,10 +177,6 @@ public class BaseBoard {
         return true;    
     }
     
-    public Cell find(Tile tile) {
-        return tileMap.get(tile);    
-    }
-    
     public void place(Cell cell, Tile tile) {
         assert cellMap.get(cell) == null : cellMap.get(cell);
         assert tileMap.get(tile) == null : tileMap.get(tile);
@@ -196,7 +206,7 @@ public class BaseBoard {
         assert size() > 0 : size();
     }
     
-    public int size() {
+    final protected int size() {
         final int result = cellMap.size();
         
         assert tileMap.size() == result : result;

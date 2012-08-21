@@ -29,7 +29,8 @@ package goldtile;
 public class Fraction {
     // constants
     final private static double MIN = 0.0;
-    final private static double MAX = 1.0;
+    final private static double UNITY = 1.0;
+    final private static double MAX = UNITY;
     
     // per-instance fields (immutable)
     final private double value;
@@ -52,7 +53,11 @@ public class Fraction {
         value = other.value;   
     }
     
-    // methods
+    // methods, sorted bu name
+    
+    public boolean isUnity() {
+        return value == UNITY;
+    }
     
     public boolean randomBoolean() {
         if (value > 0.0) {

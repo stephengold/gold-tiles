@@ -26,8 +26,10 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 
 package goldtile;
 
-public class HandOpts extends java.util.LinkedList< HandOpt > {       
-    // methods
+public class HandOpts
+    extends java.util.LinkedList< HandOpt > 
+{       
+    // methods, sorted by name
     
     public static HandOpts chooseConsole(GameOpt gameOpt) {
         assert gameOpt != null;

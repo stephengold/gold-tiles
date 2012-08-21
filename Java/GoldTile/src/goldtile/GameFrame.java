@@ -26,9 +26,12 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 
 package goldtile;
 
+import java.awt.Toolkit;
+
 public class GameFrame extends javax.swing.JFrame {
     public GameFrame(Game game) {
         setTitle("Gold Tile Game");
+        
         if (GoldTile.control == Display.GUI) {
             setDefaultCloseOperation(EXIT_ON_CLOSE);
         }
@@ -46,10 +49,18 @@ public class GameFrame extends javax.swing.JFrame {
         content.add(clientArea, java.awt.BorderLayout.CENTER);
         pack();
         
-        // Associate the game (if any) with the clientArea.
-        clientArea.view.setGame(game);
-        
+        // Determine initial bounds:  centered and covering 64% of the screen
+        final Toolkit toolkit = Toolkit.getDefaultToolkit();
+        final Area screen = new Area(toolkit.getScreenSize());
+        final Area area = screen.shrink(new Percent(20)); // shrink 20%
+        final int x = screen.width/2 - area.width/2;      // center horizontally
+        final int y = screen.height/2 - area.height/2;    // center vertically
+        setBounds(x, y, area.width, area.height);
+
         // Display the frame.
         setVisible(true);
+
+        // Associate the game (if any) with the client area's GameView.
+        clientArea.view.changeGame(game);
     }
 }

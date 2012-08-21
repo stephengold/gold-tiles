@@ -25,10 +25,11 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 package goldtile;
+
 import java.util.Iterator;
 
 public class Tiles extends java.util.TreeSet< Tile > {
-    // constants
+    // constants, sorted by type
     public static final class PullEmptyException extends Exception {}
     private static final String PREFIX = "tiles{";
     private static final String SEPARATOR = " ";
@@ -44,7 +45,7 @@ public class Tiles extends java.util.TreeSet< Tile > {
         super(other);
     }
 
-    // methods
+    // methods, sorted by name
     
     public void addAllCombos() {
         final int iAttr = 0;
@@ -124,10 +125,14 @@ public class Tiles extends java.util.TreeSet< Tile > {
     }
     
     public boolean contains(Combo combo) {
+        assert combo != null;
+        
         return first(combo) != null;
     }
     
     public boolean contains(TileOpt tileOpt) {
+        assert tileOpt != null;
+        
         return first(tileOpt) != null;
     }
     
@@ -148,7 +153,18 @@ public class Tiles extends java.util.TreeSet< Tile > {
         return result;
     }
     
+    // return the largest subset of mutually compatible tiles
+    public Tiles findLongestRun() {
+        final Tiles uniqueCombos = skipClones();
+        final Tiles result = uniqueCombos.buildRuns(new Tiles(), new Tiles());
+
+        assert result.areAllCompatible();
+        return result;
+    }
+    
     public Tile first(Combo combo) {
+        assert combo != null;
+        
         for (Tile tile : this) {
             if (tile.hasCombo(combo)) {
                 return tile;
@@ -159,6 +175,8 @@ public class Tiles extends java.util.TreeSet< Tile > {
     }
     
     public Tile first(TileOpt tileOpt) {
+        assert tileOpt != null;
+        
         for (Tile tile : this) {
             if (tile.hasOpt(tileOpt)) {
                 return tile;
@@ -192,15 +210,6 @@ public class Tiles extends java.util.TreeSet< Tile > {
         }
         
         assert result > 0;
-        return result;
-    }
-    
-    // return the largest subset of mutually compatible tiles
-    public Tiles getLongestRun() {
-        final Tiles uniqueCombos = skipClones();
-        final Tiles result = uniqueCombos.buildRuns(new Tiles(), new Tiles());
-
-        assert result.areAllCompatible();
         return result;
     }
     

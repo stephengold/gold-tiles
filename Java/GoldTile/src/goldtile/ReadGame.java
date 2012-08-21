@@ -1,6 +1,6 @@
-// File:     Layer.java
+// File:     ReadGame.java
 // Location: Java/GoldTile/src/goldtile
-// Purpose:  Layer enum for the Gold Tile Game
+// Purpose:  ReadGame interface for the Gold Tile Game
 /**
  * @author Stephen Gold
  */
@@ -26,8 +26,28 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 
 package goldtile;
 
-public enum Layer {
-    VALID,
-    HINTED_OR_EMPTY,
-    ACTIVE_FROM_BOARD;
+public interface ReadGame {
+    public boolean canRedo();
+    public boolean canUndo();
+    public UserMessage checkMove(Move move);
+    public Board copyBoard();
+    public int countStock();
+    
+    public ReadBoard getBoard();
+    public Game.Ending getEnding();
+    public ReadGameOpt getGameOpt();
+    public ReadHand getHand(int iHand);
+    public int getMustPlay();
+    public ReadHand getPlayable();
+    public int getPlayableIndex();
+    public int[] getUnplayableIndices();
+    public int getSeconds(int iHand);
+    
+    public boolean isFirstTurn();
+    public boolean isLegalMove(Move move);
+    public boolean isOutOfTime();
+    public boolean isOver();
+    public boolean isPaused();
+    public boolean isPlayable(int iHand);
+    public boolean isStockEmpty();
 }

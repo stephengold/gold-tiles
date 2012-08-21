@@ -28,6 +28,7 @@ package goldtile;
 
 public interface ReadHandOpt {
     public String getPlayerName();
+    public Fraction getSkipProbability();
     public boolean isAutomatic();
     public boolean isLocalUser();
     public boolean isRemote();

@@ -27,13 +27,18 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 package goldtile;
 
 public enum GameStyle {
+    // values
     DEBUG,     // allows peeking, undo, all hints; clock is optional
     PRACTICE,  // no peeking; allows undo, all hints; clock is optional
     FRIENDLY,  // no peeking, no undo; allows all hints; clock is optional
     CHALLENGE; // no peeking, no undo, no hints; time limits
 
-    // methods
+    // methods, sorted by name
     
+    public boolean allowsHints() {
+        return this != CHALLENGE;
+    }
+
     public boolean allowsUndo() {
         return this == DEBUG || this == PRACTICE;
     }
@@ -44,5 +49,9 @@ public enum GameStyle {
         } else {
             return PRACTICE;
         }
+    }
+
+    public boolean hasTimeLimit() {
+        return this == CHALLENGE;
     }
 }

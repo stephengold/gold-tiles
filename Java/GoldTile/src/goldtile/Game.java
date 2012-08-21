@@ -26,34 +26,28 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 
 package goldtile;
 
-public class Game {
-    // enums
-    public static enum Ending {
-        RESIGNED,
-        STUCK,
-        WENT_OUT;
-    };
+public class Game
+    implements ReadGame
+{
+    // enums, sorted by name
+    public static enum Ending { RESIGNED, STUCK, WENT_OUT; };
+    public static enum Tense { PAST, PRESENT; };
 
-    // constants
-    final private static int STUCK_THRESHOLD = 7;  
-            // number of turns before game is declared "stuck" 
-
-    // per-instance fields   
+    // per-instance fields, sorted by type   
     private Board board = new Board();        // extensible playing surface
-    final private boolean clientFlag;
+    final private boolean clientFlag;         // immutable
     private boolean unsavedChangeFlag = false;
-    final private GameOpt opt;
-    private Hand playable = null;             // whose turn it is
-    final private Hands hands = new Hands();  // all hands being played
+    final private GameOpt opt;                // immutable
+    final private Hands hands;                // all hands being played
     private int mustPlay = 0;  // min number of tiles to play, 0 after the 1st turn
-    public String bestRunReport = null;
-    public String filespec = null;            // associated file for load/save
-    public String firstTurnMessage = null;
+    private String bestRunReport = null;
+    private String filespec = null;            // associated file for load/save
+    private String firstTurnMessage = null;
     private Tiles stockBag = null;
     private Turn redo = null;   // current index in the history, null means end
     final private Turns history = new Turns();
     
-    // constructor
+    // constructors
     
     public Game(GameOpt opt, HandOpts handOpts) {
         assert opt != null;
@@ -87,40 +81,43 @@ public class Game {
         Global.print(StringExt.plural(countStock(), "tile"));
         Global.print(" in the stock bag.\n");
         
-        // Generate a list of player names, duplicates included.
-        Strings names = handOpts.getAllPlayerNames();
-
-        // Construct hands and give each one a unique name.
-        for (HandOpt handOpt : handOpts) {
-            String handName = handOpt.getPlayerName();
-            if (names.count(handName) > 1) {
-                handName = names.inventUnique(handName, "'s ", " hand");
-                names.addLast(handName);
-            }
-
-            final Hand hand = new Hand(handName, handOpt);
-            assert !hand.isClockRunning();
-            hands.addLast(hand);
-        }
-        
+        hands = new Hands(handOpts);
         assert hands.size() == opt.getHandsDealt();
-        assert playable == null;
+        
+        // The deal:  each hand pulls tiles from the stock bag.
+        final int handSize = opt.getHandSize();
+        int iHand = 0;
+        for (Hand hand : hands) {
+            assert !hand.isClockRunning();
+            final Tiles dealt = pullTiles(handSize, iHand);
+            assert dealt.size() == handSize : dealt;
+
+            // Record the deal in the history.
+            history.add(iHand, dealt);
+            iHand++;
+        }
+        assert history.size() == opt.getHandsDealt();
+        Global.print("\n");
+        
+        // The hand with the best "run" gets to go first.
+        findBestRun();
+
+        // Set the redo iterator to the end of the history.
+        redo = null;
+
+        // Pretend this game has been saved, for convenience.
+        unsavedChangeFlag = false;
+
+        assert isPaused();
+        assert !canUndo();
+        assert !canRedo();
+
     }
 
-    // methods
-    
-    public void activateNextHand() {
-        assert !isClockRunning();
-
-        // Skip over hands which have resigned.
-        playable = hands.getNextWorking(playable);
-        unsavedChangeFlag = true;
-
-        assert !isClockRunning();
-    }
+    // methods, sorted by name
     
     public void add(Turn turn) {
-        assert !isClockRunning();
+        assert !getPlayable().isClockRunning();
 
         if (redo != null) {
            history.clearToEnd(redo);
@@ -130,11 +127,13 @@ public class Game {
         unsavedChangeFlag = true;
     }
     
-    public boolean canRedo() {
+    @Override
+    final public boolean canRedo() {
         return redo != null;
     }
     
-    public boolean canUndo() {
+    @Override
+    final public boolean canUndo() {
         if (redo == null) {
             return history.size() > opt.getHandsDealt();
         } else {
@@ -142,7 +141,8 @@ public class Game {
         }
     }
 
-    private UserMessage checkMove(Move move) {
+    @Override
+    public UserMessage checkMove(Move move) {
         assert move != null;
         
         final UserMessage result = board.checkMove(move);
@@ -167,22 +167,12 @@ public class Game {
         }
     }
 
+    @Override
     public Board copyBoard() {
-        assert board != null;
-        
         return new Board(board);
     }
     
-    public GameOpt copyOpt() {
-        return new GameOpt(opt);
-    }
-    
-    public Tiles copyPlayableTiles() {
-        assert playable != null;
-        
-        return playable.copyContents();
-    }
-    
+    @Override
     final public int countStock() {
         assert stockBag != null;
         
@@ -205,156 +195,126 @@ public class Game {
         return String.format(
                 "%s\n%s's turn, %s remaining in the stock bag\n\n%s\n",
                 describeScores(),
-                playable.name,
+                getPlayable().getName(),
                 StringExt.plural(stock, "tile"),
                 board.describe());      
     }
 
-    private void finishTurn(Move move) {
-        assert move != null;
-        assert isLegalMove(move);
-        assert isClockRunning();
-
-        stopClock();
-
-        Turn turn = new Turn(move, playable, mustPlay);
-
-        if (move.isResignation()) {
-            stockBag.addAll(playable.resign());
-
-        } else {
-            // Remove played/swapped tiles from the hand.
-            final Tiles tiles = move.copyTiles();
-            playable.remove(tiles);
-
-            // Attempt to draw replacement tiles from the stock bag.
-            final int tileCount = tiles.size();
-            if (tileCount > 0) {
-                final Tiles draw = pullTiles(tileCount, playable);
-                assert draw.size() == tileCount || !move.involvesSwap();
-                turn.setDraw(draw);
-            }
-
-            if (move.isPureSwap()) {
-                // Return tiles to the stock bag.
-                stockBag.addAll(tiles);
-                playable.printName();
-                Global.print(" returned ");
-                Global.print(StringExt.plural(tileCount, "tile"));
-                Global.print(" to the stock bag.\n");
-
-            } else if (move.doesPlace()) {
-                // Place tiles on the board.
-                board.place(move);
-
-                // Update the hand's score.
-                final int points = board.score(move);
-                playable.addScore(points);
-                turn.setPoints(points);
-           }
-       }
-
-       add(turn);
-
-       //  If it was the first turn, it no longer is.
-       mustPlay = 0;
-
-       assert !isClockRunning();
-    }
-    
     private void findBestRun() {
         assert board != null;
         assert board.isEmpty() : board;
         assert hands != null;
         assert hands.size() > 0 : hands;
         
-        bestRunReport = "";
-        mustPlay = 0;
-        playable = hands.getFirst();
+        final Hands.BestRun bestRun = hands.findBestRun();
         
-        for (Hand hand : hands) {
-            final Tiles run = hand.getLongestRun();
-            final int runLength = run.size();
-
-            bestRunReport += String.format("%s has a run of %s: %s.\n",
-                    hand.name,
-                    StringExt.plural(runLength, "tile"),
-                    run.describe());
-
-            if (runLength > mustPlay) {
-                mustPlay = runLength;
-                playable = hand;
-            } 
-        }
-        bestRunReport += "\n";
-
         // Make sure the run will fit on the board.
-        mustPlay = Cell.limitPlay(mustPlay);
+        mustPlay = Cell.limitPlay(bestRun.length);
 
         firstTurnMessage = String.format(
                 "%s plays first and must place %s on the (empty) board.\n",
-                playable.name, 
+                getPlayable().getName(), 
                 StringExt.plural(mustPlay, "tile"));
 
-        bestRunReport += firstTurnMessage;
+        bestRunReport = bestRun.report + "\n" + firstTurnMessage;
         Global.print(bestRunReport);
         
         assert bestRunReport != null;
         assert firstTurnMessage != null;
         assert mustPlay > 0 : mustPlay;
-        assert playable != null;
     }
     
     private Strings findWinningHands() {
         assert hands.size() > 0;
 
-        final int topScore = findMaxScore();
+        final int topScore = hands.findMaxScore();
         final Strings result = new Strings();
         
         for (Hand hand : hands) {
             if (hand.getScore() == topScore) {
-                result.addLast(hand.name);
+                result.addLast(hand.getName());
             }
         }
 
         return result;    
     }
     
-    private int findMaxScore() {
-        assert hands.size() > 0;
+    public void finishTurn(Move move) {
+        assert move != null;
+        assert isLegalMove(move);
+        assert getPlayable().isClockRunning();
+
+        stopClock();
+
+        Tiles draw = new Tiles();
+        int points = 0;
         
-        final Hand first = hands.getFirst();       
-        int result = first.getScore();
+        if (move.isResignation()) {
+            final Tiles tiles = hands.resign();
+            stockBag.addAll(tiles);
 
-        for (Hand hand : hands) {
-            final int score = hand.getScore();
-            if (score > result) {
-                result = score;
+        } else {
+            // Remove played/swapped tiles from the playable hand.
+            final Tiles tiles = move.copyTiles();
+            hands.removeTiles(tiles);
+
+            // Attempt to draw replacement tiles from the stock bag.
+            final int tileCount = tiles.size();
+            if (tileCount > 0) {
+                final int iHand = hands.getPlayableIndex();
+                draw = pullTiles(tileCount, iHand);
+                assert !move.involvesSwap() || draw.size() == tileCount;
             }
-        }
 
-        return result;    
+            if (move.isPureSwap()) {
+                // Return tiles to the stock bag.
+                stockBag.addAll(tiles);
+                Global.print(String.format("%s returned %s to the stock bag.\n",
+                        getPlayable().getName(), 
+                        StringExt.plural(tileCount, "tile")));
+
+            } else if (move.doesPlace()) {
+                // Place tiles on the board.
+                board.place(move);
+
+                // Update the hand's score.
+                points = board.score(move);
+                hands.addScore(points);
+           }
+       }
+
+       final int handIndex = hands.getPlayableIndex();
+       history.add(handIndex, mustPlay, move, points, draw);
+
+       //  If it *was* the first turn, it no longer is.
+       mustPlay = 0;
+
+       assert !getPlayable().isClockRunning();
     }
-
+    
     private void firstTurnConsole() {
-        assert playable != null;
+        assert GoldTile.control == Display.CONSOLE;
+        assert isFirstTurn();
         assert isPaused();
         
         Global.print("\n");
         startClock();
         
+        final ReadHand playable = getPlayable();
+        final ReadHandOpt handOpt = playable.getOpt();
+        
         Move move;
-        if (playable.isAutomatic()) {
+        if (handOpt.isAutomatic()) {
             assert clientFlag;
             assert !canRedo();
             
             move = playable.chooseMoveAutomatic(this);
 
-        } else if (playable.isRemote()) {
+        } else if (handOpt.isRemote()) {
             move = playable.chooseMoveRemote();
             
         } else {
-            assert playable.isLocalUser();
+            assert handOpt.isLocalUser();
             
             for (;;) {
                 move = playable.chooseMoveConsole(mustPlay);
@@ -373,6 +333,12 @@ public class Game {
         finishTurn(move);
     }
     
+    @Override
+    public ReadBoard getBoard() {
+        return board;    
+    }
+    
+    @Override
     public Ending getEnding() {
         /*
          * The game is over if and only if: 
@@ -384,7 +350,7 @@ public class Game {
             return Ending.WENT_OUT;
         } else if (hands.haveAllResigned()) {
             return Ending.RESIGNED;
-        } else if (history.lastPlaceIndex() + STUCK_THRESHOLD == 
+        } else if (history.lastPlaceIndex() + opt.getStuckThreshold() <= 
                    history.findIndex(redo))
         {
             return Ending.STUCK;
@@ -393,45 +359,57 @@ public class Game {
         }
     }
     
-    public void initialize() {
-        assert history.isEmpty();
-        assert playable == null : playable;
-        
-        // The deal:  each hand pulls tiles from the stock bag.
-        final int handSize = opt.getHandSize();
-        for (Hand hand : hands) {
-            assert !hand.isClockRunning();
-            final Tiles dealt = pullTiles(handSize, hand);
-            assert dealt.size() == handSize : dealt;
+    @Override
+    public ReadGameOpt getGameOpt() {
+        return opt;
+    }
+    
+    @Override
+    public ReadHand getHand(int iHand) {
+        return hands.get(iHand);
+    }
+    
+    @Override
+    public int getMustPlay() {
+        return mustPlay;
+    }
+    
+    @Override
+    public ReadHand getPlayable() {
+        return hands.getPlayable();
+    }
+    
+    @Override
+    public int getPlayableIndex() {
+        return hands.getPlayableIndex();
+    }
+    
+    @Override
+    public int getSeconds(int iHand) {
+        // Read a hand's clock.
+        int result = hands.get(iHand).getSecondsUsed();
 
-            // Record the deal in the history.
-            final Turn turn = new Turn(hand);
-            history.addLast(turn);
+        final GameStyle style = opt.getStyle();
+        if (style.hasTimeLimit()) {
+            // counting down
+            final int timeLimit = opt.getSecondsPerHand();
+            result = timeLimit - result;
         }
-        Global.print("\n");
         
-        // The hand with the best "run" gets to go first.
-        findBestRun();
+        return result;
+    }
 
-        // Set the redo iterator to the end of the history.
-        redo = null;
-
-        // Pretend this game has been saved, for convenience.
-        unsavedChangeFlag = false;
-
-        assert isPaused();
-        assert !canUndo();
-        assert !canRedo();
+    @Override
+    public int[] getUnplayableIndices() {
+        return hands.getUnplayableIndices();
     }
     
-    public boolean isChallenge() {
-        return opt.isChallenge();
+    @Override
+    public boolean isFirstTurn() {
+        return getMustPlay() > 0;
     }
     
-    public boolean isClockRunning() {
-         return playable.isClockRunning();
-    }
-    
+    @Override
     public boolean isLegalMove(Move move) {
         assert move != null;
         
@@ -440,36 +418,71 @@ public class Game {
         return reason == null;
     }
     
+    @Override
+    public boolean isOutOfTime() {
+        if (!opt.getStyle().hasTimeLimit()) {
+            return false;
+        }
+        
+        final long have = opt.getMillisecondsPerHand();
+        final long used = getPlayable().getMillisecondsUsed();
+
+        return (used >= have);
+    }
+    
+    @Override
     public boolean isOver() {
         return getEnding() != null;
     }
 
-    public boolean isPaused() {
-        return !isClockRunning() && !isOver();
+    @Override
+    final public boolean isPaused() {
+        return !getPlayable().isClockRunning() && !isOver();
     }
 
+    @Override
+    public boolean isPlayable(int iHand) {
+        return hands.getPlayableIndex() == iHand;
+    }
+    
+    @Override
     public boolean isStockEmpty() {
         return countStock() == 0;
     }
-    
+
+    public void nextHand() {
+        assert !getPlayable().isClockRunning();
+
+        // Skip over hands which have resigned.
+        hands.nextWorking();
+        unsavedChangeFlag = true;
+
+        assert !getPlayable().isClockRunning();
+    }
+        
     private void nextTurnConsole() {
+        assert GoldTile.control == Display.CONSOLE;
+        assert !isFirstTurn();
         assert isPaused();
 
         startClock();
         Global.print(describeStatus());
+        
+        final ReadHand playable = getPlayable();
+        final ReadHandOpt handOpt = playable.getOpt();
 
         Move move;
-        if (playable.isAutomatic()) {
+        if (handOpt.isAutomatic()) {
             assert clientFlag;
             assert !canRedo();
             
             move = playable.chooseMoveAutomatic(this);
 
-        } else if (playable.isRemote()) {
+        } else if (handOpt.isRemote()) {
             move = playable.chooseMoveRemote();
             
         } else {
-            assert playable.isLocalUser();
+            assert handOpt.isLocalUser();
             
             for (;;) {
                 move = playable.chooseMoveConsole(mustPlay);
@@ -489,73 +502,81 @@ public class Game {
     }
     
     public void playConsole() {
+        assert GoldTile.control == Display.CONSOLE;
+        
         firstTurnConsole();
         
         while (!isOver()) {
-            activateNextHand();
+            nextHand();
             nextTurnConsole();
         }
         Global.print(reportEndBonus());
         
-        // Display final scores.
-        Global.print(reportScores());
-        Global.print("\n");
+        if (hands.size() > 1) {
+            // Display final scores.
+            Global.print(reportScores(Tense.PAST));
+            Global.print("\n");
+        }
     }
     
-    private Tiles pullTiles(int count, Hand hand) {
+    private Tiles pullTiles(int count, int handIndex) {
         Tiles result = null;
         
         if (clientFlag) {
             try {
                result = stockBag.pullRandom(count);
             } catch (Tiles.PullEmptyException exception) {
-               // the caller will notice
+               // caller will detect
             }
         } else {  // server
             // TODO
         }
         
-        hand.add(result);
+        hands.addTiles(handIndex, result);
 
-        final int actualCnt = result.size();
-        if (actualCnt > 0) {
-            hand.printName();
-            Global.print(" drew ");
-            Global.print(StringExt.plural(actualCnt, "tile"));
-            Global.print(" from the stock bag: ");
-            Global.print(result.describe());
-            Global.print("\n");
+        final int actualCount = result.size();
+        if (actualCount > 0) {
+            Global.print(String.format("%s drew %s from the stock bag: %s.\n",
+                    getPlayable().getName(),
+                    StringExt.plural(actualCount, "tile"),
+                    result.describe()));
         }
 
         return result;
     }
 
+    public void removeTiles(Tiles tiles) {
+        hands.removeTiles(tiles);    
+    }
+    
     private String reportEndBonus() {
         assert isOver();
         String result = "";
         
         final Ending ending = getEnding();
+        final ReadHand playable = getPlayable();
+        final String handName = playable.getName();
 
         if (ending == Ending.WENT_OUT) {
             // Start writing the report.
             result += String.format("%s went out with %s.\n\n",
-                    playable.name,
+                    handName,
                     StringExt.plural(playable.getScore(), "point") );
 
             // The playable hand scores a point for each tile in another hand.
             for (Hand hand : hands) {
                 if (hand != playable) {  
-                    final int tileCount = hand.size();
+                    final int tileCount = hand.countContents();
                     final int pointCount = tileCount; // TODO?
                 
                     if (pointCount > 0) {
-                        playable.addScore(pointCount);
+                        hands.addScore(pointCount);
 
                         result += String.format(
                                 "Add %s for the %s held by %s.\n", 
                                 StringExt.plural(pointCount, "point"),
                                 StringExt.plural(tileCount, "tile"),
-                                playable.name);
+                                handName);
                     }
                 }
             }
@@ -563,52 +584,55 @@ public class Game {
         }
 
         result += String.format("%s ended up with %s.\n\n",
-            playable.name,
+            handName,
             StringExt.plural(playable.getScore(), "point"));
-
-        if (hands.size() > 1) {
-            final Strings winningHands = findWinningHands();
-            if (winningHands.size() == 1) {
-                final String winner = winningHands.getFirst();
-                result += String.format("%s won the game.\n", winner);
-            } else {
-                assert !winningHands.isEmpty();
-                final String winners = winningHands.join(" and ");
-                result += String.format("%s tied for first place.\n", winners);
-            }
-        }
 
         return result;
     }
     
-    private String reportScores() {
+    private String reportScores(Tense tense) {
+        assert hands.size() > 0;
+        
         String result = "";
         
-        // TODO
+        final Strings winningHands = findWinningHands();
+        if (winningHands.size() == 1) {
+            final String winner = winningHands.getFirst();
+            result += String.format("%s %s the game.\n",
+                    winner,
+                    tense == Tense.PAST ? "won" : "is winning");
+        } else {
+            assert !winningHands.isEmpty();
+            final String winners = winningHands.join(" and ");
+            result += String.format("%s %s for first place.\n",
+                    winners,
+                    tense == Tense.PAST ? "tied" : "are tied");
+        }
+
         return result;        
     }
     
     public void startClock() {
         assert !isOver();
-        assert !isClockRunning();
+        assert !getPlayable().isClockRunning();
 
-        playable.startClock();
-        assert isClockRunning();
+        hands.startClock();
+        assert getPlayable().isClockRunning();
     }
     
     public void stopClock() {
-        assert isClockRunning();
+        assert getPlayable().isClockRunning();
         
-        playable.stopClock();
+        hands.stopClock();
     }
     
     public void togglePause() {
         assert !isOver();
         
-        if (isClockRunning()) {
-            stopClock();
+        if (getPlayable().isClockRunning()) {
+            hands.stopClock();
         } else {
-            startClock();
+            hands.startClock();
         }
     }
 }

@@ -25,20 +25,27 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 package goldtile;
+
 import java.awt.Point;
 import java.util.Map;
 import java.util.TreeMap;
 
 public class GameView extends Partial {
+    // enums, sorted by name
+    public static enum Layer { VALID, HINTED_OR_EMPTY; }
+    public static enum Side { LEFT, RIGHT; }
+    
     // constants
     final private static int PAD_PIXELS_DEFAULT = 6;
     
-    //
+    // links
+    final private GamePanel panel;
+    final private MenuBar menuBar;
+    
+    // per-instance fields, sorted by type
     private Canvas canvas = null;
     private Cell target = null;
     private DisplayModes displayModes = new DisplayModes(Display.GUI);
-    final private GamePanel panel;
-    final private MenuBar menuBar;
     private int padPixels = PAD_PIXELS_DEFAULT;
     private int recenterLeftX = 0;
     private int recenterRightX = 0;
@@ -51,7 +58,7 @@ public class GameView extends Partial {
     // constructors
     
     public GameView(GamePanel panel, MenuBar menuBar) {
-        super(null, Hint.getDefault(null), HandOpt.SKIP_PROBABILITY_DEFAULT);
+        super();
         assert panel != null;
         assert menuBar != null;
         
@@ -59,7 +66,178 @@ public class GameView extends Partial {
         this.panel = panel;
     }
 
-    // methods
+    // methods, sorted by name
+    
+    public void changeGame(Game game) {
+        super.setGame(game);
+        recenter();
+        target = null;
+        displayModes.cleanup();
+        menuBar.update();
+        recenter();
+        panel.repaint();
+    }
+    
+
+    public boolean dropActiveTile(Point mouse) {
+        assert mouse != null;
+        assert hasGame();
+
+        final ReadBoard board = getBoard();
+        final Tile tile = getActiveTile();
+                
+        // Determine where the tile came from.
+        final Place from = findActiveTile();
+        Cell fromCell = null;
+        if (from == Place.BOARD) {
+            fromCell = board.find(tile);
+        }
+
+        // Determine where the tile was released.
+        final Place to = findPlace(mouse);
+        Cell toCell = null;
+        if (to == Place.BOARD) {
+            toCell = getCell(mouse);
+            if (!isInCellArea(mouse, toCell)) {
+                return false;
+             }
+             if (Cell.doesBoardWrap()) {
+                 toCell = toCell.wrap();
+             }
+        }
+
+        if (from == to && fromCell == toCell) {
+            /* 
+             * Trivial drags (which don't actually move the tile)
+             * are simply treated as mouse-clicks.
+             */
+            return true;
+        }
+
+        if (to == Place.BOARD && 
+               (!toCell.isValid() || !board.isEmpty(toCell)) )
+        {
+            /*
+             * The destination cell is invalid or already used, so we
+             * can't construct the move in the usual fashion.
+             */
+            panel.ruleBox(UserMessage.EMPTY_CELL);
+            return false;
+        }
+
+        moveActiveTile(from, to, toCell);
+
+        // Check whether the new partial move is legal.
+        final Move moveSoFar = getMove(Active.INCLUDED);
+        UserMessage reason = getGame().checkMove(moveSoFar);
+
+        if (reason != null && 
+                (to == Place.SWAP_AREA || reason != UserMessage.FIRST_TURN))
+        {  
+            // It's illegal, even as a partial move:  reverse it.
+            moveActiveTile(to, from, fromCell);
+
+            // Explain to the user why it was illegal.
+            if (reason == UserMessage.START && from != Place.BOARD) {
+                reason = UserMessage.START_SIMPLE;
+            }
+            panel.ruleBox(reason);
+        }
+
+        target = null;
+        deactivate();
+        menuBar.update();
+        panel.repaint();
+        
+        return false;
+    }
+        
+    private Place findPlace(Point point) {
+        assert point != null;
+        
+        if (handRect.contains(point)) {    
+            return Place.HAND;
+        } else if (swapRect.contains(point)) {
+            assert !handRect.contains(point);
+            return Place.SWAP_AREA;
+        } else {
+            return Place.BOARD;
+        }
+    }
+    
+    public Tile findPlayableTile(Point point) {
+        assert point != null;
+        
+        for (Integer tileId : tileFinder.keySet()) {
+            final Rect rect = tileFinder.get(tileId);
+            if (rect.contains(point)) {
+                final Tile tile = new Tile(tileId);
+                // Make sure the tile is visible.
+                if (isActive(tile)) {
+                    return tile;
+                } else if (isInSwapRect(point) && !isInSwap(tile)) {
+                    continue;
+                } else if (isInHandRect(point) && !isInHand(tile)) {
+                    continue;
+                } else {
+                    return tile;
+                }
+            }            
+        }
+        
+        return null;
+    }
+
+    private String formatClock(int iHand) {
+        assert hasGame();
+
+        int seconds = getGame().getSeconds(iHand);
+
+        // convert to minutes and seconds
+        boolean minusSign;
+        if (seconds >= 0) {
+            minusSign = false;
+        } else {
+            minusSign = true;
+            seconds = -seconds;
+        }
+
+        final int minutes = seconds / Global.SECONDS_PER_MINUTE;
+        seconds -= minutes * Global.SECONDS_PER_MINUTE;
+        final int tensOfSeconds = seconds / 10;
+        seconds -= tensOfSeconds*10;
+
+        assert seconds >= 0;
+        assert seconds <= 9;
+        assert tensOfSeconds >= 0;
+        assert tensOfSeconds <= 5;
+
+        return String.format("%s%d:%d%d",
+                minusSign ? "-" : "",
+                minutes,
+                tensOfSeconds,
+                seconds);
+    }
+
+    private String formatScore(ReadHand hand, boolean playableFlag) {
+        assert hand != null;
+        assert hasGame();
+        
+        final int score = hand.getScore();
+
+        int pointCountThisTurn = 0;
+        if (playableFlag) {
+            pointCountThisTurn = getPointCount();
+        }
+
+        if (pointCountThisTurn == 0) {
+            return StringExt.plural(score, "point");
+        } else {
+            return String.format("%d+%s",
+                    score,
+                    StringExt.plural(pointCountThisTurn, "point"));
+        }
+    }
     
     public Cell getCell(Point point) {
         final Area gridUnit = getGridUnitArea();
@@ -165,14 +343,6 @@ public class GameView extends Partial {
         return new Area(width, height);
     }
     
-    private Area getTileArea(Point point) {
-        if (handRect.contains(point) || swapRect.contains(point)) {
-            return getTileArea(Place.HAND);
-        } else {
-            return getTileArea(Place.BOARD);
-        }
-    }
-    
     private int getTileWidth(Place place) {
         final int size = menuBar.getTileSize(place);
         final Shape shape = Cell.getShape();
@@ -194,30 +364,77 @@ public class GameView extends Partial {
         return interior.contains(point);
     }
     
-    public boolean isWarmTile(Tile tile) {
+    public boolean isInHandRect(Point point) {
+        return handRect.contains(point);
+    }
+    
+    public boolean isInSwapRect(Point point) {
+        return swapRect.contains(point);
+    }
+    
+    private boolean isWarmTile(Tile tile) {
         return warmTiles.contains(tile); 
     }
 
-    public void paintAll(Canvas c) {
-        canvas = c;
-        if (game == null) {
-            // TODO paintIdle();
-        } else if (game.isPaused()) {
+    @Override
+    public void nextHand() {
+        warmTiles = getBoardTiles();
+        super.nextHand();
+    }
+    
+    private void paintActiveTileFromBoard() {
+        assert hasActiveTile();
+        assertActive(Place.BOARD);
+        
+        final Tile tile = getActiveTile();
+        final ReadBoard board = getBoard();
+        final Cell cell = board.find(tile);
+        final Point center = getCenter(cell);
+        final boolean oddFlag = false;
+        paintPlayableTile(center, tile, oddFlag);
+    }
+    
+    public void paintAll(Canvas canvas) {
+        assert canvas != null;
+        
+        this.canvas = canvas;
+        tileFinder.clear();
+        
+        if (!hasGame()) {
+            paintIdle();
+        } else if (getGame().isPaused()) {
             paintPaused();
         } else {
             final Area clientArea = panel.getClientArea();
             recenterLeftX = 0;
             recenterRightX = clientArea.width;
-            tileFinder.clear();
 
             paintBoard(Layer.VALID);
             paintBoard(Layer.HINTED_OR_EMPTY);
-            // TODO paintUnplayableHands();
-            // TODO paintPlayableHand();
-            // TODO paintPlayableTiles();
-            paintBoard(Layer.ACTIVE_FROM_BOARD);
+            paintUnplayableHands();
+            paintPlayableHand();
+            paintPlayableTiles();
+            if (hasActiveTile() && findActiveTile() == Place.BOARD) {
+                paintActiveTileFromBoard();
+            }
         }
-        canvas = null;
+        
+        this.canvas = null;
+    }
+    
+    private void paintBlankTile(Point center, boolean bonusFlag, 
+            boolean oddFlag)
+    {
+        assert center != null;
+        
+        final Place place = findPlace(center);
+        final Area area = getTileArea(place);
+        Color color = Color.LIGHT_GRAY;
+        if (bonusFlag) {
+            color = Color.DULL_GOLD;
+        }
+
+        canvas.drawBlankTile(center, area, color, oddFlag);
     }
     
     public void paintBoard(Layer showLayer) {
@@ -231,7 +448,7 @@ public class GameView extends Partial {
         int topRow = ulcCell.getRow() + extraRows;
         int leftColumn = ulcCell.getColumn() + extraColumns;
         
-        final Point brc = panel.getBrc();
+        final Point brc = panel.getBottomRightCorner();
         final Cell brcCell = getCell(brc);
         int bottomRow = brcCell.getRow() - extraRows;
         int rightColumn = brcCell.getColumn() - extraColumns;
@@ -241,6 +458,7 @@ public class GameView extends Partial {
             assert leftColumn <= rightColumn;
 
             // Get the range of "might use" cells.
+            final ReadBoard board = getBoard();    
             final int bottomUseRow = board.getBottomUseRow();
             final int leftUseColumn = board.getLeftUseColumn();
             final int rightUseColumn = board.getRightUseColumn();
@@ -264,15 +482,15 @@ public class GameView extends Partial {
             }
         }
         
-        int swapCnt = countSwap();
+        int swapCount = countSwapped();
         Tile activeTile = getActiveTile();
         if (isInSwap(activeTile)) {
-            assert swapCnt > 0;
-            --swapCnt;
+            assert swapCount > 0;
+            --swapCount;
         }
 
         for (int row = topRow; row >= bottomRow; row--) {
-            paintRow(showLayer, leftColumn, rightColumn, swapCnt, row);
+            paintRow(showLayer, leftColumn, rightColumn, swapCount, row);
         }
     }
 
@@ -281,7 +499,8 @@ public class GameView extends Partial {
         
         Color cellColor = Color.BLACK;
         Color featureColor = Color.LIGHT_GRAY;
-        if (!isEmpty(cell)) {
+        ReadBoard board = getBoard();
+        if (!board.isEmpty(cell)) {
             cellColor = Color.DARK_BLUE;
             featureColor = Color.LIGHT_BLUE;
         } else if (isHinted(cell)) {
@@ -320,35 +539,109 @@ public class GameView extends Partial {
      
         /*  
          * If the active tile came from the board, draw it later 
-         * (not now) so it won't get obscured.
+         * (in PaintActiveTileFromBoard() -- not now) so it won't 
+         * get obscured.
          */
-        final Tile tile = getCellTile(cell);
+        final Tile tile = board.getContent(cell);
         if (tile != null && !isActive(tile)) {
             // inactive tile -- draw it now
             paintTile(center, tile, oddFlag);
         }
     }
 
-    private void paintRow(Layer showLayer, int leftSeeColumn, 
-            int rightSeeColumn, int swapCnt, int row)
-    {
-        for (int column = leftSeeColumn; column <= rightSeeColumn; column++) {
-            final Cell cell = new Cell(row, column);
-            Cell wrapCell = cell.wrap();
-                
-            if ((board.mightUse(cell) || board.mightUse(wrapCell)) 
-                    && wrapCell.isValid())
-            {
-                final Point center = getCenter(cell);
-                paintCell(cell, center, swapCnt);                   
-            }
-        }       
-    }
+    private Rect paintHandHeader(Point corner, int iHand, Side align) {
+        assert corner != null;
+        assert align != null;
+        assert hasGame();
+        
+        // Calculate the width of the header.
+        final Area cellArea = getCellArea(Place.HAND);
+        int width = cellArea.width;
 
+        final ReadHand hand = getGame().getHand(iHand);
+        final String name = hand.getName();
+        final Area nameArea = canvas.textArea(name);
+        if (nameArea.width > width) {
+            width = nameArea.width;
+        }
+        
+        final boolean playableFlag = getGame().isPlayable(iHand);
+        if (playableFlag) {
+            final int stockWidth = canvas.textWidth("in the stock bag");
+            if (stockWidth > width) {
+                width = stockWidth;
+            }
+        }
+
+        Area scoreArea = new Area(0, 0);
+        String scoreText = "";
+        if (menuBar.areScoresVisible()) {
+            scoreText = formatScore(hand, playableFlag);
+            scoreArea = canvas.textArea(scoreText);
+            if (scoreArea.width > width) {
+                width = scoreArea.width;
+            }
+        }
+
+        Area clockArea = new Area(0, 0);
+        String clockText = "";
+        if (menuBar.areClocksVisible()) {
+            clockText = formatClock(iHand);
+            clockArea = canvas.textArea(clockText);
+            if (clockArea.width > width) {
+                width = clockArea.width;
+            }
+        }
+
+        width += 2*padPixels;
+        
+        // Calculate hand header bounds.
+        final int leftX = corner.x - (align == Side.RIGHT ? width : 0);
+        Point ulc = new Point(leftX, corner.y);
+        final int height = nameArea.height + scoreArea.height 
+                + clockArea.height + 2*padPixels;
+        final Area area = new Area(width, height);
+        final Rect result = new Rect(area, ulc);
+        
+        // Draw hand header background.
+        final Color areaColor = Color.BLACK;
+        canvas.backgroundColor = areaColor;
+        canvas.foregroundColor = areaColor;
+        canvas.drawRect(result);
+        ulc.translate(0, padPixels);
+
+        // Draw name text.
+        nameArea.width = width;
+        final Rect nameBox = new Rect(nameArea, ulc);
+        canvas.foregroundColor = Color.WHITE;
+        canvas.drawTextLine(nameBox, name, null);
+        ulc.translate(0, nameArea.height);
+        
+        if (menuBar.areScoresVisible()) {
+            // Draw score text.
+            scoreArea.width = width;
+            final Rect scoreBox = new Rect(scoreArea, ulc);
+            canvas.drawTextLine(scoreBox, scoreText);
+            ulc.translate(0, scoreArea.height);
+        }
+
+        if (menuBar.areClocksVisible()) {
+            // Draw clock text.
+            clockArea.width = width;
+            final Rect clockBox = new Rect(clockArea, ulc);
+            canvas.drawTextLine(clockBox, clockText);
+        }
+
+        return result;
+    }
+    
+    private void paintIdle() {
+        // TODO    
+    }
+    
     private void paintPaused() {
-        assert game != null;
-        assert game.isPaused();
-        assert !game.isOver();
+        assert hasGame();
+        assert getGame().isPaused();
         
         canvas.backgroundColor = Color.BLACK;
         canvas.foregroundColor = Color.GREEN;
@@ -356,12 +649,286 @@ public class GameView extends Partial {
         canvas.drawTextMultiline(clientRect, 
                 "The game is paused.\n\nClick here to resume.");
 
-        final int topY = padPixels;
-        final int leftX = padPixels;
-        // TODO
+        final Point ulc = new Point(padPixels, padPixels);
+        final int iHand = getGame().getPlayableIndex();
+        final boolean left = true;
+        paintHandHeader(ulc, iHand, Side.LEFT);
+    }
+    
+    private void paintPlayableHand() {
+        assert hasGame();
+        assert !getGame().isPaused();
+        assert !getGame().isOver();
+
+        // Draw hand header.
+        Point ulc = new Point(padPixels, padPixels);
+        final int iHand = getGame().getPlayableIndex();
+        final Rect headerRect = paintHandHeader(ulc, iHand, Side.LEFT);
+
+        recenterLeftX = headerRect.getRightX();
+        ulc = headerRect.getBlc();
+
+        // Calculate height of playable hand area (mHandRect).
+        int tileCount = countHand();
+        final Area cellArea = getCellArea(Place.HAND);
+        final int cellHeight = cellArea.height;
+        int height = canvas.textHeight("My") + 2*padPixels;
+        final ReadHand playableHand = getPlayable();
+        if (!playableHand.hasResigned() && !playableHand.hasGoneOut()) {
+            height = tileCount*cellHeight + 2*padPixels;
+            if (tileCount < countPlayable()) {
+                // Show that there's room for more.
+                height += cellHeight/2;
+            }
+        }
+        final Area handArea = new Area(headerRect.width, height);
+
+        // Determine the colors of the playable hand area (handRect).
+        final Tile activeTile = getActiveTile();
+        if (isInHand(activeTile)) {
+            // The active tile started from this hand.
+            assert tileCount > 0;
+            --tileCount;
+        }
+
+        final boolean localUser= getPlayable().getOpt().isLocalUser();
+        Color areaColor;
+        if (!localUser) {
+            areaColor = Color.DARK_BLUE;
+        } else if (tileCount < countPlayable()) {
+            areaColor = Color.DARK_GREEN;
+        } else { // hand is full
+            areaColor = Color.BROWN;
+        }
+        final Color edgeColor = Color.WHITE;
+        canvas.backgroundColor = areaColor;
+        canvas.foregroundColor = edgeColor;
+
+        // Draw the hand area (handRect).
+        handRect = new Rect(handArea, ulc);
+        canvas.drawRect(handRect);
+
+        if (playableHand.isDisconnected()) {
+            canvas.drawTextLine(handRect, "disconnected");
+        } else if (playableHand.hasResigned()) {
+            canvas.drawTextLine(handRect, "resigned");
+        } else if (playableHand.hasGoneOut()) {
+            canvas.drawTextLine(handRect, "went out");
+        }
+        ulc = handRect.getBlc();
+
+        // Draw the swap area (swapRect) below the hand.
+        if (playableHand.hasGoneOut() || playableHand.hasResigned()) {
+            final Area swapArea = new Area(headerRect.width, 0); 
+            swapRect = new Rect(swapArea, ulc);
+        } else {
+            swapRect = paintSwapArea(ulc, headerRect.width);
+        }
+        ulc = swapRect.getBlc();
+
+        // Draw stock bag below the swap area.
+        paintStockArea(ulc, headerRect.width);
+    }
+
+    private void paintPlayableTile(Point center, Tile tile, boolean oddFlag) {
+        assert center != null;
+        assert tile != null;
+        assert hasGame();
+        
+        final ReadBoard board = getBoard();
+        final boolean localUser = getPlayable().getOpt().isLocalUser();
+        if (!localUser && !board.contains(tile) && 
+                !menuBar.isPeeking())
+        {
+            // Draw the tile's backside.
+            paintBlankTile(center, tile.hasBonus(), oddFlag);
+
+        } else {  // Draw the tile's face.
+            paintTile(center, tile, oddFlag);
+        }
+    }
+    
+    private void paintPlayableTiles() {
+        assert hasGame();
+        
+        final Area cellArea = getCellArea(Place.HAND);
+        final int cellHeight = cellArea.height;
+        final int x = handRect.getMiddleX();
+        int handY = handRect.y + padPixels + cellHeight/2;
+        int swapY = swapRect.y + padPixels + cellHeight/2;
+        
+        final int tileCount = countSwapped();
+        final int stockCount = getGame().countStock();
+        if (tileCount < countPlayable() && tileCount < stockCount) {
+            swapY += cellHeight/2;
+        }
+        
+        final ReadBoard board = getBoard();
+
+        Point center;
+        for (Tile tile : getPlayable().copyContents()) {
+            boolean oddFlag = false;
+            final Place place = find(tile);
+            switch (place) {
+                case BOARD:
+                    final Cell cell = board.find(tile);
+                    oddFlag = cell.isOdd();
+                    center = getCenter(cell);
+                    break;
+                case HAND:
+                    center = new Point(x, handY);
+                    handY += cellHeight;
+                    break;
+                case SWAP_AREA:
+                    center = new Point(x, swapY);
+                    swapY += cellHeight;
+                    break;
+                default:
+                    throw new AssertionError(place);
+            }
+
+            /*  
+             * If the active tile came from the board, draw it later 
+             * (not now) so it won't get obscured.
+             */
+            if (!isActive(tile) || !board.contains(tile)) {
+                // inactive tile or off-board tile -- draw it now
+                paintPlayableTile(center, tile, oddFlag); 
+            }
+        }
+    }
+
+    private void paintRow(Layer showLayer, int leftSeeColumn, 
+            int rightSeeColumn, int swapCnt, int row)
+    {
+        assert hasGame();
+        
+        final ReadBoard board = getBoard();
+        
+        for (int column = leftSeeColumn; column <= rightSeeColumn; column++) {
+            final Cell cell = new Cell(row, column);
+            final Cell wrapCell = cell.wrap();
+                
+            if ( (board.mightUse(cell) || board.mightUse(wrapCell)) 
+                    && wrapCell.isValid() )
+            {
+                final Point center = getCenter(cell);
+                final boolean isEmpty = board.isEmpty(wrapCell);
+                final boolean isHinted = isHinted(wrapCell);
+                final Layer layer = (isEmpty || isHinted) ? 
+                        Layer.HINTED_OR_EMPTY : Layer.VALID;
+                if (layer == showLayer) {
+                    paintCell(cell, center, swapCnt);
+                }
+            }
+        }       
+    }
+
+    private void paintStockArea(Point ulc, int width) {
+        assert ulc != null;
+        assert width > 0;
+        assert hasGame();
+        
+        // Calculate the height of the stock area.
+        final int stockCount = getGame().countStock();
+        final String text1 = StringExt.plural(stockCount, "tile");
+        final Area area1 = canvas.textArea(text1);
+        
+        final String text2 = "in the stock bag";
+        final Area area2 = canvas.textArea(text2);
+
+        final int height = area1.height + area2.height + 3*padPixels;
+        final Area area = new Area(width, height);
+        final Rect rect = new Rect(area, ulc);
+
+        // Choose colors for the stock area.
+        final Color areaColor = Color.DARK_BLUE;
+        final Color edgeColor = Color.WHITE;
+        canvas.backgroundColor = areaColor;
+        canvas.foregroundColor = edgeColor;
+
+        // Draw the stock area.
+        canvas.drawRect(rect);
+
+        // Draw two lines of descriptive text in the stock area.
+        final Point ulc1 = new Point(ulc.x, ulc.y + padPixels);
+        area1.width = width;
+        final Rect bounds1 = new Rect(area1, ulc1);
+        canvas.drawTextLine(bounds1, text1);
+        
+        final Point ulc2 = new Point(ulc.x, ulc1.y + area1.height + padPixels);
+        area2.width = width;
+        final Rect bounds2 = new Rect(area2, ulc2);
+        canvas.drawTextLine(bounds2, text2);
+    }
+    
+    private Rect paintSwapArea(Point ulc, int width) {
+        assert ulc != null;
+        assert width > 0;
+        assert hasGame();
+        
+        // Calculate height of swap area (swapRect)
+        final Area cellArea = getCellArea(Place.HAND);
+        final int cellHeight = cellArea.height;
+        final int stockCount = getGame().countStock();
+        int tileCount = countSwapped();
+        final String text = "swap area";
+        final Area textArea = canvas.textArea(text);
+        final int textHeight = textArea.height;
+        int height = tileCount*cellHeight + textHeight + 3*padPixels;
+        if (tileCount < countPlayable() && tileCount < stockCount) {
+            // Show that there's room for more tiles.
+            height += cellHeight/2;
+        }
+
+        final Area swapArea = new Area(width, height);
+        final Rect result = new Rect(swapArea, ulc);
+        
+        // Choose colors for the swap area.
+        final Tile activeTile = getActiveTile();
+        if (isInSwap(activeTile)) {
+            assert tileCount > 0;
+            --tileCount;
+        }
+        ReadBoard board = getBoard();
+        int placedTileCount = countPlayed();
+        if (board.contains(activeTile)) {
+            assert placedTileCount > 0;
+            --placedTileCount;
+        }
+        Color areaColor;
+        final boolean localUser = getPlayable().getOpt().isLocalUser();
+        if (!localUser) {
+            areaColor = Color.DARK_BLUE;
+        } else if (placedTileCount == 0
+            && tileCount < countPlayable()
+            && tileCount < stockCount)
+        {
+            areaColor = Color.DARK_GREEN;
+        } else { // can't add more tiles to swap area
+            areaColor = Color.BROWN;
+        }
+        canvas.backgroundColor = areaColor;
+        
+        Color edgeColor = Color.WHITE;
+        canvas.foregroundColor = edgeColor;
+
+        // Draw the swap area.
+        canvas.drawRect(result);
+
+        // Label the swap area.
+        ulc.y = result.getBottomY() - padPixels - textHeight;
+        textArea.width = width;
+        final Rect bounds = new Rect(textArea, ulc);
+        canvas.drawTextLine(bounds, text);
+
+        return result;
     }
     
     void paintTile(Point center, Tile tile, boolean oddFlag) {
+        assert center != null;
+        assert tile != null;
+        
         final int markingCnt = displayModes.getMarkingCount();
         assert markingCnt <= Markings.MARKING_COUNT_MAX;
         
@@ -370,18 +937,149 @@ public class GameView extends Partial {
         if (tile.hasBonus()) {
             tileColor = Color.DULL_GOLD;
         }
-        if (contains(tile)) {
+        if (isPlayable(tile)) {
             tileColor = Color.WHITE;
             if (tile.hasBonus()) {
                 tileColor = Color.GOLD;
             }
         }
 
+        final Point drawCenter = new Point(center);
+        if (isActive(tile)) {
+            panel.translateTile(drawCenter);
+        }
+
         final Markings markings = new Markings(tile, displayModes);
-        final Area tileArea = getTileArea(center);
+        final Place place = findPlace(center);
+        final Area area = getTileArea(place);
         final boolean warmFlag = isWarmTile(tile);
-        canvas.drawTile(markings, tileColor, center, tileArea, 
-                warmFlag, oddFlag);
+        final Rect interior = canvas.drawTile(markings, tileColor, drawCenter, 
+                area, warmFlag, oddFlag);
+        
+        final boolean localFlag = getPlayable().getOpt().isLocalUser();
+        if (isPlayable(tile) && localFlag) {
+            tileFinder.put(tile.getId(), interior);
+        }
+    }
+    
+    private void paintUnplayableHands() {
+        assert hasGame();
+
+        final Area cellArea = getCellArea(Place.BOARD);
+        final int cellHeight = cellArea.height;
+        final Color areaColor = Color.DARK_BLUE;
+        final Color edgeColor = Color.LIGHT_GRAY;
+        final boolean peekFlag = menuBar.isPeeking();
+        
+        int rightX = panel.getClientArea().width - padPixels;
+        int topY = padPixels;
+        for (int iHand : getGame().getUnplayableIndices()) {
+            // Draw the header.
+            final Point urc = new Point(rightX, topY);
+            final Rect headerRect = paintHandHeader(urc, iHand, Side.RIGHT);
+
+            // Draw hand area below the header.
+            final Point ulc = headerRect.getBlc();
+            canvas.backgroundColor = areaColor;
+            canvas.foregroundColor = edgeColor;
+            
+            final ReadHand hand = getGame().getHand(iHand);
+            final int tileCount = hand.countContents();
+            final String text = reportStatus(hand, peekFlag);
+            
+            int height = 2*padPixels;
+            if (text == null) {
+                height += cellHeight * tileCount;
+            } else {
+                height += canvas.textHeight(text);
+            }
+            final Area area = new Area(headerRect.width, height);
+            final Rect bounds = new Rect(area, ulc);
+            canvas.backgroundColor = areaColor;
+            canvas.foregroundColor = edgeColor;
+            canvas.drawRect(bounds);
+
+            if (text != null) {
+                canvas.drawTextLine(bounds, text);                                
+            } else {  // peeking:  draw tiles
+                final int yCenter = bounds.y + padPixels + cellHeight/2;
+                Point center = new Point(bounds.getMiddleX(), yCenter);
+
+                for (Tile tile : hand.copyContents()) {
+                    paintTile(center, tile, false);
+                    center.translate(0, cellHeight);
+                }
+            } // if peeking
+
+            recenterRightX = bounds.x;
+
+            // Insert padding between hands.
+            if (peekFlag) {
+                // right to left
+                rightX = bounds.x - padPixels;
+            } else {
+                // top to bottom
+                topY += height + padPixels;
+            }
+        }
+    }
+    
+    public void playMenuCommand(String command) {
+        assert command != null;
+        assert hasGame();
+        assert !hasActiveTile();
+        assert !getGame().isPaused();
+        assert !getGame().isOver();
+        
+        // Check whether the playable hand has run out of time.
+        Move move;
+        if (getGame().isOutOfTime()) {
+            // If it has, force a resignation.
+            command = "Resign";
+        }
+        
+        if (command.equals("Resign")) {
+            final Tiles discard = getPlayable().copyContents();
+            move = new Move(discard);            
+        } else {
+            move = getMove(Active.INCLUDED);            
+        }
+
+        switch (command) {
+            case "Pass":
+                assert move.isPass();
+                break;
+            case "Play":
+                assert move.doesPlace();
+                break;
+            case "Resign":
+                assert move.isResignation();
+                break;
+            default:
+                throw new AssertionError();
+        }
+        
+        // Check whether the move is a legal one.
+        final UserMessage reason = getGame().checkMove(move);
+        if (reason == null) {
+            finishTurn(move);
+
+            if (getGame().isOver()) {
+                // TODO gameOver();
+                
+            } else {
+                // The game isn't over yet, so proceed to the next hand.
+                // TODO final String oldPlayerName = saveHandOpt();
+                nextHand();
+                // TODO changeHand(oldPlayerName);
+            }
+
+        } else { // explain the issue
+            panel.ruleBox(reason);
+            if (reason == UserMessage.FIRST_TURN) {
+                takeBack();
+            }
+        }
     }
     
     public void recenter() {
@@ -395,25 +1093,36 @@ public class GameView extends Partial {
         int y = clientArea.height/2;
         
         final Area gridUnitArea = getGridUnitArea();
-
+        final ReadBoard board = getBoard();
+        
         x -= gridUnitArea.width * (board.getEastMax() - board.getWestMax())/2;
         y += gridUnitArea.height * (board.getNorthMax() - board.getSouthMax())/2;
 
         start = new Point(x, y);
     }
     
-    public void scroll(int dx, int dy) {
-        start.x += dx;
-        start.y += dy;
+    private String reportStatus(ReadHand hand, boolean peekFlag) {
+        if (hand.isDisconnected()) {
+            return "disconnected";
+        } else if (hand.hasResigned()) {
+            return "resigned";
+        } else if (hand.hasGoneOut()) {
+            return "went out";
+        } else if (peekFlag) {
+            return null;
+        } else {
+            final int tileCount = hand.countContents();
+            return StringExt.plural(tileCount, "tile");
+        }
     }
     
-    final public void setGame(Game g) {
-        game = g;
-        
-        reset(game, Hint.getDefault(game), HandOpt.SKIP_PROBABILITY_DEFAULT);
-        recenter();
-        target = null;
-        displayModes.cleanup();
+    @Override
+    public void togglePause() {
+        assert hasGame();
+
+        super.togglePause();
+        menuBar.update();
+        panel.repaint();
     }
     
     public void toggleTargetCell(Point point) {
@@ -421,12 +1130,18 @@ public class GameView extends Partial {
         final Cell wrapCell = rawCell.wrap();
         
         if (wrapCell.isValid() && isInCellArea(point, rawCell)) {
+            final ReadBoard board = getBoard();
+            
             if (target != null && wrapCell.equals(target)) {
                 target = null;
-            } else if (board.mightUse(wrapCell) && isEmpty(wrapCell)) {
+            } else if (board.mightUse(wrapCell) && board.isEmpty(wrapCell)) {
                 // new target cell
                 target = wrapCell;
             }
         }
+    }
+
+    public void translate(int dx, int dy) {
+        start.translate(dx, dy);
     }
 }

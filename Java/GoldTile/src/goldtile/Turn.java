@@ -27,28 +27,39 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 package goldtile;
 
 public class Turn {
-    // per-instance fields
-    final private Hand hand;
-    final private int mustPlay;        // immutable
-    private int points = 0;
-    final private Move move;           // move first, then draw
-    private Tiles draw = new Tiles();  // move first, then draw
+    // per-instance fields (immutable)
+    final private int handIndex;
+    final private int mustPlay;
+    final private int points;
+    final private Move move;   // move first, then draw
+    final private Tiles draw;  // move first, then draw
     
     // constructors
     
     // a newly dealt hand
-    public Turn(Hand hand) {
-        this.hand = hand;
+    public Turn(int handIndex, Tiles dealt) {
+        assert handIndex >= 0;
+        assert dealt != null;
+        assert dealt.size() > 0;
+        
+        this.handIndex = handIndex;
         mustPlay = 0;
-        move = new Move();
-        draw = hand.copyContents();
+        points = 0;
+        move = new Move();  // record a "pass"
+        this.draw = new Tiles(dealt);
     }
     
-    // a move
-    public Turn(Move move, Hand hand, int mustPlay) {
-        this.hand = hand;
+    // a move by an established hand
+    public Turn(int handIndex, int mustPlay, Move move, int points, Tiles draw) 
+    {
+        assert handIndex >= 0;
+        assert draw != null;
+        
+        this.handIndex = handIndex;
         this.mustPlay = mustPlay;
+        this.points = points;
         this.move = new Move(move);
+        this.draw = new Tiles(draw);
     }
     
     // methods
@@ -57,18 +68,7 @@ public class Turn {
         return move.doesPlace(); 
     }
     
-    public void setDraw(Tiles draw) {
-        assert draw != null;
-        
-        this.draw = new Tiles(draw);
-    }
-    
-    public void setPoints(int points) {
-        this.points = points;
-    }
-
     public boolean wasDrawOnly() {
         return move.isPass() && !draw.isEmpty(); 
     }
-    
 }

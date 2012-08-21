@@ -25,51 +25,75 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 package goldtile;
+
 import java.awt.Cursor;
 import java.awt.Point;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import javax.swing.JOptionPane;
 
-public class GamePanel extends javax.swing.JPanel {
-    final public GameView view;
-    private int dragBoardPixelCnt = 0;
-    private Point mouseLast = null;
-    
-    // constants
+public class GamePanel 
+    extends javax.swing.JPanel
+{ 
+    // constants, sorted by type
     final private static Cursor DRAG_CURSOR 
             = Cursor.getPredefinedCursor(Cursor.MOVE_CURSOR);
     final private static int DRAG_THRESHOLD = 6;
-   
-    // constructor
     
-    GamePanel(MenuBar menuBar) {
+    // links
+    final public GameView view;
+    final private MenuBar menuBar;
+    
+    // per-instance fields, sorted by type
+    private boolean dragBoardFlag = false;
+    private int dragBoardPixelCnt = 0;
+    private int dragTileDeltaX = 0;
+    private int dragTileDeltaY = 0;
+    private int mouseUpCount = 0;
+    private Point mouseLast = null; // null means LMB is not pressed
+    
+    // constructors
+    
+    public GamePanel(MenuBar menuBar) {
+        this.menuBar = menuBar;
         view = new GameView(this, menuBar);
         
         setBackground(Color.BLACK);
-        setPreferredSize(new Area(640, 480)); // TODO
+        //setPreferredSize(area);
        
+        addComponentListener(new java.awt.event.ComponentAdapter() {
+            @Override
+            public void componentResized(java.awt.event.ComponentEvent event) {
+                repaint();
+            }
+        });
+        
         addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent event) {
-                handleButtonDown(event.getPoint());
+                if (event.getButton() == MouseEvent.BUTTON1) {
+                    leftButtonPress(event.getPoint());
+                }
             }
             @Override
             public void mouseReleased(MouseEvent event) {
-                handleButtonUp(event.getPoint());
+                if (event.getButton() == MouseEvent.BUTTON1) {
+                    leftButtonRelease(event.getPoint());
+                }
             }
         });
         
         addMouseMotionListener(new MouseAdapter() {
             @Override
             public void mouseDragged(MouseEvent event) {
-                handleMouseMove(event.getPoint());
+                mouseDrag(event.getPoint());
             }
         });
     }
     
-    // methods
+    // methods, sorted by name
     
-    public Point getBrc() {
+    public Point getBottomRightCorner() {
         final int x = getWidth() - 1;
         final int y = getHeight() - 1;
         
@@ -84,47 +108,120 @@ public class GamePanel extends javax.swing.JPanel {
         return new Rect(0, 0, getWidth(), getHeight());
     }
 
-    private void handleButtonDown(Point point) {
+    private void handleClickView(Point point) {
+        assert point != null;
+        assert view.hasGame();
+        assert !view.getGame().isPaused();
+        assert !dragBoardFlag;
+        
+        final Tile tile = view.findPlayableTile(point);
+        if (tile != null) {
+            // Activate the tile and start dragging it around.
+            view.activate(tile);
+            dragTileDeltaX = 0;
+            dragTileDeltaY = 0;
+            mouseUpCount = 0;
+            repaint();
+            
+        } else if (!view.isInHandRect(point) && !view.isInSwapRect(point)) {
+            // Start dragging the board around.
+            dragBoardFlag = true;
+            view.deactivate();
+            dragBoardPixelCnt = 0;
+            setCursor(DRAG_CURSOR);
+            repaint();
+        }
+    }
+    
+    private void handleDragView(Point point) {
+        assert point != null;
+        assert view.hasGame();
+        assert !view.getGame().isPaused();
+        
+        final int dx = point.x - mouseLast.x;
+        final int dy = point.y - mouseLast.y;
+        if (view.hasActiveTile()) {
+            assert !dragBoardFlag;
+            dragTileDeltaX += dx;
+            dragTileDeltaY += dy;
+            repaint();
+
+        } else if (dragBoardFlag) {
+            view.translate(dx, dy);
+            dragBoardPixelCnt += Math.abs(dx) + Math.abs(dy);
+            repaint();
+        }
+    }
+    
+    private void handleReleaseView(Point point) {
+        assert point != null;
+        assert mouseLast != null;
+        assert view.hasGame();
+        assert !view.getGame().isPaused();
+        
+        final int dx = point.x - mouseLast.x;
+        final int dy = point.y - mouseLast.y;
+        if (view.hasActiveTile()) {
+            assert !dragBoardFlag;
+            if (view.dropActiveTile(point)) {
+                if (mouseUpCount == 0) {
+                    // TODO
+                }
+            }
+            repaint();
+
+        } else if (dragBoardFlag) {
+            view.translate(dx, dy);
+            dragBoardPixelCnt += Math.abs(dx) + Math.abs(dy);
+  
+            if (dragBoardPixelCnt < DRAG_THRESHOLD) {
+                /*
+                 * Drags shorter than six pixels (clicks, basically)
+                 * also serve to alter or un-target the target cell.
+                 */
+                view.toggleTargetCell(point);
+            }
+            dragBoardFlag = false;
+            setCursor(Cursor.getDefaultCursor());
+            repaint();
+        }
+    }
+    
+    private void leftButtonPress(Point point) {
         assert mouseLast == null : mouseLast;
         
-        dragBoardPixelCnt = 0;
-        mouseLast = point;
-        setCursor(DRAG_CURSOR);
-        repaint();
-    }
-    
-    private void handleButtonUp(Point point) {
-        assert mouseLast != null;
-        
-        final int dx = point.x - mouseLast.x;
-        final int dy = point.y - mouseLast.y;
-        view.scroll(dx, dy);
-        dragBoardPixelCnt += Math.abs(dx) + Math.abs(dy);
-  
-        if (dragBoardPixelCnt < DRAG_THRESHOLD) {
-            /*
-             Drags shorter than six pixels 
-             are treated as normal mouse-clicks 
-             which change or deactivate the target cell.
-             */
-            view.toggleTargetCell(point);
+        final ReadGame game = view.getGame();
+        if (game != null && !game.isPaused()) {
+            handleClickView(point);
         }
-        
-        mouseLast = null;
-        setCursor(Cursor.getDefaultCursor());
-        repaint();
+        mouseLast = point;
     }
-    
-    private void handleMouseMove(Point point) {
+
+    private void leftButtonRelease(Point point) {
         assert mouseLast != null;
         
-        final int dx = point.x - mouseLast.x;
-        final int dy = point.y - mouseLast.y;
-        view.scroll(dx, dy);
-        dragBoardPixelCnt += Math.abs(dx) + Math.abs(dy);
-        
-        mouseLast = point;
-        repaint();
+        final ReadGame game = view.getGame();
+        if (game != null) {
+            if (game.isPaused()) {
+                view.startClock();
+                menuBar.update();
+                repaint();
+            } else {
+                handleReleaseView(point);
+            }
+        }
+        mouseLast = null;
+    }
+    
+    private void mouseDrag(Point point) {
+        if (mouseLast != null) {
+
+            final ReadGame game = view.getGame();
+            if (game != null && !game.isPaused()) {
+                handleDragView(point);            
+            }
+            mouseLast = point;
+        }
     }
     
     @Override
@@ -138,5 +235,18 @@ public class GamePanel extends javax.swing.JPanel {
     public void recenter() {
         view.recenter();
         repaint();
+    }
+    
+    public void ruleBox(UserMessage userMessage) {
+        assert userMessage != null;
+        
+        JOptionPane.showMessageDialog(this, 
+                userMessage.message, 
+                userMessage.title + " - Gold Tile Game", 
+                JOptionPane.ERROR_MESSAGE);
+    }
+    
+    public void translateTile(Point center) {
+        center.translate(dragTileDeltaX, dragTileDeltaY);
     }
 }

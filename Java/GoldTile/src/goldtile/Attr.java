@@ -50,7 +50,7 @@ public class Attr {
         this.value = value;
     }
 
-    // methods
+    // methods, sorted by name
     
     public boolean equals(Attr other) {
         if (other == null) {

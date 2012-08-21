@@ -26,7 +26,9 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 
 package goldtile;
 
-public class Strings extends java.util.LinkedList< String > {
+public class Strings 
+    extends java.util.LinkedList< String >
+{
     // methods
     
     public int count(String string) {

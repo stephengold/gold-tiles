@@ -25,6 +25,7 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 package goldtile;
+
 import java.awt.Dimension;
 
 public class Area extends Dimension {  
@@ -38,7 +39,7 @@ public class Area extends Dimension {
         super(width, height);
     }
     
-    // methods
+    // methods, sorted by name
     
     public Area expand(int pixels) {
         return new Area(width + pixels, height + pixels);
@@ -47,4 +48,13 @@ public class Area extends Dimension {
     public boolean isSquare() {
         return height == width;
     }
+    
+    public Area shrink(Percent percent) {
+        final double factor = percent.toFraction().toDouble(true);
+        final int newWidth = (int)(this.width * factor);
+        final int newHeight = (int)(this.height * factor);
+        
+        return new Area(newWidth, newHeight);
+    }
+    
 }

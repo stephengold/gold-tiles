@@ -25,9 +25,10 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 package goldtile;
+
 import java.util.Date;
 
-public class GameOpt {
+public class GameOpt implements ReadGameOpt {
     // constants
     final private static int BONUS_PERCENT_DEFAULT = 0;
     final private static int CLONES_PER_COMBO_DEFAULT = 2;
@@ -37,6 +38,8 @@ public class GameOpt {
     final private static int HAND_SIZE_MIN = 1;
     final private static int MINUTES_PER_HAND_DEFAULT = 30;
     final private static int MINUTES_PER_HAND_MIN = 2;
+    final private static int STUCK_THRESHOLD_DEFAULT = 7;
+    final private static int STUCK_THRESHOLD_MIN = 1;
     final private static long SEED_DEFAULT = 12345L;
 
     // per-instance fields
@@ -53,9 +56,10 @@ public class GameOpt {
     private int handSize;        // maximum number of tiles in a hand
     private int maxAttrValues[]; // maximum value of each attribute
     private int minutesPerHand;  // used only with GameStyle.CHALLENGE
-    public long seed;            // used only if randomizeFlag == false
-    public Percent bonusPercent;    // bonus tile percentage
-    public Rules rules;
+    private int stuckThreshold;  // turns before game is declared "stuck" 
+    private long seed;            // used only if randomizeFlag == false
+    private Percent bonusPercent;    // bonus tile percentage
+    private Rules rules;
     
     // constructors
     
@@ -88,6 +92,7 @@ public class GameOpt {
                              maxAttrValues, 0, other.maxAttrValues.length);
         
         minutesPerHand = other.minutesPerHand;
+        stuckThreshold = other.stuckThreshold;
         seed = other.seed;
         bonusPercent = new Percent(other.bonusPercent);
         rules = other.rules;
@@ -138,6 +143,7 @@ public class GameOpt {
         return result;
     }
     
+    @Override
     public int[] copyValueMax() {
         int[] result = new int[attrCount];
         System.arraycopy(maxAttrValues, 0, result, 0, attrCount);
@@ -145,6 +151,7 @@ public class GameOpt {
         return result;
     }
     
+    @Override
     public long countCombos() {
         long result = 1;
         for (int iAttr = 0; iAttr < attrCount; iAttr++) {
@@ -154,70 +161,111 @@ public class GameOpt {
         return result;
     }
 
+    @Override
     public boolean doesBoardWrap() {
         return boardWrapFlag;
     }
     
+    @Override
     public int getAttrCount() {
         return attrCount;
     }
     
+    @Override
     public int getAttrValueCount(int iAttr) {
         return 1 + getMaxAttrValue(iAttr);
     }
     
+    @Override
     public int getBoardHeight() {
         return boardHeight;
     }
     
+    @Override
     public int getBoardWidth() {
         return boardWidth;
     }
 
-    public Grid getGrid() {
-        return grid;
+    @Override
+    public Fraction getBonusFraction() {
+        return bonusPercent.toFraction();    
     }
     
-    public int getHandsDealt() {
-        return handsDealt;   
-    }
-    
-    public int getHandSize() {
-        return handSize;
-    }
-    
+    @Override
     public int getClonesPerCombo() {
         return clonesPerCombo;
     }
     
+    @Override
+    public Grid getGrid() {
+        return grid;
+    }
+    
+    @Override
+    public int getHandsDealt() {
+        return handsDealt;   
+    }
+    
+    @Override
+    public int getHandSize() {
+        return handSize;
+    }
+    
+    @Override
     public Attr getLastAttr(int iAttr) {
         assert iAttr >= 0;
 
         return new Attr(getMaxAttrValue(iAttr));
     }
     
+    @Override
     public int getMaxAttrValue(int iAttr) {
         assert iAttr >= 0;
         
         return maxAttrValues[iAttr];
     }
+
+    @Override
+    public long getMillisecondsPerHand() {
+        return getSecondsPerHand() * Global.MILLISECONDS_PER_SECOND;
+    }
     
+    @Override
+    public int getSecondsPerHand() {
+        return minutesPerHand * Global.SECONDS_PER_MINUTE;
+    }
+    
+    @Override
+    public int getStuckThreshold() {
+        return stuckThreshold;
+    }
+    
+    @Override
+    public GameStyle getStyle() {
+        return style;
+    }
+    
+    @Override
     public int getTilesPerCombo() {
         return 1 + getClonesPerCombo();
     }
 
+    @Override
     public boolean hasFiniteHeight() {
         return boardHeight < Cell.HEIGHT_MAX;
     }
 
+    @Override
     public boolean hasFiniteWidth() {
         return boardWidth < Cell.WIDTH_MAX;
     }
     
+    @Override
     public boolean isChallenge() {
         return style == GameStyle.CHALLENGE;    
     }
     
+    @Override
     public String reportAttrs() {
         String result = "Each tile has ";
         result += StringExt.plural(attrCount, "attribute") + ":\n";
@@ -237,7 +285,6 @@ public class GameOpt {
     
 
     public void reseedGenerator() {
-        long s = seed; 
         if (randomizeFlag || style != GameStyle.DEBUG) {
             final Date date = new Date();
             seed = date.getTime();
@@ -249,7 +296,7 @@ public class GameOpt {
         this.randomizeFlag = randomizeFlag;
     }
     
-    public void standardize() {
+    final public void standardize() {
         attrCount = Combo.ATTR_COUNT_DEFAULT;
         maxAttrValues = new int[attrCount];    
         for (int iAttr = 0; iAttr < attrCount; iAttr++) {
@@ -264,13 +311,15 @@ public class GameOpt {
         handsDealt = HANDS_DEALT_DEFAULT;
         handSize = HAND_SIZE_DEFAULT;
         // don't set minutesPerHand
+        stuckThreshold = STUCK_THRESHOLD_DEFAULT;
         // don't set randomizeFlag
         rules = Rules.STANDARD;
         // don't set seed
         // don't set style
     }
-    
-    public void validate() {
+
+    @Override
+    final public void validate() {
         assert attrCount <= Combo.ATTR_COUNT_MAX : attrCount;
         assert attrCount >= Combo.ATTR_COUNT_MIN : attrCount;
         
@@ -289,6 +338,7 @@ public class GameOpt {
         assert maxAttrValues != null;
         assert maxAttrValues.length >= attrCount : maxAttrValues.length;
         assert minutesPerHand >= MINUTES_PER_HAND_MIN : minutesPerHand;
+        assert stuckThreshold > STUCK_THRESHOLD_MIN: stuckThreshold;
         assert rules != null;
         assert style == GameStyle.DEBUG || randomizeFlag : style;
         assert style != null;

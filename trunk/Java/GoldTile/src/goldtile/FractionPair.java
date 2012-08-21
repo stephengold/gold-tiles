@@ -25,6 +25,7 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 package goldtile;
+
 import java.awt.Point;
 
 public class FractionPair {
@@ -34,12 +35,16 @@ public class FractionPair {
     
     // constructor
     
-    FractionPair(double x, double y) {
+    public FractionPair(double x, double y) {
         this.x = new Fraction(x);
         this.y = new Fraction(y);
     }
     
     // methods
+    
+    public Point interpolate(Rect bounds) {
+        return interpolate(bounds, false);    
+    }
     
     public Point interpolate(Rect bounds, boolean invertYFlag) {
         final double width = bounds.width - 1;

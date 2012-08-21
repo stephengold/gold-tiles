@@ -25,11 +25,11 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 package goldtile;
+
 import java.awt.Point;
 
 public class Canvas extends Graphics {
-    // constants
-    
+    // constants   
     private static Poly shapes[] = null;
     private static Poly targetArrow = null;
     final private static int TILE_POINTEDNESS = 3; // corners of square tiles
@@ -47,7 +47,7 @@ public class Canvas extends Graphics {
         }
     }
     
-    // methods
+    // methods, sorted by name
     
     public void drawBlankTile(Point center, Area area, Color tileColor, 
             boolean oddFlag)
@@ -81,18 +81,17 @@ public class Canvas extends Graphics {
     }
     
     public void drawGridShape(Point center, Area area, boolean oddFlag) {
-        switch (Cell.getGrid()) {
-            case GRID_4WAY:
-            case GRID_8WAY: // square
+        switch (Cell.getShape()) {
+            case HEXAGON:
+                assert !oddFlag;
+                drawHexagon(center, area);
+                break;
+            case SQUARE:
                 assert area.isSquare();
                 drawRectangle(center, area);
                 break;
-            case GRID_HEX:
-                assert !oddFlag;
-                //drawHexagon(center, dim);
-                break;
-            case GRID_TRIANGLE: 
-                //drawEquilateral(center, dim, oddFlag);
+            case TRIANGLE: 
+                drawEquilateralTriangle(center, area, oddFlag);
                 break;
             default:
                 throw new AssertionError(Cell.getGrid());
@@ -373,10 +372,9 @@ public class Canvas extends Graphics {
                 assert area.isSquare();
                 return bounds;
             case TRIANGLE: 
-                return interiorEquilateral(bounds, oddFlag);
+                return interiorEquilateralTriangle(bounds, oddFlag);
             default:
                 throw new AssertionError(Cell.getShape());
        }
-    }
-    
+    }  
 }

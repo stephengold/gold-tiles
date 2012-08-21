@@ -26,7 +26,9 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 
 package goldtile;
 
-public class Cells extends java.util.TreeSet< Cell > {
+public class Cells 
+    extends java.util.TreeSet< Cell >
+{
     // constants
     private static final String PREFIX = "cells{";
     private static final String SEPARATOR = " ";

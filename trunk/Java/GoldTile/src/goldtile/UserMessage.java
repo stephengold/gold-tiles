@@ -56,7 +56,7 @@ public enum UserMessage {
         "The rules of Gold Tile are available online at http://code.google.com/p/gold-tiles/wiki/Playing",
         "Rules"),
     SCORING_AXIS (
-        "The cells you use must all lie in a single axis, with no empty cells between them.",
+        "The cells you use must lie along a single scoring axis, with no empty cells between them.",
         "Scoring Axis Rule"),
     START (
         "Your first tile must use the start cell. To change this tile, you must take back ALL your tiles.",

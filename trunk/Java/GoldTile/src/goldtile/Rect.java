@@ -25,6 +25,7 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 package goldtile;
+
 import java.awt.Dimension;
 import java.awt.Point;
 
@@ -43,6 +44,13 @@ public class Rect extends java.awt.Rectangle {
         height = dim.height;
         x = center.x - width/2;
         y = center.y - height/2;
+    }
+
+    public Rect(Dimension dim, Point ulc) {
+        width = dim.width;
+        height = dim.height;
+        x = ulc.x;
+        y = ulc.y;
     }
 
     public Rect(Point ulc, Point brc) {
@@ -75,5 +83,25 @@ public class Rect extends java.awt.Rectangle {
 
         assert contains(result) : result;   
         return result;
+    }
+    
+    public Point getBlc() {
+        return new Point(x, getBottomY() - 1);
+    }
+    
+    public int getBottomY() {
+        return y + height;
+    }
+    
+    public int getMiddleX() {
+        return x + width/2;
+    }
+
+    public int getMiddleY() {
+        return y + height/2;
+    }
+    
+    public int getRightX() {
+        return x + width;
     }
 }

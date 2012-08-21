@@ -54,10 +54,10 @@ public class TileCell implements Comparable {
         this.tile = tile;
     }
     
-    public TileCell(Tile tile, Cell cell) {
+    public TileCell(Tile tile, Cell destination) {
         assert tile != null;
         
-        this.destination = cell;
+        this.destination = destination;
         this.tile = tile;
     }
     

@@ -26,7 +26,9 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 
 package goldtile;
 
-public class Poly extends java.util.LinkedList< FractionPair > {
+public class Poly
+    extends java.util.LinkedList< FractionPair >
+{
     // methods
     
     void add(double x, double y) {

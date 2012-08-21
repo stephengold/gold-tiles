@@ -27,19 +27,20 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 package goldtile;
 
 public enum Hint {
+    // values
     NONE,
     EMPTY,
     CONNECTED,
-    USABLE_ANY,
-    USABLE_SELECTED;
+    USABLE_BY_PLAYABLE,
+    USABLE_BY_ACTIVE;
     
     // methods
     
-    public static Hint getDefault(Game game) {
-        if (game != null && game.isChallenge()) {
+    public static Hint getDefault(ReadGameOpt gameOpt) {
+        if (gameOpt != null && gameOpt.isChallenge()) {
             return EMPTY;
         } else {
-            return USABLE_SELECTED;
+            return USABLE_BY_ACTIVE;
         }
     }
 }

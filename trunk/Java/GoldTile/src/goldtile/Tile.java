@@ -65,6 +65,12 @@ public class Tile implements Comparable {
             opts.put(id, opt);
         }
     }
+
+    public Tile(int id) {
+        assert id != ID_NONE;
+        this.id = id;
+        assert opts.containsKey(id);
+    }
     
     /**
      * @param opt the options for the new Tile
@@ -83,8 +89,9 @@ public class Tile implements Comparable {
     public Tile(String text, boolean remoteFlag) {
         final String[] parts = text.split(SEPARATOR_REGEX);
         
-        if (parts.length != 2)
+        if (parts.length != 2) {
             throw new RuntimeException(); // TODO recovery
+        }
         final String first = parts[0];
         final String second = parts[1];
 
@@ -222,9 +229,9 @@ public class Tile implements Comparable {
         return result;
     }
     
-    public static void setStatic(GameOpt opt) {
+    public static void setStatic(ReadGameOpt opt) {
         Combo.setStatic(opt);
-        bonusProbability = opt.bonusPercent.toFraction();
+        bonusProbability = opt.getBonusFraction();
         
         nextId = ID_FIRST;
         opts = new java.util.TreeMap<>();

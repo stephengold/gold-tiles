@@ -1,6 +1,6 @@
-// File:     Place.java
+// File:     ReadHand.java
 // Location: Java/GoldTile/src/goldtile
-// Purpose:  Place enum for the Gold Tile Game
+// Purpose:  ReadHand interface for the Gold Tile Game
 /**
  * @author Stephen Gold
  */
@@ -26,8 +26,24 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 
 package goldtile;
 
-public enum Place {
-    BOARD,
-    HAND,
-    SWAP_AREA;
+public interface ReadHand {
+    public Move chooseMoveAutomatic(Game game);
+    public Move chooseMoveConsole(int mustPlay);
+    public Move chooseMoveRemote();
+    public Tiles copyContents();
+    public int countContents();    
+    public String describeContents();
+    public String describeScore();
+    public Tiles findLongestRun();
+    
+    public long getMillisecondsUsed();
+    public String getName();
+    public ReadHandOpt getOpt();
+    public int getScore();
+    public int getSecondsUsed();
+    
+    public boolean hasGoneOut();
+    public boolean hasResigned();
+    public boolean isClockRunning();
+    public boolean isDisconnected();
 }

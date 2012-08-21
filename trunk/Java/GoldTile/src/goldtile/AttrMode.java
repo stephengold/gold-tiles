@@ -47,7 +47,7 @@ public enum AttrMode {
        this.base = base;        
     }
     
-    // methods
+    // methods, sorted by name
     
     /**
      * @param attr the numeric value of the attribute

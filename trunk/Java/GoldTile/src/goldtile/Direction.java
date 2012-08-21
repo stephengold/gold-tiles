@@ -37,7 +37,7 @@ public enum Direction {
     WEST      (false,  0, -1),
     NORTHWEST (false, +1, -1) ;
     
-    // per-instance fields (immutable)
+    // per-instance fields (immutable), sorted by type
     
     final public boolean axisFlag;
     final public boolean diagonalFlag;
@@ -47,6 +47,7 @@ public enum Direction {
     final public int columnOffset;
     final public int rowOffset;
     
+    // static fields
     final public static Direction[] allAxes 
             = { NORTH, NORTHEAST, EAST, SOUTHEAST };
     final public static Direction[] nonDiagonalAxes 
@@ -68,7 +69,7 @@ public enum Direction {
         this.columnOffset = columnOffset;
     }
     
-    // methods
+    // methods, sorted by name
     
     public Direction getOpposite() {
         switch(this) {

@@ -25,34 +25,127 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 package goldtile;
-import java.util.ListIterator;
 
-public class Hands extends java.util.LinkedList< Hand > {
+public class Hands 
+    extends java.util.ArrayList< Hand >
+{
+    // classes
+    public class BestRun {
+        public int length;
+        public String report;
+    }
+    
     // constants
     private static final String PREFIX = "hands{";
     private static final String SEPARATOR = " ";
     private static final String SUFFIX = "}";
 
+    // per-instance fields
+    
+    private int playable = 0;
+    
+    // constructors
+    
+    public Hands(HandOpts opts) {
+        super();
+
+        // Generate a list of player names, duplicates included.
+        final Strings names = opts.getAllPlayerNames();
+
+        // Construct hands and give each one a unique name.
+        for (HandOpt opt : opts) {
+            String handName = opt.getPlayerName();
+            if (names.count(handName) > 1) {
+                handName = names.inventUnique(handName, "'s ", " hand");
+                names.addLast(handName);
+            }
+
+            final Hand hand = new Hand(handName, opt);
+            assert !hand.isClockRunning();
+            add(hand);
+        }
+        
+        assert size() == opts.size();
+        assert playable == 0;
+    }
+
     // methods
 
-    public Hand getNextWorking(Hand hand) {
-        assert hand != null;
+    public void addScore(int points) {
+        get(playable).addScore(points);
+    }
+    
+    public void addTiles(int iHand, Tiles tiles) {
+        get(iHand).addTiles(tiles);
+    }
+    
+    public BestRun findBestRun() {
+        assert size() > 0;
         
-        int iHand = indexOf(hand);
-        assert iHand >= 0 : hand;
+        BestRun result = new BestRun();
         
-        for (;;) {
-            iHand++;
-            if (iHand >= size()) {
-                iHand = 0;
+        result.length = 0;
+        result.report = "";
+        playable = 0;
+
+        int iHand = 0;
+        for (Hand hand : this) {
+            final Tiles run = hand.findLongestRun();
+            final int runLength = run.size();
+
+            result.report += String.format("%s has a run of %s: %s.\n",
+                    hand.getName(),
+                    StringExt.plural(runLength, "tile"),
+                    run.describe());
+
+            if (runLength > result.length) {
+                result.length = runLength;
+                playable = iHand;
             }
-            final Hand result = get(iHand);
-            if (!result.hasResigned()) {
-                return result;
+            iHand++;
+        }
+        
+        return result;       
+    }
+    
+    public int findMaxScore() {
+        assert size() > 0;
+        
+        final Hand first = get(0);       
+        int result = first.getScore();
+
+        for (Hand hand : this) {
+            final int score = hand.getScore();
+            if (score > result) {
+                result = score;
             }
         }
-    }   
 
+        return result;    
+    }
+
+    public ReadHand getPlayable() {
+        return get(playable);
+    }
+    
+    public int getPlayableIndex() {
+        return playable;
+    }
+    
+    public int[] getUnplayableIndices() {
+        int[] result = new int[size() - 1];
+        
+        for (int iHand = 0; iHand < size(); iHand++) {
+            if (iHand < playable) {
+                result[iHand] = iHand;
+            } else if (iHand > playable) {
+                result[iHand - 1] = iHand;
+            }
+        }
+        
+        return result;
+    }
+    
     public boolean hasAnyGoneOut() {
         for (Hand hand : this) {
             if (hand.hasGoneOut()) {
@@ -73,6 +166,34 @@ public class Hands extends java.util.LinkedList< Hand > {
         return true;
     }
     
+    public void nextWorking() {
+        for (;;) {
+            playable++;
+            if (playable >= size()) {
+                playable = 0;
+            }
+            if (!getPlayable().hasResigned()) {
+                return;
+            }
+        }
+    }
+    
+    public void removeTiles(Tiles tiles) {
+        get(playable).removeTiles(tiles);
+    }
+    
+    public Tiles resign() {
+        return get(playable).resign();
+    }
+
+    public void startClock() {
+        get(playable).startClock();
+    }
+    
+    public void stopClock() {
+        get(playable).stopClock();
+    }
+
     @Override
     public String toString() {
         String result = PREFIX;

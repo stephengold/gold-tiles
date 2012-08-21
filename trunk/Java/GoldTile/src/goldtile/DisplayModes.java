@@ -27,9 +27,12 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 package goldtile;
 
 public class DisplayModes {
+    // per-instance fields
     final private AttrMode modes[];
     
-    DisplayModes(Display display) {
+    // constructors
+    
+    public DisplayModes(Display display) {
         final int count = Combo.ATTR_COUNT_MAX;
         modes = new AttrMode[count];
         for (int iAttr = 0; iAttr < count; iAttr++) {
@@ -38,7 +41,7 @@ public class DisplayModes {
         }
     }
     
-    DisplayModes(DisplayModes other) {
+    public DisplayModes(DisplayModes other) {
         final int count = Combo.ATTR_COUNT_MAX;
         modes = new AttrMode[count];
         for (int iAttr = 0; iAttr < count; iAttr++) {
@@ -47,18 +50,18 @@ public class DisplayModes {
         }            
     }
     
-    // methods
+    // methods, sorted by name
     
-    // clean up  display modes for the start of a new game
+    // clean up display modes for the start of a new game
     public void cleanup() {
-        // can't display more than 4 markings per tile
+        // Can't display more than 4 markings per tile.
         final int markingCnt = getMarkingCount();
         if (markingCnt > Markings.MARKING_COUNT_MAX) {
             final AttrMode mode = AttrMode.COLOR;
             setMode(0, mode);
         }
 
-        // only one attribute can use color
+        // Only one attribute can use color.
         while (getColorCnt() > 1) {
             final int ind = getSecondColorIndex();
             final AttrMode mode = AttrMode.getFirst();

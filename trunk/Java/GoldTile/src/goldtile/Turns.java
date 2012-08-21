@@ -25,10 +25,22 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 package goldtile;
+
 import java.util.ListIterator;
 
 public class Turns extends java.util.LinkedList< Turn > {
     // methods
+    
+    public void add(int handIndex, Tiles dealt) {
+        final Turn turn = new Turn(handIndex, dealt);
+        add(turn);
+    }
+    
+    public void add(int handIndex, int mustPlay, Move move, int points, 
+            Tiles draw) {
+        final Turn turn = new Turn(handIndex, mustPlay, move, points, draw);
+        add(turn);
+    }
     
     public void clearToEnd(Turn turn) {
         assert turn != null;

@@ -25,6 +25,7 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 package goldtile;
+
 import java.util.Arrays;
 
 public class Cell implements Comparable {
@@ -82,7 +83,7 @@ public class Cell implements Comparable {
         column = base.column + direction.columnOffset;
     }
     
-    // methods
+    // methods, sorted by name
 
     public static Cell chooseConsole(String alternative) {
         assert alternative != null;

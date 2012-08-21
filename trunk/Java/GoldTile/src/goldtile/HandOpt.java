@@ -26,7 +26,9 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 
 package goldtile;
 
-public class HandOpt implements ReadHandOpt {
+public class HandOpt 
+    implements ReadHandOpt
+{
     // constants
     public static Fraction SKIP_PROBABILITY_DEFAULT = new Fraction(0.0);
     
@@ -41,12 +43,13 @@ public class HandOpt implements ReadHandOpt {
     public HandOpt(String playerName) {
         automaticFlag = false;
         remoteFlag = false;
-        skipProbability = new Fraction(SKIP_PROBABILITY_DEFAULT);
+        skipProbability = SKIP_PROBABILITY_DEFAULT;
         this.playerName = playerName;
     }
     
     public HandOpt(HandOpt other) {
         assert other.skipProbability != null;
+        assert !other.skipProbability.isUnity();
         
         automaticFlag = other.automaticFlag;
         remoteFlag = other.remoteFlag;
@@ -101,6 +104,11 @@ public class HandOpt implements ReadHandOpt {
     @Override
     public String getPlayerName() {
         return playerName;
+    }
+    
+    @Override
+    public Fraction getSkipProbability() {
+        return skipProbability;
     }
     
     @Override

@@ -25,12 +25,17 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 package goldtile;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Random;
 
 public class Global {
+    // unit conversion constants
+    final public static int MILLISECONDS_PER_SECOND = 1000;
+    final public static int SECONDS_PER_MINUTE = 60;
+    
     // console I/O
     
     private static BufferedReader in = new BufferedReader(

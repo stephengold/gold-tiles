@@ -25,6 +25,7 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 package goldtile;
+
 import java.awt.event.KeyEvent;
 import javax.swing.ButtonGroup;
 import javax.swing.JMenuItem;
@@ -47,6 +48,7 @@ public class SizeMenu
     private final JRadioButtonMenuItem sizeItems[] 
             = new JRadioButtonMenuItem[COUNT];  
     
+    @SuppressWarnings("LeakingThisInConstructor")
     SizeMenu(String label, int value) {
         setText(label);
         
@@ -153,7 +155,7 @@ public class SizeMenu
         this.value = value;
         
         if (menuBar != null) {
-            menuBar.repaintBoard();
+            menuBar.clientArea.repaint();
         }
     }
 }

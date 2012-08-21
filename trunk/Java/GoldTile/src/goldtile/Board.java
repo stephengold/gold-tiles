@@ -26,7 +26,10 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 
 package goldtile;
 
-public class Board extends BaseBoard {
+public class Board 
+    extends BaseBoard
+    implements ReadBoard
+{
     // constructors
     
     public Board() {
@@ -37,9 +40,9 @@ public class Board extends BaseBoard {
         super(other);
     }
     
-    // methods
+    // methods, sorted by name
     
-    public boolean areAllEmpty(Cells cells) {
+    private boolean areAllEmpty(Cells cells) {
         assert cells != null;
         
         for (Cell cell : cells) {
@@ -51,7 +54,7 @@ public class Board extends BaseBoard {
         return true;
     }
     
-    public boolean areAllInConnectedRun(Cells cells, Direction axis) {
+    private boolean areAllInConnectedRun(Cells cells, Direction axis) {
         assert axis != null;
         assert Cell.isScoringAxis(axis);
         assert cells != null;
@@ -66,7 +69,7 @@ public class Board extends BaseBoard {
         }
     }
     
-    public boolean areAllRunsCompatible(Cells cells, Direction axis) {
+    private boolean areAllRunsCompatible(Cells cells, Direction axis) {
         assert axis != null;
         assert Cell.isScoringAxis(axis);
         assert cells != null;
@@ -87,6 +90,7 @@ public class Board extends BaseBoard {
         return true;
     }
     
+    @Override
     public UserMessage checkMove(Move move) {
         assert move != null;
     
@@ -167,7 +171,13 @@ public class Board extends BaseBoard {
         return null;
     }
     
+    @Override
+    public boolean contains(Tile tile) {
+        return find(tile) != null;    
+    }
+    
     // Convert the entire board to a String for console output.
+    @Override
     public String describe() {
         final int width = Combo.getAttrCount() + 4;
 
@@ -203,7 +213,7 @@ public class Board extends BaseBoard {
         return result;
     }
 
-    public boolean doesAnyHaveUsedNeighbor(Cells cells) {
+    private boolean doesAnyHaveUsedNeighbor(Cells cells) {
         assert cells != null;
         
         for (Cell cell : cells) {
@@ -215,22 +225,25 @@ public class Board extends BaseBoard {
         return false;
     }
     
+    @Override
     public int getBottomUseRow() {
         final Grid grid = Cell.getGrid();
         return -(grid.rowFringe + getSouthMax());     
     }
 
+    @Override
     public int getLeftUseColumn() {
         final Grid grid = Cell.getGrid();
         return -(grid.columnFringe + getWestMax());     
     }
 
+    @Override
     public int getRightUseColumn() {
         final Grid grid = Cell.getGrid();
         return grid.columnFringe + getEastMax();     
     }
 
-    public Cells getRun(Cell start, Direction direction) {
+    private Cells getRun(Cell start, Direction direction) {
         assert start != null;
         assert direction != null;
         assert Cell.isScoringAxis(direction) : direction;
@@ -278,7 +291,7 @@ public class Board extends BaseBoard {
         return result;
     }
     
-    public Tiles getTiles(Cells cells) {
+    private Tiles getTiles(Cells cells) {
         assert cells != null;
         
         final Tiles result = new Tiles();
@@ -292,12 +305,14 @@ public class Board extends BaseBoard {
         return result;
     }
     
+    @Override
     public int getTopUseRow() {
         final Grid grid = Cell.getGrid();
         
-        return grid.rowFringe + getSouthMax();     
+        return grid.rowFringe + getNorthMax();     
     }
     
+    @Override
     public boolean hasUsedNeighbor(Cell cell) {
         assert cell != null;
         assert cell.isValid() : cell;
@@ -312,19 +327,22 @@ public class Board extends BaseBoard {
             }
         }
 
-        return true;
+        return false;
     }
     
+    @Override
     public boolean isEmpty() {
         return size() == 0;   
     }
     
+    @Override
     public boolean isEmpty(Cell cell) {
         assert cell != null;
         
         return getContent(cell) == null;   
     }
     
+    @Override
     public boolean mightUse(Cell cell) {
         assert cell != null;
 
@@ -404,12 +422,11 @@ public class Board extends BaseBoard {
     }
     
     // score an (already-placed) move
+    @Override
     public int score(Move move) {
         assert move != null;
-        assert move.doesPlace();
         
         int result = 0;
-
         final Cells cells = move.copyCells();
 
         for (Direction axis : Cell.getScoringAxes()) {

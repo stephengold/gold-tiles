@@ -27,7 +27,7 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 package goldtile;
 
 public class Combo {
-    // constants 
+    // constants, sorted by type
     
     final private static AttrMode STRING_MODE = AttrMode.ABC;
     
@@ -91,7 +91,7 @@ public class Combo {
         // caller should verify fidelity
     }
 
-    // methods
+    // methods, sorted by name
     
     private static void assertInitialized() {
         assert attrCount >= ATTR_COUNT_MIN : attrCount;
@@ -274,7 +274,7 @@ public class Combo {
         assert hasMatchingAttr(iAttr, attr);
     }
     
-    public static void setStatic(GameOpt gameOpt) {
+    public static void setStatic(ReadGameOpt gameOpt) {
         attrCount = gameOpt.getAttrCount();
         valueMax = gameOpt.copyValueMax();
         

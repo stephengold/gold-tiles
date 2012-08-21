@@ -25,6 +25,7 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 package goldtile;
+
 import java.awt.Color;
 import java.awt.FontMetrics;
 import java.awt.Point;
@@ -39,10 +40,12 @@ public class Graphics {
     private static Poly equilateral;
     private static Poly hexagon;
 
-    public Graphics(java.awt.Graphics g) {
+    public Graphics(java.awt.Graphics graphics) {
+        assert graphics != null;
+        
         backgroundColor = Color.WHITE;
         foregroundColor = Color.BLACK;
-        context = g;
+        context = graphics;
         
         // static polygons initialized on first instantiation of this class
         if (equilateral == null) {
@@ -55,10 +58,37 @@ public class Graphics {
 
     // methods
     
+    public void drawEquilateralTriangle(Rect bounds, boolean pointDownFlag) {
+        assert bounds != null;
+        assert equilateral != null;
+        assert equilateral.size() == 3 : equilateral.size();
+
+        drawPolygon(equilateral, bounds, pointDownFlag, Fill.YES);
+    }
+    
+    public void drawEquilateralTriangle(Point center, Area area, 
+            boolean pointDownFlag)
+    {
+        assert center != null;
+        assert area != null;
+        
+        final Rect bounds = new Rect(center, area);
+        drawEquilateralTriangle(bounds, pointDownFlag);
+    }
+    
     public void drawHexagon(Rect bounds) {
+        assert bounds != null;
         assert hexagon.size() == 6 : hexagon.size();
 
         drawPolygon(hexagon, bounds, false, Fill.YES);
+    }
+    
+    public void drawHexagon(Point center, Area area) {
+        assert center != null;
+        assert area != null;
+        
+        final Rect bounds = new Rect(center, area);
+        drawHexagon(bounds);
     }
     
     public void drawPolygon(Poly poly, Rect bounds, 
@@ -111,6 +141,10 @@ public class Graphics {
                 arcDiameter, arcDiameter);
     }
 
+    public void drawTextLine(Rect bounds, String text) {
+        drawTextLine(bounds, text, null);    
+    }
+    
     // Draw a single line of text, centered in a rectangle.
     public void drawTextLine(Rect bounds, String text, String altText) {
         String displayText;
@@ -174,7 +208,7 @@ public class Graphics {
         assert hexagon.size() == 6 : hexagon.size();
     }
     
-    protected static Rect interiorEquilateral(Rect bounds, 
+    protected static Rect interiorEquilateralTriangle(Rect bounds, 
             boolean pointDownFlag)
     {
         FractionPair pairUlc;
@@ -187,8 +221,8 @@ public class Graphics {
             pairBrc = new FractionPair(0.709, 0.100);
         }
 
-        final Point ulc = pairUlc.interpolate(bounds, false);
-        final Point brc = pairBrc.interpolate(bounds, false);
+        final Point ulc = pairUlc.interpolate(bounds);
+        final Point brc = pairBrc.interpolate(bounds);
 
         return new Rect(ulc, brc);
     }
@@ -199,12 +233,12 @@ public class Graphics {
         final FractionPair pairUlc = new FractionPair(
                 2/den,
                 (6 + 2*Global.SQRT_3)/den );
-        final Point ulc = pairUlc.interpolate(bounds, false);
+        final Point ulc = pairUlc.interpolate(bounds);
 
         final FractionPair pairBrc = new FractionPair(
                 (2 + 4*Global.SQRT_3)/den, 
                 (2*Global.SQRT_3 - 2)/den );
-        final Point brc = pairBrc.interpolate(bounds, false);
+        final Point brc = pairBrc.interpolate(bounds);
 
         return new Rect(ulc, brc);
     }
@@ -222,7 +256,16 @@ public class Graphics {
          leftX += pad;
          edgeLength -= 2*pad;
          
-         return new Rect(topY, leftX, edgeLength, edgeLength);
+         return new Rect(leftX, topY, edgeLength, edgeLength);
+    }
+    
+    public Area textArea(String text) {
+        final FontMetrics metrics = context.getFontMetrics();
+        final Rectangle2D bounds = metrics.getStringBounds(text, context);
+        final double height = bounds.getHeight();
+        final double width = bounds.getWidth();
+        
+        return new Area((int)(width + 0.99), (int)(height + 0.99));
     }
     
     private int textAscent(String text) {
@@ -233,7 +276,7 @@ public class Graphics {
         return (int)(ascent + 0.99);        
     }
     
-    private int textHeight(String text) {
+    public int textHeight(String text) {
         final FontMetrics metrics = context.getFontMetrics();
         final Rectangle2D bounds = metrics.getStringBounds(text, context);
         final double height = bounds.getHeight();
@@ -241,7 +284,7 @@ public class Graphics {
         return (int)(height + 0.99);
     }
 
-    private int textWidth(String text) {
+    public int textWidth(String text) {
         final FontMetrics metrics = context.getFontMetrics();
         final Rectangle2D bounds = metrics.getStringBounds(text, context);
         final double width = bounds.getWidth();

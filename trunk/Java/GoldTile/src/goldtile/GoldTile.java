@@ -31,8 +31,8 @@ public class GoldTile {
     public static boolean consoleFlag = true;
     public static boolean debugFlag = true;
     public static boolean guiFlag = true;
-    public static Display control = Display.CONSOLE;
     public static boolean initialGameFlag = true;
+    public static Display control = Display.GUI;
     
     // methods
     
@@ -70,7 +70,6 @@ public class GoldTile {
         
         // Create the game.
         final Game result = new Game(gameOpt, handOpts);
-        result.initialize();
         
         return result;
     }
@@ -89,7 +88,7 @@ public class GoldTile {
             javax.swing.SwingUtilities.invokeLater(new Runnable() {
                 @Override 
                 public void run()  {
-                    GameFrame frame = new GameFrame(game);
+                    new GameFrame(game);
                 }
             });
         }

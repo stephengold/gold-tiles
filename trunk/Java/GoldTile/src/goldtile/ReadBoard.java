@@ -1,6 +1,6 @@
-// File:     Place.java
+// File:     ReadBoard.java
 // Location: Java/GoldTile/src/goldtile
-// Purpose:  Place enum for the Gold Tile Game
+// Purpose:  ReadBoard interface for the Gold Tile Game
 /**
  * @author Stephen Gold
  */
@@ -26,8 +26,26 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 
 package goldtile;
 
-public enum Place {
-    BOARD,
-    HAND,
-    SWAP_AREA;
+public interface ReadBoard {
+    public UserMessage checkMove(Move move);    
+    public boolean contains(Tile tile);
+    public String describe();
+    public Cell find(Tile tile);
+    
+    public int getBottomUseRow();
+    public Tile getContent(Cell cell);
+    public int getEastMax();
+    public int getLeftUseColumn();
+    public int getNorthMax();
+    public int getRightUseColumn();
+    public int getSouthMax();
+    public Tiles getTiles();
+    public int getTopUseRow();
+    public int getWestMax();
+    
+    public boolean hasUsedNeighbor(Cell cell);
+    public boolean isEmpty();
+    public boolean isEmpty(Cell cell);
+    public boolean mightUse(Cell cell);
+    public int score(Move move);
 }

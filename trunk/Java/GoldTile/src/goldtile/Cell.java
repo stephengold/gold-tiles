@@ -30,14 +30,9 @@ import java.util.Arrays;
 
 public class Cell implements Comparable {
     // constants
-    
-    final public static int HEIGHT_MAX = 0x40000000; 
-    final public static int HEIGHT_MIN = 4;
-    final public static int WIDTH_MAX = HEIGHT_MAX; 
-    final public static int WIDTH_MIN = HEIGHT_MIN;
-    
     final public static String PREFIX = "(";
     final public static String SEPARATOR = ",";
+    final public static String SEPARATOR_REGEX = "[,]";
     final public static String SUFFIX = ")";
 
     // per-instance fields (immutable)
@@ -82,6 +77,31 @@ public class Cell implements Comparable {
         row = base.row + direction.rowOffset;
         column = base.column + direction.columnOffset;
     }
+        
+    public Cell(String text)
+        throws ParseException
+    {
+        assert text != null;
+        
+        final boolean hasPrefix = text.startsWith(PREFIX);
+        final boolean hasSuffix = text.endsWith(SUFFIX);
+        if (!hasPrefix || !hasSuffix) {
+            throw new ParseException();
+        }
+        
+        final int endIndex = text.length() - PREFIX.length();
+        final String body = text.substring(PREFIX.length(), endIndex);
+        final String[] parts = body.split(SEPARATOR_REGEX);
+        if (parts.length != 2) {
+            throw new ParseException();
+        }
+        
+        final String first = parts[0];
+        final String second = parts[1];
+        
+        row = Integer.parseInt(first);
+        column = Integer.parseInt(second);
+    }
     
     // methods, sorted by name
 
@@ -90,13 +110,12 @@ public class Cell implements Comparable {
  
         int row;
         for (;;) {
-            Global.print("Enter a row number");
+            Console.print("Enter a row number");
             if (!alternative.isEmpty()) {
-                Global.print(" or ");
-                Global.print(StringExt.quote(alternative));
+                Console.printf(" or %s",
+                        StringExt.quote(alternative));
             }
-            Global.print(": ");
-            String input = Global.readLine();
+            String input = Console.readLine(": ");
             if (input.equals(alternative)) {
                 return null;
             }
@@ -104,21 +123,20 @@ public class Cell implements Comparable {
                 row = Integer.parseInt(input);
                 break;
             } catch (NumberFormatException exception) {
-                Global.print(StringExt.quote(input));
-                Global.print(" is invalid input.\n");
+                Console.printf("%s is not a valid number.\n", 
+                        StringExt.quote(input));
             }
         }
         
         int column;
         for (;;) {
-            Global.print("Enter a column number: ");
-            String input = Global.readLine();
+            String input = Console.readLine("Enter a column number: ");
             try {
                 column = Integer.parseInt(input);
                 return new Cell(row, column);
             } catch (NumberFormatException exception) {
-                Global.print(StringExt.quote(input));
-                Global.print(" is invalid input.\n");
+                Console.printf("%s is not a valid number.\n", 
+                        StringExt.quote(input));
             }
         }
     }
@@ -149,13 +167,13 @@ public class Cell implements Comparable {
                column == other.column;
     }
     
-    public static int getBoardHeight() {
+    public static Dim getBoardHeight() {
         assert gameOpt != null;
         
         return gameOpt.getBoardHeight();
     }
 
-    public static int getBoardWidth() {
+    public static Dim getBoardWidth() {
         assert gameOpt != null;
         
         return gameOpt.getBoardWidth();
@@ -222,13 +240,10 @@ public class Cell implements Comparable {
         int column = this.column + direction.columnOffset;
 
         if (doesBoardWrap()) {
-            final int height = getBoardHeight();
-            if (row >= height/2 || row < -height/2) {
+            if (!getBoardHeight().isValidIndex(row)) {
                 return false;
             }
-            
-            final int width = getBoardWidth();
-            if (column >= width/2 || column < -width/2) {
+            if (!getBoardWidth().isValidIndex(column)) {
                 return false;
             }
         }
@@ -259,14 +274,11 @@ public class Cell implements Comparable {
     }
     
     public boolean isValid() {
-        if (getGrid() == Grid.GRID_HEX && isOdd()) {
-            return false;
-        } else if (row >= getBoardHeight()/2 || row < -getBoardHeight()/2) {
-            return false;
-        } else if (column >= getBoardWidth()/2 || column < -getBoardWidth()/2) {
+        if (getGrid().isHex() && isOdd()) {
             return false;
         } else {
-            return true;
+            return getBoardHeight().isValidIndex(row) && 
+                getBoardWidth().isValidIndex(column);
         }
     }
     
@@ -325,17 +337,7 @@ public class Cell implements Comparable {
     public static void setStatic(GameOpt gameOpt) {
         assert gameOpt != null;
         
-        Cell.gameOpt = new GameOpt(gameOpt);
-
-        int height = getBoardHeight();
-        assert Global.isEven(height) : height;
-        assert height >= HEIGHT_MIN : height;
-        assert height <= HEIGHT_MAX : height;
-        
-        int width = getBoardWidth();
-        assert Global.isEven(width) : width;
-        assert width >= WIDTH_MIN : width;
-        assert width <= WIDTH_MAX : width;
+        Cell.gameOpt = new GameOpt(gameOpt); // save a copy
     }
     
     @Override
@@ -347,36 +349,17 @@ public class Cell implements Comparable {
     }
     
     public Cell wrap() {
-        int column = this.column;
-        int row = this.row;
+        assert isValid();
         
         if (doesBoardWrap()) {
-            final int width = getBoardWidth();
-            if (column >= 0) {
-                final int numWraps = (column + width/2) / width;
-                assert numWraps >= 0 : numWraps;
-                column -= numWraps * width;
-            } else {
-                final int numWraps = (width/2 - column - 1) / width;
-                assert numWraps >= 0 : numWraps;
-                column += numWraps * width;
-            }
-
-            final int height = getBoardHeight();
-            if (row >= 0) {
-                final int numWraps = (row + height/2) / height;
-                assert numWraps >= 0 : numWraps;
-                row -= numWraps * height;
-            } else {
-                final int numWraps = (height/2 - row - 1) / height;
-                assert numWraps >= 0 : numWraps;
-                row += numWraps * height;
-            }
+            final int column = getBoardWidth().wrapIndex(this.column);
+            final int row = getBoardWidth().wrapIndex(this.row);
+            final Cell result = new Cell(row, column);
+            
+            assert result.isValid();
+            return result;
+        } else {
+            return this;
         }
-
-        final Cell result = new Cell(row, column);
-        assert result.isValid() : result;
-        
-        return result;
     }
 }

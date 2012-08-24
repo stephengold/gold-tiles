@@ -1,6 +1,6 @@
-// File:     ReadGame.java
+// File:     HintStrength.java
 // Location: Java/GoldTile/src/goldtile
-// Purpose:  ReadGame interface for the Gold Tile Game
+// Purpose:  HintStrength enum for the Gold Tile Game
 /**
  * @author Stephen Gold
  */
@@ -26,29 +26,25 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 
 package goldtile;
 
-public interface ReadGame {
-    public boolean canRedo();
-    public boolean canUndo();
-    public UserMessage checkMove(Move move);
-    public Board copyBoard();
-    public int countStock();
+public enum HintStrength {
+    // values
+    NONE,
+    UNUSED,
+    CONNECTED,
+    USABLE_BY_PLAYABLE,
+    USABLE_BY_ACTIVE;
     
-    public ReadBoard getBoard();
-    public Game.Ending getEnding();
-    public ReadGameOpt getGameOpt();
-    public ReadHand getHand(int iHand);
-    public int getMustPlay();
-    public ReadHand getPlayable();
-    public int getPlayableIndex();
-    public int[] getUnplayableIndices();
-    public Strings getUserNames();
-    public int getSeconds(int iHand);
+    // methods
     
-    public boolean isFirstTurn();
-    public boolean isLegalMove(Move move);
-    public boolean isOutOfTime();
-    public boolean isOver();
-    public boolean isPaused();
-    public boolean isPlayable(int iHand);
-    public boolean isStockEmpty();
+    public static HintStrength getDefault(ReadGameOpt gameOpt, 
+            ReadHandOpt handOpt)
+    {
+        if (gameOpt == null || handOpt == null) {
+            return NONE;
+        } else if (gameOpt.getStyle().isChallenge() || !handOpt.isLocalUser() ) {
+            return NONE;
+        } else {
+            return USABLE_BY_ACTIVE;
+        }
+    }
 }

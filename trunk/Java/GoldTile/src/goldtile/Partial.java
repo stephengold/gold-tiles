@@ -28,14 +28,14 @@ package goldtile;
 
 public class Partial {
     // enums
-    public enum Active { EXCLUDED, INCLUDED };
+    public static enum Active { EXCLUDED, INCLUDED };
     
     // per-instance fields (all mutable), sorted by type
     private Board board = new Board();
     private Cells hintedCells = null;       // cached data, null means invalid
     private Fraction skipProbability = null;
     private Game game = null;
-    private Hint hintStrength = null;
+    private HintStrength hintStrength = null;
     private int playedTileCount = 0;        // cached data, keep updated
     private Integer pointCount = null;      // cached data, null means invalid
     private Tile activeTile = null;
@@ -223,6 +223,16 @@ public class Partial {
         game.finishTurn(move);
     }
     
+    public Cell firstHintedCell() {
+        if (hintedCells == null) {
+            updateHintedCells();
+            assert hintedCells != null;
+        }
+        assert hintedCells.size() > 0;
+ 
+        return hintedCells.first();
+    }
+
     public Tile getActiveTile() {
         return activeTile;
     }
@@ -245,6 +255,10 @@ public class Partial {
     
     public ReadGame getGame() {
         return game;
+    }
+    
+    public HintStrength getHintStrength() {
+        return hintStrength;
     }
     
     public Move getMove(Active includeActive) {
@@ -280,7 +294,7 @@ public class Partial {
             final ReadGameOpt opt = game.getGameOpt();
             return opt.getStyle();
         } else {            
-            return null;
+            return GameStyle.NONE;
         }
     }
     
@@ -388,11 +402,12 @@ public class Partial {
         assert to != null;
         assert isPlayable(activeTile);
         
-        // Move tile to hand -- temporarily in most cases.
+        // Move tile to hand -- temporarily in many cases.
         switch (from) {
             case BOARD:
                 boardToHand();
                 break;
+                
             case SWAP_AREA:
                 swapToHand();
                 break;
@@ -402,8 +417,11 @@ public class Partial {
         switch (to) {
             case BOARD:
                 assert toCell != null;
+                assert toCell.isValid();
+                
                 handToBoard(toCell);
                 break;
+                
             case SWAP_AREA:
                 handToSwap();
                 break;
@@ -424,19 +442,26 @@ public class Partial {
     final public void setGame(Game game) {
         this.game = game;
         
-        final ReadGameOpt gameOpt = (game == null) ? null : game.getGameOpt();
-        setHintStrength(Hint.getDefault(gameOpt));
+        final ReadGameOpt gameOpt = (game == null) ? null : 
+                game.getGameOpt();
+        final ReadHandOpt handOpt = (game == null) ? null : 
+                game.getPlayable().getOpt();
+        final HintStrength strength = HintStrength.getDefault(gameOpt, handOpt);
+        setHintStrength(strength);
         
         skipProbability = HandOpt.SKIP_PROBABILITY_DEFAULT;
         takeBack();
     }
 
-    final public void setHintStrength(Hint strength) {
-        if (hintStrength == null || !hintStrength.equals(strength)) {
-            hintStrength = strength;
-            
+    public void setHintStrength(HintStrength strength) {
+        if (strength != null && !strength.equals(hintStrength)) {
+            hintStrength = strength;  
             hintedCells = null;
         }
+    }
+    
+    public void setSkipProbability(Fraction skipProbability) {
+        this.skipProbability = skipProbability;
     }
     
     public void startClock() {
@@ -448,8 +473,8 @@ public class Partial {
     public void suggest() {
         assert hasGame();
 
-        final Hint saveStrength = hintStrength;
-        setHintStrength(Hint.USABLE_BY_ACTIVE);
+        final HintStrength saveStrength = hintStrength;
+        setHintStrength(HintStrength.USABLE_BY_ACTIVE);
         takeBack();
         
         Partial bestSoFar = new Partial(this); // a temporary copy
@@ -514,7 +539,7 @@ public class Partial {
 
     private void updateHintedCells() {
         hintedCells = new Cells();
-        if (hintStrength == Hint.NONE) {
+        if (hintStrength == HintStrength.NONE) {
             return;
         }
 
@@ -535,7 +560,7 @@ public class Partial {
                 }
             }
         }
-        if (hintStrength == Hint.EMPTY) {
+        if (hintStrength == HintStrength.UNUSED) {
             return;
         }
         
@@ -549,7 +574,7 @@ public class Partial {
                 hintedCells.remove(cell);
             }
         }
-        if (hintStrength == Hint.CONNECTED) {
+        if (hintStrength == HintStrength.CONNECTED) {
             return;
         }
         
@@ -563,7 +588,7 @@ public class Partial {
         final Move move = getMove(Active.EXCLUDED);
         for (Tile tile : playableTiles) {
              boolean includeTile;
-             if (hintStrength == Hint.USABLE_BY_ACTIVE && hasActiveTile()) {
+             if (hintStrength == HintStrength.USABLE_BY_ACTIVE && hasActiveTile()) {
                  includeTile = isActive(tile);
             } else {
                 includeTile = (!board.contains(tile) || isActive(tile));

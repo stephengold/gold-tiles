@@ -30,8 +30,8 @@ public class Hand
     implements ReadHand
 {   
     // per-instance fields
-    private boolean clockRunningFlag = false;
-    private boolean resignedFlag = false;
+    private boolean clockRunning = false;
+    private boolean resigned = false;
     final private HandOpt opt;
     private int score = 0;
     private long milliseconds = 0;    // total time charged to the hand
@@ -49,20 +49,7 @@ public class Hand
         this.name = name;
     }
     
-    public Hand(Hand other) {
-        assert other != null;
-        
-        this.clockRunningFlag = other.clockRunningFlag;
-        this.resignedFlag = other.resignedFlag;
-        this.opt = new HandOpt(other.opt);
-        this.score = other.score;
-        this.milliseconds = other.milliseconds;
-        this.startTime = other.startTime;
-        this.name = other.name;
-        this.contents = new Tiles(other.contents);
-    }
-
-    // methods
+    // methods, sorted by name
     
     public void addScore(int pointCount) {
         assert !isClockRunning();
@@ -74,13 +61,27 @@ public class Hand
     }
     
     public void addTiles(Tiles tiles) {
+        assert contents != null;
+        assert tiles != null;
+        
         contents.addAll(tiles);    
     }
     
     @Override
     public Move chooseMoveAutomatic(Game game) {
-        // TODO
-        return null;
+        Fraction skipProbability = opt.getSkipProbability();
+        if (game.getMustPlay() > 0) {
+            skipProbability = new Fraction(0.0);
+        }
+        final Partial partial = new Partial();
+        partial.setGame(game);
+        partial.setSkipProbability(skipProbability);
+        
+        partial.suggest();
+        final Move result = partial.getMove(Partial.Active.INCLUDED);
+
+        Console.printf(String.format("%s %s.\n", name, result.describe()));
+        return result;
     }
     
     @Override
@@ -90,7 +91,7 @@ public class Hand
         assert opt.isLocalUser();
 
         final String description = describeContents();
-        Global.print(description);
+        Console.print(description);
         
         return Move.chooseConsole(contents, mustPlay); 
     }
@@ -160,17 +161,17 @@ public class Hand
     
     @Override
     public boolean hasGoneOut() {
-        return contents.size() == 0 && !resignedFlag;
+        return contents.size() == 0 && !resigned;
     }
     
     @Override
     public boolean hasResigned() {
-        return resignedFlag;    
+        return resigned;    
     }
     
     @Override
     public boolean isClockRunning() {
-        return clockRunningFlag;
+        return clockRunning;
     }
     
     @Override
@@ -188,23 +189,23 @@ public class Hand
 
         final Tiles tiles = contents;
         contents = new Tiles();
-        resignedFlag = true;
+        resigned = true;
 
         assert hasResigned();
         return tiles;
     }
     
     public void startClock() {
-        assert !clockRunningFlag;
+        assert !clockRunning;
 
         startTime = System.currentTimeMillis();
-        clockRunningFlag = true;
+        clockRunning = true;
     }
     
     public void stopClock() {
-        assert clockRunningFlag;
+        assert clockRunning;
 
-        milliseconds = System.currentTimeMillis();
-        clockRunningFlag = false;
+        milliseconds = System.currentTimeMillis() - startTime;
+        clockRunning = false;
     }    
 }

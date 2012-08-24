@@ -55,29 +55,25 @@ public class DisplayModes {
     // clean up display modes for the start of a new game
     public void cleanup() {
         // Can't display more than 4 markings per tile.
-        final int markingCnt = getMarkingCount();
+        final int markingCnt = countMarkings();
         if (markingCnt > Markings.MARKING_COUNT_MAX) {
             final AttrMode mode = AttrMode.COLOR;
             setMode(0, mode);
         }
 
         // Only one attribute can use color.
-        while (getColorCnt() > 1) {
+        while (countColors() > Markings.COLOR_COUNT_MAX) {
             final int ind = getSecondColorIndex();
             final AttrMode mode = AttrMode.getFirst();
             setMode(ind, mode);
         }
 
-        assert getColorCnt() <= 1 : getColorCnt();
-        assert getMarkingCount() <= Markings.MARKING_COUNT_MAX 
-                : getMarkingCount();
+        assert countColors() <= Markings.COLOR_COUNT_MAX : countColors();
+        assert countMarkings() <= Markings.MARKING_COUNT_MAX 
+                : countMarkings();
     }
     
-    public boolean equals(DisplayModes other) {
-        return java.util.Arrays.deepEquals(modes, other.modes);    
-    }
-    
-    public int getColorCnt() {
+    public int countColors() {
         int result = 0;
         for (int iAttr = 0; iAttr < Combo.ATTR_COUNT_MAX; iAttr++) {
             final AttrMode mode = getMode(iAttr);
@@ -89,7 +85,7 @@ public class DisplayModes {
         return result;
     }
     
-    public int getMarkingCount() {
+    public int countMarkings() {
         int result = 0;
         for (int iAttr = 0; iAttr < Combo.getAttrCount(); iAttr++) {
             final AttrMode mode = getMode(iAttr);
@@ -99,6 +95,10 @@ public class DisplayModes {
         }
 
         return result;
+    }
+    
+    public boolean equals(DisplayModes other) {
+        return java.util.Arrays.deepEquals(modes, other.modes);    
     }
     
     public AttrMode getMode(int iAttr) {

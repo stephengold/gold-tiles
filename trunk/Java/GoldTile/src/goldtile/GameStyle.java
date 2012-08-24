@@ -28,6 +28,7 @@ package goldtile;
 
 public enum GameStyle {
     // values
+    NONE,      // null game
     DEBUG,     // allows peeking, undo, all hints; clock is optional
     PRACTICE,  // no peeking; allows undo, all hints; clock is optional
     FRIENDLY,  // no peeking, no undo; allows all hints; clock is optional
@@ -36,15 +37,19 @@ public enum GameStyle {
     // methods, sorted by name
     
     public boolean allowsHints() {
-        return this != CHALLENGE;
+        return !isChallenge();
+    }
+
+    public boolean allowsPeeking() {
+        return isDebug();
     }
 
     public boolean allowsUndo() {
-        return this == DEBUG || this == PRACTICE;
+        return isDebug() || isPractice();
     }
 
     public static GameStyle getDefault() {
-        if (GoldTile.debugFlag) {
+        if (GoldTile.debugging) {
             return DEBUG;
         } else {
             return PRACTICE;
@@ -52,6 +57,26 @@ public enum GameStyle {
     }
 
     public boolean hasTimeLimit() {
+        return isChallenge();
+    }
+    
+    public boolean isChallenge() {
         return this == CHALLENGE;
+    }
+    
+    public boolean isDebug() {
+        return this == DEBUG;
+    }
+    
+    public boolean isFriendly() {
+        return this == FRIENDLY;
+    }
+    
+    public boolean isPractice() {
+        return this == PRACTICE;
+    }
+    
+    public boolean showClocks() {
+        return isChallenge() || isDebug();
     }
 }

@@ -53,7 +53,7 @@ public class HandOpt
         
         automaticFlag = other.automaticFlag;
         remoteFlag = other.remoteFlag;
-        skipProbability = new Fraction(other.skipProbability);
+        skipProbability = other.skipProbability;
         playerName = other.playerName;
     }
     
@@ -64,12 +64,11 @@ public class HandOpt
 
         String playerName = "";
         while (playerName.isEmpty()) {
-            System.out.print("Who will play the "); 
-            System.out.print(StringExt.ordinal(iHand + 1));
-            System.out.println(" hand?");
-            System.out.print(
+            Console.printf("Who will play the %s hand?\n",
+                    StringExt.ordinal(iHand + 1) );
+            Console.print(
                     " ('computer' or 'network' or the name of a local user) ");
-            playerName = Global.readLine();
+            playerName = Console.readLine();
             playerName = StringExt.normalizeName(playerName);
         }
 
@@ -86,8 +85,7 @@ public class HandOpt
                 result.remoteFlag = true;
                 playerName = "";
                 while (playerName.isEmpty()) {
-                    System.out.print("Name of network player? ");
-                    playerName = Global.readLine();
+                    playerName = Console.readLine("Name of network player? ");
                     playerName = StringExt.normalizeName(playerName);
                 }
                 // TODO set address

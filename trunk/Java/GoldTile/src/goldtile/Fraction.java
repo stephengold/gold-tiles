@@ -44,16 +44,11 @@ public class Fraction {
         this.value = value;
     }
     
-    /**
-     * @param other the Fraction to be replicated
-     */
-    public Fraction(Fraction other) {
-        assert other != null;
-        
-        value = other.value;   
-    }
+    // methods, sorted by name
     
-    // methods, sorted bu name
+    public boolean equals(Fraction other) {
+        return value == other.value;
+    }
     
     public boolean isUnity() {
         return value == UNITY;
@@ -61,7 +56,7 @@ public class Fraction {
     
     public boolean randomBoolean() {
         if (value > 0.0) {
-            if (value < 1.0) {
+            if (value < UNITY) {
                 final Fraction random = Global.nextFraction();
                 return random.value < value;
             } else {
@@ -78,7 +73,7 @@ public class Fraction {
 
     public double toDouble(boolean invertFlag) {
         if (invertFlag) {
-            return 1.0 - value;
+            return UNITY - value;
         } else {
             return value;
         }

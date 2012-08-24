@@ -77,9 +77,8 @@ public class Game
         } else {
             // TODO
         }
-        Global.print("\nPlaced ");
-        Global.print(StringExt.plural(countStock(), "tile"));
-        Global.print(" in the stock bag.\n");
+        Console.printf("\nPlaced %s in the stock bag.\n",
+            StringExt.plural(countStock(), "tile") );
         
         hands = new Hands(handOpts);
         assert hands.size() == opt.getHandsDealt();
@@ -97,7 +96,7 @@ public class Game
             iHand++;
         }
         assert history.size() == opt.getHandsDealt();
-        Global.print("\n");
+        Console.printLine();
         
         // The hand with the best "run" gets to go first.
         findBestRun();
@@ -111,7 +110,6 @@ public class Game
         assert isPaused();
         assert !canUndo();
         assert !canRedo();
-
     }
 
     // methods, sorted by name
@@ -217,7 +215,7 @@ public class Game
                 StringExt.plural(mustPlay, "tile"));
 
         bestRunReport = bestRun.report + "\n" + firstTurnMessage;
-        Global.print(bestRunReport);
+        Console.print(bestRunReport);
         
         assert bestRunReport != null;
         assert firstTurnMessage != null;
@@ -269,9 +267,9 @@ public class Game
             if (move.isPureSwap()) {
                 // Return tiles to the stock bag.
                 stockBag.addAll(tiles);
-                Global.print(String.format("%s returned %s to the stock bag.\n",
+                Console.printf("%s returned %s to the stock bag.\n",
                         getPlayable().getName(), 
-                        StringExt.plural(tileCount, "tile")));
+                        StringExt.plural(tileCount, "tile") );
 
             } else if (move.doesPlace()) {
                 // Place tiles on the board.
@@ -297,7 +295,7 @@ public class Game
         assert isFirstTurn();
         assert isPaused();
         
-        Global.print("\n");
+        Console.printLine();
         startClock();
         
         final ReadHand playable = getPlayable();
@@ -323,10 +321,11 @@ public class Game
                     break;
                 }
                 
-                Global.print("\nThat isn't a legal move because:\n ");
-                Global.print(reason.message);
-                Global.print("\nPlease try again ...\n\n");
-                Global.print(firstTurnMessage);
+                Console.printf(
+                        "\nThat isn't a legal move because:\n %s\n",
+                        reason.message);
+                Console.print("Please try again ...\n\n");
+                Console.print(firstTurnMessage);
             }
         }
         
@@ -405,6 +404,23 @@ public class Game
     }
     
     @Override
+    public Strings getUserNames() {
+        final Strings result = new Strings();
+        
+        for (Hand hand : hands) {
+            final ReadHandOpt handOpt = hand.getOpt();
+            if (handOpt.isLocalUser()) {
+                final String name = handOpt.getPlayerName();
+                if (!result.contains(name)) {
+                    result.add(name);
+                }
+            }
+        }
+        
+        return result;    
+    }
+    
+    @Override
     public boolean isFirstTurn() {
         return getMustPlay() > 0;
     }
@@ -466,7 +482,7 @@ public class Game
         assert isPaused();
 
         startClock();
-        Global.print(describeStatus());
+        Console.print(describeStatus());
         
         final ReadHand playable = getPlayable();
         final ReadHandOpt handOpt = playable.getOpt();
@@ -491,10 +507,11 @@ public class Game
                     break;
                 }
                 
-                Global.print("\nThat isn't a legal move because:\n ");
-                Global.print(reason.message);
-                Global.print("\nPlease try again ...\n\n");
-                Global.print(describeStatus());
+                Console.printf(
+                        "\nThat isn't a legal move because:\n %s\n",
+                        reason.message);
+                Console.print("Please try again ...\n\n");
+                Console.print(describeStatus());
             }
         }
         
@@ -510,12 +527,11 @@ public class Game
             nextHand();
             nextTurnConsole();
         }
-        Global.print(reportEndBonus());
+        Console.print(reportEndBonus());
         
         if (hands.size() > 1) {
             // Display final scores.
-            Global.print(reportScores(Tense.PAST));
-            Global.print("\n");
+            Console.printf("%s\n", reportScores(Tense.PAST) );
         }
     }
     
@@ -536,10 +552,9 @@ public class Game
 
         final int actualCount = result.size();
         if (actualCount > 0) {
-            Global.print(String.format("%s drew %s from the stock bag: %s.\n",
+            Console.printf("%s drew %s from the stock bag.\n",
                     getPlayable().getName(),
-                    StringExt.plural(actualCount, "tile"),
-                    result.describe()));
+                    StringExt.plural(actualCount, "tile") );
         }
 
         return result;
@@ -549,6 +564,13 @@ public class Game
         hands.removeTiles(tiles);    
     }
     
+    public String reportBestRun() {
+        assert bestRunReport != null;
+        
+        return bestRunReport;    
+    }
+    
+
     private String reportEndBonus() {
         assert isOver();
         String result = "";

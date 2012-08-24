@@ -33,9 +33,10 @@ public interface ReadGameOpt {
 
     public int getAttrCount();
     public int getAttrValueCount(int iAttr);
-    public int getBoardHeight();
-    public int getBoardWidth();
+    public Dim getBoardHeight();
+    public Dim getBoardWidth();
     public Fraction getBonusFraction();
+    public long getCellCount();
     public int getClonesPerCombo();
     public Grid getGrid();
     public int getHandsDealt();
@@ -43,14 +44,18 @@ public interface ReadGameOpt {
     public Attr getLastAttr(int iAttr);
     public int getMaxAttrValue(int iAttr);
     public long getMillisecondsPerHand();
+    public int getMinutesPerHand();
+    public Rules getRules();
     public int getSecondsPerHand();
+    public long getSeed();
     public int getStuckThreshold();
+    public Topology getTopology();
     public GameStyle getStyle();
     public int getTilesPerCombo();
     
     public boolean hasFiniteHeight();
     public boolean hasFiniteWidth();
-    public boolean isChallenge();
+    public boolean isRandomized();
     public String reportAttrs();
     public void validate();
 }

@@ -30,4 +30,8 @@ public enum Rules {
     CUSTOM,
     REPLAY,
     STANDARD;
+    
+    public boolean isReplay() {
+        return this == REPLAY;
+    }
 }

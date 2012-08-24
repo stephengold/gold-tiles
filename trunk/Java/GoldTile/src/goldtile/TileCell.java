@@ -27,8 +27,8 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 package goldtile;
 
 public class TileCell implements Comparable {
-    
-    public static class Choice {
+    // classes    
+    final public static class Choice {
         final public String string;
         public TileCell tileCell = null;
         
@@ -39,6 +39,7 @@ public class TileCell implements Comparable {
 
     // constants
     final private static String SEPARATOR = "@";
+    final private static String SEPARATOR_REGEX = "[@]";
     final private static String SWAP = "swap";
     
     // per-instance fields (immutable)
@@ -61,7 +62,30 @@ public class TileCell implements Comparable {
         this.tile = tile;
     }
     
-    // methods
+    public TileCell(String text, boolean remote)
+        throws ParseException
+    {
+        assert text != null;
+        
+        final String[] parts = text.split(SEPARATOR_REGEX);
+        if (parts.length != 2) {
+            throw new ParseException();   
+        }
+        
+        final String first = parts[0];
+        final String second = parts[1];
+        
+        final int tileId = Integer.parseInt(first);
+        tile = new Tile(tileId, remote);
+        
+        if (second.equals(SWAP)) {
+            destination = null;
+        } else {
+            destination = new Cell(second);
+        }
+    }
+    
+    // methods, sorted by name
 
     public static Choice chooseConsole(Tiles available, Strings alternatives) {
         assert available != null;
@@ -114,6 +138,18 @@ public class TileCell implements Comparable {
         final boolean sameTile = tile.equals(other.tile);
         
         return  sameTile && (bothSwap || sameCell);
+    }
+    
+    public String describe() {
+        String result = String.format("%s%s", tile.describe(), SEPARATOR);
+
+        if (isSwap()) {
+            result += SWAP;
+        } else {
+            result += destination.toString();
+        }
+
+        return result;
     }
     
     public Cell getDestination() {

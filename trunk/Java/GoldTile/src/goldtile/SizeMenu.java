@@ -41,6 +41,7 @@ public class SizeMenu
     public final static int MAX = COUNT - 1;
     public final static int MIN = 0;
 
+    // per-instance fields
     public MenuBar menuBar = null;
     private int value = 0;
     private final JMenuItem zoomIn = new JMenuItem("Zoom In");
@@ -48,8 +49,10 @@ public class SizeMenu
     private final JRadioButtonMenuItem sizeItems[] 
             = new JRadioButtonMenuItem[COUNT];  
     
+    // constructors
+    
     @SuppressWarnings("LeakingThisInConstructor")
-    SizeMenu(String label, int value) {
+    public SizeMenu(String label, int value) {
         setText(label);
         
         zoomOut.addActionListener(this);
@@ -103,10 +106,10 @@ public class SizeMenu
         setValue(value);
     }
 
-    // methods
+    // methods, sorted by name
     
     public void accelerate() {
-        zoomIn.setAccelerator(KeyStroke.getKeyStroke('+'));
+        zoomIn.setAccelerator(KeyStroke.getKeyStroke('='));
         zoomOut.setAccelerator(KeyStroke.getKeyStroke('-'));
     }
     
@@ -134,7 +137,7 @@ public class SizeMenu
             case "5":
             case "6":
                 final Integer size = Integer.parseInt(command);
-                setValue(size.intValue());
+                setValue(size);
                 break;
 
             default:

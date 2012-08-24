@@ -28,8 +28,10 @@ package goldtile;
 
 import java.awt.Cursor;
 import java.awt.Point;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import javax.swing.JButton;
 import javax.swing.JOptionPane;
 
 public class GamePanel 
@@ -41,26 +43,31 @@ public class GamePanel
     final private static int DRAG_THRESHOLD = 6;
     
     // links
+    final public GameFrame frame;
     final public GameView view;
     final private MenuBar menuBar;
     
     // per-instance fields, sorted by type
-    private boolean dragBoardFlag = false;
-    private int dragBoardPixelCnt = 0;
-    private int dragTileDeltaX = 0;
-    private int dragTileDeltaY = 0;
-    private int mouseUpCount = 0;
-    private Point mouseLast = null; // null means LMB is not pressed
+    private boolean deactivateOnRelease = false;
+    private boolean dragBoard = false;
+    private boolean leftButtonDown = false;
+    private int dragBoardPixelCount = 0;
+    private Point mouseLast = null;
     
     // constructors
     
-    public GamePanel(MenuBar menuBar) {
+    public GamePanel(MenuBar menuBar, GameFrame frame) {
+        assert menuBar != null;
+        assert frame != null;
+        
         this.menuBar = menuBar;
+        this.frame = frame;
         view = new GameView(this, menuBar);
         
         setBackground(Color.BLACK);
-        //setPreferredSize(area);
        
+        // add event listeners
+        
         addComponentListener(new java.awt.event.ComponentAdapter() {
             @Override
             public void componentResized(java.awt.event.ComponentEvent event) {
@@ -68,7 +75,18 @@ public class GamePanel
             }
         });
         
+        addKeyListener(new java.awt.event.KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent event) {
+                keyPress(event.getKeyCode());
+            }
+        });
+        
         addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseEntered(MouseEvent event) {
+                requestFocusInWindow(); // so KeyListener will receive events
+            }
             @Override
             public void mousePressed(MouseEvent event) {
                 if (event.getButton() == MouseEvent.BUTTON1) {
@@ -87,6 +105,10 @@ public class GamePanel
             @Override
             public void mouseDragged(MouseEvent event) {
                 mouseDrag(event.getPoint());
+            }
+            @Override
+            public void mouseMoved(MouseEvent event) {
+                mouseMove(event.getPoint());
             }
         });
     }
@@ -108,26 +130,39 @@ public class GamePanel
         return new Rect(0, 0, getWidth(), getHeight());
     }
 
+    public Point getMouseLast() {
+        return new Point(mouseLast);
+    }
+
     private void handleClickView(Point point) {
         assert point != null;
         assert view.hasGame();
         assert !view.getGame().isPaused();
-        assert !dragBoardFlag;
+        assert !dragBoard;
+
+        if (view.hasActiveTile()) {
+            // Continue moving the active tile.
+            assert mouseLast != null;
+            assert deactivateOnRelease;
+            repaint();
+            return;
+        }
         
         final Tile tile = view.findPlayableTile(point);
         if (tile != null) {
-            // Activate the tile and start dragging it around.
+            /*
+             * The local user clicked on a playable tile.
+             * Activate the tile and start dragging it around.
+             */
             view.activate(tile);
-            dragTileDeltaX = 0;
-            dragTileDeltaY = 0;
-            mouseUpCount = 0;
+            deactivateOnRelease = false;
             repaint();
             
         } else if (!view.isInHandRect(point) && !view.isInSwapRect(point)) {
             // Start dragging the board around.
-            dragBoardFlag = true;
+            dragBoard = true;
             view.deactivate();
-            dragBoardPixelCnt = 0;
+            dragBoardPixelCount = 0;
             setCursor(DRAG_CURSOR);
             repaint();
         }
@@ -138,17 +173,15 @@ public class GamePanel
         assert view.hasGame();
         assert !view.getGame().isPaused();
         
-        final int dx = point.x - mouseLast.x;
-        final int dy = point.y - mouseLast.y;
         if (view.hasActiveTile()) {
-            assert !dragBoardFlag;
-            dragTileDeltaX += dx;
-            dragTileDeltaY += dy;
+            assert !dragBoard;
             repaint();
 
-        } else if (dragBoardFlag) {
+        } else if (dragBoard) {
+            final int dx = point.x - mouseLast.x;
+            final int dy = point.y - mouseLast.y;
             view.translate(dx, dy);
-            dragBoardPixelCnt += Math.abs(dx) + Math.abs(dy);
+            dragBoardPixelCount += Math.abs(dx) + Math.abs(dy);
             repaint();
         }
     }
@@ -162,42 +195,60 @@ public class GamePanel
         final int dx = point.x - mouseLast.x;
         final int dy = point.y - mouseLast.y;
         if (view.hasActiveTile()) {
-            assert !dragBoardFlag;
-            if (view.dropActiveTile(point)) {
-                if (mouseUpCount == 0) {
-                    // TODO
-                }
-            }
+            assert !dragBoard;
+            deactivateOnRelease = view.dropActiveTile(point, 
+                    deactivateOnRelease);
             repaint();
 
-        } else if (dragBoardFlag) {
+        } else if (dragBoard) {
             view.translate(dx, dy);
-            dragBoardPixelCnt += Math.abs(dx) + Math.abs(dy);
+            dragBoardPixelCount += Math.abs(dx) + Math.abs(dy);
   
-            if (dragBoardPixelCnt < DRAG_THRESHOLD) {
+            if (dragBoardPixelCount < DRAG_THRESHOLD) {
                 /*
-                 * Drags shorter than six pixels (clicks, basically)
+                 * Board drags shorter than six pixels (clicks, basically)
                  * also serve to alter or un-target the target cell.
                  */
                 view.toggleTargetCell(point);
             }
-            dragBoardFlag = false;
+            
+            // done dragging the board
+            dragBoard = false;
             setCursor(Cursor.getDefaultCursor());
             repaint();
         }
     }
     
+    private void keyPress(int keyCode) {
+        switch (keyCode) {
+            case KeyEvent.VK_DOWN:
+                view.moveTarget(Direction.SOUTH);
+                break;
+            case KeyEvent.VK_LEFT:
+                view.moveTarget(Direction.WEST);
+                break;
+            case KeyEvent.VK_RIGHT:
+                view.moveTarget(Direction.EAST);
+                break;
+            case KeyEvent.VK_UP:
+                view.moveTarget(Direction.NORTH);
+                break;
+        }
+    }
+    
     private void leftButtonPress(Point point) {
-        assert mouseLast == null : mouseLast;
+        assert point != null;
         
         final ReadGame game = view.getGame();
         if (game != null && !game.isPaused()) {
             handleClickView(point);
         }
+        leftButtonDown = true;
         mouseLast = point;
     }
 
     private void leftButtonRelease(Point point) {
+        assert point != null;
         assert mouseLast != null;
         
         final ReadGame game = view.getGame();
@@ -210,11 +261,15 @@ public class GamePanel
                 handleReleaseView(point);
             }
         }
-        mouseLast = null;
+        leftButtonDown = false;
+        mouseLast = point;
     }
     
     private void mouseDrag(Point point) {
-        if (mouseLast != null) {
+        assert point != null;
+        
+        if (leftButtonDown) {
+            assert mouseLast != null;
 
             final ReadGame game = view.getGame();
             if (game != null && !game.isPaused()) {
@@ -222,6 +277,42 @@ public class GamePanel
             }
             mouseLast = point;
         }
+    }
+    
+    private void mouseMove(Point point) {
+        assert point != null;
+        assert !dragBoard;
+        assert !leftButtonDown;
+        
+        if (view.hasActiveTile()) {
+            assert mouseLast != null;
+            handleDragView(point);    
+        }
+        mouseLast = point;
+    }
+    
+    public void offerNewGame() {
+        // TODO copy opts  
+        final GameOpt gameOpt = new GameOpt();
+        final HandOpts handOpts = new HandOpts();
+                
+        final Wizard wizard = new Wizard(frame);
+        
+        final ParmBox1 parmBox1 = new ParmBox1(wizard);
+        wizard.addCard(parmBox1);
+
+        final WizardCard parmBox2 = new ParmBox2(wizard);
+        wizard.addCard(parmBox2);
+        
+        // pack and go
+        final boolean completed = wizard.run(parmBox1, gameOpt);
+        
+        if (!completed) {
+            Console.print("aborted.\n");
+            return;
+        }
+        
+        Console.print("Gtart game!\n");
     }
     
     @Override
@@ -237,7 +328,7 @@ public class GamePanel
         repaint();
     }
     
-    public void ruleBox(UserMessage userMessage) {
+    public void showRuleBox(UserMessage userMessage) {
         assert userMessage != null;
         
         JOptionPane.showMessageDialog(this, 
@@ -246,7 +337,12 @@ public class GamePanel
                 JOptionPane.ERROR_MESSAGE);
     }
     
-    public void translateTile(Point center) {
-        center.translate(dragTileDeltaX, dragTileDeltaY);
+    public void showInformationBox(String message, String title) {
+        assert message != null;
+        assert title != null;
+        
+        JOptionPane.showMessageDialog(this, message, 
+                title + " - Gold Tile Game",
+                JOptionPane.INFORMATION_MESSAGE);
     }
 }

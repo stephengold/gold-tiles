@@ -28,36 +28,41 @@ package goldtile;
 
 import java.util.Date;
 
-public class GameOpt implements ReadGameOpt {
+public class GameOpt 
+    implements ReadGameOpt
+{
     // constants
+    final public static Dim BOARD_HEIGHT_DEFAULT = new Dim(12);
+    final public static Dim BOARD_WIDTH_DEFAULT = new Dim(12);
     final private static int BONUS_PERCENT_DEFAULT = 0;
     final private static int CLONES_PER_COMBO_DEFAULT = 2;
     final private static int HANDS_DEALT_DEFAULT = 2;
     final private static int HANDS_DEALT_MIN = 1;
     final private static int HAND_SIZE_DEFAULT = 6;
     final private static int HAND_SIZE_MIN = 1;
-    final private static int MINUTES_PER_HAND_DEFAULT = 30;
-    final private static int MINUTES_PER_HAND_MIN = 2;
+    final public static int MINUTES_PER_HAND_DEFAULT = 30;
+    final public static int MINUTES_PER_HAND_MAX = 120;
+    final public static int MINUTES_PER_HAND_MIN = 2;
     final private static int STUCK_THRESHOLD_DEFAULT = 7;
     final private static int STUCK_THRESHOLD_MIN = 1;
-    final private static long SEED_DEFAULT = 12345L;
+    final public static long SEED_DEFAULT = 12345L;
 
-    // per-instance fields
+    // per-instance fields, sorted by type
     private boolean boardWrapFlag;   
                       // used only if board is finite on one or both dimensions
     private boolean randomizeFlag;
+    private Dim boardHeight;
+    private Dim boardWidth;
     private GameStyle style;
     private Grid grid;
     private int attrCount;
-    private int boardHeight;
-    private int boardWidth;
     private int clonesPerCombo;
     private int handsDealt;      // number of hands dealt
     private int handSize;        // maximum number of tiles in a hand
     private int maxAttrValues[]; // maximum value of each attribute
-    private int minutesPerHand;  // used only with GameStyle.CHALLENGE
+    private int minutesPerHand;  // used only in challenge-style games
     private int stuckThreshold;  // turns before game is declared "stuck" 
-    private long seed;            // used only if randomizeFlag == false
+    private long seed;           // used only in debug-style with randomizeFlag == false
     private Percent bonusPercent;    // bonus tile percentage
     private Rules rules;
     
@@ -105,32 +110,30 @@ public class GameOpt implements ReadGameOpt {
     public static GameOpt chooseConsole() {
         final GameOpt result = new GameOpt();
         
-        result.setRandomizeFlag(false);
+        result.setRandomize(false);
         
         final String attrReport = result.reportAttrs();
-        Global.print(attrReport);
+        Console.print(attrReport);
 
         result.handsDealt = -1;
         while (result.handsDealt < HANDS_DEALT_MIN) {
-            Global.print("Deal how many hands? ");
-            String line = Global.readLine();
+            String line = Console.readLine("Deal how many hands? ");
             try {
                 result.handsDealt = Integer.parseInt(line);
             } catch (NumberFormatException exception) {
             }
         }
-        Global.print("\n");
+        Console.printLine();
 
         result.handSize = -1;
         while (result.handSize < HAND_SIZE_MIN) {
-            Global.print("How many tiles per hand? ");
-            String line = Global.readLine();
+            String line = Console.readLine("How many tiles per hand? ");
             try {
                 result.handSize = Integer.parseInt(line);
             } catch (NumberFormatException exception) {
             }
         }
-        Global.print("\n");
+        Console.printLine();
 
         /*
          * Clone tiles so that there are enough to fill each hand at 
@@ -177,18 +180,28 @@ public class GameOpt implements ReadGameOpt {
     }
     
     @Override
-    public int getBoardHeight() {
+    public Dim getBoardHeight() {
         return boardHeight;
     }
     
     @Override
-    public int getBoardWidth() {
+    public Dim getBoardWidth() {
         return boardWidth;
     }
 
     @Override
     public Fraction getBonusFraction() {
         return bonusPercent.toFraction();    
+    }
+    
+    @Override
+    public long getCellCount() {
+        final long product = boardWidth.times(boardHeight);
+        if (product == Long.MAX_VALUE) {
+            return product;
+        } else {
+            return product / grid.getSparsity();
+        }    
     }
     
     @Override
@@ -231,8 +244,23 @@ public class GameOpt implements ReadGameOpt {
     }
     
     @Override
+    public int getMinutesPerHand() {
+        return minutesPerHand;
+    }
+    
+    @Override
+    public Rules getRules() {
+        return rules;
+    }
+    
+    @Override
     public int getSecondsPerHand() {
-        return minutesPerHand * Global.SECONDS_PER_MINUTE;
+        return getMinutesPerHand() * Global.SECONDS_PER_MINUTE;
+    }
+    
+    @Override
+    public long getSeed() {
+        return seed;
     }
     
     @Override
@@ -251,18 +279,31 @@ public class GameOpt implements ReadGameOpt {
     }
 
     @Override
+    public Topology getTopology() {
+        if (hasFiniteHeight() && hasFiniteWidth()) {
+            return doesBoardWrap() ? Topology.TORUS : Topology.RECTANGLE;
+        } else if (hasFiniteHeight()) {
+            return doesBoardWrap() ? Topology.HCYLINDER : Topology.HSTRIP;
+        } else if (hasFiniteWidth()) {
+            return doesBoardWrap() ? Topology.VCYLINDER : Topology.VSTRIP;
+        } else {
+            return Topology.FLAT;
+        }
+    }
+
+    @Override
     public boolean hasFiniteHeight() {
-        return boardHeight < Cell.HEIGHT_MAX;
+        return !boardHeight.isEndless();
     }
 
     @Override
     public boolean hasFiniteWidth() {
-        return boardWidth < Cell.WIDTH_MAX;
+        return !boardWidth.isEndless();
     }
     
     @Override
-    public boolean isChallenge() {
-        return style == GameStyle.CHALLENGE;    
+    public boolean isRandomized() {
+        return randomizeFlag;
     }
     
     @Override
@@ -283,17 +324,50 @@ public class GameOpt implements ReadGameOpt {
         return result;
     }
     
-
     public void reseedGenerator() {
-        if (randomizeFlag || style != GameStyle.DEBUG) {
+        if (randomizeFlag || !style.isDebug()) {
             final Date date = new Date();
             seed = date.getTime();
         }
         Global.reseedGenerator(seed);
     }
     
-    public void setRandomizeFlag(boolean randomizeFlag) {
+    public void setBoardHeight(Dim boardHeight) {
+        this.boardHeight = boardHeight;
+    }
+    
+    public void setBoardWidth(Dim boardWidth) {
+        this.boardWidth = boardWidth;
+    }
+    
+    public void setBoardWrap(boolean doesWrap) {
+        this.boardWrapFlag = doesWrap;
+    }
+    
+    public void setGrid(Grid grid) {
+        this.grid = grid;
+    }
+    
+    public void setMinutesPerHand(int minutesPerHand) {
+        this.minutesPerHand = minutesPerHand;
+    }
+    
+    public void setRandomize(boolean randomizeFlag) {
         this.randomizeFlag = randomizeFlag;
+    }
+    
+    public void setRules(Rules rules) {
+        this.rules = rules;
+    }
+    
+    public void setSeed(long seed) {
+        this.seed = seed;
+    }
+    
+    public void setStyle(GameStyle style) {
+        assert style != null;
+        
+        this.style = style;
     }
     
     final public void standardize() {
@@ -302,8 +376,8 @@ public class GameOpt implements ReadGameOpt {
         for (int iAttr = 0; iAttr < attrCount; iAttr++) {
             maxAttrValues[iAttr] = Attr.MAX_DEFAULT;
         }
-        boardHeight = Cell.HEIGHT_MAX;
-        boardWidth = Cell.WIDTH_MAX;
+        boardHeight = Dim.endless();
+        boardWidth = Dim.endless();
         bonusPercent = new Percent(BONUS_PERCENT_DEFAULT);
         clonesPerCombo = CLONES_PER_COMBO_DEFAULT;
         boardWrapFlag = false;
@@ -322,15 +396,6 @@ public class GameOpt implements ReadGameOpt {
     final public void validate() {
         assert attrCount <= Combo.ATTR_COUNT_MAX : attrCount;
         assert attrCount >= Combo.ATTR_COUNT_MIN : attrCount;
-        
-        assert Global.isEven(boardHeight) : boardHeight;
-        assert boardHeight <= Cell.HEIGHT_MAX : boardHeight;
-        assert boardHeight >= Cell.HEIGHT_MIN : boardHeight;
-        
-        assert Global.isEven(boardWidth) : boardWidth;
-        assert boardWidth >= Cell.WIDTH_MIN : boardWidth;
-        assert boardWidth <= Cell.WIDTH_MAX : boardWidth;
-        
         assert bonusPercent != null;
         assert grid != null;
         assert handsDealt >= HANDS_DEALT_MIN : handsDealt;
@@ -340,8 +405,7 @@ public class GameOpt implements ReadGameOpt {
         assert minutesPerHand >= MINUTES_PER_HAND_MIN : minutesPerHand;
         assert stuckThreshold > STUCK_THRESHOLD_MIN: stuckThreshold;
         assert rules != null;
-        assert style == GameStyle.DEBUG || randomizeFlag : style;
-        assert style != null;
+        assert style != null && style != GameStyle.NONE;
     }
 
 }

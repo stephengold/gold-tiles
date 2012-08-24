@@ -28,16 +28,19 @@ package goldtile;
 
 public class GoldTile {
     // configuration flags
-    public static boolean consoleFlag = true;
-    public static boolean debugFlag = true;
-    public static boolean guiFlag = true;
-    public static boolean initialGameFlag = true;
+    public static boolean autoNewGame = false;
+    public static boolean consoleEnabled = true;
+    public static boolean debugging = true;
+    public static boolean guiEnabled = true;
+    public static boolean initialGame = true;
+    public static boolean isClient = true;
+    
     public static Display control = Display.GUI;
     
     // methods
     
     private static Game initialGame() {
-        if (!initialGameFlag) {
+        if (!initialGame) {
             return null;
         }
         
@@ -53,7 +56,7 @@ public class GoldTile {
                 break;
                 
             case GUI:
-                assert guiFlag;
+                assert guiEnabled;
                 
                 // TODO new game wizard
                 gameOpt = new GameOpt();
@@ -78,13 +81,13 @@ public class GoldTile {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        if (!consoleFlag) {
-            Global.disableConsole();
+        if (!consoleEnabled) {
+            Console.disable();
         }
         
         final Game game = initialGame();
         
-        if (guiFlag) {
+        if (guiEnabled) {
             javax.swing.SwingUtilities.invokeLater(new Runnable() {
                 @Override 
                 public void run()  {
@@ -99,12 +102,11 @@ public class GoldTile {
                 break;
                 
             case GUI:
-                assert guiFlag;
+                assert guiEnabled;
                 break;
                 
             default:
                 throw new AssertionError();
         }
-    }
-    
+    }   
 }

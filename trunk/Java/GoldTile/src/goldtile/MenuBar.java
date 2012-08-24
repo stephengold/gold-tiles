@@ -84,11 +84,14 @@ public class MenuBar
  
     final private JMenuItem cancel;    
  
+    // constructors
+    
     @SuppressWarnings("LeakingThisInConstructor")
     public MenuBar() {
         // Flesh out the "File" menu.
         
         nu = new JMenuItem("New");
+        nu.addActionListener(this);     
         nu.setAccelerator(KeyStroke.getKeyStroke(
                 KeyEvent.VK_N, InputEvent.CTRL_DOWN_MASK));
         nu.setMnemonic(KeyEvent.VK_N);
@@ -283,11 +286,16 @@ public class MenuBar
         add(helpMenu);
     }
     
+    // methods, sorted by name
+    
     @Override
     public void actionPerformed(java.awt.event.ActionEvent event) {
         final String command = event.getActionCommand();
         
         switch (command) {
+            case "New":
+                clientArea.offerNewGame();
+                break;
             case "Close":
                 clientArea.view.changeGame(null);
                 break;
@@ -309,7 +317,7 @@ public class MenuBar
                 clientArea.recenter();
                 break;
             case "Hints...":
-                // TODO
+                clientArea.view.hintBox();
                 break;
             case "togglePause":
                 clientArea.view.togglePause();
@@ -317,7 +325,7 @@ public class MenuBar
             case "repaint": 
                 break;
             case "Exit":
-                System.exit(0);                
+                System.exit(0);              
             default:
                 throw new AssertionError(command);
         }
@@ -358,6 +366,46 @@ public class MenuBar
         return peek.isSelected();
     }
 
+    public void loadUser(User user) {
+        autoPause.setState(user.getAutopause());
+        boardSize.setValue(user.getBoardTileSize());
+        tileSize.setValue(user.getBoardTileSize());
+        peek.setState(user.getPeek());
+        showClocks.setState(user.getShowClocks());
+        showGrid.setState(user.getShowGrid());
+        showScores.setState(user.getShowScores());
+    }
+    
+    public void newGame(GameStyle oldStyle, GameStyle newStyle) {
+        assert oldStyle != null;
+        assert newStyle != null;
+        
+        boardSize.setValue(BOARD_SIZE_DEFAULT);    
+        tileSize.setValue(TILE_SIZE_DEFAULT);
+        
+        if (!oldStyle.equals(newStyle)) {
+            autoPause.setState(newStyle.hasTimeLimit());
+            peek.setState(newStyle.allowsPeeking());
+            showClocks.setState(newStyle.showClocks());
+            showGrid.setState(true);
+            showScores.setState(true);
+        }
+        
+        if (!newStyle.allowsPeeking()) {
+            peek.setState(false);
+        }
+    }
+    
+    public void saveUser(User user) {
+        user.setAutopause(isAutoPauseEnabled());
+        user.setBoardTileSize(getTileSize(Place.BOARD));
+        user.setHandTileSize(getTileSize(Place.HAND));
+        user.setPeek(isPeeking());
+        user.setShowClocks(areClocksVisible());
+        user.setShowGrid(isGridVisible());
+        user.setShowScores(areScoresVisible());    
+    }
+    
     public void update() {
         boolean control = GoldTile.control == Display.GUI;
         boolean haveGame = false;

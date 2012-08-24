@@ -45,7 +45,8 @@ public class User {
     final private String name;
 
     // static fields
-    private static java.util.Map<String,User> users;
+    private static java.util.Map<String,User> users = 
+            new java.util.TreeMap<>();
 
     // constructors
     

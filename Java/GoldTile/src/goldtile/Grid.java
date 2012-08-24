@@ -27,23 +27,10 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 package goldtile;
 
 public enum Grid {
-    GRID_TRIANGLE (1, 1, 3),
-    GRID_4WAY (1, 1, 4),
-    GRID_HEX (1, 2, 6),
-    GRID_8WAY (1, 1, 8);
-    
-    // per-instance fields (immutable)
-    final public int columnFringe;
-    final public int rowFringe;
-    final public int wayCnt;
-
-    // constructors
-    
-    private Grid(int cf, int rf, int ways) {
-        columnFringe = cf;
-        rowFringe = rf;
-        wayCnt = ways;   
-    }
+    GRID_TRIANGLE,
+    GRID_4WAY,
+    GRID_HEX,
+    GRID_8WAY;
     
     // methods
     
@@ -60,6 +47,10 @@ public enum Grid {
             default:
                 throw new AssertionError(Cell.getGrid());
         }
+    }
+
+    public int getColumnFringe() {
+        return 1;
     }
 
     public static Grid getDefault() {
@@ -79,5 +70,40 @@ public enum Grid {
             default:
                 throw new AssertionError(Cell.getGrid());
         }
+    }
+    
+    public int getRowFringe() {
+        if (isHex()) {
+            return 2;
+        } else {
+            return 1;
+        }
+    }
+
+    public int getSparsity() {
+        if (isHex()) {
+            return 2;
+        } else {
+            return 1;
+        }
+    }
+    
+    public int getWays() {
+        switch (this) {
+            case GRID_TRIANGLE:
+                return 3;
+            case GRID_4WAY:
+                return 4;
+            case GRID_HEX:
+                return 6;
+            case GRID_8WAY:
+                return 8;
+            default:
+                throw new AssertionError(Cell.getGrid());
+        }
+    }
+    
+    public boolean isHex() {
+        return this == GRID_HEX;
     }
 }

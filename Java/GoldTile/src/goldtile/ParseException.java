@@ -1,6 +1,6 @@
-// File:     Hint.java
+// File:     ParseException.java
 // Location: Java/GoldTile/src/goldtile
-// Purpose:  Hint enum for the Gold Tile Game
+// Purpose:  ParseException class for the Gold Tile Game
 /**
  * @author Stephen Gold
  */
@@ -26,21 +26,8 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 
 package goldtile;
 
-public enum Hint {
-    // values
-    NONE,
-    EMPTY,
-    CONNECTED,
-    USABLE_BY_PLAYABLE,
-    USABLE_BY_ACTIVE;
+public class ParseException 
+    extends Exception 
+{
     
-    // methods
-    
-    public static Hint getDefault(ReadGameOpt gameOpt) {
-        if (gameOpt != null && gameOpt.isChallenge()) {
-            return EMPTY;
-        } else {
-            return USABLE_BY_ACTIVE;
-        }
-    }
 }

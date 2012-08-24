@@ -27,10 +27,11 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 package goldtile;
 
 import java.awt.Point;
-import java.util.Map;
 import java.util.TreeMap;
 
-public class GameView extends Partial {
+public class GameView
+    extends Partial
+{
     // enums, sorted by name
     public static enum Layer { VALID, HINTED_OR_EMPTY; }
     public static enum Side { LEFT, RIGHT; }
@@ -49,7 +50,7 @@ public class GameView extends Partial {
     private int padPixels = PAD_PIXELS_DEFAULT;
     private int recenterLeftX = 0;
     private int recenterRightX = 0;
-    private static Map<Integer,Rect> tileFinder = new TreeMap<>();
+    private static java.util.Map<Integer,Rect> tileFinder = new TreeMap<>();
     private Point start = new Point();
     private Rect handRect = new Rect(0,0,0,0);
     private Rect swapRect = new Rect(0,0,0,0);
@@ -62,6 +63,7 @@ public class GameView extends Partial {
         assert panel != null;
         assert menuBar != null;
         
+        // Initialize links to related objects.
         this.menuBar = menuBar;
         this.panel = panel;
     }
@@ -69,17 +71,59 @@ public class GameView extends Partial {
     // methods, sorted by name
     
     public void changeGame(Game game) {
+        final GameStyle oldStyle = getStyle();
         super.setGame(game);
-        recenter();
-        target = null;
+        
+        warmTiles = new Tiles();
         displayModes.cleanup();
+        menuBar.newGame(oldStyle, getStyle());
+        
+        if (hasGame()) {
+            recenter();
+            for (String userName : game.getUserNames()) {
+                final User user = User.lookup(userName);
+                saveUser(user);
+            }
+            changeHand("");
+        }
+
         menuBar.update();
-        recenter();
         panel.repaint();
+        
+        if (hasGame()) {
+            assert !game.canRedo();
+            assert !game.canUndo();
+            
+            final String report = game.reportBestRun();
+            panel.showInformationBox(report, "Opening Bids");
+        }
     }
     
+    private void changeHand(String previousPlayerName) {
+        assert previousPlayerName != null;
+        assert hasGame();
+        
+        final ReadHandOpt handOpt = getPlayable().getOpt();
+        final String playerName = handOpt.getPlayerName();
+        
+        if (handOpt.isLocalUser()) {
+            final User user = User.lookup(playerName);
+            loadUser(user);
+        }
+        takeBack();
+        target = null;
+        if (!getGame().isOver()) {
+            if (!handOpt.isLocalUser()) {
+                startClock();
+            } else if (playerName.equals(previousPlayerName))	{
+                startClock();
+            } else if (!menuBar.isAutoPauseEnabled()) {
+                startClock();
+            }
+        }
+    }
 
-    public boolean dropActiveTile(Point mouse) {
+    public boolean dropActiveTile(Point mouse, boolean deactivateOnRelease) {
         assert mouse != null;
         assert hasGame();
 
@@ -88,17 +132,22 @@ public class GameView extends Partial {
                 
         // Determine where the tile came from.
         final Place from = findActiveTile();
-        Cell fromCell = null;
-        if (from == Place.BOARD) {
+        Cell fromCell;
+        if (from != Place.BOARD) {
+            fromCell = null;
+        } else {
             fromCell = board.find(tile);
         }
 
         // Determine where the tile was released.
-        final Place to = findPlace(mouse);
-        Cell toCell = null;
-        if (to == Place.BOARD) {
+        Place to = findPlace(mouse);
+        Cell toCell;
+        if (to != Place.BOARD) {
+            toCell = null;
+        } else {
             toCell = getCell(mouse);
-            if (!isInCellArea(mouse, toCell)) {
+            if (!isInCellInterior(mouse, toCell)) {
+                // ambiguous release point
                 return false;
              }
              if (Cell.doesBoardWrap()) {
@@ -106,22 +155,39 @@ public class GameView extends Partial {
              }
         }
 
-        if (from == to && fromCell == toCell) {
+        if (from == to && (fromCell == toCell || fromCell.equals(toCell))) {
             /* 
              * Trivial drags (which don't actually move the tile)
-             * are simply treated as mouse-clicks.
+             * are treated like mouse-clicks.
              */
-            return true;
+            if (deactivateOnRelease) {
+                // Stop dragging the active tile.
+                deactivate();
+                return false;
+            } else {
+                if (target != null && from != Place.BOARD) {
+                    // Play the active tile to the target cell.
+                    to = Place.BOARD;
+                    toCell = target;
+                } else {
+                    // Continue dragging the active tile.
+                    target = null;
+                    return true;
+                }
+            }
         }
 
+        // Try performing the move.
+        
         if (to == Place.BOARD && 
                (!toCell.isValid() || !board.isEmpty(toCell)) )
         {
             /*
              * The destination cell is invalid or already used, so we
-             * can't construct the move in the usual fashion.
+             * can't perform the move in the usual manner.
              */
-            panel.ruleBox(UserMessage.EMPTY_CELL);
+            panel.showRuleBox(UserMessage.EMPTY_CELL);
+            deactivate();
             return false;
         }
 
@@ -134,14 +200,15 @@ public class GameView extends Partial {
         if (reason != null && 
                 (to == Place.SWAP_AREA || reason != UserMessage.FIRST_TURN))
         {  
-            // It's illegal, even as a partial move:  reverse it.
+            // It's illegal, even as a partial turn:  reverse the move.
             moveActiveTile(to, from, fromCell);
 
-            // Explain to the user why it was illegal.
             if (reason == UserMessage.START && from != Place.BOARD) {
                 reason = UserMessage.START_SIMPLE;
             }
-            panel.ruleBox(reason);
+            
+            // Explain to the user why it was illegal.
+            panel.showRuleBox(reason);
         }
 
         target = null;
@@ -240,6 +307,8 @@ public class GameView extends Partial {
     }
     
     public Cell getCell(Point point) {
+        assert point != null;
+        
         final Area gridUnit = getGridUnitArea();
 
         final int unitX = gridUnit.width;
@@ -268,6 +337,8 @@ public class GameView extends Partial {
     }
 
     private Area getCellArea(Place place) {
+        assert place != null;
+        
         Area result = getTileArea(place);
         
         if (menuBar.isGridVisible()) {
@@ -279,6 +350,8 @@ public class GameView extends Partial {
     }
     
     private Point getCenter(Cell cell) {
+        assert cell != null;
+        
         final Area unitArea = getGridUnitArea();
         
         final int column = cell.getColumn();
@@ -290,6 +363,15 @@ public class GameView extends Partial {
         final int y = start.y - unitY*row;
         
         return new Point(x, y);
+    }
+    
+    public Point getCenter(Tile tile) {
+        assert tile != null;
+        
+        final Integer tileId = tile.getId();
+        final Rect rect = tileFinder.get(tileId);
+        
+        return rect.getCenter();
     }
     
     private Area getGridUnitArea() {
@@ -325,6 +407,8 @@ public class GameView extends Partial {
     }
     
     private Area getTileArea(Place place) {
+        assert place != null;
+        
         final int width = getTileWidth(place);
         
         int height = 0;
@@ -344,6 +428,8 @@ public class GameView extends Partial {
     }
     
     private int getTileWidth(Place place) {
+        assert place != null;
+        
         final int size = menuBar.getTileSize(place);
         final Shape shape = Cell.getShape();
         final int result = shape.tinyWidth * (size + 1);
@@ -354,7 +440,20 @@ public class GameView extends Partial {
         return result;
     }
     
-    private boolean isInCellArea(Point point, Cell cell) {
+    public void hintBox() {
+        assert hasGame();
+        
+        final HintBox box = new HintBox(panel.frame);
+        final HintStrength oldValue = getHintStrength();
+        final GameStyle style = getStyle();
+        final HintStrength newValue = box.run(oldValue, style);
+        setHintStrength(newValue);
+    }
+    
+    private boolean isInCellInterior(Point point, Cell cell) {
+        assert point != null;
+        assert cell != null;
+        
         final Point center = getCenter(cell);
         final Area area = getCellArea(Place.BOARD);
         final boolean oddFlag = cell.isOdd();
@@ -376,22 +475,45 @@ public class GameView extends Partial {
         return warmTiles.contains(tile); 
     }
 
+    public void loadUser(User user) {
+        displayModes = user.getDisplayModes();
+        assert displayModes.countColors() <= Markings.MARKING_COUNT_MAX;
+        assert displayModes.countMarkings() <= Markings.MARKING_COUNT_MAX;
+
+        start = user.getStartCellPosition();
+    }
+    
+    public void moveTarget(Direction direction) {
+        if (target == null) {
+            target = new Cell(); // start cell
+        }
+
+        for (;;) {
+            target = new Cell(target, direction);
+            if (target.isValid() && getBoard().isEmpty(target)) {
+                break;
+            }
+        }
+
+        if (!getBoard().mightUse(target)) {
+            target = null;
+        }
+        panel.repaint();
+    }
+    
     @Override
     public void nextHand() {
         warmTiles = getBoardTiles();
         super.nextHand();
     }
     
-    private void paintActiveTileFromBoard() {
-        assert hasActiveTile();
-        assertActive(Place.BOARD);
-        
-        final Tile tile = getActiveTile();
-        final ReadBoard board = getBoard();
-        final Cell cell = board.find(tile);
-        final Point center = getCenter(cell);
-        final boolean oddFlag = false;
-        paintPlayableTile(center, tile, oddFlag);
+    private void paintActiveTile() {
+        if (hasActiveTile()) {
+            final Tile tile = getActiveTile();
+            final Point center = panel.getMouseLast();
+            final boolean oddFlag = false;
+            paintPlayableTile(center, tile, oddFlag);
+        }
     }
     
     public void paintAll(Canvas canvas) {
@@ -414,9 +536,7 @@ public class GameView extends Partial {
             paintUnplayableHands();
             paintPlayableHand();
             paintPlayableTiles();
-            if (hasActiveTile() && findActiveTile() == Place.BOARD) {
-                paintActiveTileFromBoard();
-            }
+            paintActiveTile();
         }
         
         this.canvas = null;
@@ -439,8 +559,8 @@ public class GameView extends Partial {
     
     public void paintBoard(Layer showLayer) {
         final Grid grid = Cell.getGrid();
-        final int extraColumns = grid.columnFringe - 1;
-        final int extraRows = grid.rowFringe - 1;
+        final int extraColumns = grid.getColumnFringe() - 1;
+        final int extraRows = grid.getRowFringe() - 1;
         
         // Determine which cells are visible in the client area.
         final Point ulc = new Point(0, 0);
@@ -489,12 +609,20 @@ public class GameView extends Partial {
             --swapCount;
         }
 
+        // Set target automatically if exactly one cell is hinted.
+        if (getGame().getPlayable().getOpt().isLocalUser() && 
+                target == null && countHintedCells() == 1)
+        {
+            target = firstHintedCell();    
+        }
+        
         for (int row = topRow; row >= bottomRow; row--) {
             paintRow(showLayer, leftColumn, rightColumn, swapCount, row);
         }
     }
 
     private void paintCell(Cell cell, Point center, int swapCnt) {
+        assert cell != null;
         assert cell.isValid();
         
         Color cellColor = Color.BLACK;
@@ -524,7 +652,7 @@ public class GameView extends Partial {
                 cellColor, gridColor, oddFlag);
         
         // Draw cell features.
-        if (target != null && cell.equals(target)) {
+        if (cell.equals(target)) {
             // It's the target cell.
             final Color targetColor = Color.MEDIUM_GRAY;
             canvas.backgroundColor = targetColor;
@@ -636,7 +764,19 @@ public class GameView extends Partial {
     }
     
     private void paintIdle() {
-        // TODO    
+        final Strings messageList = new Strings();
+        
+        if (GoldTile.isClient) {
+            messageList.addLast("Type Ctrl+N to start a game.");
+        }
+            
+        final String messages = messageList.join("\n\n"); 
+
+        canvas.backgroundColor = Color.BLACK;
+        canvas.foregroundColor = Color.GREEN;
+
+        final Rect client = panel.getClientRect();
+        canvas.drawTextMultiline(client, messages);
     }
     
     private void paintPaused() {
@@ -691,7 +831,7 @@ public class GameView extends Partial {
             --tileCount;
         }
 
-        final boolean localUser= getPlayable().getOpt().isLocalUser();
+        final boolean localUser = getPlayable().getOpt().isLocalUser();
         Color areaColor;
         if (!localUser) {
             areaColor = Color.DARK_BLUE;
@@ -787,13 +927,10 @@ public class GameView extends Partial {
                     throw new AssertionError(place);
             }
 
-            /*  
-             * If the active tile came from the board, draw it later 
-             * (not now) so it won't get obscured.
-             */
-            if (!isActive(tile) || !board.contains(tile)) {
-                // inactive tile or off-board tile -- draw it now
-                paintPlayableTile(center, tile, oddFlag); 
+            //  Draw the active tile later (not now) so it won't get obscured.
+            if (!isActive(tile)) {
+                // inactive tile -- draw it now
+                paintPlayableTile(center, tile, oddFlag);
             }
         }
     }
@@ -926,11 +1063,10 @@ public class GameView extends Partial {
     }
     
     void paintTile(Point center, Tile tile, boolean oddFlag) {
-        assert center != null;
         assert tile != null;
         
-        final int markingCnt = displayModes.getMarkingCount();
-        assert markingCnt <= Markings.MARKING_COUNT_MAX;
+        final int markingCount = displayModes.countMarkings();
+        assert markingCount <= Markings.MARKING_COUNT_MAX;
         
         // Determine the tile's background color.
         Color tileColor = Color.LIGHT_GRAY;
@@ -944,16 +1080,11 @@ public class GameView extends Partial {
             }
         }
 
-        final Point drawCenter = new Point(center);
-        if (isActive(tile)) {
-            panel.translateTile(drawCenter);
-        }
-
         final Markings markings = new Markings(tile, displayModes);
         final Place place = findPlace(center);
         final Area area = getTileArea(place);
         final boolean warmFlag = isWarmTile(tile);
-        final Rect interior = canvas.drawTile(markings, tileColor, drawCenter, 
+        final Rect interior = canvas.drawTile(markings, tileColor, center, 
                 area, warmFlag, oddFlag);
         
         final boolean localFlag = getPlayable().getOpt().isLocalUser();
@@ -1069,13 +1200,13 @@ public class GameView extends Partial {
                 
             } else {
                 // The game isn't over yet, so proceed to the next hand.
-                // TODO final String oldPlayerName = saveHandOpt();
+                final String oldPlayerName = saveHand();
                 nextHand();
-                // TODO changeHand(oldPlayerName);
+                changeHand(oldPlayerName);
             }
 
         } else { // explain the issue
-            panel.ruleBox(reason);
+            panel.showRuleBox(reason);
             if (reason == UserMessage.FIRST_TURN) {
                 takeBack();
             }
@@ -1083,6 +1214,8 @@ public class GameView extends Partial {
     }
     
     public void recenter() {
+        assert hasGame();
+        
         final Area clientArea = panel.getClientArea();
         
         if (recenterLeftX >= recenterRightX) {
@@ -1102,6 +1235,8 @@ public class GameView extends Partial {
     }
     
     private String reportStatus(ReadHand hand, boolean peekFlag) {
+        assert hand != null;
+        
         if (hand.isDisconnected()) {
             return "disconnected";
         } else if (hand.hasResigned()) {
@@ -1116,6 +1251,24 @@ public class GameView extends Partial {
         }
     }
     
+    private String saveHand() {
+        final ReadHandOpt handOpt = getPlayable().getOpt();
+        final String playerName = handOpt.getPlayerName();
+        
+        if (handOpt.isLocalUser()) {
+            final User user = User.lookup(playerName);
+            saveUser(user);
+        }
+        
+        return playerName;
+    }
+    
+    private void saveUser(User user) {
+        menuBar.saveUser(user);
+        user.setDisplayModes(displayModes);
+        user.setStartCellPosition(start);
+    }
+
     @Override
     public void togglePause() {
         assert hasGame();
@@ -1127,9 +1280,11 @@ public class GameView extends Partial {
     
     public void toggleTargetCell(Point point) {
         final Cell rawCell = getCell(point);
+        assert rawCell != null;
+        
         final Cell wrapCell = rawCell.wrap();
         
-        if (wrapCell.isValid() && isInCellArea(point, rawCell)) {
+        if (wrapCell.isValid() && isInCellInterior(point, rawCell)) {
             final ReadBoard board = getBoard();
             
             if (target != null && wrapCell.equals(target)) {

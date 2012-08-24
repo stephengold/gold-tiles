@@ -68,7 +68,20 @@ public class Tile implements Comparable {
 
     public Tile(int id) {
         assert id != ID_NONE;
+        
         this.id = id;
+        assert opts.containsKey(id);
+    }
+    
+    public Tile(int idMagnitude, boolean remote) {
+        assert idMagnitude > ID_NONE;
+        
+        if (remote) {
+            id = -idMagnitude; // change sign of remote ID            
+        } else {
+            this.id = idMagnitude;
+        }
+        
         assert opts.containsKey(id);
     }
     
@@ -76,27 +89,32 @@ public class Tile implements Comparable {
      * @param opt the options for the new Tile
      */
     public Tile(TileOpt opt) {
-       id = nextId();
-       assert !opts.containsKey(id);
+        assert opt != null;
+        
+        id = nextId();
+        assert !opts.containsKey(id);
        
-       opts.put(id, opt);
+        opts.put(id, opt);
     }
     
     /**
      * @param text string-form of a Tile to construct
      * @param remoteFlag true if string-form is from a remote host
      */
-    public Tile(String text, boolean remoteFlag) {
-        final String[] parts = text.split(SEPARATOR_REGEX);
+    public Tile(String text, boolean remote) 
+        throws ParseException 
+    {
+        assert text != null;
         
+        final String[] parts = text.split(SEPARATOR_REGEX);
         if (parts.length != 2) {
-            throw new RuntimeException(); // TODO recovery
+            throw new ParseException();
         }
         final String first = parts[0];
         final String second = parts[1];
 
         final int idMagnitude = Integer.parseInt(first);
-        if (remoteFlag) {
+        if (remote) {
             id = -idMagnitude; // change sign of remote ID
         } else {
             id = idMagnitude;
@@ -114,28 +132,26 @@ public class Tile implements Comparable {
         assert alternatives != null;
         
         for (;;) {
-            Global.print("Enter a tile name");
+            Console.print("Enter a tile description");
             for (String alt : alternatives) {
-                Global.print(" or ");
-                Global.print(StringExt.quote(alt));
+                Console.printf(" or %s", StringExt.quote(alt));
             }
-            Global.print(": ");
-            final String input = Global.readLine();
+            final String input = Console.readLine(": ");
             
             final Choice result = new Choice(input);
             if (alternatives.contains(input)) {
                 return result;
             }
 
-            // convert to TileOpt
+            // Convert the description to a TileOpt.
             final TileOpt tileOpt = TileOpt.fromDescription(input);
+            
             if (!tileOpt.matchesDescription(input)) {
-                Global.print(StringExt.quote(result.string));
-                Global.print(" is invalid input.\n");
+                Console.printf("%s does not describe a tile.\n", 
+                        StringExt.quote(result.string));
             
             } else if (!available.contains(tileOpt)) {
-                Global.print(input);
-                Global.print(" is unavailable.\n");
+                Console.printf("No %s tile is available.\n", input);
 
             } else {
                 result.tile = available.first(tileOpt);

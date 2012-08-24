@@ -33,11 +33,12 @@ public class Move {
     final private static String PREFIX = "move{";
     final private static String RESIGN = "resign";
     final private static String SEPARATOR = " ";
+    final private static String SEPARATOR_REGEX = "[ ]";
     final private static String SUFFIX = "}";
     
-    // per-instance fields
-    final private boolean resignFlag;  // immutable
-    final java.util.Set<TileCell> set; // mutable
+    // per-instance fields, sorted by type
+    final private boolean resignFlag;   // immutable
+    final java.util.Set<TileCell> set;  // mutable
     
     // constructors
     
@@ -49,6 +50,45 @@ public class Move {
         assert isPass();
     }
     
+    public Move(Move other) {
+        assert other != null;
+        
+        resignFlag = other.resignFlag;
+        set = new TreeSet(other.set);
+        
+        assert this.equals(other);
+    }
+
+    public Move(String text, boolean remote) 
+        throws ParseException
+    {
+        assert text != null;
+        
+        final boolean hasPrefix = text.startsWith(PREFIX);
+        final boolean hasSuffix = text.endsWith(SUFFIX);
+        if (!hasPrefix || !hasSuffix) {
+            throw new ParseException();
+        }
+        
+        final int endIndex = text.length() - PREFIX.length();
+        final String body = text.substring(PREFIX.length(), endIndex);
+        final String[] words = body.split(SEPARATOR_REGEX);
+        
+        boolean resign = false;
+        set = new TreeSet();
+
+        for (String word : words) {
+            if (word.equals(RESIGN)) {
+                resign = true;
+            } else {
+                final TileCell tileCell = new TileCell(word, remote);
+                add(tileCell);
+            }
+        }
+        
+        resignFlag = resign;
+    }
+    
     // construct a resignation
     public Move(Tiles discard) {
         assert discard != null;
@@ -58,25 +98,22 @@ public class Move {
         
         for (Tile tile : discard) {
             final TileCell tileCell = new TileCell(tile);
-            set.add(tileCell);
+            add(tileCell);
         }
         
         assert isResignation();
     }
     
-    public Move(Move other) {
-        assert other != null;
-        
-        resignFlag = other.resignFlag;
-        set = new TreeSet(other.set);
-    }
+    // methods, sorted by name
     
-    // methods
+    private void add(TileCell tileCell) {
+        final boolean newElement = set.add(tileCell);
+        assert newElement;        
+    }
     
     public void add(Tile tile, Cell destination) {
         final TileCell tileCell = new TileCell(tile, destination);
-        
-        set.add(tileCell);
+        add(tileCell);
     }
     
     public static Move chooseConsole(Tiles available, int mustPlay) {
@@ -148,11 +185,43 @@ public class Move {
         return result;
     }
 
+    public String describe() {
+        String result;
+        
+        if (isResignation()) {
+            result = String.format("resigned, returning %s to the stock bag",
+                    StringExt.plural(size(), "tile"));
+            
+        } else if (isPureSwap()) {
+            result = "swapped " + StringExt.plural(size(), "tile");
+            
+        } else if (isPass()) {
+            result = "passed";
+            
+        } else if (!involvesSwap()) {
+            result = "played ";
+            boolean firstFlag = true;
+            for (TileCell tileCell : set) {
+                if (firstFlag) {
+                    firstFlag = false;
+                } else {
+                    result += ", ";
+                }
+                result += tileCell.describe();
+            }
+            
+        } else {
+            result = "played and swapped tiles"; // illegal move
+        }
+        
+        return result;
+    }
+    
     public boolean doesPlace() {
         return !resignFlag && !set.isEmpty();
     }
     
-    public boolean equals(Move other) {
+    final public boolean equals(Move other) {
         if (other == null) {
             return false;
         }

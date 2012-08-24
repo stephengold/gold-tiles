@@ -29,7 +29,7 @@ package goldtile;
 public class Strings 
     extends java.util.LinkedList< String >
 {
-    // methods
+    // methods, sorted by name
     
     public int count(String string) {
         assert string != null;

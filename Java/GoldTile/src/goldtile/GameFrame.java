@@ -41,7 +41,7 @@ public class GameFrame extends javax.swing.JFrame {
         setJMenuBar(menuBar);
         
         // Create the panel for the client area.
-        final GamePanel clientArea = new GamePanel(menuBar);
+        final GamePanel clientArea = new GamePanel(menuBar, this);
         menuBar.clientArea = clientArea;
 
         // Lay out the frame.
@@ -53,14 +53,14 @@ public class GameFrame extends javax.swing.JFrame {
         final Toolkit toolkit = Toolkit.getDefaultToolkit();
         final Area screen = new Area(toolkit.getScreenSize());
         final Area area = screen.shrink(new Percent(20)); // shrink 20%
-        final int x = screen.width/2 - area.width/2;      // center horizontally
-        final int y = screen.height/2 - area.height/2;    // center vertically
+        final int x = (screen.width - area.width)/2;      // center horizontally
+        final int y = (screen.height - area.height)/2;    // center vertically
         setBounds(x, y, area.width, area.height);
 
         // Display the frame.
         setVisible(true);
 
-        // Associate the game (if any) with the client area's GameView.
+        // Associate the initial game (if any) with the client area's GameView.
         clientArea.view.changeGame(game);
     }
 }

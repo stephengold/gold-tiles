@@ -228,19 +228,19 @@ public class Board
     @Override
     public int getBottomUseRow() {
         final Grid grid = Cell.getGrid();
-        return -(grid.rowFringe + getSouthMax());     
+        return -(grid.getRowFringe() + getSouthMax());     
     }
 
     @Override
     public int getLeftUseColumn() {
         final Grid grid = Cell.getGrid();
-        return -(grid.columnFringe + getWestMax());     
+        return -(grid.getColumnFringe() + getWestMax());     
     }
 
     @Override
     public int getRightUseColumn() {
         final Grid grid = Cell.getGrid();
-        return grid.columnFringe + getEastMax();     
+        return grid.getColumnFringe() + getEastMax();     
     }
 
     private Cells getRun(Cell start, Direction direction) {
@@ -309,7 +309,7 @@ public class Board
     public int getTopUseRow() {
         final Grid grid = Cell.getGrid();
         
-        return grid.rowFringe + getNorthMax();     
+        return grid.getRowFringe() + getNorthMax();     
     }
     
     @Override

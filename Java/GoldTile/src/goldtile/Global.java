@@ -26,9 +26,6 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 
 package goldtile;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.Random;
 
 public class Global {
@@ -36,36 +33,6 @@ public class Global {
     final public static int MILLISECONDS_PER_SECOND = 1000;
     final public static int SECONDS_PER_MINUTE = 60;
     
-    // console I/O
-    
-    private static BufferedReader in = new BufferedReader(
-            new InputStreamReader(System.in));
-    private static java.io.PrintStream out = System.out; 
-
-    public static void disableConsole() {
-        in = null;
-        out = null;
-    }
-    
-    public static void print(String string) {
-        if (out != null) {
-            out.print(string);
-        }
-    }
-    
-    public static String readLine() {
-        assert in != null;
-        
-        try {
-            String result = in.readLine();
-            result = result.trim();
-            return result;
-            
-        } catch (IOException exception) {
-            throw new AssertionError();
-        }
-    }
-
     // pseudo-random generator   
     
     final private static Random generator = new Random();

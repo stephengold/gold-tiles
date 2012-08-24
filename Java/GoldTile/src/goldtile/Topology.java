@@ -1,6 +1,6 @@
-// File:     ReadGame.java
+// File:     Topology.java
 // Location: Java/GoldTile/src/goldtile
-// Purpose:  ReadGame interface for the Gold Tile Game
+// Purpose:  Topology enum for the Gold Tile Game
 /**
  * @author Stephen Gold
  */
@@ -26,29 +26,29 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 
 package goldtile;
 
-public interface ReadGame {
-    public boolean canRedo();
-    public boolean canUndo();
-    public UserMessage checkMove(Move move);
-    public Board copyBoard();
-    public int countStock();
+public enum Topology {
+    // values
+    FLAT,
+    RECTANGLE,
+    TORUS,
+    VSTRIP,
+    HSTRIP,
+    VCYLINDER,
+    HCYLINDER;
+
+    // methods, sorted by name
     
-    public ReadBoard getBoard();
-    public Game.Ending getEnding();
-    public ReadGameOpt getGameOpt();
-    public ReadHand getHand(int iHand);
-    public int getMustPlay();
-    public ReadHand getPlayable();
-    public int getPlayableIndex();
-    public int[] getUnplayableIndices();
-    public Strings getUserNames();
-    public int getSeconds(int iHand);
+    public boolean doesWrap() {
+        return this == TORUS || this == VCYLINDER || this == HCYLINDER;
+    }
     
-    public boolean isFirstTurn();
-    public boolean isLegalMove(Move move);
-    public boolean isOutOfTime();
-    public boolean isOver();
-    public boolean isPaused();
-    public boolean isPlayable(int iHand);
-    public boolean isStockEmpty();
+    public boolean hasFiniteHeight() {
+        return this == TORUS || this == RECTANGLE || 
+                this == HSTRIP || this == HCYLINDER;
+    }
+
+    public boolean hasFiniteWidth() {
+        return this == TORUS || this == RECTANGLE || 
+                this == VSTRIP || this == VCYLINDER;
+    }
 }

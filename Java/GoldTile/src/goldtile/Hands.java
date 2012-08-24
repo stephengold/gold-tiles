@@ -49,7 +49,7 @@ public class Hands
     public Hands(HandOpts opts) {
         super();
 
-        // Generate a list of player names, duplicates included.
+        // Generate a list of player names, including duplicates.
         final Strings names = opts.getAllPlayerNames();
 
         // Construct hands and give each one a unique name.
@@ -93,10 +93,8 @@ public class Hands
             final Tiles run = hand.findLongestRun();
             final int runLength = run.size();
 
-            result.report += String.format("%s has a run of %s: %s.\n",
-                    hand.getName(),
-                    StringExt.plural(runLength, "tile"),
-                    run.describe());
+            result.report += String.format("%s has a run of %s.\n",
+                    hand.getName(), StringExt.plural(runLength, "tile"));
 
             if (runLength > result.length) {
                 result.length = runLength;

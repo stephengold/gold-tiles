@@ -28,6 +28,7 @@ package goldtile;
 
 public class Markings {
     // constants
+    final public static int COLOR_COUNT_MAX = 1;
     final public static int MARKING_COUNT_MAX = 4;
     private static Color colors[] = null;
 

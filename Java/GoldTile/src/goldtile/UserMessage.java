@@ -59,7 +59,7 @@ public enum UserMessage {
         "The cells you use must lie along a single scoring axis, with no empty cells between them.",
         "Scoring Axis Rule"),
     START (
-        "Your first tile must use the start cell. To change this tile, you must take back ALL your tiles.",
+        "Your first tile must use the start cell. To change this cell, take back ALL your played tiles.",
         "Start Rule"),
     START_SIMPLE (
         "Your first tile must use the start cell.",

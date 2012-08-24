@@ -93,6 +93,12 @@ public class Rect extends java.awt.Rectangle {
         return y + height;
     }
     
+    public Point getCenter() {
+        final Point result = new Point(getMiddleX(), getMiddleY());
+
+        return result;
+    }
+    
     public int getMiddleX() {
         return x + width/2;
     }

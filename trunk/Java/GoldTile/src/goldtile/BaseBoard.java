@@ -178,6 +178,8 @@ public class BaseBoard {
     }
     
     public void place(Cell cell, Tile tile) {
+        assert cell != null;
+        assert tile != null;
         assert cellMap.get(cell) == null : cellMap.get(cell);
         assert tileMap.get(tile) == null : tileMap.get(tile);
         

@@ -28,81 +28,74 @@ package goldtile;
 
 public class GoldTile {
     // configuration flags
-    public static boolean autoNewGame = false;
-    public static boolean consoleEnabled = true;
+    
+    public static boolean autoOfferGame = true;
+    public static boolean beClient = true;
     public static boolean debugging = true;
-    public static boolean guiEnabled = true;
-    public static boolean initialGame = true;
-    public static boolean isClient = true;
+    public static boolean enableConsole = true;
+    public static boolean enableGui = true;
+    public static boolean standardGame = false;
     
     public static Display control = Display.GUI;
     
     // methods
     
-    private static Game initialGame() {
-        if (!initialGame) {
-            return null;
-        }
-        
+    private static Game standardGame() {
         // options
-        GameOpt gameOpt;
-        HandOpts handOpts;
- 
-        switch (control) {
-            case CONSOLE:
-                // read options from the user via the console
-                gameOpt = GameOpt.chooseConsole();
-                handOpts = HandOpts.chooseConsole(gameOpt);
-                break;
-                
-            case GUI:
-                assert guiEnabled;
-                
-                // TODO new game wizard
-                gameOpt = new GameOpt();
-                handOpts = new HandOpts();
-                for (int iHand = 0; iHand < gameOpt.getHandsDealt(); iHand++) {
-                    final HandOpt handOpt = new HandOpt("User");
-                    handOpts.addLast(handOpt);
-                }
-                break;
-                
-            default:
-                throw new AssertionError();
+        final GameOpt gameOpt = new GameOpt();
+        final int handsDealt = gameOpt.getHandsDealt();
+        final HandOpt[] handOpts = new HandOpt[handsDealt];
+        for (int iHand = 0; iHand < handsDealt; iHand++) {
+            handOpts[iHand] = new HandOpt("User");
         }
         
         // Create the game.
-        final Game result = new Game(gameOpt, handOpts);
-        
-        return result;
+        return new Game(gameOpt, handOpts);
+    }
+
+    private static Game offerGameConsole() {
+        // read options from the user via the console
+        final GameOpt gameOpt = GameOpt.chooseConsole();
+        final int handsDealt = gameOpt.getHandsDealt();
+        final HandOpt[] handOpts = new HandOpt[handsDealt];
+        for (int iHand = 0; iHand < handsDealt; iHand++) {
+            handOpts[iHand] = HandOpt.chooseConsole(iHand);
+        }
+
+        // Create the game.
+        return new Game(gameOpt, handOpts);
     }
     
     /**
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        if (!consoleEnabled) {
+        if (!enableConsole) {
             Console.disable();
         }
         
-        final Game game = initialGame();
+        if (standardGame) {
+            standardGame();
+        } else if (autoOfferGame && control == Display.CONSOLE) {
+            offerGameConsole();
+        }
         
-        if (guiEnabled) {
+        if (enableGui) {
             javax.swing.SwingUtilities.invokeLater(new Runnable() {
                 @Override 
                 public void run()  {
-                    new GameFrame(game);
+                    new GameFrame();
                 }
             });
         }
         
         switch (control) {
             case CONSOLE:
-                game.playConsole();
+                Game.getInstance().playConsole();
                 break;
                 
             case GUI:
-                assert guiEnabled;
+                assert enableGui;
                 break;
                 
             default:

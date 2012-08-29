@@ -29,8 +29,10 @@ package goldtile;
 import java.util.Iterator;
 
 public class Tiles extends java.util.TreeSet< Tile > {
-    // constants, sorted by type
+    // nested classes
     public static final class PullEmptyException extends Exception {}
+
+    // constants, sorted by type
     private static final String PREFIX = "tiles{";
     private static final String SEPARATOR = " ";
     private static final String SUFFIX = "}";
@@ -54,9 +56,9 @@ public class Tiles extends java.util.TreeSet< Tile > {
 
     // generate tiles for the stock bag - RECURSIVE
     private void addCombos(int iAttr, Combo comboSoFar) {
-        final int attrCount = Combo.getAttrCount();
+        final int attrCount = getGameOpt().getAttrCount();
         if (iAttr < attrCount) {
-            final int max = Combo.getValueMax(iAttr);
+            final int max = getGameOpt().getAttrLastValue(iAttr);
             for (int attrValue = 0; attrValue <= max; attrValue++) {
                 final Attr attr = new Attr(attrValue);
                 comboSoFar.setAttr(iAttr, attr);
@@ -189,7 +191,7 @@ public class Tiles extends java.util.TreeSet< Tile > {
     public int firstMatchingAttr() {
         assert areAllCompatible();
         assert size() > 1 : size();
-        assert Combo.getAttrCount() == 2 : Combo.getAttrCount();
+        assert getGameOpt().getAttrCount() == 2 : getGameOpt().getAttrCount();
         
         final Tile first = first();
         assert first != null;
@@ -211,6 +213,10 @@ public class Tiles extends java.util.TreeSet< Tile > {
         
         assert result > 0;
         return result;
+    }
+    
+    private static ReadGameOpt getGameOpt() {
+        return Game.getInstance().getOpt();
     }
     
     private Tile pullFirst() throws PullEmptyException {
@@ -252,14 +258,19 @@ public class Tiles extends java.util.TreeSet< Tile > {
         return result;
     }
     
-    public Tiles pullRandom(int count) throws PullEmptyException {
+    public Tiles pullRandom(int count) {
         assert count >= 0 : count;
         
         final Tiles result = new Tiles();
         
         for (int iTile = 0; iTile < count; iTile++) {
-            final Tile tile = pullRandom();
-            result.add(tile);
+            try {
+                final Tile tile = this.pullRandom();
+                result.add(tile);
+            } catch (Tiles.PullEmptyException exception) {
+                // caller will detect
+                break;
+            }
         }
         
         return result;

@@ -27,9 +27,14 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 package goldtile;
 
 public interface ReadHandOpt {
+    public String getIpAddress();
+    public int getLevel();
     public String getPlayerName();
+    public String getSavedName();
     public Fraction getSkipProbability();
+    
     public boolean isAutomatic();
     public boolean isLocalUser();
     public boolean isRemote();
+    public boolean isValid();
 }

@@ -26,38 +26,61 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 
 package goldtile;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+
 public class HandOpt 
     implements ReadHandOpt
 {
     // constants
-    public static Fraction SKIP_PROBABILITY_DEFAULT = new Fraction(0.0);
+    final public static Fraction SKIP_PROBABILITY_DEFAULT = new Fraction(0.0);
+    final public static int LEVEL_DEFAULT = 8;
+    final public static int LEVEL_MAX = 8;
+    final public static int LEVEL_MIN = 0;
+    final public static String IP_ADDRESS_DEFAULT = "172.0.0.1";
+    final public static String COMPUTER = "Computer";
     
-    // per-instance fields
+    // per-instance fields (all mutable)
     private boolean automaticFlag;
     private boolean remoteFlag;
-    private Fraction skipProbability; // ignored except in automatic hands
-    private String playerName;
+    private int level;          // ignored except in automatic hands
+    private String ipAddress;   // ignored except in remote hands 
+    private String playerName;  // ignored in automatic hands
 
     // constructors
     
     public HandOpt(String playerName) {
-        automaticFlag = false;
-        remoteFlag = false;
-        skipProbability = SKIP_PROBABILITY_DEFAULT;
-        this.playerName = playerName;
-    }
-    
-    public HandOpt(HandOpt other) {
-        assert other.skipProbability != null;
-        assert !other.skipProbability.isUnity();
+        assert playerName != null;
         
-        automaticFlag = other.automaticFlag;
-        remoteFlag = other.remoteFlag;
-        skipProbability = other.skipProbability;
-        playerName = other.playerName;
+        remoteFlag = false;
+        level = LEVEL_DEFAULT;
+        ipAddress = IP_ADDRESS_DEFAULT;
+
+        if (playerName.equals(COMPUTER)) {
+            automaticFlag = true;
+            this.playerName = "";
+        } else {
+            automaticFlag = false;
+            this.playerName = playerName;
+        }
+        
+        assert isValid();
     }
     
-    // methods
+    public HandOpt(ReadHandOpt other) {
+        assert other != null;
+        assert other.isValid();
+        
+        automaticFlag = other.isAutomatic();
+        remoteFlag = other.isRemote();
+        level = other.getLevel();
+        ipAddress = other.getIpAddress();
+        playerName = other.getSavedName();
+
+        assert isValid();
+    }
+    
+    // methods, sorted by name
     
     public static HandOpt chooseConsole(int iHand) {
         assert iHand >= 0;
@@ -72,41 +95,68 @@ public class HandOpt
             playerName = StringExt.normalizeName(playerName);
         }
 
-        HandOpt result = new HandOpt(playerName);
+        HandOpt result;
         switch (playerName) {
-            case "Computer":
-                result.automaticFlag = true;
-                result.remoteFlag = false;
-                // TODO set skip probability
+            case COMPUTER:
+                result = new HandOpt(COMPUTER);
+                // TODO set level
                 break;
                 
             case "Network":
-                result.automaticFlag = false;
-                result.remoteFlag = true;
-                playerName = "";
                 while (playerName.isEmpty()) {
                     playerName = Console.readLine("Name of network player? ");
                     playerName = StringExt.normalizeName(playerName);
                 }
+                result = new HandOpt(playerName);
+                result.setRemote();
                 // TODO set address
                 break;
 
             default:
-                result.automaticFlag = false;
-                result.remoteFlag = false;
+                result = new HandOpt(playerName);
         }
         
         return result;
     }
     
+    public static Strings getAllPlayerNames(int count, ReadHandOpt[] opts) {
+        final Strings result = new Strings();
+        
+        for (int iHand = 0; iHand < count; iHand++) {
+            final ReadHandOpt opt = opts[iHand];
+            result.addLast(opt.getPlayerName());    
+        }
+        
+        return result;
+    }
+       
+    @Override
+    public String getIpAddress() {
+        return ipAddress;
+    }
+    
+    @Override
+    public int getLevel() {
+        return level;
+    }
+    
     @Override
     public String getPlayerName() {
+        if (isAutomatic()) {
+            return COMPUTER;
+        } else {
+            return playerName;
+        }
+    }
+    
+    @Override
+    public String getSavedName() {
         return playerName;
     }
     
     @Override
     public Fraction getSkipProbability() {
-        return skipProbability;
+        return new Fraction(0.1 * (double)(LEVEL_MAX - level));
     }
     
     @Override
@@ -124,17 +174,59 @@ public class HandOpt
         return remoteFlag;
     }
     
+    @Override
     public boolean isValid() {
         if (automaticFlag && remoteFlag) {
             return false;
-        }
-        if (automaticFlag && skipProbability.toDouble() >= 1.0) {
+        } else if (level < LEVEL_MIN) {
+            return false;
+        } else if (level > LEVEL_MAX) {
+            return false;
+        } else if (playerName == null) {
+            return false;
+        } else if (playerName.equals(COMPUTER)) {
+            return false;
+        } else try {
+            final String normal = InetAddress.getByName(ipAddress).getHostAddress();
+            return ipAddress.equals(normal);
+        } catch (UnknownHostException exception) {
             return false;
         }
-        if (playerName.isEmpty()) {
-            return false;
-        }
+    }
+    
+    public void setAutomatic() {
+        automaticFlag = true;
+        remoteFlag = false;
+    }
+    
+    public void setIpAddress(String address) {
+        assert ipAddress != null;
         
-        return true;
+        ipAddress = address;
+    }
+    
+    public void setLevel(int level) {
+        assert level >= LEVEL_MIN;
+        assert level <= LEVEL_MAX;
+        
+        this.level = level;
+    }
+    
+    public void setLocalUser() {
+        automaticFlag = false;
+        remoteFlag = false;
+    }
+
+    public void setPlayerName(String name) {
+        assert name != null;
+        assert !name.isEmpty();
+        assert !name.equals(COMPUTER);
+        
+        playerName = name;
+    }
+    
+    public void setRemote() {
+        automaticFlag = false;
+        remoteFlag = true;
     }
 }

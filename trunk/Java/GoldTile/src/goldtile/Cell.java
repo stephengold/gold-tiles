@@ -39,9 +39,6 @@ public class Cell implements Comparable {
     final private int column;
     final private int row;
     
-    // static fields
-    private static GameOpt gameOpt;
-    
     // constructors
     
     public Cell() {
@@ -69,13 +66,26 @@ public class Cell implements Comparable {
         assert base.isValid() : base;
         assert direction != null;
 
-        if (getGrid() == Grid.GRID_TRIANGLE) {
-            final boolean oddFlag = base.isOdd();
-            // TODO direction = direction.triangleNeighbor(oddFlag);
+        int step = 1;
+        switch (getGameOpt().getGrid()) {
+            case GRID_TRIANGLE:
+                final boolean oddFlag = base.isOdd();
+                // TODO direction = direction.triangleNeighbor(oddFlag);
+                break;
+            case GRID_HEX:
+                if (direction.cardinalFlag) {
+                    step = 2;
+                }
+                break;
+            case GRID_4WAY:
+            case GRID_8WAY:
+                break;
+            default:
+                throw new AssertionError(getGameOpt());
         }
         
-        row = base.row + direction.rowOffset;
-        column = base.column + direction.columnOffset;
+        row = base.row + step * direction.rowOffset;
+        column = base.column + step * direction.columnOffset;
     }
         
     public Cell(String text)
@@ -152,12 +162,6 @@ public class Cell implements Comparable {
         }
     }
     
-    public static boolean doesBoardWrap() {
-        assert gameOpt != null;
-        
-        return gameOpt.doesBoardWrap();
-    }
-
     public boolean equals(Cell other) {
         if (other == null) {
             return false;
@@ -167,45 +171,23 @@ public class Cell implements Comparable {
                column == other.column;
     }
     
-    public static Dim getBoardHeight() {
-        assert gameOpt != null;
-        
-        return gameOpt.getBoardHeight();
-    }
-
-    public static Dim getBoardWidth() {
-        assert gameOpt != null;
-        
-        return gameOpt.getBoardWidth();
-    }
-
     public int getColumn() {
         return column;
     }
     
-    public static Grid getGrid() {
-        assert gameOpt != null;
-        
-        return gameOpt.getGrid();
+    private static ReadGameOpt getGameOpt() {
+        return Game.getInstance().getOpt();
     }
     
     public int getRow() {
         return row;
     }
     
-    public static Direction[] getScoringAxes() {
-        return getGrid().getScoringAxes();
-    }
-    
-    public static Shape getShape() {
-        return getGrid().getCellShape();
-    }
-    
     public boolean hasNeighbor(Direction direction) {
         assert isValid();
         assert direction != null;
 
-        switch (getGrid()) {
+        switch (getGameOpt().getGrid()) {
             case GRID_TRIANGLE:
                 if (direction == Direction.NORTH && isEven()) {
                     return false;
@@ -232,18 +214,18 @@ public class Cell implements Comparable {
                 break; // generally has neighbors in all eight directions
             
             default:
-                throw new AssertionError(getGrid());
+                throw new AssertionError(getGameOpt().getGrid());
         }
 
         // Check for edges.
         int row = this.row + direction.rowOffset;
         int column = this.column + direction.columnOffset;
 
-        if (doesBoardWrap()) {
-            if (!getBoardHeight().isValidIndex(row)) {
+        if (getGameOpt().doesBoardWrap()) {
+            if (!getGameOpt().getBoardHeight().isValidIndex(row)) {
                 return false;
             }
-            if (!getBoardWidth().isValidIndex(column)) {
+            if (!getGameOpt().getBoardWidth().isValidIndex(column)) {
                 return false;
             }
         }
@@ -264,7 +246,7 @@ public class Cell implements Comparable {
     }
 
     static public boolean isScoringAxis(Direction direction) {
-        final Direction[] scoringAxes = getScoringAxes();
+        final Direction[] scoringAxes = getGameOpt().getGrid().getScoringAxes();
         
         return Arrays.asList(scoringAxes).contains(direction);
     } 
@@ -274,11 +256,11 @@ public class Cell implements Comparable {
     }
     
     public boolean isValid() {
-        if (getGrid().isHex() && isOdd()) {
+        if (getGameOpt().getGrid().isHex() && isOdd()) {
             return false;
         } else {
-            return getBoardHeight().isValidIndex(row) && 
-                getBoardWidth().isValidIndex(column);
+            return getGameOpt().getBoardHeight().isValidIndex(row) && 
+                getGameOpt().getBoardWidth().isValidIndex(column);
         }
     }
     
@@ -288,7 +270,7 @@ public class Cell implements Comparable {
         final int cellsNeeded = cellCnt;
         int mostFound = 1;
 
-        for (Direction axis : getScoringAxes()) {
+        for (Direction axis : getGameOpt().getGrid().getScoringAxes()) {
             int cellsFound = 1;
             
             Cell current = new Cell(); // start cell
@@ -331,29 +313,18 @@ public class Cell implements Comparable {
         return mostFound;
     }
        
-    /**
-     * @param gameOpt the current game options
-     */
-    public static void setStatic(GameOpt gameOpt) {
-        assert gameOpt != null;
-        
-        Cell.gameOpt = new GameOpt(gameOpt); // save a copy
-    }
-    
     @Override
     public String toString() {
-        assert isValid();
-
         return String.format("%s%d%s%d%s",
                 PREFIX, row, SEPARATOR, column, SUFFIX);
     }
     
     public Cell wrap() {
-        assert isValid();
+        // must work on invalid tiles!
         
-        if (doesBoardWrap()) {
-            final int column = getBoardWidth().wrapIndex(this.column);
-            final int row = getBoardWidth().wrapIndex(this.row);
+        if (getGameOpt().doesBoardWrap()) {
+            final int column = getGameOpt().getBoardWidth().wrapIndex(this.column);
+            final int row = getGameOpt().getBoardHeight().wrapIndex(this.row);
             final Cell result = new Cell(row, column);
             
             assert result.isValid();

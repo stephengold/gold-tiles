@@ -109,7 +109,7 @@ public class SizeMenu
     // methods, sorted by name
     
     public void accelerate() {
-        zoomIn.setAccelerator(KeyStroke.getKeyStroke('='));
+        zoomIn.setAccelerator(KeyStroke.getKeyStroke('+'));
         zoomOut.setAccelerator(KeyStroke.getKeyStroke('-'));
     }
     

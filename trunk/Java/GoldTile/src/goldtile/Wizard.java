@@ -28,7 +28,6 @@ package goldtile;
 
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
-import java.awt.Dimension;
 import java.awt.Insets;
 import javax.swing.*;
 import javax.swing.border.Border;
@@ -59,7 +58,7 @@ public class Wizard
         // row of buttons along the bottom edge
         
         backButton.setActionCommand("back");
-        nextButton.setPreferredSize(new Dimension(200, 0)); // wide button
+        nextButton.setPreferredSize(new java.awt.Dimension(200, 0)); // wide button
         nextButton.setActionCommand("next");
         
         final Box buttonRow = new Box(BoxLayout.LINE_AXIS);
@@ -87,6 +86,8 @@ public class Wizard
         assert card != null;
         
         final String name = card.getName();
+        assert !map.containsKey(name);
+        
         cardPanel.add(card, name);
         map.put(name, card);
     }
@@ -151,12 +152,9 @@ public class Wizard
     private void showCard(WizardCard card, Object... models) {
         assert card != null;
         
-        visibleCard = card;
-        
+        visibleCard = card; 
         card.setModels(models);
-        
         setTitle(card.getTitle() + " - Gold Tile Game");
-        
         cardLayout.show(cardPanel, card.getName());        
     }
 }

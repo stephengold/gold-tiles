@@ -1,6 +1,6 @@
-// File:     DimVerifier.java
+// File:     AddressVerifier.java
 // Location: Java/GoldTile/src/goldtile
-// Purpose:  DimVerifier class for the Gold Tile Game
+// Purpose:  AddressVerifier class for the Gold Tile Game
 /**
  * @author Stephen Gold
  */
@@ -28,14 +28,14 @@ package goldtile;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import javax.swing.JComponent;
 import javax.swing.JTextField;
 
-public class DimVerifier 
+public class AddressVerifier
     extends javax.swing.InputVerifier
 {
-    // methods, sorted by name
-    
     // check input (may alter the text or block transfer of focus)
     // return true if focus may be transfered, false to block transfer
     @Override
@@ -45,15 +45,10 @@ public class DimVerifier
         final JTextField textField = (JTextField)input;
         String text = textField.getText();
 
-        if (text.equals(Dim.endlessString())) {
-            // do nothing
-        } else try {
-            int count = Integer.parseInt(text);
-            count = Dim.clip(count);
-            final Dim dimension = new Dim(count);
-            text = dimension.toString();
-        } catch (NumberFormatException exception) {
-            text = Dim.endlessString();
+        try {
+            text = InetAddress.getByName(text).getHostAddress();
+        } catch (UnknownHostException exception) {
+            return false;
         }
         
         textField.setText(text);
@@ -77,13 +72,10 @@ public class DimVerifier
         
         final JTextField textField = (JTextField)input;
         final String text = textField.getText();
-        
-        if (text.equals(Dim.endlessString())) {
-            return true;
-        } else try {
-            final int count = Integer.parseInt(text);
-            return Dim.isValid(count);
-        } catch (NumberFormatException exception) {
+        try {
+            final String normal = InetAddress.getByName(text).getHostAddress();
+            return text.equals(normal);
+        } catch (UnknownHostException exception) {
             return false;
         }
     }

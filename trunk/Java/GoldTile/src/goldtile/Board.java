@@ -143,7 +143,7 @@ public class Board
         Direction axisOfPlay = null;
         if (cells.size() > 1) {
             // Ensure all the cells used lie in a single connected run.
-            for (Direction axis : Cell.getScoringAxes()) {                
+            for (Direction axis : getGameOpt().getGrid().getScoringAxes()) {                
                 if (after.areAllInConnectedRun(cells, axis)) {
                     axisOfPlay = axis;
                 }
@@ -154,7 +154,7 @@ public class Board
         }
 
         // Check compatibility of all runs involving these tiles
-        for (Direction axis : Cell.getScoringAxes()) {
+        for (Direction axis : getGameOpt().getGrid().getScoringAxes()) {
             if (!after.areAllRunsCompatible(cells, axis)) {
                 if (axis.verticalFlag) {
                     return UserMessage.COLUMN_COMPATIBILITY;
@@ -179,7 +179,7 @@ public class Board
     // Convert the entire board to a String for console output.
     @Override
     public String describe() {
-        final int width = Combo.getAttrCount() + 4;
+        final int width = getGameOpt().getAttrCount() + 4;
 
         // blanks in upper left corner
         String result = StringExt.pad("", width);
@@ -227,19 +227,23 @@ public class Board
     
     @Override
     public int getBottomUseRow() {
-        final Grid grid = Cell.getGrid();
+        final Grid grid = getGameOpt().getGrid();
         return -(grid.getRowFringe() + getSouthMax());     
     }
 
+    private static ReadGameOpt getGameOpt() {
+        return Game.getInstance().getOpt();
+    }
+    
     @Override
     public int getLeftUseColumn() {
-        final Grid grid = Cell.getGrid();
+        final Grid grid = getGameOpt().getGrid();
         return -(grid.getColumnFringe() + getWestMax());     
     }
 
     @Override
     public int getRightUseColumn() {
-        final Grid grid = Cell.getGrid();
+        final Grid grid = getGameOpt().getGrid();
         return grid.getColumnFringe() + getEastMax();     
     }
 
@@ -307,7 +311,7 @@ public class Board
     
     @Override
     public int getTopUseRow() {
-        final Grid grid = Cell.getGrid();
+        final Grid grid = getGameOpt().getGrid();
         
         return grid.getRowFringe() + getNorthMax();     
     }
@@ -404,11 +408,12 @@ public class Board
             result *= bonusFactor;
 
             // special bonus for two-attribute games
-            if (Combo.getAttrCount() == 2) {
+            if (getGameOpt().getAttrCount() == 2) {
                 // Determine the common attribute.
                 final int commonAttrIndex = tiles.firstMatchingAttr();
                 final int otherAttrIndex = 1 - commonAttrIndex;
-                final int maxLength = Combo.getValueCount(otherAttrIndex);
+                final int maxLength = getGameOpt().
+                        getAttrValueCount(otherAttrIndex);
 
                 // double the bonus if at max length
                 assert runLength <= maxLength : runLength;
@@ -429,7 +434,7 @@ public class Board
         int result = 0;
         final Cells cells = move.copyCells();
 
-        for (Direction axis : Cell.getScoringAxes()) {
+        for (Direction axis : getGameOpt().getGrid().getScoringAxes()) {
             final Cells done = new Cells();
 
             for (Cell start : cells) {

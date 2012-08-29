@@ -27,25 +27,19 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 package goldtile;
 
 public class Combo {
-    // constants, sorted by type
-    
+    // constants
     final private static AttrMode STRING_MODE = AttrMode.ABC;
     
-    final public static int ATTR_COUNT_DEFAULT = 2;
-    final public static int ATTR_COUNT_MAX = 5;
-    final public static int ATTR_COUNT_MIN = 2;
-    
     // per-instance fields (mutable)
-    final private Attr attrs[] = new Attr[attrCount];
-    
-    // static fields
-    private static int attrCount = 0;
-    private static int valueMax[] = null;
+    final private Attr attrs[];
     
     // constructors
     
     public Combo() {
-        assertInitialized();
+        attrs = new Attr[getGameOpt().getAttrCount()];
+        for (int iAttr = 0; iAttr < getGameOpt().getAttrCount(); iAttr++) {
+            attrs[iAttr] = new Attr();
+        }
     }
     
     /**
@@ -53,9 +47,9 @@ public class Combo {
      */
     public Combo(Combo other) {
         assert other != null;
-        assertInitialized();
         
-        System.arraycopy(other.attrs, 0, attrs, 0, attrCount);
+        attrs = new Attr[getGameOpt().getAttrCount()];
+        System.arraycopy(other.attrs, 0, attrs, 0, other.attrs.length);
     }
 
     /**
@@ -63,15 +57,16 @@ public class Combo {
      */
     public Combo(String text) {
         assert text != null;
-        assertInitialized();
+        
+        attrs = new Attr[getGameOpt().getAttrCount()];
         
         int iAttr;
         for (iAttr = 0; iAttr < text.length(); iAttr++) {
             final char ch = text.charAt(iAttr);
 
-            if (iAttr < attrCount) {
-                int attrValue = STRING_MODE.charToAttr(ch);
-                if (attrValue <= 0 || attrValue > getValueMax(iAttr)) {
+            if (iAttr < getGameOpt().getAttrCount()) {
+                final int attrValue = STRING_MODE.charToAttr(ch);
+                if (!getGameOpt().getAttrLast(iAttr).isValidValue(attrValue)) {
                     setAttr(iAttr, new Attr()); 
                     // so the resulting object will be valid
                 } else {
@@ -80,7 +75,7 @@ public class Combo {
             }
         }
 
-        while (iAttr < attrCount) {
+        while (iAttr < getGameOpt().getAttrCount()) {
             /*
              * not enough characters in the string -- 
              * pad the attribute array with zeroes
@@ -93,22 +88,6 @@ public class Combo {
 
     // methods, sorted by name
     
-    private static void assertInitialized() {
-        assert attrCount >= ATTR_COUNT_MIN : attrCount;
-        assert valueMax != null;
-    }
-    
-    public static long comboCount() {
-        assertInitialized();
-
-        long result = 1;
-        for (int iAttr = 0; iAttr < attrCount; iAttr++) {
-            result *= getValueCount(iAttr);
-        }
-        
-        return result;
-    }
-
     /**
      * @param other the Combo to be compared
      */
@@ -116,7 +95,7 @@ public class Combo {
         assert other != null;
         
         int result = 0;
-        for (int iAttr = 0; iAttr < attrCount; iAttr++) {
+        for (int iAttr = 0; iAttr < getGameOpt().getAttrCount(); iAttr++) {
             final Attr attr = getAttr(iAttr);
             if (other.hasMatchingAttr(iAttr, attr)) {
                 result ++;
@@ -129,7 +108,7 @@ public class Combo {
     public String describe() {
         String result = "";
        
-        for (int iAttr = 0; iAttr < attrCount; iAttr++) {
+        for (int iAttr = 0; iAttr < getGameOpt().getAttrCount(); iAttr++) {
             final AttrMode displayMode = AttrMode.getConsoleDefault(iAttr);
             final Attr value = getAttr(iAttr);
             result += displayMode.attrToChar(value);
@@ -146,7 +125,7 @@ public class Combo {
             return false;
         }
         
-        return countMatchingAttrs(other) == attrCount;        
+        return countMatchingAttrs(other) == getGameOpt().getAttrCount();        
     }
     
     /**
@@ -156,7 +135,7 @@ public class Combo {
         assert other != null;
         assert isCompatibleWith(other) : other;
         
-        for (int iAttr = 0; iAttr < attrCount; iAttr++) {
+        for (int iAttr = 0; iAttr < getGameOpt().getAttrCount(); iAttr++) {
             final Attr attr = getAttr(iAttr);
             if (other.hasMatchingAttr(iAttr, attr)) {
                 return iAttr;
@@ -170,26 +149,25 @@ public class Combo {
      */
     public static Combo fromDescription(String text) {
         assert text != null;
-        assertInitialized();
         
         final Combo result = new Combo();
 
         int iAttr;
         for (iAttr = 0 ; iAttr < text.length(); iAttr++) {
             final char ch = text.charAt(iAttr);
-            if (iAttr < attrCount) {
+            if (iAttr < getGameOpt().getAttrCount()) {
                 final AttrMode displayMode = AttrMode.getConsoleDefault(iAttr);
-                int attrValue = displayMode.charToAttr(ch);
-                if (attrValue <= 0 || attrValue > getValueMax(iAttr)) {
+                final int attrValue = displayMode.charToAttr(ch);
+                if (getGameOpt().getAttrLast(iAttr).isValidValue(attrValue)) {
+                    result.setAttr(iAttr, new Attr(attrValue));
+                } else { // invalid character
                     result.setAttr(iAttr, new Attr());
                     // so the resulting object will be valid
-                } else {
-                    result.setAttr(iAttr, new Attr(attrValue));
                 }
             }
         }
 
-        while (iAttr < attrCount) {
+        while (iAttr < getGameOpt().getAttrCount()) {
             /*
              * Not enough characters in the string -- 
              * pad the attribute array with zeroes.
@@ -207,34 +185,13 @@ public class Combo {
      */
     public Attr getAttr(int iAttr) {
         assert iAttr >= 0 : iAttr;
-        assert iAttr < attrCount : iAttr;
+        assert iAttr < getGameOpt().getAttrCount() : iAttr;
         
         return attrs[iAttr];
     }
     
-    public static int getAttrCount() {
-        return attrCount;
-    }
-
-    /**
-     * @param iAttr the index of the attribute
-     */
-    public static int getValueCount(int iAttr) {
-        assert iAttr >= 0 : iAttr;
-        assert iAttr < attrCount : iAttr;
-        
-        return 1 + getValueMax(iAttr);
-    }
-
-    /**
-     * @param iAttr the index of the attribute
-     */
-    public static int getValueMax(int iAttr) {
-        assertInitialized();
-        assert iAttr >= 0 : iAttr;
-        assert iAttr < attrCount : iAttr;        
-    
-        return valueMax[iAttr];
+    public static ReadGameOpt getGameOpt() {
+        return Game.getInstance().getOpt();
     }
 
     /**
@@ -242,10 +199,10 @@ public class Combo {
      * @param value the test value for the attribute
      */
     public boolean hasMatchingAttr(int iAttr, Attr attr) {
-        assert iAttr >= 0 : iAttr;
-        assert iAttr < attrCount : iAttr;
+        assert iAttr >= Attr.FIRST : iAttr;
+        assert iAttr < getGameOpt().getAttrCount() : iAttr;
         assert attr != null;
-        assert attr.intValue() <= getValueMax(iAttr) : attr;
+        assert getGameOpt().getAttrLast(iAttr).isValid(attr);
 
         return getAttr(iAttr).equals(attr);
     }
@@ -265,27 +222,20 @@ public class Combo {
      */
     final public void setAttr(int iAttr, Attr attr) {
         assert iAttr >= 0 : iAttr;
-        assert iAttr < attrCount : iAttr;
+        assert iAttr < getGameOpt().getAttrCount() : iAttr;
         assert attr != null;
-        assert attr.intValue() <= valueMax[iAttr] : attr;
+        assert getGameOpt().getAttrLast(iAttr).isValid(attr);
         
         attrs[iAttr] = attr;
         
         assert hasMatchingAttr(iAttr, attr);
     }
     
-    public static void setStatic(ReadGameOpt gameOpt) {
-        attrCount = gameOpt.getAttrCount();
-        valueMax = gameOpt.copyValueMax();
-        
-        assertInitialized();
-    }
-
     @Override
     public String toString() {
         String result = "";
         
-        for (short iAttr = 0; iAttr < attrCount; iAttr++) {
+        for (short iAttr = 0; iAttr < getGameOpt().getAttrCount(); iAttr++) {
             final Attr value = attrs[iAttr];
             result += STRING_MODE.attrToChar(value);
         }

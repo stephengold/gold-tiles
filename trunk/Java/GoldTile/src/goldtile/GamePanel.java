@@ -31,7 +31,6 @@ import java.awt.Point;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import javax.swing.JButton;
 import javax.swing.JOptionPane;
 
 public class GamePanel 
@@ -136,8 +135,8 @@ public class GamePanel
 
     private void handleClickView(Point point) {
         assert point != null;
-        assert view.hasGame();
-        assert !view.getGame().isPaused();
+        assert Game.haveInstance();
+        assert !Game.getInstance().isPaused();
         assert !dragBoard;
 
         if (view.hasActiveTile()) {
@@ -170,8 +169,8 @@ public class GamePanel
     
     private void handleDragView(Point point) {
         assert point != null;
-        assert view.hasGame();
-        assert !view.getGame().isPaused();
+        assert Game.haveInstance();
+        assert !Game.getInstance().isPaused();
         
         if (view.hasActiveTile()) {
             assert !dragBoard;
@@ -189,8 +188,8 @@ public class GamePanel
     private void handleReleaseView(Point point) {
         assert point != null;
         assert mouseLast != null;
-        assert view.hasGame();
-        assert !view.getGame().isPaused();
+        assert Game.haveInstance();
+        assert !Game.getInstance().isPaused();
         
         final int dx = point.x - mouseLast.x;
         final int dy = point.y - mouseLast.y;
@@ -239,7 +238,7 @@ public class GamePanel
     private void leftButtonPress(Point point) {
         assert point != null;
         
-        final ReadGame game = view.getGame();
+        final ReadGame game = Game.getInstance();
         if (game != null && !game.isPaused()) {
             handleClickView(point);
         }
@@ -251,7 +250,7 @@ public class GamePanel
         assert point != null;
         assert mouseLast != null;
         
-        final ReadGame game = view.getGame();
+        final ReadGame game = Game.getInstance();
         if (game != null) {
             if (game.isPaused()) {
                 view.startClock();
@@ -271,7 +270,7 @@ public class GamePanel
         if (leftButtonDown) {
             assert mouseLast != null;
 
-            final ReadGame game = view.getGame();
+            final ReadGame game = Game.getInstance();
             if (game != null && !game.isPaused()) {
                 handleDragView(point);            
             }
@@ -292,9 +291,27 @@ public class GamePanel
     }
     
     public void offerNewGame() {
-        // TODO copy opts  
-        final GameOpt gameOpt = new GameOpt();
-        final HandOpts handOpts = new HandOpts();
+        GameOpt gameOpt;
+        if (Game.haveInstance()) {
+            gameOpt = new GameOpt(Game.getInstance().getOpt());
+            gameOpt.setRules(Rules.REPLAY);
+        } else {
+            // Start with the standard options.
+            gameOpt = new GameOpt();
+        }
+
+        final int maxHands = ParmBox3.HANDS_DEALT_MAX;
+        final HandOpt handOpts[] = new HandOpt[maxHands];
+        for (int iHand = 0; iHand < maxHands; iHand++) {
+            HandOpt handOpt;
+            if (Game.haveInstance() && iHand < gameOpt.getHandsDealt()) {
+                ReadHand hand = Game.getInstance().getHand(iHand);
+                handOpt = new HandOpt(hand.getOpt());
+            } else {
+                handOpt = new HandOpt("User");
+            }
+            handOpts[iHand] = handOpt;
+        }
                 
         final Wizard wizard = new Wizard(frame);
         
@@ -304,15 +321,22 @@ public class GamePanel
         final WizardCard parmBox2 = new ParmBox2(wizard);
         wizard.addCard(parmBox2);
         
+        final WizardCard parmBox3 = new ParmBox3(wizard);
+        wizard.addCard(parmBox3);
+
+        final WizardCard handBox = new HandBox(wizard);
+        wizard.addCard(handBox);
+
         // pack and go
-        final boolean completed = wizard.run(parmBox1, gameOpt);
+        final boolean completed = wizard.run(parmBox1, gameOpt, handOpts);
         
         if (!completed) {
-            Console.print("aborted.\n");
+            Console.print("New game aborted.\n");
             return;
         }
         
-        Console.print("Gtart game!\n");
+        new Game(gameOpt, handOpts);
+        view.changeGame();
     }
     
     @Override
@@ -328,15 +352,6 @@ public class GamePanel
         repaint();
     }
     
-    public void showRuleBox(UserMessage userMessage) {
-        assert userMessage != null;
-        
-        JOptionPane.showMessageDialog(this, 
-                userMessage.message, 
-                userMessage.title + " - Gold Tile Game", 
-                JOptionPane.ERROR_MESSAGE);
-    }
-    
     public void showInformationBox(String message, String title) {
         assert message != null;
         assert title != null;
@@ -344,5 +359,14 @@ public class GamePanel
         JOptionPane.showMessageDialog(this, message, 
                 title + " - Gold Tile Game",
                 JOptionPane.INFORMATION_MESSAGE);
+    }
+
+    public void showRuleBox(UserMessage userMessage) {
+        assert userMessage != null;
+        
+        JOptionPane.showMessageDialog(this, 
+                userMessage.message, 
+                userMessage.title + " - Gold Tile Game", 
+                JOptionPane.ERROR_MESSAGE);
     }
 }

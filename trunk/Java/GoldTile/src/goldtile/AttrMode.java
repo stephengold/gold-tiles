@@ -91,7 +91,7 @@ public enum AttrMode {
      * @param iAttr the index of the attribute
      */
     public static AttrMode getConsoleDefault(int iAttr) {
-        assert iAttr < Combo.ATTR_COUNT_MAX : iAttr;
+        assert iAttr < GameOpt.ATTR_COUNT_MAX : iAttr;
         
         switch (iAttr) {
             case 0:
@@ -122,7 +122,7 @@ public enum AttrMode {
      * @param iAttr the index of the attribute
      */
     public static AttrMode getGuiDefault(int iAttr) {
-        assert iAttr < Combo.ATTR_COUNT_MAX : iAttr;
+        assert iAttr < GameOpt.ATTR_COUNT_MAX : iAttr;
         
         switch (iAttr) {
             case 0:

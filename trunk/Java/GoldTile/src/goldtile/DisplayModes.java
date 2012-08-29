@@ -33,7 +33,7 @@ public class DisplayModes {
     // constructors
     
     public DisplayModes(Display display) {
-        final int count = Combo.ATTR_COUNT_MAX;
+        final int count = GameOpt.ATTR_COUNT_MAX;
         modes = new AttrMode[count];
         for (int iAttr = 0; iAttr < count; iAttr++) {
             final AttrMode mode = AttrMode.getDefault(display, iAttr);
@@ -42,7 +42,7 @@ public class DisplayModes {
     }
     
     public DisplayModes(DisplayModes other) {
-        final int count = Combo.ATTR_COUNT_MAX;
+        final int count = GameOpt.ATTR_COUNT_MAX;
         modes = new AttrMode[count];
         for (int iAttr = 0; iAttr < count; iAttr++) {
             final AttrMode mode = other.modes[iAttr];
@@ -75,7 +75,7 @@ public class DisplayModes {
     
     public int countColors() {
         int result = 0;
-        for (int iAttr = 0; iAttr < Combo.ATTR_COUNT_MAX; iAttr++) {
+        for (int iAttr = 0; iAttr < GameOpt.ATTR_COUNT_MAX; iAttr++) {
             final AttrMode mode = getMode(iAttr);
             if (mode.isColor()) {
                 result++;
@@ -86,8 +86,9 @@ public class DisplayModes {
     }
     
     public int countMarkings() {
+        final int attrCount = Game.getInstance().getOpt().getAttrCount();
         int result = 0;
-        for (int iAttr = 0; iAttr < Combo.getAttrCount(); iAttr++) {
+        for (int iAttr = 0; iAttr < attrCount; iAttr++) {
             final AttrMode mode = getMode(iAttr);
             if (!mode.isColor()) {
                 result++;
@@ -102,7 +103,7 @@ public class DisplayModes {
     }
     
     public AttrMode getMode(int iAttr) {
-        assert iAttr < Combo.ATTR_COUNT_MAX : iAttr;
+        assert iAttr < GameOpt.ATTR_COUNT_MAX : iAttr;
         
         return modes[iAttr];
     }
@@ -110,7 +111,7 @@ public class DisplayModes {
     private int getSecondColorIndex() {
         int count = 0;
         
-        for (int iAttr = 0; iAttr < Combo.ATTR_COUNT_MAX; iAttr++) {
+        for (int iAttr = 0; iAttr < GameOpt.ATTR_COUNT_MAX; iAttr++) {
             final AttrMode mode = getMode(iAttr);
             if (mode.isColor()) {
                 count++;
@@ -126,7 +127,7 @@ public class DisplayModes {
     
     public void setMode(int iAttr, AttrMode newMode) {
         assert iAttr >= 0 : iAttr;
-        assert iAttr < Combo.ATTR_COUNT_MAX : iAttr;
+        assert iAttr < GameOpt.ATTR_COUNT_MAX : iAttr;
                 
         modes[iAttr] = newMode;      
     }

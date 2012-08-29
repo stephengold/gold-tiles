@@ -38,16 +38,14 @@ public class Dim {
     // constructors
     
     public Dim(int count) {
-        assert count >= MIN : count;
-        assert count <= MAX : count;
-        assert Global.isEven(count) : count;
+        assert isValid(count) : count;
 
         this.count = count;
     }
     
     public Dim(String text) {
         assert text != null;
-        
+
         if (text.equals(ENDLESS)) {
             count = MAX;
         } else try {
@@ -56,9 +54,7 @@ public class Dim {
             throw new AssertionError();
         }    
 
-        assert count >= MIN : count;
-        assert count <= MAX : count;
-        assert Global.isEven(count) : count;
+        assert isValid(count) : count;
     }
     
     // methods, sorted by name
@@ -93,6 +89,18 @@ public class Dim {
     
     public boolean isValidIndex(int index) {
         return (index < count/2) && (index >= -count/2);
+    }
+    
+    public static boolean isValid(int value) {
+        if (value > MAX) {
+            return false;
+        } else if (value < MIN) {
+            return false;
+        } else if (Global.isOdd(value)) {
+            return false;
+        } else {
+            return true;
+        }
     }
     
     public long times(Dim other) {

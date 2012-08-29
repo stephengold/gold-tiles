@@ -236,6 +236,13 @@ public class Tile implements Comparable {
         return (id <= -ID_FIRST || (id >= ID_FIRST && id < nextId));
     }
 
+    public static void newGame(ReadGameOpt opt) {
+        bonusProbability = opt.getBonusFraction();
+        
+        nextId = ID_FIRST;
+        opts = new java.util.TreeMap<>();
+    }
+    
     private static int nextId() {
         assert nextId < ID_MAX;
             
@@ -243,14 +250,6 @@ public class Tile implements Comparable {
         nextId = result + 1;
         
         return result;
-    }
-    
-    public static void setStatic(ReadGameOpt opt) {
-        Combo.setStatic(opt);
-        bonusProbability = opt.getBonusFraction();
-        
-        nextId = ID_FIRST;
-        opts = new java.util.TreeMap<>();
     }
     
     @Override

@@ -1,6 +1,6 @@
-// File:     Fraction.java
+// File:     Attr.java
 // Location: Java/GoldTile/src/goldtile
-// Purpose:  Fraction class for the Gold Tile Game
+// Purpose:  Attr class for the Gold Tile Game
 /**
  * @author Stephen Gold
  */
@@ -30,9 +30,11 @@ public class Attr {
     // constants
     final public static int COUNT_DEFAULT = 6;
     final public static int COUNT_MAX = 9;
-    final public static int MIN = 0;
-    final public static int MAX_DEFAULT = COUNT_DEFAULT - 1;
-    final public static int MAX_MAX = COUNT_MAX - 1;
+    final public static int COUNT_MIN = 2;
+    final public static int FIRST = 0;
+    final public static int LAST_DEFAULT = COUNT_DEFAULT - 1;
+    final public static int LAST_MAX = COUNT_MAX - 1;
+    final public static int LAST_MIN = COUNT_MIN - 1;
 
     // per-instance fields (immutable)
     final private int value;
@@ -40,12 +42,12 @@ public class Attr {
     // constructors
     
     public Attr() {
-        this.value = 0;
+        this.value = FIRST;
     }
     
     public Attr(int value) {
-        assert value >= MIN : value;
-        assert value <= MAX_MAX : value;
+        assert value >= FIRST : value;
+        assert value <= LAST_MAX : value;
         
         this.value = value;
     }
@@ -62,5 +64,13 @@ public class Attr {
     
     public int intValue() {
         return value;
+    }
+    
+    public boolean isValid(Attr other) {
+        return other.value >= FIRST && other.value <= this.value;
+    }
+
+    public boolean isValidValue(int value) {
+        return value >= FIRST && value <= this.value;
     }
 }

@@ -59,7 +59,7 @@ public class Canvas extends Graphics {
         foregroundColor = borderColor;
         backgroundColor = tileColor;
 
-        if (Cell.getShape() == Shape.SQUARE) {
+        if (getCellShape() == Shape.SQUARE) {
             assert area.isSquare();
             final int arcDiameter = width/TILE_POINTEDNESS;
             drawRoundedSquare(center, width, arcDiameter);
@@ -81,7 +81,7 @@ public class Canvas extends Graphics {
     }
     
     public void drawGridShape(Point center, Area area, boolean oddFlag) {
-        switch (Cell.getShape()) {
+        switch (getCellShape()) {
             case HEXAGON:
                 assert !oddFlag;
                 drawHexagon(center, area);
@@ -94,7 +94,7 @@ public class Canvas extends Graphics {
                 drawEquilateralTriangle(center, area, oddFlag);
                 break;
             default:
-                throw new AssertionError(Cell.getGrid());
+                throw new AssertionError(getCellShape());
        }
     }
     
@@ -118,9 +118,9 @@ public class Canvas extends Graphics {
 
                 final char ch = displayMode.attrToChar(attr);
                 final String str = Character.toString(ch);
-                //useFont(bounds.height, bounds.width);
+                //TODO useFont(bounds.height, bounds.width);
                 drawTextLine(bounds, str, null);
-                //useFont(FONT_HEIGHT_DEFAULT);
+                //TODO useFont(FONT_HEIGHT_DEFAULT);
                 break;
    
             default:
@@ -151,7 +151,7 @@ public class Canvas extends Graphics {
         }
 
         Rect interior;
-        if (Cell.getShape() == Shape.SQUARE) {
+        if (getCellShape() == Shape.SQUARE) {
             assert tileArea.isSquare();
             final int arcDiameter = width/TILE_POINTEDNESS;
             drawRoundedSquare(center, width, arcDiameter);
@@ -207,6 +207,10 @@ public class Canvas extends Graphics {
         }
 
         return interior;
+    }
+    
+    private static Shape getCellShape() {
+        return Game.getInstance().getOpt().getGrid().getCellShape();
     }
     
     private static void initializeShapes() {
@@ -364,7 +368,7 @@ public class Canvas extends Graphics {
     {
         final Rect bounds = new Rect(center, area);
 
-        switch (Cell.getShape()) {
+        switch (getCellShape()) {
             case HEXAGON:
                 assert !oddFlag;
                 return interiorHexagon(bounds);
@@ -374,7 +378,7 @@ public class Canvas extends Graphics {
             case TRIANGLE: 
                 return interiorEquilateralTriangle(bounds, oddFlag);
             default:
-                throw new AssertionError(Cell.getShape());
+                throw new AssertionError(getCellShape());
        }
     }  
 }

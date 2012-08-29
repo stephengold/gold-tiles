@@ -31,7 +31,15 @@ public enum Rules {
     REPLAY,
     STANDARD;
     
+    public boolean isCustom() {
+        return this == CUSTOM;
+    }
+
     public boolean isReplay() {
         return this == REPLAY;
+    }
+
+    public boolean isStandard() {
+        return this == STANDARD;
     }
 }

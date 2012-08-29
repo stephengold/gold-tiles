@@ -79,6 +79,10 @@ public class Fraction {
         }
     }
     
+    public double toPercent() {
+        return 100.0 * value;
+    }
+    
     @Override
     public String toString() {
         return Double.toString(value);

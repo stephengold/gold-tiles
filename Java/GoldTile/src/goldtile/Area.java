@@ -49,8 +49,8 @@ public class Area extends Dimension {
         return height == width;
     }
     
-    public Area shrink(Percent percent) {
-        final double factor = percent.toFraction().toDouble(true);
+    public Area shrink(Fraction fraction) {
+        final double factor = fraction.toDouble(true);
         final int newWidth = (int)(this.width * factor);
         final int newHeight = (int)(this.height * factor);
         

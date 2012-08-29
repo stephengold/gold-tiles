@@ -35,9 +35,9 @@ public interface ReadGame {
     
     public ReadBoard getBoard();
     public Game.Ending getEnding();
-    public ReadGameOpt getGameOpt();
     public ReadHand getHand(int iHand);
     public int getMustPlay();
+    public ReadGameOpt getOpt();
     public ReadHand getPlayable();
     public int getPlayableIndex();
     public int[] getUnplayableIndices();

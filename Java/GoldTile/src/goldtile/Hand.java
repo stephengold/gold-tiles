@@ -32,7 +32,7 @@ public class Hand
     // per-instance fields
     private boolean clockRunning = false;
     private boolean resigned = false;
-    final private HandOpt opt;
+    final private ReadHandOpt opt;    // immutable
     private int score = 0;
     private long milliseconds = 0;    // total time charged to the hand
     private long startTime = 0;
@@ -41,7 +41,7 @@ public class Hand
     
     // constructors
     
-    public Hand(String name, HandOpt opt) {
+    public Hand(String name, ReadHandOpt opt) {
         assert name != null;
         assert opt != null;
         
@@ -69,18 +69,21 @@ public class Hand
     
     @Override
     public Move chooseMoveAutomatic(Game game) {
-        Fraction skipProbability = opt.getSkipProbability();
-        if (game.getMustPlay() > 0) {
-            skipProbability = new Fraction(0.0);
-        }
-        final Partial partial = new Partial();
-        partial.setGame(game);
-        partial.setSkipProbability(skipProbability);
+        assert game != null;
+        assert GoldTile.control == Display.CONSOLE;
         
-        partial.suggest();
+        Partial partial;
+        try {
+            partial = Partial.findBestMove(game, 
+                    opt.getSkipProbability());
+        } catch (InterruptedException exception) {
+            // Interrupts should be possible only under GUI control.
+            throw new AssertionError();
+        }
+        
         final Move result = partial.getMove(Partial.Active.INCLUDED);
-
         Console.printf(String.format("%s %s.\n", name, result.describe()));
+        
         return result;
     }
     

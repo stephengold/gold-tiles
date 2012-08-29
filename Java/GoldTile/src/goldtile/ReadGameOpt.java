@@ -27,11 +27,13 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 package goldtile;
 
 public interface ReadGameOpt {
-    public int[] copyValueMax();
     public long countCombos();
+    public long countTiles();
     public boolean doesBoardWrap();
 
     public int getAttrCount();
+    public Attr getAttrLast(int iAttr);
+    public int getAttrLastValue(int iAttr);
     public int getAttrValueCount(int iAttr);
     public Dim getBoardHeight();
     public Dim getBoardWidth();
@@ -41,16 +43,14 @@ public interface ReadGameOpt {
     public Grid getGrid();
     public int getHandsDealt();
     public int getHandSize();
-    public Attr getLastAttr(int iAttr);
-    public int getMaxAttrValue(int iAttr);
     public long getMillisecondsPerHand();
     public int getMinutesPerHand();
     public Rules getRules();
     public int getSecondsPerHand();
     public long getSeed();
     public int getStuckThreshold();
-    public Topology getTopology();
     public GameStyle getStyle();
+    public Topology getTopology();
     public int getTilesPerCombo();
     
     public boolean hasFiniteHeight();

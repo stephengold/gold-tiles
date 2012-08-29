@@ -37,36 +37,41 @@ public class Game
     private Board board = new Board();        // extensible playing surface
     final private boolean clientFlag;         // immutable
     private boolean unsavedChangeFlag = false;
-    final private GameOpt opt;                // immutable
     final private Hands hands;                // all hands being played
     private int mustPlay = 0;  // min number of tiles to play, 0 after the 1st turn
+    final private ReadGameOpt opt;            // immutable
     private String bestRunReport = null;
-    private String filespec = null;            // associated file for load/save
+    private String filespec = null;           // file for load/save
     private String firstTurnMessage = null;
-    private Tiles stockBag = null;
+    final private Tiles stockBag;
     private Turn redo = null;   // current index in the history, null means end
     final private Turns history = new Turns();
     
-    // constructors
+    // static fields
+    private static Game currentInstance = null;
     
-    public Game(GameOpt opt, HandOpts handOpts) {
+    // constructors
+
+    public Game(GameOpt opt, HandOpt[] handOpts) {
         assert opt != null;
         opt.validate();
         assert handOpts != null;
-        assert handOpts.size() == opt.getHandsDealt();
+        assert handOpts.length >= opt.getHandsDealt();
+
+        // Replace the active game.
+        currentInstance = this;
 
         // Save a copy of the options.
         this.opt = new GameOpt(opt);
-
-        clientFlag = true; // TODO
         
-        // Intialize static data of the Cell and Tile classes.
-        Cell.setStatic(opt);
-        Tile.setStatic(opt);
+        clientFlag = true; // TODO
         
         // Re-seed the psedo-random generator.
         opt.reseedGenerator();
         
+        // Make a new batch of tiles.
+        Tile.newGame(opt);
+
         // Add tiles to the stock bag.
         stockBag = new Tiles();
         if (clientFlag) {
@@ -80,7 +85,7 @@ public class Game
         Console.printf("\nPlaced %s in the stock bag.\n",
             StringExt.plural(countStock(), "tile") );
         
-        hands = new Hands(handOpts);
+        hands = new Hands(opt.getHandsDealt(), handOpts);
         assert hands.size() == opt.getHandsDealt();
         
         // The deal:  each hand pulls tiles from the stock bag.
@@ -165,6 +170,10 @@ public class Game
         }
     }
 
+    public static void closeCurrentInstance() {
+        currentInstance = null;
+    }
+    
     @Override
     public Board copyBoard() {
         return new Board(board);
@@ -296,6 +305,9 @@ public class Game
         assert isPaused();
         
         Console.printLine();
+        if (GoldTile.enableGui) {
+            //invokeLater();
+        }
         startClock();
         
         final ReadHand playable = getPlayable();
@@ -359,18 +371,22 @@ public class Game
     }
     
     @Override
-    public ReadGameOpt getGameOpt() {
-        return opt;
-    }
-    
-    @Override
     public ReadHand getHand(int iHand) {
         return hands.get(iHand);
+    }
+    
+    public static Game getInstance() {
+        return currentInstance;
     }
     
     @Override
     public int getMustPlay() {
         return mustPlay;
+    }
+    
+    @Override
+    public ReadGameOpt getOpt() {
+        return opt;
     }
     
     @Override
@@ -418,6 +434,10 @@ public class Game
         }
         
         return result;    
+    }
+    
+    public static boolean haveInstance() {
+        return currentInstance != null;
     }
     
     @Override
@@ -539,11 +559,7 @@ public class Game
         Tiles result = null;
         
         if (clientFlag) {
-            try {
-               result = stockBag.pullRandom(count);
-            } catch (Tiles.PullEmptyException exception) {
-               // caller will detect
-            }
+            result = stockBag.pullRandom(count);
         } else {  // server
             // TODO
         }

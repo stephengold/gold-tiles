@@ -30,11 +30,13 @@ public class Partial {
     // enums
     public static enum Active { EXCLUDED, INCLUDED };
     
+    // constants
+    final private static Fraction SUGGEST_SKIP_PROBABILITY = new Fraction(0.0);
+    
     // per-instance fields (all mutable), sorted by type
     private Board board = new Board();
     private Cells hintedCells = null;       // cached data, null means invalid
     private Fraction skipProbability = null;
-    private Game game = null;
     private HintStrength hintStrength = null;
     private int playedTileCount = 0;        // cached data, keep updated
     private Integer pointCount = null;      // cached data, null means invalid
@@ -45,7 +47,7 @@ public class Partial {
     // constructors
     
     public Partial() {
-        setGame(null);
+        setGame();
     }
     
     private Partial(Partial other) {
@@ -56,7 +58,7 @@ public class Partial {
     
     public void activate(Tile tile) {
         assert isPlayable(tile);
-        assert hasGame();
+        assert Game.haveInstance();
 
         if (activeTile == null || !tile.equals(activeTile)) {
             activeTile = tile;
@@ -66,8 +68,28 @@ public class Partial {
             // no effect on pointCount
         }
     }
+
+    public Move autoPlay() {
+        assert Game.haveInstance();
+        final ReadHandOpt handOpt = Game.getInstance().getPlayable().getOpt();
+        assert handOpt.isAutomatic();
+
+        final HintStrength saveStrength = hintStrength;
+        final Fraction probability = handOpt.getSkipProbability();
+        Move result;
+        try {
+            final Partial best = findBestMove(Game.getInstance(), probability);
+            result = best.getMove(Partial.Active.INCLUDED);
+            assert Game.getInstance().checkMove(result) == null;
+        } catch (InterruptedException exception) {
+            result = new Move(playableTiles);  // resign
+        }
+        
+        return result;
+    }
     
-    /*
+
+    /**
      * Add cells from "base" to "hintedCells" if they are valid
      * uses for the specified Tile.
      */
@@ -104,16 +126,16 @@ public class Partial {
     }
 
     public boolean canSwapAll() {
-        return hasGame() && game.countStock() >= countPlayable();
+        return Game.haveInstance() && 
+                Game.getInstance().countStock() >= countPlayable();
         // note: doesn't consider Game.mustPlay
     }
     
-    private void copy(Partial other) {
+    final public void copy(Partial other) {
         board = new Board(other.board);
         hintedCells = (other.hintedCells == null) ? null : 
                 new Cells(other.hintedCells);
         skipProbability = other.skipProbability;
-        game = other.game;
         hintStrength = other.hintStrength;
         playedTileCount = other.playedTileCount;
         pointCount = (other.pointCount == null) ? null : 
@@ -151,7 +173,7 @@ public class Partial {
     }
     
     public Tile deactivate() {
-        assert hasGame();
+        assert Game.haveInstance();
         
         final Tile result = activeTile;
         
@@ -183,10 +205,59 @@ public class Partial {
         return find(activeTile);
     }
     
+    static public Partial findBestMove(Game game, Fraction skipProbability) 
+            throws InterruptedException
+    {
+        assert game != null;
+        
+        if (game.getMustPlay() > 0) {
+            // Consider ALL possibile moves.
+            skipProbability = new Fraction(0.0);
+        }
+        
+        final Partial partial = new Partial();
+        partial.setGame();
+        partial.setSkipProbability(skipProbability);
+        partial.setHintStrength(HintStrength.USABLE_BY_ACTIVE);
+        
+        Partial result = new Partial(partial); // a temporary copy
+        
+        // Search for good plays.
+        result = partial.findBestPlay(result);
+        assert result.playedTileCount >= game.getMustPlay();
+
+        if (result.getPointCount() == 0) {
+            // Construct a swap.
+            result.takeBack();
+            
+            int swapCount = result.countPlayable();
+            final int maxSwap = game.countStock();
+            if (swapCount > maxSwap) {
+                swapCount = maxSwap;
+            }
+            
+            // TODO be more selective in choosing tiles to swap
+            for (Tile tile : result.playableTiles) {
+                if (swapCount <= 0) {
+                    break;
+                }
+                result.activate(tile);
+                result.handToSwap();
+                swapCount--;
+            }           
+        }
+        
+        // note: result may incorporate an active tile
+        
+        return result;
+    }
+    
     // RECURSIVE
-    private Partial findBestMove(Partial bestSoFar) {
+    private Partial findBestPlay(Partial bestSoFar) 
+            throws InterruptedException
+    {
         assert bestSoFar != null;
-        assert hasGame();
+        assert Game.haveInstance();
 
         Partial result = bestSoFar;
         if (getPointCount() > bestSoFar.getPointCount()) {
@@ -197,13 +268,17 @@ public class Partial {
                 
         for (Tile tile : playableTiles) {
             if (isInHand(tile) && !skipProbability.randomBoolean()) {
-                // TODO check for cancellation
+                if (Thread.interrupted()) {
+                    throw new InterruptedException();
+                }
                 activate(tile);
                 updateHintedCells();
                 for (Cell cell : hintedCells) {
-                    // TODO check for cancellation
+                    if (Thread.interrupted()) {
+                        throw new InterruptedException();
+                    }
                     handToBoard(cell);
-                    result = findBestMove(bestSoFar);
+                    result = findBestPlay(bestSoFar);
                     boardToHand();
                 }
                 deactivate();
@@ -215,12 +290,6 @@ public class Partial {
         }
 
         return result;
-    }
-    
-    public void finishTurn(Move move) {
-        assert move != null;
-        
-        game.finishTurn(move);
     }
     
     public Cell firstHintedCell() {
@@ -253,10 +322,6 @@ public class Partial {
         return result;        
     }
     
-    public ReadGame getGame() {
-        return game;
-    }
-    
     public HintStrength getHintStrength() {
         return hintStrength;
     }
@@ -276,10 +341,6 @@ public class Partial {
         return result;
     }
     
-    public ReadHand getPlayable() {
-        return game.getPlayable();    
-    }
-    
     public int getPointCount() {
         if (pointCount == null) {
             updatePointCount();
@@ -290,8 +351,8 @@ public class Partial {
     }
     
     public GameStyle getStyle() {
-        if (hasGame()) {
-            final ReadGameOpt opt = game.getGameOpt();
+        if (Game.haveInstance()) {
+            final ReadGameOpt opt = Game.getInstance().getOpt();
             return opt.getStyle();
         } else {            
             return GameStyle.NONE;
@@ -327,10 +388,6 @@ public class Partial {
     
     public boolean hasActiveTile() {
         return activeTile != null;
-    }
-    
-    public boolean hasGame() {
-        return game != null;    
     }
     
     public boolean isActive(Tile tile) {
@@ -388,11 +445,11 @@ public class Partial {
         assert base != null;
         assert cell != null;
         assert tile != null;
-        assert hasGame();
+        assert Game.haveInstance();
 
         final Move move = new Move(base);
         move.add(tile, cell);
-        final UserMessage reason = game.checkMove(move);
+        final UserMessage reason = Game.getInstance().checkMove(move);
 
         return reason == null || reason == UserMessage.FIRST_TURN;
     }
@@ -429,9 +486,9 @@ public class Partial {
     }
 
     public void nextHand() {
-        game.nextHand();
+        Game.getInstance().nextHand();
 
-        final ReadHand playable = game.getPlayable();
+        final ReadHand playable = Game.getInstance().getPlayable();
         final ReadHandOpt handOpt = playable.getOpt();
         skipProbability = handOpt.getSkipProbability();
 
@@ -439,11 +496,11 @@ public class Partial {
     }
  
     // the start of a new game
-    final public void setGame(Game game) {
-        this.game = game;
+    final public void setGame() {
+        final Game game = Game.getInstance();
         
         final ReadGameOpt gameOpt = (game == null) ? null : 
-                game.getGameOpt();
+                game.getOpt();
         final ReadHandOpt handOpt = (game == null) ? null : 
                 game.getPlayable().getOpt();
         final HintStrength strength = HintStrength.getDefault(gameOpt, handOpt);
@@ -455,7 +512,7 @@ public class Partial {
 
     public void setHintStrength(HintStrength strength) {
         if (strength != null && !strength.equals(hintStrength)) {
-            hintStrength = strength;  
+            hintStrength = strength;
             hintedCells = null;
         }
     }
@@ -465,30 +522,27 @@ public class Partial {
     }
     
     public void startClock() {
-        assert hasGame();
+        assert Game.haveInstance();
         
-        game.startClock();
+        Game.getInstance().startClock();
     }
     
-    public void suggest() {
-        assert hasGame();
+    public Partial suggest() {
+        assert Game.haveInstance();
+        assert Game.getInstance().getPlayable().getOpt().isLocalUser();
 
         final HintStrength saveStrength = hintStrength;
-        setHintStrength(HintStrength.USABLE_BY_ACTIVE);
-        takeBack();
-        
-        Partial bestSoFar = new Partial(this); // a temporary copy
-        bestSoFar = findBestMove(bestSoFar);
 
-        if (bestSoFar.getPointCount() == 0) {
-            if (canSwapAll()) {
-                swapAll();
-            } // TODO - partial swaps
-        } else {
-            copy(bestSoFar);
-            deactivate();
-            setHintStrength(saveStrength);
-        }    
+        Partial best;
+        try {
+            best = findBestMove(Game.getInstance(), SUGGEST_SKIP_PROBABILITY);
+            best.deactivate();
+            best.setHintStrength(saveStrength);
+        } catch (InterruptedException exception) {
+            best = null;
+        }
+        
+        return best;
     }
     
     public void swapAll() {
@@ -522,9 +576,9 @@ public class Partial {
         playedTileCount = 0;
         pointCount = null;
         
-        if (hasGame()) {
-            board = game.copyBoard();
-            playableTiles = getPlayable().copyContents();
+        if (Game.haveInstance()) {
+            board = Game.getInstance().copyBoard();
+            playableTiles = Game.getInstance().getPlayable().copyContents();
         } else {
             board.clear();
             playableTiles.clear();
@@ -532,9 +586,9 @@ public class Partial {
     }
     
     public void togglePause() {
-        assert hasGame();
+        assert Game.haveInstance();
         
-        game.togglePause();
+        Game.getInstance().togglePause();
     }
 
     private void updateHintedCells() {
@@ -553,8 +607,8 @@ public class Partial {
                 final Cell cell = new Cell(row, column);
                 final Cell wrapCell = cell.wrap();
                 if (wrapCell.isValid() && 
-                        board.isEmpty(wrapCell) &&
-                        !hintedCells.contains(wrapCell))
+                    board.isEmpty(wrapCell) &&
+                    !hintedCells.contains(wrapCell))
                 {
                     hintedCells.add(cell);
                 }
@@ -579,9 +633,9 @@ public class Partial {
         }
         
         /*
-         * Remove any cells that are not usable ...
-         *   USABLE_BY_PLAYABLE:  by any playable tile
-         *   USABLE_BY_ACTIVE:    by the active tile
+         * Remove any cells that are not ...
+         *   USABLE_BY_PLAYABLE:  usable by any playable tile
+         *   USABLE_BY_ACTIVE:    usable by the active tile
          */
         base = new Cells(hintedCells);
         hintedCells.clear();
@@ -600,11 +654,11 @@ public class Partial {
     }
     
     private void updatePointCount() {
-        assert hasGame();
+        assert Game.haveInstance();
         
         pointCount = new Integer(0);
         
-        final int mustPlay = game.getMustPlay();
+        final int mustPlay = Game.getInstance().getMustPlay();
         if (mustPlay == 0 || countPlayed() >= mustPlay) {
             final Move move = getMove(Active.INCLUDED);
             pointCount = board.score(move);

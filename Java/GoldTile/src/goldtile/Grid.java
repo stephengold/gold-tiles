@@ -45,7 +45,7 @@ public enum Grid {
             case GRID_8WAY:
                 return Shape.SQUARE;
             default:
-                throw new AssertionError(Cell.getGrid());
+                throw new AssertionError(this);
         }
     }
 
@@ -68,7 +68,7 @@ public enum Grid {
             case GRID_8WAY:
                 return Direction.allAxes;
             default:
-                throw new AssertionError(Cell.getGrid());
+                throw new AssertionError(this);
         }
     }
     
@@ -99,7 +99,7 @@ public enum Grid {
             case GRID_8WAY:
                 return 8;
             default:
-                throw new AssertionError(Cell.getGrid());
+                throw new AssertionError(this);
         }
     }
     

@@ -40,6 +40,7 @@ public enum Direction {
     // per-instance fields (immutable), sorted by type
     
     final public boolean axisFlag;
+    final public boolean cardinalFlag;
     final public boolean diagonalFlag;
     final public boolean horizontalFlag;    
     final public boolean verticalFlag;
@@ -61,6 +62,7 @@ public enum Direction {
     
     private Direction(boolean a, int rowOffset, int columnOffset) {
         axisFlag = a;
+        cardinalFlag = (rowOffset == 0 || columnOffset == 0);
         diagonalFlag = (rowOffset != 0 && columnOffset != 0);
         horizontalFlag = (rowOffset == 0);
         verticalFlag = (columnOffset == 0);
@@ -111,5 +113,5 @@ public enum Direction {
             default:
                 throw new AssertionError(this);
         }        
-    }    
+    } 
 }

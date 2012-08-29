@@ -46,14 +46,18 @@ public class Hands
     
     // constructors
     
-    public Hands(HandOpts opts) {
+    public Hands(int count, ReadHandOpt[] opts) {
         super();
+        
+        assert count > 0;
+        assert count <= opts.length;
 
         // Generate a list of player names, including duplicates.
-        final Strings names = opts.getAllPlayerNames();
+        final Strings names = HandOpt.getAllPlayerNames(count, opts);
 
         // Construct hands and give each one a unique name.
-        for (HandOpt opt : opts) {
+        for (int iHand = 0; iHand < count; iHand++) {
+            final ReadHandOpt opt = opts[iHand];
             String handName = opt.getPlayerName();
             if (names.count(handName) > 1) {
                 handName = names.inventUnique(handName, "'s ", " hand");
@@ -65,11 +69,11 @@ public class Hands
             add(hand);
         }
         
-        assert size() == opts.size();
+        assert size() == count;
         assert playable == 0;
     }
 
-    // methods
+    // methods, sorted by name
 
     public void addScore(int points) {
         get(playable).addScore(points);
@@ -122,6 +126,15 @@ public class Hands
         return result;    
     }
 
+    public ReadHandOpt[] getOpts() {
+        final ReadHandOpt[] result = new ReadHandOpt[size()];
+        
+        for (int iHand = 0; iHand < size(); iHand++) {
+            result[iHand] = get(iHand).getOpt();
+        }
+        return result;    
+    }
+    
     public ReadHand getPlayable() {
         return get(playable);
     }

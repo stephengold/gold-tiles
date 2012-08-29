@@ -35,7 +35,11 @@ public class ParmBox2
     extends WizardCard
     implements ActionListener // radio buttons and Dim fields
 {
-    // classes, sorted by name
+    // constants
+    final private static int GRID_BUTTON_COUNT = 4;
+    final private static int TOPOLOGY_BUTTON_COUNT = 7;
+    
+    // embedded classes, sorted by name
     
     private class DimField extends JTextField {
         DimField(ActionListener listener) {
@@ -46,10 +50,8 @@ public class ParmBox2
             final java.awt.Font labelFont = new JLabel().getFont();
             setFont(labelFont);
             
-            addActionListener(listener); 
-
-            final DimVerifier verifier = new DimVerifier();
-            setInputVerifier(verifier);
+            addActionListener(listener);
+            setInputVerifier(new DimVerifier());
             
             setMaximumSize(new java.awt.Dimension(70, 30));
         }
@@ -83,15 +85,11 @@ public class ParmBox2
     private static class InvalidGridException extends Exception {}
     private static class InvalidTopologyException extends Exception {}
     
-    // constants
-    final private static int GRID_BUTTON_COUNT = 4;
-    final private static int TOPOLOGY_BUTTON_COUNT = 7;
-    
     // per-instance fields, sorted by type
-    private boolean updatingView = false;
     final private DimField heightField;
     final private DimField widthField;
-    private GameOpt gameOpt = null; // the model
+    private GameOpt gameOpt = null;
+    private HandOpt[] handOpts = null;
     final private JLabel cellsLabel = new JLabel("TODO cells");
     final private JRadioButton gridButtons[] = 
             new JRadioButton[GRID_BUTTON_COUNT];
@@ -262,7 +260,7 @@ public class ParmBox2
     @Override
     public void backAction() {
         updateModel();
-        showCard(ParmBox1.class.getName(), gameOpt);            
+        showCard(ParmBox1.class.getName(), gameOpt, handOpts);            
     }
 
     private int getButtonIndex(Grid grid) 
@@ -343,26 +341,26 @@ public class ParmBox2
     
     @Override 
     public String getTitle() {
-        return "Create New Game";
+        return "Board Parameters";
     }
     
     @Override
     public void nextAction() {
         updateModel();
-        if (gameOpt.getRules().isReplay()) {
-            showCard("HandBox");
-        } else {
-            showCard("ParmBox3", gameOpt);            
-        }
+        
+        showCard(ParmBox3.class.getName(), gameOpt, handOpts);
     }
     
     @Override
     public void setModels(Object[] models) {
-        assert models.length == 1 : models.length;
+        assert models != null;
+        assert models.length == 2 : models.length;
         assert models[0] != null;
+        assert models[1] != null;
         
         gameOpt = (GameOpt)models[0];
         gameOpt.validate();
+        handOpts = (HandOpt[])models[1];
         
         updateView();
     }
@@ -379,12 +377,11 @@ public class ParmBox2
     
     public void updateView() {
         // the wizard's back/next buttons
-        wizard.getBackButton().setText("< Back");
+        wizard.getBackButton().setText("\u21d0 Back");
         wizard.getBackButton().setEnabled(true);
         wizard.getBackButton().setVisible(true);
-        wizard.getNextButton().setText("Next >");
+        wizard.getNextButton().setText("Next \u21d2");
         wizard.getNextButton().setEnabled(true);
-        wizard.getNextButton().setVisible(true); // TODO
         
         // button values
         
@@ -412,10 +409,11 @@ public class ParmBox2
         
         // cell count
         final long cellCount = gameOpt.getCellCount();
+        String text = Long.toString(cellCount);
         if (cellCount == Long.MAX_VALUE) {
-            cellsLabel.setText(String.format("%s cells", Dim.endlessString()));
-        } else {
-            cellsLabel.setText(String.format("%d cells", cellCount));            
+            text = Dim.endlessString();
         }
+        cellsLabel.setText(String.format("\u21d2 The board has %s cells.", 
+                    text));            
     }    
 }

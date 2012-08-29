@@ -50,7 +50,8 @@ public class Markings {
         AttrMode modes[] = new AttrMode[MARKING_COUNT_MAX];
         int count = 0;
 
-        for (int iAttr = 0; iAttr < Combo.getAttrCount(); iAttr++) {
+        final int attrCount = Game.getInstance().getOpt().getAttrCount();
+        for (int iAttr = 0; iAttr < attrCount; iAttr++) {
             final AttrMode displayMode = displayModes.getMode(iAttr);
             final Attr attr = tile.getCombo().getAttr(iAttr);
 

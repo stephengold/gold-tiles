@@ -28,16 +28,20 @@ package goldtile;
 
 import java.awt.Toolkit;
 
-public class GameFrame extends javax.swing.JFrame {
-    public GameFrame(Game game) {
+public class GameFrame
+    extends javax.swing.JFrame
+{
+    public GameFrame() {
         setTitle("Gold Tile Game");
         
         if (GoldTile.control == Display.GUI) {
+            // Closing this window will terminate the application.
             setDefaultCloseOperation(EXIT_ON_CLOSE);
         }
         
         // Create the menu bar.
         final MenuBar menuBar = new MenuBar();
+        menuBar.addListeners();
         setJMenuBar(menuBar);
         
         // Create the panel for the client area.
@@ -49,10 +53,10 @@ public class GameFrame extends javax.swing.JFrame {
         content.add(clientArea, java.awt.BorderLayout.CENTER);
         pack();
         
-        // Determine initial bounds:  centered and covering 64% of the screen
+        // initial bounds:  centered and covering 64% of the screen
         final Toolkit toolkit = Toolkit.getDefaultToolkit();
         final Area screen = new Area(toolkit.getScreenSize());
-        final Area area = screen.shrink(new Percent(20)); // shrink 20%
+        final Area area = screen.shrink(new Fraction(0.2)); // shrink 20%
         final int x = (screen.width - area.width)/2;      // center horizontally
         final int y = (screen.height - area.height)/2;    // center vertically
         setBounds(x, y, area.width, area.height);
@@ -60,7 +64,14 @@ public class GameFrame extends javax.swing.JFrame {
         // Display the frame.
         setVisible(true);
 
-        // Associate the initial game (if any) with the client area's GameView.
-        clientArea.view.changeGame(game);
+        if (GoldTile.control == Display.CONSOLE) {
+            return;
+        }
+        if (!Game.haveInstance() && GoldTile.autoOfferGame) {
+            clientArea.offerNewGame();
+        } else {
+            // Associate the initial game (if any) with the client area's GameView.
+            clientArea.view.changeGame();
+        }
     }
 }

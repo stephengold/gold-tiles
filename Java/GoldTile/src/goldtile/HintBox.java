@@ -27,7 +27,6 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 package goldtile;
 
 import java.awt.BorderLayout;
-import java.awt.Dimension;
 import java.awt.Insets;
 import javax.swing.*;
 import javax.swing.border.Border;
@@ -81,7 +80,7 @@ public class HintBox
 
         // row of buttons along the bottom edge
         
-        okButton.setPreferredSize(new Dimension(200, 0)); // wide button
+        okButton.setPreferredSize(new java.awt.Dimension(200, 0)); // wide button
 
         final Box buttonRow = new Box(BoxLayout.LINE_AXIS);
         buttonRow.setBorder(border);

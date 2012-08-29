@@ -26,6 +26,7 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 
 package goldtile;
 
+import java.awt.Dimension;
 import javax.swing.*;
 import javax.swing.border.Border;
 import javax.swing.border.EtchedBorder;
@@ -36,21 +37,22 @@ public class ParmBox1
         javax.swing.event.ChangeListener,     // spinners
         java.awt.event.ItemListener           // checkbox
 {
-    // classes
-    private static class InvalidStyleException extends Exception {}
-    
-    // constants
+    // constants, sorted by type
+    final private static Dimension SMALL = new Dimension(45, 20);
     final private static int STYLE_BUTTON_COUNT = 4;
     
+    // embedded classes
+    private static class InvalidStyleException extends Exception {}
+    
     // per-instance fields, sorted by type
-    private GameOpt gameOpt = null; // the model
-    private int listCount = 0;
+    private GameOpt gameOpt = null;
+    private HandOpt[] handOpts = null;
     final private JCheckBox randomizeBox = new JCheckBox("randomized");
     final private JLabel challengeLabel = new JLabel(" minutes per hand");
     final private JLabel debugLabel = 
             new JLabel("  OR   generated from seed: ");
     final private JList rulesList;
-    final private JRadioButton styleButtons[] = 
+    final private JRadioButton[] styleButtons = 
             new JRadioButton[STYLE_BUTTON_COUNT];
     final private JSpinner seedSpinner;
     final private JSpinner minutesSpinner;
@@ -82,9 +84,9 @@ public class ParmBox1
 
         randomizeBox.addItemListener(this);
         
-        seedModel = new SpinnerNumberModel((int)GameOpt.SEED_DEFAULT, 
-                Integer.MIN_VALUE, Integer.MAX_VALUE, 1);
-        // longs don't work well with SpinnerNumberModel
+        final Number step = 1L;
+        seedModel = new SpinnerNumberModel(GameOpt.SEED_DEFAULT, 
+                null, null, step);
         seedSpinner = new JSpinner(seedModel);
         seedSpinner.setEditor(new JSpinner.NumberEditor(seedSpinner, "#"));
         seedSpinner.addChangeListener(this);
@@ -96,13 +98,14 @@ public class ParmBox1
         debugOpt.add(debugLabel);
         debugOpt.add(seedSpinner);
 
+        final int max = GameOpt.MINUTES_PER_HAND_MAX;
         final int min = GameOpt.MINUTES_PER_HAND_MIN;
         final int value = GameOpt.MINUTES_PER_HAND_DEFAULT;
-        final int max = GameOpt.MINUTES_PER_HAND_MAX;
         minutesModel = new SpinnerNumberModel(value, min, max, min);
         minutesSpinner = new JSpinner(minutesModel);
         minutesSpinner.setEditor(new JSpinner.NumberEditor(minutesSpinner, "#"));
         minutesSpinner.addChangeListener(this);
+        minutesSpinner.setMaximumSize(SMALL);
         
         final Box challengeOpt = new Box(BoxLayout.LINE_AXIS);
         challengeOpt.setAlignmentX(Box.LEFT_ALIGNMENT);
@@ -126,15 +129,7 @@ public class ParmBox1
         
         // JList for rules        
         
-        listCount = 3;
-        final String rulesData[] = new String[listCount];
-        for (Rules rules : Rules.values()) {
-            final int iList = getListIndex(rules);
-            if (iList < listCount) {
-                rulesData[iList] = getRulesText(rules);
-            }
-        }
-        rulesList = new JList(rulesData);        
+        rulesList = new JList();        
         rulesList.setAlignmentX(JList.LEFT_ALIGNMENT);
         rulesList.setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION);
         rulesList.setLayoutOrientation(JList.VERTICAL);
@@ -168,7 +163,8 @@ public class ParmBox1
         updateView();
     }
     
-    private int getButtonIndex(GameStyle style) throws InvalidStyleException
+    private int getButtonIndex(GameStyle style) 
+            throws InvalidStyleException
     {
         switch (style) {
             case DEBUG:
@@ -212,6 +208,20 @@ public class ParmBox1
         }
     }
 
+    private String[] getRulesData(boolean canReplay) {
+        final int listCount = canReplay ? 3 : 2;
+        
+        final String[] result = new String[listCount];
+        for (Rules rules : Rules.values()) {
+            final int iList = getListIndex(rules);
+            if (iList < listCount) {
+                result[iList] = getRulesText(rules);
+            }
+        }
+        
+        return result;
+    }
+
     private String getRulesText(Rules rules) {
         switch (rules) {
             case CUSTOM:
@@ -241,24 +251,26 @@ public class ParmBox1
     @Override
     public void nextAction() {
         updateModel();
-        if (gameOpt.getRules().isReplay()) {
-            showCard(ParmBox2.class.getName(), gameOpt);            
-//TODO            showCard("HandBox");
+        if (gameOpt.getRules().isCustom()) {
+            showCard(ParmBox2.class.getName(), gameOpt, handOpts);            
         } else {
-            showCard(ParmBox2.class.getName(), gameOpt);            
+            showCard(HandBox.class.getName(), gameOpt, handOpts);            
         }
     }
     
     @Override
     public void setModels(Object[] models) {
-        assert models.length == 1 : models.length;
+        assert models != null;
+        assert models.length == 2 : models.length;
         assert models[0] != null;
+        assert models[1] != null;
         
         gameOpt = (GameOpt)models[0];
         gameOpt.validate();
+        handOpts = (HandOpt[])models[1];
         
         final boolean canReplay = gameOpt.getRules().isReplay();
-        listCount = canReplay ? 3 : 2;
+        rulesList.setListData(getRulesData(canReplay));
         
         updateView();
     }
@@ -294,7 +306,7 @@ public class ParmBox1
     private void updateView() {
         // the wizard's back/next buttons
         wizard.getBackButton().setVisible(false); // can't go back
-        wizard.getNextButton().setText("Next >");
+        wizard.getNextButton().setText("Next \u21d2");
         wizard.getNextButton().setEnabled(true);
         
         // enable/disable controls

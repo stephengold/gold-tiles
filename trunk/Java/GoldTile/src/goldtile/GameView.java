@@ -70,21 +70,20 @@ public class GameView
 
     // methods, sorted by name
     
-    public void changeGame() {
-        final GameStyle oldStyle = getStyle();
+    public void changeGame(GameStyle oldStyle) {
         super.setGame();
         
         warmTiles = new Tiles();
-        menuBar.newGame(oldStyle, getStyle());
+        menuBar.newGame(oldStyle, Game.getStyle());
         
         if (Game.haveInstance()) {
+            // Re-initialize the preferences of all users involved in this game.
             displayModes.cleanup();
             recenter();
             for (String userName : Game.getInstance().getUserNames()) {
                 final User user = User.lookup(userName);
                 saveUser(user);
             }
-            changeHand("");
         }
 
         menuBar.update();
@@ -96,6 +95,7 @@ public class GameView
             
             final String report = Game.getInstance().reportBestRun();
             panel.showInformationBox(report, "Opening Bids");
+            changeHand("");
         }
     }
     
@@ -103,16 +103,16 @@ public class GameView
         assert previousPlayerName != null;
         assert Game.haveInstance();
         
-        final ReadHandOpt handOpt = Game.getInstance().getPlayable().getOpt();
+        final Game game = Game.getInstance();
+        final ReadHandOpt handOpt = game.getPlayable().getOpt();
         final String playerName = handOpt.getPlayerName();
         
         if (handOpt.isLocalUser()) {
-            final User user = User.lookup(playerName);
+            final ReadUser user = User.lookup(playerName);
             loadUser(user);
         }
-        takeBack();
         target = null;
-        if (!Game.getInstance().isOver()) {
+        if (!game.isOver()) {
             if (!handOpt.isLocalUser()) {
                 startClock();
             } else if (playerName.equals(previousPlayerName)) {
@@ -120,10 +120,10 @@ public class GameView
             } else if (!menuBar.isAutoPauseEnabled()) {
                 startClock();
             }
-        }
         
-        if (handOpt.isAutomatic()) {
-            menuBar.startAutoPlay();
+            if (handOpt.isAutomatic()) {
+                menuBar.startAutoPlay();
+            }
         }
     }
 
@@ -198,7 +198,7 @@ public class GameView
         moveActiveTile(from, to, toCell);
 
         // Check whether the new partial move is legal.
-        final Move moveSoFar = getMove(Active.INCLUDED);
+        final ReadMove moveSoFar = getMove(Active.INCLUDED);
         UserMessage reason = Game.getInstance().checkMove(moveSoFar);
 
         if (reason != null && 
@@ -259,17 +259,34 @@ public class GameView
         return null;
     }
 
+    public void finishTurn(ReadMove move) {
+        assert move != null;
+        assert Game.haveInstance();
+        
+        Game.getInstance().finishTurn(move);
+
+        if (Game.getInstance().isOver()) {
+            gameOver();
+                
+        } else {
+            // The game isn't over yet, so proceed to the next hand.
+            final String oldPlayerName = saveHand();
+            nextHand();
+            changeHand(oldPlayerName);
+        }
+    }
+    
     private String formatClock(int iHand) {
         assert Game.haveInstance();
 
         int seconds = Game.getInstance().getSeconds(iHand);
 
         // convert to minutes and seconds
-        boolean minusSign;
+        String sign;
         if (seconds >= 0) {
-            minusSign = false;
+            sign = "";
         } else {
-            minusSign = true;
+            sign = "-";
             seconds = -seconds;
         }
 
@@ -284,7 +301,7 @@ public class GameView
         assert tensOfSeconds <= 5;
 
         return String.format("%s%d:%d%d",
-                minusSign ? "-" : "",
+                sign,
                 minutes,
                 tensOfSeconds,
                 seconds);
@@ -309,6 +326,17 @@ public class GameView
                     StringExt.plural(pointCountThisTurn, "point"));
         }
     }
+    
+    private void gameOver() {
+        assert Game.haveInstance();
+        assert Game.getInstance().isOver();
+        
+        menuBar.gameOver();
+        final String endBonus = Game.getInstance().reportEndBonus();
+        panel.showInformationBox(endBonus, "Game Over");
+        takeBack();
+    }
+    
     
     public Cell getCell(Point point) {
         assert point != null;
@@ -340,13 +368,18 @@ public class GameView
         return new Cell(row, column);
     }
 
+    /**
+     * Compute the width and height of cells in the specified Place.
+     * @param place a region of the game view (never null)
+     * @return a new Area object (never null) 
+     */
     private Area getCellArea(Place place) {
         assert place != null;
         
         Area result = getTileArea(place);
         
         if (menuBar.isGridVisible()) {
-            // add room for two grid lines
+            // Add room for two grid lines.
             result = result.expand(2);
         }
         
@@ -453,7 +486,7 @@ public class GameView
         
         final HintBox box = new HintBox(panel.frame);
         final HintStrength oldValue = getHintStrength();
-        final GameStyle style = getStyle();
+        final GameStyle style = Game.getStyle();
         final HintStrength newValue = box.run(oldValue, style);
         setHintStrength(newValue);
     }
@@ -471,29 +504,60 @@ public class GameView
         return interior.contains(point);
     }
     
+    /**
+     * Implement a move that didn't come from a local user.
+     * @param move indicates the move (non-null)
+     */
+    public void implement(ReadMove move) {
+        assert move != null;
+        assert Game.haveInstance();
+        
+        move.implement(this);
+        panel.repaint();
+
+        final String handName = Game.getInstance().getPlayable().getName();
+        final String description = String.format("%s %s.\n", 
+                handName, move.describe());
+        if (!move.doesPlace()) {
+            panel.showInformationBox(description, "Move Notification");
+        }
+        Console.print(description);
+    }
+    
     public boolean isInHandRect(Point point) {
+        assert point != null;
+        
         return handRect.contains(point);
     }
     
     public boolean isInSwapRect(Point point) {
+        assert point != null;
+        
         return swapRect.contains(point);
     }
     
     private boolean isWarmTile(Tile tile) {
+        assert tile != null;
+        
         return warmTiles.contains(tile); 
     }
 
-    public void loadUser(User user) {
+    private void loadUser(ReadUser user) {
+        assert user != null;
+        
         displayModes = user.getDisplayModes();
         assert displayModes.countColors() <= Markings.MARKING_COUNT_MAX;
         assert displayModes.countMarkings() <= Markings.MARKING_COUNT_MAX;
 
         start = user.getStartCellPosition();
+        menuBar.loadUser(user);
     }
     
     public void moveTarget(Direction direction) {
+        assert direction != null;
+        
         if (target == null) {
-            target = new Cell(); // start cell
+            target = new Cell(); // the start cell
         }
 
         for (;;) {
@@ -565,7 +629,7 @@ public class GameView
         canvas.drawBlankTile(center, area, color, oddFlag);
     }
     
-    public void paintBoard(Layer showLayer) {
+    private void paintBoard(Layer showLayer) {
         final Grid grid = getGameOpt().getGrid();
         final int extraColumns = grid.getColumnFringe() - 1;
         final int extraRows = grid.getRowFringe() - 1;
@@ -915,11 +979,12 @@ public class GameView
         }
         
         final ReadBoard board = getBoard();
-
         Point center;
-        for (Tile tile : Game.getInstance().getPlayable().copyContents()) {
+        final Tiles contents = Game.getInstance().getPlayable().copyContents();
+        for (Tile tile : contents) {
             boolean oddFlag = false;
             final Place place = find(tile);
+            assert place != null : tile;
             switch (place) {
                 case BOARD:
                     final Cell cell = board.find(tile);
@@ -1074,7 +1139,7 @@ public class GameView
         return result;
     }
     
-    void paintTile(Point center, Tile tile, boolean oddFlag) {
+    private void paintTile(Point center, Tile tile, boolean oddFlag) {
         assert tile != null;
         
         final int markingCount = displayModes.countMarkings();
@@ -1179,7 +1244,7 @@ public class GameView
         assert !Game.getInstance().isOver();
         
         // Check whether the playable hand has run out of time.
-        Move move;
+        ReadMove move;
         if (Game.getInstance().isOutOfTime()) {
             // If it has, force a resignation.
             command = "Resign";
@@ -1210,17 +1275,7 @@ public class GameView
         // Check whether the move is a legal one.
         final UserMessage reason = Game.getInstance().checkMove(move);
         if (reason == null) {
-            Game.getInstance().finishTurn(move);
-
-            if (Game.getInstance().isOver()) {
-                // TODO gameOver();
-                
-            } else {
-                // The game isn't over yet, so proceed to the next hand.
-                final String oldPlayerName = saveHand();
-                nextHand();
-                changeHand(oldPlayerName);
-            }
+            finishTurn(move);
 
         } else { // explain the issue
             panel.showRuleBox(reason);
@@ -1286,11 +1341,18 @@ public class GameView
         user.setStartCellPosition(start);
     }
 
-    @Override
+    public void startClock() {
+        assert Game.haveInstance();
+        
+        Game.getInstance().startClock();
+        menuBar.update();
+        panel.repaint();
+    }
+    
     public void togglePause() {
         assert Game.haveInstance();
 
-        super.togglePause();
+        Game.getInstance().togglePause();
         menuBar.update();
         panel.repaint();
     }

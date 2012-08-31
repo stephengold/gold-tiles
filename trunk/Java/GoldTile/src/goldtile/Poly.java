@@ -29,7 +29,7 @@ package goldtile;
 public class Poly
     extends java.util.LinkedList< FractionPair >
 {
-    // methods
+    // methods, sorted by name
     
     void add(double x, double y) {
         assert x >= 0.0 : x;

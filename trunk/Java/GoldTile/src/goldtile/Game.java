@@ -145,7 +145,7 @@ public class Game
     }
 
     @Override
-    public UserMessage checkMove(Move move) {
+    public UserMessage checkMove(ReadMove move) {
         assert move != null;
         
         final UserMessage result = board.checkMove(move);
@@ -246,7 +246,7 @@ public class Game
         return result;    
     }
     
-    public void finishTurn(Move move) {
+    public void finishTurn(ReadMove move) {
         assert move != null;
         assert isLegalMove(move);
         assert getPlayable().isClockRunning();
@@ -282,7 +282,7 @@ public class Game
 
             } else if (move.doesPlace()) {
                 // Place tiles on the board.
-                board.place(move);
+                move.place(board);
 
                 // Update the hand's score.
                 points = board.score(move);
@@ -313,12 +313,12 @@ public class Game
         final ReadHand playable = getPlayable();
         final ReadHandOpt handOpt = playable.getOpt();
         
-        Move move;
+        ReadMove move;
         if (handOpt.isAutomatic()) {
             assert clientFlag;
             assert !canRedo();
             
-            move = playable.chooseMoveAutomatic(this);
+            move = playable.chooseMoveAutomatic();
 
         } else if (handOpt.isRemote()) {
             move = playable.chooseMoveRemote();
@@ -357,6 +357,9 @@ public class Game
          * or (2) all hands have resigned
          * or (3) none of the last 7 moves placed any tiles on the board. 
          */
+        int lpi = history.lastPlaceIndex();
+        int st = opt.getStuckThreshold();
+        int fir = history.findIndex(redo);
         if (isStockEmpty() && hands.hasAnyGoneOut()) {
             return Ending.WENT_OUT;
         } else if (hands.haveAllResigned()) {
@@ -413,7 +416,16 @@ public class Game
         
         return result;
     }
-
+    
+    public static GameStyle getStyle() {
+        if (currentInstance != null) {
+            final ReadGameOpt opt = currentInstance.getOpt();
+            return opt.getStyle();
+        } else {            
+            return GameStyle.NONE;
+        }
+    }
+    
     @Override
     public int[] getUnplayableIndices() {
         return hands.getUnplayableIndices();
@@ -446,7 +458,7 @@ public class Game
     }
     
     @Override
-    public boolean isLegalMove(Move move) {
+    public boolean isLegalMove(ReadMove move) {
         assert move != null;
         
         final UserMessage reason = checkMove(move);
@@ -507,12 +519,12 @@ public class Game
         final ReadHand playable = getPlayable();
         final ReadHandOpt handOpt = playable.getOpt();
 
-        Move move;
+        ReadMove move;
         if (handOpt.isAutomatic()) {
             assert clientFlag;
             assert !canRedo();
             
-            move = playable.chooseMoveAutomatic(this);
+            move = playable.chooseMoveAutomatic();
 
         } else if (handOpt.isRemote()) {
             move = playable.chooseMoveRemote();
@@ -527,8 +539,7 @@ public class Game
                     break;
                 }
                 
-                Console.printf(
-                        "\nThat isn't a legal move because:\n %s\n",
+                Console.printf("\nThat isn't a legal move because:\n %s\n",
                         reason.message);
                 Console.print("Please try again ...\n\n");
                 Console.print(describeStatus());
@@ -556,6 +567,10 @@ public class Game
     }
     
     private Tiles pullTiles(int count, int handIndex) {
+        assert count >= 0 : count;
+        assert handIndex >= 0 : handIndex;
+        assert handIndex < hands.size() : handIndex;
+        
         Tiles result = null;
         
         if (clientFlag) {
@@ -577,6 +592,8 @@ public class Game
     }
 
     public void removeTiles(Tiles tiles) {
+        assert tiles != null;
+        
         hands.removeTiles(tiles);    
     }
     
@@ -587,8 +604,9 @@ public class Game
     }
     
 
-    private String reportEndBonus() {
+    public String reportEndBonus() {
         assert isOver();
+        
         String result = "";
         
         final Ending ending = getEnding();
@@ -629,6 +647,7 @@ public class Game
     }
     
     private String reportScores(Tense tense) {
+        assert tense != null;
         assert hands.size() > 0;
         
         String result = "";

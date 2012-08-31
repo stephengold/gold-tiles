@@ -28,7 +28,9 @@ package goldtile;
 
 import java.awt.Point;
 
-public class User {
+public class User 
+    implements ReadUser
+{
     // per-instance fields
     private boolean autopause = false;
     private boolean peek = false;
@@ -56,38 +58,47 @@ public class User {
     
     // methods
     
+    @Override
     public boolean getAutopause() {
         return autopause;    
     }
     
+    @Override
     public int getBoardTileSize() {
         return boardTileSize;
     }
     
+    @Override
     public DisplayModes getDisplayModes() {
         return displayModes;    
     }
     
+    @Override
     public int getHandTileSize() {
         return handTileSize;
     }
     
+    @Override
     public boolean getPeek() {
         return peek;
     }
     
+    @Override
     public boolean getShowClocks() {
         return showClocks;
     }
     
+    @Override
     public boolean getShowGrid() {
         return showGrid;
     }
     
+    @Override
     public boolean getShowScores() {
         return showScores;
     }
     
+    @Override
     public Point getStartCellPosition() {
         return startCellPosition;
     }

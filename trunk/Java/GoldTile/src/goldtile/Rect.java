@@ -60,11 +60,11 @@ public class Rect extends java.awt.Rectangle {
         height = brc.y - y;
     }
     
-    // methods
+    // methods, sorted by name
     
-    /*
-     Construct the largest square that is centered and contained
-     within this Rect
+    /**
+     * Construct the largest square that is centered and contained
+     * within this Rect.
      */
     public Rect centerSquare() {
         int w = width;

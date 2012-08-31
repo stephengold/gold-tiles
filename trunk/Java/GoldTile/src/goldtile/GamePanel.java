@@ -250,12 +250,10 @@ public class GamePanel
         assert point != null;
         assert mouseLast != null;
         
-        final ReadGame game = Game.getInstance();
+        final Game game = Game.getInstance();
         if (game != null) {
             if (game.isPaused()) {
                 view.startClock();
-                menuBar.update();
-                repaint();
             } else {
                 handleReleaseView(point);
             }
@@ -293,10 +291,11 @@ public class GamePanel
     public void offerNewGame() {
         GameOpt gameOpt;
         if (Game.haveInstance()) {
+            // Copy the game options of the active instance.
             gameOpt = new GameOpt(Game.getInstance().getOpt());
             gameOpt.setRules(Rules.REPLAY);
         } else {
-            // Start with the standard options.
+            // Start with the default game options.
             gameOpt = new GameOpt();
         }
 
@@ -335,8 +334,9 @@ public class GamePanel
             return;
         }
         
+        final GameStyle oldStyle = Game.getStyle();
         new Game(gameOpt, handOpts);
-        view.changeGame();
+        view.changeGame(oldStyle);
     }
     
     @Override

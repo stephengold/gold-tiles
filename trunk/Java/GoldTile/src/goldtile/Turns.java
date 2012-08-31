@@ -29,14 +29,14 @@ package goldtile;
 import java.util.ListIterator;
 
 public class Turns extends java.util.LinkedList< Turn > {
-    // methods
+    // methods, sorted by name
     
     public void add(int handIndex, Tiles dealt) {
         final Turn turn = new Turn(handIndex, dealt);
         add(turn);
     }
     
-    public void add(int handIndex, int mustPlay, Move move, int points, 
+    public void add(int handIndex, int mustPlay, ReadMove move, int points, 
             Tiles draw) {
         final Turn turn = new Turn(handIndex, mustPlay, move, points, draw);
         add(turn);

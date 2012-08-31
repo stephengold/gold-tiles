@@ -1,6 +1,6 @@
-// File:     ReadBoard.java
+// File:     ReadMove.java
 // Location: Java/GoldTile/src/goldtile
-// Purpose:  ReadBoard interface for the Gold Tile Game
+// Purpose:  ReadMove interface for the Gold Tile Game
 /**
  * @author Stephen Gold
  */
@@ -26,26 +26,23 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 
 package goldtile;
 
-public interface ReadBoard {
-    public UserMessage checkMove(ReadMove move);    
-    public boolean contains(Tile tile);
+public interface ReadMove {
+    public Cells copyCells();
+    public java.util.TreeSet<TileCell> copySet();
+    public Tiles copyTiles();
+    public int countTilesPlaced();
     public String describe();
-    public Cell find(Tile tile);
-    
-    public int getBottomUseRow();
-    public Tile getContent(Cell cell);
-    public int getEastMax();
-    public int getLeftUseColumn();
-    public int getNorthMax();
-    public int getRightUseColumn();
-    public int getSouthMax();
-    public Tiles getTiles();
-    public int getTopUseRow();
-    public int getWestMax();
-    
-    public boolean hasUsedNeighbor(Cell cell);
-    public boolean isEmpty();
-    public boolean isEmpty(Cell cell);
-    public boolean mightUse(Cell cell);
-    public int score(ReadMove move);
+    public boolean doesPlace();
+    public boolean equals(Move other);
+    public void implement(Partial partial);
+    public boolean involvesSwap();
+    public boolean isPass();
+    public boolean isPureSwap();
+    public boolean isResignation();
+    public void place(Board board);
+    public boolean repeatsCell();
+    public boolean repeatsTile();
+    public int size();
+    @Override
+    public String toString();
 }

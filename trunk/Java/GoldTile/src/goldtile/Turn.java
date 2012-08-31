@@ -31,7 +31,7 @@ public class Turn {
     final private int handIndex;
     final private int mustPlay;
     final private int points;
-    final private Move move;   // move first, then draw
+    final private ReadMove move;   // move first, then draw
     final private Tiles draw;  // move first, then draw
     
     // constructors
@@ -50,7 +50,8 @@ public class Turn {
     }
     
     // a move by an established hand
-    public Turn(int handIndex, int mustPlay, Move move, int points, Tiles draw) 
+    public Turn(int handIndex, int mustPlay, ReadMove move, 
+            int points, Tiles draw) 
     {
         assert handIndex >= 0;
         assert draw != null;
@@ -62,10 +63,10 @@ public class Turn {
         this.draw = new Tiles(draw);
     }
     
-    // methods
+    // methods, sorted by name
     
     public boolean didPlace() {
-        return move.doesPlace(); 
+        return move.doesPlace();
     }
     
     public boolean wasDrawOnly() {

@@ -31,6 +31,8 @@ public enum Rules {
     REPLAY,
     STANDARD;
     
+    // methods, sorted by name
+    
     public boolean isCustom() {
         return this == CUSTOM;
     }

@@ -29,7 +29,7 @@ package goldtile;
 public interface ReadGame {
     public boolean canRedo();
     public boolean canUndo();
-    public UserMessage checkMove(Move move);
+    public UserMessage checkMove(ReadMove move);
     public Board copyBoard();
     public int countStock();
     
@@ -45,7 +45,7 @@ public interface ReadGame {
     public int getSeconds(int iHand);
     
     public boolean isFirstTurn();
-    public boolean isLegalMove(Move move);
+    public boolean isLegalMove(ReadMove move);
     public boolean isOutOfTime();
     public boolean isOver();
     public boolean isPaused();

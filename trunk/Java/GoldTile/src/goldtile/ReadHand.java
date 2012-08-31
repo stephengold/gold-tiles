@@ -27,9 +27,9 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 package goldtile;
 
 public interface ReadHand {
-    public Move chooseMoveAutomatic(Game game);
-    public Move chooseMoveConsole(int mustPlay);
-    public Move chooseMoveRemote();
+    public ReadMove chooseMoveAutomatic();
+    public ReadMove chooseMoveConsole(int mustPlay);
+    public ReadMove chooseMoveRemote();
     public Tiles copyContents();
     public int countContents();    
     public String describeContents();

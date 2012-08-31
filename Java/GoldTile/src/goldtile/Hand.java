@@ -68,27 +68,26 @@ public class Hand
     }
     
     @Override
-    public Move chooseMoveAutomatic(Game game) {
-        assert game != null;
+    public ReadMove chooseMoveAutomatic() {
+        assert Game.haveInstance();
         assert GoldTile.control == Display.CONSOLE;
         
         Partial partial;
         try {
-            partial = Partial.findBestMove(game, 
-                    opt.getSkipProbability());
+            partial = Partial.findBestMove(opt.getSkipProbability());
         } catch (InterruptedException exception) {
             // Interrupts should be possible only under GUI control.
             throw new AssertionError();
         }
         
-        final Move result = partial.getMove(Partial.Active.INCLUDED);
+        final ReadMove result = partial.getMove(Partial.Active.INCLUDED);
         Console.printf(String.format("%s %s.\n", name, result.describe()));
         
         return result;
     }
     
     @Override
-    public Move chooseMoveConsole(int mustPlay) {
+    public ReadMove chooseMoveConsole(int mustPlay) {
         assert mustPlay >= 0;
         assert isClockRunning();
         assert opt.isLocalUser();
@@ -100,7 +99,7 @@ public class Hand
     }
     
     @Override
-    public Move chooseMoveRemote() {
+    public ReadMove chooseMoveRemote() {
         // TODO
         return null;
     }

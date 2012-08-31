@@ -70,10 +70,9 @@ public class ParmBox2
     public class GridIcon implements Icon {
         // methods, sorted by name
         @Override
-        public int getIconWidth() { return 90; }
-        @Override
         public int getIconHeight() { return 90; }
-        
+        @Override
+        public int getIconWidth() { return 90; }
         @Override
         public void paintIcon(java.awt.Component component, 
                 java.awt.Graphics graphics, int x, int y)

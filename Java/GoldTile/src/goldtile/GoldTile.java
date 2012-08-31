@@ -38,33 +38,7 @@ public class GoldTile {
     
     public static Display control = Display.GUI;
     
-    // methods
-    
-    private static Game standardGame() {
-        // options
-        final GameOpt gameOpt = new GameOpt();
-        final int handsDealt = gameOpt.getHandsDealt();
-        final HandOpt[] handOpts = new HandOpt[handsDealt];
-        for (int iHand = 0; iHand < handsDealt; iHand++) {
-            handOpts[iHand] = new HandOpt("User");
-        }
-        
-        // Create the game.
-        return new Game(gameOpt, handOpts);
-    }
-
-    private static Game offerGameConsole() {
-        // read options from the user via the console
-        final GameOpt gameOpt = GameOpt.chooseConsole();
-        final int handsDealt = gameOpt.getHandsDealt();
-        final HandOpt[] handOpts = new HandOpt[handsDealt];
-        for (int iHand = 0; iHand < handsDealt; iHand++) {
-            handOpts[iHand] = HandOpt.chooseConsole(iHand);
-        }
-
-        // Create the game.
-        return new Game(gameOpt, handOpts);
-    }
+    // methods, sorted by name
     
     /**
      * @param args the command line arguments
@@ -102,4 +76,30 @@ public class GoldTile {
                 throw new AssertionError();
         }
     }   
+
+    private static Game offerGameConsole() {
+        // read options from the user via the console
+        final GameOpt gameOpt = GameOpt.chooseConsole();
+        final int handsDealt = gameOpt.getHandsDealt();
+        final HandOpt[] handOpts = new HandOpt[handsDealt];
+        for (int iHand = 0; iHand < handsDealt; iHand++) {
+            handOpts[iHand] = HandOpt.chooseConsole(iHand);
+        }
+
+        // Create the game.
+        return new Game(gameOpt, handOpts);
+    }
+    
+    private static Game standardGame() {
+        // options
+        final GameOpt gameOpt = new GameOpt();
+        final int handsDealt = gameOpt.getHandsDealt();
+        final HandOpt[] handOpts = new HandOpt[handsDealt];
+        for (int iHand = 0; iHand < handsDealt; iHand++) {
+            handOpts[iHand] = new HandOpt("User");
+        }
+        
+        // Create the game.
+        return new Game(gameOpt, handOpts);
+    }
 }

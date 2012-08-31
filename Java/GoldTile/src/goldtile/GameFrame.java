@@ -71,7 +71,7 @@ public class GameFrame
             clientArea.offerNewGame();
         } else {
             // Associate the initial game (if any) with the client area's GameView.
-            clientArea.view.changeGame();
+            clientArea.view.changeGame(GameStyle.NONE);
         }
     }
 }

@@ -32,7 +32,7 @@ public enum Grid {
     GRID_HEX,
     GRID_8WAY;
     
-    // methods
+    // methods, sorted by name
     
     public Shape getCellShape() {
         switch (this) {
@@ -57,6 +57,14 @@ public enum Grid {
         return GRID_4WAY;
     }
 
+    public int getRowFringe() {
+        if (isHex()) {
+            return 2;
+        } else {
+            return 1;
+        }
+    }
+
     public Direction[] getScoringAxes() {
         switch (this) {
             case GRID_TRIANGLE:
@@ -72,14 +80,6 @@ public enum Grid {
         }
     }
     
-    public int getRowFringe() {
-        if (isHex()) {
-            return 2;
-        } else {
-            return 1;
-        }
-    }
-
     public int getSparsity() {
         if (isHex()) {
             return 2;

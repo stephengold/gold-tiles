@@ -91,7 +91,7 @@ public class Board
     }
     
     @Override
-    public UserMessage checkMove(Move move) {
+    public UserMessage checkMove(ReadMove move) {
         assert move != null;
     
         // A pass (no tiles played or swapped) is always valid.
@@ -114,6 +114,7 @@ public class Board
             // a valid swap
             return null;
         }
+        assert move.doesPlace() : move;
 
         // Check for repeated cells.
         if (move.repeatsCell()) {
@@ -137,8 +138,8 @@ public class Board
         }
 
         // Make a copy of the board and place the tiles on it.
-        Board after = new Board(this);
-        after.place(move);
+        final Board after = new Board(this);
+        move.place(after);        
 
         Direction axisOfPlay = null;
         if (cells.size() > 1) {
@@ -367,13 +368,6 @@ public class Board
         return true;
     }
     
-    public void place(Move move) {
-        assert move != null;
-        assert move.doesPlace() : move;
-        
-        move.place(this);        
-    }
-    
     public void place(TileCell tileCell) {
         assert tileCell != null;
         
@@ -428,7 +422,7 @@ public class Board
     
     // score an (already-placed) move
     @Override
-    public int score(Move move) {
+    public int score(ReadMove move) {
         assert move != null;
         
         int result = 0;

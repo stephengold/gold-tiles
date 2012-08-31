@@ -37,7 +37,7 @@ public class StringExt {
         return text.charAt(length - 1);
     }
         
-    /*
+    /**
      * Capitalize the first letter of each word.
      * Trim leading and trailing non-graphic characters.
      * Convert adjacent non-graphic characters a single space.
@@ -117,6 +117,14 @@ public class StringExt {
         return result;
     }
     
+    public static String pad(String text, int width) {
+        assert text != null;
+        assert width >= text.length();
+
+        final int pad = width - text.length();
+        return repeat(pad, ' ') + text;
+    }
+    
     public static String plural(long n) {
         assert n >= 0;
 
@@ -155,6 +163,13 @@ public class StringExt {
         return result;
     }
     
+    /**
+     * @param text the text to enclose in quotes
+     */
+    public static String quote(String text) {
+        return "\"" + text + "\"";
+    }
+    
     public static String repeat(int count, char ch) {
         assert count >= 0;
         
@@ -165,21 +180,6 @@ public class StringExt {
         }
         
         return result;
-    }
-    
-    public static String pad(String text, int width) {
-        assert text != null;
-        assert width >= text.length();
-
-        final int pad = width - text.length();
-        return repeat(pad, ' ') + text;
-    }
-    
-    /**
-     * @param text the text to enclose in quotes
-     */
-    public static String quote(String text) {
-        return "\"" + text + "\"";
     }
     
     /**

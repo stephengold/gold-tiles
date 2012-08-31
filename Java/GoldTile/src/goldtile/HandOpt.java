@@ -175,7 +175,7 @@ public class HandOpt
     }
     
     @Override
-    public boolean isValid() {
+    final public boolean isValid() {
         if (automaticFlag && remoteFlag) {
             return false;
         } else if (level < LEVEL_MIN) {

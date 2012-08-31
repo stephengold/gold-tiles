@@ -1,5 +1,5 @@
 // File:     MenuBar.java
-// Location: Java
+// Location: Java/GoldTile/src/goldtile
 // Purpose:  MenuBar class for the Gold Tile Game
 /**
  * @author Stephen Gold
@@ -282,8 +282,9 @@ public class MenuBar
                 break;
                 
             case "Close":
+                final GameStyle oldStyle = Game.getStyle();
                 Game.closeCurrentInstance();
-                clientArea.view.changeGame();
+                clientArea.view.changeGame(oldStyle);
                 break;
                 
             case "Exit":
@@ -372,6 +373,12 @@ public class MenuBar
         return showScores.isSelected();
     }
     
+    public void gameOver() {
+        peek.setSelected(true);
+        showClocks.setSelected(true);
+        showScores.setSelected(true);
+    }
+    
     public int getTileSize(Place place) {
         switch (place) {
             case BOARD:
@@ -396,7 +403,7 @@ public class MenuBar
         return peek.isSelected();
     }
 
-    public void loadUser(User user) {
+    public void loadUser(ReadUser user) {
         autoPause.setState(user.getAutopause());
         boardSize.setValue(user.getBoardTileSize());
         tileSize.setValue(user.getBoardTileSize());
@@ -446,9 +453,11 @@ public class MenuBar
             }
             @Override
             public void finished() {
-                final Move suggestion = (Move)get();
-                Game.getInstance().finishTurn(suggestion);
                 worker = null;
+                final ReadMove move = (ReadMove)get();
+                clientArea.view.implement(move);
+                clientArea.view.finishTurn(move);
+                clientArea.repaint();
                 update();
            }
        };
@@ -506,12 +515,10 @@ public class MenuBar
             }
             passFlag = partial.isPass();
                         
-            final GameStyle style = partial.getStyle();
-            if (style != null) {
-                suggestStyle = style.allowsHints(); 
-                timedStyle = style.hasTimeLimit(); 
-                undoStyle = style.allowsUndo();
-            }
+            final GameStyle style = Game.getStyle();
+            suggestStyle = style.allowsHints(); 
+            timedStyle = style.hasTimeLimit(); 
+            undoStyle = style.allowsUndo();
         }
         
         // "File" menu
@@ -557,11 +564,12 @@ public class MenuBar
         updateMenu(thinkingMenu);
 
         // "Help" menu
-        helpMenu.setEnabled(true);
         updateMenu(helpMenu);
     }
 
     private static void updateMenu(JMenu menu) {
+        assert menu != null;
+        
         for (java.awt.Component component : menu.getMenuComponents()) {
             if (component.isEnabled()) {
                 menu.setEnabled(true);

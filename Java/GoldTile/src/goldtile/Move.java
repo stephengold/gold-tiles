@@ -28,7 +28,9 @@ package goldtile;
 
 import java.util.TreeSet;
 
-public class Move {
+public class Move 
+    implements ReadMove
+{
     // constants
     final private static String PREFIX = "move{";
     final private static String RESIGN = "resign";
@@ -50,13 +52,13 @@ public class Move {
         assert isPass();
     }
     
-    public Move(Move other) {
+    public Move(ReadMove other) {
         assert other != null;
         
-        resignFlag = other.resignFlag;
-        set = new TreeSet(other.set);
+        resignFlag = other.isResignation();
+        set = other.copySet();
         
-        assert this.equals(other);
+        assert other.equals(this);
     }
 
     public Move(String text, boolean remote) 
@@ -107,16 +109,20 @@ public class Move {
     // methods, sorted by name
     
     private void add(TileCell tileCell) {
+        assert tileCell != null;
+        
         final boolean newElement = set.add(tileCell);
         assert newElement;        
     }
     
     public void add(Tile tile, Cell destination) {
+        assert tile != null;
+        
         final TileCell tileCell = new TileCell(tile, destination);
         add(tileCell);
     }
     
-    public static Move chooseConsole(Tiles available, int mustPlay) {
+    public static ReadMove chooseConsole(Tiles available, int mustPlay) {
         assert available != null;
         assert mustPlay >= 0;
         
@@ -150,6 +156,7 @@ public class Move {
         }
     }
     
+    @Override
     public Cells copyCells() {
         final Cells result = new Cells();
         
@@ -163,6 +170,12 @@ public class Move {
         return result;
     }
     
+    @Override
+    public TreeSet<TileCell> copySet() {
+        return new TreeSet<>(set);
+    }
+    
+    @Override
     public Tiles copyTiles() {
         final Tiles result = new Tiles();
         
@@ -173,6 +186,7 @@ public class Move {
         return result;
     }
     
+    @Override
     public int countTilesPlaced() {
         int result = 0;
         
@@ -185,6 +199,7 @@ public class Move {
         return result;
     }
 
+    @Override
     public String describe() {
         String result;
         
@@ -217,18 +232,44 @@ public class Move {
         return result;
     }
     
+    @Override
     public boolean doesPlace() {
-        return !resignFlag && !set.isEmpty();
+        return !resignFlag && !set.isEmpty() && !isPureSwap();
     }
     
+    @Override
     final public boolean equals(Move other) {
         if (other == null) {
             return false;
         }
         
-        return resignFlag == other.resignFlag && set.equals(other.set);
+        return resignFlag == other.isResignation() && 
+                set.equals(other.set);
     }
     
+    /**
+     * Implement this move on a Partial.
+     * @param partial 
+     */
+    @Override
+    public void implement(Partial partial) {
+        assert partial != null;
+        
+        partial.takeBack();
+        for (TileCell tileCell : set) {
+            final Tile tile = tileCell.getTile();
+            partial.activate(tile);
+            if (tileCell.isSwap()) {
+                partial.handToSwap();
+            } else {
+                final Cell cell = tileCell.getDestination();
+                partial.handToBoard(cell);
+            }
+        }
+        partial.deactivate();
+    }
+    
+    @Override
     public boolean involvesSwap() {
         for (TileCell tileCell : set) {
             if (tileCell.isSwap()) {
@@ -239,10 +280,12 @@ public class Move {
         return false;
     }
     
+    @Override
     final public boolean isPass() {
         return !resignFlag && set.isEmpty();    
     }
     
+    @Override
     public boolean isPureSwap() {
         if (resignFlag) {
             return false;
@@ -257,10 +300,12 @@ public class Move {
         return true;
     }
     
+    @Override
     final public boolean isResignation() {
         return resignFlag;
     }
 
+    @Override
     public void place(Board board) {
         assert board != null;
         assert doesPlace();
@@ -270,6 +315,7 @@ public class Move {
         }
     }
     
+    @Override
     public boolean repeatsCell() {
         if (set.size() < 2) {
             return false;
@@ -291,6 +337,7 @@ public class Move {
         return false;
     }
 
+    @Override
     public boolean repeatsTile() {
         if (set.size() < 2) {
             return false;
@@ -312,7 +359,7 @@ public class Move {
         return false;
     }
 
-
+    @Override
     public int size() {
         return set.size();
     }

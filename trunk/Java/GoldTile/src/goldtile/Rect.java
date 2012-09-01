@@ -11,13 +11,13 @@
 This file is part of the Gold Tile Game.
 
 The Gold Tile Game is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by the 
-Free Software Foundation, either version 3 of the License, or (at your 
+it under the terms of the GNU General Public License as published by the
+Free Software Foundation, either version 3 of the License, or (at your
 option) any later version.
 
-The Gold Tile Game is distributed in the hope that it will be useful, but 
-WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY 
-or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License 
+The Gold Tile Game is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 for more details.
 
 You should have received a copy of the GNU General Public License
@@ -29,16 +29,18 @@ package goldtile;
 import java.awt.Dimension;
 import java.awt.Point;
 
-public class Rect extends java.awt.Rectangle {
+public class Rect
+    extends java.awt.Rectangle
+{
     // constructors
-    
+
     public Rect(int left, int top, int w, int h) {
         x = left;
         y = top;
         width = w;
         height = h;
     }
-    
+
     public Rect(Point center, Dimension dim) {
         width = dim.width;
         height = dim.height;
@@ -59,9 +61,9 @@ public class Rect extends java.awt.Rectangle {
         width = brc.x - x;
         height = brc.y - y;
     }
-    
+
     // methods, sorted by name
-    
+
     /**
      * Construct the largest square that is centered and contained
      * within this Rect.
@@ -78,27 +80,27 @@ public class Rect extends java.awt.Rectangle {
         } else if (h > w) {
             top += (h - w)/2;
             h = w;
-        } 
+        }
         final Rect result = new Rect(left, top, w, h);
 
-        assert contains(result) : result;   
+        assert contains(result) : result;
         return result;
     }
-    
+
     public Point getBlc() {
         return new Point(x, getBottomY() - 1);
     }
-    
+
     public int getBottomY() {
         return y + height;
     }
-    
+
     public Point getCenter() {
         final Point result = new Point(getMiddleX(), getMiddleY());
 
         return result;
     }
-    
+
     public int getMiddleX() {
         return x + width/2;
     }
@@ -106,7 +108,7 @@ public class Rect extends java.awt.Rectangle {
     public int getMiddleY() {
         return y + height/2;
     }
-    
+
     public int getRightX() {
         return x + width;
     }

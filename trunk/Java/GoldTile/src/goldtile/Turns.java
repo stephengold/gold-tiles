@@ -11,13 +11,13 @@
 This file is part of the Gold Tile Game.
 
 The Gold Tile Game is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by the 
-Free Software Foundation, either version 3 of the License, or (at your 
+it under the terms of the GNU General Public License as published by the
+Free Software Foundation, either version 3 of the License, or (at your
 option) any later version.
 
-The Gold Tile Game is distributed in the hope that it will be useful, but 
-WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY 
-or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License 
+The Gold Tile Game is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 for more details.
 
 You should have received a copy of the GNU General Public License
@@ -30,24 +30,34 @@ import java.util.ListIterator;
 
 public class Turns extends java.util.LinkedList< Turn > {
     // methods, sorted by name
-    
+
     public void add(int handIndex, Tiles dealt) {
+        assert handIndex >= 0;
+        assert dealt != null;
+
         final Turn turn = new Turn(handIndex, dealt);
         add(turn);
     }
-    
-    public void add(int handIndex, int mustPlay, ReadMove move, int points, 
-            Tiles draw) {
+
+    public void add(int handIndex, int mustPlay, ReadMove move, int points,
+            Tiles draw)
+    {
+        assert handIndex >= 0;
+        assert mustPlay >= 0;
+        assert move != null;
+        assert points >= 0;
+        assert draw != null;
+
         final Turn turn = new Turn(handIndex, mustPlay, move, points, draw);
         add(turn);
     }
-    
+
     public void clearToEnd(Turn turn) {
         assert turn != null;
         assert count(turn) == 1;
-        
+
         final ListIterator iTurn = listIterator();
-        
+
         // Advance the iterator to just past the specified turn.
         Turn prev = null;
         while (iTurn.hasNext() && prev != turn) {
@@ -61,34 +71,34 @@ public class Turns extends java.util.LinkedList< Turn > {
         }
         iTurn.remove();
     }
-    
+
     public int count(Turn turn) {
         assert turn != null;
-        
+
         int count = 0;
         for (Turn current : this) {
             if (current == turn) {
                 count ++;
             }
         }
-        
+
         return count;
     }
-    
+
     public int findIndex(Turn turn) {
         if (turn == null) {
             return size();
         }
-        
+
         assert count(turn) == 1;
         return indexOf(turn);
     }
-    
+
     public int lastPlaceIndex() {
         final java.util.Iterator iTurn = descendingIterator();
-        
+
         int result = size();
-        
+
         while (iTurn.hasNext()) {
             final Turn turn = (Turn)iTurn.next();
             result--;
@@ -96,7 +106,7 @@ public class Turns extends java.util.LinkedList< Turn > {
                 break;
             }
         }
-        
+
         return result;
     }
 }

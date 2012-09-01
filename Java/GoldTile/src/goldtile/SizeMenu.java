@@ -27,6 +27,7 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 package goldtile;
 
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseWheelEvent;
 import javax.swing.ButtonGroup;
 import javax.swing.JMenuItem;
 import javax.swing.JRadioButtonMenuItem;
@@ -34,7 +35,8 @@ import javax.swing.KeyStroke;
 
 public class SizeMenu 
     extends javax.swing.JMenu 
-    implements java.awt.event.ActionListener
+    implements java.awt.event.ActionListener,
+        java.awt.event.MouseWheelListener
 {
     // constants
     public final static int COUNT = 7;
@@ -147,6 +149,21 @@ public class SizeMenu
     
     public int getValue() {
         return value;
+    }
+    
+    @Override
+    public void mouseWheelMoved(java.awt.event.MouseWheelEvent event) {
+        final int notches = event.getWheelRotation();
+        assert notches != 0;
+        
+        int newValue = value + notches;
+        if (newValue > MAX) {
+            newValue = MAX;
+        } else if (newValue < MIN) {
+            newValue = MIN;
+        }
+        
+        setValue(newValue);
     }
     
     final public void setValue(int value) {

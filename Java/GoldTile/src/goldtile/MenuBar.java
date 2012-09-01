@@ -379,6 +379,10 @@ public class MenuBar
         showScores.setSelected(true);
     }
     
+    public SizeMenu getBoardSizeMenu() {
+        return boardSize;
+    }
+    
     public int getTileSize(Place place) {
         switch (place) {
             case BOARD:

@@ -32,14 +32,17 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import javax.swing.JOptionPane;
+import javax.swing.Timer;
 
 public class GamePanel 
     extends javax.swing.JPanel
+    implements java.awt.event.ActionListener // Swing timer events
 { 
     // constants, sorted by type
     final private static Cursor DRAG_CURSOR 
             = Cursor.getPredefinedCursor(Cursor.MOVE_CURSOR);
     final private static int DRAG_THRESHOLD = 6;
+    final private static int TIMEOUT_MSEC = 500;
     
     // links
     final public GameFrame frame;
@@ -52,6 +55,7 @@ public class GamePanel
     private boolean leftButtonDown = false;
     private int dragBoardPixelCount = 0;
     private Point mouseLast = null;
+    final private Timer timer;
     
     // constructors
     
@@ -59,8 +63,8 @@ public class GamePanel
         assert menuBar != null;
         assert frame != null;
         
-        this.menuBar = menuBar;
         this.frame = frame;
+        this.menuBar = menuBar;
         view = new GameView(this, menuBar);
         
         setBackground(Color.BLACK);
@@ -110,10 +114,27 @@ public class GamePanel
                 mouseMove(event.getPoint());
             }
         });
+        
+        // start the timer
+        timer = new Timer(TIMEOUT_MSEC, this);
+        timer.setInitialDelay(TIMEOUT_MSEC);
+        timer.start();
     }
     
     // methods, sorted by name
     
+    @Override
+    public void actionPerformed(java.awt.event.ActionEvent event) {
+        view.updateClock();
+        timer.restart();
+    }
+
+    /**
+     * Returns the logical coordinates of the pixel on the inside
+     * of the panel's bottom right corner.
+     *
+     * @return the coordinates (never null)
+     */
     public Point getBottomRightCorner() {
         final int x = getWidth() - 1;
         final int y = getHeight() - 1;
@@ -345,11 +366,6 @@ public class GamePanel
         
         final Canvas canvas = new Canvas(context);
         view.paintAll(canvas);
-    }
-    
-    public void recenter() {
-        view.recenter();
-        repaint();
     }
     
     public void showInformationBox(String message, String title) {

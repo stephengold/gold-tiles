@@ -1378,4 +1378,13 @@ public class GameView
     public void translate(int dx, int dy) {
         start.translate(dx, dy);
     }
+    
+    public void updateClock() {
+        if (menuBar.areClocksVisible() &&
+                Game.haveInstance() &&
+                Game.getInstance().getPlayable().isClockRunning()) {
+            // don't update menus
+            panel.repaint();
+        }
+    }
 }

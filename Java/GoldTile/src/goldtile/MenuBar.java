@@ -309,7 +309,7 @@ public class MenuBar
                 break;
 
             case "Re-center":
-                clientArea.recenter();
+                clientArea.view.recenter();
                 break;
 
             case "togglePause":

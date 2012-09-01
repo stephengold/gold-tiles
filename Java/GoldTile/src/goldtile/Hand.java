@@ -136,9 +136,25 @@ public class Hand
         return contents.findLongestRun();
     }
     
+    /** 
+     * Read the hand's elapsed time clock, and if the clock
+     * is running, update the milliseconds field.
+     * 
+     * @return 
+     */
     @Override
     public long getMillisecondsUsed() {
-        return milliseconds;
+        long result = milliseconds;
+
+        if (clockRunning) {
+            final long now = System.currentTimeMillis();
+            assert now >= startTime;
+            final long turnMsec = now - startTime;
+            result += turnMsec;
+            assert result >= milliseconds;
+        }
+        
+        return result;
     }
     
     @Override

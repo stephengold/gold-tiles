@@ -87,6 +87,10 @@ public class MenuBar
  
     final private JMenuItem cancel;    
  
+    final private JMenuItem rules;
+    final private JMenuItem warranty;
+    final private JMenuItem about;
+
     // constructors
     
     public MenuBar() {
@@ -249,16 +253,16 @@ public class MenuBar
         
         // Flesh out the "Help" menu.
         
-        final JMenuItem rules = new JMenuItem("Rules...");
+        rules = new JMenuItem("Rules...");
         rules.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F1, 0));
         rules.setMnemonic(KeyEvent.VK_R);
         helpMenu.add(rules);
         
-        final JMenuItem warranty = new JMenuItem("Warranty...");
+        warranty = new JMenuItem("Warranty...");
         warranty.setMnemonic(KeyEvent.VK_W);
         helpMenu.add(warranty);
         
-        final JMenuItem about = new JMenuItem("About Gold Tile...");
+        about = new JMenuItem("About Gold Tile...");
         about.setMnemonic(KeyEvent.VK_A);
         helpMenu.add(about);
 
@@ -325,6 +329,18 @@ public class MenuBar
                 worker.interrupt();
                 break;
 
+            case "Rules...":
+                clientArea.showRulesBox();
+                break;
+                
+            case "Warranty...":
+                clientArea.showWarrantyBox();
+                break;
+                     
+            case "About Gold Tile...":
+                clientArea.showAboutBox();
+                break;
+                
             case "repaint": 
                 break;
 
@@ -361,8 +377,13 @@ public class MenuBar
         showScores.addActionListener(this);     
         peek.addActionListener(this);
         
-        // "File" menu        
-        cancel.addActionListener(this);        
+        // "File" menu
+        cancel.addActionListener(this);
+        
+        // "Help" menu
+        rules.addActionListener(this);
+        warranty.addActionListener(this);
+        about.addActionListener(this);
     }
     
     public boolean areClocksVisible() {

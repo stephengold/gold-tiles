@@ -11,13 +11,13 @@
 This file is part of the Gold Tile Game.
 
 The Gold Tile Game is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by the 
-Free Software Foundation, either version 3 of the License, or (at your 
+it under the terms of the GNU General Public License as published by the
+Free Software Foundation, either version 3 of the License, or (at your
 option) any later version.
 
-The Gold Tile Game is distributed in the hope that it will be useful, but 
-WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY 
-or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License 
+The Gold Tile Game is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 for more details.
 
 You should have received a copy of the GNU General Public License
@@ -41,7 +41,7 @@ public class AddressVerifier
     @Override
     public boolean shouldYieldFocus(JComponent input) {
         assert input != null;
-        
+
         final JTextField textField = (JTextField)input;
         String text = textField.getText();
 
@@ -50,10 +50,10 @@ public class AddressVerifier
         } catch (UnknownHostException exception) {
             return false;
         }
-        
+
         textField.setText(text);
         assert verify(input);
-        
+
         // Fire a new action event to all listeners.
         final int eventId = ActionEvent.ACTION_LAST + 1;
         final ActionEvent event = new ActionEvent(input, eventId, "yieldFocus");
@@ -61,15 +61,15 @@ public class AddressVerifier
         for (ActionListener listener : listeners) {
             listener.actionPerformed(event);
         }
-        
+
         return true;
     }
-         
+
     // check input (with no side effects)
     @Override
     public boolean verify(JComponent input) {
         assert input != null;
-        
+
         final JTextField textField = (JTextField)input;
         final String text = textField.getText();
         try {

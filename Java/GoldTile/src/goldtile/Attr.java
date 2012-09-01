@@ -11,13 +11,13 @@
 This file is part of the Gold Tile Game.
 
 The Gold Tile Game is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by the 
-Free Software Foundation, either version 3 of the License, or (at your 
+it under the terms of the GNU General Public License as published by the
+Free Software Foundation, either version 3 of the License, or (at your
 option) any later version.
 
-The Gold Tile Game is distributed in the hope that it will be useful, but 
-WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY 
-or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License 
+The Gold Tile Game is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 for more details.
 
 You should have received a copy of the GNU General Public License
@@ -38,34 +38,34 @@ public class Attr {
 
     // per-instance fields (immutable)
     final private int value;
-    
+
     // constructors
-    
+
     public Attr() {
         this.value = FIRST;
     }
-    
+
     public Attr(int value) {
         assert value >= FIRST : value;
         assert value <= LAST_MAX : value;
-        
+
         this.value = value;
     }
 
     // methods, sorted by name
-    
+
     public boolean equals(Attr other) {
         if (other == null) {
             return false;
         }
-        
+
         return value == other.value;
     }
-    
+
     public int intValue() {
         return value;
     }
-    
+
     public boolean isValid(Attr other) {
         return other.value >= FIRST && other.value <= this.value;
     }

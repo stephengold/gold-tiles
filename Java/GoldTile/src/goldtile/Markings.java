@@ -11,13 +11,13 @@
 This file is part of the Gold Tile Game.
 
 The Gold Tile Game is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by the 
-Free Software Foundation, either version 3 of the License, or (at your 
+it under the terms of the GNU General Public License as published by the
+Free Software Foundation, either version 3 of the License, or (at your
 option) any later version.
 
-The Gold Tile Game is distributed in the hope that it will be useful, but 
-WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY 
-or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License 
+The Gold Tile Game is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 for more details.
 
 You should have received a copy of the GNU General Public License
@@ -37,14 +37,14 @@ public class Markings {
     final private AttrMode modes[];
     final private Color color;
     final private int count;
-    
+
     // constructors
-    
+
     Markings(Tile tile, DisplayModes displayModes) {
         if (colors == null) {
             initializeColors();
         }
-        
+
         Color color = colors[0];
         Attr markings[] = new Attr[MARKING_COUNT_MAX];
         AttrMode modes[] = new AttrMode[MARKING_COUNT_MAX];
@@ -71,33 +71,33 @@ public class Markings {
         this.color = color;
         this.count = count;
         this.markings = markings;
-        this.modes = modes;        
-    }  
-    
+        this.modes = modes;
+    }
+
     // methods
-    
+
     public Color getColor() {
         return color;
     }
-    
+
     public Attr getMarking(int iAttr) {
         assert iAttr >= 0 : iAttr;
         assert iAttr < count : iAttr;
-        
+
         return markings[iAttr];
     }
-    
+
     public AttrMode getMode(int iAttr) {
         assert iAttr >= 0 : iAttr;
         assert iAttr < count : iAttr;
-        
+
         return modes[iAttr];
     }
-    
+
     private static void initializeColors() {
         assert colors == null : colors;
         colors = new Color[Attr.COUNT_MAX];
-        
+
         colors[0] = Color.BLACK;
         colors[1] = Color.RED;
         colors[2] = Color.DARK_BLUE;

@@ -11,13 +11,13 @@
 This file is part of the Gold Tile Game.
 
 The Gold Tile Game is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by the 
-Free Software Foundation, either version 3 of the License, or (at your 
+it under the terms of the GNU General Public License as published by the
+Free Software Foundation, either version 3 of the License, or (at your
 option) any later version.
 
-The Gold Tile Game is distributed in the hope that it will be useful, but 
-WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY 
-or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License 
+The Gold Tile Game is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 for more details.
 
 You should have received a copy of the GNU General Public License
@@ -31,9 +31,9 @@ public enum Grid {
     GRID_4WAY,
     GRID_HEX,
     GRID_8WAY;
-    
+
     // methods, sorted by name
-    
+
     public Shape getCellShape() {
         switch (this) {
             case GRID_TRIANGLE:
@@ -79,7 +79,7 @@ public enum Grid {
                 throw new AssertionError(this);
         }
     }
-    
+
     public int getSparsity() {
         if (isHex()) {
             return 2;
@@ -87,7 +87,7 @@ public enum Grid {
             return 1;
         }
     }
-    
+
     public int getWays() {
         switch (this) {
             case GRID_TRIANGLE:
@@ -102,7 +102,7 @@ public enum Grid {
                 throw new AssertionError(this);
         }
     }
-    
+
     public boolean isHex() {
         return this == GRID_HEX;
     }

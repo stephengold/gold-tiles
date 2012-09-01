@@ -11,13 +11,13 @@
 This file is part of the Gold Tile Game.
 
 The Gold Tile Game is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by the 
-Free Software Foundation, either version 3 of the License, or (at your 
+it under the terms of the GNU General Public License as published by the
+Free Software Foundation, either version 3 of the License, or (at your
 option) any later version.
 
-The Gold Tile Game is distributed in the hope that it will be useful, but 
-WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY 
-or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License 
+The Gold Tile Game is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 for more details.
 
 You should have received a copy of the GNU General Public License
@@ -26,7 +26,7 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 
 package goldtile;
 
-public class Hands 
+public class Hands
     extends java.util.ArrayList< Hand >
 {
     // classes
@@ -34,21 +34,21 @@ public class Hands
         public int length;
         public String report;
     }
-    
+
     // constants
     private static final String PREFIX = "hands{";
     private static final String SEPARATOR = " ";
     private static final String SUFFIX = "}";
 
     // per-instance fields
-    
+
     private int playable = 0;
-    
+
     // constructors
-    
+
     public Hands(int count, ReadHandOpt[] opts) {
         super();
-        
+
         assert count > 0;
         assert count <= opts.length;
 
@@ -68,7 +68,7 @@ public class Hands
             assert !hand.isClockRunning();
             add(hand);
         }
-        
+
         assert size() == count;
         assert playable == 0;
     }
@@ -78,16 +78,16 @@ public class Hands
     public void addScore(int points) {
         get(playable).addScore(points);
     }
-    
+
     public void addTiles(int iHand, Tiles tiles) {
         get(iHand).addTiles(tiles);
     }
-    
+
     public BestRun findBestRun() {
         assert size() > 0;
-        
+
         BestRun result = new BestRun();
-        
+
         result.length = 0;
         result.report = "";
         playable = 0;
@@ -106,14 +106,14 @@ public class Hands
             }
             iHand++;
         }
-        
-        return result;       
+
+        return result;
     }
-    
+
     public int findMaxScore() {
         assert size() > 0;
-        
-        final Hand first = get(0);       
+
+        final Hand first = get(0);
         int result = first.getScore();
 
         for (Hand hand : this) {
@@ -123,29 +123,29 @@ public class Hands
             }
         }
 
-        return result;    
+        return result;
     }
 
     public ReadHandOpt[] getOpts() {
         final ReadHandOpt[] result = new ReadHandOpt[size()];
-        
+
         for (int iHand = 0; iHand < size(); iHand++) {
             result[iHand] = get(iHand).getOpt();
         }
-        return result;    
+        return result;
     }
-    
+
     public ReadHand getPlayable() {
         return get(playable);
     }
-    
+
     public int getPlayableIndex() {
         return playable;
     }
-    
+
     public int[] getUnplayableIndices() {
         int[] result = new int[size() - 1];
-        
+
         for (int iHand = 0; iHand < size(); iHand++) {
             if (iHand < playable) {
                 result[iHand] = iHand;
@@ -153,30 +153,30 @@ public class Hands
                 result[iHand - 1] = iHand;
             }
         }
-        
+
         return result;
     }
-    
+
     public boolean hasAnyGoneOut() {
         for (Hand hand : this) {
             if (hand.hasGoneOut()) {
                 return true;
-            }        
+            }
         }
-        
+
         return false;
     }
-    
+
     public boolean haveAllResigned() {
         for (Hand hand : this) {
             if (!hand.hasResigned()) {
                 return false;
-            }   
+            }
         }
-        
+
         return true;
     }
-    
+
     public void nextWorking() {
         for (;;) {
             playable++;
@@ -188,11 +188,11 @@ public class Hands
             }
         }
     }
-    
+
     public void removeTiles(Tiles tiles) {
         get(playable).removeTiles(tiles);
     }
-    
+
     public Tiles resign() {
         return get(playable).resign();
     }
@@ -200,7 +200,7 @@ public class Hands
     public void startClock() {
         get(playable).startClock();
     }
-    
+
     public void stopClock() {
         get(playable).stopClock();
     }
@@ -218,7 +218,7 @@ public class Hands
             }
 
             result += hand.toString();
-        }       
+        }
         result += SUFFIX;
 
         return result;

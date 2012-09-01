@@ -11,13 +11,13 @@
 This file is part of the Gold Tile Game.
 
 The Gold Tile Game is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by the 
-Free Software Foundation, either version 3 of the License, or (at your 
+it under the terms of the GNU General Public License as published by the
+Free Software Foundation, either version 3 of the License, or (at your
 option) any later version.
 
-The Gold Tile Game is distributed in the hope that it will be useful, but 
-WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY 
-or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License 
+The Gold Tile Game is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 for more details.
 
 You should have received a copy of the GNU General Public License
@@ -29,16 +29,16 @@ package goldtile;
 import java.awt.Point;
 
 public class Canvas extends Graphics {
-    // constants   
+    // constants
     private static Poly shapes[] = null;
     private static Poly targetArrow = null;
     final private static int TILE_POINTEDNESS = 3; // corners of square tiles
-    
+
     // constructors
-    
+
     public Canvas(java.awt.Graphics context) {
         super(context);
-        
+
         if (shapes == null) {
             initializeShapes();
         }
@@ -46,15 +46,15 @@ public class Canvas extends Graphics {
             initializeTargetArrow();
         }
     }
-    
+
     // methods, sorted by name
-    
-    public void drawBlankTile(Point center, Area area, Color tileColor, 
+
+    public void drawBlankTile(Point center, Area area, Color tileColor,
             boolean oddFlag)
     {
         final int width = area.width;
         assert Global.isEven(width) : width;
-        
+
         final Color borderColor = Color.DARK_GRAY;
         foregroundColor = borderColor;
         backgroundColor = tileColor;
@@ -67,8 +67,8 @@ public class Canvas extends Graphics {
             drawGridShape(center, area, oddFlag);
         }
     }
-    
-    public Rect drawCell(Point center, Area area, 
+
+    public Rect drawCell(Point center, Area area,
                 Color cellColor, Color gridColor, boolean oddFlag)
     {
         assert Global.isEven(area.width);
@@ -76,10 +76,10 @@ public class Canvas extends Graphics {
         backgroundColor = cellColor;
         foregroundColor = gridColor;
         drawGridShape(center, area, oddFlag);
-        
+
         return interiorGridShape(center, area, oddFlag);
     }
-    
+
     public void drawGridShape(Point center, Area area, boolean oddFlag) {
         switch (getCellShape()) {
             case HEXAGON:
@@ -90,14 +90,14 @@ public class Canvas extends Graphics {
                 assert area.isSquare();
                 drawRectangle(center, area);
                 break;
-            case TRIANGLE: 
+            case TRIANGLE:
                 drawEquilateralTriangle(center, area, oddFlag);
                 break;
             default:
                 throw new AssertionError(getCellShape());
        }
     }
-    
+
     private void drawMarking(Rect bounds, AttrMode displayMode, Attr attr,
             Color color)
     {
@@ -122,15 +122,15 @@ public class Canvas extends Graphics {
                 drawTextLine(bounds, str, null);
                 //TODO useFont(FONT_HEIGHT_DEFAULT);
                 break;
-   
+
             default:
                 throw new AssertionError(displayMode);
         }
     }
-    
+
     public void drawTargetArrow(Rect bounds) {
         drawPolygon(targetArrow, bounds, false, Fill.YES);
-    }    
+    }
 
     public Rect drawTile(Markings markings, Color tileColor, Point center,
             Area tileArea, boolean borderFlag, boolean oddFlag)
@@ -175,7 +175,7 @@ public class Canvas extends Graphics {
 
         final int markingCount = markings.size();
         int markingWidth = interior.width;
-        int markingHeight = interior.height;    
+        int markingHeight = interior.height;
         if (markingCount == 2) {
             markingWidth /= 2;
        } else if (markingCount == 3 || markingCount == 4) {
@@ -186,7 +186,7 @@ public class Canvas extends Graphics {
         }
 
         final Color markingColor = markings.getColor();
-        
+
         for (int ind = 0; ind < markingCount; ind++) {
             int markingLeft = interior.x;
             int markingTop = interior.y;
@@ -199,26 +199,26 @@ public class Canvas extends Graphics {
                 assert markingCount == 1 : markingCount;
             }
 
-            final Rect markingBounds = new Rect(markingLeft, 
+            final Rect markingBounds = new Rect(markingLeft,
                     markingTop, markingWidth, markingHeight);
             final AttrMode mode = markings.getMode(ind);
             final Attr marking = markings.getMarking(ind);
-            drawMarking(markingBounds, mode, marking, markingColor); 
+            drawMarking(markingBounds, mode, marking, markingColor);
         }
 
         return interior;
     }
-    
+
     private static Shape getCellShape() {
         return Game.getInstance().getOpt().getGrid().getCellShape();
     }
-    
+
     private static void initializeShapes() {
         assert shapes == null : shapes;
         shapes = new Poly[Attr.COUNT_MAX];
 
         // polygons for tile markings
-        
+
         final Poly roundel = new Poly();
         for (int i = 0; i < 20; i++) {
             final double phi = Math.PI/10 * i;
@@ -240,7 +240,7 @@ public class Canvas extends Graphics {
         triangle.add(0.5, 0.95);
         triangle.add(0.95, 0.2);
         shapes[2] = triangle;
-            
+
         final Poly starCross = new Poly();
         starCross.add(0.0, 0.5);
         starCross.add(0.4, 0.6);
@@ -251,7 +251,7 @@ public class Canvas extends Graphics {
         starCross.add(0.5, 0.0);
         starCross.add(0.4, 0.4);
         shapes[3] = starCross;
-   
+
         final Poly mulletOfSeven = new Poly();
         for (int i = 0; i < 14; i++) {
             final double phi = Math.PI/7 * i;
@@ -266,36 +266,36 @@ public class Canvas extends Graphics {
             mulletOfSeven.add(x, y);
         }
         shapes[4] = mulletOfSeven;
-            
+
         final Poly lozenge = new Poly();
         lozenge.add(0.5, 0.0);
         lozenge.add(1.0, 0.5);
         lozenge.add(0.5, 1.0);
         lozenge.add(0.0, 0.5);
         shapes[5] = lozenge;
-            
+
         final Poly heart = new Poly();
         heart.add(0.5, 0.0);
-        
+
         heart.add(0.1, 0.45);
         heart.add(0.05, 0.65);
         heart.add(0.1, 0.8);
         heart.add(0.2, 0.9);
         heart.add(0.4, 0.9);
-        
+
         heart.add(0.5, 0.75);
-        
+
         heart.add(0.6, 0.9);
         heart.add(0.8, 0.9);
         heart.add(0.9, 0.8);
         heart.add(0.95, 0.65);
         heart.add(0.9, 0.45);
-        
+
         shapes[6] = heart;
 
         final Poly trefoil = new Poly();
         trefoil.add(0.5, 1.0);
-        
+
         trefoil.add(0.36, 0.94);
         trefoil.add(0.3, 0.8);
         trefoil.add(0.36, 0.66);
@@ -307,11 +307,11 @@ public class Canvas extends Graphics {
         trefoil.add(0.2, 0.3);
         trefoil.add(0.34, 0.36);
         trefoil.add(0.44, 0.34);
-        trefoil.add(0.4, 0.1);            
+        trefoil.add(0.4, 0.1);
         trefoil.add(0.3, 0.0);
 
         trefoil.add(0.7, 0.0);
-        trefoil.add(0.6, 0.1);            
+        trefoil.add(0.6, 0.1);
         trefoil.add(0.56, 0.34);
         trefoil.add(0.66, 0.36);
         trefoil.add(0.8, 0.3);
@@ -323,12 +323,12 @@ public class Canvas extends Graphics {
         trefoil.add(0.64, 0.66);
         trefoil.add(0.7, 0.8);
         trefoil.add(0.64, 0.94);
-        
+
         shapes[7] = trefoil;
 
         final Poly spade = new Poly();
         spade.add(0.5, 1.0);
-        
+
         spade.add(0.1, 0.6);
         spade.add(0.05, 0.44);
         spade.add(0.1, 0.28);
@@ -344,14 +344,14 @@ public class Canvas extends Graphics {
         spade.add(0.9, 0.28);
         spade.add(0.95, 0.44);
         spade.add(0.9, 0.6);
-        
+
         shapes[8] = spade;
     }
-    
+
     private static void initializeTargetArrow() {
         assert targetArrow == null : targetArrow;
         targetArrow = new Poly();
-        
+
         // polygonal arrow symbol for indicating the target cell
         targetArrow.add(0.6, 0.4);
         targetArrow.add(0.5, 0.9);
@@ -361,9 +361,9 @@ public class Canvas extends Graphics {
         targetArrow.add(0.35, 0.55);
         targetArrow.add(0.1, 0.5);
         targetArrow.add(0.6, 0.4);
-    }    
+    }
 
-    public static Rect interiorGridShape(Point center, Area area, 
+    public static Rect interiorGridShape(Point center, Area area,
             boolean oddFlag)
     {
         final Rect bounds = new Rect(center, area);
@@ -375,10 +375,10 @@ public class Canvas extends Graphics {
             case SQUARE:
                 assert area.isSquare();
                 return bounds;
-            case TRIANGLE: 
+            case TRIANGLE:
                 return interiorEquilateralTriangle(bounds, oddFlag);
             default:
                 throw new AssertionError(getCellShape());
        }
-    }  
+    }
 }

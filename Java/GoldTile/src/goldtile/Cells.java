@@ -11,13 +11,13 @@
 This file is part of the Gold Tile Game.
 
 The Gold Tile Game is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by the 
-Free Software Foundation, either version 3 of the License, or (at your 
+it under the terms of the GNU General Public License as published by the
+Free Software Foundation, either version 3 of the License, or (at your
 option) any later version.
 
-The Gold Tile Game is distributed in the hope that it will be useful, but 
-WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY 
-or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License 
+The Gold Tile Game is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 for more details.
 
 You should have received a copy of the GNU General Public License
@@ -26,7 +26,7 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 
 package goldtile;
 
-public class Cells 
+public class Cells
     extends java.util.TreeSet< Cell >
 {
     // constants
@@ -35,15 +35,15 @@ public class Cells
     private static final String SUFFIX = "}";
 
     // constructors
-    
+
     public Cells() {
         super();
     }
-    
+
     // construct a set containing a single cell
     public Cells(Cell cell) {
         super();
-        
+
         final boolean success = add(cell);
         assert success : cell;
     }
@@ -51,16 +51,16 @@ public class Cells
     public Cells(Cells other) {
         super(other);
     }
-    
+
     // methods
-    
+
     public boolean isAnyStart() {
         for (Cell cell : this) {
             if (cell.isStart()) {
                 return true;
             }
         }
-        
+
         return false;
     }
 }

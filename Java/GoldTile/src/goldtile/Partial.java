@@ -11,13 +11,13 @@
 This file is part of the Gold Tile Game.
 
 The Gold Tile Game is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by the 
-Free Software Foundation, either version 3 of the License, or (at your 
+it under the terms of the GNU General Public License as published by the
+Free Software Foundation, either version 3 of the License, or (at your
 option) any later version.
 
-The Gold Tile Game is distributed in the hope that it will be useful, but 
-WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY 
-or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License 
+The Gold Tile Game is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 for more details.
 
 You should have received a copy of the GNU General Public License
@@ -29,10 +29,10 @@ package goldtile;
 public class Partial {
     // enums
     public static enum Active { EXCLUDED, INCLUDED };
-    
+
     // constants
     final private static Fraction SUGGEST_SKIP_PROBABILITY = new Fraction(0.0);
-    
+
     // per-instance fields (all mutable), sorted by type
     private Board board = new Board();
     private Cells hintedCells = null;       // cached data, null means invalid
@@ -45,24 +45,24 @@ public class Partial {
     private Tiles swapTiles = new Tiles();
 
     // constructors
-    
+
     public Partial() {
         setGame();
     }
-    
+
     private Partial(Partial other) {
-        copy(other);       
+        copy(other);
     }
-    
+
     // methods, sorted by name
-    
+
     public void activate(Tile tile) {
         assert isPlayable(tile);
         assert Game.haveInstance();
 
         if (activeTile == null || !tile.equals(activeTile)) {
             activeTile = tile;
-        
+
             hintedCells = null;
             // no effect on playedTileCount
             // no effect on pointCount
@@ -77,21 +77,21 @@ public class Partial {
         assert move != null;
         assert tile != null;
         assert base != null;
-        
+
         for (Cell cell : base) {
-            if (!hintedCells.contains(cell) && 
+            if (!hintedCells.contains(cell) &&
                     isValidNextStep(move, cell, tile))
             {
                 hintedCells.add(cell);
             }
         }
     }
-    
+
     public void assertActive(Place expectedPlace) {
         final Place actualPlace = findActiveTile();
         assert actualPlace.equals(expectedPlace) : actualPlace;
     }
-    
+
     public ReadMove autoPlay() {
         assert Game.haveInstance();
         final ReadHandOpt handOpt = Game.getInstance().getPlayable().getOpt();
@@ -107,86 +107,86 @@ public class Partial {
         } catch (InterruptedException exception) {
             result = new Move(playableTiles);  // resign
         }
-        
+
         return result;
     }
-    
+
     private void boardToHand() {
         assertActive(Place.BOARD);
-        
+
         final Cell cell = board.find(activeTile);
         board.clear(cell);
-        
+
         hintedCells = null;
         --playedTileCount;
         pointCount = null;
-        
+
         assertActive(Place.HAND);
     }
 
     public boolean canSwapAll() {
-        return Game.haveInstance() && 
+        return Game.haveInstance() &&
                 Game.getInstance().countStock() >= countPlayable();
         // note: doesn't consider Game.mustPlay
     }
-    
+
     final public void copy(Partial other) {
         board = new Board(other.board);
-        hintedCells = (other.hintedCells == null) ? null : 
+        hintedCells = (other.hintedCells == null) ? null :
                 new Cells(other.hintedCells);
         skipProbability = other.skipProbability;
         hintStrength = other.hintStrength;
         playedTileCount = other.playedTileCount;
-        pointCount = (other.pointCount == null) ? null : 
+        pointCount = (other.pointCount == null) ? null :
                 new Integer(other.pointCount);
         activeTile = other.activeTile;
         playableTiles = new Tiles(other.playableTiles);
         swapTiles = new Tiles(other.swapTiles);
     }
-    
+
     public int countHand() {
-        assert countPlayable() >= countPlayed() + countSwapped() 
+        assert countPlayable() >= countPlayed() + countSwapped()
                 : countPlayed();
 
         return countPlayable() - countPlayed() - countSwapped();
     }
-    
+
     public int countHintedCells() {
         if (hintedCells == null) {
             updateHintedCells();
             assert hintedCells != null;
         }
-        return hintedCells.size();    
+        return hintedCells.size();
     }
-    
+
     public int countPlayable() {
         return playableTiles.size();
     }
-    
+
     public int countPlayed() {
         return playedTileCount;
     }
-    
+
     public int countSwapped() {
         return swapTiles.size();
     }
-    
+
     public Tile deactivate() {
         assert Game.haveInstance();
-        
+
         final Tile result = activeTile;
-        
+
         if (activeTile != null) {
             activeTile = null;
-            
+
             hintedCells = null;
             // no effect on playedTileCount
             // no effect on pointCount
         }
-        
+
         return result;
     }
-    
+
     public Place find(Tile tile) {
         if (isInSwap(tile)) {
             assert !board.contains(tile) : board.find(tile);
@@ -197,30 +197,30 @@ public class Partial {
             return Place.HAND;
         } else {
             return null;
-        }       
+        }
     }
-    
+
     public Place findActiveTile() {
         return find(activeTile);
     }
-    
-    static public Partial findBestMove(Fraction skipProbability) 
+
+    static public Partial findBestMove(Fraction skipProbability)
             throws InterruptedException
     {
         assert Game.haveInstance();
-        
+
         if (Game.getInstance().getMustPlay() > 0) {
             // Consider ALL possibile moves.
             skipProbability = new Fraction(0.0);
         }
-        
+
         final Partial partial = new Partial();
         partial.setGame();
         partial.setSkipProbability(skipProbability);
         partial.setHintStrength(HintStrength.USABLE_BY_ACTIVE);
-        
+
         Partial result = new Partial(partial); // a temporary copy
-        
+
         // Search for good plays.
         result = partial.findBestPlay(result);
         assert result.playedTileCount >= Game.getInstance().getMustPlay();
@@ -228,13 +228,13 @@ public class Partial {
         if (result.getPointCount() == 0) {
             // Construct a swap.
             result.takeBack();
-            
+
             int swapCount = result.countPlayable();
             final int maxSwap = Game.getInstance().countStock();
             if (swapCount > maxSwap) {
                 swapCount = maxSwap;
             }
-            
+
             // TODO be more selective in choosing tiles to swap
             for (Tile tile : result.playableTiles) {
                 if (swapCount <= 0) {
@@ -243,16 +243,16 @@ public class Partial {
                 result.activate(tile);
                 result.handToSwap();
                 swapCount--;
-            }           
+            }
         }
-        
+
         // note: result may incorporate an active tile
-        
+
         return result;
     }
-    
+
     // RECURSIVE
-    private Partial findBestPlay(Partial bestSoFar) 
+    private Partial findBestPlay(Partial bestSoFar)
             throws InterruptedException
     {
         assert bestSoFar != null;
@@ -262,9 +262,9 @@ public class Partial {
         if (getPointCount() > bestSoFar.getPointCount()) {
             result.copy(this);
         }
-        
+
         final Tile saveActive = deactivate();
-                
+
         for (Tile tile : playableTiles) {
             if (isInHand(tile) && !skipProbability.randomBoolean()) {
                 if (Thread.interrupted()) {
@@ -281,53 +281,53 @@ public class Partial {
                     boardToHand();
                 }
                 deactivate();
-            }    
+            }
         }
-        
+
         if (saveActive != null) {
             activate(saveActive);
         }
 
         return result;
     }
-    
+
     public Cell firstHintedCell() {
         if (hintedCells == null) {
             updateHintedCells();
             assert hintedCells != null;
         }
         assert hintedCells.size() > 0;
- 
+
         return hintedCells.first();
     }
 
     public Tile getActiveTile() {
         return activeTile;
     }
-    
+
     public ReadBoard getBoard() {
-        return board;    
+        return board;
     }
-    
+
     public Tiles getBoardTiles() {
         final Tiles result = new Tiles();
-        
+
         for (Tile tile : playableTiles) {
             if (board.contains(tile)) {
                 result.add(tile);
             }
         }
 
-        return result;        
+        return result;
     }
-    
+
     public HintStrength getHintStrength() {
         return hintStrength;
     }
-    
+
     public ReadMove getMove(Active includeActive) {
         final Move result = new Move();
-        
+
         for (Tile tile : playableTiles) {
             if (includeActive == Active.INCLUDED || !isActive(tile)) {
                 final Cell destination = board.find(tile);
@@ -339,48 +339,48 @@ public class Partial {
 
         return result;
     }
-    
+
     public int getPointCount() {
         if (pointCount == null) {
             updatePointCount();
             assert pointCount != null;
         }
-        
+
         return pointCount;
     }
-    
+
 
     public void handToBoard(Cell cell) {
         assert cell != null;
         assert cell.isValid();
         assert board.isEmpty(cell);
         assertActive(Place.HAND);
-        
+
         board.place(cell, activeTile);
-        
+
         hintedCells = null;
         playedTileCount++;
         pointCount = null;
-        
+
         assertActive(Place.BOARD);
     }
- 
+
     public void handToSwap() {
         assertActive(Place.HAND);
-        
+
         swapTiles.add(activeTile);
-        
+
         hintedCells = null;
         // no effect on playedTileCount
         // no effect on pointCount
-        
+
         assertActive(Place.SWAP_AREA);
     }
-    
+
     public boolean hasActiveTile() {
         return activeTile != null;
     }
-    
+
     public boolean isActive(Tile tile) {
         if (tile == null) {
             return activeTile == null;
@@ -388,18 +388,18 @@ public class Partial {
             return tile.equals(activeTile);
         }
     }
-    
+
     public boolean isHinted(Cell cell) {
         assert cell != null;
-        
+
         if (hintedCells == null) {
             updateHintedCells();
             assert hintedCells != null;
         }
-        
+
         return hintedCells.contains(cell);
     }
-    
+
     public boolean isInHand(Tile tile) {
         if (tile == null) {
             return false;
@@ -407,7 +407,7 @@ public class Partial {
             return isPlayable(tile) && !isInSwap(tile) && !board.contains(tile);
         }
     }
-    
+
     public boolean isInSwap(Tile tile) {
         if (tile == null) {
             return false;
@@ -415,11 +415,11 @@ public class Partial {
             return swapTiles.contains(tile);
         }
     }
-    
+
     public boolean isPass() {
-        return countPlayed() + countSwapped() == 0;    
+        return countPlayed() + countSwapped() == 0;
     }
-    
+
     public boolean isPlayable(Tile tile) {
         if (tile == null) {
             return false;
@@ -427,7 +427,7 @@ public class Partial {
             return playableTiles.contains(tile);
         }
     }
-    
+
     /*
      * Check whether a hypothetical next step would be a legal
      * partial move.
@@ -444,32 +444,32 @@ public class Partial {
 
         return reason == null || reason == UserMessage.FIRST_TURN;
     }
-    
+
     public void moveActiveTile(Place from, Place to, Cell toCell) {
         assert from != null;
         assert to != null;
         assert isPlayable(activeTile);
-        
+
         // Move tile to hand -- temporarily in many cases.
         switch (from) {
             case BOARD:
                 boardToHand();
                 break;
-                
+
             case SWAP_AREA:
                 swapToHand();
                 break;
         }
-        
+
         // Move tile from hand to destination.
         switch (to) {
             case BOARD:
                 assert toCell != null;
                 assert toCell.isValid();
-                
+
                 handToBoard(toCell);
                 break;
-                
+
             case SWAP_AREA:
                 handToSwap();
                 break;
@@ -485,18 +485,18 @@ public class Partial {
 
         takeBack();
     }
- 
+
     // the start of a new game
     final public void setGame() {
         final Game game = Game.getInstance();
-        
-        final ReadGameOpt gameOpt = (game == null) ? null : 
+
+        final ReadGameOpt gameOpt = (game == null) ? null :
                 game.getOpt();
-        final ReadHandOpt handOpt = (game == null) ? null : 
+        final ReadHandOpt handOpt = (game == null) ? null :
                 game.getPlayable().getOpt();
         final HintStrength strength = HintStrength.getDefault(gameOpt, handOpt);
         setHintStrength(strength);
-        
+
         skipProbability = HandOpt.SKIP_PROBABILITY_DEFAULT;
         takeBack();
     }
@@ -507,11 +507,11 @@ public class Partial {
             hintedCells = null;
         }
     }
-    
+
     public void setSkipProbability(Fraction skipProbability) {
         this.skipProbability = skipProbability;
     }
-    
+
     public Partial suggest() {
         assert Game.haveInstance();
         assert Game.getInstance().getPlayable().getOpt().isLocalUser();
@@ -526,41 +526,41 @@ public class Partial {
         } catch (InterruptedException exception) {
             best = null;
         }
-        
+
         return best;
     }
-    
+
     public void swapAll() {
         assert !hasActiveTile();
         assert canSwapAll();
 
         if (countSwapped() < countPlayable()) {
             swapTiles = new Tiles(playableTiles);
-        
+
             hintedCells = null;
             playedTileCount = 0;
             pointCount = 0;
         }
     }
-    
+
     private void swapToHand() {
         assertActive(Place.SWAP_AREA);
-        
+
         swapTiles.remove(activeTile);
         hintedCells = null;
         // no effect on pointCount
-        
+
         assertActive(Place.HAND);
     }
-    
+
     final public void takeBack() {
         activeTile = null;
         swapTiles.clear();
-        
+
         hintedCells = null;
         playedTileCount = 0;
         pointCount = null;
-        
+
         if (Game.haveInstance()) {
             board = Game.getInstance().copyBoard();
             playableTiles = Game.getInstance().getPlayable().copyContents();
@@ -569,7 +569,7 @@ public class Partial {
             playableTiles.clear();
         }
     }
-    
+
     private void updateHintedCells() {
         hintedCells = new Cells();
         if (hintStrength == HintStrength.NONE) {
@@ -577,15 +577,15 @@ public class Partial {
         }
 
         // Add all valid empty cells.
-        for (int row = board.getBottomUseRow(); 
+        for (int row = board.getBottomUseRow();
                 row <= board.getTopUseRow(); row++)
         {
-            for (int column = board.getLeftUseColumn(); 
+            for (int column = board.getLeftUseColumn();
                     column <= board.getRightUseColumn(); column++)
             {
                 final Cell cell = new Cell(row, column);
                 final Cell wrapCell = cell.wrap();
-                if (wrapCell.isValid() && 
+                if (wrapCell.isValid() &&
                     board.isEmpty(wrapCell) &&
                     !hintedCells.contains(wrapCell))
                 {
@@ -596,9 +596,9 @@ public class Partial {
         if (hintStrength == HintStrength.UNUSED) {
             return;
         }
-        
+
         /*
-         * Remove any cells that are neither the start cell nor 
+         * Remove any cells that are neither the start cell nor
          * the neighbor of a used cell.
          */
         Cells base = new Cells(hintedCells);
@@ -610,7 +610,7 @@ public class Partial {
         if (hintStrength == HintStrength.CONNECTED) {
             return;
         }
-        
+
         /*
          * Remove any cells that are not ...
          *   USABLE_BY_PLAYABLE:  usable by any playable tile
@@ -631,12 +631,12 @@ public class Partial {
             }
         }
     }
-    
+
     private void updatePointCount() {
         assert Game.haveInstance();
-        
+
         pointCount = new Integer(0);
-        
+
         final int mustPlay = Game.getInstance().getMustPlay();
         if (mustPlay == 0 || countPlayed() >= mustPlay) {
             final ReadMove move = getMove(Active.INCLUDED);

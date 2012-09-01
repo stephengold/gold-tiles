@@ -11,13 +11,13 @@
 This file is part of the Gold Tile Game.
 
 The Gold Tile Game is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by the 
-Free Software Foundation, either version 3 of the License, or (at your 
+it under the terms of the GNU General Public License as published by the
+Free Software Foundation, either version 3 of the License, or (at your
 option) any later version.
 
-The Gold Tile Game is distributed in the hope that it will be useful, but 
-WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY 
-or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License 
+The Gold Tile Game is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 for more details.
 
 You should have received a copy of the GNU General Public License
@@ -36,43 +36,43 @@ public enum Direction {
     SOUTHWEST (false, -1, -1),
     WEST      (false,  0, -1),
     NORTHWEST (false, +1, -1) ;
-    
+
     // per-instance fields (immutable), sorted by type
-    
+
     final public boolean axisFlag;
     final public boolean cardinalFlag;
     final public boolean diagonalFlag;
-    final public boolean horizontalFlag;    
+    final public boolean horizontalFlag;
     final public boolean verticalFlag;
-    
+
     final public int columnOffset;
     final public int rowOffset;
-    
+
     // static fields
-    final public static Direction[] allAxes 
+    final public static Direction[] allAxes
             = { NORTH, NORTHEAST, EAST, SOUTHEAST };
-    final public static Direction[] nonDiagonalAxes 
+    final public static Direction[] nonDiagonalAxes
             = { NORTH, EAST };
-    final public static Direction[] nonHorizontalAxes 
+    final public static Direction[] nonHorizontalAxes
             = { NORTH, NORTHEAST, SOUTHEAST };
-    final public static Direction[] nonVerticalAxes 
+    final public static Direction[] nonVerticalAxes
             = { NORTHEAST, EAST, SOUTHEAST };
 
     // constructors
-    
+
     private Direction(boolean a, int rowOffset, int columnOffset) {
         axisFlag = a;
         cardinalFlag = (rowOffset == 0 || columnOffset == 0);
         diagonalFlag = (rowOffset != 0 && columnOffset != 0);
         horizontalFlag = (rowOffset == 0);
         verticalFlag = (columnOffset == 0);
-        
+
         this.rowOffset = rowOffset;
         this.columnOffset = columnOffset;
     }
-    
+
     // methods, sorted by name
-    
+
     public Direction getOpposite() {
         switch(this) {
             case NORTH:
@@ -95,7 +95,7 @@ public enum Direction {
                 throw new AssertionError(this);
         }
     }
-    
+
     public Direction getOrthogonalAxis() {
         switch(this) {
             case NORTH:
@@ -112,6 +112,6 @@ public enum Direction {
                 return NORTHEAST;
             default:
                 throw new AssertionError(this);
-        }        
-    } 
+        }
+    }
 }

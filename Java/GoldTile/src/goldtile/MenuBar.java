@@ -11,13 +11,13 @@
 This file is part of the Gold Tile Game.
 
 The Gold Tile Game is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by the 
-Free Software Foundation, either version 3 of the License, or (at your 
+it under the terms of the GNU General Public License as published by the
+Free Software Foundation, either version 3 of the License, or (at your
 option) any later version.
 
-The Gold Tile Game is distributed in the hope that it will be useful, but 
-WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY 
-or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License 
+The Gold Tile Game is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 for more details.
 
 You should have received a copy of the GNU General Public License
@@ -33,8 +33,8 @@ import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.KeyStroke;
 
-public class MenuBar 
-    extends javax.swing.JMenuBar 
+public class MenuBar
+    extends javax.swing.JMenuBar
     implements java.awt.event.ActionListener
 {
     // constants
@@ -42,7 +42,7 @@ public class MenuBar
     final public static int TILE_SIZE_DEFAULT = 5; // TODO based on hand size
 
     // per-instance data
-    
+
     public GamePanel clientArea = null;
     private SwingWorker worker = null;
 
@@ -52,7 +52,7 @@ public class MenuBar
     final private JMenu playMenu = new JMenu("Play");
     final private JMenu thinkingMenu = new JMenu("Thinking");
     final private JMenu viewMenu = new JMenu("View");
-    
+
     // menu items
     final private JMenuItem nu;
     final private JMenuItem open;
@@ -60,9 +60,9 @@ public class MenuBar
     final private JMenuItem revert;
     final private JMenuItem save;
     final private JMenuItem saveAs;
-    final private JMenuItem close;        
+    final private JMenuItem close;
     final private JMenuItem exit;
-    
+
     final private JMenuItem play;
     final private JMenuItem takeBack;
     final private JMenuItem suggest;
@@ -77,65 +77,65 @@ public class MenuBar
 
     final private SizeMenu boardSize;
     final private SizeMenu tileSize;
-    final private JMenuItem recenter;    
-    final private JMenuItem attrs;    
-    final private JMenuItem hints;    
+    final private JMenuItem recenter;
+    final private JMenuItem attrs;
+    final private JMenuItem hints;
     final private JCheckBoxMenuItem showClocks;
     final private JCheckBoxMenuItem showGrid;
     final private JCheckBoxMenuItem showScores;
     final private JCheckBoxMenuItem peek;
- 
-    final private JMenuItem cancel;    
- 
+
+    final private JMenuItem cancel;
+
     final private JMenuItem rules;
     final private JMenuItem warranty;
     final private JMenuItem about;
 
     // constructors
-    
+
     public MenuBar() {
         // Flesh out the "File" menu.
-        
+
         nu = new JMenuItem("New");
         nu.setAccelerator(KeyStroke.getKeyStroke(
                 KeyEvent.VK_N, InputEvent.CTRL_DOWN_MASK));
         nu.setMnemonic(KeyEvent.VK_N);
         fileMenu.add(nu);
-        
+
         open = new JMenuItem("Open...");
         open.setAccelerator(KeyStroke.getKeyStroke(
                 KeyEvent.VK_O, InputEvent.CTRL_DOWN_MASK));
         open.setMnemonic(KeyEvent.VK_O);
         fileMenu.add(open);
-        
+
         openRecent = new JMenuItem("Open Recent...");
         openRecent.setMnemonic(KeyEvent.VK_R);
         fileMenu.add(openRecent);
-        
+
         revert = new JMenuItem("Revert");
         revert.setMnemonic(KeyEvent.VK_V);
         fileMenu.add(revert);
-                    
+
         fileMenu.addSeparator();
-                
+
         save = new JMenuItem("Save");
         save.setAccelerator(KeyStroke.getKeyStroke(
                 KeyEvent.VK_S, InputEvent.CTRL_DOWN_MASK));
         save.setMnemonic(KeyEvent.VK_S);
         fileMenu.add(save);
-        
+
         saveAs = new JMenuItem("Save As...");
         saveAs.setMnemonic(KeyEvent.VK_A);
         fileMenu.add(saveAs);
-            
+
         fileMenu.addSeparator();
-                
+
         close = new JMenuItem("Close");
         close.setAccelerator(KeyStroke.getKeyStroke(
                 KeyEvent.VK_W, InputEvent.CTRL_DOWN_MASK));
         close.setMnemonic(KeyEvent.VK_C);
         fileMenu.add(close);
-        
+
         exit = new JMenuItem("Exit");
         exit.setAccelerator(KeyStroke.getKeyStroke(
                 KeyEvent.VK_F4, InputEvent.ALT_DOWN_MASK));
@@ -143,7 +143,7 @@ public class MenuBar
         fileMenu.add(exit);
 
         // Flesh out the "Play" menu.
-        
+
         play = new JMenuItem("Play");
         play.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0));
         play.setMnemonic(KeyEvent.VK_P);
@@ -153,17 +153,17 @@ public class MenuBar
         takeBack.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0));
         takeBack.setMnemonic(KeyEvent.VK_B);
         playMenu.add(takeBack);
-        
+
         suggest = new JMenuItem("Suggest");
         suggest.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_G, 0));
         suggest.setMnemonic(KeyEvent.VK_G);
         playMenu.add(suggest);
-        
+
         pause = new JMenuItem("error!");
         pause.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_PAUSE, 0));
         pause.setActionCommand("togglePause");
         playMenu.add(pause);
-        
+
         swapAll = new JMenuItem("Swap All");
         swapAll.setMnemonic(KeyEvent.VK_W);
         playMenu.add(swapAll);
@@ -175,48 +175,48 @@ public class MenuBar
         resign = new JMenuItem("Resign");
         resign.setMnemonic(KeyEvent.VK_R);
         playMenu.add(resign);
-            
+
         playMenu.addSeparator();
-        
+
         restart = new JMenuItem("Restart");
         restart.setMnemonic(KeyEvent.VK_E);
         playMenu.add(restart);
-        
+
         undo = new JMenuItem("Undo");
         undo.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Z, 0));
         undo.setMnemonic(KeyEvent.VK_U);
         playMenu.add(undo);
-        
+
         redo = new JMenuItem("Redo");
         redo.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Y, 0));
         redo.setMnemonic(KeyEvent.VK_D);
         playMenu.add(redo);
-                    
+
         playMenu.addSeparator();
-        
+
         autoPause = new JCheckBoxMenuItem("AutoPause");
         playMenu.add(autoPause);
-        
+
         // Flesh out the "View" menu.
-        
+
         boardSize = new SizeMenu("Board Size", BOARD_SIZE_DEFAULT);
         boardSize.accelerate();
         boardSize.setMnemonic(KeyEvent.VK_B);
         viewMenu.add(boardSize);
-        
+
         tileSize = new SizeMenu("Tile Size", TILE_SIZE_DEFAULT);
         tileSize.setMnemonic(KeyEvent.VK_T);
         viewMenu.add(tileSize);
-        
+
         recenter = new JMenuItem("Re-center");
         recenter.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C, 0));
         recenter.setMnemonic(KeyEvent.VK_R);
         viewMenu.add(recenter);
-        
+
         attrs = new JMenuItem("Tile Attributes...");
         attrs.setMnemonic(KeyEvent.VK_A);
         viewMenu.add(attrs);
-        
+
         hints = new JMenuItem("Hints...");
         hints.setMnemonic(KeyEvent.VK_H);
         viewMenu.add(hints);
@@ -227,41 +227,41 @@ public class MenuBar
         showClocks.setActionCommand("repaint");
         showClocks.setMnemonic(KeyEvent.VK_C);
         viewMenu.add(showClocks);
-        
+
         showGrid = new JCheckBoxMenuItem("Show Grid");
         showGrid.setActionCommand("repaint");
         showGrid.setMnemonic(KeyEvent.VK_G);
         viewMenu.add(showGrid);
-        
+
         showScores = new JCheckBoxMenuItem("Show Scores");
         showScores.setActionCommand("repaint");
         showScores.setMnemonic(KeyEvent.VK_O);
         viewMenu.add(showScores);
-        
+
         peek = new JCheckBoxMenuItem("Peek");
         peek.setActionCommand("repaint");
         peek.setMnemonic(KeyEvent.VK_P);
         viewMenu.add(peek);
-                                
+
         // Flesh out the "Thinking" menu.
-        
+
         cancel = new JMenuItem("Cancel");
         cancel.setAccelerator(KeyStroke.getKeyStroke(
                 KeyEvent.VK_C, InputEvent.CTRL_DOWN_MASK));
         cancel.setMnemonic(KeyEvent.VK_C);
         thinkingMenu.add(cancel);
-        
+
         // Flesh out the "Help" menu.
-        
+
         rules = new JMenuItem("Rules...");
         rules.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F1, 0));
         rules.setMnemonic(KeyEvent.VK_R);
         helpMenu.add(rules);
-        
+
         warranty = new JMenuItem("Warranty...");
         warranty.setMnemonic(KeyEvent.VK_W);
         helpMenu.add(warranty);
-        
+
         about = new JMenuItem("About Gold Tile...");
         about.setMnemonic(KeyEvent.VK_A);
         helpMenu.add(about);
@@ -273,40 +273,40 @@ public class MenuBar
         add(thinkingMenu);
         add(helpMenu);
     }
-    
+
     // methods, sorted by name
-    
+
     @Override
     public void actionPerformed(java.awt.event.ActionEvent event) {
         final String command = event.getActionCommand();
-        
+
         switch (command) {
             case "New":
                 clientArea.offerNewGame();
                 break;
-                
+
             case "Close":
                 final GameStyle oldStyle = Game.getStyle();
                 Game.closeCurrentInstance();
                 clientArea.view.changeGame(oldStyle);
                 break;
-                
+
             case "Exit":
-                System.exit(0);              
+                System.exit(0);
 
             case "Pass":
             case "Play":
             case "Resign":
                 clientArea.view.playMenuCommand(command);
                 break;
-                
+
             case "Take Back":
                 clientArea.view.takeBack();
                 break;
-   
+
             case "Suggest":
                 startSuggest();
-                break;                
+                break;
 
             case "Swap All":
                 clientArea.view.swapAll();
@@ -323,7 +323,7 @@ public class MenuBar
             case "Hints...":
                 clientArea.view.hintBox();
                 break;
-                
+
             case "Cancel":
                 assert worker != null;
                 worker.interrupt();
@@ -332,39 +332,39 @@ public class MenuBar
             case "Rules...":
                 clientArea.showRulesBox();
                 break;
-                
+
             case "Warranty...":
                 clientArea.showWarrantyBox();
                 break;
-                     
+
             case "About Gold Tile...":
                 clientArea.showAboutBox();
                 break;
-                
-            case "repaint": 
+
+            case "repaint":
                 break;
 
             default:
                 throw new AssertionError(command);
         }
-        
+
         clientArea.repaint();
         update();
     }
 
     public void addListeners() {
         // "File" menu
-        nu.addActionListener(this);     
-        close.addActionListener(this);     
-        exit.addActionListener(this);     
+        nu.addActionListener(this);
+        close.addActionListener(this);
+        exit.addActionListener(this);
 
         // "Play" menu
-        play.addActionListener(this);        
-        takeBack.addActionListener(this);        
-        suggest.addActionListener(this);        
-        pause.addActionListener(this);        
-        swapAll.addActionListener(this);        
-        pass.addActionListener(this);        
+        play.addActionListener(this);
+        takeBack.addActionListener(this);
+        suggest.addActionListener(this);
+        pause.addActionListener(this);
+        swapAll.addActionListener(this);
+        pass.addActionListener(this);
         resign.addActionListener(this);
 
         // "View" menu
@@ -372,38 +372,38 @@ public class MenuBar
         tileSize.menuBar = this;
         recenter.addActionListener(this);
         hints.addActionListener(this);
-        showClocks.addActionListener(this);        
-        showGrid.addActionListener(this);        
-        showScores.addActionListener(this);     
+        showClocks.addActionListener(this);
+        showGrid.addActionListener(this);
+        showScores.addActionListener(this);
         peek.addActionListener(this);
-        
+
         // "File" menu
         cancel.addActionListener(this);
-        
+
         // "Help" menu
         rules.addActionListener(this);
         warranty.addActionListener(this);
         about.addActionListener(this);
     }
-    
+
     public boolean areClocksVisible() {
         return showClocks.isSelected();
     }
-    
+
     public boolean areScoresVisible() {
         return showScores.isSelected();
     }
-    
+
     public void gameOver() {
         peek.setSelected(true);
         showClocks.setSelected(true);
         showScores.setSelected(true);
     }
-    
+
     public SizeMenu getBoardSizeMenu() {
         return boardSize;
     }
-    
+
     public int getTileSize(Place place) {
         switch (place) {
             case BOARD:
@@ -423,7 +423,7 @@ public class MenuBar
     public boolean isGridVisible() {
         return showGrid.isSelected();
     }
-    
+
     public boolean isPeeking() {
         return peek.isSelected();
     }
@@ -437,14 +437,14 @@ public class MenuBar
         showGrid.setState(user.getShowGrid());
         showScores.setState(user.getShowScores());
     }
-    
+
     public void newGame(GameStyle oldStyle, GameStyle newStyle) {
         assert oldStyle != null;
         assert newStyle != null;
-        
-        boardSize.setValue(BOARD_SIZE_DEFAULT);    
+
+        boardSize.setValue(BOARD_SIZE_DEFAULT);
         tileSize.setValue(TILE_SIZE_DEFAULT);
-        
+
         if (!oldStyle.equals(newStyle)) {
             autoPause.setState(newStyle.hasTimeLimit());
             peek.setState(newStyle.allowsPeeking());
@@ -452,12 +452,12 @@ public class MenuBar
             showGrid.setState(true);
             showScores.setState(true);
         }
-        
+
         if (!newStyle.allowsPeeking()) {
             peek.setState(false);
         }
     }
-    
+
     public void saveUser(User user) {
         user.setAutopause(isAutoPauseEnabled());
         user.setBoardTileSize(getTileSize(Place.BOARD));
@@ -465,12 +465,12 @@ public class MenuBar
         user.setPeek(isPeeking());
         user.setShowClocks(areClocksVisible());
         user.setShowGrid(isGridVisible());
-        user.setShowScores(areScoresVisible());    
+        user.setShowScores(areScoresVisible());
     }
-    
+
     public void startAutoPlay() {
         assert worker == null : worker;
-        
+
         worker = new SwingWorker() {
             @Override
             public Object construct() {
@@ -486,12 +486,12 @@ public class MenuBar
                 update();
            }
        };
-       worker.start();       
+       worker.start();
     }
-    
+
     public void startSuggest() {
         assert worker == null : worker;
-        
+
         worker = new SwingWorker() {
             @Override
             public Object construct() {
@@ -508,30 +508,30 @@ public class MenuBar
                 update();
            }
        };
-       worker.start();       
+       worker.start();
     }
-    
+
     public void update() {
         boolean control = GoldTile.control == Display.GUI;
         boolean thinking = worker != null;
-        
+
         boolean haveGame = false;
         boolean local = false;
         boolean over = false;
-        boolean paused = false; 
+        boolean paused = false;
         boolean canRedo = false;
         boolean canUndo = false;
         boolean passFlag = false;
         boolean suggestStyle = false;
         boolean timedStyle = false;
         boolean undoStyle = false;
-        
+
         final Partial partial = clientArea.view;
         if (partial != null) {
             haveGame = Game.haveInstance();
             if (haveGame) {
                 local = Game.getInstance().getPlayable().getOpt().isLocalUser();
-                
+
                 final ReadGame game = Game.getInstance();
                 paused = game.isPaused();
                 over = game.isOver();
@@ -539,13 +539,13 @@ public class MenuBar
                 canUndo = game.canUndo();
             }
             passFlag = partial.isPass();
-                        
+
             final GameStyle style = Game.getStyle();
-            suggestStyle = style.allowsHints(); 
-            timedStyle = style.hasTimeLimit(); 
+            suggestStyle = style.allowsHints();
+            timedStyle = style.hasTimeLimit();
             undoStyle = style.allowsUndo();
         }
-        
+
         // "File" menu
         nu.setEnabled(true);
         open.setEnabled(true);
@@ -594,14 +594,14 @@ public class MenuBar
 
     private static void updateMenu(JMenu menu) {
         assert menu != null;
-        
+
         for (java.awt.Component component : menu.getMenuComponents()) {
             if (component.isEnabled()) {
                 menu.setEnabled(true);
                 return;
             }
         }
-        
-        menu.setEnabled(false);        
+
+        menu.setEnabled(false);
     }
 }

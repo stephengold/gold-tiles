@@ -11,13 +11,13 @@
 This file is part of the Gold Tile Game.
 
 The Gold Tile Game is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by the 
-Free Software Foundation, either version 3 of the License, or (at your 
+it under the terms of the GNU General Public License as published by the
+Free Software Foundation, either version 3 of the License, or (at your
 option) any later version.
 
-The Gold Tile Game is distributed in the hope that it will be useful, but 
-WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY 
-or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License 
+The Gold Tile Game is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 for more details.
 
 You should have received a copy of the GNU General Public License
@@ -34,7 +34,7 @@ import java.awt.event.MouseEvent;
 import javax.swing.JOptionPane;
 import javax.swing.Timer;
 
-public class GamePanel 
+public class GamePanel
     extends javax.swing.JPanel
     implements java.awt.event.ActionListener, // Swing timer events
         java.awt.event.ComponentListener,
@@ -43,16 +43,16 @@ public class GamePanel
         java.awt.event.MouseMotionListener
 {
     // constants, sorted by type
-    final private static Cursor DRAG_CURSOR 
+    final private static Cursor DRAG_CURSOR
             = Cursor.getPredefinedCursor(Cursor.MOVE_CURSOR);
     final private static int DRAG_THRESHOLD = 6;
     final private static int TIMEOUT_MSEC = 500;
-    
+
     // links
     final public GameFrame frame;
     final public GameView view;
     final private MenuBar menuBar;
-    
+
     // per-instance fields, sorted by type
     private boolean deactivateOnRelease = false;
     private boolean dragBoard = false;
@@ -60,36 +60,36 @@ public class GamePanel
     private int dragBoardPixelCount = 0;
     private Point mouseLast = null;
     final private Timer timer;
-    
+
     // constructors
-    
+
     public GamePanel(MenuBar menuBar, GameFrame frame) {
         assert menuBar != null;
         assert frame != null;
-        
+
         this.frame = frame;
         this.menuBar = menuBar;
         view = new GameView(this, menuBar);
-        
+
         setBackground(Color.BLACK);
-       
+
         addComponentListener(this);
         addKeyListener(this);
         addMouseListener(this);
         addMouseMotionListener(this);
         addMouseWheelListener(menuBar.getBoardSizeMenu());
-        
+
         // start the timer
         timer = new Timer(TIMEOUT_MSEC, this);
         timer.setInitialDelay(TIMEOUT_MSEC);
         timer.start();
     }
-    
+
     // methods, sorted by name
-    
+
     /**
      * Handles Swing timer pops.
-     * @param event 
+     * @param event
      */
     @Override
     public void actionPerformed(java.awt.event.ActionEvent event) {
@@ -101,12 +101,12 @@ public class GamePanel
     public void componentHidden(ComponentEvent event) {
         // do nothing:  needed to complete the ComponentListener interface
     }
-    
+
     @Override
     public void componentMoved(ComponentEvent event) {
         // do nothing:  needed to complete the ComponentListener interface
     }
-    
+
     @Override
     public void componentResized(ComponentEvent event) {
         repaint();
@@ -116,7 +116,7 @@ public class GamePanel
     public void componentShown(ComponentEvent event) {
         repaint();
     }
-    
+
     /**
      * Returns the logical coordinates of the pixel on the inside
      * of the panel's bottom right corner.
@@ -126,10 +126,10 @@ public class GamePanel
     public Point getBottomRightCorner() {
         final int x = getWidth() - 1;
         final int y = getHeight() - 1;
-        
+
         return new Point(x, y);
     }
-    
+
     public Area getClientArea() {
         return new Area(getWidth(), getHeight());
     }
@@ -141,7 +141,7 @@ public class GamePanel
     /**
      * Returns the logical coordinates of the mouse pointer
      * as of the most recent mouse event.
-     * 
+     *
      * @return a new Point object indicating the coordinates (never null)
      */
     public Point getMouseLast() {
@@ -161,7 +161,7 @@ public class GamePanel
             repaint();
             return;
         }
-        
+
         final Tile tile = view.findPlayableTile(point);
         if (tile != null) {
             /*
@@ -171,7 +171,7 @@ public class GamePanel
             view.activate(tile);
             deactivateOnRelease = false;
             repaint();
-            
+
         } else if (!view.isInHandRect(point) && !view.isInSwapRect(point)) {
             // Start dragging the board around.
             dragBoard = true;
@@ -181,12 +181,12 @@ public class GamePanel
             repaint();
         }
     }
-    
+
     private void handleDragView(Point point) {
         assert point != null;
         assert Game.haveInstance();
         assert !Game.getInstance().isPaused();
-        
+
         if (view.hasActiveTile()) {
             assert !dragBoard;
             repaint();
@@ -199,25 +199,25 @@ public class GamePanel
             repaint();
         }
     }
-    
+
     private void handleReleaseView(Point point) {
         assert point != null;
         assert mouseLast != null;
         assert Game.haveInstance();
         assert !Game.getInstance().isPaused();
-        
+
         final int dx = point.x - mouseLast.x;
         final int dy = point.y - mouseLast.y;
         if (view.hasActiveTile()) {
             assert !dragBoard;
-            deactivateOnRelease = view.dropActiveTile(point, 
+            deactivateOnRelease = view.dropActiveTile(point,
                     deactivateOnRelease);
             repaint();
 
         } else if (dragBoard) {
             view.translate(dx, dy);
             dragBoardPixelCount += Math.abs(dx) + Math.abs(dy);
-  
+
             if (dragBoardPixelCount < DRAG_THRESHOLD) {
                 /*
                  * Board drags shorter than six pixels (clicks, basically)
@@ -225,14 +225,14 @@ public class GamePanel
                  */
                 view.toggleTargetCell(point);
             }
-            
+
             // done dragging the board
             dragBoard = false;
             setCursor(Cursor.getDefaultCursor());
             repaint();
         }
     }
-    
+
     @Override
     public void keyPressed(KeyEvent event) {
         int keyCode = event.getKeyCode();
@@ -251,20 +251,20 @@ public class GamePanel
                 break;
         }
     }
-    
+
     @Override
     public void keyReleased(KeyEvent event) {
         // do nothing:  needed to complete the KeyListener interface
     }
-    
+
     @Override
     public void keyTyped(KeyEvent event) {
         // do nothing:  needed to complete the KeyListener interface
     }
-    
+
     private void leftButtonPress(Point point) {
         assert point != null;
-        
+
         final ReadGame game = Game.getInstance();
         if (game != null && !game.isPaused()) {
             handleClickView(point);
@@ -276,7 +276,7 @@ public class GamePanel
     private void leftButtonRelease(Point point) {
         assert point != null;
         assert mouseLast != null;
-        
+
         final Game game = Game.getInstance();
         if (game != null) {
             if (game.isPaused()) {
@@ -288,70 +288,70 @@ public class GamePanel
         leftButtonDown = false;
         mouseLast = point;
     }
-    
+
     @Override
     public void mouseClicked(MouseEvent event) {
         // do nothing:  needed to complete the MouseListener interface
     }
-    
+
     @Override
     public void mouseDragged(MouseEvent event) {
         assert event != null;
-        
-        final Point point = event.getPoint();        
+
+        final Point point = event.getPoint();
         if (leftButtonDown) {
             assert mouseLast != null;
 
             final ReadGame game = Game.getInstance();
             if (game != null && !game.isPaused()) {
-                handleDragView(point);            
+                handleDragView(point);
             }
             mouseLast = point;
         }
     }
-    
+
     @Override
     public void mouseEntered(MouseEvent event) {
         requestFocusInWindow(); // so KeyListener will receive events
     }
-    
+
     @Override
     public void mouseExited(MouseEvent event) {
         // do nothing:  needed to complete the MouseListener interface
     }
-    
+
     @Override
     public void mouseMoved(MouseEvent event) {
         assert event != null;
         assert !dragBoard;
         assert !leftButtonDown;
-        
+
         final Point point = event.getPoint();
         if (view.hasActiveTile()) {
             assert mouseLast != null;
-            handleDragView(point);    
+            handleDragView(point);
         }
         mouseLast = point;
     }
-  
+
     @Override
     public void mousePressed(MouseEvent event) {
         assert event != null;
-        
+
         if (event.getButton() == MouseEvent.BUTTON1) {
             leftButtonPress(event.getPoint());
          }
     }
-    
+
     @Override
     public void mouseReleased(MouseEvent event) {
         assert event != null;
-        
+
         if (event.getButton() == MouseEvent.BUTTON1) {
             leftButtonRelease(event.getPoint());
         }
     }
-    
+
     public void offerNewGame() {
         GameOpt gameOpt;
         if (Game.haveInstance()) {
@@ -375,15 +375,15 @@ public class GamePanel
             }
             handOpts[iHand] = handOpt;
         }
-                
+
         final Wizard wizard = new Wizard(frame);
-        
+
         final ParmBox1 parmBox1 = new ParmBox1(wizard);
         wizard.addCard(parmBox1);
 
         final WizardCard parmBox2 = new ParmBox2(wizard);
         wizard.addCard(parmBox2);
-        
+
         final WizardCard parmBox3 = new ParmBox3(wizard);
         wizard.addCard(parmBox3);
 
@@ -392,25 +392,25 @@ public class GamePanel
 
         // pack and go
         final boolean completed = wizard.run(parmBox1, gameOpt, handOpts);
-        
+
         if (!completed) {
             Console.print("New game aborted.\n");
             return;
         }
-        
+
         final GameStyle oldStyle = Game.getStyle();
         new Game(gameOpt, handOpts);
         view.changeGame(oldStyle);
     }
-    
+
     @Override
     public void paintComponent(java.awt.Graphics context) {
         super.paintComponent(context);
-        
+
         final Canvas canvas = new Canvas(context);
         view.paintAll(canvas);
     }
-    
+
     public void showAboutBox() {
         final String[] aboutMessage = {
             "Gold Tile Game",
@@ -424,54 +424,54 @@ public class GamePanel
             "the GNU General Public License",
             "http://www.gnu.org/licenses/gpl.txt"
         };
-        JOptionPane.showMessageDialog(this, 
+        JOptionPane.showMessageDialog(this,
                 aboutMessage,
-                "About Gold Tile", 
-                JOptionPane.PLAIN_MESSAGE);  
+                "About Gold Tile",
+                JOptionPane.PLAIN_MESSAGE);
     }
 
     private void showBox(Object message, String title, int options) {
         JOptionPane.showMessageDialog(this,
-                message, 
+                message,
                 title + " - Gold Tile Game",
                 options);
     }
-    
+
     public void showInformationBox(Object message, String title) {
         assert message != null;
         assert title != null;
-        
+
         showBox(message, title, JOptionPane.INFORMATION_MESSAGE);
     }
 
     public void showRuleBox(UserMessage userMessage) {
         assert userMessage != null;
-        
-        showBox(userMessage.message, userMessage.title, 
+
+        showBox(userMessage.message, userMessage.title,
                 JOptionPane.ERROR_MESSAGE);
     }
 
     public void showRulesBox() {
         final String[] rulesMessage = {
-            "The rules of Gold Tile are available online at ", 
+            "The rules of Gold Tile are available online at ",
             "http://code.google.com/p/gold-tiles/wiki/Playing"
         };
-        showInformationBox(rulesMessage, "Rules");        
+        showInformationBox(rulesMessage, "Rules");
     }
 
     public void showWarrantyBox() {
         final String[] warrantyMessage = {
-           "There is NO warranty for the program, to the extent permitted by ", 
+           "There is NO warranty for the program, to the extent permitted by ",
            "applicable law.  Except when otherwise stated in writing the ",
            "copyright holders and/or other parties provide the program ",
-           "\"AS IS\" without warranty of any kind, either expressed or implied, ", 
+           "\"AS IS\" without warranty of any kind, either expressed or implied, ",
            "including, but not limited to, the implied warranties of ",
            "merchantability and fitness for a particular purpose.  The entire ",
            "risk as to the quality and performance of the program is with you. ",
            "Should the program prove defective, you assume the cost of all ",
            "necessary servicing, repair, or correction."
         };
-        
-        showInformationBox(warrantyMessage, "Warranty");        
+
+        showInformationBox(warrantyMessage, "Warranty");
     }
 }

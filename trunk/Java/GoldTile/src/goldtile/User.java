@@ -11,13 +11,13 @@
 This file is part of the Gold Tile Game.
 
 The Gold Tile Game is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by the 
-Free Software Foundation, either version 3 of the License, or (at your 
+it under the terms of the GNU General Public License as published by the
+Free Software Foundation, either version 3 of the License, or (at your
 option) any later version.
 
-The Gold Tile Game is distributed in the hope that it will be useful, but 
-WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY 
-or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License 
+The Gold Tile Game is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 for more details.
 
 You should have received a copy of the GNU General Public License
@@ -28,7 +28,7 @@ package goldtile;
 
 import java.awt.Point;
 
-public class User 
+public class User
     implements ReadUser
 {
     // per-instance fields
@@ -41,68 +41,68 @@ public class User
     private int boardTileSize = MenuBar.BOARD_SIZE_DEFAULT;
     private int handTileSize = MenuBar.TILE_SIZE_DEFAULT;
 
-    // logical coordinates of the Start cell    
-    private Point startCellPosition = new Point(0, 0);  
-    
+    // logical coordinates of the Start cell
+    private Point startCellPosition = new Point(0, 0);
+
     final private String name;
 
     // static fields
-    private static java.util.Map<String,User> users = 
+    private static java.util.Map<String,User> users =
             new java.util.TreeMap<>();
 
     // constructors
-    
+
     private User(String name) {
         this.name = name;
     }
-    
+
     // methods
-    
+
     @Override
     public boolean getAutopause() {
-        return autopause;    
+        return autopause;
     }
-    
+
     @Override
     public int getBoardTileSize() {
         return boardTileSize;
     }
-    
+
     @Override
     public DisplayModes getDisplayModes() {
-        return displayModes;    
+        return displayModes;
     }
-    
+
     @Override
     public int getHandTileSize() {
         return handTileSize;
     }
-    
+
     @Override
     public boolean getPeek() {
         return peek;
     }
-    
+
     @Override
     public boolean getShowClocks() {
         return showClocks;
     }
-    
+
     @Override
     public boolean getShowGrid() {
         return showGrid;
     }
-    
+
     @Override
     public boolean getShowScores() {
         return showScores;
     }
-    
+
     @Override
     public Point getStartCellPosition() {
         return startCellPosition;
     }
-    
+
     public static User lookup(String name) {
         if (users.containsKey(name)) {
             return users.get(name);
@@ -112,39 +112,39 @@ public class User
             return result;
         }
     }
-    
+
     public void setAutopause(boolean flag) {
         autopause = flag;
     }
-    
+
     public void setBoardTileSize(int size) {
         boardTileSize = size;
     }
-    
+
     public void setDisplayModes(DisplayModes displayModes) {
         this.displayModes = new DisplayModes(displayModes);
     }
-    
+
     public void setHandTileSize(int size) {
         handTileSize = size;
     }
-    
+
     public void setPeek(boolean flag) {
         peek = flag;
     }
-    
+
     public void setShowClocks(boolean flag) {
         showClocks = flag;
-    } 
-    
+    }
+
     public void setShowGrid(boolean flag) {
         showGrid = flag;
     }
-    
+
     public void setShowScores(boolean flag) {
         showScores = flag;
     }
-    
+
     public void setStartCellPosition(Point position) {
         startCellPosition = position;
     }

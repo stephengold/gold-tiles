@@ -11,13 +11,13 @@
 This file is part of the Gold Tile Game.
 
 The Gold Tile Game is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by the 
-Free Software Foundation, either version 3 of the License, or (at your 
+it under the terms of the GNU General Public License as published by the
+Free Software Foundation, either version 3 of the License, or (at your
 option) any later version.
 
-The Gold Tile Game is distributed in the hope that it will be useful, but 
-WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY 
-or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License 
+The Gold Tile Game is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 for more details.
 
 You should have received a copy of the GNU General Public License
@@ -33,10 +33,10 @@ public class StringExt {
     public static char getLast(String text) {
         final int length = text.length();
         assert length > 0 : text;
-        
+
         return text.charAt(length - 1);
     }
-        
+
     /**
      * Capitalize the first letter of each word.
      * Trim leading and trailing non-graphic characters.
@@ -45,7 +45,7 @@ public class StringExt {
      */
     public static String normalizeName(String name) {
         assert name != null;
-        
+
         final int length = name.length();
         final char space = ' ';
 
@@ -70,15 +70,15 @@ public class StringExt {
 
         if (!result.isEmpty() && StringExt.getLast(result) == space) {
             /*
-             * remove trailing space, which was originally 
+             * remove trailing space, which was originally
              * some non-graphic character
              */
             result = StringExt.shorten(result, 1);
         }
-        
+
         return result;
     }
-    
+
     public static String ordinal(long n) {
         assert n > 0;
 
@@ -116,7 +116,7 @@ public class StringExt {
 
         return result;
     }
-    
+
     public static String pad(String text, int width) {
         assert text != null;
         assert width >= text.length();
@@ -124,7 +124,7 @@ public class StringExt {
         final int pad = width - text.length();
         return repeat(pad, ' ') + text;
     }
-    
+
     public static String plural(long n) {
         assert n >= 0;
 
@@ -141,17 +141,17 @@ public class StringExt {
 
         return String.format("%d %s%s", n, noun, plural(n));
     }
-    
+
     /**
      * @param text the text to purge
      */
     public static String purge(String text) {
         assert text != null;
-        
+
         final int length = text.length();
         final char space = ' ';
 
-        String result = "";        
+        String result = "";
         for (int iChar = 0; iChar < length; iChar++) {
             final char ch = text.charAt(iChar);
             final boolean graphicFlag = (ch > space && ch <= '~' && ch != '=');
@@ -162,26 +162,26 @@ public class StringExt {
 
         return result;
     }
-    
+
     /**
      * @param text the text to enclose in quotes
      */
     public static String quote(String text) {
         return "\"" + text + "\"";
     }
-    
+
     public static String repeat(int count, char ch) {
         assert count >= 0;
-        
+
         String result = "";
-        
+
         for (int iChar = 0; iChar < count; iChar++) {
             result += ch;
         }
-        
+
         return result;
     }
-    
+
     /**
      * @param text the text to shorten
      * @param cnt is the number of characters to remove

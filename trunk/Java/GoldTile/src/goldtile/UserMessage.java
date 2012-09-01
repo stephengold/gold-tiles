@@ -11,13 +11,13 @@
 This file is part of the Gold Tile Game.
 
 The Gold Tile Game is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by the 
-Free Software Foundation, either version 3 of the License, or (at your 
+it under the terms of the GNU General Public License as published by the
+Free Software Foundation, either version 3 of the License, or (at your
 option) any later version.
 
-The Gold Tile Game is distributed in the hope that it will be useful, but 
-WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY 
-or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License 
+The Gold Tile Game is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 for more details.
 
 You should have received a copy of the GNU General Public License
@@ -27,7 +27,7 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 package goldtile;
 
 public enum UserMessage {
-    // values 
+    // values
     COLUMN_COMPATIBILITY (
         "Tiles in a column (with no intervening empty cells) must all be mutually compatible.",
         "Column Compatibility Rule"),
@@ -70,11 +70,11 @@ public enum UserMessage {
     SWAP (
         "You can play tiles or swap them, but you can't do both in the same turn.",
         "Swap Rule");
-    
+
     // per-instance fields
     final public String message;
     final public String title;
-    
+
     // constructor
     private UserMessage(String message, String title) {
         this.message = message;

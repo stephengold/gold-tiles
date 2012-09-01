@@ -11,13 +11,13 @@
 This file is part of the Gold Tile Game.
 
 The Gold Tile Game is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by the 
-Free Software Foundation, either version 3 of the License, or (at your 
+it under the terms of the GNU General Public License as published by the
+Free Software Foundation, either version 3 of the License, or (at your
 option) any later version.
 
-The Gold Tile Game is distributed in the hope that it will be useful, but 
-WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY 
-or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License 
+The Gold Tile Game is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 for more details.
 
 You should have received a copy of the GNU General Public License
@@ -35,7 +35,7 @@ public enum GameStyle {
     CHALLENGE; // no peeking, no undo, no hints; time limits
 
     // methods, sorted by name
-    
+
     public boolean allowsHints() {
         return !isChallenge();
     }
@@ -59,23 +59,23 @@ public enum GameStyle {
     public boolean hasTimeLimit() {
         return isChallenge();
     }
-    
+
     public boolean isChallenge() {
         return this == CHALLENGE;
     }
-    
+
     public boolean isDebug() {
         return this == DEBUG;
     }
-    
+
     public boolean isFriendly() {
         return this == FRIENDLY;
     }
-    
+
     public boolean isPractice() {
         return this == PRACTICE;
     }
-    
+
     public boolean showClocks() {
         return isChallenge() || isDebug();
     }

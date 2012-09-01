@@ -11,13 +11,13 @@
 This file is part of the Gold Tile Game.
 
 The Gold Tile Game is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by the 
-Free Software Foundation, either version 3 of the License, or (at your 
+it under the terms of the GNU General Public License as published by the
+Free Software Foundation, either version 3 of the License, or (at your
 option) any later version.
 
-The Gold Tile Game is distributed in the hope that it will be useful, but 
-WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY 
-or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License 
+The Gold Tile Game is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 for more details.
 
 You should have received a copy of the GNU General Public License
@@ -36,9 +36,9 @@ public class Tiles extends java.util.TreeSet< Tile > {
     private static final String PREFIX = "tiles{";
     private static final String SEPARATOR = " ";
     private static final String SUFFIX = "}";
-    
+
     // constructors
-    
+
     public Tiles() {
         super();
     }
@@ -48,7 +48,7 @@ public class Tiles extends java.util.TreeSet< Tile > {
     }
 
     // methods, sorted by name
-    
+
     public void addAllCombos() {
         final int iAttr = 0;
         addCombos(iAttr, new Combo());
@@ -70,39 +70,39 @@ public class Tiles extends java.util.TreeSet< Tile > {
             add(clone);
         }
     }
-    
+
     public boolean areAllCompatible() {
         for (Tile t1 : this) {
             for (Tile t2 : this) {
                 if (!t1.equals(t2) && !t1.isCompatibleWith(t2)) {
-                    return false;                    
-                }    
+                    return false;
+                }
             }
         }
-        
+
         return true;
     }
-    
+
     public boolean areAllCompatibleWith(Tile tile) {
         for (Tile t : this) {
             if (!tile.isCompatibleWith(t)) {
-                 return false;                
+                 return false;
             }
         }
-        
+
         return true;
     }
-    
+
     // construct "runs":  subsets of mutually-compatible tiles - RECURSIVE
     private Tiles buildRuns(Tiles runSoFar, Tiles longestRun) {
         assert runSoFar != null;
         assert longestRun != null;
-        
+
         if (isEmpty()) {
             if (runSoFar.size() > longestRun.size()) {
                 longestRun = runSoFar;
             }
-            
+
         } else {
             final Tiles run = new Tiles(runSoFar);
             final Tiles remainder = new Tiles(this);
@@ -122,25 +122,25 @@ public class Tiles extends java.util.TreeSet< Tile > {
                 longestRun = remainder.buildRuns(run, longestRun);
             }
         }
-        
+
         return longestRun;
     }
-    
+
     public boolean contains(Combo combo) {
         assert combo != null;
-        
+
         return first(combo) != null;
     }
-    
+
     public boolean contains(TileOpt tileOpt) {
         assert tileOpt != null;
-        
+
         return first(tileOpt) != null;
     }
-    
+
     public String describe() {
         String result = "";
-        
+
         boolean firstFlag = true;
         for (Tile tile : this) {
             if (firstFlag) {
@@ -150,11 +150,11 @@ public class Tiles extends java.util.TreeSet< Tile > {
             }
 
             result += tile.describe();
-        }       
+        }
 
         return result;
     }
-    
+
     // return the largest subset of mutually compatible tiles
     public Tiles findLongestRun() {
         final Tiles uniqueCombos = skipClones();
@@ -163,22 +163,22 @@ public class Tiles extends java.util.TreeSet< Tile > {
         assert result.areAllCompatible();
         return result;
     }
-    
+
     public Tile first(Combo combo) {
         assert combo != null;
-        
+
         for (Tile tile : this) {
             if (tile.hasCombo(combo)) {
                 return tile;
             }
         }
-        
+
         return null;
     }
-    
+
     public Tile first(TileOpt tileOpt) {
         assert tileOpt != null;
-        
+
         for (Tile tile : this) {
             if (tile.hasOpt(tileOpt)) {
                 return tile;
@@ -187,64 +187,64 @@ public class Tiles extends java.util.TreeSet< Tile > {
 
         return null;
     }
-    
+
     public int firstMatchingAttr() {
         assert areAllCompatible();
         assert size() > 1 : size();
         assert getGameOpt().getAttrCount() == 2 : getGameOpt().getAttrCount();
-        
+
         final Tile first = first();
         assert first != null;
-        
+
         final Tile second = higher(first);
         assert second != null;
 
         return first.firstMatchingAttr(second);
     }
-    
+
     public int getBonusFactor() {
         int result = 1;
-        
+
         for (Tile tile : this) {
             if (tile.hasBonus()) {
                 result *= 2;
             }
         }
-        
+
         assert result > 0;
         return result;
     }
-    
+
     private static ReadGameOpt getGameOpt() {
         return Game.getInstance().getOpt();
     }
-    
+
     private Tile pullFirst() throws PullEmptyException {
         final int n = size();
         if (n == 0) {
             throw new PullEmptyException();
         }
-        
-        Tile result = first();       
+
+        Tile result = first();
         boolean successFlag = remove(result);
         assert successFlag;
-        
+
         assert size() == n-1 : size();
         return result;
     }
-    
+
     private Tile pullRandom() throws PullEmptyException {
         final int n = size();
         if (n == 0) {
             throw new PullEmptyException();
         }
-        
+
         final int r = Global.nextInt(n);
 
         // find the "r"th tile in the bag
         final Iterator iTile = iterator();
         assert iTile.hasNext();
-        
+
         for (int i = 0; i < r; i++) {
             iTile.next();
             assert iTile.hasNext();
@@ -253,16 +253,16 @@ public class Tiles extends java.util.TreeSet< Tile > {
         final Object object = iTile.next();
         iTile.remove();
         final Tile result = (Tile)object;
-        
+
         assert size() == n-1 : size();
         return result;
     }
-    
+
     public Tiles pullRandom(int count) {
         assert count >= 0 : count;
-        
+
         final Tiles result = new Tiles();
-        
+
         for (int iTile = 0; iTile < count; iTile++) {
             try {
                 final Tile tile = this.pullRandom();
@@ -272,24 +272,24 @@ public class Tiles extends java.util.TreeSet< Tile > {
                 break;
             }
         }
-        
+
         return result;
     }
-    
+
     // return a new set containing only one instance of each clone/combo
     public Tiles skipClones() {
         final Tiles result = new Tiles();
-        
+
         for (Tile tile : this) {
             final Combo combo = tile.getCombo();
             if (!result.contains(combo)) {
                 result.add(tile);
             }
         }
-        
+
         return result;
     }
-    
+
     @Override
     public String toString() {
         String result = PREFIX;
@@ -303,7 +303,7 @@ public class Tiles extends java.util.TreeSet< Tile > {
             }
 
             result += tile.toString();
-        }       
+        }
         result += SUFFIX;
 
         return result;

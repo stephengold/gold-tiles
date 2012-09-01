@@ -11,13 +11,13 @@
 This file is part of the Gold Tile Game.
 
 The Gold Tile Game is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by the 
-Free Software Foundation, either version 3 of the License, or (at your 
+it under the terms of the GNU General Public License as published by the
+Free Software Foundation, either version 3 of the License, or (at your
 option) any later version.
 
-The Gold Tile Game is distributed in the hope that it will be useful, but 
-WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY 
-or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License 
+The Gold Tile Game is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 for more details.
 
 You should have received a copy of the GNU General Public License
@@ -38,9 +38,9 @@ public class Cell implements Comparable {
     // per-instance fields (immutable)
     final private int column;
     final private int row;
-    
+
     // constructors
-    
+
     public Cell() {
         column = 0;
         row = 0;
@@ -56,9 +56,9 @@ public class Cell implements Comparable {
         this.row = row;
         // caller should check validity
     }
-        
+
     /*
-     * Construct the next valid cell (not necessarily a neighbor) 
+     * Construct the next valid cell (not necessarily a neighbor)
      * in a given direction from a base cell
      */
     public Cell(Cell base, Direction direction) {
@@ -83,41 +83,41 @@ public class Cell implements Comparable {
             default:
                 throw new AssertionError(getGameOpt());
         }
-        
+
         row = base.row + step * direction.rowOffset;
         column = base.column + step * direction.columnOffset;
     }
-        
+
     public Cell(String text)
         throws ParseException
     {
         assert text != null;
-        
+
         final boolean hasPrefix = text.startsWith(PREFIX);
         final boolean hasSuffix = text.endsWith(SUFFIX);
         if (!hasPrefix || !hasSuffix) {
             throw new ParseException();
         }
-        
+
         final int endIndex = text.length() - PREFIX.length();
         final String body = text.substring(PREFIX.length(), endIndex);
         final String[] parts = body.split(SEPARATOR_REGEX);
         if (parts.length != 2) {
             throw new ParseException();
         }
-        
+
         final String first = parts[0];
         final String second = parts[1];
-        
+
         row = Integer.parseInt(first);
         column = Integer.parseInt(second);
     }
-    
+
     // methods, sorted by name
 
     public static Cell chooseConsole(String alternative) {
         assert alternative != null;
- 
+
         int row;
         for (;;) {
             Console.print("Enter a row number");
@@ -133,11 +133,11 @@ public class Cell implements Comparable {
                 row = Integer.parseInt(input);
                 break;
             } catch (NumberFormatException exception) {
-                Console.printf("%s is not a valid number.\n", 
+                Console.printf("%s is not a valid number.\n",
                         StringExt.quote(input));
             }
         }
-        
+
         int column;
         for (;;) {
             String input = Console.readLine("Enter a column number: ");
@@ -145,44 +145,44 @@ public class Cell implements Comparable {
                 column = Integer.parseInt(input);
                 return new Cell(row, column);
             } catch (NumberFormatException exception) {
-                Console.printf("%s is not a valid number.\n", 
+                Console.printf("%s is not a valid number.\n",
                         StringExt.quote(input));
             }
         }
     }
-    
+
     @Override
     public int compareTo(Object object) {
         final Cell other = (Cell)object;
-        
+
         if (row == other.row) {
             return column - other.column;
         } else {
             return row - other.row;
         }
     }
-    
+
     public boolean equals(Cell other) {
         if (other == null) {
             return false;
         }
-        
-        return row == other.row && 
+
+        return row == other.row &&
                column == other.column;
     }
-    
+
     public int getColumn() {
         return column;
     }
-    
+
     private static ReadGameOpt getGameOpt() {
         return Game.getInstance().getOpt();
     }
-    
+
     public int getRow() {
         return row;
     }
-    
+
     public boolean hasNeighbor(Direction direction) {
         assert isValid();
         assert direction != null;
@@ -203,7 +203,7 @@ public class Cell implements Comparable {
                     return false;
                 }
                 break;
-                
+
             case GRID_HEX:
                 if (direction.horizontalFlag) {
                     return false;
@@ -212,7 +212,7 @@ public class Cell implements Comparable {
 
             case GRID_8WAY:
                 break; // generally has neighbors in all eight directions
-            
+
             default:
                 throw new AssertionError(getGameOpt().getGrid());
         }
@@ -232,38 +232,38 @@ public class Cell implements Comparable {
 
         return true;
     }
-    
+
     final public boolean isEqual(Cell other) {
         return row == other.row && column == other.column;
     }
-    
+
     public boolean isEven() {
         return Global.isEven(row + column);
     }
-    
+
     public boolean isOdd() {
         return Global.isOdd(row + column);
     }
 
     static public boolean isScoringAxis(Direction direction) {
         final Direction[] scoringAxes = getGameOpt().getGrid().getScoringAxes();
-        
+
         return Arrays.asList(scoringAxes).contains(direction);
-    } 
-    
+    }
+
     final public boolean isStart() {
         return row == 0 && column == 0;
     }
-    
+
     public boolean isValid() {
         if (getGameOpt().getGrid().isHex() && isOdd()) {
             return false;
         } else {
-            return getGameOpt().getBoardHeight().isValidIndex(row) && 
+            return getGameOpt().getBoardHeight().isValidIndex(row) &&
                 getGameOpt().getBoardWidth().isValidIndex(column);
         }
     }
-    
+
     public static int limitPlay(int cellCnt) {
         assert cellCnt > 0;
 
@@ -272,10 +272,10 @@ public class Cell implements Comparable {
 
         for (Direction axis : getGameOpt().getGrid().getScoringAxes()) {
             int cellsFound = 1;
-            
+
             Cell current = new Cell(); // start cell
             assert current.isValid();
-            
+
             // look in the negative direction; stop at first invalid cell
             Direction direction = axis.getOpposite();
             while (cellsFound < cellsNeeded) {
@@ -312,21 +312,21 @@ public class Cell implements Comparable {
         assert mostFound < cellsNeeded;
         return mostFound;
     }
-       
+
     @Override
     public String toString() {
         return String.format("%s%d%s%d%s",
                 PREFIX, row, SEPARATOR, column, SUFFIX);
     }
-    
+
     public Cell wrap() {
         // must work on invalid tiles!
-        
+
         if (getGameOpt().doesBoardWrap()) {
             final int column = getGameOpt().getBoardWidth().wrapIndex(this.column);
             final int row = getGameOpt().getBoardHeight().wrapIndex(this.row);
             final Cell result = new Cell(row, column);
-            
+
             assert result.isValid();
             return result;
         } else {

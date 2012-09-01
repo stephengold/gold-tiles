@@ -11,13 +11,13 @@
 This file is part of the Gold Tile Game.
 
 The Gold Tile Game is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by the 
-Free Software Foundation, either version 3 of the License, or (at your 
+it under the terms of the GNU General Public License as published by the
+Free Software Foundation, either version 3 of the License, or (at your
 option) any later version.
 
-The Gold Tile Game is distributed in the hope that it will be useful, but 
-WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY 
-or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License 
+The Gold Tile Game is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 for more details.
 
 You should have received a copy of the GNU General Public License
@@ -30,25 +30,25 @@ public enum AttrMode {
     // values
     ABC ('A'),
     COLOR,
-    NUMERAL ('1'), 
-    RST ('R'), 
+    NUMERAL ('1'),
+    RST ('R'),
     SHAPE;
-    
+
     // per-instance fields (immutable)
     final private char base;
-    
+
     // constructors
-    
+
     private AttrMode() {
         base = '!';
     }
-    
+
     private AttrMode(char base) {
-       this.base = base;        
+       this.base = base;
     }
-    
+
     // methods, sorted by name
-    
+
     /**
      * @param attr the numeric value of the attribute
      */
@@ -58,7 +58,7 @@ public enum AttrMode {
             case NUMERAL:
             case RST:
                 return (char)(base + attr.intValue());
-                
+
             default:
                 throw new AssertionError(this);
         }
@@ -69,7 +69,7 @@ public enum AttrMode {
      */
     public String attrToString(Attr attr) {
         final char ch = attrToChar(attr);
-        
+
         return Character.toString(ch);
     }
 
@@ -92,7 +92,7 @@ public enum AttrMode {
      */
     public static AttrMode getConsoleDefault(int iAttr) {
         assert iAttr < GameOpt.ATTR_COUNT_MAX : iAttr;
-        
+
         switch (iAttr) {
             case 0:
                 return ABC;
@@ -102,7 +102,7 @@ public enum AttrMode {
                 return NUMERAL;
         }
     }
-    
+
     public static AttrMode getDefault(Display display, int iAttr) {
         switch (display) {
             case CONSOLE:
@@ -111,19 +111,19 @@ public enum AttrMode {
                 return getGuiDefault(iAttr);
             default:
                 throw new AssertionError(display);
-        }    
+        }
     }
-    
+
     public static AttrMode getFirst() {
         return ABC;
     }
-    
+
     /**
      * @param iAttr the index of the attribute
      */
     public static AttrMode getGuiDefault(int iAttr) {
         assert iAttr < GameOpt.ATTR_COUNT_MAX : iAttr;
-        
+
         switch (iAttr) {
             case 0:
                 return COLOR;
@@ -131,8 +131,8 @@ public enum AttrMode {
                 return SHAPE;
         }
     }
-    
+
     public boolean isColor() {
         return this == COLOR;
-    }    
+    }
 }

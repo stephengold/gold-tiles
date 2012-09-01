@@ -11,13 +11,13 @@
 This file is part of the Gold Tile Game.
 
 The Gold Tile Game is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by the 
-Free Software Foundation, either version 3 of the License, or (at your 
+it under the terms of the GNU General Public License as published by the
+Free Software Foundation, either version 3 of the License, or (at your
 option) any later version.
 
-The Gold Tile Game is distributed in the hope that it will be useful, but 
-WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY 
-or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License 
+The Gold Tile Game is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 for more details.
 
 You should have received a copy of the GNU General Public License
@@ -40,34 +40,34 @@ public class ParmBox1
     // constants, sorted by type
     final private static Dimension SMALL = new Dimension(45, 20);
     final private static int STYLE_BUTTON_COUNT = 4;
-    
+
     // embedded classes
     private static class InvalidStyleException extends Exception {}
-    
+
     // per-instance fields, sorted by type
     private GameOpt gameOpt = null;
     private HandOpt[] handOpts = null;
     final private JCheckBox randomizeBox = new JCheckBox("randomized");
     final private JLabel challengeLabel = new JLabel(" minutes per hand");
-    final private JLabel debugLabel = 
+    final private JLabel debugLabel =
             new JLabel("  OR   generated from seed: ");
     final private JList rulesList;
-    final private JRadioButton[] styleButtons = 
+    final private JRadioButton[] styleButtons =
             new JRadioButton[STYLE_BUTTON_COUNT];
     final private JSpinner seedSpinner;
     final private JSpinner minutesSpinner;
     final private SpinnerNumberModel minutesModel;
     final private SpinnerNumberModel seedModel;
-    
+
     // constructors
-    
+
     @SuppressWarnings("LeakingThisInConstructor")
     public ParmBox1(Wizard wizard) {
         super(wizard, ParmBox1.class.getName());
-        
+
         // Game styles and associated options
-        
-        final ButtonGroup styleGroup = new ButtonGroup();        
+
+        final ButtonGroup styleGroup = new ButtonGroup();
         for (GameStyle style : GameStyle.values()) {
             try {
                 final int iButton = getButtonIndex(style);
@@ -83,17 +83,17 @@ public class ParmBox1
         }
 
         randomizeBox.addItemListener(this);
-        
+
         final Number step = 1L;
-        seedModel = new SpinnerNumberModel(GameOpt.SEED_DEFAULT, 
+        seedModel = new SpinnerNumberModel(GameOpt.SEED_DEFAULT,
                 null, null, step);
         seedSpinner = new JSpinner(seedModel);
         seedSpinner.setEditor(new JSpinner.NumberEditor(seedSpinner, "#"));
         seedSpinner.addChangeListener(this);
-        
+
         final Box debugOpt = new Box(BoxLayout.LINE_AXIS);
         debugOpt.setAlignmentX(Box.LEFT_ALIGNMENT);
-        debugOpt.add(Box.createHorizontalStrut(30));        
+        debugOpt.add(Box.createHorizontalStrut(30));
         debugOpt.add(randomizeBox);
         debugOpt.add(debugLabel);
         debugOpt.add(seedSpinner);
@@ -106,14 +106,14 @@ public class ParmBox1
         minutesSpinner.setEditor(new JSpinner.NumberEditor(minutesSpinner, "#"));
         minutesSpinner.addChangeListener(this);
         minutesSpinner.setMaximumSize(SMALL);
-        
+
         final Box challengeOpt = new Box(BoxLayout.LINE_AXIS);
         challengeOpt.setAlignmentX(Box.LEFT_ALIGNMENT);
-        challengeOpt.add(Box.createHorizontalStrut(30));   
+        challengeOpt.add(Box.createHorizontalStrut(30));
         challengeOpt.add(Box.createHorizontalGlue());
         challengeOpt.add(minutesSpinner);
         challengeOpt.add(challengeLabel);
-        
+
         final Box styleBox = new Box(BoxLayout.PAGE_AXIS);
         styleBox.setAlignmentX(Box.LEFT_ALIGNMENT);
         styleBox.add(styleButtons[0]);
@@ -122,48 +122,48 @@ public class ParmBox1
         styleBox.add(styleButtons[2]);
         styleBox.add(styleButtons[3]);
         styleBox.add(challengeOpt);
-        final Border styleBorder = BorderFactory.createTitledBorder( 
+        final Border styleBorder = BorderFactory.createTitledBorder(
                 BorderFactory.createEtchedBorder(EtchedBorder.LOWERED),
                 "Which style of play would you prefer?" );
         styleBox.setBorder(styleBorder);
-        
-        // JList for rules        
-        
-        rulesList = new JList();        
+
+        // JList for rules
+
+        rulesList = new JList();
         rulesList.setAlignmentX(JList.LEFT_ALIGNMENT);
         rulesList.setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION);
         rulesList.setLayoutOrientation(JList.VERTICAL);
         final Border rulesBorder = BorderFactory.createLoweredBevelBorder();
         rulesList.setBorder(rulesBorder);
-        
+
         // combine into a single Box
 
         final Box mainBox = new Box(BoxLayout.PAGE_AXIS);
-        mainBox.add(styleBox); 
+        mainBox.add(styleBox);
         mainBox.add(Box.createVerticalStrut(10));
         mainBox.add(rulesList);
-        
+
         add(mainBox);
     }
-    
+
     // methods, sorted by name
 
     @Override
     public void actionPerformed(java.awt.event.ActionEvent event) {
         assert event != null;
-        
+
         // from a radio button
-       final String command = event.getActionCommand();       
+       final String command = event.getActionCommand();
         try {
             final GameStyle style = GameStyle.valueOf(command);
             gameOpt.setStyle(style);
-        } catch (IllegalArgumentException exception) {   
+        } catch (IllegalArgumentException exception) {
         }
 
         updateView();
     }
-    
-    private int getButtonIndex(GameStyle style) 
+
+    private int getButtonIndex(GameStyle style)
             throws InvalidStyleException
     {
         switch (style) {
@@ -194,7 +194,7 @@ public class ParmBox1
                 throw new AssertionError(style);
         }
     }
-    
+
     private int getListIndex(Rules rules) {
         switch (rules) {
             case STANDARD:
@@ -204,13 +204,13 @@ public class ParmBox1
             case REPLAY:
                 return 2;
             default:
-                throw new AssertionError(rules); 
+                throw new AssertionError(rules);
         }
     }
 
     private String[] getRulesData(boolean canReplay) {
         final int listCount = canReplay ? 3 : 2;
-        
+
         final String[] result = new String[listCount];
         for (Rules rules : Rules.values()) {
             final int iList = getListIndex(rules);
@@ -218,7 +218,7 @@ public class ParmBox1
                 result[iList] = getRulesText(rules);
             }
         }
-        
+
         return result;
     }
 
@@ -234,56 +234,56 @@ public class ParmBox1
                 return null;
         }
     }
-    
-    @Override 
+
+    @Override
     public String getTitle() {
         return "Create New Game";
     }
-    
+
     @Override
     public void itemStateChanged(java.awt.event.ItemEvent event) {
         // from the checkbox
         final boolean randomize = randomizeBox.isSelected();
         gameOpt.setRandomize(randomize);
-        updateView(); 
+        updateView();
     }
-    
+
     @Override
     public void nextAction() {
         updateModel();
         if (gameOpt.getRules().isCustom()) {
-            showCard(ParmBox2.class.getName(), gameOpt, handOpts);            
+            showCard(ParmBox2.class.getName(), gameOpt, handOpts);
         } else {
-            showCard(HandBox.class.getName(), gameOpt, handOpts);            
+            showCard(HandBox.class.getName(), gameOpt, handOpts);
         }
     }
-    
+
     @Override
     public void setModels(Object[] models) {
         assert models != null;
         assert models.length == 2 : models.length;
         assert models[0] != null;
         assert models[1] != null;
-        
+
         gameOpt = (GameOpt)models[0];
         gameOpt.validate();
         handOpts = (HandOpt[])models[1];
-        
+
         final boolean canReplay = gameOpt.getRules().isReplay();
         rulesList.setListData(getRulesData(canReplay));
-        
+
         updateView();
     }
-    
+
     @Override
     public void stateChanged(javax.swing.event.ChangeEvent event) {
         // from a spinner
         updateModel();
     }
-            
+
     private void updateModel() {
         // read list selection
-        
+
         final int iRule = rulesList.getSelectedIndex();
         for (Rules rule : Rules.values()) {
            if (getListIndex(rule) == iRule) {
@@ -291,24 +291,24 @@ public class ParmBox1
                break;
            }
         }
-        
+
         // read spinner values
-        
+
         final Number minutes = (Number)minutesModel.getValue();
-        gameOpt.setMinutesPerHand(minutes.intValue()); 
-        
+        gameOpt.setMinutesPerHand(minutes.intValue());
+
         final Number seed = (Number)seedModel.getValue();
         gameOpt.setSeed(seed.longValue());
-        
+
         gameOpt.validate();
     }
-    
+
     private void updateView() {
         // the wizard's back/next buttons
         wizard.getBackButton().setVisible(false); // can't go back
         wizard.getNextButton().setText("Next \u21d2");
         wizard.getNextButton().setEnabled(true);
-        
+
         // enable/disable controls
         final GameStyle style = gameOpt.getStyle();
         debugLabel.setEnabled(style.isDebug());
@@ -327,11 +327,11 @@ public class ParmBox1
 
         // select/deselect checkbox
         randomizeBox.setSelected(gameOpt.isRandomized());
-        
+
         // set spinner values
         minutesSpinner.setValue(gameOpt.getMinutesPerHand());
         seedSpinner.setValue(gameOpt.getSeed());
-        
+
         // set list selection
         final int iList = getListIndex(gameOpt.getRules());
         rulesList.setSelectedIndex(iList);

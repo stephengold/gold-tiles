@@ -11,13 +11,13 @@
 This file is part of the Gold Tile Game.
 
 The Gold Tile Game is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by the 
-Free Software Foundation, either version 3 of the License, or (at your 
+it under the terms of the GNU General Public License as published by the
+Free Software Foundation, either version 3 of the License, or (at your
 option) any later version.
 
-The Gold Tile Game is distributed in the hope that it will be useful, but 
-WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY 
-or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License 
+The Gold Tile Game is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 for more details.
 
 You should have received a copy of the GNU General Public License
@@ -52,23 +52,23 @@ public class HintBox
     // constructors
     public HintBox(java.awt.Frame parent) {
         super(parent, true); // based on a modal JDialog
-        
+
         setTitle("Hint Controls - Gold Tile Game");
         final Border border = new EmptyBorder(new Insets(5, 10, 5, 10));
-        
+
         // question along the top edge
-        
+
         final JLabel question = new JLabel(
                 "Which cells would you like highlighted?");
         question.setBorder(border);
         add(question, BorderLayout.BEFORE_FIRST_LINE);
 
         // radio buttons in the center
-        
-        final ButtonGroup group = new ButtonGroup(); 
+
+        final ButtonGroup group = new ButtonGroup();
         final Box radio = new Box(BoxLayout.PAGE_AXIS);
         radio.setBorder(border);
-        
+
         for (HintStrength value : HintStrength.values()) {
             final JRadioButton button = getButton(value);
             button.setActionCommand(value.name());
@@ -79,25 +79,25 @@ public class HintBox
         add(radio, BorderLayout.CENTER);
 
         // row of buttons along the bottom edge
-        
+
         okButton.setPreferredSize(new java.awt.Dimension(200, 0)); // wide button
 
         final Box buttonRow = new Box(BoxLayout.LINE_AXIS);
         buttonRow.setBorder(border);
-        
+
         buttonRow.add(cancelButton);
         buttonRow.add(Box.createHorizontalStrut(20));
         buttonRow.add(Box.createHorizontalGlue());
-        buttonRow.add(okButton);   
+        buttonRow.add(okButton);
         add(buttonRow, BorderLayout.AFTER_LAST_LINE);
     }
-    
+
     // methods, sorted by name
 
     @Override
     public void actionPerformed(java.awt.event.ActionEvent event) {
         assert event != null;
-        
+
         final String command = event.getActionCommand();
         switch (command) {
             case "Cancel":
@@ -111,7 +111,7 @@ public class HintBox
                 strength = HintStrength.valueOf(command);
         }
     }
-    
+
     private JRadioButton getButton(HintStrength value) {
         switch (value) {
             case NONE:
@@ -132,18 +132,18 @@ public class HintBox
     public HintStrength run(HintStrength old, GameStyle style) {
         assert old != null;
         assert style != null;
-        
+
         this.strength = old;
         JRadioButton button = getButton(old);
         button.setSelected(true);
-        
+
         cancelButton.addActionListener(this);
         okButton.addActionListener(this);
         for (HintStrength value : HintStrength.values()) {
             button = getButton(value);
             button.addActionListener(this);
         }
-        
+
         // limit choices for challenge games
         final boolean allow = style.allowsHints();
         connected.setEnabled(allow);
@@ -153,7 +153,7 @@ public class HintBox
         pack();
         setLocationRelativeTo(getParent());
         setVisible(true);
-        
+
         return this.strength;
-    }    
+    }
 }

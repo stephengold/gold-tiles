@@ -11,13 +11,13 @@
 This file is part of the Gold Tile Game.
 
 The Gold Tile Game is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by the 
-Free Software Foundation, either version 3 of the License, or (at your 
+it under the terms of the GNU General Public License as published by the
+Free Software Foundation, either version 3 of the License, or (at your
 option) any later version.
 
-The Gold Tile Game is distributed in the hope that it will be useful, but 
-WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY 
-or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License 
+The Gold Tile Game is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 for more details.
 
 You should have received a copy of the GNU General Public License
@@ -32,7 +32,7 @@ public interface ReadGame {
     public UserMessage checkMove(ReadMove move);
     public Board copyBoard();
     public int countStock();
-    
+
     public ReadBoard getBoard();
     public Game.Ending getEnding();
     public ReadHand getHand(int iHand);
@@ -43,7 +43,7 @@ public interface ReadGame {
     public int[] getUnplayableIndices();
     public Strings getUserNames();
     public int getSeconds(int iHand);
-    
+
     public boolean isFirstTurn();
     public boolean isLegalMove(ReadMove move);
     public boolean isOutOfTime();

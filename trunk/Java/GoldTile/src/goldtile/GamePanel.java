@@ -28,16 +28,20 @@ package goldtile;
 
 import java.awt.Cursor;
 import java.awt.Point;
+import java.awt.event.ComponentEvent;
 import java.awt.event.KeyEvent;
-import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import javax.swing.JOptionPane;
 import javax.swing.Timer;
 
 public class GamePanel 
     extends javax.swing.JPanel
-    implements java.awt.event.ActionListener // Swing timer events
-{ 
+    implements java.awt.event.ActionListener, // Swing timer events
+        java.awt.event.ComponentListener,
+        java.awt.event.KeyListener,
+        java.awt.event.MouseListener,
+        java.awt.event.MouseMotionListener
+{
     // constants, sorted by type
     final private static Cursor DRAG_CURSOR 
             = Cursor.getPredefinedCursor(Cursor.MOVE_CURSOR);
@@ -69,51 +73,11 @@ public class GamePanel
         
         setBackground(Color.BLACK);
        
-        // add event listeners
-        
-        addComponentListener(new java.awt.event.ComponentAdapter() {
-            @Override
-            public void componentResized(java.awt.event.ComponentEvent event) {
-                repaint();
-            }
-        });
-        
-        addKeyListener(new java.awt.event.KeyAdapter() {
-            @Override
-            public void keyPressed(KeyEvent event) {
-                keyPress(event.getKeyCode());
-            }
-        });
-        
-        addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseEntered(MouseEvent event) {
-                requestFocusInWindow(); // so KeyListener will receive events
-            }
-            @Override
-            public void mousePressed(MouseEvent event) {
-                if (event.getButton() == MouseEvent.BUTTON1) {
-                    leftButtonPress(event.getPoint());
-                }
-            }
-            @Override
-            public void mouseReleased(MouseEvent event) {
-                if (event.getButton() == MouseEvent.BUTTON1) {
-                    leftButtonRelease(event.getPoint());
-                }
-            }
-        });
-        
-        addMouseMotionListener(new MouseAdapter() {
-            @Override
-            public void mouseDragged(MouseEvent event) {
-                mouseDrag(event.getPoint());
-            }
-            @Override
-            public void mouseMoved(MouseEvent event) {
-                mouseMove(event.getPoint());
-            }
-        });
+        addComponentListener(this);
+        addKeyListener(this);
+        addMouseListener(this);
+        addMouseMotionListener(this);
+        addMouseWheelListener(menuBar.getBoardSizeMenu());
         
         // start the timer
         timer = new Timer(TIMEOUT_MSEC, this);
@@ -123,17 +87,41 @@ public class GamePanel
     
     // methods, sorted by name
     
+    /**
+     * Handles Swing timer pops.
+     * @param event 
+     */
     @Override
     public void actionPerformed(java.awt.event.ActionEvent event) {
         view.updateClock();
         timer.restart();
     }
 
+    @Override
+    public void componentHidden(ComponentEvent event) {
+        // do nothing:  needed to complete the ComponentListener interface
+    }
+    
+    @Override
+    public void componentMoved(ComponentEvent event) {
+        // do nothing:  needed to complete the ComponentListener interface
+    }
+    
+    @Override
+    public void componentResized(ComponentEvent event) {
+        repaint();
+    }
+
+    @Override
+    public void componentShown(ComponentEvent event) {
+        repaint();
+    }
+    
     /**
      * Returns the logical coordinates of the pixel on the inside
      * of the panel's bottom right corner.
      *
-     * @return the coordinates (never null)
+     * @return a new Point object indicating the coordinates (never null)
      */
     public Point getBottomRightCorner() {
         final int x = getWidth() - 1;
@@ -150,6 +138,12 @@ public class GamePanel
         return new Rect(0, 0, getWidth(), getHeight());
     }
 
+    /**
+     * Returns the logical coordinates of the mouse pointer
+     * as of the most recent mouse event.
+     * 
+     * @return a new Point object indicating the coordinates (never null)
+     */
     public Point getMouseLast() {
         return new Point(mouseLast);
     }
@@ -239,7 +233,9 @@ public class GamePanel
         }
     }
     
-    private void keyPress(int keyCode) {
+    @Override
+    public void keyPressed(KeyEvent event) {
+        int keyCode = event.getKeyCode();
         switch (keyCode) {
             case KeyEvent.VK_DOWN:
                 view.moveTarget(Direction.SOUTH);
@@ -254,6 +250,16 @@ public class GamePanel
                 view.moveTarget(Direction.NORTH);
                 break;
         }
+    }
+    
+    @Override
+    public void keyReleased(KeyEvent event) {
+        // do nothing:  needed to complete the KeyListener interface
+    }
+    
+    @Override
+    public void keyTyped(KeyEvent event) {
+        // do nothing:  needed to complete the KeyListener interface
     }
     
     private void leftButtonPress(Point point) {
@@ -283,9 +289,16 @@ public class GamePanel
         mouseLast = point;
     }
     
-    private void mouseDrag(Point point) {
-        assert point != null;
+    @Override
+    public void mouseClicked(MouseEvent event) {
+        // do nothing:  needed to complete the MouseListener interface
+    }
+    
+    @Override
+    public void mouseDragged(MouseEvent event) {
+        assert event != null;
         
+        final Point point = event.getPoint();        
         if (leftButtonDown) {
             assert mouseLast != null;
 
@@ -297,16 +310,46 @@ public class GamePanel
         }
     }
     
-    private void mouseMove(Point point) {
-        assert point != null;
+    @Override
+    public void mouseEntered(MouseEvent event) {
+        requestFocusInWindow(); // so KeyListener will receive events
+    }
+    
+    @Override
+    public void mouseExited(MouseEvent event) {
+        // do nothing:  needed to complete the MouseListener interface
+    }
+    
+    @Override
+    public void mouseMoved(MouseEvent event) {
+        assert event != null;
         assert !dragBoard;
         assert !leftButtonDown;
         
+        final Point point = event.getPoint();
         if (view.hasActiveTile()) {
             assert mouseLast != null;
             handleDragView(point);    
         }
         mouseLast = point;
+    }
+  
+    @Override
+    public void mousePressed(MouseEvent event) {
+        assert event != null;
+        
+        if (event.getButton() == MouseEvent.BUTTON1) {
+            leftButtonPress(event.getPoint());
+         }
+    }
+    
+    @Override
+    public void mouseReleased(MouseEvent event) {
+        assert event != null;
+        
+        if (event.getButton() == MouseEvent.BUTTON1) {
+            leftButtonRelease(event.getPoint());
+        }
     }
     
     public void offerNewGame() {

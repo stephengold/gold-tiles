@@ -411,21 +411,67 @@ public class GamePanel
         view.paintAll(canvas);
     }
     
-    public void showInformationBox(String message, String title) {
+    public void showAboutBox() {
+        final String[] aboutMessage = {
+            "Gold Tile Game",
+            "Release J0.7 (20120831)",
+            "http://code.google.com/p/gold-tiles",
+            " ",
+            "\u00a9 Copyright 2012 Stephen Gold",
+            "sgold@sonic.net",
+            " ",
+            "Distributed under the terms of",
+            "the GNU General Public License",
+            "http://www.gnu.org/licenses/gpl.txt"
+        };
+        JOptionPane.showMessageDialog(this, 
+                aboutMessage,
+                "About Gold Tile", 
+                JOptionPane.PLAIN_MESSAGE);  
+    }
+
+    private void showBox(Object message, String title, int options) {
+        JOptionPane.showMessageDialog(this,
+                message, 
+                title + " - Gold Tile Game",
+                options);
+    }
+    
+    public void showInformationBox(Object message, String title) {
         assert message != null;
         assert title != null;
         
-        JOptionPane.showMessageDialog(this, message, 
-                title + " - Gold Tile Game",
-                JOptionPane.INFORMATION_MESSAGE);
+        showBox(message, title, JOptionPane.INFORMATION_MESSAGE);
     }
 
     public void showRuleBox(UserMessage userMessage) {
         assert userMessage != null;
         
-        JOptionPane.showMessageDialog(this, 
-                userMessage.message, 
-                userMessage.title + " - Gold Tile Game", 
+        showBox(userMessage.message, userMessage.title, 
                 JOptionPane.ERROR_MESSAGE);
+    }
+
+    public void showRulesBox() {
+        final String[] rulesMessage = {
+            "The rules of Gold Tile are available online at ", 
+            "http://code.google.com/p/gold-tiles/wiki/Playing"
+        };
+        showInformationBox(rulesMessage, "Rules");        
+    }
+
+    public void showWarrantyBox() {
+        final String[] warrantyMessage = {
+           "There is NO warranty for the program, to the extent permitted by ", 
+           "applicable law.  Except when otherwise stated in writing the ",
+           "copyright holders and/or other parties provide the program ",
+           "\"AS IS\" without warranty of any kind, either expressed or implied, ", 
+           "including, but not limited to, the implied warranties of ",
+           "merchantability and fitness for a particular purpose.  The entire ",
+           "risk as to the quality and performance of the program is with you. ",
+           "Should the program prove defective, you assume the cost of all ",
+           "necessary servicing, repair, or correction."
+        };
+        
+        showInformationBox(warrantyMessage, "Warranty");        
     }
 }

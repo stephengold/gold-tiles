@@ -154,14 +154,15 @@ public class Game
 
         } else if (mustPlay > 0
                 && !move.isResignation()
-                && move.countTilesPlaced() != mustPlay)
+                && move.countCellsUsed() != mustPlay)
         {
             // first turn but didn't resign, nor play correct number of tiles
-            assert move.countTilesPlaced() < mustPlay : mustPlay;
+            assert move.countCellsUsed() < mustPlay : mustPlay;
             return UserMessage.FIRST_TURN;
 
         } else if (move.isPureSwap()
-                && move.size() > countStock()) {
+                && move.size() > countStock())
+        {
             // swap but not enough tiles in stock
             return UserMessage.STOCK;
 
@@ -357,9 +358,6 @@ public class Game
          * or (2) all hands have resigned
          * or (3) none of the last 7 moves placed any tiles on the board.
          */
-        int lpi = history.lastPlaceIndex();
-        int st = opt.getStuckThreshold();
-        int fir = history.findIndex(redo);
         if (isStockEmpty() && hands.hasAnyGoneOut()) {
             return Ending.WENT_OUT;
         } else if (hands.haveAllResigned()) {
@@ -459,7 +457,7 @@ public class Game
         return result;
     }
 
-    public static boolean haveInstance() {
+    public static boolean hasInstance() {
         return currentInstance != null;
     }
 
@@ -541,7 +539,7 @@ public class Game
             move = playable.chooseMoveRemote();
 
         } else {
-            assert handOpt.isLocalUser();
+            assert handOpt.isLocalUser() : handOpt;
 
             for (;;) {
                 move = playable.chooseMoveConsole(mustPlay);

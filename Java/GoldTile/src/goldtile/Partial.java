@@ -47,7 +47,9 @@ public class Partial {
     // constructors
 
     public Partial() {
-        setGame();
+        takeBack();
+        hintStrength = HintStrength.NONE;
+        skipProbability = HandOpt.SKIP_PROBABILITY_DEFAULT;
     }
 
     private Partial(Partial other) {
@@ -58,7 +60,7 @@ public class Partial {
 
     public void activate(Tile tile) {
         assert isPlayable(tile);
-        assert Game.haveInstance();
+        assert Game.hasInstance();
 
         if (activeTile == null || !tile.equals(activeTile)) {
             activeTile = tile;
@@ -93,7 +95,7 @@ public class Partial {
     }
 
     public ReadMove autoPlay() {
-        assert Game.haveInstance();
+        assert Game.hasInstance();
         final ReadHandOpt handOpt = Game.getInstance().getPlayable().getOpt();
         assert handOpt.isAutomatic();
 
@@ -125,7 +127,7 @@ public class Partial {
     }
 
     public boolean canSwapAll() {
-        return Game.haveInstance() &&
+        return Game.hasInstance() &&
                 Game.getInstance().countStock() >= countPlayable();
         // note: doesn't consider Game.mustPlay
     }
@@ -172,7 +174,7 @@ public class Partial {
     }
 
     public Tile deactivate() {
-        assert Game.haveInstance();
+        assert Game.hasInstance();
 
         final Tile result = activeTile;
 
@@ -207,7 +209,8 @@ public class Partial {
     static public Partial findBestMove(Fraction skipProbability)
             throws InterruptedException
     {
-        assert Game.haveInstance();
+        assert skipProbability != null;
+        assert Game.hasInstance();
 
         if (Game.getInstance().getMustPlay() > 0) {
             // Consider ALL possibile moves.
@@ -215,7 +218,7 @@ public class Partial {
         }
 
         final Partial partial = new Partial();
-        partial.setGame();
+        partial.takeBack();
         partial.setSkipProbability(skipProbability);
         partial.setHintStrength(HintStrength.USABLE_BY_ACTIVE);
 
@@ -256,7 +259,7 @@ public class Partial {
             throws InterruptedException
     {
         assert bestSoFar != null;
-        assert Game.haveInstance();
+        assert Game.hasInstance();
 
         Partial result = bestSoFar;
         if (getPointCount() > bestSoFar.getPointCount()) {
@@ -428,15 +431,19 @@ public class Partial {
         }
     }
 
-    /*
+    /**
      * Check whether a hypothetical next step would be a legal
      * partial move.
+     * @param base
+     * @param cell
+     * @param tile
+     * @return true or false
      */
     private boolean isValidNextStep(ReadMove base, Cell cell, Tile tile) {
         assert base != null;
         assert cell != null;
         assert tile != null;
-        assert Game.haveInstance();
+        assert Game.hasInstance();
 
         final Move move = new Move(base);
         move.add(tile, cell);
@@ -486,21 +493,6 @@ public class Partial {
         takeBack();
     }
 
-    // the start of a new game
-    final public void setGame() {
-        final Game game = Game.getInstance();
-
-        final ReadGameOpt gameOpt = (game == null) ? null :
-                game.getOpt();
-        final ReadHandOpt handOpt = (game == null) ? null :
-                game.getPlayable().getOpt();
-        final HintStrength strength = HintStrength.getDefault(gameOpt, handOpt);
-        setHintStrength(strength);
-
-        skipProbability = HandOpt.SKIP_PROBABILITY_DEFAULT;
-        takeBack();
-    }
-
     public void setHintStrength(HintStrength strength) {
         if (strength != null && !strength.equals(hintStrength)) {
             hintStrength = strength;
@@ -509,11 +501,14 @@ public class Partial {
     }
 
     public void setSkipProbability(Fraction skipProbability) {
+        assert skipProbability != null;
+        assert !skipProbability.isUnity();
+
         this.skipProbability = skipProbability;
     }
 
     public Partial suggest() {
-        assert Game.haveInstance();
+        assert Game.hasInstance();
         assert Game.getInstance().getPlayable().getOpt().isLocalUser();
 
         final HintStrength saveStrength = hintStrength;
@@ -531,15 +526,9 @@ public class Partial {
     }
 
     public void swapAll() {
-        assert !hasActiveTile();
-        assert canSwapAll();
-
         if (countSwapped() < countPlayable()) {
+            takeBack();
             swapTiles = new Tiles(playableTiles);
-
-            hintedCells = null;
-            playedTileCount = 0;
-            pointCount = 0;
         }
     }
 
@@ -559,9 +548,10 @@ public class Partial {
 
         hintedCells = null;
         playedTileCount = 0;
-        pointCount = null;
+        pointCount = 0;
 
-        if (Game.haveInstance()) {
+        if (Game.hasInstance()) {
+            // TODO might be more efficient to modify the existing board copy
             board = Game.getInstance().copyBoard();
             playableTiles = Game.getInstance().getPlayable().copyContents();
         } else {
@@ -633,7 +623,7 @@ public class Partial {
     }
 
     private void updatePointCount() {
-        assert Game.haveInstance();
+        assert Game.hasInstance();
 
         pointCount = new Integer(0);
 

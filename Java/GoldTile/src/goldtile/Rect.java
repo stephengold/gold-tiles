@@ -87,6 +87,10 @@ public class Rect
         return result;
     }
 
+    public Area getArea() {
+        return new Area(width, height);
+    }
+
     public Point getBlc() {
         return new Point(x, getBottomY() - 1);
     }
@@ -96,9 +100,7 @@ public class Rect
     }
 
     public Point getCenter() {
-        final Point result = new Point(getMiddleX(), getMiddleY());
-
-        return result;
+        return new Point(getMiddleX(), getMiddleY());
     }
 
     public int getMiddleX() {

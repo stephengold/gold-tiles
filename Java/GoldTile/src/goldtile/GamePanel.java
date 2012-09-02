@@ -50,7 +50,6 @@ public class GamePanel
 
     // links
     final public GameFrame frame;
-    final public GameView view;
     final private MenuBar menuBar;
 
     // per-instance fields, sorted by type
@@ -69,7 +68,7 @@ public class GamePanel
 
         this.frame = frame;
         this.menuBar = menuBar;
-        view = new GameView(this, menuBar);
+        new GameView(this, menuBar);
 
         setBackground(Color.BLACK);
 
@@ -93,7 +92,7 @@ public class GamePanel
      */
     @Override
     public void actionPerformed(java.awt.event.ActionEvent event) {
-        view.updateClock();
+        GameView.getInstance().updateClock();
         timer.restart();
     }
 
@@ -150,9 +149,12 @@ public class GamePanel
 
     private void handleClickView(Point point) {
         assert point != null;
-        assert Game.haveInstance();
+        assert Game.hasInstance();
         assert !Game.getInstance().isPaused();
+        assert GameView.hasInstance();
         assert !dragBoard;
+
+        final GameView view = GameView.getInstance();
 
         if (view.hasActiveTile()) {
             // Continue moving the active tile.
@@ -184,17 +186,18 @@ public class GamePanel
 
     private void handleDragView(Point point) {
         assert point != null;
-        assert Game.haveInstance();
+        assert Game.hasInstance();
         assert !Game.getInstance().isPaused();
+        assert GameView.hasInstance();
 
-        if (view.hasActiveTile()) {
+        if (GameView.getInstance().hasActiveTile()) {
             assert !dragBoard;
             repaint();
 
         } else if (dragBoard) {
             final int dx = point.x - mouseLast.x;
             final int dy = point.y - mouseLast.y;
-            view.translate(dx, dy);
+            GameView.getInstance().translate(dx, dy);
             dragBoardPixelCount += Math.abs(dx) + Math.abs(dy);
             repaint();
         }
@@ -203,11 +206,12 @@ public class GamePanel
     private void handleReleaseView(Point point) {
         assert point != null;
         assert mouseLast != null;
-        assert Game.haveInstance();
+        assert Game.hasInstance();
         assert !Game.getInstance().isPaused();
 
         final int dx = point.x - mouseLast.x;
         final int dy = point.y - mouseLast.y;
+        final GameView view = GameView.getInstance();
         if (view.hasActiveTile()) {
             assert !dragBoard;
             deactivateOnRelease = view.dropActiveTile(point,
@@ -235,7 +239,10 @@ public class GamePanel
 
     @Override
     public void keyPressed(KeyEvent event) {
-        int keyCode = event.getKeyCode();
+        assert event != null;
+
+        final int keyCode = event.getKeyCode();
+        final GameView view = GameView.getInstance();
         switch (keyCode) {
             case KeyEvent.VK_DOWN:
                 view.moveTarget(Direction.SOUTH);
@@ -275,12 +282,13 @@ public class GamePanel
 
     private void leftButtonRelease(Point point) {
         assert point != null;
+        assert GameView.hasInstance();
         assert mouseLast != null;
 
         final Game game = Game.getInstance();
         if (game != null) {
             if (game.isPaused()) {
-                view.startClock();
+                GameView.getInstance().startClock();
             } else {
                 handleReleaseView(point);
             }
@@ -323,11 +331,12 @@ public class GamePanel
     @Override
     public void mouseMoved(MouseEvent event) {
         assert event != null;
+        assert GameView.hasInstance();
         assert !dragBoard;
         assert !leftButtonDown;
 
         final Point point = event.getPoint();
-        if (view.hasActiveTile()) {
+        if (GameView.getInstance().hasActiveTile()) {
             assert mouseLast != null;
             handleDragView(point);
         }
@@ -354,7 +363,7 @@ public class GamePanel
 
     public void offerNewGame() {
         GameOpt gameOpt;
-        if (Game.haveInstance()) {
+        if (Game.hasInstance()) {
             // Copy the game options of the active instance.
             gameOpt = new GameOpt(Game.getInstance().getOpt());
             gameOpt.setRules(Rules.REPLAY);
@@ -367,8 +376,8 @@ public class GamePanel
         final HandOpt handOpts[] = new HandOpt[maxHands];
         for (int iHand = 0; iHand < maxHands; iHand++) {
             HandOpt handOpt;
-            if (Game.haveInstance() && iHand < gameOpt.getHandsDealt()) {
-                ReadHand hand = Game.getInstance().getHand(iHand);
+            if (Game.hasInstance() && iHand < gameOpt.getHandsDealt()) {
+                final ReadHand hand = Game.getInstance().getHand(iHand);
                 handOpt = new HandOpt(hand.getOpt());
             } else {
                 handOpt = new HandOpt("User");
@@ -398,9 +407,11 @@ public class GamePanel
             return;
         }
 
+        final GameView view = GameView.getInstance();
+        view.saveHand();
         final GameStyle oldStyle = Game.getStyle();
         new Game(gameOpt, handOpts);
-        view.changeGame(oldStyle);
+        view.newGame(oldStyle);
     }
 
     @Override
@@ -408,7 +419,7 @@ public class GamePanel
         super.paintComponent(context);
 
         final Canvas canvas = new Canvas(context);
-        view.paintAll(canvas);
+        GameView.getInstance().paintAll(canvas);
     }
 
     public void showAboutBox() {
@@ -430,11 +441,29 @@ public class GamePanel
                 JOptionPane.PLAIN_MESSAGE);
     }
 
+    public void showAttrBox() {
+        final GameView view = GameView.getInstance();
+        final AttrBox box = new AttrBox(frame);
+        final DisplayModes oldValue = view.getDisplayModes();
+        final DisplayModes newValue = box.run(oldValue);
+        view.setDisplayModes(newValue);
+        repaint();
+    }
+
     private void showBox(Object message, String title, int options) {
         JOptionPane.showMessageDialog(this,
                 message,
                 title + " - Gold Tile Game",
                 options);
+    }
+
+    public void showHintBox() {
+        final GameView view = GameView.getInstance();
+        final HintBox box = new HintBox(frame);
+        final HintStrength oldValue = view.getHintStrength();
+        final GameStyle style = Game.getStyle();
+        final HintStrength newValue = box.run(oldValue, style);
+        view.setHintStrength(newValue);
     }
 
     public void showInformationBox(Object message, String title) {
@@ -471,7 +500,6 @@ public class GamePanel
            "Should the program prove defective, you assume the cost of all ",
            "necessary servicing, repair, or correction."
         };
-
         showInformationBox(warrantyMessage, "Warranty");
     }
 }

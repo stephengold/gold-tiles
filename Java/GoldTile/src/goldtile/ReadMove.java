@@ -30,7 +30,7 @@ public interface ReadMove {
     public Cells copyCells();
     public java.util.TreeSet<TileCell> copySet();
     public Tiles copyTiles();
-    public int countTilesPlaced();
+    public int countCellsUsed();
     public String describe();
     public boolean doesPlace();
     public boolean equals(Move other);

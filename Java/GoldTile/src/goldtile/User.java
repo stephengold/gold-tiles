@@ -32,31 +32,26 @@ public class User
     implements ReadUser
 {
     // per-instance fields
+
     private boolean autopause = false;
     private boolean peek = false;
     private boolean showClocks = false;
-    private boolean showGrid = false;
-    private boolean showScores = false;
+    private boolean showGrid = true;
+    private boolean showScores = true;
     private DisplayModes displayModes = new DisplayModes(Display.GUI);
-    private int boardTileSize = MenuBar.BOARD_SIZE_DEFAULT;
-    private int handTileSize = MenuBar.TILE_SIZE_DEFAULT;
+    private GameStyle style = GameStyle.NONE;
+    private HintStrength strength = HintStrength.getStrongDefault();
+    private int boardTileSize = MenuBar.BOARD_TILE_SIZE_DEFAULT;
+    private int handTileSize = MenuBar.HAND_TILE_SIZE_DEFAULT;
 
     // logical coordinates of the Start cell
-    private Point startCellPosition = new Point(0, 0);
-
-    final private String name;
+    private Point startCellPosition = new Point();
 
     // static fields
     private static java.util.Map<String,User> users =
             new java.util.TreeMap<>();
 
-    // constructors
-
-    private User(String name) {
-        this.name = name;
-    }
-
-    // methods
+    // methods, sorted by name
 
     @Override
     public boolean getAutopause() {
@@ -76,6 +71,11 @@ public class User
     @Override
     public int getHandTileSize() {
         return handTileSize;
+    }
+
+    @Override
+    public HintStrength getHintStrength() {
+        return strength;
     }
 
     @Override
@@ -104,12 +104,56 @@ public class User
     }
 
     public static User lookup(String name) {
-        if (users.containsKey(name)) {
-            return users.get(name);
-        } else {
-            final User result = new User(name);
-            users.put(name, result);
-            return result;
+        assert name != null;
+        assert !name.equals("");
+        assert users.containsKey(name);
+
+        return users.get(name);
+    }
+
+    public static void newGame() {
+        assert Game.hasInstance();
+
+        final GameStyle newStyle = Game.getStyle();
+        final Strings names = Game.getInstance().getUserNames();
+        for (String name : names) {
+            assert name != null;
+            assert !name.equals("");
+
+            User user;
+            if (!users.containsKey(name)) {
+                // Create a new instance and add it to the map.
+                user = new User();
+                users.put(name, user);
+            } else {
+                user = users.get(name);
+            }
+
+            // Center the view and reset board size.
+            Point start = GameView.getInstance().getStartCellPosition();
+            user.startCellPosition = start;
+            user.boardTileSize = MenuBar.BOARD_TILE_SIZE_DEFAULT;
+
+            if (user.style != newStyle) {
+                // Override the style-sensitive settings.
+                user.autopause = newStyle.hasTimeLimit();
+                user.peek = newStyle.isDebug();
+                user.showClocks = newStyle.showsClocks();
+                user.showScores = true;
+                user.strength = HintStrength.getStrongDefault();
+
+                user.style = newStyle;
+            }
+
+            // Override any illegal settings.
+            if (!newStyle.allowsStrongHints() &&
+                    user.strength.isStrong())
+            {
+                user.strength = HintStrength.getWeakDefault();
+            }
+            if (!newStyle.allowsPeeking()) {
+                user.peek = false;
+            }
         }
     }
 
@@ -118,6 +162,9 @@ public class User
     }
 
     public void setBoardTileSize(int size) {
+        assert size >= SizeMenu.MIN;
+        assert size <= SizeMenu.MAX;
+
         boardTileSize = size;
     }
 
@@ -126,7 +173,16 @@ public class User
     }
 
     public void setHandTileSize(int size) {
+        assert size >= SizeMenu.MIN;
+        assert size <= SizeMenu.MAX;
+
         handTileSize = size;
+    }
+
+    public void setHintStrength(HintStrength strength) {
+        assert strength != null;
+
+        this.strength = strength;
     }
 
     public void setPeek(boolean flag) {
@@ -146,6 +202,8 @@ public class User
     }
 
     public void setStartCellPosition(Point position) {
+        assert position != null;
+
         startCellPosition = position;
     }
 }

@@ -30,10 +30,10 @@ public class GoldTile {
     // configuration flags
 
     public static boolean autoOfferGame = true;
-    public static boolean beClient = true;
     public static boolean debugging = true;
     public static boolean enableConsole = true;
     public static boolean enableGui = true;
+    public static boolean isClient = true;
     public static boolean standardGame = false;
 
     public static Display control = Display.GUI;

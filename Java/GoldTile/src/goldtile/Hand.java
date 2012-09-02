@@ -36,7 +36,7 @@ public class Hand
     private int score = 0;
     private long milliseconds = 0;    // total time charged to the hand
     private long startTime = 0;
-    final private String name;        // unique name for the hand
+    final private String name;        // unique name for the hand (immutable)
     private Tiles contents = new Tiles();
 
     // constructors
@@ -69,7 +69,7 @@ public class Hand
 
     @Override
     public ReadMove chooseMoveAutomatic() {
-        assert Game.haveInstance();
+        assert Game.hasInstance();
         assert GoldTile.control == Display.CONSOLE;
 
         Partial partial;
@@ -140,7 +140,7 @@ public class Hand
      * Read the hand's elapsed time clock, and if the clock
      * is running, update the milliseconds field.
      *
-     * @return
+     * @return updated total time for the hand, in milliseconds
      */
     @Override
     public long getMillisecondsUsed() {

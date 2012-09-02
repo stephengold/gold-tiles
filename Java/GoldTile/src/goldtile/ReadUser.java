@@ -33,6 +33,7 @@ public interface ReadUser {
     public int getBoardTileSize();
     public DisplayModes getDisplayModes();
     public int getHandTileSize();
+    public HintStrength getHintStrength();
     public boolean getPeek();
     public boolean getShowClocks();
     public boolean getShowGrid();

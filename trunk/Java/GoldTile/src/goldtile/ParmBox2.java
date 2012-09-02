@@ -346,7 +346,6 @@ public class ParmBox2
     @Override
     public void nextAction() {
         updateModel();
-
         showCard(ParmBox3.class.getName(), gameOpt, handOpts);
     }
 
@@ -355,7 +354,9 @@ public class ParmBox2
         assert models != null;
         assert models.length == 2 : models.length;
         assert models[0] != null;
+        assert models[0] instanceof GameOpt;
         assert models[1] != null;
+        assert models[1] instanceof HandOpt[];
 
         gameOpt = (GameOpt)models[0];
         gameOpt.validate();

@@ -38,22 +38,22 @@ public class MenuBar
     implements java.awt.event.ActionListener
 {
     // constants
-    final public static int BOARD_SIZE_DEFAULT = 5;
-    final public static int TILE_SIZE_DEFAULT = 5; // TODO based on hand size
+    final public static int BOARD_TILE_SIZE_DEFAULT = 5;
+    final public static int HAND_TILE_SIZE_DEFAULT = 5; // TODO based on hand size
 
     // per-instance data
 
     public GamePanel clientArea = null;
     private SwingWorker worker = null;
 
-    // top-level menus
+    // top-level menus, sorted by position
     final private JMenu fileMenu = new JMenu("File");
     final private JMenu helpMenu = new JMenu("Help");
     final private JMenu playMenu = new JMenu("Play");
     final private JMenu thinkingMenu = new JMenu("Thinking");
     final private JMenu viewMenu = new JMenu("View");
 
-    // menu items
+    // menu items, sorted by position
     final private JMenuItem nu;
     final private JMenuItem open;
     final private JMenuItem openRecent;
@@ -75,8 +75,8 @@ public class MenuBar
     final private JMenuItem redo;
     final private JCheckBoxMenuItem autoPause;
 
-    final private SizeMenu boardSize;
-    final private SizeMenu tileSize;
+    final private SizeMenu boardTileSize;
+    final private SizeMenu handTileSize;
     final private JMenuItem recenter;
     final private JMenuItem attrs;
     final private JMenuItem hints;
@@ -96,7 +96,7 @@ public class MenuBar
     public MenuBar() {
         // Flesh out the "File" menu.
 
-        nu = new JMenuItem("New");
+        nu = new JMenuItem("New...");
         nu.setAccelerator(KeyStroke.getKeyStroke(
                 KeyEvent.VK_N, InputEvent.CTRL_DOWN_MASK));
         nu.setMnemonic(KeyEvent.VK_N);
@@ -159,7 +159,7 @@ public class MenuBar
         suggest.setMnemonic(KeyEvent.VK_G);
         playMenu.add(suggest);
 
-        pause = new JMenuItem("error!");
+        pause = new JMenuItem("ERROR!");
         pause.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_PAUSE, 0));
         pause.setActionCommand("togglePause");
         playMenu.add(pause);
@@ -199,14 +199,14 @@ public class MenuBar
 
         // Flesh out the "View" menu.
 
-        boardSize = new SizeMenu("Board Size", BOARD_SIZE_DEFAULT);
-        boardSize.accelerate();
-        boardSize.setMnemonic(KeyEvent.VK_B);
-        viewMenu.add(boardSize);
+        boardTileSize = new SizeMenu("Board Size", BOARD_TILE_SIZE_DEFAULT);
+        boardTileSize.accelerate();
+        boardTileSize.setMnemonic(KeyEvent.VK_B);
+        viewMenu.add(boardTileSize);
 
-        tileSize = new SizeMenu("Tile Size", TILE_SIZE_DEFAULT);
-        tileSize.setMnemonic(KeyEvent.VK_T);
-        viewMenu.add(tileSize);
+        handTileSize = new SizeMenu("Tile Size", HAND_TILE_SIZE_DEFAULT);
+        handTileSize.setMnemonic(KeyEvent.VK_T);
+        viewMenu.add(handTileSize);
 
         recenter = new JMenuItem("Re-center");
         recenter.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C, 0));
@@ -278,17 +278,20 @@ public class MenuBar
 
     @Override
     public void actionPerformed(java.awt.event.ActionEvent event) {
-        final String command = event.getActionCommand();
+        assert GameView.hasInstance();
 
+        final String command = event.getActionCommand();
+        final GameView view = GameView.getInstance();
         switch (command) {
-            case "New":
+            case "New...":
                 clientArea.offerNewGame();
                 break;
 
             case "Close":
+                view.saveHand();
                 final GameStyle oldStyle = Game.getStyle();
                 Game.closeCurrentInstance();
-                clientArea.view.changeGame(oldStyle);
+                view.newGame(oldStyle);
                 break;
 
             case "Exit":
@@ -297,11 +300,11 @@ public class MenuBar
             case "Pass":
             case "Play":
             case "Resign":
-                clientArea.view.playMenuCommand(command);
+                view.playMenuCommand(command);
                 break;
 
             case "Take Back":
-                clientArea.view.takeBack();
+                view.takeBack();
                 break;
 
             case "Suggest":
@@ -309,19 +312,23 @@ public class MenuBar
                 break;
 
             case "Swap All":
-                clientArea.view.swapAll();
+                view.swapAll();
                 break;
 
             case "Re-center":
-                clientArea.view.recenter();
+                view.recenter();
                 break;
 
             case "togglePause":
-                clientArea.view.togglePause();
+                view.togglePause();
+                break;
+
+            case "Tile Attributes...":
+                clientArea.showAttrBox();
                 break;
 
             case "Hints...":
-                clientArea.view.hintBox();
+                clientArea.showHintBox();
                 break;
 
             case "Cancel":
@@ -368,9 +375,10 @@ public class MenuBar
         resign.addActionListener(this);
 
         // "View" menu
-        boardSize.menuBar = this;
-        tileSize.menuBar = this;
+        boardTileSize.menuBar = this;
+        handTileSize.menuBar = this;
         recenter.addActionListener(this);
+        attrs.addActionListener(this);
         hints.addActionListener(this);
         showClocks.addActionListener(this);
         showGrid.addActionListener(this);
@@ -398,19 +406,21 @@ public class MenuBar
         peek.setSelected(true);
         showClocks.setSelected(true);
         showScores.setSelected(true);
+        update();
+        clientArea.repaint();
     }
 
     public SizeMenu getBoardSizeMenu() {
-        return boardSize;
+        return boardTileSize;
     }
 
     public int getTileSize(Place place) {
         switch (place) {
             case BOARD:
-                return boardSize.getValue();
+                return boardTileSize.getValue();
             case HAND:
             case SWAP_AREA:
-                return tileSize.getValue();
+                return handTileSize.getValue();
             default:
                 throw new AssertionError(place);
         }
@@ -429,36 +439,41 @@ public class MenuBar
     }
 
     public void loadUser(ReadUser user) {
+        assert user != null;
+
         autoPause.setState(user.getAutopause());
-        boardSize.setValue(user.getBoardTileSize());
-        tileSize.setValue(user.getBoardTileSize());
+        boardTileSize.setValue(user.getBoardTileSize());
+        handTileSize.setValue(user.getHandTileSize());
         peek.setState(user.getPeek());
         showClocks.setState(user.getShowClocks());
         showGrid.setState(user.getShowGrid());
         showScores.setState(user.getShowScores());
     }
 
-    public void newGame(GameStyle oldStyle, GameStyle newStyle) {
+    public void newGame(GameStyle oldStyle) {
         assert oldStyle != null;
-        assert newStyle != null;
 
-        boardSize.setValue(BOARD_SIZE_DEFAULT);
-        tileSize.setValue(TILE_SIZE_DEFAULT);
+        boardTileSize.setValue(BOARD_TILE_SIZE_DEFAULT);
+        handTileSize.setValue(HAND_TILE_SIZE_DEFAULT);
 
+        final GameStyle newStyle = Game.getStyle();
         if (!oldStyle.equals(newStyle)) {
+            // Override the style-sensitive settings.
             autoPause.setState(newStyle.hasTimeLimit());
             peek.setState(newStyle.allowsPeeking());
-            showClocks.setState(newStyle.showClocks());
-            showGrid.setState(true);
+            showClocks.setState(newStyle.showsClocks());
             showScores.setState(true);
         }
 
+        // Override any illegal settings.
         if (!newStyle.allowsPeeking()) {
             peek.setState(false);
         }
     }
 
     public void saveUser(User user) {
+        assert user != null;
+
         user.setAutopause(isAutoPauseEnabled());
         user.setBoardTileSize(getTileSize(Place.BOARD));
         user.setHandTileSize(getTileSize(Place.HAND));
@@ -474,14 +489,14 @@ public class MenuBar
         worker = new SwingWorker() {
             @Override
             public Object construct() {
-                return clientArea.view.autoPlay();
+                return GameView.getInstance().autoPlay();
             }
             @Override
             public void finished() {
                 worker = null;
                 final ReadMove move = (ReadMove)get();
-                clientArea.view.implement(move);
-                clientArea.view.finishTurn(move);
+                GameView.getInstance().implement(move);
+                GameView.getInstance().finishTurn(move);
                 clientArea.repaint();
                 update();
            }
@@ -495,13 +510,13 @@ public class MenuBar
         worker = new SwingWorker() {
             @Override
             public Object construct() {
-                return clientArea.view.suggest();
+                return GameView.getInstance().suggest();
             }
             @Override
             public void finished() {
                 final Partial suggestion = (Partial)get();
                 if (suggestion != null) {
-                    clientArea.view.copy(suggestion);
+                    GameView.getInstance().copy(suggestion);
                     clientArea.repaint();
                 }
                 worker = null;
@@ -515,21 +530,21 @@ public class MenuBar
         boolean control = GoldTile.control == Display.GUI;
         boolean thinking = worker != null;
 
-        boolean haveGame = false;
+        boolean hasGame = false;
         boolean local = false;
         boolean over = false;
         boolean paused = false;
         boolean canRedo = false;
         boolean canUndo = false;
         boolean passFlag = false;
+        boolean peekStyle = false;
         boolean suggestStyle = false;
         boolean timedStyle = false;
         boolean undoStyle = false;
 
-        final Partial partial = clientArea.view;
-        if (partial != null) {
-            haveGame = Game.haveInstance();
-            if (haveGame) {
+        if (GameView.hasInstance()) {
+            hasGame = Game.hasInstance();
+            if (hasGame) {
                 local = Game.getInstance().getPlayable().getOpt().isLocalUser();
 
                 final ReadGame game = Game.getInstance();
@@ -538,10 +553,11 @@ public class MenuBar
                 canRedo = game.canRedo();
                 canUndo = game.canUndo();
             }
-            passFlag = partial.isPass();
+            passFlag = GameView.getInstance().isPass();
 
             final GameStyle style = Game.getStyle();
-            suggestStyle = style.allowsHints();
+            peekStyle = style.allowsPeeking();
+            suggestStyle = style.allowsStrongHints();
             timedStyle = style.hasTimeLimit();
             undoStyle = style.allowsUndo();
         }
@@ -550,38 +566,39 @@ public class MenuBar
         nu.setEnabled(true);
         open.setEnabled(true);
         openRecent.setEnabled(true);
-        revert.setEnabled(haveGame);
-        save.setEnabled(haveGame);
-        saveAs.setEnabled(haveGame);
-        close.setEnabled(haveGame);
+        revert.setEnabled(hasGame);
+        save.setEnabled(hasGame);
+        saveAs.setEnabled(hasGame);
+        close.setEnabled(hasGame);
         exit.setEnabled(true);
         updateMenu(fileMenu);
 
         // "Play" menu
         pause.setText(paused ? "Resume" : "Pause");
-        final boolean cgl = control && haveGame && local && !thinking;
+        final boolean cgl = control && hasGame && local && !thinking;
         play.setEnabled(cgl && !over && !paused && !passFlag);
         takeBack.setEnabled(cgl && !over && !paused && !passFlag);
         suggest.setEnabled(cgl && !over && !paused && suggestStyle);
         pause.setEnabled(cgl && !over);
-        swapAll.setEnabled(cgl && !over && !paused && passFlag);
+        swapAll.setEnabled(cgl && !over && !paused);
         pass.setEnabled(cgl && !over && !paused && passFlag);
         resign.setEnabled(cgl && !over && !paused);
         restart.setEnabled(cgl && !paused && undoStyle);
         undo.setEnabled(cgl && !paused && undoStyle && canUndo);
         redo.setEnabled(cgl && !paused && undoStyle && canRedo);
-        autoPause.setEnabled(control && !timedStyle);
+        autoPause.setEnabled(cgl && !over && !paused && !timedStyle);
         updateMenu(playMenu);
 
         // "View" menu
-        boardSize.setEnabled(true);
-        tileSize.setEnabled(true);
-        recenter.setEnabled(haveGame && !paused);
-        attrs.setEnabled(true);
-        hints.setEnabled(true);
-        showClocks.setEnabled(true);
-        showGrid.setEnabled(true);
-        showScores.setEnabled(true);
+        boardTileSize.setEnabled(hasGame && !paused);
+        handTileSize.setEnabled(hasGame && !paused);
+        recenter.setEnabled(hasGame && !paused);
+        attrs.setEnabled(hasGame && !paused);
+        hints.setEnabled(hasGame && !paused);
+        showClocks.setEnabled(hasGame && !paused);
+        showGrid.setEnabled(hasGame && !paused);
+        showScores.setEnabled(hasGame && !paused);
+        peek.setEnabled(hasGame && !paused && peekStyle);
         updateMenu(viewMenu);
 
         // "Thinking" menu
@@ -596,7 +613,9 @@ public class MenuBar
         assert menu != null;
 
         for (java.awt.Component component : menu.getMenuComponents()) {
-            if (component.isEnabled()) {
+            if (component.isEnabled() &&
+                    !(component instanceof javax.swing.JSeparator))
+            {
                 menu.setEnabled(true);
                 return;
             }

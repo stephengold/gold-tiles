@@ -187,7 +187,7 @@ public class Move
     }
 
     @Override
-    public int countTilesPlaced() {
+    public int countCellsUsed() {
         int result = 0;
 
         for (TileCell tileCell : set) {
@@ -287,7 +287,7 @@ public class Move
 
     @Override
     public boolean isPureSwap() {
-        if (resignFlag) {
+        if (resignFlag || set.isEmpty()) {
             return false;
         }
 

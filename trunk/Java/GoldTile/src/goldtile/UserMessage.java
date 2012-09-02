@@ -71,13 +71,24 @@ public enum UserMessage {
         "You can play tiles or swap them, but you can't do both in the same turn.",
         "Swap Rule");
 
-    // per-instance fields
+    // per-instance fields (TODO private)
     final public String message;
     final public String title;
 
     // constructor
+
     private UserMessage(String message, String title) {
         this.message = message;
         this.title = title;
+    }
+
+    // methods, sorted by name
+
+    public String getMessage() {
+        return message;
+    }
+
+    public String getTitle() {
+        return title;
     }
 }

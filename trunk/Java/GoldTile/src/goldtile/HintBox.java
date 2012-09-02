@@ -39,7 +39,7 @@ public class HintBox
     // per-instance fields, sorted by type
     private HintStrength strength = null;
     final private JButton cancelButton = new JButton("Cancel");
-    final private JButton okButton = new JButton("OK");
+    final private JButton okButton = new WideButton("OK");
     final private JRadioButton none = new JRadioButton("none");
     final private JRadioButton unused = new JRadioButton("unused cells");
     final private JRadioButton connected = new JRadioButton(
@@ -50,6 +50,7 @@ public class HintBox
             "cells usable by the active tile");
 
     // constructors
+
     public HintBox(java.awt.Frame parent) {
         super(parent, true); // based on a modal JDialog
 
@@ -79,9 +80,6 @@ public class HintBox
         add(radio, BorderLayout.CENTER);
 
         // row of buttons along the bottom edge
-
-        okButton.setPreferredSize(new java.awt.Dimension(200, 0)); // wide button
-
         final Box buttonRow = new Box(BoxLayout.LINE_AXIS);
         buttonRow.setBorder(border);
 
@@ -94,6 +92,10 @@ public class HintBox
 
     // methods, sorted by name
 
+    /**
+     * Process an event indicating that a button changed.
+     * @param event
+     */
     @Override
     public void actionPerformed(java.awt.event.ActionEvent event) {
         assert event != null;
@@ -113,6 +115,8 @@ public class HintBox
     }
 
     private JRadioButton getButton(HintStrength value) {
+        assert value != null;
+
         switch (value) {
             case NONE:
                 return none;
@@ -145,7 +149,8 @@ public class HintBox
         }
 
         // limit choices for challenge games
-        final boolean allow = style.allowsHints();
+        final boolean allow = style.allowsStrongHints();
+        // TODO loop
         connected.setEnabled(allow);
         usableByPlayable.setEnabled(allow);
         usableByActive.setEnabled(allow);

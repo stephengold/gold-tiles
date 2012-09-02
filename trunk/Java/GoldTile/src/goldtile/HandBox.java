@@ -26,7 +26,6 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 
 package goldtile;
 
-import java.util.Hashtable;
 import javax.swing.*;
 import javax.swing.border.Border;
 import javax.swing.border.EtchedBorder;
@@ -202,11 +201,14 @@ public class HandBox
 
     // methods, sorted by name
 
+    /**
+     * Process an event indicating that a radio button changed.
+     * @param event
+     */
     @Override
     public void actionPerformed(java.awt.event.ActionEvent event) {
         assert event != null;
 
-        // from a radio button
         updateModel();
         updateView();
     }
@@ -237,7 +239,9 @@ public class HandBox
         assert models != null;
         assert models.length == 2 : models;
         assert models[0] != null;
+        assert models[0] instanceof GameOpt;
         assert models[1] != null;
+        assert models[1] instanceof HandOpt[];
 
         gameOpt = (GameOpt)models[0];
         gameOpt.validate();

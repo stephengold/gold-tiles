@@ -28,23 +28,26 @@ package goldtile;
 
 public enum AttrMode {
     // values
-    ABC ('A'),
-    COLOR,
-    NUMERAL ('1'),
-    RST ('R'),
-    SHAPE;
+    ABC ("ABC...", 'A'),
+    COLOR ("colors"),
+    NUMERAL ("123...", '1'),
+    RST ("RST...", 'R'),
+    SHAPE ("shapes");
 
     // per-instance fields (immutable)
     final private char base;
+    final private String description;
 
     // constructors
 
-    private AttrMode() {
+    private AttrMode(String description) {
         base = '!';
+        this.description = description;
     }
 
-    private AttrMode(char base) {
-       this.base = base;
+    private AttrMode(String description, char base) {
+        this.base = base;
+        this.description = description;
     }
 
     // methods, sorted by name
@@ -112,6 +115,10 @@ public enum AttrMode {
             default:
                 throw new AssertionError(display);
         }
+    }
+
+    public String getDescription() {
+        return description;
     }
 
     public static AttrMode getFirst() {

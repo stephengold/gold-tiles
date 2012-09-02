@@ -118,9 +118,9 @@ public class Canvas extends Graphics {
 
                 final char ch = displayMode.attrToChar(attr);
                 final String str = Character.toString(ch);
-                //TODO useFont(bounds.height, bounds.width);
+                setFontArea(bounds.getArea());
                 drawTextLine(bounds, str, null);
-                //TODO useFont(FONT_HEIGHT_DEFAULT);
+                setFontDefault();
                 break;
 
             default:

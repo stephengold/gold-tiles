@@ -247,7 +247,9 @@ public class ParmBox3
         assert models != null;
         assert models.length == 2 : models.length;
         assert models[0] != null;
+        assert models[0] instanceof GameOpt;
         assert models[1] != null;
+        assert models[1] instanceof HandOpt[];
 
         gameOpt = (GameOpt)models[0];
         gameOpt.validate();

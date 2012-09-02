@@ -36,7 +36,7 @@ public enum GameStyle {
 
     // methods, sorted by name
 
-    public boolean allowsHints() {
+    public boolean allowsStrongHints() {
         return !isChallenge();
     }
 
@@ -76,7 +76,7 @@ public enum GameStyle {
         return this == PRACTICE;
     }
 
-    public boolean showClocks() {
+    public boolean showsClocks() {
         return isChallenge() || isDebug();
     }
 }

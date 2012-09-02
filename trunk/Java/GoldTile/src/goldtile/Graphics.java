@@ -27,18 +27,30 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 package goldtile;
 
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Point;
 import java.awt.font.LineMetrics;
 import java.awt.geom.Rectangle2D;
 
 public class Graphics {
+    // constants
+    private final static int FONT_HEIGHT_DEFAULT = 24;
+    private final static int FONT_SIZE_MAX = 14;
+    private final static int FONT_SIZE_MIN = 0;
+    private final static int FONT_SIZE_COUNT = FONT_SIZE_MAX + 1;
+
+    // per-instance fields, sorted by type
     public Color backgroundColor;
     public Color foregroundColor;
     private java.awt.Graphics context;
 
-    private static Poly equilateral;
-    private static Poly hexagon;
+    // static fields, sorted by type
+    private static Font fonts[] = null;
+    private static Poly equilateral = null;
+    private static Poly hexagon = null;
+
+    // constructors
 
     public Graphics(java.awt.Graphics graphics) {
         assert graphics != null;
@@ -46,6 +58,13 @@ public class Graphics {
         backgroundColor = Color.WHITE;
         foregroundColor = Color.BLACK;
         context = graphics;
+
+        // static font table initialized on first instantiation of this class
+        if (fonts == null) {
+            initializeFonts();
+        }
+
+        setFontDefault();
 
         // static polygons initialized on first instantiation of this class
         if (equilateral == null) {
@@ -56,7 +75,7 @@ public class Graphics {
         }
     }
 
-    // methods
+    // methods, sorted by name
 
     public void drawEquilateralTriangle(Rect bounds, boolean pointDownFlag) {
         assert bounds != null;
@@ -142,49 +161,128 @@ public class Graphics {
     }
 
     public void drawTextLine(Rect bounds, String text) {
+        assert bounds != null;
+        assert text != null;
+
         drawTextLine(bounds, text, null);
     }
 
     // Draw a single line of text, centered in a rectangle.
     public void drawTextLine(Rect bounds, String text, String altText) {
+        assert bounds != null;
+        assert text != null;
+
         String displayText;
-        int width = textWidth(text);
+        int width = getTextWidth(text);
 
         if (altText == null || width <= bounds.width) {
             displayText = text;
         } else {
             displayText = altText;
-            width = textWidth(altText);
+            width = getTextWidth(altText);
         }
 
-        final int height = textHeight(displayText);
+        final int height = getTextHeight(displayText);
 
         final int padX = bounds.width - width;
         final int padY = bounds.height - height;
 
         final int x = bounds.x + padX/2;
-        final int y = bounds.y + textAscent(text) + padY/2;
+        final int y = bounds.y + getTextAscent(text) + padY/2;
 
         context.setColor(foregroundColor);
         context.drawString(displayText, x, y);
     }
 
-    public void drawTextMultiline(Rect bounds, String text) {
-        final int height = textHeight(text);
-        final int width = textWidth(text);
+    private int findFontSize(Area area) {
+        assert area != null;
 
-        final int padX = bounds.width - width;
-        final int padY = bounds.height - height;
+        for (int iSize = FONT_SIZE_MAX; iSize >= FONT_SIZE_MIN; iSize--) {
+            setFontSize(iSize);
+            if (getFontHeight() <= area.height &&
+                    getFontWidth() <= area.width)
+            {
+                return iSize;
+            }
+        }
 
-        final int x = bounds.x + padX/2;
-        final int y = bounds.y + textAscent(text) + padY/2;
+        throw new AssertionError(area);
+    }
 
-        context.setColor(foregroundColor);
-        context.drawString(text, x, y);
+    private int findFontSize(int height) {
+        assert height > 0;
+
+        for (int iSize = FONT_SIZE_MAX; iSize >= FONT_SIZE_MIN; iSize--) {
+            setFontSize(iSize);
+            if (getFontHeight() <= height) {
+                return iSize;
+            }
+        }
+
+        throw new AssertionError(height);
+    }
+
+    public int getFontHeight() {
+        return getTextHeight("Wy");
+    }
+
+    public int getFontWidth() {
+        return getTextWidth("W");
+    }
+
+    private static int getNominalHeight(int size) {
+        assert size >= FONT_SIZE_MIN : size;
+        assert size <= FONT_SIZE_MAX : size;
+
+        int result = 4*size;
+
+        return result;
+    }
+
+    public Area getTextArea(String text) {
+        assert text != null;
+
+        final FontMetrics metrics = context.getFontMetrics();
+        final Rectangle2D bounds = metrics.getStringBounds(text, context);
+        final double height = bounds.getHeight();
+        final double width = bounds.getWidth();
+
+        return new Area((int)(width + 0.99), (int)(height + 0.99));
+    }
+
+    private int getTextAscent(String text) {
+        assert text != null;
+
+        final FontMetrics metrics = context.getFontMetrics();
+        final LineMetrics lm = metrics.getLineMetrics(text, context);
+        final float ascent = lm.getAscent();
+
+        return (int)(ascent + 0.99);
+    }
+
+    public int getTextHeight(String text) {
+        assert text != null;
+
+        final FontMetrics metrics = context.getFontMetrics();
+        final Rectangle2D bounds = metrics.getStringBounds(text, context);
+        final double height = bounds.getHeight();
+
+        return (int)(height + 0.99);
+    }
+
+    public int getTextWidth(String text) {
+        assert text != null;
+
+        final FontMetrics metrics = context.getFontMetrics();
+        final Rectangle2D bounds = metrics.getStringBounds(text, context);
+        final double width = bounds.getWidth();
+
+        return (int)(width + 0.99);
     }
 
     private static void initializeEquilateral() {
         assert equilateral == null : equilateral;
+
         equilateral = new Poly();
 
         equilateral.add(0.0, 0.0);
@@ -194,8 +292,27 @@ public class Graphics {
         assert equilateral.size() == 3 : equilateral.size();
     }
 
+    private void initializeFonts() {
+        assert fonts == null;
+
+        fonts = new Font[FONT_SIZE_COUNT];
+        final String family = "Tahoma";
+
+        for (int iSize = 0; iSize < FONT_SIZE_COUNT; iSize++) {
+            final int height = getNominalHeight(iSize);
+            final int pointSize = (82*height)/100;
+            final Font font = new Font(family, Font.PLAIN, pointSize);
+            fonts[iSize] = font;
+
+            setFontSize(iSize);
+            final int actual = getFontHeight();
+            assert actual <= height;
+        }
+    }
+
     private static void initializeHexagon() {
         assert hexagon == null : hexagon;
+
         hexagon = new Poly();
 
          hexagon.add(0.0, 0.5);
@@ -228,6 +345,8 @@ public class Graphics {
     }
 
     protected static Rect interiorHexagon(Rect bounds) {
+        assert bounds != null;
+
         final double den = 4 + 4*Global.SQRT_3;
 
         final FractionPair pairUlc = new FractionPair(
@@ -246,49 +365,45 @@ public class Graphics {
     protected static Rect interiorRoundedSquare(Point center,
             int edgeLength, int arcDiameter)
     {
-         int leftX = center.x - edgeLength/2;
-         int topY = center.y - edgeLength/2;
+        assert center != null;
+        assert edgeLength > 0;
+        assert arcDiameter >= 0;
 
-         // estimate the interior sqaure
-         final int arcRadius = arcDiameter/2;
-         final int pad = arcRadius - (int)(0.7 * arcRadius);
-         topY += pad;
-         leftX += pad;
-         edgeLength -= 2*pad;
+        int leftX = center.x - edgeLength/2;
+        int topY = center.y - edgeLength/2;
 
-         return new Rect(leftX, topY, edgeLength, edgeLength);
+        // estimate the interior sqaure
+        final int arcRadius = arcDiameter/2;
+        final int pad = arcRadius - (int)(0.7 * arcRadius);
+        topY += pad;
+        leftX += pad;
+        edgeLength -= 2*pad;
+
+        return new Rect(leftX, topY, edgeLength, edgeLength);
     }
 
-    public Area textArea(String text) {
-        final FontMetrics metrics = context.getFontMetrics();
-        final Rectangle2D bounds = metrics.getStringBounds(text, context);
-        final double height = bounds.getHeight();
-        final double width = bounds.getWidth();
+    public void setFontArea(Area area) {
+        assert area != null;
 
-        return new Area((int)(width + 0.99), (int)(height + 0.99));
+        final int size = findFontSize(area);
+        setFontSize(size);
     }
 
-    private int textAscent(String text) {
-        final FontMetrics metrics = context.getFontMetrics();
-        final LineMetrics lm = metrics.getLineMetrics(text, context);
-        final float ascent = lm.getAscent();
-
-        return (int)(ascent + 0.99);
+    final public void setFontDefault() {
+        setFontHeight(FONT_HEIGHT_DEFAULT);
     }
 
-    public int textHeight(String text) {
-        final FontMetrics metrics = context.getFontMetrics();
-        final Rectangle2D bounds = metrics.getStringBounds(text, context);
-        final double height = bounds.getHeight();
+    public void setFontHeight(int height) {
+        assert height > 0 : height;
 
-        return (int)(height + 0.99);
+        final int size = findFontSize(height);
+        setFontSize(size);
     }
 
-    public int textWidth(String text) {
-        final FontMetrics metrics = context.getFontMetrics();
-        final Rectangle2D bounds = metrics.getStringBounds(text, context);
-        final double width = bounds.getWidth();
+    private void setFontSize(int size) {
+        assert size >= FONT_SIZE_MIN : size;
+        assert size <= FONT_SIZE_MAX : size;
 
-        return (int)(width + 0.99);
+        context.setFont(fonts[size]);
     }
 }

@@ -148,11 +148,14 @@ public class ParmBox1
 
     // methods, sorted by name
 
+    /**
+     * Process an event indicating that a radio button changed.
+     * @param event
+     */
     @Override
     public void actionPerformed(java.awt.event.ActionEvent event) {
         assert event != null;
 
-        // from a radio button
        final String command = event.getActionCommand();
         try {
             final GameStyle style = GameStyle.valueOf(command);
@@ -223,6 +226,8 @@ public class ParmBox1
     }
 
     private String getRulesText(Rules rules) {
+        assert rules != null;
+
         switch (rules) {
             case CUSTOM:
                 return "Custom Rules - you decide what the rules will be";
@@ -231,7 +236,7 @@ public class ParmBox1
             case STANDARD:
                 return "Standard Rules (108 square tiles on an endless grid, 2 hands of 6)";
             default:
-                return null;
+                throw new AssertionError(rules);
         }
     }
 
@@ -240,9 +245,12 @@ public class ParmBox1
         return "Create New Game";
     }
 
+    /**
+     * Process an event indicating that the "randomize" checkbox changed.
+     * @param event
+     */
     @Override
     public void itemStateChanged(java.awt.event.ItemEvent event) {
-        // from the checkbox
         final boolean randomize = randomizeBox.isSelected();
         gameOpt.setRandomize(randomize);
         updateView();
@@ -263,7 +271,9 @@ public class ParmBox1
         assert models != null;
         assert models.length == 2 : models.length;
         assert models[0] != null;
+        assert models[0] instanceof GameOpt;
         assert models[1] != null;
+        assert models[1] instanceof HandOpt[];
 
         gameOpt = (GameOpt)models[0];
         gameOpt.validate();
@@ -275,9 +285,12 @@ public class ParmBox1
         updateView();
     }
 
+    /**
+     * Process an event indicating that a spinner changed.
+     * @param event
+     */
     @Override
     public void stateChanged(javax.swing.event.ChangeEvent event) {
-        // from a spinner
         updateModel();
     }
 

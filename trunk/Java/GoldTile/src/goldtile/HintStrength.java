@@ -36,15 +36,15 @@ public enum HintStrength {
 
     // methods
 
-    public static HintStrength getDefault(ReadGameOpt gameOpt,
-            ReadHandOpt handOpt)
-    {
-        if (gameOpt == null || handOpt == null) {
-            return NONE;
-        } else if (gameOpt.getStyle().isChallenge() || !handOpt.isLocalUser() ) {
-            return NONE;
-        } else {
-            return USABLE_BY_ACTIVE;
-        }
+    public static HintStrength getStrongDefault() {
+        return USABLE_BY_ACTIVE;
+    }
+
+    public static HintStrength getWeakDefault() {
+        return NONE;
+    }
+
+    public boolean isStrong() {
+        return this != NONE && this != UNUSED;
     }
 }

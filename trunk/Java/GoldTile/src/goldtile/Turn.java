@@ -54,6 +54,9 @@ public class Turn {
             int points, Tiles draw)
     {
         assert handIndex >= 0;
+        assert mustPlay >= 0;
+        assert move != null;
+        assert points >= 0;
         assert draw != null;
 
         this.handIndex = handIndex;

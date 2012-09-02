@@ -67,11 +67,11 @@ public class GameFrame
         if (GoldTile.control == Display.CONSOLE) {
             return;
         }
-        if (!Game.haveInstance() && GoldTile.autoOfferGame) {
+        if (!Game.hasInstance() && GoldTile.autoOfferGame) {
             clientArea.offerNewGame();
         } else {
             // Associate the initial game (if any) with the client area's GameView.
-            clientArea.view.changeGame(GameStyle.NONE);
+            GameView.getInstance().newGame(GameStyle.NONE);
         }
     }
 }

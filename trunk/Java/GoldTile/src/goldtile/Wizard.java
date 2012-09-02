@@ -40,8 +40,8 @@ public class Wizard
     // per-instance fields, sorted by type
     private boolean complete = false;
     final private CardLayout cardLayout = new CardLayout();
-    final private JButton backButton = new JButton("< Back");
-    final private JButton nextButton = new JButton("Next >");
+    final private JButton backButton = new JButton("\u21d0 Back");
+    final private JButton nextButton = new WideButton("Next \u21d2");
     final private JButton cancelButton = new JButton("Cancel");
     final private JPanel cardPanel = new JPanel();
     private WizardCard visibleCard = null;
@@ -58,7 +58,6 @@ public class Wizard
         // row of buttons along the bottom edge
 
         backButton.setActionCommand("back");
-        nextButton.setPreferredSize(new java.awt.Dimension(200, 0)); // wide button
         nextButton.setActionCommand("next");
 
         final Box buttonRow = new Box(BoxLayout.LINE_AXIS);

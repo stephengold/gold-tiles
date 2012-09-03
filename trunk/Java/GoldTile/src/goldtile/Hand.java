@@ -207,12 +207,23 @@ public class Hand
         assert !isClockRunning();
         assert !hasResigned();
 
-        final Tiles tiles = contents;
+        final Tiles result = contents;
         contents = new Tiles();
         resigned = true;
 
         assert hasResigned();
-        return tiles;
+        return result;
+    }
+
+    public Tiles restart() {
+        assert !isClockRunning();
+
+        final Tiles result = contents;
+        contents = new Tiles();
+        resigned = false;
+        score = 0;
+
+        return result;
     }
 
     public void startClock() {
@@ -225,7 +236,7 @@ public class Hand
     public void stopClock() {
         assert clockRunning;
 
-        milliseconds = System.currentTimeMillis() - startTime;
+        milliseconds += System.currentTimeMillis() - startTime;
         clockRunning = false;
     }
 
@@ -235,7 +246,7 @@ public class Hand
         assert !clockRunning;
 
         final int newScore = score - points;
-        assert newScore <= score; // check for wraparound
+        assert newScore <= score;  // check for wraparound
         score = newScore;
     }
 

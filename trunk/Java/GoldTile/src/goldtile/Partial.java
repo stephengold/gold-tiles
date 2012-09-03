@@ -47,7 +47,7 @@ public class Partial {
     // constructors
 
     public Partial() {
-        takeBack();
+        takeBackTiles();
         hintStrength = HintStrength.NONE;
         skipProbability = HandOpt.SKIP_PROBABILITY_DEFAULT;
     }
@@ -137,7 +137,7 @@ public class Partial {
         final ReadHandOpt handOpt = playable.getOpt();
         skipProbability = handOpt.getSkipProbability();
 
-        takeBack();
+        takeBackTiles();
     }
 
     final public void copy(Partial other) {
@@ -226,7 +226,7 @@ public class Partial {
         }
 
         final Partial partial = new Partial();
-        partial.takeBack();
+        partial.takeBackTiles();
         partial.setSkipProbability(skipProbability);
         partial.setHintStrength(HintStrength.USABLE_BY_ACTIVE);
 
@@ -238,7 +238,7 @@ public class Partial {
 
         if (result.getPointCount() == 0) {
             // Construct a swap.
-            result.takeBack();
+            result.takeBackTiles();
 
             int swapCount = result.countPlayableTiles();
             final int maxSwap = Game.getInstance().countStock();
@@ -528,9 +528,9 @@ public class Partial {
         return best;
     }
 
-    public void swapAll() {
+    public void swapAllTiles() {
         if (countSwappedTiles() < countPlayableTiles()) {
-            takeBack();
+            takeBackTiles();
             swapTiles = new Tiles(playableTiles);
         }
     }
@@ -545,7 +545,7 @@ public class Partial {
         assertActive(Place.HAND);
     }
 
-    final public void takeBack() {
+    final public void takeBackTiles() {
         activeTile = null;
         swapTiles.clear();
 

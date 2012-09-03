@@ -48,10 +48,10 @@ public class History {
     public void add(int handIndex, int mustPlay, ReadMove move, int points,
             Tiles draw, Tiles warm)
     {
-        assert handIndex >= 0;
-        assert mustPlay >= 0;
+        assert handIndex >= 0 : handIndex;
+        assert mustPlay >= 0 : mustPlay;
         assert move != null;
-        assert points >= 0;
+        assert points >= 0 : points;
         assert draw != null;
 
         clearToEnd();
@@ -113,14 +113,28 @@ public class History {
         return redoIndex;
     }
 
+    public Turn redoTurn() {
+        assert canRedo();
+
+        final Turn result = turns.get(redoIndex);
+        redoIndex++;
+
+        return result;
+    }
+
+    public void restart() {
+        redoIndex = 0;
+    }
+
     public int size() {
         return turns.size();
     }
 
-    public Turn undo() {
+    public Turn undoTurn() {
         assert canUndo();
 
         redoIndex--;
+
         return turns.get(redoIndex);
     }
 }

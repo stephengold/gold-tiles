@@ -304,7 +304,7 @@ public class MenuBar
                 break;
 
             case "Take Back":
-                view.takeBack();
+                view.takeBackTiles();
                 break;
 
             case "Suggest":
@@ -312,11 +312,19 @@ public class MenuBar
                 break;
 
             case "Swap All":
-                view.swapAll();
+                view.swapAllTiles();
+                break;
+
+            case "Restart":
+                view.restartGame();
                 break;
 
             case "Undo":
                 view.undoTurn();
+                break;
+
+            case "Redo":
+                view.redoTurn();
                 break;
 
             case "Re-center":
@@ -377,7 +385,9 @@ public class MenuBar
         swapAll.addActionListener(this);
         pass.addActionListener(this);
         resign.addActionListener(this);
+        restart.addActionListener(this);
         undo.addActionListener(this);
+        redo.addActionListener(this);
 
         // "View" menu
         boardTileSize.menuBar = this;
@@ -588,9 +598,12 @@ public class MenuBar
         swapAll.setEnabled(cgl && !over && !paused);
         pass.setEnabled(cgl && !over && !paused && passFlag);
         resign.setEnabled(cgl && !over && !paused);
-        restart.setEnabled(cgl && !paused && undoStyle);
-        undo.setEnabled(control && hasGame && !thinking && !paused && undoStyle && canUndo);
-        redo.setEnabled(cgl && !paused && undoStyle && canRedo);
+        restart.setEnabled(control && hasGame && !thinking && !paused &&
+                undoStyle);
+        undo.setEnabled(control && hasGame && !thinking && !paused &&
+                undoStyle && canUndo);
+        redo.setEnabled(control && hasGame && !thinking && !paused &&
+                undoStyle && canRedo);
         autoPause.setEnabled(cgl && !over && !paused && !timedStyle);
         updateMenu(playMenu);
 

@@ -33,6 +33,7 @@ public class Turn {
     final private int points;
     final private ReadMove move;   // move first, then draw
     final private Tiles draw;  // move first, then draw
+    final private Tiles warm;  // tiles played by the previous move, if any
 
     // constructors
 
@@ -46,30 +47,57 @@ public class Turn {
         mustPlay = 0;
         points = 0;
         move = new Move();  // record a "pass"
-        this.draw = new Tiles(dealt);
+        draw = new Tiles(dealt);
+        warm = new Tiles();
     }
 
     // a move by an established hand
     public Turn(int handIndex, int mustPlay, ReadMove move,
-            int points, Tiles draw)
+            int points, Tiles draw, Tiles warm)
     {
         assert handIndex >= 0;
         assert mustPlay >= 0;
         assert move != null;
         assert points >= 0;
         assert draw != null;
+        assert warm != null;
 
         this.handIndex = handIndex;
         this.mustPlay = mustPlay;
         this.points = points;
         this.move = new Move(move);
         this.draw = new Tiles(draw);
+        this.warm = new Tiles(warm);
     }
 
     // methods, sorted by name
 
+    public Tiles copyDraw() {
+        return new Tiles(draw);
+    }
+
+    public Tiles copyWarm() {
+        return new Tiles(warm);
+    }
+
     public boolean didPlace() {
         return move.doesPlace();
+    }
+
+    public int getHandIndex() {
+        return handIndex;
+    }
+
+    public ReadMove getMove() {
+        return move;
+    }
+
+    public int getMustPlay() {
+        return mustPlay;
+    }
+
+    public int getPoints() {
+        return points;
     }
 
     public boolean wasDrawOnly() {

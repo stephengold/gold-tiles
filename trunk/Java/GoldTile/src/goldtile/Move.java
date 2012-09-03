@@ -385,4 +385,14 @@ public class Move
 
         return result;
     }
+
+    @Override
+    public void unplace(Board board) {
+        assert board != null;
+        assert doesPlace();
+
+        for (TileCell tileCell : set) {
+            board.unplace(tileCell);
+        }
+    }
 }

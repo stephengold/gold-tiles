@@ -198,6 +198,8 @@ public class Hand
     }
 
     public void removeTiles(Tiles tiles) {
+        assert tiles != null;
+
         contents.removeAll(tiles);
     }
 
@@ -225,5 +227,26 @@ public class Hand
 
         milliseconds = System.currentTimeMillis() - startTime;
         clockRunning = false;
+    }
+
+    public void subtractScore(int points) {
+        assert points >= 0;
+        assert !hasResigned();
+        assert !clockRunning;
+
+        final int newScore = score - points;
+        assert newScore <= score; // check for wraparound
+        score = newScore;
+    }
+
+    public void unResign(Tiles tiles) {
+        assert tiles != null;
+        assert tiles.size() > 0;
+        assert hasResigned();
+
+        contents = new Tiles(tiles);
+        resigned = false;
+
+        assert !hasResigned();
     }
 }

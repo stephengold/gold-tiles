@@ -45,4 +45,5 @@ public interface ReadMove {
     public int size();
     @Override
     public String toString();
+    public void unplace(Board board);
 }

@@ -1,6 +1,6 @@
-/// File:     Turns.java
+/// File:     History.java
 // Location: Java/GoldTile/src/goldtile
-// Purpose:  Turns class for the Gold Tile Game
+// Purpose:  History class for the Gold Tile Game
 /**
  * @author Stephen Gold
  */
@@ -26,21 +26,27 @@ along with the Gold Tile Game.  If not, see <http://www.gnu.org/licenses/>.
 
 package goldtile;
 
-import java.util.ListIterator;
+import java.util.ArrayList;
 
-public class Turns extends java.util.LinkedList< Turn > {
+public class History {
+    // per-instance fields
+    private int redoIndex = 0;
+    private ArrayList< Turn > turns = new ArrayList<>();
+
     // methods, sorted by name
 
     public void add(int handIndex, Tiles dealt) {
         assert handIndex >= 0;
         assert dealt != null;
+        assert !canRedo();
 
         final Turn turn = new Turn(handIndex, dealt);
-        add(turn);
+        turns.add(turn);
+        redoIndex++;
     }
 
     public void add(int handIndex, int mustPlay, ReadMove move, int points,
-            Tiles draw)
+            Tiles draw, Tiles warm)
     {
         assert handIndex >= 0;
         assert mustPlay >= 0;
@@ -48,35 +54,42 @@ public class Turns extends java.util.LinkedList< Turn > {
         assert points >= 0;
         assert draw != null;
 
-        final Turn turn = new Turn(handIndex, mustPlay, move, points, draw);
-        add(turn);
+        clearToEnd();
+        final Turn turn = new Turn(handIndex, mustPlay, move, points,
+                draw, warm);
+        turns.add(turn);
+        redoIndex++;
     }
 
-    public void clearToEnd(Turn turn) {
-        assert turn != null;
-        assert count(turn) == 1;
+    public void add(Turn turn) {
+        clearToEnd();
+        turns.add(turn);
+    }
 
-        final ListIterator iTurn = listIterator();
+    public boolean canRedo() {
+        return redoIndex < size();
+    }
 
-        // Advance the iterator to just past the specified turn.
-        Turn prev = null;
-        while (iTurn.hasNext() && prev != turn) {
-            prev = (Turn)iTurn.next();
+    public boolean canUndo() {
+        if (redoIndex < 1) {
+            return false;
+        } else {
+            final Turn turn = turns.get(redoIndex - 1);
+            return !turn.wasDrawOnly();
         }
+    }
 
-        // Remove the specified turn and everything after it.
-        while (iTurn.hasNext()) {
-            iTurn.remove();
-            iTurn.next();
+    private void clearToEnd() {
+        while (canRedo()) {
+            turns.remove(redoIndex);
         }
-        iTurn.remove();
     }
 
     public int count(Turn turn) {
         assert turn != null;
 
         int count = 0;
-        for (Turn current : this) {
+        for (Turn current : turns) {
             if (current == turn) {
                 count ++;
             }
@@ -85,28 +98,29 @@ public class Turns extends java.util.LinkedList< Turn > {
         return count;
     }
 
-    public int findIndex(Turn turn) {
-        if (turn == null) {
-            return size();
-        }
-
-        assert count(turn) == 1;
-        return indexOf(turn);
-    }
-
-    public int lastPlaceIndex() {
-        final java.util.Iterator iTurn = descendingIterator();
-
-        int result = size();
-
-        while (iTurn.hasNext()) {
-            final Turn turn = (Turn)iTurn.next();
-            result--;
+    public int findLastPlace() {
+        for (int i = size() - 1; i >= 0; i--) {
+            final Turn turn = turns.get(i);
             if (turn.didPlace() || turn.wasDrawOnly()) {
-                break;
+                return i;
             }
         }
 
-        return result;
+        throw new AssertionError();
+    }
+
+    public int getRedoIndex() {
+        return redoIndex;
+    }
+
+    public int size() {
+        return turns.size();
+    }
+
+    public Turn undo() {
+        assert canUndo();
+
+        redoIndex--;
+        return turns.get(redoIndex);
     }
 }

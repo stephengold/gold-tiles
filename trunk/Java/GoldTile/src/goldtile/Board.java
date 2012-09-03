@@ -443,4 +443,17 @@ public class Board
 
         return result;
     }
+
+    public void unplace(TileCell tileCell) {
+        assert tileCell != null;
+
+        final Cell cell = tileCell.getDestination();
+        assert cell != null;
+
+        final Tile tile = tileCell.getTile();
+        assert tile != null;
+        assert getContent(cell).equals(tile);
+
+        clear(cell);
+    }
 }

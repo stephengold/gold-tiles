@@ -262,6 +262,9 @@ public class ParmBox1
         if (gameOpt.getRules().isCustom()) {
             showCard(ParmBox2.class.getName(), gameOpt, handOpts);
         } else {
+            if (gameOpt.getRules().isStandard()) {
+                gameOpt.standardize();
+            }
             showCard(HandBox.class.getName(), gameOpt, handOpts);
         }
     }

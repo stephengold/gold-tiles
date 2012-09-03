@@ -52,7 +52,9 @@ public class DisplayModes {
 
     // methods, sorted by name
 
-    // clean up display modes for the start of a new game
+    /**
+     * Clean up display modes for the start of a new game.
+     */
     public void cleanup() {
         // Can't display more than 4 markings per tile.
         final int markingCnt = countMarkings();
@@ -64,7 +66,37 @@ public class DisplayModes {
         // Only one attribute can use color.
         while (countColors() > Markings.COLOR_COUNT_MAX) {
             final int ind = getSecondColorIndex();
-            final AttrMode mode = AttrMode.getFirst();
+            final AttrMode mode = AttrMode.ABC;
+            setMode(ind, mode);
+        }
+
+        assert countColors() <= Markings.COLOR_COUNT_MAX : countColors();
+        assert countMarkings() <= Markings.MARKING_COUNT_MAX
+                : countMarkings();
+    }
+
+    /**
+     * Clean up display modes after setting one of them.
+     */
+    public void cleanup(int iAttr) {
+        // Can't display more than 4 markings per tile.
+        final int markingCnt = countMarkings();
+        if (markingCnt > Markings.MARKING_COUNT_MAX) {
+            final AttrMode mode = AttrMode.COLOR;
+            if (iAttr == 0) {
+                setMode(1, mode);
+            } else {
+                setMode(0, mode);
+            }
+        }
+
+        // Only one attribute can use color.
+        while (countColors() > Markings.COLOR_COUNT_MAX) {
+            int ind = getFirstColorIndex();
+            if (iAttr == ind) {
+                ind = getSecondColorIndex();
+            }
+            final AttrMode mode = AttrMode.ABC;
             setMode(ind, mode);
         }
 
@@ -100,6 +132,17 @@ public class DisplayModes {
 
     public boolean equals(DisplayModes other) {
         return java.util.Arrays.deepEquals(modes, other.modes);
+    }
+
+    private int getFirstColorIndex() {
+        for (int iAttr = 0; iAttr < GameOpt.ATTR_COUNT_MAX; iAttr++) {
+            final AttrMode mode = getMode(iAttr);
+            if (mode.isColor()) {
+                return iAttr;
+            }
+        }
+
+        throw new AssertionError(this);
     }
 
     public AttrMode getMode(int iAttr) {

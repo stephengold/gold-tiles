@@ -45,6 +45,7 @@ public class AttrBox
 
     private static class Column extends Box {
         final private JList list;
+        final private ListSelectionModel model;
 
         public Column(AttrBox parent, int iAttr) {
             super(BoxLayout.PAGE_AXIS);
@@ -60,12 +61,16 @@ public class AttrBox
             list.setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION);
             list.setListData(getModesData());
 
-            final ListSelectionModel selectionModel = list.getSelectionModel();
-            selectionModel.addListSelectionListener(parent);
+            model = list.getSelectionModel();
+            model.addListSelectionListener(parent);
 
             setBorder(BORDER);
             add(label);
             add(list);
+        }
+
+        public Object getModel() {
+            return model;
         }
 
         public AttrMode getValue() {
@@ -171,7 +176,6 @@ public class AttrBox
         assert old != null;
 
         displayModes = new DisplayModes(old);
-
         cancelButton.addActionListener(this);
         okButton.addActionListener(this);
 
@@ -183,6 +187,27 @@ public class AttrBox
         return displayModes;
     }
 
+    public void updateModel(int iAttr) {
+        assert iAttr >= 0;
+        assert iAttr < GameOpt.ATTR_COUNT_MAX;
+
+        final AttrMode value = columns[iAttr].getValue();
+        if (value != null) {
+            displayModes.setMode(iAttr, value);
+        }
+        displayModes.cleanup(iAttr);
+
+        updateView();
+    }
+
+    public void updateView() {
+        final int attrCount = Game.getInstance().getOpt().getAttrCount();
+        for (int iAttr = 0; iAttr < GameOpt.ATTR_COUNT_MAX; iAttr++) {
+            columns[iAttr].setValue(displayModes.getMode(iAttr));
+            columns[iAttr].setVisible(iAttr < attrCount);
+        }
+    }
+
     /**
      * Process an event indicating that a JList changed.
      * @param event
@@ -192,24 +217,13 @@ public class AttrBox
         if (event.getValueIsAdjusting()) {
             return;
         }
-        updateModel();
-    }
-
-    public void updateModel() {
+        final Object source = event.getSource();
         for (int iAttr = 0; iAttr < GameOpt.ATTR_COUNT_MAX; iAttr++) {
-            final AttrMode value = columns[iAttr].getValue();
-            if (value != null) {
-                displayModes.setMode(iAttr, value);
+            if (source == columns[iAttr].getModel()) {
+                updateModel(iAttr);
+                return;
             }
         }
-        // TODO make consistent!
-    }
-
-    public void updateView() {
-        final int attrCount = Game.getInstance().getOpt().getAttrCount();
-        for (int iAttr = 0; iAttr < GameOpt.ATTR_COUNT_MAX; iAttr++) {
-            columns[iAttr].setValue(displayModes.getMode(iAttr));
-            columns[iAttr].setVisible(iAttr < attrCount);
-        }
+        throw new AssertionError(source);
     }
 }

@@ -44,8 +44,8 @@ public class Game
     private String filespec = null;           // file for load/save
     private String firstTurnMessage = null;
     final private Tiles stockBag;
-    private Turn redo = null;   // current index in the history, null means end
-    final private Turns history = new Turns();
+    private Tiles warmTiles = new Tiles(); // tiles played on the previous turn
+    final private History history = new History();
 
     // static fields
     private static Game currentInstance = null;
@@ -106,9 +106,6 @@ public class Game
         // The hand with the best "run" gets to go first.
         findBestRun();
 
-        // Set the redo iterator to the end of the history.
-        redo = null;
-
         // Pretend this game has been saved, for convenience.
         unsavedChangeFlag = false;
 
@@ -122,26 +119,18 @@ public class Game
     public void add(Turn turn) {
         assert !getPlayable().isClockRunning();
 
-        if (redo != null) {
-           history.clearToEnd(redo);
-        }
-        history.addLast(turn);
-        redo = null;
+        history.add(turn);
         unsavedChangeFlag = true;
     }
 
     @Override
     final public boolean canRedo() {
-        return redo != null;
+        return history.canRedo();
     }
 
     @Override
     final public boolean canUndo() {
-        if (redo == null) {
-            return history.size() > opt.getHandsDealt();
-        } else {
-            return false; // TODO
-        }
+        return history.canUndo();
     }
 
     @Override
@@ -256,6 +245,8 @@ public class Game
 
         Tiles draw = new Tiles();
         int points = 0;
+        final Tiles saveWarmTiles = warmTiles;
+        warmTiles = new Tiles();
 
         if (move.isResignation()) {
             final Tiles tiles = hands.resign();
@@ -288,11 +279,12 @@ public class Game
                 // Update the hand's score.
                 points = board.score(move);
                 hands.addScore(points);
+                warmTiles.addAll(tiles);
            }
        }
 
        final int handIndex = hands.getPlayableIndex();
-       history.add(handIndex, mustPlay, move, points, draw);
+       history.add(handIndex, mustPlay, move, points, draw, saveWarmTiles);
 
        //  If it *was* the first turn, it no longer is.
        mustPlay = 0;
@@ -362,8 +354,8 @@ public class Game
             return Ending.WENT_OUT;
         } else if (hands.haveAllResigned()) {
             return Ending.RESIGNED;
-        } else if (history.lastPlaceIndex() + opt.getStuckThreshold() <=
-                   history.findIndex(redo))
+        } else if (history.findLastPlace() + opt.getStuckThreshold() <=
+                   history.getRedoIndex())
         {
             return Ending.STUCK;
         } else {
@@ -505,6 +497,13 @@ public class Game
     @Override
     public boolean isStockEmpty() {
         return countStock() == 0;
+    }
+
+    @Override
+    public boolean isWarmTile(Tile tile) {
+        assert tile != null;
+
+        return warmTiles.contains(tile);
     }
 
     public void nextHand() {
@@ -700,5 +699,48 @@ public class Game
         } else {
             hands.startClock();
         }
+    }
+
+    public void undo() {
+        assert canUndo();
+
+        final Turn turn = history.undo();
+        final int handIndex = turn.getHandIndex();
+        hands.setPlayableIndex(handIndex);
+
+        //  Roll back the must-play info.
+        mustPlay = turn.getMustPlay();
+
+        final ReadMove move = turn.getMove();
+        final Tiles tiles = move.copyTiles();
+        if (move.isResignation()) {
+            hands.unResign(handIndex, tiles);
+            stockBag.removeAll(tiles);
+        } else {
+            // Return drawn tiles to the stock bag.
+            final Tiles draw = turn.copyDraw();
+            hands.removeTiles(draw);
+            stockBag.addAll(draw);
+
+            // Add played/swapped tiles back into the hand.
+            hands.addTiles(handIndex, tiles);
+
+
+            if (move.involvesSwap()) {
+               // Remove swapped tiles from the stock bag.
+                stockBag.removeAll(tiles);
+
+            } else {
+                // Remove played tiles from the board.
+                move.unplace(board);
+
+                // Roll back the hand's score.
+                final int points = turn.getPoints();
+                hands.subtractScore(points);
+            }
+        }
+
+        // Roll back the warm tiles.
+        warmTiles = turn.copyWarm();
     }
 }

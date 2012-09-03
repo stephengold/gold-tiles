@@ -197,12 +197,23 @@ public class Hands
         return get(playable).resign();
     }
 
+    public void setPlayableIndex(int iHand) {
+        assert iHand >= 0;
+        assert iHand < size();
+
+        playable = iHand;
+    }
+
     public void startClock() {
         get(playable).startClock();
     }
 
     public void stopClock() {
         get(playable).stopClock();
+    }
+
+    public void subtractScore(int points) {
+        get(playable).subtractScore(points);
     }
 
     @Override
@@ -222,5 +233,12 @@ public class Hands
         result += SUFFIX;
 
         return result;
+    }
+
+    public void unResign(int iHand, Tiles tiles) {
+        assert iHand >= 0;
+        assert iHand < size();
+
+        get(iHand).unResign(tiles);
     }
 }

@@ -128,8 +128,16 @@ public class Partial {
 
     public boolean canSwapAll() {
         return Game.hasInstance() &&
-                Game.getInstance().countStock() >= countPlayable();
+                Game.getInstance().countStock() >= countPlayableTiles();
         // note: doesn't consider Game.mustPlay
+    }
+
+    public void changeHand() {
+        final ReadHand playable = Game.getInstance().getPlayable();
+        final ReadHandOpt handOpt = playable.getOpt();
+        skipProbability = handOpt.getSkipProbability();
+
+        takeBack();
     }
 
     final public void copy(Partial other) {
@@ -146,11 +154,11 @@ public class Partial {
         swapTiles = new Tiles(other.swapTiles);
     }
 
-    public int countHand() {
-        assert countPlayable() >= countPlayed() + countSwapped()
-                : countPlayed();
+    public int countHandTiles() {
+        assert countPlayableTiles() >= countPlayedTiles() + countSwappedTiles()
+                : countPlayedTiles();
 
-        return countPlayable() - countPlayed() - countSwapped();
+        return countPlayableTiles() - countPlayedTiles() - countSwappedTiles();
     }
 
     public int countHintedCells() {
@@ -161,15 +169,15 @@ public class Partial {
         return hintedCells.size();
     }
 
-    public int countPlayable() {
+    public int countPlayableTiles() {
         return playableTiles.size();
     }
 
-    public int countPlayed() {
+    public int countPlayedTiles() {
         return playedTileCount;
     }
 
-    public int countSwapped() {
+    public int countSwappedTiles() {
         return swapTiles.size();
     }
 
@@ -232,7 +240,7 @@ public class Partial {
             // Construct a swap.
             result.takeBack();
 
-            int swapCount = result.countPlayable();
+            int swapCount = result.countPlayableTiles();
             final int maxSwap = Game.getInstance().countStock();
             if (swapCount > maxSwap) {
                 swapCount = maxSwap;
@@ -420,7 +428,7 @@ public class Partial {
     }
 
     public boolean isPass() {
-        return countPlayed() + countSwapped() == 0;
+        return countPlayedTiles() + countSwappedTiles() == 0;
     }
 
     public boolean isPlayable(Tile tile) {
@@ -485,12 +493,7 @@ public class Partial {
 
     public void nextHand() {
         Game.getInstance().nextHand();
-
-        final ReadHand playable = Game.getInstance().getPlayable();
-        final ReadHandOpt handOpt = playable.getOpt();
-        skipProbability = handOpt.getSkipProbability();
-
-        takeBack();
+        changeHand();
     }
 
     public void setHintStrength(HintStrength strength) {
@@ -526,7 +529,7 @@ public class Partial {
     }
 
     public void swapAll() {
-        if (countSwapped() < countPlayable()) {
+        if (countSwappedTiles() < countPlayableTiles()) {
             takeBack();
             swapTiles = new Tiles(playableTiles);
         }
@@ -628,7 +631,7 @@ public class Partial {
         pointCount = new Integer(0);
 
         final int mustPlay = Game.getInstance().getMustPlay();
-        if (mustPlay == 0 || countPlayed() >= mustPlay) {
+        if (mustPlay == 0 || countPlayedTiles() >= mustPlay) {
             final ReadMove move = getMove(Active.INCLUDED);
             pointCount = board.score(move);
         }

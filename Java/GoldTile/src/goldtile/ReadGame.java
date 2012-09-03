@@ -51,4 +51,5 @@ public interface ReadGame {
     public boolean isPaused();
     public boolean isPlayable(int iHand);
     public boolean isStockEmpty();
+    public boolean isWarmTile(Tile tile);
 }

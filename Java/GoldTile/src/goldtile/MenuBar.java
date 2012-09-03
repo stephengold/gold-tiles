@@ -315,6 +315,10 @@ public class MenuBar
                 view.swapAll();
                 break;
 
+            case "Undo":
+                view.undoTurn();
+                break;
+
             case "Re-center":
                 view.recenter();
                 break;
@@ -373,6 +377,7 @@ public class MenuBar
         swapAll.addActionListener(this);
         pass.addActionListener(this);
         resign.addActionListener(this);
+        undo.addActionListener(this);
 
         // "View" menu
         boardTileSize.menuBar = this;
@@ -584,7 +589,7 @@ public class MenuBar
         pass.setEnabled(cgl && !over && !paused && passFlag);
         resign.setEnabled(cgl && !over && !paused);
         restart.setEnabled(cgl && !paused && undoStyle);
-        undo.setEnabled(cgl && !paused && undoStyle && canUndo);
+        undo.setEnabled(control && hasGame && !thinking && !paused && undoStyle && canUndo);
         redo.setEnabled(cgl && !paused && undoStyle && canRedo);
         autoPause.setEnabled(cgl && !over && !paused && !timedStyle);
         updateMenu(playMenu);

@@ -121,10 +121,6 @@ public enum AttrMode {
         return description;
     }
 
-    public static AttrMode getFirst() {
-        return ABC;
-    }
-
     /**
      * @param iAttr the index of the attribute
      */

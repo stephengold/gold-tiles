@@ -65,7 +65,7 @@ public class User
 
     @Override
     public DisplayModes getDisplayModes() {
-        return displayModes;
+        return new DisplayModes(displayModes);
     }
 
     @Override
@@ -154,6 +154,7 @@ public class User
             if (!newStyle.allowsPeeking()) {
                 user.peek = false;
             }
+            user.displayModes.cleanup();
         }
     }
 

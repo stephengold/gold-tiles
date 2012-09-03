@@ -322,7 +322,7 @@ public class GameView
         menuBar.gameOver();
         final String endBonus = Game.getInstance().reportEndBonus();
         panel.showInformationBox(endBonus, "Game Over");
-        takeBack();
+        takeBackTiles();
     }
 
 
@@ -571,7 +571,7 @@ public class GameView
     public void newGame(GameStyle oldStyle) {
         assert oldStyle != null;
 
-        super.takeBack();
+        super.takeBackTiles();
 
         menuBar.newGame(oldStyle);
 
@@ -1302,7 +1302,7 @@ public class GameView
         } else { // explain the issue
             panel.showRuleBox(reason);
             if (reason == UserMessage.FIRST_TURN) {
-                takeBack();
+                takeBackTiles();
             }
         }
     }
@@ -1328,6 +1328,23 @@ public class GameView
         startCellPosition = new Point(x, y);
     }
 
+    public void redoTurn() {
+        final Game game = Game.getInstance();
+        assert Game.hasInstance();
+        assert !game.isPaused() : game;
+        assert game.canRedo() : game;
+
+        if (!game.isOver()) {
+            game.stopClock();
+        }
+
+        final String oldPlayerName = saveHand();
+        game.redoTurn();
+        changeHand(oldPlayerName);
+
+        assert game.canUndo() : game;
+    }
+
     public void repaint() {
         panel.repaint();
     }
@@ -1347,6 +1364,22 @@ public class GameView
             final int tileCount = hand.countContents();
             return StringExt.plural(tileCount, "tile");
         }
+    }
+
+    public void restartGame() {
+        final Game game = Game.getInstance();
+        assert Game.hasInstance();
+        assert !game.isPaused() : game;
+
+        if (!game.isOver()) {
+            game.stopClock();
+        }
+
+        final String oldPlayerName = saveHand();
+        game.restart();
+        changeHand(oldPlayerName);
+
+        assert !game.canUndo() : game;
     }
 
     public String saveHand() {
@@ -1430,8 +1463,10 @@ public class GameView
         }
 
         final String oldPlayerName = saveHand();
-        game.undo();
+        game.undoTurn();
         changeHand(oldPlayerName);
+
+        assert game.canRedo() : game;
     }
 
     public void updateClock() {

@@ -75,7 +75,7 @@ public class Hands
 
     // methods, sorted by name
 
-    public void addScore(int points) {
+    public void addScorePlayable(int points) {
         get(playable).addScore(points);
     }
 
@@ -177,31 +177,61 @@ public class Hands
         return true;
     }
 
-    public void nextWorking() {
+    public void nextPlayable() {
+        assert !get(playable).isClockRunning();
+
+        int watchDog = size();
+
         for (;;) {
             playable++;
             if (playable >= size()) {
                 playable = 0;
             }
+            assert !getPlayable().isClockRunning();
             if (!getPlayable().hasResigned()) {
                 return;
+            }
+            --watchDog;
+            if (watchDog < 0) {
+                // wrapped all the way aroud and didn't find a playable hand
+                throw new AssertionError();
             }
         }
     }
 
-    public void removeTiles(Tiles tiles) {
+    public void removePlayableTiles(Tiles tiles) {
         get(playable).removeTiles(tiles);
     }
 
-    public Tiles resign() {
+    public Tiles resignPlayable() {
         return get(playable).resign();
     }
 
-    public void setPlayableIndex(int iHand) {
+    /**
+     * Empty all hands of their contents (in other words, their tiles).
+     *
+     * @return all the tiles removed
+     */
+    public Tiles restart() {
+        assert !getPlayable().isClockRunning();
+
+        final Tiles result = new Tiles();
+
+        for (Hand hand : this) {
+            final Tiles contents = hand.restart();
+            result.addAll(contents);
+        }
+
+        return result;
+    }
+
+    public void setPlayable(int iHand) {
         assert iHand >= 0;
         assert iHand < size();
+        assert !getPlayable().isClockRunning();
 
         playable = iHand;
+        assert !getPlayable().isClockRunning();
     }
 
     public void startClock() {
@@ -212,7 +242,7 @@ public class Hands
         get(playable).stopClock();
     }
 
-    public void subtractScore(int points) {
+    public void subtractScorePlayable(int points) {
         get(playable).subtractScore(points);
     }
 

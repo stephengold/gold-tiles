@@ -255,7 +255,7 @@ public class Move
     public void implement(Partial partial) {
         assert partial != null;
 
-        partial.takeBack();
+        partial.takeBackTiles();
         for (TileCell tileCell : set) {
             final Tile tile = tileCell.getTile();
             partial.activate(tile);
@@ -308,7 +308,6 @@ public class Move
     @Override
     public void place(Board board) {
         assert board != null;
-        assert doesPlace();
 
         for (TileCell tileCell : set) {
             board.place(tileCell);
@@ -389,7 +388,6 @@ public class Move
     @Override
     public void unplace(Board board) {
         assert board != null;
-        assert doesPlace();
 
         for (TileCell tileCell : set) {
             board.unplace(tileCell);

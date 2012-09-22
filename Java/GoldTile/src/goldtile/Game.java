@@ -116,13 +116,6 @@ public class Game
 
     // methods, sorted by name
 
-    public void add(Turn turn) {
-        assert !getPlayable().isClockRunning();
-
-        history.add(turn);
-        unsavedChangeFlag = true;
-    }
-
     @Override
     final public boolean canRedo() {
         return history.canRedo();
@@ -293,6 +286,8 @@ public class Game
 
        //  If it *was* the first turn, it no longer is.
        mustPlay = 0;
+       
+       unsavedChangeFlag = true;
 
        assert !getPlayable().isClockRunning();
     }
@@ -650,6 +645,8 @@ public class Game
 
         //  If it was the first turn, it no longer is.
         mustPlay = 0;
+        
+        unsavedChangeFlag = true;
 
         if (!isOver()) {
             nextHand();
@@ -660,6 +657,7 @@ public class Game
         assert tiles != null;
 
         hands.removePlayableTiles(tiles);
+        unsavedChangeFlag = true;
     }
 
     public String reportBestRun() {
@@ -765,6 +763,8 @@ public class Game
         // The hand with the best "run" gets to go first.
         findBestRun();
 
+        unsavedChangeFlag = true;
+
         assert isPaused();
         assert !canUndo();
     }
@@ -793,6 +793,14 @@ public class Game
         }
     }
 
+    public String toString() {
+        String result = "";
+        
+        // TODO
+        
+        return result;
+    }
+    
     public void undoTurn() {
         assert opt.getStyle().allowsUndo();
         assert canUndo();
@@ -835,5 +843,7 @@ public class Game
 
         // Roll back the warm tiles.
         warmTiles = turn.copyWarm();
+        
+        unsavedChangeFlag = true;
     }
 }

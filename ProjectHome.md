@@ -1,0 +1,1 @@
+Gold Tile is a turn-based multi-player game in which tiles are drawn from a bag and played on a 2-D grid.  Tiles played to adjacent grid cells must share exactly one attribute.  Written in C++ and ported to Java.
